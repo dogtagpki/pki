@@ -325,5 +325,3 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
             with open(os.devnull, 'w') as f:
                 main_cli.execute_java(cmd, stdout=f)
-
-        self.print_message('Import complete')

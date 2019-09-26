@@ -28,12 +28,12 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.util.Password;
 
-import com.netscape.cmstools.cli.MainCLI;
-
 /**
  * Tool for importing NSS database from PKCS #12 file
  */
 public class PKCS12ImportCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKCS12ImportCLI.class);
 
     public PKCS12ImportCLI(PKCS12CLI certCLI) {
         super("import", "Import PKCS #12 file into NSS database", certCLI);
@@ -60,10 +60,6 @@ public class PKCS12ImportCLI extends CLI {
 
         options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
         options.addOption(null, "overwrite", false, "Overwrite existing certificates");
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
     public void execute(String[] args) throws Exception {
@@ -75,18 +71,18 @@ public class PKCS12ImportCLI extends CLI {
             return;
         }
 
-        if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-
-        } else if (cmd.hasOption("debug")) {
+        if (cmd.hasOption("debug")) {
             PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
         }
 
         String[] nicknames = cmd.getArgs();
         String filename = cmd.getOptionValue("pkcs12-file");
 
         if (filename == null) {
-            throw new Exception("Missing PKCS #12 file.");
+            throw new Exception("Missing PKCS #12 file");
         }
 
         String passwordString = cmd.getOptionValue("pkcs12-password");
@@ -102,7 +98,7 @@ public class PKCS12ImportCLI extends CLI {
         }
 
         if (passwordString == null) {
-            throw new Exception("Missing PKCS #12 password.");
+            throw new Exception("Missing PKCS #12 password");
         }
 
         boolean trustFlagsEnabled = !cmd.hasOption("no-trust-flags");
@@ -131,7 +127,5 @@ public class PKCS12ImportCLI extends CLI {
         } finally {
             password.clear();
         }
-
-        MainCLI.printMessage("Import complete");
     }
 }

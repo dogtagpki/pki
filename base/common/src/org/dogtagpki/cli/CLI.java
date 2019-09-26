@@ -342,9 +342,9 @@ public class CLI {
         }
 
         // Add default options to all command modules
-        module.options.addOption("v", "verbose", false, "Run in verbose mode");
-        module.options.addOption(null, "debug", false, "Run in debug mode");
-        module.options.addOption(null, "help", false, "Show help options");
+        module.options.addOption("v", "verbose", false, "Run in verbose mode.");
+        module.options.addOption(null, "debug", false, "Run in debug mode.");
+        module.options.addOption(null, "help", false, "Show help message.");
 
         module.execute(moduleArgs);
     }
