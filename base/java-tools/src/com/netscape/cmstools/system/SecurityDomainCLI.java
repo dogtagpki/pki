@@ -33,10 +33,12 @@ import com.netscape.cmstools.cli.SubsystemCLI;
  */
 public class SecurityDomainCLI extends CLI {
 
+    public MainCLI mainCLI;
     public SecurityDomainClient securityDomainClient;
 
-    public SecurityDomainCLI(CLI parent) {
-        super("securitydomain", "Security domain commands", parent);
+    public SecurityDomainCLI(MainCLI mainCLI) {
+        super("securitydomain", "Security domain commands", mainCLI);
+        this.mainCLI = mainCLI;
 
         addModule(new SecurityDomainShowCLI(this));
     }

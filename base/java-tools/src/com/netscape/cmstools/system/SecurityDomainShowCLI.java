@@ -25,6 +25,7 @@ import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SecurityDomainClient;
+import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
@@ -56,6 +57,9 @@ public class SecurityDomainShowCLI extends CLI {
         if (cmdArgs.length != 0) {
             throw new Exception("Too many arguments specified.");
         }
+
+        MainCLI mainCLI = securityDomainCLI.mainCLI;
+        mainCLI.init();
 
         SecurityDomainClient securityDomainClient = securityDomainCLI.getSecurityDomainClient();
         DomainInfo domain = securityDomainClient.getDomainInfo();
