@@ -24,16 +24,19 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.cert.TPSCertClient;
 import com.netscape.certsrv.tps.cert.TPSCertData;
+import com.netscape.cmstools.tps.TPSCLI;
 
 /**
  * @author Endi S. Dewata
  */
 public class TPSCertCLI extends CLI {
 
+    public TPSCLI tpsCLI;
     public TPSCertClient certClient;
 
-    public TPSCertCLI(CLI parent) {
-        super("cert", "Certificate management commands", parent);
+    public TPSCertCLI(TPSCLI tpsCLI) {
+        super("cert", "Certificate management commands", tpsCLI);
+        this.tpsCLI = tpsCLI;
 
         addModule(new TPSCertFindCLI(this));
         addModule(new TPSCertShowCLI(this));

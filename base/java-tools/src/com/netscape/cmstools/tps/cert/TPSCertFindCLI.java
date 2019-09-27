@@ -92,6 +92,9 @@ public class TPSCertFindCLI extends CLI {
             throw new Exception("Invalid value for --size parameter: " + string4, e);
         }
 
+        MainCLI mainCLI = certCLI.tpsCLI.mainCLI;
+        mainCLI.init();
+
         TPSCertClient certClient = certCLI.getTPSCertClient();
         TPSCertCollection result = certClient.findCerts(filter, tokenID, start, size);
 
