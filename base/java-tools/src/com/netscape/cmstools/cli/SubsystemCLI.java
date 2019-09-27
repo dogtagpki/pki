@@ -30,8 +30,12 @@ import com.netscape.certsrv.client.SubsystemClient;
  */
 public class SubsystemCLI extends CLI {
 
-    public SubsystemCLI(String name, String description, CLI parent) {
-        super(name, description, parent);
+    public MainCLI mainCLI;
+
+    public SubsystemCLI(String name, String description, MainCLI mainCLI) {
+        super(name, description, mainCLI);
+
+        this.mainCLI = mainCLI;
     }
 
     public String getFullName() {

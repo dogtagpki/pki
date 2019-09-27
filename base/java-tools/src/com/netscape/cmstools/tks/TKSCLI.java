@@ -18,11 +18,10 @@
 
 package com.netscape.cmstools.tks;
 
-import org.dogtagpki.cli.CLI;
-
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tks.TKSClient;
+import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.logging.AuditCLI;
@@ -37,8 +36,8 @@ public class TKSCLI extends SubsystemCLI {
 
     public TKSClient tksClient;
 
-    public TKSCLI(CLI parent) {
-        super("tks", "TKS management commands", parent);
+    public TKSCLI(MainCLI mainCLI) {
+        super("tks", "TKS management commands", mainCLI);
 
         addModule(new AuditCLI(this));
         addModule(new GroupCLI(this));

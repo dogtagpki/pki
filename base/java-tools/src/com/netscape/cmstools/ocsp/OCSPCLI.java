@@ -18,11 +18,10 @@
 
 package com.netscape.cmstools.ocsp;
 
-import org.dogtagpki.cli.CLI;
-
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.ocsp.OCSPClient;
+import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.logging.AuditCLI;
@@ -36,8 +35,8 @@ public class OCSPCLI extends SubsystemCLI {
 
     public OCSPClient ocspClient;
 
-    public OCSPCLI(CLI parent) {
-        super("ocsp", "OCSP management commands", parent);
+    public OCSPCLI(MainCLI mainCLI) {
+        super("ocsp", "OCSP management commands", mainCLI);
 
         addModule(new AuditCLI(this));
         addModule(new GroupCLI(this));
