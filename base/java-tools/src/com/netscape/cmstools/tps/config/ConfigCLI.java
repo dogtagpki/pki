@@ -27,16 +27,19 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.config.ConfigClient;
 import com.netscape.certsrv.tps.config.ConfigData;
+import com.netscape.cmstools.tps.TPSCLI;
 
 /**
  * @author Endi S. Dewata
  */
 public class ConfigCLI extends CLI {
 
+    public TPSCLI tpsCLI;
     public ConfigClient configClient;
 
-    public ConfigCLI(CLI parent) {
-        super("config", "Configuration management commands", parent);
+    public ConfigCLI(TPSCLI tpsCLI) {
+        super("config", "Configuration management commands", tpsCLI);
+        this.tpsCLI = tpsCLI;
 
         addModule(new ConfigModifyCLI(this));
         addModule(new ConfigShowCLI(this));
