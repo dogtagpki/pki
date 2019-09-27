@@ -18,11 +18,11 @@ import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
+import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 public class AuthorityKeyExportCLI extends CLI {
 
@@ -95,6 +95,9 @@ public class AuthorityKeyExportCLI extends CLI {
         if (algOidString != null) {
             algOid = new OBJECT_IDENTIFIER(algOidString);
         }
+
+        MainCLI mainCLI = authorityCLI.caCLI.mainCLI;
+        mainCLI.init();
 
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate wrapCert = cm.findCertByNickname(wrapNick);

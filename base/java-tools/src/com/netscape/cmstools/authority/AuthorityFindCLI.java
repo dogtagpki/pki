@@ -58,6 +58,9 @@ public class AuthorityFindCLI extends CLI {
         String dn = cmd.getOptionValue("dn");
         String issuerDN = cmd.getOptionValue("issuer-dn");
 
+        MainCLI mainCLI = authorityCLI.caCLI.mainCLI;
+        mainCLI.init();
+
         AuthorityClient authorityClient = authorityCLI.getAuthorityClient();
         List<AuthorityData> datas = authorityClient.findCAs(id, parentID, dn, issuerDN);
 

@@ -9,6 +9,7 @@ import org.dogtagpki.cli.CLI;
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.cmstools.cli.MainCLI;
 
 public class AuthorityCreateCLI extends CLI {
 
@@ -66,8 +67,13 @@ public class AuthorityCreateCLI extends CLI {
             desc = cmd.getOptionValue("desc");
 
         String dn = cmdArgs[0];
+
+        MainCLI mainCLI = authorityCLI.caCLI.mainCLI;
+        mainCLI.init();
+
         AuthorityData data = new AuthorityData(
             null, dn, null, parentAIDString, null, null, true /* enabled */, desc, null);
+
         AuthorityClient authorityClient = authorityCLI.getAuthorityClient();
         AuthorityData newData = authorityClient.createCA(data);
         AuthorityCLI.printAuthorityData(newData);

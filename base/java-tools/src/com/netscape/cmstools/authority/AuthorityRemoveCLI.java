@@ -55,8 +55,13 @@ public class AuthorityRemoveCLI extends CLI {
         }
 
         String aidString = cmdArgs[0];
+
+        MainCLI mainCLI = authorityCLI.caCLI.mainCLI;
+        mainCLI.init();
+
         AuthorityClient authorityClient = authorityCLI.getAuthorityClient();
         authorityClient.deleteCA(aidString);
+
         MainCLI.printMessage("Deleted authority \"" + aidString + "\"");
     }
 

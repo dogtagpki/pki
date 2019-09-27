@@ -9,6 +9,7 @@ import org.dogtagpki.cli.CLI;
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.authority.AuthorityResource;
+import com.netscape.cmstools.cli.MainCLI;
 
 public class AuthorityShowCLI extends CLI {
 
@@ -57,6 +58,9 @@ public class AuthorityShowCLI extends CLI {
         if (caIDString == null) {
             throw new Exception("No ID specified.");
         }
+
+        MainCLI mainCLI = authorityCLI.caCLI.mainCLI;
+        mainCLI.init();
 
         AuthorityClient authorityClient = authorityCLI.getAuthorityClient();
         AuthorityData data = authorityClient.getCA(caIDString);

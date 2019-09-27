@@ -7,14 +7,17 @@ import org.dogtagpki.cli.CLI;
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.cmstools.ca.CACLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class AuthorityCLI extends CLI {
 
+    public CACLI caCLI;
     public AuthorityClient authorityClient;
 
-    public AuthorityCLI(CLI parent) {
-        super("authority", "CA management commands", parent);
+    public AuthorityCLI(CACLI caCLI) {
+        super("authority", "CA management commands", caCLI);
+        this.caCLI = caCLI;
 
         addModule(new AuthorityFindCLI(this));
         addModule(new AuthorityShowCLI(this));
