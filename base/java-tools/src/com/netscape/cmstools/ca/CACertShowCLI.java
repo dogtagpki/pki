@@ -29,7 +29,6 @@ import org.dogtagpki.cli.CLI;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
@@ -50,12 +49,12 @@ public class CACertShowCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "output", true, "Output file");
+        Option option = new Option(null, "output", true, "DEPRECATED: Output file");
         option.setArgName("file");
         options.addOption(option);
 
         options.addOption(null, "pretty", false, "Pretty print");
-        options.addOption(null, "encoded", false, "Base-64 encoded");
+        options.addOption(null, "encoded", false, "DEPRECATED: Base-64 encoded");
     }
 
     public void execute(String[] args) throws Exception {
@@ -73,11 +72,20 @@ public class CACertShowCLI extends CLI {
             throw new Exception("Missing Serial Number.");
         }
 
+        CertId certID = new CertId(cmdArgs[0]);
+
         boolean showPrettyPrint = cmd.hasOption("pretty");
         boolean showEncoded = cmd.hasOption("encoded");
 
-        CertId certID = new CertId(cmdArgs[0]);
+        if (showEncoded) {
+            System.err.println("WARNING: The --encoded option has been deprecated. Use pki ca-cert-export instead.");
+        }
+
         String file = cmd.getOptionValue("output");
+
+        if (file != null) {
+            System.err.println("WARNING: The --output option has been deprecated. Use pki ca-cert-export instead.");
+        }
 
         CACertClient certClient = certCLI.getCertClient();
         CertData certData = certClient.getCert(certID);
@@ -89,8 +97,6 @@ public class CACertShowCLI extends CLI {
                 out.print(encoded);
             }
         }
-
-        MainCLI.printMessage("Certificate \"" + certID.toHexString() + "\"");
 
         CACertCLI.printCertData(certData, showPrettyPrint, showEncoded);
     }
