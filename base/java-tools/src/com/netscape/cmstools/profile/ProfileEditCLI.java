@@ -26,6 +26,7 @@ import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.profile.ProfileClient;
+import com.netscape.cmstools.cli.MainCLI;
 
 public class ProfileEditCLI extends CLI {
 
@@ -56,6 +57,9 @@ public class ProfileEditCLI extends CLI {
         }
 
         String profileId = cmdArgs[0];
+
+        MainCLI mainCLI = profileCLI.caCLI.mainCLI;
+        mainCLI.init();
 
         ProfileClient profileClient = profileCLI.getProfileClient();
 

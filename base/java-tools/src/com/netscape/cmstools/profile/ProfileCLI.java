@@ -28,14 +28,17 @@ import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.certsrv.profile.ProfileDataInfo;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.profile.ProfileOutput;
+import com.netscape.cmstools.ca.CACLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class ProfileCLI extends CLI {
 
+    public CACLI caCLI;
     public ProfileClient profileClient;
 
-    public ProfileCLI(CLI parent) {
-        super("profile", "Profile management commands", parent);
+    public ProfileCLI(CACLI caCLI) {
+        super("profile", "Profile management commands", caCLI);
+        this.caCLI = caCLI;
 
         addModule(new ProfileFindCLI(this));
         addModule(new ProfileShowCLI(this));

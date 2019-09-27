@@ -38,6 +38,9 @@ public class ProfileRemoveCLI extends CLI {
 
         String profileId = args[0];
 
+        MainCLI mainCLI = profileCLI.caCLI.mainCLI;
+        mainCLI.init();
+
         ProfileClient profileClient = profileCLI.getProfileClient();
         profileClient.deleteProfile(profileId);
 

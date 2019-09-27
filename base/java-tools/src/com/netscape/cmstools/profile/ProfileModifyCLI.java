@@ -49,6 +49,9 @@ public class ProfileModifyCLI extends CLI {
             throw new Exception("Missing input file name.");
         }
 
+        MainCLI mainCLI = profileCLI.caCLI.mainCLI;
+        mainCLI.init();
+
         ProfileClient profileClient = profileCLI.getProfileClient();
 
         if (cmd.hasOption("raw")) {

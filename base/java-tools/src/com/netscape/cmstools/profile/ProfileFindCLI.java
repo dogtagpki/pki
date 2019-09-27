@@ -58,6 +58,9 @@ public class ProfileFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
+        MainCLI mainCLI = profileCLI.caCLI.mainCLI;
+        mainCLI.init();
+
         ProfileClient profileClient = profileCLI.getProfileClient();
         ProfileDataInfos response = profileClient.listProfiles(start, size);
 
