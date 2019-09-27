@@ -72,6 +72,9 @@ public class KRAConnectorRemoveCLI extends CLI {
         String kraHost = cmd.getOptionValue("host");
         String kraPort = cmd.getOptionValue("port");
 
+        MainCLI mainCLI = kraConnectorCLI.caCLI.mainCLI;
+        mainCLI.init();
+
         KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient();
         kraConnectorClient.removeConnector(kraHost, kraPort);
 

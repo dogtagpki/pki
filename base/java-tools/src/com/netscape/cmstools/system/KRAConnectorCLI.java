@@ -21,6 +21,7 @@ import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.KRAConnectorClient;
+import com.netscape.cmstools.ca.CACLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -28,10 +29,12 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class KRAConnectorCLI extends CLI {
 
+    public CACLI caCLI;
     public KRAConnectorClient kraConnectorClient;
 
-    public KRAConnectorCLI(CLI parent) {
-        super("kraconnector", "KRA Connector management commands", parent);
+    public KRAConnectorCLI(CACLI caCLI) {
+        super("kraconnector", "KRA Connector management commands", caCLI);
+        this.caCLI = caCLI;
 
         addModule(new KRAConnectorAddCLI(this));
         addModule(new KRAConnectorRemoveCLI(this));

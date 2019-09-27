@@ -6,6 +6,7 @@ import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
+import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAConnectorShowCLI extends CLI {
 
@@ -26,6 +27,9 @@ public class KRAConnectorShowCLI extends CLI {
             printHelp();
             return;
         }
+
+        MainCLI mainCLI = kraConnectorCLI.caCLI.mainCLI;
+        mainCLI.init();
 
         KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient();
         KRAConnectorInfo info = kraConnectorClient.getConnectorInfo();
