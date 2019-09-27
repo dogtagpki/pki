@@ -184,7 +184,7 @@ public class PKCS10Client {
             }
         }
 
-        if (password == null || ofilename == null || subjectName == null) {
+        if (ofilename == null || subjectName == null) {
             System.out.println("PKCS10Client: Illegal input parameters.");
             printUsage();
             System.exit(1);
@@ -215,18 +215,17 @@ public class PKCS10Client {
                 System.out.println("PKCS10Client: Debug: thread token set.");
             }
 
-            Password pass = new Password(password.toCharArray());
+            if (password != null) {
+                Password pass = new Password(password.toCharArray());
 
-            try {
-                token.login(pass);
-                if(verbose) {
-                    System.out.println("PKCS10Client: token "+ tokenName + " logged in...");
+                try {
+                    token.login(pass);
+                    if (verbose) {
+                        System.out.println("PKCS10Client: token "+ tokenName + " logged in...");
+                    }
+                } finally {
+                    pass.clear();
                 }
-            } catch (Exception e) {
-                System.out.println("PKCS10Client: login Exception: " + e.toString());
-                System.exit(1);
-            } finally {
-                pass.clear();
             }
 
             KeyPair pair = null;
@@ -343,7 +342,7 @@ public class PKCS10Client {
 
 
         } catch (Exception e) {
-            System.out.println("PKCS10Client: Exception caught: "+e.toString());
+            System.out.println("PKCS10Client: Exception caught: " + e);
             System.exit(1);
         }
     }
