@@ -27,10 +27,12 @@ import com.netscape.certsrv.kra.KRAClient;
  */
 public class KRACertCLI extends CLI {
 
+    public KRACLI kraCLI;
     public KRAClient kraClient;
 
-    public KRACertCLI(CLI parent) {
-        super("cert", "KRA certificate management commands", parent);
+    public KRACertCLI(KRACLI kraCLI) {
+        super("cert", "KRA certificate management commands", kraCLI);
+        this.kraCLI = kraCLI;
 
         addModule(new KRACertTransportExportCLI(this));
         addModule(new KRACertTransportShowCLI(this));

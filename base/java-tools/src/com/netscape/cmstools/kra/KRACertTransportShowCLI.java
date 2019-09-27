@@ -25,6 +25,7 @@ import org.dogtagpki.util.logging.PKILogger;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.SystemCertClient;
+import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
@@ -57,6 +58,9 @@ public class KRACertTransportShowCLI extends CLI {
         } else if (cmd.hasOption("debug")) {
             PKILogger.setLevel(PKILogger.Level.DEBUG);
         }
+
+        MainCLI mainCLI = certCLI.kraCLI.mainCLI;
+        mainCLI.init();
 
         PKIClient client = getClient();
         SystemCertClient certClient = new SystemCertClient(client, "kra");
