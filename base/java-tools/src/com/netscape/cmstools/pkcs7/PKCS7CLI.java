@@ -24,8 +24,11 @@ import com.netscape.cmstools.cli.MainCLI;
 
 public class PKCS7CLI extends CLI {
 
-    public PKCS7CLI(CLI parent) {
-        super("pkcs7", "PKCS #7 utilities", parent);
+    public MainCLI mainCLI;
+
+    public PKCS7CLI(MainCLI mainCLI) {
+        super("pkcs7", "PKCS #7 utilities", mainCLI);
+        this.mainCLI = mainCLI;
 
         addModule(new PKCS7CertCLI(this));
     }

@@ -26,8 +26,11 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 
 public class PKCS7CertCLI extends CLI {
 
-    public PKCS7CertCLI(PKCS7CLI parent) {
-        super("cert", "PKCS #7 certificate management commands", parent);
+    public PKCS7CLI pkcs7CLI;
+
+    public PKCS7CertCLI(PKCS7CLI pkcs7CLI) {
+        super("cert", "PKCS #7 certificate management commands", pkcs7CLI);
+        this.pkcs7CLI = pkcs7CLI;
 
         addModule(new PKCS7CertFindCLI(this));
         addModule(new PKCS7CertExportCLI(this));

@@ -26,19 +26,22 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.util.logging.PKILogger;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 
 public class PKCS7CertFindCLI extends CLI {
 
     private static Logger logger = LoggerFactory.getLogger(PKCS7CertFindCLI.class);
 
+    public PKCS7CertCLI certCLI;
+
     public PKCS7CertFindCLI(PKCS7CertCLI certCLI) {
         super("find", "Find certificates in PKCS #7 file", certCLI);
+        this.certCLI = certCLI;
 
         createOptions();
     }
@@ -78,6 +81,9 @@ public class PKCS7CertFindCLI extends CLI {
         if (filename == null) {
             throw new Exception("Missing PKCS #7 file.");
         }
+
+        MainCLI mainCLI = certCLI.pkcs7CLI.mainCLI;
+        mainCLI.init();
 
         logger.info("Loading PKCS #7 data from " + filename);
         String str = new String(Files.readAllBytes(Paths.get(filename))).trim();
