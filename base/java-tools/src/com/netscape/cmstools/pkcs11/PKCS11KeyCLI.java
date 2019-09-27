@@ -28,8 +28,11 @@ import org.mozilla.jss.crypto.PrivateKey;
  */
 public class PKCS11KeyCLI extends CLI {
 
-    public PKCS11KeyCLI(PKCS11CLI parent) {
-        super("key", "PKCS #11 key management commands", parent);
+    public PKCS11CLI pkcs11CLI;
+
+    public PKCS11KeyCLI(PKCS11CLI pkcs11CLI) {
+        super("key", "PKCS #11 key management commands", pkcs11CLI);
+        this.pkcs11CLI = pkcs11CLI;
 
         addModule(new PKCS11KeyFindCLI(this));
         addModule(new PKCS11KeyShowCLI(this));

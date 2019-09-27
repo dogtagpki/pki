@@ -22,18 +22,21 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 
-import com.netscape.certsrv.dbs.certdb.CertId;
-
 import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
+import com.netscape.certsrv.dbs.certdb.CertId;
 
 /**
  * @author Endi S. Dewata
  */
 public class PKCS11CertCLI extends CLI {
 
-    public PKCS11CertCLI(PKCS11CLI parent) {
-        super("cert", "PKCS #11 certificate management commands", parent);
+    public PKCS11CLI pkcs11CLI;
+
+    public PKCS11CertCLI(PKCS11CLI pkcs11CLI) {
+        super("cert", "PKCS #11 certificate management commands", pkcs11CLI);
+        this.pkcs11CLI = pkcs11CLI;
 
         addModule(new PKCS11CertFindCLI(this));
         addModule(new PKCS11CertShowCLI(this));

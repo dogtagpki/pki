@@ -28,6 +28,7 @@ import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.provider.java.security.JSSLoadStoreParameter;
 
+import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -35,8 +36,11 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 public class PKCS11CertFindCLI extends CLI {
 
-    public PKCS11CertFindCLI(PKCS11CertCLI parent) {
-        super("find", "Find PKCS #11 certificates", parent);
+    public PKCS11CertCLI certCLI;
+
+    public PKCS11CertFindCLI(PKCS11CertCLI certCLI) {
+        super("find", "Find PKCS #11 certificates", certCLI);
+        this.certCLI = certCLI;
 
         createOptions();
     }
@@ -66,6 +70,9 @@ public class PKCS11CertFindCLI extends CLI {
         } else if (cmd.hasOption("debug")) {
             PKILogger.setLevel(PKILogger.Level.DEBUG);
         }
+
+        MainCLI mainCLI = certCLI.pkcs11CLI.mainCLI;
+        mainCLI.init();
 
         String tokenName = getConfig().getTokenName();
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);

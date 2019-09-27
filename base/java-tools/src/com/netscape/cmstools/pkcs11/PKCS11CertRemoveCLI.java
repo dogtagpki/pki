@@ -27,6 +27,7 @@ import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.provider.java.security.JSSLoadStoreParameter;
 
+import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -34,8 +35,11 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 public class PKCS11CertRemoveCLI extends CLI {
 
-    public PKCS11CertRemoveCLI(PKCS11CertCLI parent) {
-        super("del", "Remove PKCS #11 certificate", parent);
+    public PKCS11CertCLI certCLI;
+
+    public PKCS11CertRemoveCLI(PKCS11CertCLI certCLI) {
+        super("del", "Remove PKCS #11 certificate", certCLI);
+        this.certCLI = certCLI;
 
         createOptions();
     }
@@ -73,6 +77,9 @@ public class PKCS11CertRemoveCLI extends CLI {
         }
 
         String alias = cmdArgs[0];
+
+        MainCLI mainCLI = certCLI.pkcs11CLI.mainCLI;
+        mainCLI.init();
 
         String tokenName = getConfig().getTokenName();
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
