@@ -24,16 +24,19 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.ActivityClient;
 import com.netscape.certsrv.logging.ActivityData;
+import com.netscape.cmstools.tps.TPSCLI;
 
 /**
  * @author Endi S. Dewata
  */
 public class ActivityCLI extends CLI {
 
+    public TPSCLI tpsCLI;
     public ActivityClient activityClient;
 
-    public ActivityCLI(CLI parent) {
-        super("activity", "Activity management commands", parent);
+    public ActivityCLI(TPSCLI tpsCLI) {
+        super("activity", "Activity management commands", tpsCLI);
+        this.tpsCLI = tpsCLI;
 
         addModule(new ActivityFindCLI(this));
         addModule(new ActivityShowCLI(this));

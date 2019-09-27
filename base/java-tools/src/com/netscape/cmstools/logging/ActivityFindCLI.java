@@ -76,6 +76,9 @@ public class ActivityFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
+        MainCLI mainCLI = activityCLI.tpsCLI.mainCLI;
+        mainCLI.init();
+
         ActivityClient activityClient = activityCLI.getActivityClient();
         ActivityCollection result = activityClient.findActivities(filter, start, size);
 
