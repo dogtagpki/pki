@@ -26,21 +26,23 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.util.logging.PKILogger;
-import org.mozilla.jss.util.Password;
-
-import com.netscape.cmstools.cli.MainCLI;
-
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12KeyInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
+import org.mozilla.jss.util.Password;
+
+import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
 public class PKCS12KeyFindCLI extends CLI {
 
-    public PKCS12KeyFindCLI(PKCS12KeyCLI certCLI) {
-        super("find", "Find keys in PKCS #12 file", certCLI);
+    public PKCS12KeyCLI keyCLI;
+
+    public PKCS12KeyFindCLI(PKCS12KeyCLI keyCLI) {
+        super("find", "Find keys in PKCS #12 file", keyCLI);
+        this.keyCLI = keyCLI;
 
         createOptions();
     }
@@ -110,6 +112,9 @@ public class PKCS12KeyFindCLI extends CLI {
         if (passwordString == null) {
             throw new Exception("Missing PKCS #12 password.");
         }
+
+        MainCLI mainCLI = keyCLI.pkcs12CLI.mainCLI;
+        mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());
 

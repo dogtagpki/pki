@@ -27,8 +27,11 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS12KeyInfo;
  */
 public class PKCS12KeyCLI extends CLI {
 
-    public PKCS12KeyCLI(PKCS12CLI parent) {
-        super("key", "PKCS #12 key management commands", parent);
+    public PKCS12CLI pkcs12CLI;
+
+    public PKCS12KeyCLI(PKCS12CLI pkcs12CLI) {
+        super("key", "PKCS #12 key management commands", pkcs12CLI);
+        this.pkcs12CLI = pkcs12CLI;
 
         addModule(new PKCS12KeyFindCLI(this));
         addModule(new PKCS12KeyRemoveCLI(this));
