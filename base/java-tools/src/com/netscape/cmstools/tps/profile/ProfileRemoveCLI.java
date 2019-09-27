@@ -59,6 +59,9 @@ public class ProfileRemoveCLI extends CLI {
 
         String profileID = args[0];
 
+        MainCLI mainCLI = profileCLI.tpsCLI.mainCLI;
+        mainCLI.init();
+
         ProfileClient profileClient = profileCLI.getProfileClient();
         profileClient.removeProfile(profileID);
 

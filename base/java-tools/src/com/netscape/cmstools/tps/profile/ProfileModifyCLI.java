@@ -79,6 +79,9 @@ public class ProfileModifyCLI extends CLI {
         String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
 
+        MainCLI mainCLI = profileCLI.tpsCLI.mainCLI;
+        mainCLI.init();
+
         ProfileClient profileClient = profileCLI.getProfileClient();
         ProfileData profileData;
 

@@ -72,6 +72,9 @@ public class ProfileShowCLI extends CLI {
         String profileID = args[0];
         String output = cmd.getOptionValue("output");
 
+        MainCLI mainCLI = profileCLI.tpsCLI.mainCLI;
+        mainCLI.init();
+
         ProfileClient profileClient = profileCLI.getProfileClient();
         ProfileData profileData = profileClient.getProfile(profileID);
 

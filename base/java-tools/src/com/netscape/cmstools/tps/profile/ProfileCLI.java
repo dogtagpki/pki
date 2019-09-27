@@ -27,16 +27,19 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileData;
+import com.netscape.cmstools.tps.TPSCLI;
 
 /**
  * @author Endi S. Dewata
  */
 public class ProfileCLI extends CLI {
 
+    public TPSCLI tpsCLI;
     public ProfileClient profileClient;
 
-    public ProfileCLI(CLI parent) {
-        super("profile", "Profile management commands", parent);
+    public ProfileCLI(TPSCLI tpsCLI) {
+        super("profile", "Profile management commands", tpsCLI);
+        this.tpsCLI = tpsCLI;
 
         addModule(new ProfileAddCLI(this));
         addModule(new ProfileFindCLI(this));
