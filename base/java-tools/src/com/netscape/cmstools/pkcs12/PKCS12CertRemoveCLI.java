@@ -25,20 +25,22 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.util.logging.PKILogger;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.MainCLI;
-
-import org.mozilla.jss.netscape.security.pkcs.PKCS12;
-import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 
 /**
  * @author Endi S. Dewata
  */
 public class PKCS12CertRemoveCLI extends CLI {
 
+    public PKCS12CertCLI certCLI;
+
     public PKCS12CertRemoveCLI(PKCS12CertCLI certCLI) {
         super("del", "Remove certificate from PKCS #12 file", certCLI);
+        this.certCLI = certCLI;
 
         createOptions();
     }
@@ -110,6 +112,9 @@ public class PKCS12CertRemoveCLI extends CLI {
         if (passwordString == null) {
             throw new Exception("Missing PKCS #12 password.");
         }
+
+        MainCLI mainCLI = certCLI.pkcs12CLI.mainCLI;
+        mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());
 

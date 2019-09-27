@@ -38,8 +38,11 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class PKCS12CertModCLI extends CLI {
 
+    public PKCS12CertCLI certCLI;
+
     public PKCS12CertModCLI(PKCS12CertCLI certCLI) {
         super("mod", "Modify certificate in PKCS #12 file", certCLI);
+        this.certCLI = certCLI;
 
         createOptions();
     }
@@ -121,6 +124,9 @@ public class PKCS12CertModCLI extends CLI {
         if (trustFlags == null) {
             throw new Exception("Missing trust flags.");
         }
+
+        MainCLI mainCLI = certCLI.pkcs12CLI.mainCLI;
+        mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());
 

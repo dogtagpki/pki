@@ -38,13 +38,18 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmstools.cli.MainCLI;
+
 /**
  * @author Endi S. Dewata
  */
 public class PKCS12CertExportCLI extends CLI {
 
+    public PKCS12CertCLI certCLI;
+
     public PKCS12CertExportCLI(PKCS12CertCLI certCLI) {
         super("export", "Export certificate from PKCS #12 file", certCLI);
+        this.certCLI = certCLI;
 
         createOptions();
     }
@@ -142,6 +147,9 @@ public class PKCS12CertExportCLI extends CLI {
         if (certFile == null) {
             throw new Exception("Missing certificate file.");
         }
+
+        MainCLI mainCLI = certCLI.pkcs12CLI.mainCLI;
+        mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());
 

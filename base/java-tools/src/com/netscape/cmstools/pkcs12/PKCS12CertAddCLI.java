@@ -39,8 +39,11 @@ import com.netscape.cmstools.cli.MainCLI;
 @Deprecated
 public class PKCS12CertAddCLI extends CLI {
 
+    public PKCS12CertCLI certCLI;
+
     public PKCS12CertAddCLI(PKCS12CertCLI certCLI) {
         super("add", "Add certificate into PKCS #12 file", certCLI);
+        this.certCLI = certCLI;
 
         createOptions();
     }
@@ -124,6 +127,9 @@ public class PKCS12CertAddCLI extends CLI {
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
         boolean includeKey = !cmd.hasOption("no-key");
         boolean includeChain = !cmd.hasOption("no-chain");
+
+        MainCLI mainCLI = certCLI.pkcs12CLI.mainCLI;
+        mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());
 

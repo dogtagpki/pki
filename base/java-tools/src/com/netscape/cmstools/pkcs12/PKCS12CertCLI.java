@@ -20,19 +20,21 @@ package com.netscape.cmstools.pkcs12;
 
 import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.cli.CLI;
-
-import com.netscape.certsrv.dbs.certdb.CertId;
-
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12CertInfo;
+
+import com.netscape.certsrv.dbs.certdb.CertId;
 
 /**
  * @author Endi S. Dewata
  */
 public class PKCS12CertCLI extends CLI {
 
-    public PKCS12CertCLI(PKCS12CLI parent) {
-        super("cert", "PKCS #12 certificate management commands", parent);
+    public PKCS12CLI pkcs12CLI;
+
+    public PKCS12CertCLI(PKCS12CLI pkcs12CLI) {
+        super("cert", "PKCS #12 certificate management commands", pkcs12CLI);
+        this.pkcs12CLI = pkcs12CLI;
 
         addModule(new PKCS12CertAddCLI(this));
         addModule(new PKCS12CertExportCLI(this));

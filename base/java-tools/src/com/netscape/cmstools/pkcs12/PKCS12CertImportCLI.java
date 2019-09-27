@@ -38,8 +38,11 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class PKCS12CertImportCLI extends CLI {
 
+    public PKCS12CertCLI certCLI;
+
     public PKCS12CertImportCLI(PKCS12CertCLI certCLI) {
         super("import", "Import certificate into PKCS #12 file", certCLI);
+        this.certCLI = certCLI;
 
         createOptions();
     }
@@ -165,6 +168,9 @@ public class PKCS12CertImportCLI extends CLI {
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
         boolean includeKey = !cmd.hasOption("no-key");
         boolean includeChain = !cmd.hasOption("no-chain");
+
+        MainCLI mainCLI = certCLI.pkcs12CLI.mainCLI;
+        mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());
 
