@@ -30,6 +30,7 @@ import com.netscape.cmstools.cli.MainCLI;
  * @author Ade Lee
  */
 public class TPSConnectorRemoveCLI extends CLI {
+
     public TPSConnectorCLI tpsConnectorCLI;
 
     public TPSConnectorRemoveCLI(TPSConnectorCLI tpsConnectorCLI) {
@@ -70,6 +71,9 @@ public class TPSConnectorRemoveCLI extends CLI {
 
         String tpsHost = cmd.getOptionValue("host");
         String tpsPort = cmd.getOptionValue("port");
+
+        MainCLI mainCLI = tpsConnectorCLI.tksCLI.mainCLI;
+        mainCLI.init();
 
         TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
         tpsConnectorClient.deleteConnector(tpsHost, tpsPort);

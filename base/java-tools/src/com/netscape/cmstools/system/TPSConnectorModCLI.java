@@ -11,6 +11,7 @@ import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class TPSConnectorModCLI extends CLI {
+
     public TPSConnectorCLI tpsConnectorCLI;
 
     public TPSConnectorModCLI(TPSConnectorCLI tpsConnectorCLI) {
@@ -57,6 +58,9 @@ public class TPSConnectorModCLI extends CLI {
         // NOTE: neither nickname nor userid can be set using this interface
         data.setHost(cmd.getOptionValue("host"));
         data.setPort(cmd.getOptionValue("port"));
+
+        MainCLI mainCLI = tpsConnectorCLI.tksCLI.mainCLI;
+        mainCLI.init();
 
         TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
         data = tpsConnectorClient.modifyConnector(connID, data);

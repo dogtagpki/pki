@@ -23,16 +23,19 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
+import com.netscape.cmstools.tks.TKSCLI;
 
 /**
  * @author Ade Lee
  */
 public class TPSConnectorCLI extends CLI {
 
+    public TKSCLI tksCLI;
     public TPSConnectorClient tpsConnectorClient;
 
-    public TPSConnectorCLI(CLI parent) {
-        super("tpsconnector", "TPS connector management commands", parent);
+    public TPSConnectorCLI(TKSCLI tksCLI) {
+        super("tpsconnector", "TPS connector management commands", tksCLI);
+        this.tksCLI = tksCLI;
 
         addModule(new TPSConnectorAddCLI(this));
         addModule(new TPSConnectorFindCLI(this));
