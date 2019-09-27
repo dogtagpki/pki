@@ -102,6 +102,9 @@ public class TokenFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
+        MainCLI mainCLI = tokenCLI.tpsCLI.mainCLI;
+        mainCLI.init();
+
         TokenClient tokenClient = tokenCLI.getTokenClient();
         TokenCollection result = tokenClient.findTokens(
                 filter,

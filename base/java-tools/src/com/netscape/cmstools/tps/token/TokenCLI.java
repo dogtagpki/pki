@@ -30,16 +30,19 @@ import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cmstools.tps.TPSCLI;
 
 /**
  * @author Endi S. Dewata
  */
 public class TokenCLI extends CLI {
 
+    public TPSCLI tpsCLI;
     public TokenClient tokenClient;
 
-    public TokenCLI(CLI parent) {
-        super("token", "Token management commands", parent);
+    public TokenCLI(TPSCLI tpsCLI) {
+        super("token", "Token management commands", tpsCLI);
+        this.tpsCLI = tpsCLI;
 
         addModule(new TokenAddCLI(this));
         addModule(new TokenFindCLI(this));

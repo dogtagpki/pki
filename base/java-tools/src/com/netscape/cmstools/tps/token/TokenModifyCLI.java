@@ -94,6 +94,9 @@ public class TokenModifyCLI extends CLI {
             modify = true;
         }
 
+        MainCLI mainCLI = tokenCLI.tpsCLI.mainCLI;
+        mainCLI.init();
+
         TokenClient tokenClient = tokenCLI.getTokenClient();
 
         if (modify) {

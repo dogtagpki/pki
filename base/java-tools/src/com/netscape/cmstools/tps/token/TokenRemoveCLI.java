@@ -59,6 +59,9 @@ public class TokenRemoveCLI extends CLI {
 
         String tokenID = args[0];
 
+        MainCLI mainCLI = tokenCLI.tpsCLI.mainCLI;
+        mainCLI.init();
+
         TokenClient tokenClient = tokenCLI.getTokenClient();
         tokenClient.removeToken(tokenID);
 
