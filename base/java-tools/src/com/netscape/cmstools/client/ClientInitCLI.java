@@ -42,8 +42,11 @@ public class ClientInitCLI extends CLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientInitCLI.class);
 
+    public ClientCLI clientCLI;
+
     public ClientInitCLI(ClientCLI clientCLI) {
         super("init", "Initialize NSS database", clientCLI);
+        this.clientCLI = clientCLI;
 
         createOptions();
     }
@@ -78,7 +81,7 @@ public class ClientInitCLI extends CLI {
             PKILogger.setLevel(PKILogger.Level.INFO);
         }
 
-        MainCLI mainCLI = (MainCLI)parent.getParent();
+        MainCLI mainCLI = clientCLI.mainCLI;
         File certDatabase = mainCLI.getNSSDatabase();
 
         if (certDatabase.exists()) {

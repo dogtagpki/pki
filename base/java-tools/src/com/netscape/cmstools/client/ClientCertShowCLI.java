@@ -28,10 +28,10 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
-
-import com.netscape.cmstools.cli.MainCLI;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
+
+import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
@@ -92,7 +92,7 @@ public class ClientCertShowCLI extends CLI {
             throw new Exception("Missing certificate nickname.");
         }
 
-        MainCLI mainCLI = (MainCLI)parent.getParent();
+        MainCLI mainCLI = clientCLI.mainCLI;
 
         String nickname = cmdArgs[0];
         String certPath = cmd.getOptionValue("cert");

@@ -64,6 +64,9 @@ public class ClientCertFindCLI extends CLI {
             throw new Exception("Too many arguments specified.");
         }
 
+        MainCLI mainCLI = clientCLI.mainCLI;
+        mainCLI.init();
+
         CryptoManager manager = CryptoManager.getInstance();
 
         X509Certificate[] certs;

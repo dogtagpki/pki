@@ -29,8 +29,11 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class ClientCLI extends CLI {
 
-    public ClientCLI(CLI parent) {
-        super("client", "Client management commands", parent);
+    public MainCLI mainCLI;
+
+    public ClientCLI(MainCLI mainCLI) {
+        super("client", "Client management commands", mainCLI);
+        this.mainCLI = mainCLI;
 
         addModule(new ClientInitCLI(this));
         addModule(new ClientCertFindCLI(this));

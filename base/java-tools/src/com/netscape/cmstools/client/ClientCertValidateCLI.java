@@ -30,6 +30,8 @@ import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
 
+import com.netscape.cmstools.cli.MainCLI;
+
 /**
  * @author Ade Lee
  */
@@ -77,6 +79,10 @@ public class ClientCertValidateCLI extends CLI {
 
         // get usages from options
         String certusage = cmd.getOptionValue("certusage");
+
+        MainCLI mainCLI = clientCLI.mainCLI;
+        mainCLI.init();
+
         boolean isValid = verifySystemCertByNickname(nickname, certusage);
 
         if (isValid) {

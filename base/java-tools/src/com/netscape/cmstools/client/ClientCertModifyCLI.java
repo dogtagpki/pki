@@ -67,7 +67,7 @@ public class ClientCertModifyCLI extends CLI {
             throw new Exception("Missing certificate nickname.");
         }
 
-        MainCLI mainCLI = (MainCLI)parent.getParent();
+        MainCLI mainCLI = clientCLI.mainCLI;
 
         String nickname = cmdArgs[0];
 
