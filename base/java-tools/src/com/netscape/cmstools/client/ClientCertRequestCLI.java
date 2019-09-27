@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyPair;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -37,6 +39,8 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.Name;
@@ -54,11 +58,9 @@ import com.netscape.cmstools.CRMFPopClient;
 import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Cert;
 
 import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * @author Endi S. Dewata
@@ -247,9 +249,6 @@ public class ClientCertRequestCLI extends CLI {
         File certDatabase = mainCLI.certDatabase;
 
         String password = mainCLI.config.getNSSPassword();
-        if (password == null) {
-            throw new Exception("Missing security database password.");
-        }
 
         String csr;
         PKIClient client;
@@ -390,7 +389,6 @@ public class ClientCertRequestCLI extends CLI {
 
         CertRequestInfos infos = certClient.enrollRequest(request, aid, adn);
 
-        MainCLI.printMessage("Submitted certificate request");
         CACertCLI.printCertRequestInfos(infos);
     }
 
@@ -406,18 +404,27 @@ public class ClientCertRequestCLI extends CLI {
 
         String lenOrCurve = "ec".equals(algorithm) ? "-c" : "-l";
 
-        String[] commands = {
-                "/usr/bin/PKCS10Client",
-                "-d", certDatabase.getAbsolutePath(),
-                "-p", password,
-                "-a", algorithm,
-                lenOrCurve, "" + length,
-                "-o", csrFile.getAbsolutePath(),
-                "-n", subjectDN
-        };
+        List<String> command = new ArrayList<>();
+        command.add("PKCS10Client");
+        command.add("-d");
+        command.add(certDatabase.getAbsolutePath());
+
+        if (password != null) {
+            command.add("-p");
+            command.add(password);
+        }
+
+        command.add("-a");
+        command.add(algorithm);
+        command.add(lenOrCurve);
+        command.add("" + length);
+        command.add("-o");
+        command.add(csrFile.getAbsolutePath());
+        command.add("-n");
+        command.add(subjectDN);
 
         try {
-            runExternal(commands);
+            runExternal(command);
         } catch (Exception e) {
             throw new Exception("CSR generation failed", e);
         }
