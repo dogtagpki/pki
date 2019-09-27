@@ -104,6 +104,8 @@ public class MainCLI extends CLI {
 
     String output;
 
+    boolean initialized;
+
     public MainCLI() throws Exception {
         super("pki", "PKI command-line interface");
 
@@ -469,6 +471,10 @@ public class MainCLI extends CLI {
 
     public void init() throws Exception {
 
+        if (initialized) {
+            return;
+        }
+
         // Create NSS database if it doesn't exist
         if (!certDatabase.exists()) {
 
@@ -584,6 +590,8 @@ public class MainCLI extends CLI {
 
         String ciphers = System.getenv("SSL_CIPHERS");
         CryptoUtil.setSSLCiphers(ciphers);
+
+        initialized = true;
     }
 
     public PKIClient getClient() throws Exception {
