@@ -37,8 +37,11 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class PKCS12ExportCLI extends CLI {
 
-    public PKCS12ExportCLI(PKCS12CLI certCLI) {
-        super("export", "Export NSS database into PKCS #12 file", certCLI);
+    public PKCS12CLI pkcs12CLI;
+
+    public PKCS12ExportCLI(PKCS12CLI pkcs12CLI) {
+        super("export", "Export NSS database into PKCS #12 file", pkcs12CLI);
+        this.pkcs12CLI = pkcs12CLI;
 
         createOptions();
     }
@@ -152,6 +155,9 @@ public class PKCS12ExportCLI extends CLI {
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
         boolean includeKey = !cmd.hasOption("no-key");
         boolean includeChain = !cmd.hasOption("no-chain");
+
+        MainCLI mainCLI = pkcs12CLI.mainCLI;
+        mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());
 

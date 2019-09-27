@@ -28,6 +28,8 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmstools.cli.MainCLI;
+
 /**
  * Tool for importing NSS database from PKCS #12 file
  */
@@ -35,8 +37,11 @@ public class PKCS12ImportCLI extends CLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKCS12ImportCLI.class);
 
-    public PKCS12ImportCLI(PKCS12CLI certCLI) {
-        super("import", "Import PKCS #12 file into NSS database", certCLI);
+    public PKCS12CLI pkcs12CLI;
+
+    public PKCS12ImportCLI(PKCS12CLI pkcs12CLI) {
+        super("import", "Import PKCS #12 file into NSS database", pkcs12CLI);
+        this.pkcs12CLI = pkcs12CLI;
 
         createOptions();
     }
@@ -103,6 +108,9 @@ public class PKCS12ImportCLI extends CLI {
 
         boolean trustFlagsEnabled = !cmd.hasOption("no-trust-flags");
         boolean overwrite = cmd.hasOption("overwrite");
+
+        MainCLI mainCLI = pkcs12CLI.mainCLI;
+        mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());
 
