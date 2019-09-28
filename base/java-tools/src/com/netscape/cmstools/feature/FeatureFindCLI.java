@@ -50,6 +50,9 @@ public class FeatureFindCLI extends CLI {
         @SuppressWarnings("unused")
         CommandLine cmd = parser.parse(options, args);
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         FeatureClient featureClient = featureCLI.getFeatureClient();
         List<Feature> features = featureClient.listFeatures();
 

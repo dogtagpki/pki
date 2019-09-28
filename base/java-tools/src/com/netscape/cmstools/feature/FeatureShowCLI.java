@@ -24,6 +24,7 @@ import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureClient;
+import com.netscape.cmstools.cli.MainCLI;
 
 public class FeatureShowCLI extends CLI {
 
@@ -58,6 +59,9 @@ public class FeatureShowCLI extends CLI {
         }
 
         String featureID = cmdArgs[0];
+
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
 
         FeatureClient featureClient = featureCLI.getFeatureClient();
         Feature data = featureClient.getFeature(featureID);
