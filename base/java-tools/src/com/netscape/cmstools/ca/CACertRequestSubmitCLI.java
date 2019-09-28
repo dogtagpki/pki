@@ -13,6 +13,7 @@ import java.util.Vector;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
@@ -25,7 +26,6 @@ import com.netscape.cmstools.cli.MainCLI;
 
 import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 
 public class CACertRequestSubmitCLI extends CLI {
 
@@ -259,6 +259,9 @@ public class CACertRequestSubmitCLI extends CLI {
         if (verbose) {
             System.out.println(request);
         }
+
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
 
         CACertClient certClient = certCLI.getCertClient();
         CertRequestInfos cri = certClient.enrollRequest(request, aid, adn);

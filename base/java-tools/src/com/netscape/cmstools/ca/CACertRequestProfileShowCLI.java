@@ -58,6 +58,9 @@ public class CACertRequestProfileShowCLI extends CLI {
             }
         }
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         CACertClient certClient = certCLI.getCertClient();
         CertEnrollmentRequest request = certClient.getEnrollmentTemplate(profileId);
 

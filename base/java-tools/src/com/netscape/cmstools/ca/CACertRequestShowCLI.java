@@ -48,6 +48,9 @@ public class CACertRequestShowCLI extends CLI {
             throw new Exception("Invalid certificate request ID " + cmdArgs[0] + ".", e);
         }
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         CACertClient certClient = certCLI.getCertClient();
         CertRequestInfo certRequest = certClient.getRequest(requestId);
 

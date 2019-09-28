@@ -30,6 +30,7 @@ import org.mozilla.jss.netscape.security.util.Cert;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
@@ -82,6 +83,9 @@ public class CACertExportCLI extends CLI {
         }
 
         CertId certID = new CertId(cmdArgs[0]);
+
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
 
         CACertClient certClient = certCLI.getCertClient();
         CertData certData = certClient.getCert(certID);

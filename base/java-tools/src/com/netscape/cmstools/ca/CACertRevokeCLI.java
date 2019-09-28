@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
@@ -33,8 +34,6 @@ import com.netscape.certsrv.cert.CertRevokeRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmstools.cli.MainCLI;
-
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 /**
  * @author Endi S. Dewata
@@ -102,6 +101,9 @@ public class CACertRevokeCLI extends CLI {
         if (reason == null) {
             throw new Exception("Invalid revocation reason: " + string);
         }
+
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
 
         CACertClient certClient = certCLI.getCertClient();
         CertData certData = certClient.reviewCert(certID);

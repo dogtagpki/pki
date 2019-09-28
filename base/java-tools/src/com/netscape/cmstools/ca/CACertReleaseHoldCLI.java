@@ -70,6 +70,10 @@ public class CACertReleaseHoldCLI extends CLI {
         }
 
         CertId certID = new CertId(cmdArgs[0]);
+
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         CACertClient certClient = certCLI.getCertClient();
 
         if (!cmd.hasOption("force")) {

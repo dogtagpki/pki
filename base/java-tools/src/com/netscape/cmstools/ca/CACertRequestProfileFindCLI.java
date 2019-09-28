@@ -59,6 +59,9 @@ public class CACertRequestProfileFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         CACertClient certClient = certCLI.getCertClient();
         ProfileDataInfos response = certClient.listEnrollmentTemplates(start, size);
 

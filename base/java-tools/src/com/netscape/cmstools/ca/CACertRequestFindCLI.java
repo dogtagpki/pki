@@ -114,6 +114,9 @@ public class CACertRequestFindCLI extends CLI {
         String requestType = cmd.getOptionValue("type");
         if (requestType != null && requestType.equals("all")) requestType = null;
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         CACertClient certClient = certCLI.getCertClient();
         CertRequestInfos response = certClient.listRequests(requestState, requestType, start, size, maxResults, maxTime);
 

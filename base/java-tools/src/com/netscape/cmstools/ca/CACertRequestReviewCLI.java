@@ -98,6 +98,9 @@ public class CACertRequestReviewCLI extends CLI {
             }
         }
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         // Retrieve certificate request.
         CACertClient certClient = certCLI.getCertClient();
         CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);

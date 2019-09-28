@@ -29,6 +29,7 @@ import org.dogtagpki.cli.CLI;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
@@ -86,6 +87,9 @@ public class CACertShowCLI extends CLI {
         if (file != null) {
             System.err.println("WARNING: The --output option has been deprecated. Use pki ca-cert-export instead.");
         }
+
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
 
         CACertClient certClient = certCLI.getCertClient();
         CertData certData = certClient.getCert(certID);
