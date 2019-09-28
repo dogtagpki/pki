@@ -106,6 +106,9 @@ public class KRAKeyRetrieveCLI extends CLI {
             throw new Exception("Incorrect number of parameters provided.");
         }
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         KeyData keyData = null;
         Key key = null;
 

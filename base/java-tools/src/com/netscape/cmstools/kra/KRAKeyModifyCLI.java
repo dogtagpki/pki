@@ -27,6 +27,7 @@ import org.dogtagpki.cli.CLI;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
+import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyModifyCLI extends CLI {
     public KRAKeyCLI keyCLI;
@@ -67,6 +68,9 @@ public class KRAKeyModifyCLI extends CLI {
         String status = cmd.getOptionValue("status");
 
         KeyId keyId = new KeyId(cmdArgs[0]);
+
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
 
         KeyClient keyClient = keyCLI.getKeyClient();
         keyClient.modifyKeyStatus(keyId, status);

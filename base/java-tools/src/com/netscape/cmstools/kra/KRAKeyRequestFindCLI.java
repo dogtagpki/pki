@@ -115,6 +115,9 @@ public class KRAKeyRequestFindCLI extends CLI {
         s = cmd.getOptionValue("maxTime");
         Integer maxTime = s == null ? null : Integer.valueOf(s);
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         KeyClient keyClient = keyCLI.getKeyClient();
         KeyRequestInfoCollection keys = keyClient.listRequests(
                 status, type, clientKeyID, start, pageSize, maxResults, maxTime, realm);

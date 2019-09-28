@@ -49,6 +49,10 @@ public class KRAKeyRequestReviewCLI extends CLI {
         }
 
         RequestId reqId = new RequestId(cmdArgs[0]);
+
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         KeyClient keyClient = keyCLI.getKeyClient();
 
         String action = cmd.getOptionValue("action");

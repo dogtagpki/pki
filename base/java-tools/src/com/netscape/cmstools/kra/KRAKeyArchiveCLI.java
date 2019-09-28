@@ -97,6 +97,9 @@ public class KRAKeyArchiveCLI extends CLI {
         String requestFile = cmd.getOptionValue("input");
         String transportNickname = cmd.getOptionValue("transport");
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         KeyRequestResponse response = null;
         KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
 

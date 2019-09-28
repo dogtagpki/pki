@@ -110,6 +110,9 @@ public class KRAKeyGenerateCLI extends CLI {
             usages = Arrays.asList(givenUsages.split(","));
         }
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         KeyClient keyClient = keyCLI.getKeyClient();
 
         KeyRequestResponse response = null;
