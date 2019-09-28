@@ -30,7 +30,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -80,19 +79,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @author Endi S. Dewata
  */
 public class MainCLI extends CLI {
-
-    /**
-     * These commands should not be executed after CryptoManager.initialize()
-     * since they may modify the NSS database or execute external commands
-     * using the same NSS database.
-     */
-    public final static Collection<String> RESTRICTED_COMMANDS = Arrays.asList(
-            "client-init",
-            "client-cert-import",
-            "client-cert-mod",
-            "client-cert-request",
-            "client-cert-show"
-    );
 
     public ClientConfig config = new ClientConfig();
 
@@ -667,13 +653,6 @@ public class MainCLI extends CLI {
                 System.out.print(" "+arg);
             }
             System.out.println();
-        }
-
-        // Do not call CryptoManager.initialize() on some commands
-        // because otherwise the database will be locked.
-        String command = cmdArgs[0];
-        if (!RESTRICTED_COMMANDS.contains(command)) {
-            init();
         }
 
         super.execute(cmdArgs);

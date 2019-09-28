@@ -64,6 +64,9 @@ public class SubsystemCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         // login if username or nickname is specified
         ClientConfig config = getConfig();
         if (config.getUsername() != null || config.getCertNickname() != null) {

@@ -103,6 +103,9 @@ public class ProxyCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         AccountClient accountClient = null;
 
         try {
