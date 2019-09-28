@@ -82,6 +82,9 @@ public class UserMembershipFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         UserClient userClient = userMembershipCLI.getUserClient();
         UserMembershipCollection response = userClient.findUserMemberships(userID, filter, start, size);
 

@@ -61,6 +61,9 @@ public class UserMembershipAddCLI extends CLI {
         String userID = args[0];
         String groupID = args[1];
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         UserClient userClient = userMembershipCLI.getUserClient();
         UserMembershipData userMembershipData = userClient.addUserMembership(userID, groupID);
 

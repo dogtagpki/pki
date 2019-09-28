@@ -81,6 +81,9 @@ public class UserCertAddCLI extends CLI {
         String inputFile = cmd.getOptionValue("input");
         String serialNumber = cmd.getOptionValue("serial");
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         String encoded;
 
         if (inputFile != null && serialNumber != null) {

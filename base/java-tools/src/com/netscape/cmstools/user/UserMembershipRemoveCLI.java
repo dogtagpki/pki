@@ -60,6 +60,9 @@ public class UserMembershipRemoveCLI extends CLI {
         String userID = args[0];
         String groupID = args[1];
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         UserClient userClient = userMembershipCLI.getUserClient();
         userClient.removeUserMembership(userID, groupID);
 

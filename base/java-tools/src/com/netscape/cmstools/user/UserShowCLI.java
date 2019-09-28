@@ -60,6 +60,9 @@ public class UserShowCLI extends CLI {
 
         String userId = args[0];
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         UserClient userClient = userCLI.getUserClient();
         UserData userData = userClient.getUser(userId);
 

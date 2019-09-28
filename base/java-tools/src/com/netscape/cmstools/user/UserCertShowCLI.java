@@ -80,6 +80,9 @@ public class UserCertShowCLI extends CLI {
         String certID = cmdArgs[1];
         String file = cmd.getOptionValue("output");
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         UserClient userClient = userCertCLI.getUserClient();
         UserCertData userCertData = userClient.getUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
 

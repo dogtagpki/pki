@@ -81,6 +81,9 @@ public class UserCertFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         UserClient userClient = userCertCLI.getUserClient();
         UserCertCollection response = userClient.findUserCerts(userID, start, size);
 

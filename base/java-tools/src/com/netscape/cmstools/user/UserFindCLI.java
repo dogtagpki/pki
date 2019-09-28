@@ -76,6 +76,9 @@ public class UserFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         UserClient userClient = userCLI.getUserClient();
         UserCollection response = userClient.findUsers(filter, start, size);
 

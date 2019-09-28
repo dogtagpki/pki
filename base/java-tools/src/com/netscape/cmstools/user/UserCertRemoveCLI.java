@@ -66,6 +66,9 @@ public class UserCertRemoveCLI extends CLI {
             System.out.println("Removing cert "+certID+" from user "+userID+".");
         }
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         UserClient userClient = userCertCLI.getUserClient();
         userClient.removeUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
 

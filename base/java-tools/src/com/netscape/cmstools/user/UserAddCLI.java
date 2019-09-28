@@ -99,6 +99,9 @@ public class UserAddCLI extends CLI {
         userData.setType(cmd.getOptionValue("type"));
         userData.setState(cmd.getOptionValue("state"));
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         UserClient userClient = userCLI.getUserClient();
         userData = userClient.addUser(userData);
 
