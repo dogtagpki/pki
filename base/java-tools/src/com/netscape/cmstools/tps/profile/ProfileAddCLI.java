@@ -88,7 +88,7 @@ public class ProfileAddCLI extends CLI {
             profileData = ProfileData.valueOf(sw.toString());
         }
 
-        MainCLI mainCLI = profileCLI.tpsCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         ProfileClient profileClient = profileCLI.getProfileClient();

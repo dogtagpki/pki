@@ -78,7 +78,7 @@ public class PKCS11CertRemoveCLI extends CLI {
 
         String alias = cmdArgs[0];
 
-        MainCLI mainCLI = certCLI.pkcs11CLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         String tokenName = getConfig().getTokenName();

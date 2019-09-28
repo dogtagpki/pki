@@ -59,7 +59,7 @@ public class KRACertTransportShowCLI extends CLI {
             PKILogger.setLevel(PKILogger.Level.DEBUG);
         }
 
-        MainCLI mainCLI = certCLI.kraCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         PKIClient client = getClient();

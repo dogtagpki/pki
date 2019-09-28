@@ -68,7 +68,7 @@ public class AuthorityCreateCLI extends CLI {
 
         String dn = cmdArgs[0];
 
-        MainCLI mainCLI = authorityCLI.caCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         AuthorityData data = new AuthorityData(

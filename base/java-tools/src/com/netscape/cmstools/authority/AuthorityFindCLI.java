@@ -58,7 +58,7 @@ public class AuthorityFindCLI extends CLI {
         String dn = cmd.getOptionValue("dn");
         String issuerDN = cmd.getOptionValue("issuer-dn");
 
-        MainCLI mainCLI = authorityCLI.caCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         AuthorityClient authorityClient = authorityCLI.getAuthorityClient();

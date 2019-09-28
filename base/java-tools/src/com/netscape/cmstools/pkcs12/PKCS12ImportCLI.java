@@ -109,7 +109,7 @@ public class PKCS12ImportCLI extends CLI {
         boolean trustFlagsEnabled = !cmd.hasOption("no-trust-flags");
         boolean overwrite = cmd.hasOption("overwrite");
 
-        MainCLI mainCLI = pkcs12CLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());

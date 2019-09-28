@@ -63,7 +63,7 @@ public class ProfileShowCLI extends CLI {
             }
         }
 
-        MainCLI mainCLI = profileCLI.caCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         ProfileClient profileClient = profileCLI.getProfileClient();

@@ -125,7 +125,7 @@ public class PKCS12CertModCLI extends CLI {
             throw new Exception("Missing trust flags.");
         }
 
-        MainCLI mainCLI = certCLI.pkcs12CLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());

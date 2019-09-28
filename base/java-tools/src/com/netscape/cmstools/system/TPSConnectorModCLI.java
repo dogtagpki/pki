@@ -59,7 +59,7 @@ public class TPSConnectorModCLI extends CLI {
         data.setHost(cmd.getOptionValue("host"));
         data.setPort(cmd.getOptionValue("port"));
 
-        MainCLI mainCLI = tpsConnectorCLI.tksCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();

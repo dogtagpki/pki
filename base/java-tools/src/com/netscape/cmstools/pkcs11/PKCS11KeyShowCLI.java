@@ -78,7 +78,7 @@ public class PKCS11KeyShowCLI extends CLI {
 
         String alias = cmdArgs[0];
 
-        MainCLI mainCLI = keyCLI.pkcs11CLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         String tokenName = getConfig().getTokenName();

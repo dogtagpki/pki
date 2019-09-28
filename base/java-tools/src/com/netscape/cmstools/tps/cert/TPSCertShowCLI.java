@@ -60,7 +60,7 @@ public class TPSCertShowCLI extends CLI {
 
         String certID = cmdArgs[0];
 
-        MainCLI mainCLI = certCLI.tpsCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         TPSCertClient certClient = certCLI.getTPSCertClient();

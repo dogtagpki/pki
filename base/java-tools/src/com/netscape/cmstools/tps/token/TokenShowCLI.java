@@ -60,7 +60,7 @@ public class TokenShowCLI extends CLI {
 
         String tokenID = args[0];
 
-        MainCLI mainCLI = tokenCLI.tpsCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         TokenClient tokenClient = tokenCLI.getTokenClient();

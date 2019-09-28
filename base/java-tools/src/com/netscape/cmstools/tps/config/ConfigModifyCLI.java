@@ -94,7 +94,7 @@ public class ConfigModifyCLI extends CLI {
             configData = ConfigData.valueOf(sw.toString());
         }
 
-        MainCLI mainCLI = configCLI.tpsCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         ConfigClient configClient = configCLI.getConfigClient();

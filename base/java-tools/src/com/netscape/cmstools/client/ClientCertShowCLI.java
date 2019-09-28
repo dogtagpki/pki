@@ -92,7 +92,7 @@ public class ClientCertShowCLI extends CLI {
             throw new Exception("Missing certificate nickname.");
         }
 
-        MainCLI mainCLI = clientCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
 
         String nickname = cmdArgs[0];
         String certPath = cmd.getOptionValue("cert");

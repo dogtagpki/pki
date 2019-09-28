@@ -59,7 +59,7 @@ public class ClientCertRemoveCLI extends CLI {
 
         String nickname = cmdArgs[0];
 
-        MainCLI mainCLI = clientCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         CryptoUtil.deleteCertificates(nickname);

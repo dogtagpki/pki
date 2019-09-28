@@ -96,7 +96,7 @@ public class AuthorityKeyExportCLI extends CLI {
             algOid = new OBJECT_IDENTIFIER(algOidString);
         }
 
-        MainCLI mainCLI = authorityCLI.caCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         CryptoManager cm = CryptoManager.getInstance();

@@ -71,7 +71,7 @@ public class ConfigShowCLI extends CLI {
 
         String output = cmd.getOptionValue("output");
 
-        MainCLI mainCLI = configCLI.tpsCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         ConfigClient configClient = configCLI.getConfigClient();

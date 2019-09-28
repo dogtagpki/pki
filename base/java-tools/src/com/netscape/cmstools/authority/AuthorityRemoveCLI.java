@@ -56,7 +56,7 @@ public class AuthorityRemoveCLI extends CLI {
 
         String aidString = cmdArgs[0];
 
-        MainCLI mainCLI = authorityCLI.caCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         AuthorityClient authorityClient = authorityCLI.getAuthorityClient();

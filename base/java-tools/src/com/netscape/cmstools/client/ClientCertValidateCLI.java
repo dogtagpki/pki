@@ -80,7 +80,7 @@ public class ClientCertValidateCLI extends CLI {
         // get usages from options
         String certusage = cmd.getOptionValue("certusage");
 
-        MainCLI mainCLI = clientCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         boolean isValid = verifySystemCertByNickname(nickname, certusage);

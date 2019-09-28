@@ -128,7 +128,7 @@ public class PKCS12CertAddCLI extends CLI {
         boolean includeKey = !cmd.hasOption("no-key");
         boolean includeChain = !cmd.hasOption("no-chain");
 
-        MainCLI mainCLI = certCLI.pkcs12CLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());

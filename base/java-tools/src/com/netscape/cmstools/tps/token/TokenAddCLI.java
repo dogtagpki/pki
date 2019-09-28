@@ -82,7 +82,7 @@ public class TokenAddCLI extends CLI {
         String policy = cmd.getOptionValue("policy");
         tokenData.setPolicy(policy);
 
-        MainCLI mainCLI = tokenCLI.tpsCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         TokenClient tokenClient = tokenCLI.getTokenClient();

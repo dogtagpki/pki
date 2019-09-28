@@ -148,7 +148,7 @@ public class PKCS12CertExportCLI extends CLI {
             throw new Exception("Missing certificate file.");
         }
 
-        MainCLI mainCLI = certCLI.pkcs12CLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());

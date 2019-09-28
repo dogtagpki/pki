@@ -37,7 +37,7 @@ public class AuthorityDisableCLI extends CLI {
             throw new Exception("No ID specified.");
         }
 
-        MainCLI mainCLI = authorityCLI.caCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         AuthorityData data = new AuthorityData(

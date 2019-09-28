@@ -94,7 +94,7 @@ public class PKCS7CertExportCLI extends CLI {
             throw new Exception("Missing PKCS #7 file.");
         }
 
-        MainCLI mainCLI = certCLI.pkcs7CLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         logger.info("Loading PKCS #7 data from " + filename);

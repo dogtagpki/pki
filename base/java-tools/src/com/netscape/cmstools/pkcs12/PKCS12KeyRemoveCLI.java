@@ -114,7 +114,7 @@ public class PKCS12KeyRemoveCLI extends CLI {
             throw new Exception("Missing PKCS #12 password.");
         }
 
-        MainCLI mainCLI = keyCLI.pkcs12CLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());

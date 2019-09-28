@@ -38,7 +38,7 @@ public class ProfileEnableCLI extends CLI {
 
         String profileId = cmdArgs[0];
 
-        MainCLI mainCLI = profileCLI.caCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         ProfileClient profileClient = profileCLI.getProfileClient();

@@ -71,7 +71,7 @@ public class PKCS11CertFindCLI extends CLI {
             PKILogger.setLevel(PKILogger.Level.DEBUG);
         }
 
-        MainCLI mainCLI = certCLI.pkcs11CLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         String tokenName = getConfig().getTokenName();

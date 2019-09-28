@@ -59,7 +59,7 @@ public class AuthorityShowCLI extends CLI {
             throw new Exception("No ID specified.");
         }
 
-        MainCLI mainCLI = authorityCLI.caCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         AuthorityClient authorityClient = authorityCLI.getAuthorityClient();

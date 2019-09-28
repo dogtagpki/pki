@@ -128,7 +128,7 @@ public class ClientCertImportCLI extends CLI {
             PKILogger.setLevel(PKILogger.Level.INFO);
         }
 
-        MainCLI mainCLI = clientCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
 
         String nickname = null;
 

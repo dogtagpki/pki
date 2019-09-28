@@ -60,7 +60,7 @@ public class ActivityShowCLI extends CLI {
 
         String activityID = args[0];
 
-        MainCLI mainCLI = activityCLI.tpsCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         ActivityClient activityClient = activityCLI.getActivityClient();

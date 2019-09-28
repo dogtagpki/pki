@@ -84,7 +84,7 @@ public class KRAConnectorAddCLI extends CLI {
         String kraPort = cmd.getOptionValue("port");
         String inputFile = cmd.getOptionValue("input-file");
 
-        MainCLI mainCLI = kraConnectorCLI.caCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient();

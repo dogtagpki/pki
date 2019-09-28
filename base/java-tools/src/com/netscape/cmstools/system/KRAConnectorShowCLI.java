@@ -28,7 +28,7 @@ public class KRAConnectorShowCLI extends CLI {
             return;
         }
 
-        MainCLI mainCLI = kraConnectorCLI.caCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient();

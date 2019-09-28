@@ -98,6 +98,11 @@ public class CLI {
         return parent;
     }
 
+    public CLI getRoot() {
+        if (parent != null) return parent.getRoot();
+        return this;
+    }
+
     public boolean isDeprecated() {
         return getClass().getAnnotation(Deprecated.class) != null;
     }

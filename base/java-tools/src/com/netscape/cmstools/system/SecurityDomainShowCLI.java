@@ -58,7 +58,7 @@ public class SecurityDomainShowCLI extends CLI {
             throw new Exception("Too many arguments specified.");
         }
 
-        MainCLI mainCLI = securityDomainCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         SecurityDomainClient securityDomainClient = securityDomainCLI.getSecurityDomainClient();

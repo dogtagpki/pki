@@ -245,7 +245,7 @@ public class ClientCertRequestCLI extends CLI {
             throw new Exception("--issuer-id and --issuer-dn options are mutually exclusive");
         }
 
-        MainCLI mainCLI = clientCLI.mainCLI;
+        MainCLI mainCLI = (MainCLI) getRoot();
         File certDatabase = mainCLI.certDatabase;
 
         String password = mainCLI.config.getNSSPassword();
