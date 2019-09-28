@@ -88,6 +88,9 @@ public class ConnectorAddCLI extends CLI {
             connectorData = ConnectorData.valueOf(sw.toString());
         }
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         ConnectorClient connectorClient = connectorCLI.getConnectorClient();
         connectorData = connectorClient.addConnector(connectorData);
 

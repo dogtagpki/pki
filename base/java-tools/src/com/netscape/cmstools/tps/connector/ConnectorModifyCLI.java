@@ -79,6 +79,9 @@ public class ConnectorModifyCLI extends CLI {
         String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         ConnectorClient connectorClient = connectorCLI.getConnectorClient();
         ConnectorData connectorData;
 

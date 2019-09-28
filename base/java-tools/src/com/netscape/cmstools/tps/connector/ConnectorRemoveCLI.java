@@ -59,6 +59,9 @@ public class ConnectorRemoveCLI extends CLI {
 
         String connectorID = args[0];
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         ConnectorClient connectorClient = connectorCLI.getConnectorClient();
         connectorClient.removeConnector(connectorID);
 

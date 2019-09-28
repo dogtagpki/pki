@@ -76,6 +76,9 @@ public class ConnectorFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         ConnectorClient connectorClient = connectorCLI.getConnectorClient();
         ConnectorCollection result = connectorClient.findConnectors(filter, start, size);
 

@@ -72,6 +72,9 @@ public class ConnectorShowCLI extends CLI {
         String connectorID = args[0];
         String output = cmd.getOptionValue("output");
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         ConnectorClient connectorClient = connectorCLI.getConnectorClient();
         ConnectorData connectorData = connectorClient.getConnector(connectorID);
 
