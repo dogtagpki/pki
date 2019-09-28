@@ -61,6 +61,9 @@ public class GroupMemberAddCLI extends CLI {
         String groupID = cmdArgs[0];
         String memberID = cmdArgs[1];
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         GroupClient groupClient = groupMemberCLI.getGroupClient();
         GroupMemberData groupMemberData = groupClient.addGroupMember(groupID, memberID);
 

@@ -60,6 +60,9 @@ public class GroupRemoveCLI extends CLI {
 
         String groupID = cmdArgs[0];
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         GroupClient groupClient = groupCLI.getGroupClient();
         groupClient.removeGroup(groupID);
 

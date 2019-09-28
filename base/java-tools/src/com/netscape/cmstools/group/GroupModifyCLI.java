@@ -73,6 +73,9 @@ public class GroupModifyCLI extends CLI {
         groupData.setID(groupID);
         groupData.setDescription(cmd.getOptionValue("description"));
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         GroupClient groupClient = groupCLI.getGroupClient();
         groupData = groupClient.modifyGroup(groupID, groupData);
 

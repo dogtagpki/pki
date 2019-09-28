@@ -76,6 +76,9 @@ public class GroupFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         GroupClient groupClient = groupCLI.getGroupClient();
         GroupCollection response = groupClient.findGroups(filter, start, size);
 

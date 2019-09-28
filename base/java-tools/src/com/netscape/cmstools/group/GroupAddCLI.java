@@ -73,6 +73,9 @@ public class GroupAddCLI extends CLI {
         groupData.setGroupID(groupID);
         groupData.setDescription(cmd.getOptionValue("description"));
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         GroupClient groupClient = groupCLI.getGroupClient();
         groupData = groupClient.addGroup(groupData);
 
