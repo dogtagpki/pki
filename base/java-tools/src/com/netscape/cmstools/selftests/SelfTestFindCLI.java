@@ -76,6 +76,9 @@ public class SelfTestFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         SelfTestClient selfTestClient = selfTestCLI.getSelfTestClient();
         SelfTestCollection result = selfTestClient.findSelfTests(filter, start, size);
 

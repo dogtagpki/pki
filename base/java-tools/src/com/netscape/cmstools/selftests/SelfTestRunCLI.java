@@ -69,6 +69,9 @@ public class SelfTestRunCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         SelfTestClient selfTestClient = selfTestCLI.getSelfTestClient();
         SelfTestResults results;
 

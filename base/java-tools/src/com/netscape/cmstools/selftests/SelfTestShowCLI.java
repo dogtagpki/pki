@@ -72,6 +72,9 @@ public class SelfTestShowCLI extends CLI {
         String selfTestID = args[0];
         String output = cmd.getOptionValue("output");
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         SelfTestClient selfTestClient = selfTestCLI.getSelfTestClient();
         SelfTestData selfTestInfo = selfTestClient.getSelfTest(selfTestID);
 
