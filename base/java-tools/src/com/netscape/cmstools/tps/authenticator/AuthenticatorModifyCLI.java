@@ -79,6 +79,9 @@ public class AuthenticatorModifyCLI extends CLI {
         String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         AuthenticatorClient authenticatorClient = authenticatorCLI.getAuthenticatorClient();
         AuthenticatorData authenticatorData;
 

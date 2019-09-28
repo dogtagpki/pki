@@ -88,6 +88,9 @@ public class AuthenticatorAddCLI extends CLI {
             authenticatorData = AuthenticatorData.valueOf(sw.toString());
         }
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         AuthenticatorClient authenticatorClient = authenticatorCLI.getAuthenticatorClient();
         authenticatorData = authenticatorClient.addAuthenticator(authenticatorData);
 

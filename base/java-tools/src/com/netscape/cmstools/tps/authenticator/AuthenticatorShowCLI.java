@@ -72,6 +72,9 @@ public class AuthenticatorShowCLI extends CLI {
         String authenticatorID = args[0];
         String output = cmd.getOptionValue("output");
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         AuthenticatorClient authenticatorClient = authenticatorCLI.getAuthenticatorClient();
         AuthenticatorData authenticatorData = authenticatorClient.getAuthenticator(authenticatorID);
 

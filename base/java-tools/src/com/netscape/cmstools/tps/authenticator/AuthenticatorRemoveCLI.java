@@ -59,6 +59,9 @@ public class AuthenticatorRemoveCLI extends CLI {
 
         String authenticatorID = args[0];
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         AuthenticatorClient authenticatorClient = authenticatorCLI.getAuthenticatorClient();
         authenticatorClient.removeAuthenticator(authenticatorID);
 
