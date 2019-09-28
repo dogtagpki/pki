@@ -65,6 +65,9 @@ public class AuditFileFindCLI extends CLI {
             throw new Exception("Too many arguments specified.");
         }
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         AuditClient auditClient = auditCLI.getAuditClient();
         AuditFileCollection response = auditClient.findAuditFiles();
 

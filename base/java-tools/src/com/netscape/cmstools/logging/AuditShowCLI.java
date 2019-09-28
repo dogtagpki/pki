@@ -71,6 +71,9 @@ public class AuditShowCLI extends CLI {
 
         String output = cmd.getOptionValue("output");
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         AuditClient auditClient = auditCLI.getAuditClient();
         AuditConfig auditConfig = auditClient.getAuditConfig();
 

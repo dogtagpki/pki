@@ -84,6 +84,9 @@ public class AuditModifyCLI extends CLI {
         String input = cmd.getOptionValue("input");
         String output = cmd.getOptionValue("output");
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
         AuditClient auditClient = auditCLI.getAuditClient();
         AuditConfig auditConfig;
 
