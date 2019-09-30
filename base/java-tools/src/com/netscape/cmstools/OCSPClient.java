@@ -30,6 +30,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.CryptoManager;
 
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -51,7 +52,9 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
  */
 public class OCSPClient {
 
-    public static Options createOptions() throws UnknownHostException {
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPClient.class);
+
+    public Options createOptions() throws UnknownHostException {
 
         Options options = new Options();
 
@@ -92,6 +95,7 @@ public class OCSPClient {
         options.addOption(option);
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
+        options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
 
         return options;
@@ -113,41 +117,28 @@ public class OCSPClient {
         System.out.println("  --output <output>    Output file to store DER-encoded OCSP response");
         System.out.println();
         System.out.println("  -v, --verbose        Run in verbose mode.");
+        System.out.println("      --debug          Run in debug mode.");
         System.out.println("      --help           Show help message.");
     }
 
-    public static void printError(String message) {
-        System.err.println("ERROR: " + message);
-        System.err.println("Try 'OCSPClient --help' for more information.");
-    }
-
-    public static void printError(Exception e) {
-        String message = e.getClass().getSimpleName();
-        if (e.getMessage() != null) {
-            message += ": " + e.getMessage();
-        }
-        printError(message);
-    }
-
-    public static void main(String args[]) throws Exception {
+    public void execute(String args[]) throws Exception {
 
         Options options = createOptions();
-        CommandLine cmd = null;
 
-        try {
-            CommandLineParser parser = new PosixParser();
-            cmd = parser.parse(options, args);
-        } catch (Exception e) {
-            printError(e);
-            System.exit(1);
-        }
+        CommandLineParser parser = new PosixParser();
+        CommandLine cmd = parser.parse(options, args);
 
         if (cmd.hasOption("help")) {
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        boolean verbose = cmd.hasOption("v");
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
+        }
 
         String databaseDir = cmd.getOptionValue("d", ".");
         String hostname = cmd.getOptionValue("h", InetAddress.getLocalHost().getCanonicalHostName());
@@ -161,28 +152,27 @@ public class OCSPClient {
         String output = cmd.getOptionValue("output");
 
         if (times < 1) {
-            printError("Invalid number of submissions");
-            System.exit(1);
+            throw new Exception("Invalid number of submissions");
         }
 
         try {
-            if (verbose) System.out.println("Initializing security database");
+            logger.info("Initializing security database: " + databaseDir);
             CryptoManager.initialize(databaseDir);
 
             String url = "http://" + hostname + ":" + port + path;
 
             OCSPProcessor processor = new OCSPProcessor();
-            processor.setVerbose(verbose);
+            processor.setVerbose(logger.isInfoEnabled());
 
             OCSPRequest request;
             if (serial != null) {
-                if (verbose) System.out.println("Creating request for serial number " + serial);
+                logger.info("Creating request for serial number " + serial);
 
                 BigInteger serialNumber = new BigInteger(serial);
                 request = processor.createRequest(caNickname, serialNumber);
 
             } else if (input != null) {
-                if (verbose) System.out.println("Loading request from " + input);
+                logger.info("Loading request from " + input);
 
                 try (FileInputStream in = new FileInputStream(input)) {
                     byte[] data = new byte[in.available()];
@@ -197,7 +187,7 @@ public class OCSPClient {
             OCSPResponse response = null;
             for (int i = 0; i < times; i++) {
 
-                if (verbose) System.out.println("Submitting OCSP request");
+                logger.info("Submitting OCSP request");
                 response = processor.submitRequest(url, request);
 
                 ResponseBytes bytes = response.getResponseBytes();
@@ -229,7 +219,7 @@ public class OCSPClient {
             }
 
             if (output != null) {
-                if (verbose) System.out.println("Storing response into " + output);
+                logger.info("Storing response into " + output);
 
                 try (FileOutputStream out = new FileOutputStream(output)) {
                     ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -241,8 +231,28 @@ public class OCSPClient {
             }
 
         } catch (Exception e) {
-            if (verbose) e.printStackTrace();
-            printError(e);
+            throw e;
+        }
+    }
+
+    public static void main(String args[]) throws Exception {
+        try {
+            OCSPClient client = new OCSPClient();
+            client.execute(args);
+
+        } catch (Exception e) {
+
+            String message = e.getClass().getSimpleName();
+            if (e.getMessage() != null) {
+                message += ": " + e.getMessage();
+            }
+
+            if (logger.isInfoEnabled()) {
+                logger.error(message, e);
+            } else {
+                logger.error(message);
+            }
+
             System.exit(1);
         }
     }
