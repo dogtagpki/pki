@@ -26,6 +26,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CLIException;
+import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -56,6 +57,8 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
  */
 public class CACertStatusCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertStatusCLI.class);
+
     public CACertCLI certCLI;
 
     public CACertStatusCLI(CACertCLI certCLI) {
@@ -73,21 +76,25 @@ public class CACertStatusCLI extends CLI {
         Option option = new Option(null, "ocsp", true, "OCSP URL");
         option.setArgName("URL");
         options.addOption(option);
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
     public void execute(String[] args) throws Exception {
 
         CommandLine cmd = parser.parse(options, args);
 
-        String[] cmdArgs = cmd.getArgs();
-
         if (cmd.hasOption("help")) {
             printHelp();
             return;
         }
+
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
+        }
+
+        String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length < 1) {
             throw new Exception("Missing certificate serial number.");
@@ -107,7 +114,7 @@ public class CACertStatusCLI extends CLI {
         String ocspURL = cmd.getOptionValue("ocsp", config.getServerURL() + "/ca/ocsp");
 
         OCSPProcessor processor = new OCSPProcessor();
-        processor.setVerbose(verbose);
+        processor.setVerbose(logger.isInfoEnabled());
         processor.setURL(ocspURL);
 
         // get certificate data
