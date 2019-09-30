@@ -114,7 +114,6 @@ public class CACertStatusCLI extends CLI {
         String ocspURL = cmd.getOptionValue("ocsp", config.getServerURL() + "/ca/ocsp");
 
         OCSPProcessor processor = new OCSPProcessor();
-        processor.setVerbose(logger.isInfoEnabled());
         processor.setURL(ocspURL);
 
         // get certificate data

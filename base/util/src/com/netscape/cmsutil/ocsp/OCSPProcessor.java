@@ -51,18 +51,11 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
  */
 public class OCSPProcessor {
 
-    public boolean verbose;
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPProcessor.class);
+
     public String url;
 
     public OCSPProcessor() {
-    }
-
-    public void setVerbose(boolean verbose) {
-        this.verbose = verbose;
-    }
-
-    public boolean isVerbose() {
-        return verbose;
     }
 
     public String getURL() {
@@ -135,7 +128,7 @@ public class OCSPProcessor {
 
     public OCSPResponse submitRequest(String url, OCSPRequest request) throws Exception {
 
-        if (verbose) System.out.println("URL: " + url);
+        logger.info("URL: " + url);
 
         try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
 
@@ -143,10 +136,8 @@ public class OCSPProcessor {
             request.encode(os);
             byte[] requestData = os.toByteArray();
 
-            if (verbose) {
-                System.out.println("Request Length: " + requestData.length);
-                System.out.println("Request: " + Utils.base64encode(requestData, true));
-            }
+            logger.info("Request Length: " + requestData.length);
+            logger.info("Request:\n" + Utils.base64encode(requestData, true));
 
             ByteArrayEntity requestEntity = new ByteArrayEntity(requestData);
             requestEntity.setContentType(ContentType.APPLICATION_OCTET_STREAM.getMimeType());
@@ -169,10 +160,8 @@ public class OCSPProcessor {
 
                 byte[] responseData = buffer.toByteArray();
 
-                if (verbose) {
-                    System.out.println("Response Length: " + responseData.length);
-                    System.out.println("Response: " + Utils.base64encode(responseData, true));
-                }
+                logger.info("Response Length: " + responseData.length);
+                logger.info("Response:\n" + Utils.base64encode(responseData, true));
 
                 return (OCSPResponse)OCSPResponse.getTemplate().decode(
                         new ByteArrayInputStream(responseData));

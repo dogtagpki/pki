@@ -162,7 +162,6 @@ public class OCSPClient {
             String url = "http://" + hostname + ":" + port + path;
 
             OCSPProcessor processor = new OCSPProcessor();
-            processor.setVerbose(logger.isInfoEnabled());
 
             OCSPRequest request;
             if (serial != null) {
