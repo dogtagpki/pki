@@ -20,13 +20,13 @@ package com.netscape.cmstools.client;
 
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
 
@@ -36,6 +36,8 @@ import com.netscape.cmstools.cli.MainCLI;
  * @author Ade Lee
  */
 public class ClientCertValidateCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientCertValidateCLI.class);
 
     public ClientCLI clientCLI;
 
@@ -60,13 +62,20 @@ public class ClientCertValidateCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
+
+        CommandLine cmd = parser.parse(options, args);
+
+        if (cmd.hasOption("help")) {
             printHelp();
             return;
         }
 
-        CommandLine cmd = parser.parse(options, args);
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
+        }
 
         String[] cmdArgs = cmd.getArgs();
 

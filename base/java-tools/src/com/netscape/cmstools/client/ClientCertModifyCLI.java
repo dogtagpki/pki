@@ -21,6 +21,7 @@ package com.netscape.cmstools.client;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
 
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -28,6 +29,8 @@ import com.netscape.cmstools.cli.MainCLI;
  * @author Endi S. Dewata
  */
 public class ClientCertModifyCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientCertModifyCLI.class);
 
     public ClientCLI clientCLI;
 
@@ -55,6 +58,13 @@ public class ClientCertModifyCLI extends CLI {
         if (cmd.hasOption("help")) {
             printHelp();
             return;
+        }
+
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
         }
 
         String[] cmdArgs = cmd.getArgs();

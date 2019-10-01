@@ -34,6 +34,7 @@ import java.util.Vector;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -66,6 +67,8 @@ import netscape.ldap.util.RDN;
  * @author Endi S. Dewata
  */
 public class ClientCertRequestCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientCertRequestCLI.class);
 
     public ClientCLI clientCLI;
 
@@ -140,19 +143,25 @@ public class ClientCertRequestCLI extends CLI {
         option = new Option(null, "issuer-dn", true, "Authority DN (host authority if omitted)");
         option.setArgName("DN");
         options.addOption(option);
-
-        options.addOption(null, "help", false, "Show help message.");
     }
 
     public void execute(String[] args) throws Exception {
-        CommandLine cmd = parser.parse(options, args);
 
-        String[] cmdArgs = cmd.getArgs();
+        CommandLine cmd = parser.parse(options, args);
 
         if (cmd.hasOption("help")) {
             printHelp();
             return;
         }
+
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
+        }
+
+        String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length > 1) {
             throw new Exception("Too many arguments specified.");
@@ -300,17 +309,12 @@ public class ClientCertRequestCLI extends CLI {
             throw new Exception("Unknown request type: " + requestType);
         }
 
-        if (verbose) {
-            System.out.println("CSR:");
-            System.out.println(csr);
-        }
+        logger.info("CSR:\n" + csr);
 
         CAClient caClient = new CAClient(client);
         CACertClient certClient = new CACertClient(caClient);
 
-        if (verbose) {
-            System.out.println("Retrieving " + profileID + " profile.");
-        }
+        logger.info("Retrieving " + profileID + " profile");
 
         CertEnrollmentRequest request = certClient.getEnrollmentTemplate(profileID);
 
@@ -342,8 +346,7 @@ public class ClientCertRequestCLI extends CLI {
 
         ProfileInput sn = request.getInput("Subject Name");
         if (sn != null) {
-            if (verbose)
-                System.out.println("Subject Name:");
+            logger.info("Subject Name:");
 
             for (ProfileAttribute attribute : sn.getAttributes()) {
                 String name = attribute.getName();
@@ -359,16 +362,14 @@ public class ClientCertRequestCLI extends CLI {
 
                 } else {
                     // unknown attribute, ignore
-                    if (verbose)
-                        System.out.println(" - " + name);
+                    logger.info(" - " + name);
                     continue;
                 }
 
                 if (value == null)
                     continue;
 
-                if (verbose)
-                    System.out.println(" - " + name + ": " + value);
+                logger.info(" - " + name + ": " + value);
                 attribute.setValue(value);
             }
         }
@@ -383,9 +384,7 @@ public class ClientCertRequestCLI extends CLI {
             request.setAttribute("pwd", certRequestPassword);
         }
 
-        if (verbose) {
-            System.out.println("Sending certificate request.");
-        }
+        logger.info("Sending certificate request");
 
         CertRequestInfos infos = certClient.enrollRequest(request, aid, adn);
 
@@ -426,12 +425,10 @@ public class ClientCertRequestCLI extends CLI {
         try {
             runExternal(command);
         } catch (Exception e) {
-            throw new Exception("CSR generation failed", e);
+            throw new Exception("Unable to generate CSR: " + e.getMessage(), e);
         }
 
-        if (verbose) {
-            System.out.println("CSR generated: " + csrFile);
-        }
+        logger.info("CSR generated: " + csrFile);
 
         return new String(Files.readAllBytes(csrFile.toPath()));
     }

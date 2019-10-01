@@ -18,10 +18,9 @@
 
 package com.netscape.cmstools.client;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
 
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -30,6 +29,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @author Endi S. Dewata
  */
 public class ClientCertRemoveCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientCertRemoveCLI.class);
 
     public ClientCLI clientCLI;
 
@@ -43,13 +44,20 @@ public class ClientCertRemoveCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
+
+        CommandLine cmd = parser.parse(options, args);
+
+        if (cmd.hasOption("help")) {
             printHelp();
             return;
         }
 
-        CommandLine cmd = parser.parse(options, args);
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
+        }
 
         String[] cmdArgs = cmd.getArgs();
 

@@ -26,7 +26,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -107,18 +106,12 @@ public class ClientCertImportCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
 
         CommandLine cmd = parser.parse(options, args);
 
-        String[] cmdArgs = cmd.getArgs();
-
-        if (cmdArgs.length > 1) {
-            throw new Exception("Too many arguments specified");
+        if (cmd.hasOption("help")) {
+            printHelp();
+            return;
         }
 
         if (cmd.hasOption("debug")) {
@@ -126,6 +119,12 @@ public class ClientCertImportCLI extends CLI {
 
         } else if (cmd.hasOption("verbose")) {
             PKILogger.setLevel(PKILogger.Level.INFO);
+        }
+
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length > 1) {
+            throw new Exception("Too many arguments specified");
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();

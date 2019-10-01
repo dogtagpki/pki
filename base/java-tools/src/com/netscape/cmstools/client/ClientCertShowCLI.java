@@ -26,6 +26,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.RandomStringUtils;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
@@ -37,6 +38,8 @@ import com.netscape.cmstools.cli.MainCLI;
  * @author Endi S. Dewata
  */
 public class ClientCertShowCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientCertShowCLI.class);
 
     public ClientCLI clientCLI;
 
@@ -80,6 +83,13 @@ public class ClientCertShowCLI extends CLI {
         if (cmd.hasOption("help")) {
             printHelp();
             return;
+        }
+
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
         }
 
         String[] cmdArgs = cmd.getArgs();
@@ -152,7 +162,7 @@ public class ClientCertShowCLI extends CLI {
             out.print(pkcs12Password);
         }
 
-        if (verbose) System.out.println("Exporting certificate chain and private key to " + pkcs12File + ".");
+        logger.info("Exporting certificate chain and private key to " + pkcs12File);
         exportPKCS12(
                 mainCLI.certDatabase.getAbsolutePath(),
                 mainCLI.config.getNSSPassword(),
@@ -161,7 +171,7 @@ public class ClientCertShowCLI extends CLI {
                 nickname);
 
         if (certPath != null) {
-            if (verbose) System.out.println("Exporting certificate to " + certPath + ".");
+            logger.info("Exporting certificate to " + certPath);
             exportCertificate(
                     pkcs12File.getAbsolutePath(),
                     pkcs12PasswordFile.getAbsolutePath(),
@@ -169,7 +179,7 @@ public class ClientCertShowCLI extends CLI {
         }
 
         if (privateKeyPath != null) {
-            if (verbose) System.out.println("Exporting private key to " + privateKeyPath + ".");
+            logger.info("Exporting private key to " + privateKeyPath);
             exportPrivateKey(
                     pkcs12File.getAbsolutePath(),
                     pkcs12PasswordFile.getAbsolutePath(),
@@ -177,7 +187,7 @@ public class ClientCertShowCLI extends CLI {
         }
 
         if (clientCertPath != null) {
-            if (verbose) System.out.println("Exporting client certificate and private key to " + clientCertPath + ".");
+            logger.info("Exporting client certificate and private key to " + clientCertPath);
             exportClientCertificateAndPrivateKey(
                     pkcs12File.getAbsolutePath(),
                     pkcs12PasswordFile.getAbsolutePath(),
