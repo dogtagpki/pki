@@ -39,6 +39,8 @@ import com.netscape.cmstools.cli.SubsystemCLI;
  */
 public class CACertCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertCLI.class);
+
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public CACertClient certClient;
@@ -148,9 +150,7 @@ public class CACertCLI extends CLI {
         }
 
         Link link = info.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 
     public static void printCertData(
@@ -176,9 +176,7 @@ public class CACertCLI extends CLI {
         }
 
         Link link = certData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
 
         String prettyPrint = certData.getPrettyPrint();
         if (showPrettyPrint && prettyPrint != null) {

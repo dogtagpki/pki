@@ -20,11 +20,11 @@ package com.netscape.cmstools.ca;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 import com.netscape.certsrv.ca.CACertClient;
@@ -39,6 +39,8 @@ import com.netscape.cmstools.cli.MainCLI;
  * @author Endi S. Dewata
  */
 public class CACertHoldCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertHoldCLI.class);
 
     public CACertCLI certCLI;
 
@@ -62,13 +64,20 @@ public class CACertHoldCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
+
+        CommandLine cmd = parser.parse(options, args);
+
+        if (cmd.hasOption("help")) {
             printHelp();
             return;
         }
 
-        CommandLine cmd = parser.parse(options, args);
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
+        }
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -89,7 +98,7 @@ public class CACertHoldCLI extends CLI {
             System.out.println("Placing certificate on-hold:");
 
             CACertCLI.printCertData(certData, false, false);
-            if (verbose) System.out.println("  Nonce: " + certData.getNonce());
+            logger.info("Nonce: " + certData.getNonce());
 
             System.out.print("Are you sure (Y/N)? ");
             System.out.flush();
@@ -108,7 +117,7 @@ public class CACertHoldCLI extends CLI {
 
         CertRequestInfo certRequestInfo = certClient.revokeCert(certID, request);
 
-        if (verbose) {
+        if (logger.isInfoEnabled()) {
             CACertCLI.printCertRequestInfo(certRequestInfo);
         }
 

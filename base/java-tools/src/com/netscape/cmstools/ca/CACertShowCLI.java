@@ -20,11 +20,12 @@ package com.netscape.cmstools.ca;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.util.logging.PKILogger.Level;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
@@ -35,6 +36,8 @@ import com.netscape.cmstools.cli.MainCLI;
  * @author Endi S. Dewata
  */
 public class CACertShowCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertShowCLI.class);
 
     public CACertCLI certCLI;
 
@@ -59,13 +62,20 @@ public class CACertShowCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
+
+        CommandLine cmd = parser.parse(options, args);
+
+        if (cmd.hasOption("help")) {
             printHelp();
             return;
         }
 
-        CommandLine cmd = parser.parse(options, args);
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(Level.INFO);
+        }
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -79,13 +89,13 @@ public class CACertShowCLI extends CLI {
         boolean showEncoded = cmd.hasOption("encoded");
 
         if (showEncoded) {
-            System.err.println("WARNING: The --encoded option has been deprecated. Use pki ca-cert-export instead.");
+            logger.warn("The --encoded option has been deprecated. Use pki ca-cert-export instead.");
         }
 
         String file = cmd.getOptionValue("output");
 
         if (file != null) {
-            System.err.println("WARNING: The --output option has been deprecated. Use pki ca-cert-export instead.");
+            logger.warn("The --output option has been deprecated. Use pki ca-cert-export instead.");
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();

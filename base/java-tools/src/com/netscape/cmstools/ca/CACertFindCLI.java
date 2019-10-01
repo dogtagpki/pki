@@ -20,13 +20,15 @@ package com.netscape.cmstools.ca;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.util.logging.PKILogger.Level;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertDataInfo;
@@ -34,12 +36,12 @@ import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.cmstools.cli.MainCLI;
 
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-
 /**
  * @author Endi S. Dewata
  */
 public class CACertFindCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertFindCLI.class);
 
     public CACertCLI certCLI;
 
@@ -194,13 +196,20 @@ public class CACertFindCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
+
+        CommandLine cmd = parser.parse(options, args);
+
+        if (cmd.hasOption("help")) {
             printHelp();
             return;
         }
 
-        CommandLine cmd = parser.parse(options, args);
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(Level.INFO);
+        }
 
         String[] cmdArgs = cmd.getArgs();
 

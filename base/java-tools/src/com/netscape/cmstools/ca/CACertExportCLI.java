@@ -37,6 +37,8 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class CACertExportCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertExportCLI.class);
+
     public CACertCLI certCLI;
 
     public CACertExportCLI(CACertCLI certCLI) {
@@ -51,7 +53,7 @@ public class CACertExportCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "output-format", true, "Output format: PEM (default), DER");
+        Option option = new Option(null, "output-format", true, "Output format: pem (default), der");
         option.setArgName("format");
         options.addOption(option);
 
@@ -90,15 +92,15 @@ public class CACertExportCLI extends CLI {
         CACertClient certClient = certCLI.getCertClient();
         CertData certData = certClient.getCert(certID);
 
-        String outputFormat = cmd.getOptionValue("output-format");
+        String outputFormat = cmd.getOptionValue("output-format", "pem");
 
         String cert = null;
         byte[] bytes = null;
 
-        if (outputFormat == null || "PEM".equals(outputFormat.toUpperCase())) {
+        if ("pem".equalsIgnoreCase(outputFormat)) {
             cert = certData.getEncoded();
 
-        } else if ("DER".equals(outputFormat.toUpperCase())) {
+        } else if ("der".equalsIgnoreCase(outputFormat)) {
             bytes = Cert.parseCertificate(certData.getEncoded());
 
         } else {
