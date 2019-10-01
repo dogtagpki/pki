@@ -4,7 +4,6 @@ import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -13,6 +12,7 @@ import java.util.Vector;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.ca.AuthorityID;
@@ -28,6 +28,8 @@ import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
 
 public class CACertRequestSubmitCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertRequestSubmitCLI.class);
 
     CACertCLI certCLI;
 
@@ -80,13 +82,20 @@ public class CACertRequestSubmitCLI extends CLI {
 
     @Override
     public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
+
+        CommandLine cmd = parser.parse(options, args);
+
+        if (cmd.hasOption("help")) {
             printHelp();
             return;
         }
 
-        CommandLine cmd = parser.parse(options, args);
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
+        }
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -130,9 +139,7 @@ public class CACertRequestSubmitCLI extends CLI {
         CertEnrollmentRequest request;
         if (requestFilename == null) { // if no request file specified, generate new request from profile
 
-            if (verbose) {
-                System.out.println("Retrieving " + profileID + " profile.");
-            }
+            logger.info("Retrieving " + profileID + " profile");
 
             CACertClient certClient = certCLI.getCertClient();
             request = certClient.getEnrollmentTemplate(profileID);
@@ -142,9 +149,7 @@ public class CACertRequestSubmitCLI extends CLI {
 
         } else { // otherwise, load request from file
 
-            if (verbose) {
-                System.out.println("Loading request from " + requestFilename + ".");
-            }
+            logger.info("Loading request from " + requestFilename);
 
             String xml = loadFile(requestFilename);
             request = CertEnrollmentRequest.fromXML(xml);
@@ -152,9 +157,7 @@ public class CACertRequestSubmitCLI extends CLI {
 
         if (requestType != null) {
 
-            if (verbose) {
-                System.out.println("Request type: " + requestType);
-            }
+            logger.info("Request type: " + requestType);
 
             for (ProfileInput input : request.getInputs()) {
                 ProfileAttribute typeAttr = input.getAttribute("cert_request_type");
@@ -171,10 +174,7 @@ public class CACertRequestSubmitCLI extends CLI {
 
             String csr = loadFile(csrFilename);
 
-            if (verbose) {
-                System.out.println("CSR:");
-                System.out.println(csr);
-            }
+            logger.info("CSR:\n" + csr);
 
             for (ProfileInput input : request.getInputs()) {
                 ProfileAttribute csrAttr = input.getAttribute("cert_request");
@@ -187,9 +187,7 @@ public class CACertRequestSubmitCLI extends CLI {
         String serial = cmd.getOptionValue("serial");
         if (serial != null) {
 
-            if (verbose) {
-                System.out.println("Serial: " + serial);
-            }
+            logger.info("Serial: " + serial);
 
             request.setSerialNum(new CertId(serial));
 
@@ -217,7 +215,7 @@ public class CACertRequestSubmitCLI extends CLI {
 
             ProfileInput sn = request.getInput("Subject Name");
             if (sn != null) {
-                if (verbose) System.out.println("Subject Name:");
+                logger.info("Subject Name:");
 
                 for (ProfileAttribute attribute : sn.getAttributes()) {
                     String name = attribute.getName();
@@ -233,13 +231,13 @@ public class CACertRequestSubmitCLI extends CLI {
 
                     } else {
                         // unknown attribute, ignore
-                        if (verbose) System.out.println(" - " + name);
+                        logger.info(" - " + name);
                         continue;
                     }
 
                     if (value == null) continue;
 
-                    if (verbose) System.out.println(" - " + name + ": " + value);
+                    logger.info(" - " + name + ": " + value);
                     attribute.setValue(value);
                 }
             }
@@ -256,9 +254,7 @@ public class CACertRequestSubmitCLI extends CLI {
             request.setAttribute("pwd", certRequestPassword);
         }
 
-        if (verbose) {
-            System.out.println(request);
-        }
+        logger.info("Request:\n" + request);
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
