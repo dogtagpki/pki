@@ -29,6 +29,8 @@ import com.netscape.certsrv.user.UserMembershipData;
  */
 public class UserMembershipCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserMembershipCLI.class);
+
     UserCLI parent;
 
     public UserMembershipCLI(UserCLI parent) {
@@ -49,8 +51,6 @@ public class UserMembershipCLI extends CLI {
         System.out.println("  Group: "+userMembershipData.getID());
 
         Link link = userMembershipData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

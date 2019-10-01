@@ -28,12 +28,14 @@ import com.netscape.cmstools.cli.ProxyCLI;
 @Deprecated
 public class ProxyUserCLI extends ProxyCLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProxyUserCLI.class);
+
     public ProxyUserCLI(CLI parent) {
         super(new UserCLI(parent), "ca");
     }
 
     public void execute(String[] args) throws Exception {
-        System.err.println("WARNING: pki user has been deprecated. Use pki <subsystem>-user instead.");
+        logger.warn("pki user has been deprecated. Use pki <subsystem>-user instead.");
         super.execute(args);
     }
 }

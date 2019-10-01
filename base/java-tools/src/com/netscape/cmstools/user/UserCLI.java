@@ -34,6 +34,8 @@ import com.netscape.cmstools.cli.SubsystemCLI;
  */
 public class UserCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserCLI.class);
+
     public UserClient userClient;
 
     public UserCLI(CLI parent) {
@@ -110,9 +112,7 @@ public class UserCLI extends CLI {
             System.out.println("  State: " + state);
 
         Link link = userData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
 
         String tpsProfiles = userData.getAttribute(UserResource.ATTR_TPS_PROFILES);
         if (tpsProfiles != null) {
