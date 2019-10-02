@@ -207,16 +207,11 @@ public class CLI {
         return null;
     }
 
-    public Collection<CLI> getDeprecatedModules() {
-        Collection<CLI> list = new ArrayList<CLI>();
-        for (CLI module : modules.values()) {
-            if (!module.isDeprecated()) continue;
-            list.add(module);
-        }
-        return list;
+    public void printHelp() {
+        printCommands(modules);
     }
 
-    public void printHelp() {
+    public void printCommands(Map<String, CLI> modules) {
 
         int leftPadding = 1;
         int rightPadding = 35;
@@ -238,24 +233,27 @@ public class CLI {
             System.out.println(module.getDescription());
         }
 
-        Collection<CLI> deprecatedModules = getDeprecatedModules();
+        boolean first = true;
 
-        if (!deprecatedModules.isEmpty()) {
-            System.out.println();
-            System.out.println("Deprecated:");
+        for (CLI module : modules.values()) {
+            if (!module.isDeprecated()) continue;
 
-            for (CLI module : deprecatedModules) {
-                String label = module.getFullName();
-
-                int padding = rightPadding - leftPadding - label.length();
-                if (padding < 1)
-                    padding = 1;
-
-                System.out.print(StringUtils.repeat(" ", leftPadding));
-                System.out.print(label);
-                System.out.print(StringUtils.repeat(" ", padding));
-                System.out.println(module.getDescription());
+            if (first) {
+                System.out.println();
+                System.out.println("Deprecated:");
+                first = false;
             }
+
+            String label = module.getFullName();
+
+            int padding = rightPadding - leftPadding - label.length();
+            if (padding < 1)
+                padding = 1;
+
+            System.out.print(StringUtils.repeat(" ", leftPadding));
+            System.out.print(label);
+            System.out.print(StringUtils.repeat(" ", padding));
+            System.out.println(module.getDescription());
         }
     }
 
