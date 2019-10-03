@@ -33,6 +33,8 @@ import com.netscape.certsrv.tps.connector.ConnectorData;
  */
 public class ConnectorCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConnectorCLI.class);
+
     public ConnectorClient connectorClient;
 
     public ConnectorCLI(CLI parent) {
@@ -71,8 +73,6 @@ public class ConnectorCLI extends CLI {
         }
 
         Link link = connectorData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

@@ -18,10 +18,8 @@
 
 package com.netscape.cmstools.tps.connector;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -29,7 +27,9 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ConnectorRemoveCLI extends CLI {
+public class ConnectorRemoveCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConnectorRemoveCLI.class);
 
     public ConnectorCLI connectorCLI;
 
@@ -42,14 +42,7 @@ public class ConnectorRemoveCLI extends CLI {
         formatter.printHelp(getFullName() + " <Connector ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -57,7 +50,7 @@ public class ConnectorRemoveCLI extends CLI {
             throw new Exception("No Connector ID specified.");
         }
 
-        String connectorID = args[0];
+        String connectorID = cmdArgs[0];
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();

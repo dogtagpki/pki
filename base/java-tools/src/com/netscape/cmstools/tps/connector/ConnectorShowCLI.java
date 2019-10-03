@@ -20,11 +20,10 @@ package com.netscape.cmstools.tps.connector;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.certsrv.tps.connector.ConnectorData;
@@ -33,15 +32,15 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ConnectorShowCLI extends CLI {
+public class ConnectorShowCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConnectorShowCLI.class);
 
     public ConnectorCLI connectorCLI;
 
     public ConnectorShowCLI(ConnectorCLI connectorCLI) {
         super("show", "Show connector", connectorCLI);
         this.connectorCLI = connectorCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -54,14 +53,7 @@ public class ConnectorShowCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -69,7 +61,7 @@ public class ConnectorShowCLI extends CLI {
             throw new Exception("No Connector ID specified.");
         }
 
-        String connectorID = args[0];
+        String connectorID = cmdArgs[0];
         String output = cmd.getOptionValue("output");
 
         MainCLI mainCLI = (MainCLI) getRoot();
