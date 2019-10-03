@@ -20,11 +20,10 @@ package com.netscape.cmstools.tps.profile;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileData;
@@ -33,15 +32,15 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ProfileShowCLI extends CLI {
+public class ProfileShowCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileShowCLI.class);
 
     public ProfileCLI profileCLI;
 
     public ProfileShowCLI(ProfileCLI profileCLI) {
         super("show", "Show profile", profileCLI);
         this.profileCLI = profileCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -54,14 +53,7 @@ public class ProfileShowCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -69,7 +61,7 @@ public class ProfileShowCLI extends CLI {
             throw new Exception("No Profile ID specified.");
         }
 
-        String profileID = args[0];
+        String profileID = cmdArgs[0];
         String output = cmd.getOptionValue("output");
 
         MainCLI mainCLI = (MainCLI) getRoot();

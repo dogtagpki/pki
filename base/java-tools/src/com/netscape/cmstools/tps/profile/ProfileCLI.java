@@ -34,6 +34,8 @@ import com.netscape.cmstools.tps.TPSCLI;
  */
 public class ProfileCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileCLI.class);
+
     public TPSCLI tpsCLI;
     public ProfileClient profileClient;
 
@@ -81,8 +83,6 @@ public class ProfileCLI extends CLI {
         }
 
         Link link = profileData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }
