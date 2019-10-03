@@ -31,6 +31,8 @@ import com.netscape.cmstools.tps.TPSCLI;
  */
 public class TPSCertCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSCertCLI.class);
+
     public TPSCLI tpsCLI;
     public TPSCertClient certClient;
 
@@ -66,8 +68,6 @@ public class TPSCertCLI extends CLI {
         if (cert.getModifyTime() != null) System.out.println("  Modify Time: " + cert.getModifyTime());
 
         Link link = cert.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

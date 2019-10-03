@@ -18,10 +18,8 @@
 
 package com.netscape.cmstools.tps.cert;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.cert.TPSCertClient;
 import com.netscape.certsrv.tps.cert.TPSCertData;
@@ -30,7 +28,9 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class TPSCertShowCLI extends CLI {
+public class TPSCertShowCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSCertShowCLI.class);
 
     public TPSCertCLI certCLI;
 
@@ -43,14 +43,7 @@ public class TPSCertShowCLI extends CLI {
         formatter.printHelp(getFullName() + " <Certificate ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
