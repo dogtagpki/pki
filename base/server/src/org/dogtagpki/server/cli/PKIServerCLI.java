@@ -73,13 +73,11 @@ public class PKIServerCLI extends CLI {
 
         CommandLine cmd = parser.parse(options, args, true);
 
-        if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(Level.INFO);
-            verbose = true;
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(Level.DEBUG);
 
-        } else if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-            verbose = true;
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(Level.INFO);
         }
 
         String[] cmdArgs = cmd.getArgs();

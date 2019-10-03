@@ -328,7 +328,7 @@ public class CLI {
             throw new Exception("Invalid module \"" + getFullModuleName(moduleName) + "\".");
         }
 
-        if (verbose) System.out.println("Module: " + moduleName);
+        logger.info("Module: " + moduleName);
 
         // Prepare module arguments.
         String[] moduleArgs;
@@ -350,14 +350,6 @@ public class CLI {
         module.options.addOption(null, "help", false, "Show help message.");
 
         module.execute(moduleArgs);
-    }
-
-    public static boolean isVerbose() {
-        return verbose;
-    }
-
-    public static void setVerbose(boolean verbose) {
-        CLI.verbose = verbose;
     }
 
     public void runExternal(List<String> command) throws CLIException, IOException, InterruptedException {
