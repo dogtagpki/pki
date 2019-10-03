@@ -29,6 +29,8 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class AccountClient extends Client {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountClient.class);
+
     public AccountResource resource;
     public boolean loggedIn;
 
@@ -46,13 +48,11 @@ public class AccountClient extends Client {
         AccountInfo info = client.getEntity(response, AccountInfo.class);
         loggedIn = true;
 
-        if (client.verbose) {
-            System.out.println("Account:");
-            System.out.println(" - User ID: " + info.getID());
-            System.out.println(" - Full Name: " + info.getFullName());
-            System.out.println(" - Email: " + info.getEmail());
-            System.out.println(" - Roles: " + info.getRoles());
-        }
+        logger.info("Account:");
+        logger.info(" - User ID: " + info.getID());
+        logger.info(" - Full Name: " + info.getFullName());
+        logger.info(" - Email: " + info.getEmail());
+        logger.info(" - Roles: " + info.getRoles());
 
         return info;
     }

@@ -595,8 +595,6 @@ public class MainCLI extends CLI {
         logger.info("Initializing PKIClient");
 
         client = new PKIClient(config, null);
-        client.setVerbose(logger.isInfoEnabled());
-
         client.setRejectedCertStatuses(rejectedCertStatuses);
         client.setIgnoredCertStatuses(ignoredCertStatuses);
 

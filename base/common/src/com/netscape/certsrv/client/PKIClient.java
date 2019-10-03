@@ -45,14 +45,14 @@ import com.netscape.certsrv.util.CryptoProvider;
 
 public class PKIClient {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIClient.class);
+
     public final static String[] MESSAGE_FORMATS = { "xml", "json" };
 
     public ClientConfig config;
     public PKIConnection connection;
     public CryptoProvider crypto;
     public InfoClient infoClient;
-
-    public boolean verbose;
 
     Collection<Integer> rejectedCertStatuses = new HashSet<Integer>();
     Collection<Integer> ignoredCertStatuses = new HashSet<Integer>();
@@ -126,14 +126,6 @@ public class PKIClient {
         return connection;
     }
 
-    public boolean isVerbose() {
-        return verbose;
-    }
-
-    public void setVerbose(boolean verbose) {
-        this.verbose = verbose;
-    }
-
     public byte[] downloadCACertChain(String serverURI) throws ParserConfigurationException, SAXException, IOException {
         return downloadCACertChain(serverURI, "/ee/ca/getCertChain");
     }
@@ -143,7 +135,7 @@ public class PKIClient {
 
         URL url = new URL(uri + servletPath);
 
-        if (verbose) System.out.println("Retrieving CA certificate chain from " + url + ".");
+        logger.info("Retrieving CA certificate chain from " + url);
 
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
@@ -155,10 +147,11 @@ public class PKIClient {
         String encodedChain = element.getTextContent();
         byte[] bytes = Utils.base64decode(encodedChain);
 
-        if (verbose) {
-            System.out.println(PKCS7.HEADER);
-            System.out.print(Utils.base64encode(bytes, true));
-            System.out.println(PKCS7.FOOTER);
+        if (logger.isInfoEnabled()) {
+            StringBuilder sb = new StringBuilder(PKCS7.HEADER);
+            sb.append(Utils.base64encode(bytes, true));
+            sb.append(PKCS7.FOOTER);
+            logger.info(sb.toString());
         }
 
         return bytes;
