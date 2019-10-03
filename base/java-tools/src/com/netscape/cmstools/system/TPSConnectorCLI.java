@@ -30,6 +30,8 @@ import com.netscape.cmstools.tks.TKSCLI;
  */
 public class TPSConnectorCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSConnectorCLI.class);
+
     public TKSCLI tksCLI;
     public TPSConnectorClient tpsConnectorClient;
 
@@ -65,9 +67,7 @@ public class TPSConnectorCLI extends CLI {
         if (data.getNickname() != null) System.out.println("  Nickname: " + data.getNickname());
 
         Link link = data.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 
 }

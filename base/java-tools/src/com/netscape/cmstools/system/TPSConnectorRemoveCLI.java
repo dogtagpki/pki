@@ -17,11 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.system;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -29,15 +27,15 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Ade Lee
  */
-public class TPSConnectorRemoveCLI extends CLI {
+public class TPSConnectorRemoveCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSConnectorRemoveCLI.class);
 
     public TPSConnectorCLI tpsConnectorCLI;
 
     public TPSConnectorRemoveCLI(TPSConnectorCLI tpsConnectorCLI) {
         super("del", "Remove TPS connector from TKS", tpsConnectorCLI);
         this.tpsConnectorCLI = tpsConnectorCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -54,14 +52,7 @@ public class TPSConnectorRemoveCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

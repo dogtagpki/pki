@@ -1,24 +1,22 @@
 package com.netscape.cmstools.system;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class TPSConnectorModCLI extends CLI {
+public class TPSConnectorModCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSConnectorModCLI.class);
 
     public TPSConnectorCLI tpsConnectorCLI;
 
     public TPSConnectorModCLI(TPSConnectorCLI tpsConnectorCLI) {
         super("mod", "Modify TPS connector on TKS", tpsConnectorCLI);
         this.tpsConnectorCLI = tpsConnectorCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -35,14 +33,7 @@ public class TPSConnectorModCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
