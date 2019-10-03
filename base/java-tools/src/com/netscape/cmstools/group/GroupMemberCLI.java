@@ -29,6 +29,8 @@ import com.netscape.certsrv.group.GroupMemberData;
  */
 public class GroupMemberCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupMemberCLI.class);
+
     GroupCLI parent;
 
     public GroupMemberCLI(GroupCLI parent) {
@@ -55,8 +57,6 @@ public class GroupMemberCLI extends CLI {
         System.out.println("  User: "+groupMemberData.getID());
 
         Link link = groupMemberData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

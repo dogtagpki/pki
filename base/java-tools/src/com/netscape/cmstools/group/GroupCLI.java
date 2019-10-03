@@ -33,6 +33,8 @@ import com.netscape.cmstools.cli.SubsystemCLI;
  */
 public class GroupCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupCLI.class);
+
     public GroupClient groupClient;
 
     public GroupCLI(CLI parent) {
@@ -90,8 +92,6 @@ public class GroupCLI extends CLI {
         if (!StringUtils.isEmpty(description)) System.out.println("  Description: "+description);
 
         Link link = groupData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

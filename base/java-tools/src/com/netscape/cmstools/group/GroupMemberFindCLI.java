@@ -18,12 +18,11 @@
 
 package com.netscape.cmstools.group;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupMemberCollection;
@@ -33,15 +32,15 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class GroupMemberFindCLI extends CLI {
+public class GroupMemberFindCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupMemberFindCLI.class);
 
     public GroupMemberCLI groupMemberCLI;
 
     public GroupMemberFindCLI(GroupMemberCLI groupMemberCLI) {
         super("find", "Find group members", groupMemberCLI);
         this.groupMemberCLI = groupMemberCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -58,14 +57,7 @@ public class GroupMemberFindCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
