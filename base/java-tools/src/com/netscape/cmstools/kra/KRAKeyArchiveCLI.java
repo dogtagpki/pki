@@ -59,9 +59,6 @@ public class KRAKeyArchiveCLI extends CommandCLI {
         option = new Option(null, "transport", true, "Transport certificate nickname.");
         option.setArgName("Nickname");
         options.addOption(option);
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
     }
 
     public void execute(CommandLine cmd) throws Exception {
