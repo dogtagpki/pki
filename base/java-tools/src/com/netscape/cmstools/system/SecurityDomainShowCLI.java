@@ -18,10 +18,8 @@
 
 package com.netscape.cmstools.system;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SecurityDomainClient;
@@ -30,7 +28,7 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class SecurityDomainShowCLI extends CLI {
+public class SecurityDomainShowCLI extends CommandCLI {
 
     public SecurityDomainCLI securityDomainCLI;
 
@@ -43,14 +41,7 @@ public class SecurityDomainShowCLI extends CLI {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
