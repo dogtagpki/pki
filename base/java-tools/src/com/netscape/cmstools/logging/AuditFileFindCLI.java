@@ -46,10 +46,6 @@ public class AuditFileFindCLI extends CommandCLI {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void createOptions() {
-        options.addOption(null, "help", false, "Show help message.");
-    }
-
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();

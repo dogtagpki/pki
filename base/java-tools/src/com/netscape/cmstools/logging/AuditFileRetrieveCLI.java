@@ -52,8 +52,6 @@ public class AuditFileRetrieveCLI extends CommandCLI {
         Option option = new Option(null, "output", true, "Output file.");
         option.setArgName("path");
         options.addOption(option);
-
-        options.addOption(null, "help", false, "Show help message.");
     }
 
     public void execute(CommandLine cmd) throws Exception {
