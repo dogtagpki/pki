@@ -1,14 +1,14 @@
 package com.netscape.cmstools.profile;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class ProfileEnableCLI extends CLI {
+public class ProfileEnableCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileEnableCLI.class);
 
     public ProfileCLI profileCLI;
 
@@ -21,14 +21,7 @@ public class ProfileEnableCLI extends CLI {
         formatter.printHelp(getFullName() + " <Profile ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

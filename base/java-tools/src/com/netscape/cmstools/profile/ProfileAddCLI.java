@@ -1,25 +1,28 @@
 package com.netscape.cmstools.profile;
 
 import java.io.ByteArrayInputStream;
-import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class ProfileAddCLI extends CLI {
+public class ProfileAddCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileAddCLI.class);
 
     public ProfileCLI profileCLI;
 
     public ProfileAddCLI(ProfileCLI profileCLI) {
         super("add", "Add profiles", profileCLI);
         this.profileCLI = profileCLI;
+    }
 
+    public void createOptions() {
         Option optRaw = new Option(null, "raw", false, "Use raw format");
         optRaw.setArgName("raw");
         options.addOption(optRaw);
@@ -29,14 +32,7 @@ public class ProfileAddCLI extends CLI {
         formatter.printHelp(getFullName() + " <file> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

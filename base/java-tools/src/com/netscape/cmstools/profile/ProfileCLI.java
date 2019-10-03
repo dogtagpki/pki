@@ -33,6 +33,8 @@ import com.netscape.cmstools.cli.MainCLI;
 
 public class ProfileCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileCLI.class);
+
     public CACLI caCLI;
     public ProfileClient profileClient;
 
@@ -82,18 +84,16 @@ public class ProfileCLI extends CLI {
 
     public static void printProfileDataInfo(ProfileDataInfo info) {
         System.out.println("  Profile ID: " + info.getProfileId());
-        if (verbose) {
-            System.out.println("  URL: " + info.getProfileURL());
-        }
+        logger.info("URL: " + info.getProfileURL());
+
         System.out.println("  Name: " + info.getProfileName());
         System.out.println("  Description: " + info.getProfileDescription());
     }
 
     public static void printProfile(ProfileData data, URI baseUri) {
         System.out.println("  Profile ID: " + data.getId());
-        if (verbose) {
-            System.out.println("  URL: " + data.getLink().getHref().toString());
-        }
+        logger.info("URL: " + data.getLink().getHref().toString());
+
         System.out.println("  Name: " + data.getName());
         System.out.println("  Description: " + data.getDescription());
 

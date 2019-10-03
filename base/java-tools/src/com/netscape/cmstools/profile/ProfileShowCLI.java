@@ -2,25 +2,24 @@ package com.netscape.cmstools.profile;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class ProfileShowCLI extends CLI {
+public class ProfileShowCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileShowCLI.class);
 
     public ProfileCLI profileCLI;
 
     public ProfileShowCLI(ProfileCLI profileCLI) {
         super("show", "Show profiles", profileCLI);
         this.profileCLI = profileCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -37,14 +36,7 @@ public class ProfileShowCLI extends CLI {
         options.addOption(optRaw);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
