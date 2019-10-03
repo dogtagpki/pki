@@ -22,16 +22,17 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class HelpCLI extends CLI {
+public class HelpCLI extends CommandCLI {
 
     MainCLI mainCLI;
 
     public HelpCLI(MainCLI parent) {
-        super("help", "Help messages", parent);
+        super("help", "Show help messages", parent);
         mainCLI = parent;
     }
 
@@ -39,9 +40,7 @@ public class HelpCLI extends CLI {
         return name;
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
