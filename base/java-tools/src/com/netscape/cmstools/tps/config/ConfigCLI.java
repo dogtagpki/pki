@@ -34,6 +34,8 @@ import com.netscape.cmstools.tps.TPSCLI;
  */
 public class ConfigCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigCLI.class);
+
     public TPSCLI tpsCLI;
     public ConfigClient configClient;
 
@@ -69,8 +71,6 @@ public class ConfigCLI extends CLI {
         }
 
         Link link = configData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

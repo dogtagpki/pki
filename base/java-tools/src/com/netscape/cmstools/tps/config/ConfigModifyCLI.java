@@ -23,11 +23,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.config.ConfigClient;
 import com.netscape.certsrv.tps.config.ConfigData;
@@ -36,15 +35,15 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ConfigModifyCLI extends CLI {
+public class ConfigModifyCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigModifyCLI.class);
 
     public ConfigCLI configCLI;
 
     public ConfigModifyCLI(ConfigCLI configCLI) {
         super("mod", "Modify general properties", configCLI);
         this.configCLI = configCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -62,14 +61,7 @@ public class ConfigModifyCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
