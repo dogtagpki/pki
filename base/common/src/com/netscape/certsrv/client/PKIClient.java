@@ -32,6 +32,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.dogtagpki.common.InfoClient;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -39,9 +41,6 @@ import org.xml.sax.SAXException;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.util.CryptoProvider;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 
 
 public class PKIClient {
@@ -133,7 +132,6 @@ public class PKIClient {
 
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
-        connection.setVerbose(verbose);
     }
 
     public byte[] downloadCACertChain(String serverURI) throws ParserConfigurationException, SAXException, IOException {

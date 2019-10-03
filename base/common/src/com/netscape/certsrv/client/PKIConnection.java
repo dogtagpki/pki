@@ -90,7 +90,7 @@ import com.netscape.certsrv.base.PKIException;
 
 public class PKIConnection {
 
-    boolean verbose;
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIConnection.class);
 
     ClientConfig config;
 
@@ -132,11 +132,9 @@ public class PKIConnection {
 
                 requestCounter++;
 
-                if (verbose) {
-                    System.out.println("HTTP request: "+request.getRequestLine());
-                    for (Header header : request.getAllHeaders()) {
-                        System.out.println("  "+header.getName()+": "+header.getValue());
-                    }
+                logger.info("HTTP request: " + request.getRequestLine());
+                for (Header header : request.getAllHeaders()) {
+                    logger.info("  " + header.getName() + ": " + header.getValue());
                 }
 
                 if (output != null) {
@@ -160,11 +158,9 @@ public class PKIConnection {
 
                 responseCounter++;
 
-                if (verbose) {
-                    System.out.println("HTTP response: "+response.getStatusLine());
-                    for (Header header : response.getAllHeaders()) {
-                        System.out.println("  "+header.getName()+": "+header.getValue());
-                    }
+                logger.info("HTTP response: " + response.getStatusLine());
+                for (Header header : response.getAllHeaders()) {
+                    logger.info("  " + header.getName() + ": " + header.getValue());
                 }
 
                 if (output != null) {
@@ -182,7 +178,7 @@ public class PKIConnection {
                 HttpUriRequest uriRequest = super.getRedirect(request, response, context);
 
                 URI uri = uriRequest.getURI();
-                if (verbose) System.out.println("HTTP redirect: "+uri);
+                logger.info("HTTP redirect: "+uri);
 
                 // Redirect the original request to the new URI.
                 RequestWrapper wrapper;
@@ -210,15 +206,6 @@ public class PKIConnection {
 
         resteasyClient = new ResteasyClientBuilder().httpEngine(engine).build();
         resteasyClient.register(PKIRESTProvider.class);
-    }
-
-    public boolean isVerbose() {
-        return verbose;
-    }
-
-    public void setVerbose(boolean verbose) {
-        this.verbose = verbose;
-
     }
 
     public void setCallback(SSLCertificateApprovalCallback callback) {
@@ -353,7 +340,7 @@ public class PKIConnection {
 
             String certNickname = config.getCertNickname();
             if (certNickname != null) {
-                if (verbose) System.out.println("Client certificate: "+certNickname);
+                logger.info("Client certificate: "+certNickname);
                 socket.setClientCertNickname(certNickname);
             }
 
@@ -368,8 +355,8 @@ public class PKIConnection {
                     int intDescription = event.getDescription();
                     SSLAlertDescription description = SSLAlertDescription.valueOf(intDescription);
 
-                    if (level == SSLAlertLevel.FATAL || verbose) {
-                        System.err.println(level + ": SSL alert received: " + description);
+                    if (level == SSLAlertLevel.FATAL || logger.isInfoEnabled()) {
+                        logger.error(level + ": SSL alert received: " + description);
                     }
                 }
 
@@ -382,8 +369,8 @@ public class PKIConnection {
                     int intDescription = event.getDescription();
                     SSLAlertDescription description = SSLAlertDescription.valueOf(intDescription);
 
-                    if (level == SSLAlertLevel.FATAL || verbose) {
-                        System.err.println(level + ": SSL alert sent: " + description);
+                    if (level == SSLAlertLevel.FATAL || logger.isInfoEnabled()) {
+                        logger.error(level + ": SSL alert sent: " + description);
                     }
                 }
 
