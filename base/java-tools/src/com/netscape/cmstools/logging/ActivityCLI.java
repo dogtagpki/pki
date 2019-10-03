@@ -31,6 +31,8 @@ import com.netscape.cmstools.tps.TPSCLI;
  */
 public class ActivityCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ActivityCLI.class);
+
     public TPSCLI tpsCLI;
     public ActivityClient activityClient;
 
@@ -66,8 +68,6 @@ public class ActivityCLI extends CLI {
         }
 
         Link link = activity.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }
