@@ -18,26 +18,24 @@
 
 package com.netscape.cmstools.kra;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class KRAKeyShowCLI extends CLI {
+public class KRAKeyShowCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAKeyShowCLI.class);
 
     public KRAKeyCLI keyCLI;
 
     public KRAKeyShowCLI(KRAKeyCLI keyCLI) {
         super("show", "Get key", keyCLI);
         this.keyCLI = keyCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -50,14 +48,7 @@ public class KRAKeyShowCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
         String clientKeyId = cmd.getOptionValue("clientKeyID");

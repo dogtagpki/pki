@@ -7,8 +7,7 @@ import java.nio.file.Paths;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.key.KeyArchivalRequest;
@@ -16,7 +15,7 @@ import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class KRAKeyArchiveCLI extends CLI {
+public class KRAKeyArchiveCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAKeyArchiveCLI.class);
 
@@ -25,8 +24,6 @@ public class KRAKeyArchiveCLI extends CLI {
     public KRAKeyArchiveCLI(KRAKeyCLI keyCLI) {
         super("archive", "Archive a secret in the DRM.", keyCLI);
         this.keyCLI = keyCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -67,21 +64,7 @@ public class KRAKeyArchiveCLI extends CLI {
         options.addOption(null, "debug", false, "Run in debug mode.");
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-
-        } else if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

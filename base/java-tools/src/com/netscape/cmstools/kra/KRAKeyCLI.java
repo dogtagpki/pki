@@ -21,6 +21,8 @@ package com.netscape.cmstools.kra;
 import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyClient;
@@ -30,13 +32,13 @@ import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.certsrv.util.NSSCryptoProvider;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * @author Endi S. Dewata
  */
 public class KRAKeyCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAKeyCLI.class);
 
     public KeyClient keyClient;
 
@@ -120,9 +122,7 @@ public class KRAKeyCLI extends CLI {
                 transportCert = manager.findCertByNickname(transportNickname);
             }
 
-            if (verbose) {
-                System.out.println("Transport cert: " + transportCert.getNickname());
-            }
+            logger.info("Transport cert: " + transportCert.getNickname());
 
             // set transport cert for key client
             keyClient.setTransportCert(transportCert);

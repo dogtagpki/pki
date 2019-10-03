@@ -33,6 +33,8 @@ import com.netscape.cmstools.user.UserCLI;
  */
 public class KRACLI extends SubsystemCLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRACLI.class);
+
     public KRAClient kraClient;
 
     public KRACLI(MainCLI mainCLI) {

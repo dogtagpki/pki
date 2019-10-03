@@ -18,17 +18,17 @@
 
 package com.netscape.cmstools.kra;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class KRAKeyRequestShowCLI extends CLI {
+public class KRAKeyRequestShowCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAKeyRequestShowCLI.class);
 
     public KRAKeyCLI keyCLI;
 
@@ -41,15 +41,7 @@ public class KRAKeyRequestShowCLI extends CLI {
         formatter.printHelp(getFullName() + " <Request ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        // Check for "--help"
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -57,7 +49,7 @@ public class KRAKeyRequestShowCLI extends CLI {
             throw new Exception("No Request ID specified.");
         }
 
-        RequestId requestId = new RequestId(args[0].trim());
+        RequestId requestId = new RequestId(cmdArgs[0].trim());
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();

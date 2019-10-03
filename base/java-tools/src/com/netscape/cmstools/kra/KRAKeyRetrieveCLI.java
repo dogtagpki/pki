@@ -8,8 +8,7 @@ import java.nio.file.Paths;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.util.Utils;
 
@@ -21,7 +20,7 @@ import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class KRAKeyRetrieveCLI extends CLI {
+public class KRAKeyRetrieveCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAKeyRetrieveCLI.class);
 
@@ -31,8 +30,6 @@ public class KRAKeyRetrieveCLI extends CLI {
     public KRAKeyRetrieveCLI(KRAKeyCLI keyCLI) {
         super("retrieve", "Retrieve key", keyCLI);
         this.keyCLI = keyCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -80,21 +77,7 @@ public class KRAKeyRetrieveCLI extends CLI {
         options.addOption(null, "debug", false, "Run in debug mode.");
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-
-        } else if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

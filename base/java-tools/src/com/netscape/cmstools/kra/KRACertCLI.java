@@ -27,6 +27,8 @@ import com.netscape.certsrv.kra.KRAClient;
  */
 public class KRACertCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRACertCLI.class);
+
     public KRACLI kraCLI;
     public KRAClient kraClient;
 

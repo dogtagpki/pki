@@ -19,8 +19,7 @@
 package com.netscape.cmstools.kra;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
@@ -30,7 +29,9 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class KRACertTransportShowCLI extends CLI {
+public class KRACertTransportShowCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRACertTransportShowCLI.class);
 
     public KRACertCLI certCLI;
 
@@ -43,21 +44,7 @@ public class KRACertTransportShowCLI extends CLI {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-
-        } else if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();

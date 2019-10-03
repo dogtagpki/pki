@@ -2,7 +2,6 @@ package com.netscape.cmstools.kra;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -10,7 +9,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -19,14 +18,15 @@ import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class KRAKeyRecoverCLI extends CLI {
+public class KRAKeyRecoverCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAKeyRecoverCLI.class);
+
     public KRAKeyCLI keyCLI;
 
     public KRAKeyRecoverCLI(KRAKeyCLI keyCLI) {
         super("recover", "Create a key recovery request", keyCLI);
         this.keyCLI = keyCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -43,14 +43,7 @@ public class KRAKeyRecoverCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
