@@ -23,8 +23,7 @@ import java.security.cert.Certificate;
 import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.provider.java.security.JSSLoadStoreParameter;
 
@@ -34,42 +33,20 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 /**
  * @author Endi S. Dewata
  */
-public class PKCS11CertFindCLI extends CLI {
+public class PKCS11CertFindCLI extends CommandCLI {
 
     public PKCS11CertCLI certCLI;
 
     public PKCS11CertFindCLI(PKCS11CertCLI certCLI) {
         super("find", "Find PKCS #11 certificates", certCLI);
         this.certCLI = certCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void createOptions() {
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
-    }
-
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-
-        } else if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
