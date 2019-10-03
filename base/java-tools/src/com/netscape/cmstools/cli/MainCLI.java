@@ -46,6 +46,8 @@ import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
+import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.util.logging.PKILogger.Level;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -222,6 +224,7 @@ public class MainCLI extends CLI {
         options.addOption(option);
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
+        options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
         options.addOption(null, "version", false, "Show version number.");
     }
@@ -318,7 +321,13 @@ public class MainCLI extends CLI {
 
     public void parseOptions(CommandLine cmd) throws Exception {
 
-        verbose = cmd.hasOption("v");
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(Level.INFO);
+        }
+
         output = cmd.getOptionValue("output");
 
         String url = cmd.getOptionValue("U");
@@ -332,13 +341,13 @@ public class MainCLI extends CLI {
             url = protocol + "://" + hostname + ":" + port;
 
         if (subsystem != null) {
-            System.err.println("WARNING: The -t option has been deprecated. Use pki " + subsystem + " command instead.");
+            logger.warn("The -t option has been deprecated. Use pki " + subsystem + " command instead.");
             url = url + "/" + subsystem;
         }
 
         config.setServerURL(url);
 
-        if (verbose) System.out.println("Server URL: " + url);
+        logger.info("Server URL: " + url);
 
         String nssDatabase = cmd.getOptionValue("d");
         String nssPassword = cmd.getOptionValue("c");
@@ -393,12 +402,12 @@ public class MainCLI extends CLI {
             config.setNSSPassword(nssPassword);
 
         } else if (nssPasswordFile != null) {
-            if (verbose) System.out.println("Loading NSS password from " + nssPasswordFile);
+            logger.info("Loading NSS password from " + nssPasswordFile);
             nssPassword = loadPassword(nssPasswordFile);
             config.setNSSPassword(nssPassword);
 
         } else if (nssPasswordConfig != null) {
-            if (verbose) System.out.println("Loading NSS password configuration from " + nssPasswordConfig);
+            logger.info("Loading NSS password configuration from " + nssPasswordConfig);
             Map<String, String> nssPasswords = loadPasswordConfig(nssPasswordConfig);
             config.setNSSPasswords(nssPasswords);
         }
@@ -407,7 +416,7 @@ public class MainCLI extends CLI {
         config.setUsername(username);
 
         if (passwordFile != null) {
-            if (verbose) System.out.println("Loading user password from " + passwordFile);
+            logger.info("Loading user password from " + passwordFile);
             password = loadPassword(passwordFile);
 
         } else if (username != null && password == null) {
@@ -427,11 +436,11 @@ public class MainCLI extends CLI {
         ignoreBanner = cmd.hasOption("ignore-banner");
 
         this.certDatabase = new File(config.getNSSDatabase());
-        if (verbose) System.out.println("NSS database: " + this.certDatabase.getAbsolutePath());
+        logger.info("NSS database: " + this.certDatabase.getAbsolutePath());
 
         String messageFormat = cmd.getOptionValue("message-format");
         config.setMessageFormat(messageFormat);
-        if (verbose) System.out.println("Message format: " + messageFormat);
+        logger.info("Message format: " + messageFormat);
     }
 
     public ClientConfig getConfig() {
@@ -464,7 +473,7 @@ public class MainCLI extends CLI {
         // Create NSS database if it doesn't exist
         if (!certDatabase.exists()) {
 
-            if (verbose) System.out.println("Creating NSS database");
+            logger.info("Creating NSS database");
 
             certDatabase.mkdirs();
 
@@ -481,8 +490,7 @@ public class MainCLI extends CLI {
             }
         }
 
-        // Main program should initialize NSS
-        if (verbose) System.out.println("Initializing NSS");
+        logger.info("Initializing NSS");
         CryptoManager.initialize(certDatabase.getAbsolutePath());
 
         CryptoManager manager;
@@ -500,7 +508,7 @@ public class MainCLI extends CLI {
             String tokenName = config.getTokenName();
             tokenName = tokenName == null ? CryptoUtil.INTERNAL_TOKEN_NAME : tokenName;
 
-            if (verbose) System.out.println("Logging into " + tokenName + " token");
+            logger.info("Logging into " + tokenName + " token");
 
             CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
             Password password = new Password(config.getNSSPassword().toCharArray());
@@ -522,7 +530,7 @@ public class MainCLI extends CLI {
 
             for (String tokenName : passwords.keySet()) {
 
-                if (verbose) System.out.println("Logging into " + tokenName + " token");
+                logger.info("Logging into " + tokenName + " token");
 
                 CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
                 Password password = new Password(passwords.get(tokenName).toCharArray());
@@ -542,7 +550,7 @@ public class MainCLI extends CLI {
 
         String tokenName = config.getTokenName();
         tokenName = tokenName == null ? CryptoUtil.INTERNAL_TOKEN_NAME : tokenName;
-        if (verbose) System.out.println("Using " + tokenName + " token");
+        logger.info("Using " + tokenName + " token");
 
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
         manager.setThreadToken(token);
@@ -584,12 +592,10 @@ public class MainCLI extends CLI {
 
         if (client != null) return client;
 
-        if (verbose) {
-            System.out.println("Initializing PKIClient");
-        }
+        logger.info("Initializing PKIClient");
 
         client = new PKIClient(config, null);
-        client.setVerbose(verbose);
+        client.setVerbose(logger.isInfoEnabled());
 
         client.setRejectedCertStatuses(rejectedCertStatuses);
         client.setIgnoredCertStatuses(ignoredCertStatuses);
@@ -646,13 +652,14 @@ public class MainCLI extends CLI {
 
         parseOptions(cmd);
 
-        if (verbose) {
-            System.out.print("Command:");
+        if (logger.isInfoEnabled()) {
+            StringBuilder sb = new StringBuilder("Command:");
             for (String arg : cmdArgs) {
-                if (arg.contains(" ")) arg = "\""+arg+"\"";
-                System.out.print(" "+arg);
+                if (arg.contains(" ")) arg = "\"" + arg + "\"";
+                sb.append(" ");
+                sb.append(arg);
             }
-            System.out.println();
+            logger.info(sb.toString());
         }
 
         super.execute(cmdArgs);
@@ -666,25 +673,25 @@ public class MainCLI extends CLI {
 
     public static void handleException(Throwable t) {
 
-        if (verbose) {
-            t.printStackTrace(System.err);
+        if (logger.isInfoEnabled()) {
+            logger.error(t.getMessage(), t);
 
         } else if (t.getClass() == Exception.class) {
             // display a generic error
-            System.err.println("Error: " + t.getMessage());
+            logger.error(t.getMessage());
 
-        } else if (t.getClass() == UnrecognizedOptionException.class) {
+        } else if (t instanceof UnrecognizedOptionException) {
             // display only the error message
-            System.err.println(t.getMessage());
+            logger.error(t.getMessage());
 
         } else if (t instanceof ProcessingException) {
             // display the cause of the exception
             t = t.getCause();
-            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+            logger.error(t.getClass().getSimpleName() + ": " + t.getMessage());
 
         } else {
             // display the actual Exception
-            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+            logger.error(t.getClass().getSimpleName() + ": " + t.getMessage());
         }
     }
 
@@ -696,7 +703,7 @@ public class MainCLI extends CLI {
         } catch (CLIException e) {
             String message = e.getMessage();
             if (message != null) {
-                System.err.println(message);
+                logger.error(message);
             }
             System.exit(e.getCode());
 
