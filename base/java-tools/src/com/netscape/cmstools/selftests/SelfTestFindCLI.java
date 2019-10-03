@@ -18,12 +18,11 @@
 
 package com.netscape.cmstools.selftests;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.selftests.SelfTestCollection;
@@ -33,15 +32,15 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class SelfTestFindCLI extends CLI {
+public class SelfTestFindCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfTestFindCLI.class);
 
     public SelfTestCLI selfTestCLI;
 
     public SelfTestFindCLI(SelfTestCLI selfTestCLI) {
         super("find", "Find selftests", selfTestCLI);
         this.selfTestCLI = selfTestCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -58,14 +57,7 @@ public class SelfTestFindCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
         String filter = cmdArgs.length > 0 ? cmdArgs[0] : null;

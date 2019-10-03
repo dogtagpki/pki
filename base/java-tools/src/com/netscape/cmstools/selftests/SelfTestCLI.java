@@ -31,6 +31,8 @@ import com.netscape.certsrv.selftests.SelfTestData;
  */
 public class SelfTestCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfTestCLI.class);
+
     public SelfTestClient selfTestClient;
 
     public SelfTestCLI(CLI parent) {
@@ -59,8 +61,6 @@ public class SelfTestCLI extends CLI {
         if (selfTestData.isCriticalOnDemand() != null) System.out.println("  Critical on demand: " + selfTestData.isCriticalOnDemand());
 
         Link link = selfTestData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

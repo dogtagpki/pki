@@ -20,11 +20,10 @@ package com.netscape.cmstools.selftests;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.selftests.SelfTestData;
@@ -33,15 +32,15 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class SelfTestShowCLI extends CLI {
+public class SelfTestShowCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfTestShowCLI.class);
 
     public SelfTestCLI selfTestCLI;
 
     public SelfTestShowCLI(SelfTestCLI selfTestCLI) {
         super("show", "Show selftest", selfTestCLI);
         this.selfTestCLI = selfTestCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -54,14 +53,7 @@ public class SelfTestShowCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -69,7 +61,7 @@ public class SelfTestShowCLI extends CLI {
             throw new Exception("No SelfTest ID specified.");
         }
 
-        String selfTestID = args[0];
+        String selfTestID = cmdArgs[0];
         String output = cmd.getOptionValue("output");
 
         MainCLI mainCLI = (MainCLI) getRoot();
