@@ -14,8 +14,7 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.StringUtils;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
@@ -23,7 +22,7 @@ import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class CACertRequestReviewCLI extends CLI {
+public class CACertRequestReviewCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertRequestReviewCLI.class);
 
@@ -36,8 +35,6 @@ public class CACertRequestReviewCLI extends CLI {
     public CACertRequestReviewCLI(CACertCLI certCLI) {
         super("request-review", "Review certificate request", certCLI);
         this.certCLI = certCLI;
-
-        createOptions();
     }
 
     @Override
@@ -58,21 +55,7 @@ public class CACertRequestReviewCLI extends CLI {
     }
 
     @Override
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

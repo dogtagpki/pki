@@ -1,22 +1,20 @@
 package com.netscape.cmstools.ca;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class CACertRequestShowCLI extends CLI {
+public class CACertRequestShowCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertRequestShowCLI.class);
 
     CACertCLI certCLI;
 
     public CACertRequestShowCLI(CACertCLI certCLI) {
-
         super("request-show", "Show certificate request", certCLI);
         this.certCLI = certCLI;
     }
@@ -27,21 +25,7 @@ public class CACertRequestShowCLI extends CLI {
     }
 
     @Override
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

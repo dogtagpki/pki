@@ -11,8 +11,7 @@ import java.util.Vector;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.ca.AuthorityID;
@@ -27,7 +26,7 @@ import com.netscape.cmstools.cli.MainCLI;
 import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
 
-public class CACertRequestSubmitCLI extends CLI {
+public class CACertRequestSubmitCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertRequestSubmitCLI.class);
 
@@ -36,6 +35,9 @@ public class CACertRequestSubmitCLI extends CLI {
     public CACertRequestSubmitCLI(CACertCLI certCLI) {
         super("request-submit", "Submit certificate request", certCLI);
         this.certCLI = certCLI;
+    }
+
+    public void createOptions() {
 
         Option option = new Option(null, "issuer-id", true, "Authority ID (host authority if omitted)");
         option.setArgName("ID");
@@ -81,21 +83,7 @@ public class CACertRequestSubmitCLI extends CLI {
     }
 
     @Override
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
