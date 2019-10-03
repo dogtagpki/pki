@@ -25,8 +25,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.Level;
+import org.dogtagpki.cli.CommandCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,14 +50,12 @@ import netscape.ldap.LDAPv3;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemDBInfoCLI extends CLI {
+public class SubsystemDBInfoCLI extends CommandCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemDBInfoCLI.class);
 
     public SubsystemDBInfoCLI(CLI parent) {
         super("info", "Display " + parent.getParent().getName().toUpperCase() + " database info", parent);
-
-        createOptions();
     }
 
     public void createOptions() {
@@ -70,22 +67,9 @@ public class SubsystemDBInfoCLI extends CLI {
         option = new Option("f", true, "NSS database password configuration");
         option.setArgName("password config");
         options.addOption(option);
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args, true);
-
-        if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(Level.INFO);
-
-        } else if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String catalinaBase = System.getProperty("catalina.base");
         String serverXml = catalinaBase + "/conf/server.xml";

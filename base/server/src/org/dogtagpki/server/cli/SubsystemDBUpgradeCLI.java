@@ -23,7 +23,7 @@ import java.io.File;
 import org.apache.commons.cli.CommandLine;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ import com.netscape.cmsutil.password.IPasswordStore;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemDBUpgradeCLI extends CLI {
+public class SubsystemDBUpgradeCLI extends CommandCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemDBUpgradeCLI.class);
 
@@ -52,26 +52,9 @@ public class SubsystemDBUpgradeCLI extends CLI {
 
     public SubsystemDBUpgradeCLI(String name, String description, CLI parent) {
         super(name, description, parent);
+   }
 
-        createOptions();
-    }
-
-    public void createOptions() {
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
-    }
-
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args, true);
-
-        if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-
-        } else if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String catalinaBase = System.getProperty("catalina.base");
         String serverXml = catalinaBase + "/conf/server.xml";
