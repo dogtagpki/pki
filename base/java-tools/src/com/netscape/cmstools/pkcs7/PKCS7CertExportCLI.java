@@ -26,8 +26,7 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -37,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-public class PKCS7CertExportCLI extends CLI {
+public class PKCS7CertExportCLI extends CommandCLI {
 
     private static Logger logger = LoggerFactory.getLogger(PKCS7CertExportCLI.class);
 
@@ -46,8 +45,6 @@ public class PKCS7CertExportCLI extends CLI {
     public PKCS7CertExportCLI(PKCS7CertCLI certCLI) {
         super("export", "Export certificates from PKCS #7 file", certCLI);
         this.certCLI = certCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -66,27 +63,9 @@ public class PKCS7CertExportCLI extends CLI {
         option = new Option(null, "output-suffix", true, "Suffix for output file");
         option.setArgName("string");
         options.addOption(option);
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args, true);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-
-        } else if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String filename = cmd.getOptionValue("pkcs7-file");
 

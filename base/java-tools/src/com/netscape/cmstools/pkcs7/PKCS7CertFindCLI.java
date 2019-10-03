@@ -24,8 +24,7 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-public class PKCS7CertFindCLI extends CLI {
+public class PKCS7CertFindCLI extends CommandCLI {
 
     private static Logger logger = LoggerFactory.getLogger(PKCS7CertFindCLI.class);
 
@@ -42,8 +41,6 @@ public class PKCS7CertFindCLI extends CLI {
     public PKCS7CertFindCLI(PKCS7CertCLI certCLI) {
         super("find", "Find certificates in PKCS #7 file", certCLI);
         this.certCLI = certCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -54,27 +51,9 @@ public class PKCS7CertFindCLI extends CLI {
         Option option = new Option(null, "pkcs7-file", true, "PKCS #7 file");
         option.setArgName("path");
         options.addOption(option);
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args, true);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-
-        } else if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String filename = cmd.getOptionValue("pkcs7-file");
 
