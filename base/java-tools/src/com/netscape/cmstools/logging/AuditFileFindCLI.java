@@ -21,7 +21,7 @@ package com.netscape.cmstools.logging;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.logging.AuditFile;
@@ -31,15 +31,15 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class AuditFileFindCLI extends CLI {
+public class AuditFileFindCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuditFileFindCLI.class);
 
     public AuditCLI auditCLI;
 
     public AuditFileFindCLI(AuditCLI auditCLI) {
         super("file-find", "Find audit files", auditCLI);
         this.auditCLI = auditCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -50,14 +50,7 @@ public class AuditFileFindCLI extends CLI {
         options.addOption(null, "help", false, "Show help message.");
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

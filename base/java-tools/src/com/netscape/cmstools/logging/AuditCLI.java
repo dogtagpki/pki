@@ -35,6 +35,8 @@ import com.netscape.cmstools.cli.SubsystemCLI;
  */
 public class AuditCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuditCLI.class);
+
     public SubsystemCLI subsystemCLI;
     public AuditClient auditClient;
 
@@ -85,9 +87,7 @@ public class AuditCLI extends CLI {
         }
 
         Link link = auditConfig.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 
     public static void printAuditFile(AuditFile auditFile) {

@@ -25,7 +25,7 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -33,15 +33,15 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class AuditFileRetrieveCLI extends CLI {
+public class AuditFileRetrieveCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuditFileRetrieveCLI.class);
 
     public AuditCLI auditCLI;
 
     public AuditFileRetrieveCLI(AuditCLI auditCLI) {
         super("file-retrieve", "Retrieve audit file", auditCLI);
         this.auditCLI = auditCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -56,14 +56,7 @@ public class AuditFileRetrieveCLI extends CLI {
         options.addOption(null, "help", false, "Show help message.");
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
