@@ -33,6 +33,8 @@ import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
  */
 public class AuthenticatorCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthenticatorCLI.class);
+
     public AuthenticatorClient authenticatorClient;
 
     public AuthenticatorCLI(CLI parent) {
@@ -71,8 +73,6 @@ public class AuthenticatorCLI extends CLI {
         }
 
         Link link = authenticatorData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

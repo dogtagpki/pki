@@ -20,11 +20,10 @@ package com.netscape.cmstools.tps.authenticator;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
@@ -33,15 +32,15 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class AuthenticatorShowCLI extends CLI {
+public class AuthenticatorShowCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthenticatorShowCLI.class);
 
     public AuthenticatorCLI authenticatorCLI;
 
     public AuthenticatorShowCLI(AuthenticatorCLI authenticatorCLI) {
         super("show", "Show authenticator", authenticatorCLI);
         this.authenticatorCLI = authenticatorCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -54,14 +53,7 @@ public class AuthenticatorShowCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -69,7 +61,7 @@ public class AuthenticatorShowCLI extends CLI {
             throw new Exception("No Authenticator ID specified.");
         }
 
-        String authenticatorID = args[0];
+        String authenticatorID = cmdArgs[0];
         String output = cmd.getOptionValue("output");
 
         MainCLI mainCLI = (MainCLI) getRoot();
