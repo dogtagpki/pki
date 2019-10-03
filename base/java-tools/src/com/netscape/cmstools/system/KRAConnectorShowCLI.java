@@ -1,14 +1,13 @@
 package com.netscape.cmstools.system;
 
-import java.util.Arrays;
-
-import org.dogtagpki.cli.CLI;
+import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class KRAConnectorShowCLI extends CLI {
+public class KRAConnectorShowCLI extends CommandCLI {
 
     public KRAConnectorCLI kraConnectorCLI;
 
@@ -21,12 +20,7 @@ public class KRAConnectorShowCLI extends CLI {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();

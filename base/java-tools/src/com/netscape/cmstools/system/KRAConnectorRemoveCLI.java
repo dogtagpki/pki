@@ -17,11 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.system;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -29,15 +27,13 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Ade Lee
  */
-public class KRAConnectorRemoveCLI extends CLI {
+public class KRAConnectorRemoveCLI extends CommandCLI {
 
     public KRAConnectorCLI kraConnectorCLI;
 
     public KRAConnectorRemoveCLI(KRAConnectorCLI kraConnectorCLI) {
         super("del", "Remove KRA connector from CA", kraConnectorCLI);
         this.kraConnectorCLI = kraConnectorCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -54,14 +50,7 @@ public class KRAConnectorRemoveCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
