@@ -33,6 +33,8 @@ import com.netscape.certsrv.tps.profile.ProfileMappingData;
  */
 public class ProfileMappingCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileMappingCLI.class);
+
     public ProfileMappingClient profileMappingClient;
 
     public ProfileMappingCLI(ProfileCLI profileCLI) {
@@ -71,8 +73,6 @@ public class ProfileMappingCLI extends CLI {
         }
 
         Link link = profileMappingData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

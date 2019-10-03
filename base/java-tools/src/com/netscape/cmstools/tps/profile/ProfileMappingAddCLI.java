@@ -22,11 +22,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
@@ -35,15 +34,15 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ProfileMappingAddCLI extends CLI {
+public class ProfileMappingAddCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileMappingAddCLI.class);
 
     public ProfileMappingCLI profileMappingCLI;
 
     public ProfileMappingAddCLI(ProfileMappingCLI profileMappingCLI) {
         super("add", "Add profile mapping", profileMappingCLI);
         this.profileMappingCLI = profileMappingCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -57,14 +56,7 @@ public class ProfileMappingAddCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

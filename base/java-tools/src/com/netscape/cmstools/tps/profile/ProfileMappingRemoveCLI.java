@@ -18,10 +18,8 @@
 
 package com.netscape.cmstools.tps.profile;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -29,7 +27,9 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ProfileMappingRemoveCLI extends CLI {
+public class ProfileMappingRemoveCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileMappingRemoveCLI.class);
 
     public ProfileMappingCLI profileMappingCLI;
 
@@ -42,14 +42,7 @@ public class ProfileMappingRemoveCLI extends CLI {
         formatter.printHelp(getFullName() + " <Profile Mapping ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -57,7 +50,7 @@ public class ProfileMappingRemoveCLI extends CLI {
             throw new Exception("No Profile Mapping ID specified.");
         }
 
-        String profileMappingID = args[0];
+        String profileMappingID = cmdArgs[0];
 
         ProfileMappingClient profileMappingClient = profileMappingCLI.getProfileMappingClient();
         profileMappingClient.removeProfileMapping(profileMappingID);
