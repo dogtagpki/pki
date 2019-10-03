@@ -22,8 +22,7 @@ import java.io.FileReader;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.util.Password;
@@ -33,7 +32,7 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * Tool for importing NSS database from PKCS #12 file
  */
-public class PKCS12ImportCLI extends CLI {
+public class PKCS12ImportCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKCS12ImportCLI.class);
 
@@ -42,8 +41,6 @@ public class PKCS12ImportCLI extends CLI {
     public PKCS12ImportCLI(PKCS12CLI pkcs12CLI) {
         super("import", "Import PKCS #12 file into NSS database", pkcs12CLI);
         this.pkcs12CLI = pkcs12CLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -67,21 +64,7 @@ public class PKCS12ImportCLI extends CLI {
         options.addOption(null, "overwrite", false, "Overwrite existing certificates");
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args, true);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] nicknames = cmd.getArgs();
         String filename = cmd.getOptionValue("pkcs12-file");

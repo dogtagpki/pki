@@ -23,8 +23,7 @@ import java.io.FileReader;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.util.Password;
@@ -34,15 +33,13 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class PKCS12CertRemoveCLI extends CLI {
+public class PKCS12CertRemoveCLI extends CommandCLI {
 
     public PKCS12CertCLI certCLI;
 
     public PKCS12CertRemoveCLI(PKCS12CertCLI certCLI) {
         super("del", "Remove certificate from PKCS #12 file", certCLI);
         this.certCLI = certCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -61,27 +58,9 @@ public class PKCS12CertRemoveCLI extends CLI {
         option = new Option(null, "pkcs12-password-file", true, "PKCS #12 password file");
         option.setArgName("path");
         options.addOption(option);
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-
-        } else if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

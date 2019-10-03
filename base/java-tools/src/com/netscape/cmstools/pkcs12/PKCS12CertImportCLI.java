@@ -24,8 +24,7 @@ import java.io.FileReader;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
@@ -36,15 +35,13 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class PKCS12CertImportCLI extends CLI {
+public class PKCS12CertImportCLI extends CommandCLI {
 
     public PKCS12CertCLI certCLI;
 
     public PKCS12CertImportCLI(PKCS12CertCLI certCLI) {
         super("import", "Import certificate into PKCS #12 file", certCLI);
         this.certCLI = certCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -108,27 +105,9 @@ public class PKCS12CertImportCLI extends CLI {
         options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
         options.addOption(null, "no-key", false, "Do not include private key");
         options.addOption(null, "no-chain", false, "Do not include certificate chain");
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-
-        } else if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
