@@ -21,8 +21,7 @@ package com.netscape.cmstools.user;
 import java.net.URLEncoder;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -31,7 +30,7 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class UserCertRemoveCLI extends CLI {
+public class UserCertRemoveCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserCertRemoveCLI.class);
 
@@ -46,21 +45,7 @@ public class UserCertRemoveCLI extends CLI {
         formatter.printHelp(getFullName() + " <User ID> <Cert ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -68,8 +53,8 @@ public class UserCertRemoveCLI extends CLI {
             throw new Exception("Incorrect number of arguments specified.");
         }
 
-        String userID = args[0];
-        String certID = args[1];
+        String userID = cmdArgs[0];
+        String certID = cmdArgs[1];
 
         logger.info("Removing cert " + certID + " from user " + userID);
 

@@ -19,8 +19,7 @@
 package com.netscape.cmstools.user;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -28,7 +27,7 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class UserMembershipRemoveCLI extends CLI {
+public class UserMembershipRemoveCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserMembershipRemoveCLI.class);
 
@@ -43,21 +42,7 @@ public class UserMembershipRemoveCLI extends CLI {
         formatter.printHelp(getFullName() + " <User ID> <Group ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -65,8 +50,8 @@ public class UserMembershipRemoveCLI extends CLI {
             throw new Exception("Incorrect number of arguments specified.");
         }
 
-        String userID = args[0];
-        String groupID = args[1];
+        String userID = cmdArgs[0];
+        String groupID = cmdArgs[1];
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();

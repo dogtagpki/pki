@@ -24,8 +24,7 @@ import java.net.URLEncoder;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserClient;
@@ -34,7 +33,7 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class UserCertShowCLI extends CLI {
+public class UserCertShowCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserCertShowCLI.class);
 
@@ -43,8 +42,6 @@ public class UserCertShowCLI extends CLI {
     public UserCertShowCLI(UserCertCLI userCertCLI) {
         super("show", "Show user certificate", userCertCLI);
         this.userCertCLI = userCertCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -60,21 +57,7 @@ public class UserCertShowCLI extends CLI {
         options.addOption(null, "encoded", false, "Base-64 encoded");
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
