@@ -1,24 +1,24 @@
 package com.netscape.cmstools.authority;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class AuthorityCreateCLI extends CLI {
+public class AuthorityCreateCLI extends CommandCLI {
 
     public AuthorityCLI authorityCLI;
 
     public AuthorityCreateCLI(AuthorityCLI authorityCLI) {
         super("create", "Create CAs", authorityCLI);
         this.authorityCLI = authorityCLI;
+    }
 
+    public void createOptions() {
         Option optParent = new Option(null, "parent", true, "ID of parent CA");
         optParent.setArgName("id");
         options.addOption(optParent);
@@ -32,14 +32,7 @@ public class AuthorityCreateCLI extends CLI {
         formatter.printHelp(getFullName() + " <dn>", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -78,5 +71,4 @@ public class AuthorityCreateCLI extends CLI {
         AuthorityData newData = authorityClient.createCA(data);
         AuthorityCLI.printAuthorityData(newData);
     }
-
 }

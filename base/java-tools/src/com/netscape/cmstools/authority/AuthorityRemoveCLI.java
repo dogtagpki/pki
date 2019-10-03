@@ -2,22 +2,23 @@ package com.netscape.cmstools.authority;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class AuthorityRemoveCLI extends CLI {
+public class AuthorityRemoveCLI extends CommandCLI {
 
     public AuthorityCLI authorityCLI;
 
     public AuthorityRemoveCLI(AuthorityCLI authorityCLI) {
         super("del", "Delete Authority", authorityCLI);
         this.authorityCLI = authorityCLI;
+    }
 
+    public void createOptions() {
         options.addOption(null, "force", false, "Force delete");
     }
 
@@ -25,14 +26,7 @@ public class AuthorityRemoveCLI extends CLI {
         formatter.printHelp(getFullName() + " <ID>", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -64,5 +58,4 @@ public class AuthorityRemoveCLI extends CLI {
 
         MainCLI.printMessage("Deleted authority \"" + aidString + "\"");
     }
-
 }

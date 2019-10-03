@@ -1,24 +1,24 @@
 package com.netscape.cmstools.authority;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.authority.AuthorityResource;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class AuthorityShowCLI extends CLI {
+public class AuthorityShowCLI extends CommandCLI {
 
     public AuthorityCLI authorityCLI;
 
     public AuthorityShowCLI(AuthorityCLI authorityCLI) {
         super("show", "Show CAs", authorityCLI);
         this.authorityCLI = authorityCLI;
+    }
 
+    public void createOptions() {
         Option optParent = new Option(
             null, "host-authority", false, "Show host authority");
         options.addOption(optParent);
@@ -28,23 +28,18 @@ public class AuthorityShowCLI extends CLI {
         formatter.printHelp(getFullName() + " <ID>", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
-
-        String caIDString = null;
 
         if (cmdArgs.length > 1) {
             throw new Exception("Too many arguments.");
 
-        } else if (cmdArgs.length == 1) {
+        }
+
+        String caIDString = null;
+
+        if (cmdArgs.length == 1) {
             caIDString = cmdArgs[0];
         }
 
@@ -66,5 +61,4 @@ public class AuthorityShowCLI extends CLI {
         AuthorityData data = authorityClient.getCA(caIDString);
         AuthorityCLI.printAuthorityData(data);
     }
-
 }

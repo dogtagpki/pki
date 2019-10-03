@@ -1,15 +1,13 @@
 package com.netscape.cmstools.authority;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class AuthorityEnableCLI extends CLI {
+public class AuthorityEnableCLI extends CommandCLI {
 
     public AuthorityCLI authorityCLI;
 
@@ -22,14 +20,7 @@ public class AuthorityEnableCLI extends CLI {
         formatter.printHelp(getFullName() + " <ID>", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -47,5 +38,4 @@ public class AuthorityEnableCLI extends CLI {
         data = authorityClient.modifyCA(data);
         AuthorityCLI.printAuthorityData(data);
     }
-
 }

@@ -6,7 +6,7 @@ import java.security.PublicKey;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
@@ -24,7 +24,7 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-public class AuthorityKeyExportCLI extends CLI {
+public class AuthorityKeyExportCLI extends CommandCLI {
 
     public AuthorityCLI authorityCLI;
 
@@ -36,8 +36,9 @@ public class AuthorityKeyExportCLI extends CLI {
     public AuthorityKeyExportCLI(AuthorityCLI authorityCLI) {
         super("key-export", "Export wrapped CA signing key", authorityCLI);
         this.authorityCLI = authorityCLI;
+    }
 
-        options.addOption(null, "help", false, "Show usage");
+    public void createOptions() {
 
         Option option = new Option("o", "output", true, "Output file");
         option.setArgName("filename");
@@ -64,14 +65,7 @@ public class AuthorityKeyExportCLI extends CLI {
             options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String filename = cmd.getOptionValue("output");
         if (filename == null) {

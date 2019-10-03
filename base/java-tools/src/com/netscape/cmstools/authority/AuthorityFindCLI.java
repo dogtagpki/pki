@@ -1,25 +1,22 @@
 package com.netscape.cmstools.authority;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class AuthorityFindCLI extends CLI {
+public class AuthorityFindCLI extends CommandCLI {
 
     public AuthorityCLI authorityCLI;
 
     public AuthorityFindCLI(AuthorityCLI authorityCLI) {
         super("find", "Find CAs", authorityCLI);
         this.authorityCLI = authorityCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -44,14 +41,7 @@ public class AuthorityFindCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String id = cmd.getOptionValue("id");
         String parentID = cmd.getOptionValue("parent-id");
@@ -78,5 +68,4 @@ public class AuthorityFindCLI extends CLI {
 
         MainCLI.printMessage("Number of entries returned " + datas.size());
     }
-
 }
