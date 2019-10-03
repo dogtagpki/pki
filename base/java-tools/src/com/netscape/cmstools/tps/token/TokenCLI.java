@@ -37,6 +37,8 @@ import com.netscape.cmstools.tps.TPSCLI;
  */
 public class TokenCLI extends CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenCLI.class);
+
     public TPSCLI tpsCLI;
     public TokenClient tokenClient;
 
@@ -85,8 +87,6 @@ public class TokenCLI extends CLI {
         if (token.getModifyTimestamp() != null) System.out.println("  Date Modified: " + token.getModifyTimestamp());
 
         Link link = token.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
+        logger.info("Link: " + (link == null ? null : link.getHref()));
     }
 }

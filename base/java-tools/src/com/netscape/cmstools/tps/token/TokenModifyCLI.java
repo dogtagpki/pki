@@ -18,11 +18,9 @@
 
 package com.netscape.cmstools.tps.token;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
@@ -32,15 +30,15 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class TokenModifyCLI extends CLI {
+public class TokenModifyCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenModifyCLI.class);
 
     public TokenCLI tokenCLI;
 
     public TokenModifyCLI(TokenCLI tokenCLI) {
         super("mod", "Modify token", tokenCLI);
         this.tokenCLI = tokenCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -61,14 +59,7 @@ public class TokenModifyCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

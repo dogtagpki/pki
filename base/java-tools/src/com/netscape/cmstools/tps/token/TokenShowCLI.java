@@ -18,10 +18,8 @@
 
 package com.netscape.cmstools.tps.token;
 
-import java.util.Arrays;
-
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
@@ -30,7 +28,9 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class TokenShowCLI extends CLI {
+public class TokenShowCLI extends CommandCLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenShowCLI.class);
 
     public TokenCLI tokenCLI;
 
@@ -43,14 +43,7 @@ public class TokenShowCLI extends CLI {
         formatter.printHelp(getFullName() + " <Token ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -58,7 +51,7 @@ public class TokenShowCLI extends CLI {
             throw new Exception("No Token ID specified.");
         }
 
-        String tokenID = args[0];
+        String tokenID = cmdArgs[0];
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
