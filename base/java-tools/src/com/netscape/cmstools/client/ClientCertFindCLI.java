@@ -19,8 +19,7 @@
 package com.netscape.cmstools.client;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 
@@ -29,7 +28,7 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ClientCertFindCLI extends CLI {
+public class ClientCertFindCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientCertFindCLI.class);
 
@@ -38,8 +37,6 @@ public class ClientCertFindCLI extends CLI {
     public ClientCertFindCLI(ClientCLI clientCLI) {
         super("cert-find", "Find certificates in NSS database", clientCLI);
         this.clientCLI = clientCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -50,21 +47,7 @@ public class ClientCertFindCLI extends CLI {
         options.addOption(null, "ca", false, "Find CA certificates only");
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

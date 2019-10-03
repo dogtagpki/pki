@@ -20,15 +20,14 @@ package com.netscape.cmstools.client;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class ClientCertModifyCLI extends CLI {
+public class ClientCertModifyCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientCertModifyCLI.class);
 
@@ -37,8 +36,6 @@ public class ClientCertModifyCLI extends CLI {
     public ClientCertModifyCLI(ClientCLI clientCLI) {
         super("cert-mod", "Modify certificate in NSS database", clientCLI);
         this.clientCLI = clientCLI;
-
-        createOptions();
     }
 
     public void printHelp() {
@@ -51,21 +48,7 @@ public class ClientCertModifyCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 

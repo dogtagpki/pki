@@ -25,8 +25,7 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.StringUtils;
-import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
 
@@ -35,7 +34,7 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Ade Lee
  */
-public class ClientCertValidateCLI extends CLI {
+public class ClientCertValidateCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientCertValidateCLI.class);
 
@@ -44,8 +43,6 @@ public class ClientCertValidateCLI extends CLI {
     public ClientCertValidateCLI(ClientCLI clientCLI) {
         super("cert-validate", "Validate certificate", clientCLI);
         this.clientCLI = clientCLI;
-
-        createOptions();
     }
 
     public void createOptions() {
@@ -61,21 +58,7 @@ public class ClientCertValidateCLI extends CLI {
         formatter.printHelp(getFullName() + " nickname", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
-        }
+    public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
 
