@@ -17,17 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.feature;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureClient;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class FeatureFindCLI extends CLI {
+public class FeatureFindCLI extends CommandCLI {
 
     public FeatureCLI featureCLI;
 
@@ -40,15 +39,7 @@ public class FeatureFindCLI extends CLI {
         formatter.printHelp(getFullName(), options);
     }
 
-    public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
-            printHelp();
-            return;
-        }
-
-        @SuppressWarnings("unused")
-        CommandLine cmd = parser.parse(options, args);
+    public void execute(CommandLine cmd) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
@@ -70,5 +61,4 @@ public class FeatureFindCLI extends CLI {
 
         MainCLI.printMessage("Number of entries returned " + features.size());
     }
-
 }
