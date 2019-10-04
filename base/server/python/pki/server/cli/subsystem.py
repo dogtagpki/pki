@@ -22,8 +22,10 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import getopt
 import getpass
+import logging
 import os
 import subprocess
 import sys
@@ -32,6 +34,8 @@ import tempfile
 import pki.cli
 import pki.nssdb
 import pki.server
+
+logger = logging.getLogger(__name__)
 
 
 class SubsystemCLI(pki.cli.CLI):
@@ -64,6 +68,7 @@ class SubsystemFindCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -72,10 +77,10 @@ class SubsystemFindCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.usage()
             sys.exit(1)
 
@@ -85,22 +90,26 @@ class SubsystemFindCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.usage()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.usage()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -127,6 +136,7 @@ class SubsystemShowCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -135,10 +145,10 @@ class SubsystemShowCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.usage()
             sys.exit(1)
 
@@ -148,20 +158,24 @@ class SubsystemShowCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.usage()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.usage()
                 sys.exit(1)
 
         if len(args) != 1:
-            print('ERROR: missing subsystem ID')
+            logger.error('Missing subsystem ID')
             self.usage()
             sys.exit(1)
 
@@ -170,15 +184,15 @@ class SubsystemShowCLI(pki.cli.CLI):
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance '
-                  '%s.' % (subsystem_name, instance_name))
+            logger.error('ERROR: No %s subsystem in instance %s.',
+                         subsystem_name, instance_name)
             sys.exit(1)
 
         SubsystemCLI.print_subsystem(subsystem)
@@ -193,8 +207,10 @@ class SubsystemEnableCLI(pki.cli.CLI):
         print('Usage: pki-server subsystem-enable [OPTIONS] <subsystem ID>')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --all                       Enable all subsystems.')
         print('      --silent                    Run in silent mode.')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -202,11 +218,11 @@ class SubsystemEnableCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'all',
-                'verbose', 'silent', 'help'])
+                'instance=', 'all', 'silent',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.usage()
             sys.exit(1)
 
@@ -221,25 +237,29 @@ class SubsystemEnableCLI(pki.cli.CLI):
             elif o == '--all':
                 all_subsystems = True
 
-            elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
-
             elif o == '--silent':
                 silent = True
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.usage()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.usage()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -255,7 +275,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
             return
 
         if len(args) != 1:
-            print('ERROR: missing subsystem ID')
+            logger.error('Missing subsystem ID')
             self.usage()
             sys.exit(1)
 
@@ -263,8 +283,8 @@ class SubsystemEnableCLI(pki.cli.CLI):
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance '
-                  '%s.' % (subsystem_name, instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name, instance_name)
             sys.exit(1)
 
         if subsystem.is_enabled():
@@ -291,7 +311,9 @@ class SubsystemDisableCLI(pki.cli.CLI):
         print('Usage: pki-server subsystem-disable [OPTIONS] <subsystem ID>')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('      --all                       Disable all subsystems.')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -300,10 +322,10 @@ class SubsystemDisableCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'all',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.usage()
             sys.exit(1)
 
@@ -317,22 +339,26 @@ class SubsystemDisableCLI(pki.cli.CLI):
             elif o == '--all':
                 all_subsystems = True
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.usage()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.usage()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -347,7 +373,7 @@ class SubsystemDisableCLI(pki.cli.CLI):
             return
 
         if len(args) != 1:
-            print('ERROR: missing subsystem ID')
+            logger.error('Missing subsystem ID')
             self.usage()
             sys.exit(1)
 
@@ -355,8 +381,8 @@ class SubsystemDisableCLI(pki.cli.CLI):
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance '
-                  '%s.' % (subsystem_name, instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name, instance_name)
             sys.exit(1)
 
         if not subsystem.is_enabled():
@@ -410,6 +436,7 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('      --show-all                  Show all attributes.')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -418,10 +445,10 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'show-all',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -435,20 +462,24 @@ class SubsystemCertFindCLI(pki.cli.CLI):
             elif o == '--show-all':
                 show_all = True
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         if len(args) != 1:
-            print('ERROR: missing subsystem ID')
+            logger.error('Missing subsystem ID')
             self.print_help()
             sys.exit(1)
 
@@ -457,15 +488,15 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance '
-                  '%s.' % (subsystem_name, instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name, instance_name)
             sys.exit(1)
 
         certs = subsystem.get_cert_infos()
@@ -499,6 +530,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('      --show-all                  Show all attributes.')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -507,10 +539,10 @@ class SubsystemCertShowCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'show-all',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.usage()
             sys.exit(1)
 
@@ -524,25 +556,29 @@ class SubsystemCertShowCLI(pki.cli.CLI):
             elif o == '--show-all':
                 show_all = True
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.usage()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.usage()
                 sys.exit(1)
 
         if len(args) < 1:
-            print('ERROR: missing subsystem ID')
+            logger.error('Missing subsystem ID')
             self.usage()
             sys.exit(1)
 
         if len(args) < 2:
-            print('ERROR: missing cert ID')
+            logger.error('Missing cert ID')
             self.usage()
             sys.exit(1)
 
@@ -552,15 +588,15 @@ class SubsystemCertShowCLI(pki.cli.CLI):
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance '
-                  '%s.' % (subsystem_name, instance_name))
+            logger.error('ERROR: No %s subsystem in instance %s.',
+                         subsystem_name, instance_name)
             sys.exit(1)
         cert = subsystem.get_subsystem_cert(cert_id)
         self.print_message('"{}" subsystem "{}" certificate'.format(subsystem_name, cert_id))
@@ -605,7 +641,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -652,45 +688,47 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             elif o == '--no-chain':
                 include_chain = False
 
-            elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
-
             elif o == '--debug':
                 debug = True
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            print('ERROR: missing subsystem ID')
+            logger.error('Missing subsystem ID')
             self.print_help()
             sys.exit(1)
 
         subsystem_name = args[0]
 
         if not (cert_file or csr_file or pkcs12_file):
-            print('ERROR: missing output file')
+            logger.error('Missing output file')
             self.print_help()
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance '
-                  '%s.' % (subsystem_name, instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name, instance_name)
             sys.exit(1)
         subsystem_cert = None
 
@@ -699,14 +737,14 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             subsystem_cert = subsystem.get_subsystem_cert(cert_id)
 
         if (cert_file or csr_file) and not subsystem_cert:
-            print('ERROR: missing cert ID')
+            logger.error('Missing cert ID')
             self.print_help()
             sys.exit(1)
 
         if cert_file:
             cert_data = subsystem_cert.get('data', None)
             if cert_data is None:
-                print("ERROR: Unable to find certificate data for %s" % cert_id)
+                logger.error("Unable to find certificate data for %s", cert_id)
                 sys.exit(1)
 
             cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
@@ -716,7 +754,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         if csr_file:
             cert_request = subsystem_cert.get('request', None)
             if cert_request is None:
-                print("ERROR: Unable to find certificate request for %s" % cert_id)
+                logger.error('Unable to find certificate request for %s', cert_id)
                 sys.exit(1)
 
             csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
@@ -765,9 +803,10 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         print('Usage: pki-server subsystem-cert-update [OPTIONS] <subsystem ID> <cert ID>')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('  -v, --verbose                   Run in verbose mode.')
-        print('      --help                      Show help message.')
         print('      --cert <certificate>        New certificate to be added')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
+        print('      --help                      Show help message.')
         print()
 
     def execute(self, argv):
@@ -775,11 +814,11 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help',
-                'cert='])
+                'cert=',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.usage()
             sys.exit(1)
 
@@ -790,8 +829,12 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.usage()
@@ -801,17 +844,17 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
                 cert_file = a
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.usage()
                 sys.exit(1)
 
         if len(args) < 1:
-            print('ERROR: missing subsystem ID')
+            logger.error('Missing subsystem ID')
             self.usage()
             sys.exit(1)
 
         if len(args) < 2:
-            print('ERROR: missing cert ID')
+            logger.error('Missing cert ID')
             self.usage()
             sys.exit(1)
 
@@ -821,28 +864,27 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance '
-                  '%s.' % (subsystem_name, instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name, instance_name)
             sys.exit(1)
         subsystem_cert = subsystem.get_subsystem_cert(cert_id)
 
-        if self.verbose:
-            print('Retrieving certificate %s from %s' %
-                  (subsystem_cert['nickname'], subsystem_cert['token']))
+        logger.info('Retrieving certificate %s from %s',
+                    subsystem_cert['nickname'], subsystem_cert['token'])
 
         token = subsystem_cert['token']
         nssdb = instance.open_nssdb(token)
 
         if cert_file:
             if not os.path.isfile(cert_file):
-                print('ERROR: %s certificate does not exist.' % cert_file)
+                logger.error('%s certificate does not exist.', cert_file)
                 self.usage()
                 sys.exit(1)
 
@@ -851,12 +893,11 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
                 output_format='base64')
 
             if data:
-                if self.verbose:
-                    print('Removing old %s certificate from database.'
-                          % subsystem_cert['nickname'])
+                logger.info('Removing old %s certificate from database.',
+                            subsystem_cert['nickname'])
                 nssdb.remove_cert(nickname=subsystem_cert['nickname'])
-            if self.verbose:
-                print('Adding new %s certificate into database.' % subsystem_cert['nickname'])
+
+            logger.info('Adding new %s certificate into database.', subsystem_cert['nickname'])
             nssdb.add_cert(
                 nickname=subsystem_cert['nickname'],
                 cert_file=cert_file)
@@ -872,13 +913,12 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         lines = [data[i:i + 64] for i in range(0, len(data), 64)]
         data = '\r\n'.join(lines) + '\r\n'
 
-        if self.verbose:
-            print('Retrieving certificate request from CA database')
+        logger.info('Retrieving certificate request from CA database')
 
         # TODO: add support for remote CA
         ca = instance.get_subsystem('ca')
         if not ca:
-            print('ERROR: No CA subsystem in instance %s.' % instance_name)
+            logger.error('No CA subsystem in instance %s.', instance_name)
             sys.exit(1)
 
         results = ca.find_cert_requests(cert=data)
@@ -897,7 +937,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             subsystem_cert['request'] = request
 
         else:
-            print('WARNING: Certificate request not found')
+            logger.warning('Certificate request not found')
 
         # store cert data and request in CS.cfg
         subsystem.update_subsystem_cert(subsystem_cert)
@@ -917,6 +957,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -925,10 +966,10 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.usage()
             sys.exit(1)
 
@@ -938,20 +979,24 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.usage()
                 sys.exit()
 
             else:
-                self.print_message('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.usage()
                 sys.exit(1)
 
         if len(args) < 1:
-            print('ERROR: missing subsystem ID')
+            logger.error('Missing subsystem ID')
             self.usage()
             sys.exit(1)
 
@@ -965,15 +1010,15 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance '
-                  '%s.' % (subsystem_name, instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name, instance_name)
             sys.exit(1)
 
         if cert_id is not None:
@@ -1002,8 +1047,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
 
     def validate_certificate(self, instance, cert):
 
-        if self.verbose:
-            print(cert)
+        logger.info(cert)
 
         print('  Cert ID: %s' % cert['id'])
 
@@ -1062,8 +1106,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
                 '--certusage', usage
             ])
 
-            if self.verbose:
-                print('Command: %s' % ' '.join(cmd))
+            logger.info('Command: %s', ' '.join(cmd))
 
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             print('  Status: VALID')
