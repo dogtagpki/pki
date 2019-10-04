@@ -94,7 +94,6 @@ class SubsystemFindCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -162,7 +161,6 @@ class SubsystemShowCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -244,7 +242,6 @@ class SubsystemEnableCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -343,7 +340,6 @@ class SubsystemDisableCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -466,7 +462,6 @@ class SubsystemCertFindCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -560,7 +555,6 @@ class SubsystemCertShowCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -691,7 +685,6 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -830,7 +823,6 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -980,7 +972,6 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':

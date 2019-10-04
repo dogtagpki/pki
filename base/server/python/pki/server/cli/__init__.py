@@ -121,12 +121,9 @@ class PKIServerCLI(pki.cli.CLI):
 
         for o, _ in opts:
             if o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--debug':
-                self.set_verbose(True)
-                self.set_debug(True)
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':

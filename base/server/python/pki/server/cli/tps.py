@@ -117,7 +117,6 @@ class TPSClonePrepareCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -241,7 +240,6 @@ class TPSDBVLVFindCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -359,7 +357,6 @@ class TPSDBVLVAddCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -475,7 +472,6 @@ class TPSDBVLVDeleteCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -612,7 +608,6 @@ class TPSDBVLVReindexCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':

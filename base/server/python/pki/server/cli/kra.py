@@ -122,7 +122,6 @@ class KRAClonePrepareCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -251,7 +250,6 @@ class KRADBVLVFindCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -370,7 +368,6 @@ class KRADBVLVAddCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -481,7 +478,6 @@ class KRADBVLVDeleteCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -608,7 +604,6 @@ class KRADBVLVReindexCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':

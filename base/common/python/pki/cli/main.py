@@ -205,15 +205,12 @@ class PKICLI(pki.cli.CLI):
 
             # check verbose option
             elif args[i] == '-v' or args[i] == '--verbose':
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
                 pki_options.append(args[i])
                 i = i + 1
 
             # check debug option
             elif args[i] == '--debug':
-                self.set_verbose(True)
-                self.set_debug(True)
                 logging.getLogger().setLevel(logging.DEBUG)
                 pki_options.append(args[i])
                 i = i + 1

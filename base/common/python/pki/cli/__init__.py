@@ -39,20 +39,7 @@ class CLI(object):
         self.description = description
         self.parent = None
 
-        self.verbose = False
-        self.debug = False
-
         self.modules = collections.OrderedDict()
-
-    def set_verbose(self, verbose):
-        self.verbose = verbose
-        if self.parent:
-            self.parent.set_verbose(verbose)
-
-    def set_debug(self, debug):
-        self.debug = debug
-        if self.parent:
-            self.parent.set_debug(debug)
 
     def get_full_name(self):
         if self.parent:
@@ -194,7 +181,6 @@ class CLI(object):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':

@@ -379,7 +379,6 @@ class AuditEventFindCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -461,7 +460,6 @@ class AuditEventShowCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -540,7 +538,6 @@ class AuditEventEnableCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -635,7 +632,6 @@ class AuditEventUpdateCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -715,7 +711,6 @@ class AuditEventDisableCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -805,7 +800,6 @@ class AuditFileFindCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -884,7 +878,6 @@ class AuditFileVerifyCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':

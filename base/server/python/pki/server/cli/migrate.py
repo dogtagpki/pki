@@ -76,12 +76,9 @@ class MigrateCLI(pki.cli.CLI):
                 tomcat_version = pki.util.Version(a)
 
             elif o == '--debug':
-                self.set_verbose(True)
-                self.set_debug(True)
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':

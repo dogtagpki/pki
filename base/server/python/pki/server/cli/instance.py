@@ -146,7 +146,6 @@ class InstanceCertExportCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -218,7 +217,6 @@ class InstanceFindCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -283,7 +281,6 @@ class InstanceShowCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -342,7 +339,6 @@ class InstanceStartCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -406,7 +402,6 @@ class InstanceStopCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -474,12 +469,9 @@ class InstanceMigrateCLI(pki.cli.CLI):
                 tomcat_version = pki.util.Version(a)
 
             elif o == '--debug':
-                self.set_verbose(True)
-                self.set_debug(True)
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -504,8 +496,6 @@ class InstanceMigrateCLI(pki.cli.CLI):
         logger.info('Migrating to Tomcat %s', tomcat_version)
 
         module = self.get_top_module().find_module('migrate')
-        module.set_verbose(logger.isEnabledFor(logging.INFO))
-        module.set_debug(logger.isEnabledFor(logging.DEBUG))
 
         instance = pki.server.PKIInstance(instance_name)
 
@@ -552,7 +542,6 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -573,7 +562,6 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
 
         module = self.get_top_module().find_module('nuxwdog-enable')
         module = pki.server.cli.nuxwdog.NuxwdogEnableCLI()
-        module.set_verbose(logger.isEnabledFor(logging.INFO))
 
         instance = pki.server.PKIInstance(instance_name)
 
@@ -618,7 +606,6 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -638,7 +625,6 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
         instance_name = args[0]
 
         module = self.get_top_module().find_module('nuxwdog-disable')
-        module.set_verbose(logger.isEnabledFor(logging.INFO))
 
         instance = pki.server.PKIInstance(instance_name)
 
@@ -713,7 +699,6 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -818,7 +803,6 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':

@@ -133,12 +133,9 @@ class CertFindCLI(pki.cli.CLI):
                 show_all = True
 
             elif o == '--debug':
-                self.set_verbose(True)
-                self.set_debug(True)
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -229,12 +226,9 @@ class CertShowCLI(pki.cli.CLI):
                 pretty_print = True
 
             elif o == '--debug':
-                self.set_verbose(True)
-                self.set_debug(True)
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -326,12 +320,9 @@ class CertUpdateCLI(pki.cli.CLI):
                 instance_name = a
 
             elif o == '--debug':
-                self.set_verbose(True)
-                self.set_debug(True)
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -546,12 +537,9 @@ class CertCreateCLI(pki.cli.CLI):
                     sys.exit(1)
 
             elif o == '--debug':
-                self.set_verbose(True)
-                self.set_debug(True)
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -646,12 +634,9 @@ class CertImportCLI(pki.cli.CLI):
                 cert_file = a
 
             elif o == '--debug':
-                self.set_verbose(True)
-                self.set_debug(True)
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -801,12 +786,9 @@ class CertExportCLI(pki.cli.CLI):
                 include_chain = False
 
             elif o == '--debug':
-                self.set_verbose(True)
-                self.set_debug(True)
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -975,12 +957,9 @@ class CertRemoveCLI(pki.cli.CLI):
                 remove_key = True
 
             elif o == '--debug':
-                self.set_verbose(True)
-                self.set_debug(True)
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
@@ -1109,12 +1088,9 @@ class CertFixCLI(pki.cli.CLI):
                     sys.exit(1)
 
             elif o == '--debug':
-                self.set_verbose(True)
-                self.set_debug(True)
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
