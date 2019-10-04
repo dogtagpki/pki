@@ -928,8 +928,7 @@ class CertExportCLI(pki.cli.CLI):
                     append=append,
                     include_trust_flags=include_trust_flags,
                     include_key=include_key,
-                    include_chain=include_chain,
-                    debug=logger.isEnabledFor(logging.DEBUG))
+                    include_chain=include_chain)
 
         finally:
             nssdb.close()

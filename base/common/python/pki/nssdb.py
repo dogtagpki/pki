@@ -1181,8 +1181,7 @@ class NSSDatabase(object):
                     append=False,
                     include_trust_flags=True,
                     include_key=True,
-                    include_chain=True,
-                    debug=False):
+                    include_chain=True):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -1241,7 +1240,7 @@ class NSSDatabase(object):
             if not include_chain:
                 cmd.extend(['--no-chain'])
 
-            if debug:
+            if logger.isEnabledFor(logging.DEBUG):
                 cmd.extend(['--debug'])
 
             cmd.extend([full_name])
@@ -1468,8 +1467,7 @@ class NSSDatabase(object):
                       append=False,
                       include_trust_flags=True,
                       include_key=True,
-                      include_chain=True,
-                      debug=False):
+                      include_chain=True):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -1522,7 +1520,7 @@ class NSSDatabase(object):
             if not include_chain:
                 cmd.extend(['--no-chain'])
 
-            if debug:
+            if logger.isEnabledFor(logging.DEBUG):
                 cmd.extend(['--debug'])
 
             if nicknames:

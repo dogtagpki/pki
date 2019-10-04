@@ -655,7 +655,6 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         include_trust_flags = True
         include_key = True
         include_chain = True
-        debug = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -689,7 +688,6 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                 include_chain = False
 
             elif o == '--debug':
-                debug = True
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
@@ -786,8 +784,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                     append=append,
                     include_trust_flags=include_trust_flags,
                     include_key=include_key,
-                    include_chain=include_chain,
-                    debug=debug)
+                    include_chain=include_chain)
 
             finally:
                 nssdb.close()
