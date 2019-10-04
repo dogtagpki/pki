@@ -21,11 +21,15 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import getopt
+import logging
 import sys
 
 import pki
 import pki.cli
+
+logger = logging.getLogger(__name__)
 
 
 class PasswordCLI(pki.cli.CLI):
@@ -47,6 +51,7 @@ class PasswordGenerateCLI(pki.cli.CLI):
         print('Usage: pki password-generate [OPTIONS]')
         print()
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --help                         Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -54,23 +59,27 @@ class PasswordGenerateCLI(pki.cli.CLI):
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'v', [
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
         for o, _ in opts:
-            if o in ('-v', '--verbose'):
+            if o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option %s' % o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
