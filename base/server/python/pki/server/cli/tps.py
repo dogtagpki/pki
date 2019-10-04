@@ -20,11 +20,13 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import getopt
 import io
 import ldap
 import ldap.modlist
 import ldif
+import logging
 import os
 import shutil
 import sys
@@ -36,6 +38,7 @@ import pki.server.cli.audit
 import pki.server.cli.config
 import pki.server.cli.db
 
+logger = logging.getLogger(__name__)
 
 TPS_VLV_PATH = '/usr/share/pki/tps/conf/vlv.ldif'
 TPS_VLV_TASKS_PATH = '/usr/share/pki/tps/conf/vlvtasks.ldif'
@@ -76,6 +79,7 @@ class TPSClonePrepareCLI(pki.cli.CLI):
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  File containing the PKCS #12 password.')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -84,10 +88,10 @@ class TPSClonePrepareCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -109,37 +113,41 @@ class TPSClonePrepareCLI(pki.cli.CLI):
                 with io.open(a, 'rb') as f:
                     pkcs12_password = f.read()
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         if not pkcs12_file:
-            print('ERROR: Missing PKCS #12 file')
+            logger.error('Missing PKCS #12 file')
             self.print_help()
             sys.exit(1)
 
         if not pkcs12_password:
-            print('ERROR: Missing PKCS #12 password')
+            logger.error('Missing PKCS #12 password')
             self.print_help()
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('tps')
         if not subsystem:
-            print("ERROR: No TPS subsystem in instance %s." % instance_name)
+            logger.error('No TPS subsystem in instance %s.', instance_name)
             sys.exit(1)
 
         tmpdir = tempfile.mkdtemp()
@@ -198,6 +206,7 @@ class TPSDBVLVFindCLI(pki.cli.CLI):
         print('  -D, --bind-dn <Bind DN>            Connect DN (default: cn=Directory Manager).')
         print('  -w, --bind-password <password>     Password to connect to database.')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -207,11 +216,10 @@ class TPSDBVLVFindCLI(pki.cli.CLI):
                 argv,
                 'i:D:w:x:g:v',
                 ['instance=', 'bind-dn=', 'bind-password=', 'generate-ldif=',
-                 'verbose', 'help']
-            )
+                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -229,27 +237,31 @@ class TPSDBVLVFindCLI(pki.cli.CLI):
             elif o in ('-w', '--bind-password'):
                 bind_password = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('tps')
         if not subsystem:
-            print("ERROR: No TPS subsystem in instance %s." % instance_name)
+            logger.error('No TPS subsystem in instance %s.', instance_name)
             sys.exit(1)
 
         self.find_vlv(subsystem, bind_dn, bind_password)
@@ -263,8 +275,7 @@ class TPSDBVLVFindCLI(pki.cli.CLI):
             database = subsystem.config['internaldb.database']
             base_dn = 'cn=' + database + ',cn=ldbm database, cn=plugins, cn=config'
 
-            if self.verbose:
-                print('Searching %s' % base_dn)
+            logger.info('Searching %s', base_dn)
 
             entries = conn.ldap.search_s(
                 base_dn,
@@ -309,6 +320,7 @@ class TPSDBVLVAddCLI(pki.cli.CLI):
         print('  -w, --bind-password <password>     Password to connect to database.')
         print('  -g, --generate-ldif <outfile>      Generate LDIF of required changes.')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -318,11 +330,10 @@ class TPSDBVLVAddCLI(pki.cli.CLI):
                 argv,
                 'i:D:w:x:g:v',
                 ['instance=', 'bind-dn=', 'bind-password=', 'generate-ldif=',
-                 'verbose', 'help']
-            )
+                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -344,27 +355,31 @@ class TPSDBVLVAddCLI(pki.cli.CLI):
             elif o in ('-g', '--generate-ldif'):
                 out_file = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('tps')
         if not subsystem:
-            print("ERROR: No TPS subsystem in instance %s." % instance_name)
+            logger.error('No TPS subsystem in instance %s.', instance_name)
             sys.exit(1)
 
         if out_file:
@@ -393,8 +408,7 @@ class TPSDBVLVAddCLI(pki.cli.CLI):
 
                 for dn, entry in parser.all_records:
 
-                    if self.verbose:
-                        print('Adding %s' % dn)
+                    logger.info('Adding %s', dn)
 
                     add_modlist = ldap.modlist.addModlist(entry)
                     conn.ldap.add_s(dn, add_modlist)
@@ -422,6 +436,7 @@ class TPSDBVLVDeleteCLI(pki.cli.CLI):
         print('  -w, --bind-password <password>     Password to connect to DB.')
         print('  -g, --generate-ldif <outfile>      Generate LDIF of required changes.')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -431,11 +446,10 @@ class TPSDBVLVDeleteCLI(pki.cli.CLI):
                 argv,
                 'i:D:w:x:g:v',
                 ['instance=', 'bind-dn=', 'bind-password=', 'generate-ldif=',
-                 'verbose', 'help']
-            )
+                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -457,27 +471,31 @@ class TPSDBVLVDeleteCLI(pki.cli.CLI):
             elif o in ('-g', '--generate-ldif'):
                 out_file = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('tps')
         if not subsystem:
-            print("ERROR: No TPS subsystem in instance %s." % instance_name)
+            logger.error('No TPS subsystem in instance %s.', instance_name)
             sys.exit(1)
 
         if out_file:
@@ -517,8 +535,7 @@ class TPSDBVLVDeleteCLI(pki.cli.CLI):
             database = subsystem.config['internaldb.database']
             base_dn = 'cn=' + database + ',cn=ldbm database, cn=plugins, cn=config'
 
-            if self.verbose:
-                print('Searching %s' % base_dn)
+            logger.info('Searching %s', base_dn)
 
             entries = conn.ldap.search_s(
                 base_dn,
@@ -532,8 +549,7 @@ class TPSDBVLVDeleteCLI(pki.cli.CLI):
             for entry in reversed(entries):
                 dn = entry[0]
 
-                if self.verbose:
-                    print('Deleting %s' % dn)
+                logger.info('Deleting %s', dn)
 
                 conn.ldap.delete_s(dn)
 
@@ -557,6 +573,7 @@ class TPSDBVLVReindexCLI(pki.cli.CLI):
         print('  -w, --bind-password <password>     Password to connect to database.')
         print('  -g, --generate-ldif <outfile>      Generate LDIF of required changes.')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -566,11 +583,10 @@ class TPSDBVLVReindexCLI(pki.cli.CLI):
                 argv,
                 'i:D:w:x:g:v',
                 ['instance=', 'bind-dn=', 'bind-password=', 'generate-ldif=',
-                 'verbose', 'help']
-            )
+                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -592,27 +608,31 @@ class TPSDBVLVReindexCLI(pki.cli.CLI):
             elif o in ('-g', '--generate-ldif'):
                 out_file = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('tps')
         if not subsystem:
-            print("ERROR: No TPS subsystem in instance %s." % instance_name)
+            logger.error('No TPS subsystem in instance %s.', instance_name)
             sys.exit(1)
 
         if out_file:
@@ -639,8 +659,7 @@ class TPSDBVLVReindexCLI(pki.cli.CLI):
 
             for dn, entry in parser.all_records:
 
-                if self.verbose:
-                    print('Adding %s' % dn)
+                logger.info('Adding %s', dn)
 
                 add_modlist = ldap.modlist.addModlist(entry)
                 conn.ldap.add_s(dn, add_modlist)
@@ -649,8 +668,7 @@ class TPSDBVLVReindexCLI(pki.cli.CLI):
                     time.sleep(1)
 
                     try:
-                        if self.verbose:
-                            print('Checking %s' % dn)
+                        logger.info('Checking %s', dn)
 
                         conn.ldap.search_s(dn, ldap.SCOPE_BASE)
                     except ldap.NO_SUCH_OBJECT:
