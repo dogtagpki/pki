@@ -20,8 +20,10 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import getopt
 import io
+import logging
 import os
 import shutil
 import sys
@@ -31,6 +33,8 @@ import pki.cli
 import pki.server.cli.audit
 import pki.server.cli.config
 import pki.server.cli.db
+
+logger = logging.getLogger(__name__)
 
 
 class TKSCLI(pki.cli.CLI):
@@ -68,6 +72,7 @@ class TKSClonePrepareCLI(pki.cli.CLI):
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  File containing the PKCS #12 password.')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -76,7 +81,7 @@ class TKSClonePrepareCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -101,38 +106,42 @@ class TKSClonePrepareCLI(pki.cli.CLI):
                 with io.open(a, 'rb') as f:
                     pkcs12_password = f.read()
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         if not pkcs12_file:
-            print('ERROR: Missing PKCS #12 file')
+            logger.error('Missing PKCS #12 file')
             self.print_help()
             sys.exit(1)
 
         if not pkcs12_password:
-            print('ERROR: Missing PKCS #12 password')
+            logger.error('Missing PKCS #12 password')
             self.print_help()
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
 
         subsystem = instance.get_subsystem('tks')
         if not subsystem:
-            print("ERROR: No TKS subsystem in instance %s." % instance_name)
+            logger.error('No TKS subsystem in instance %s.', instance_name)
             sys.exit(1)
 
         tmpdir = tempfile.mkdtemp()
