@@ -25,12 +25,13 @@ import os
 import shlex
 import subprocess
 import sys
-import traceback
 
 import pki.cli
 import pki.cli.password
 import pki.cli.pkcs12
 import pki.nssdb
+
+logger = logging.getLogger(__name__)
 
 
 PYTHON_COMMANDS = ['password-generate', 'pkcs12-import']
@@ -126,13 +127,15 @@ class PKICLI(pki.cli.CLI):
         if self.ignore_banner:
             cmd.extend(['--ignore-banner'])
 
-        if self.verbose:
-            cmd.extend(['--verbose'])
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.extend(['--debug'])
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.extend(['-v'])
 
         cmd.extend(args)
 
-        if self.verbose:
-            print('Java command: %s' % ' '.join(cmd))
+        logger.info('Java command: %s', ' '.join(cmd))
 
         subprocess.check_call(cmd, stdout=stdout)
 
@@ -203,6 +206,7 @@ class PKICLI(pki.cli.CLI):
             # check verbose option
             elif args[i] == '-v' or args[i] == '--verbose':
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
                 pki_options.append(args[i])
                 i = i + 1
 
@@ -210,6 +214,7 @@ class PKICLI(pki.cli.CLI):
             elif args[i] == '--debug':
                 self.set_verbose(True)
                 self.set_debug(True)
+                logging.getLogger().setLevel(logging.DEBUG)
                 pki_options.append(args[i])
                 i = i + 1
 
@@ -229,9 +234,8 @@ class PKICLI(pki.cli.CLI):
             cmd_args.append(args[i])
             i = i + 1
 
-        if self.verbose:
-            print('PKI options: %s' % ' '.join(pki_options))
-            print('PKI command: %s %s' % (command, ' '.join(cmd_args)))
+        logger.info('PKI options: %s', ' '.join(pki_options))
+        logger.info('PKI command: %s %s', command, ' '.join(cmd_args))
 
         if client_type == 'python' or command in PYTHON_COMMANDS:
             (module, module_args) = self.parse_args(cmd_args)
@@ -254,10 +258,13 @@ if __name__ == '__main__':
         cli.execute(sys.argv)
 
     except subprocess.CalledProcessError as e:
-        if cli.verbose:
-            print('ERROR: Command: %s' % ' '.join(e.cmd))
-        elif cli.debug:
-            traceback.print_exc()
+
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.exception('Command: %s', ' '.join(e.cmd))
+
+        elif logger.isEnabledFor(logging.INFO):
+            logger.error('Command: %s', ' '.join(e.cmd))
+
         sys.exit(e.returncode)
 
     except KeyboardInterrupt:

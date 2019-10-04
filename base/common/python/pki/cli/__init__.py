@@ -21,10 +21,14 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import collections
 import getopt
+import logging
 import sys
 from six import itervalues
+
+logger = logging.getLogger(__name__)
 
 
 class CLI(object):
@@ -123,8 +127,7 @@ class CLI(object):
                 module_name = command
                 sub_command = None
 
-            if self.debug:
-                print('Module: %s' % module_name)
+            logger.debug('Module: %s', module_name)
 
             m = self.get_module(module_name)
             if m:
@@ -178,7 +181,7 @@ class CLI(object):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -187,15 +190,19 @@ class CLI(object):
             sys.exit()
 
         for o, _ in opts:
-            if o in ('-v', '--verbose'):
+            if o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option %s' % o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
