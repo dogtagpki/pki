@@ -164,11 +164,11 @@ class PKCS12ImportCLI(pki.cli.CLI):
                 if password_file:
                     cmd.extend(['--pkcs12-password-file', password_file])
 
-                if self.verbose:
-                    cmd.extend(['--verbose'])
-
-                if self.debug:
+                if logger.isEnabledFor(logging.DEBUG):
                     cmd.extend(['--debug'])
+
+                elif logger.isEnabledFor(logging.INFO):
+                    cmd.extend(['--verbose'])
 
                 main_cli.execute_java(cmd, stdout=f)
 
@@ -262,11 +262,11 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
                     cmd.extend(['--cert-id', cert_id])
 
-                    if self.verbose:
-                        cmd.extend(['--verbose'])
-
-                    if self.debug:
+                    if logger.isEnabledFor(logging.DEBUG):
                         cmd.extend(['--debug'])
+
+                    elif logger.isEnabledFor(logging.INFO):
+                        cmd.extend(['-v'])
 
                     main_cli.execute_java(cmd)
 
@@ -315,11 +315,11 @@ class PKCS12ImportCLI(pki.cli.CLI):
             if overwrite:
                 cmd.extend(['--overwrite'])
 
-            if self.verbose:
-                cmd.extend(['--verbose'])
-
-            if self.debug:
+            if logger.isEnabledFor(logging.DEBUG):
                 cmd.extend(['--debug'])
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.extend(['-v'])
 
             cmd.extend(nicknames)
 
