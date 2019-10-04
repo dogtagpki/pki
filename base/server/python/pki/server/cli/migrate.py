@@ -20,7 +20,9 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import getopt
+import logging
 import os
 import re
 import sys
@@ -30,6 +32,8 @@ from lxml import etree
 import pki.cli
 import pki.server
 import pki.util
+
+logger = logging.getLogger(__name__)
 
 
 class MigrateCLI(pki.cli.CLI):
@@ -53,10 +57,11 @@ class MigrateCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'tomcat=', 'verbose', 'debug', 'help'])
+                'tomcat=',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -70,19 +75,21 @@ class MigrateCLI(pki.cli.CLI):
             elif o == '--tomcat':
                 tomcat_version = pki.util.Version(a)
 
-            elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
-
             elif o == '--debug':
                 self.set_verbose(True)
                 self.set_debug(True)
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -97,7 +104,7 @@ class MigrateCLI(pki.cli.CLI):
             instance = pki.server.PKIInstance(instance_name)
 
             if not instance.is_valid():
-                print('ERROR: Invalid instance %s.' % instance_name)
+                logger.error('Invalid instance %s.', instance_name)
                 sys.exit(1)
 
             instance.load()
@@ -122,8 +129,7 @@ class MigrateCLI(pki.cli.CLI):
         if not os.path.exists(instance.nssdb_dir):
             return
 
-        if self.verbose:
-            print('Migrating %s instance to NSS SQL database' % instance.name)
+        logger.info('Migrating %s instance to NSS SQL database', instance.name)
 
         nssdb = instance.open_nssdb()
 
@@ -136,9 +142,8 @@ class MigrateCLI(pki.cli.CLI):
 
     def migrate_tomcat(self, instance, tomcat_version):
 
-        if self.verbose:
-            print('Migrating %s instance to Tomcat %s' %
-                  (instance.name, tomcat_version))
+        logger.info('Migrating %s instance to Tomcat %s',
+                    instance.name, tomcat_version)
 
         server_xml = os.path.join(instance.conf_dir, 'server.xml')
         self.migrate_server_xml(instance, server_xml, tomcat_version)
@@ -158,8 +163,7 @@ class MigrateCLI(pki.cli.CLI):
         self.migrate_context_xml(pki_context_xml, tomcat_version)
 
     def migrate_server_xml(self, instance, filename, tomcat_version):
-        if self.verbose:
-            print('Migrating %s' % filename)
+        logger.info('Migrating %s', filename)
 
         document = etree.parse(filename, self.parser)
 
@@ -173,7 +177,7 @@ class MigrateCLI(pki.cli.CLI):
             self.migrate_server_xml_to_tomcat70(document)
 
         elif tomcat_version:
-            print('ERROR: unsupported Tomcat version %s' % tomcat_version)
+            logger.error('Unsupported Tomcat version %s', tomcat_version)
             self.print_help()
             sys.exit(1)
 
@@ -234,8 +238,8 @@ class MigrateCLI(pki.cli.CLI):
                         'org.apache.catalina.mbeans.ServerLifecycleListener',
                         'org.apache.catalina.core.JreMemoryLeakPreventionListener',
                         'org.apache.catalina.core.ThreadLocalLeakPreventionListener'}:
-                    if self.debug:
-                        print('* removing %s' % class_name)
+
+                    logger.debug('* removing %s', class_name)
                     server.remove(child)
 
                 elif class_name == 'org.apache.catalina.core.JasperListener':
@@ -256,8 +260,7 @@ class MigrateCLI(pki.cli.CLI):
             index += 1
 
         if jasper_listener is not None:
-            if self.debug:
-                print('* adding %s' % jasper_listener.get('className'))
+            logger.debug('* adding %s', jasper_listener.get('className'))
             server.insert(index, jasper_listener)
             index += 1
 
@@ -277,16 +280,14 @@ class MigrateCLI(pki.cli.CLI):
             server.insert(index, server_lifecycle_comment)
             index += 1
 
-        if self.debug:
-            print('* updating secure Connector')
+        logger.debug('* updating secure Connector')
 
         connectors = server.findall('Service/Connector')
         for connector in connectors:
             if connector.get('secure') == 'true':
                 connector.set('protocol', 'HTTP/1.1')
 
-        if self.debug:
-            print('* updating AccessLogValve')
+        logger.debug('* updating AccessLogValve')
 
         valves = server.findall('Service/Engine/Host/Valve')
         for valve in valves:
@@ -343,8 +344,7 @@ class MigrateCLI(pki.cli.CLI):
 
                 if class_name == 'org.apache.catalina.core.JasperListener'\
                         or class_name == 'org.apache.catalina.mbeans.ServerLifecycleListener':
-                    if self.debug:
-                        print('* removing %s' % class_name)
+                    logger.debug('* removing %s', class_name)
                     server.remove(child)
                 elif class_name == 'org.apache.catalina.startup.VersionLoggerListener':
                     version_logger_listener = None
@@ -359,8 +359,7 @@ class MigrateCLI(pki.cli.CLI):
         index = 0
 
         if version_logger_listener is not None:
-            if self.debug:
-                print('* adding VersionLoggerListener')
+            logger.debug('* adding VersionLoggerListener')
             server.insert(index, version_logger_listener)
             index += 1
 
@@ -377,8 +376,7 @@ class MigrateCLI(pki.cli.CLI):
             index += 1
 
         if jre_memory_leak_prevention_listener is not None:
-            if self.debug:
-                print('* adding JreMemoryLeakPreventionListener')
+            logger.debug('* adding JreMemoryLeakPreventionListener')
             server.insert(index, jre_memory_leak_prevention_listener)
             index += 1
 
@@ -387,13 +385,11 @@ class MigrateCLI(pki.cli.CLI):
             index = list(server).index(global_resources_lifecycle_listener) + 1
 
         if thread_local_leak_prevention_listener is not None:
-            if self.debug:
-                print('* adding ThreadLocalLeakPreventionListener')
+            logger.debug('* adding ThreadLocalLeakPreventionListener')
             server.insert(index, thread_local_leak_prevention_listener)
             index += 1
 
-        if self.debug:
-            print('* updating secure Connector')
+        logger.debug('* updating secure Connector')
 
         connectors = server.findall('Service/Connector')
         for connector in connectors:
@@ -417,8 +413,7 @@ class MigrateCLI(pki.cli.CLI):
 
             connector.set('trustManagerClassName', 'org.dogtagpki.tomcat.PKITrustManager')
 
-        if self.debug:
-            print('* updating AccessLogValve')
+        logger.debug('* updating AccessLogValve')
 
         valves = server.findall('Service/Engine/Host/Valve')
         for valve in valves:
@@ -453,8 +448,7 @@ class MigrateCLI(pki.cli.CLI):
                                             child.text,
                                             flags=re.MULTILINE)
 
-        if self.debug:
-            print('* adding SSLHostConfig')
+        logger.debug('* adding SSLHostConfig')
 
         connectors = server.findall('Service/Connector')
         for connector in connectors:
@@ -497,8 +491,7 @@ class MigrateCLI(pki.cli.CLI):
             self.migrate_subsystem(subsystem, tomcat_version)
 
     def migrate_subsystem(self, subsystem, tomcat_version):
-        if self.verbose:
-            print('Migrating %s/%s subsystem' % (subsystem.instance.name, subsystem.name))
+        logger.info('Migrating %s/%s subsystem', subsystem.instance.name, subsystem.name)
 
         self.migrate_context_xml(subsystem.context_xml, tomcat_version)
 
@@ -506,8 +499,7 @@ class MigrateCLI(pki.cli.CLI):
         if not os.path.exists(filename):
             return
 
-        if self.verbose:
-            print('Migrating %s' % filename)
+        logger.info('Migrating %s', filename)
 
         document = etree.parse(filename, self.parser)
 
@@ -518,7 +510,7 @@ class MigrateCLI(pki.cli.CLI):
             self.migrate_context_xml_to_tomcat8(document)
 
         elif tomcat_version:
-            print('ERROR: invalid Tomcat version %s' % tomcat_version)
+            logger.error('Invalid Tomcat version %s', tomcat_version)
             self.print_help()
             sys.exit(1)
 
@@ -534,8 +526,7 @@ class MigrateCLI(pki.cli.CLI):
 
         if resources is not None:
 
-            if self.debug:
-                print('* removing Resources')
+            logger.debug('* removing Resources')
 
             context.remove(resources)
 
@@ -548,8 +539,7 @@ class MigrateCLI(pki.cli.CLI):
 
         if resources is None:
 
-            if self.debug:
-                print('* adding Resources')
+            logger.debug('* adding Resources')
 
             resources = etree.Element('Resources')
             context.append(resources)
@@ -558,8 +548,7 @@ class MigrateCLI(pki.cli.CLI):
 
     def create_link(self, instance, source, dest):
 
-        if self.verbose:
-            print('Creating %s' % dest)
+        logger.info('Creating %s', dest)
 
         os.symlink(source, dest)
         os.lchown(dest, instance.uid, instance.gid)
