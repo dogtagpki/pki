@@ -51,6 +51,8 @@ import pki.server.cli.upgrade
 import pki.server.cli.webapp
 import pki.util
 
+logger = logging.getLogger(__name__)
+
 
 class PKIServerCLI(pki.cli.CLI):
 
@@ -113,7 +115,7 @@ class PKIServerCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -132,12 +134,11 @@ class PKIServerCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option %s', o)
                 self.print_help()
                 sys.exit(1)
 
-        if self.verbose:
-            print('Command: %s' % ' '.join(args))
+        logger.info('Command: %s', ' '.join(args))
 
         super(PKIServerCLI, self).execute(args)
 
@@ -327,7 +328,7 @@ class CreateCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -353,7 +354,7 @@ class CreateCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print('ERROR: Unknown option: %s' % o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -363,7 +364,7 @@ class CreateCLI(pki.cli.CLI):
         instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not force and instance.is_valid():
-            print('ERROR: Instance already exists: %s' % instance_name)
+            logger.error('Instance already exists: %s', instance_name)
             sys.exit(1)
 
         logging.info('Creating instance: %s', instance_name)
@@ -394,7 +395,7 @@ class RemoveCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -416,7 +417,7 @@ class RemoveCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print('ERROR: Unknown option: %s' % o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -426,7 +427,7 @@ class RemoveCLI(pki.cli.CLI):
         instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not force and not instance.is_valid():
-            print('ERROR: Invalid instance: %s' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         logging.info('Removing instance: %s', instance_name)
@@ -455,7 +456,7 @@ class StatusCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -473,7 +474,7 @@ class StatusCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print('ERROR: Unknown option: %s' % o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -483,7 +484,7 @@ class StatusCLI(pki.cli.CLI):
         instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance: %s' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -511,7 +512,7 @@ class StartCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -529,7 +530,7 @@ class StartCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print('ERROR: Unknown option: %s' % o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -539,7 +540,7 @@ class StartCLI(pki.cli.CLI):
         instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance: %s' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         if instance.is_active():
@@ -569,7 +570,7 @@ class StopCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -587,7 +588,7 @@ class StopCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print('ERROR: Unknown option: %s' % o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -597,7 +598,7 @@ class StopCLI(pki.cli.CLI):
         instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance: %s' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         if not instance.is_active():
@@ -627,7 +628,7 @@ class RestartCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -645,7 +646,7 @@ class RestartCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print('ERROR: Unknown option: %s' % o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -655,7 +656,7 @@ class RestartCLI(pki.cli.CLI):
         instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance: %s' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.restart()
@@ -684,7 +685,7 @@ class RunCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -710,7 +711,7 @@ class RunCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print('ERROR: Unknown option: %s' % o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -720,7 +721,7 @@ class RunCLI(pki.cli.CLI):
         instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance: %s' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
