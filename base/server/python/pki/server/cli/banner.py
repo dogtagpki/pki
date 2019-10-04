@@ -20,12 +20,15 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import getopt
+import logging
 import io
 import sys
-import traceback
 
 import pki.cli
+
+logger = logging.getLogger(__name__)
 
 
 class BannerCLI(pki.cli.CLI):
@@ -48,6 +51,7 @@ class BannerShowCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -56,10 +60,10 @@ class BannerShowCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.usage()
             sys.exit(1)
 
@@ -69,28 +73,32 @@ class BannerShowCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.usage()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.usage()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
 
         if not instance.banner_installed():
-            print('ERROR: Banner is not installed')
+            logger.error('Banner is not installed')
             sys.exit(1)
 
         print(instance.get_banner())
@@ -106,8 +114,9 @@ class BannerValidateCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('      --file <path>               Validate specified banner file.')
-        print('  -v, --verbose                   Run in verbose mode.')
         print('      --silent                    Run in silent mode.')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -115,11 +124,11 @@ class BannerValidateCLI(pki.cli.CLI):
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'file=',
-                'verbose', 'silent', 'help'])
+                'instance=', 'file=', 'silent',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.usage()
             sys.exit(1)
 
@@ -134,8 +143,12 @@ class BannerValidateCLI(pki.cli.CLI):
             elif o == '--file':
                 banner_file = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--silent':
                 silent = True
@@ -145,7 +158,7 @@ class BannerValidateCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.usage()
                 sys.exit(1)
 
@@ -160,7 +173,7 @@ class BannerValidateCLI(pki.cli.CLI):
                 instance = pki.server.PKIInstance(instance_name)
 
                 if not instance.is_valid():
-                    print('ERROR: Invalid instance %s.' % instance_name)
+                    logger.error('Invalid instance %s.', instance_name)
                     sys.exit(1)
 
                 instance.load()
@@ -173,13 +186,14 @@ class BannerValidateCLI(pki.cli.CLI):
                 banner = instance.get_banner()
 
         except UnicodeDecodeError as e:
-            if self.verbose:
-                traceback.print_exc()
-            print('ERROR: Banner contains invalid character(s): %s' % e)
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.exception('Banner contains invalid character(s): %s', e)
+            else:
+                logger.error('Banner contains invalid character(s): %s', e)
             sys.exit(1)
 
         if not banner:
-            print('ERROR: Banner is empty')
+            logger.error('Banner is empty')
             sys.exit(1)
 
         if not silent:
