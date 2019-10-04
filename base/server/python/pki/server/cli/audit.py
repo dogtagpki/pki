@@ -22,6 +22,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import getopt
+import logging
 import os
 import shutil
 import subprocess
@@ -29,6 +30,8 @@ import sys
 import tempfile
 
 import pki.cli
+
+logger = logging.getLogger(__name__)
 
 
 class AuditCLI(pki.cli.CLI):
@@ -97,6 +100,8 @@ class AuditConfigShowCLI(pki.cli.CLI):
         print('Usage: pki-server %s-audit-config-show [OPTIONS]' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -104,10 +109,10 @@ class AuditConfigShowCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -117,18 +122,24 @@ class AuditConfigShowCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -137,8 +148,8 @@ class AuditConfigShowCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            print('ERROR: No %s subsystem in instance %s.'
-                  % (subsystem_name.upper(), instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         AuditCLI.print_audit_config(subsystem)
@@ -164,6 +175,8 @@ class AuditConfigModifyCLI(pki.cli.CLI):
         print('      --expirationTime <time>        Set expiration time (seconds).')
         print('      --logSigning <True|False>      Enable/disable log signing.')
         print('      --signingCert <nickname>       Set signing certificate.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -175,10 +188,10 @@ class AuditConfigModifyCLI(pki.cli.CLI):
                 'logFile=', 'bufferSize=', 'flushInterval=',
                 'maxFileSize=', 'rolloverInterval=', 'expirationTime=',
                 'logSigning=', 'signingCert=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -238,18 +251,24 @@ class AuditConfigModifyCLI(pki.cli.CLI):
             elif o == '--signingCert':
                 signingCert = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -258,8 +277,8 @@ class AuditConfigModifyCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            print('ERROR: No %s subsystem in instance %s.'
-                  % (subsystem_name.upper(), instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         name = 'log.instance.SignedAudit.%s'
@@ -323,6 +342,8 @@ class AuditEventFindCLI(pki.cli.CLI):
               '  Show events enabled/disabled by default only.')
         print('  -v, --verbose                      '
               '  Run in verbose mode.')
+        print('      --debug                        '
+              '  Run in debug mode.')
         print('      --help                         '
               '  Show help message.')
         print()
@@ -333,10 +354,10 @@ class AuditEventFindCLI(pki.cli.CLI):
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
                 'enabled=', 'enabledByDefault=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -354,21 +375,25 @@ class AuditEventFindCLI(pki.cli.CLI):
             elif o == '--enabledByDefault':
                 enabled_by_default = a == 'True'
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -376,8 +401,8 @@ class AuditEventFindCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.name
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance %s.'
-                  % (subsystem_name.upper(), instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         events = subsystem.find_audit_event_configs(enabled, enabled_by_default)
@@ -410,6 +435,7 @@ class AuditEventShowCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -418,10 +444,10 @@ class AuditEventShowCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -431,15 +457,19 @@ class AuditEventShowCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -453,7 +483,7 @@ class AuditEventShowCLI(pki.cli.CLI):
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -462,8 +492,8 @@ class AuditEventShowCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            print('ERROR: No %s subsystem in instance %s.'
-                  % (subsystem_name.upper(), instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         event = subsystem.get_audit_event_config(event_name)
@@ -484,6 +514,7 @@ class AuditEventEnableCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -491,10 +522,11 @@ class AuditEventEnableCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'verbose', 'help'])
+                'instance=',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -504,15 +536,19 @@ class AuditEventEnableCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -524,7 +560,7 @@ class AuditEventEnableCLI(pki.cli.CLI):
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -532,8 +568,8 @@ class AuditEventEnableCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.name
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance %s.'
-                  % (subsystem_name.upper(), instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         enabled = subsystem.enable_audit_event(event_name)
@@ -569,18 +605,19 @@ class AuditEventUpdateCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('  -f, --filter <event filter>        Event Filter (Ex: (Outcome=Failure)).')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
     def execute(self, argv):
 
         try:
-            opts, args = getopt.gnu_getopt(argv, 'i:f:v',
-                                           ['instance=', 'filter=', 'verbose',
-                                            'help'])
+            opts, args = getopt.gnu_getopt(argv, 'i:f:v', [
+                'instance=', 'filter=',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -594,15 +631,19 @@ class AuditEventUpdateCLI(pki.cli.CLI):
             elif o in ('-f', '--filter'):
                 event_filter = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -615,7 +656,7 @@ class AuditEventUpdateCLI(pki.cli.CLI):
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -623,8 +664,8 @@ class AuditEventUpdateCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.name
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance %s.'
-                  % (subsystem_name.upper(), instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         subsystem.update_audit_event_filter(event_name, event_filter)
@@ -648,6 +689,7 @@ class AuditEventDisableCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -655,10 +697,11 @@ class AuditEventDisableCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'verbose', 'help'])
+                'instance=',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -668,15 +711,19 @@ class AuditEventDisableCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -689,7 +736,7 @@ class AuditEventDisableCLI(pki.cli.CLI):
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -697,8 +744,8 @@ class AuditEventDisableCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.name
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance %s.'
-                  % (subsystem_name.upper(), instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         disable = subsystem.disable_audit_event(event_name)
@@ -732,6 +779,7 @@ class AuditFileFindCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -740,10 +788,10 @@ class AuditFileFindCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -753,21 +801,25 @@ class AuditFileFindCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -775,8 +827,8 @@ class AuditFileFindCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.name
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance %s.'
-                  % (subsystem_name.upper(), instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         log_files = subsystem.get_audit_log_files()
@@ -806,6 +858,7 @@ class AuditFileVerifyCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -814,10 +867,10 @@ class AuditFileVerifyCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -827,21 +880,25 @@ class AuditFileVerifyCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -849,8 +906,8 @@ class AuditFileVerifyCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.name
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance %s.'
-                  % (subsystem_name.upper(), instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         log_dir = subsystem.get_audit_log_dir()
@@ -868,7 +925,7 @@ class AuditFileVerifyCLI(pki.cli.CLI):
 
             cmd = ['AuditVerify']
 
-            if self.verbose:
+            if logger.isEnabledFor(logging.INFO):
                 cmd.append('-v')
 
             cmd.extend([
@@ -876,7 +933,7 @@ class AuditFileVerifyCLI(pki.cli.CLI):
                 '-n', signing_cert['nickname'],
                 '-a', file_list])
 
-            if self.verbose:
+            if logger.isEnabledFor(logging.INFO):
                 print('Command: %s' % ' '.join(cmd))
 
             subprocess.call(cmd)
