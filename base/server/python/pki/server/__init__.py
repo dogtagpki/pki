@@ -194,6 +194,14 @@ class PKIServer(object):
         return os.path.join(self.conf_dir, 'tomcat.conf')
 
     @property
+    def tomcat_users_xml(self):
+        return os.path.join(self.conf_dir, 'tomcat-users.xml')
+
+    @property
+    def tomcat_users_xsd(self):
+        return os.path.join(self.conf_dir, 'tomcat-users.xsd')
+
+    @property
     def web_xml(self):
         return os.path.join(self.conf_dir, 'web.xml')
 
@@ -362,7 +370,7 @@ class PKIServer(object):
         self.symlink(catalina_properties, self.catalina_properties, force=force)
 
         context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
-        self.copy(context_xml, self.context_xml, force=force)
+        self.symlink(context_xml, self.context_xml, force=force)
 
         logging_properties = os.path.join(Tomcat.CONF_DIR, 'logging.properties')
         self.copy(logging_properties, self.logging_properties, force=force)
@@ -373,15 +381,13 @@ class PKIServer(object):
         self.copy(Tomcat.TOMCAT_CONF, self.tomcat_conf, force=force)
 
         tomcat_users_xml = os.path.join(Tomcat.CONF_DIR, 'tomcat-users.xml')
-        tomcat_users_xml_link = os.path.join(self.conf_dir, 'tomcat-users.xml')
-        self.copy(tomcat_users_xml, tomcat_users_xml_link, force=force)
+        self.symlink(tomcat_users_xml, self.tomcat_users_xml, force=force)
 
         tomcat_users_xsd = os.path.join(Tomcat.CONF_DIR, 'tomcat-users.xsd')
-        tomcat_users_xsd_link = os.path.join(self.conf_dir, 'tomcat-users.xsd')
-        self.copy(tomcat_users_xsd, tomcat_users_xsd_link, force=force)
+        self.symlink(tomcat_users_xsd, self.tomcat_users_xsd, force=force)
 
         web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
-        self.copy(web_xml, self.web_xml, force=force)
+        self.symlink(web_xml, self.web_xml, force=force)
 
         conf_d_dir = os.path.join(self.conf_dir, 'conf.d')
         self.makedirs(conf_d_dir, force=force)

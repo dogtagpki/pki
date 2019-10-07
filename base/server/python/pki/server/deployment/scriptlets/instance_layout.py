@@ -90,12 +90,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /etc/pki/<instance>/context.xml
         # to /usr/share/tomcat/conf/context.xml.
-        deployer.symlink.create(
-            os.path.join(deployer.mdict['CATALINA_HOME'],
-                         "conf",
-                         "context.xml"),
-            os.path.join(deployer.mdict['pki_instance_configuration_path'],
-                         "context.xml"))
+        context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
+        instance.symlink(context_xml, instance.context_xml)
 
         # Link /etc/pki/<instance>/logging.properties
         # to /usr/share/pki/server/conf/logging.properties.
@@ -104,15 +100,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                          "logging.properties"),
             os.path.join(deployer.mdict['pki_instance_configuration_path'],
                          "logging.properties"))
-
-        # Link /etc/pki/<instance>/web.xml
-        # to /usr/share/tomcat/conf/web.xml.
-        deployer.symlink.create(
-            os.path.join(deployer.mdict['CATALINA_HOME'],
-                         "conf",
-                         "web.xml"),
-            os.path.join(deployer.mdict['pki_instance_configuration_path'],
-                         "web.xml"))
 
         logger.info('Creating %s', deployer.mdict['pki_target_tomcat_conf_instance_id'])
         # create /etc/sysconfig/<instance>
@@ -127,6 +114,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_source_tomcat_conf'],
             deployer.mdict['pki_target_tomcat_conf'],
             overwrite_flag=True)
+
+        # Link /etc/pki/<instance>/tomcat-users.xml
+        # to /usr/share/tomcat/conf/tomcat-users.xml.
+        tomcat_users_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'tomcat-users.xml')
+        instance.symlink(tomcat_users_xml, instance.tomcat_users_xml)
+
+        # Link /etc/pki/<instance>/tomcat-users.xsd
+        # to /usr/share/tomcat/conf/tomcat-users.xsd.
+        tomcat_users_xsd = os.path.join(pki.server.Tomcat.CONF_DIR, 'tomcat-users.xsd')
+        instance.symlink(tomcat_users_xsd, instance.tomcat_users_xsd)
+
+        # Link /etc/pki/<instance>/web.xml
+        # to /usr/share/tomcat/conf/web.xml.
+        web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
+        instance.symlink(web_xml, instance.web_xml)
 
         logger.info('Deploying ROOT web application')
         instance.deploy_webapp(
@@ -265,5 +267,6 @@ def file_ignore_callback_src_server(src, names):
         'schema-authority.ldif',
         'schema-certProfile.ldif',
         'serverCertNick.conf',
+        'tomcat-users.xml',
         'usn.ldif'
     }
