@@ -22,6 +22,7 @@ from __future__ import absolute_import
 import logging
 
 import pki
+import pki.server.instance
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -40,7 +41,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.mdict['pki_subsystem'],
                     deployer.mdict['pki_instance_name'])
 
-        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
 
         internal_token = deployer.mdict['pki_self_signed_token']
@@ -124,7 +125,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Initialization')
 
-        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
 
         try:

@@ -102,7 +102,7 @@ class NSSCreateCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.PKIServerFactory.create(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -176,7 +176,7 @@ class NSSRemoveCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.PKIServerFactory.create(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
             raise Exception('Invalid instance: %s' % instance_name)

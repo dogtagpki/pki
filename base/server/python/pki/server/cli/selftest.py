@@ -26,7 +26,7 @@ import sys
 import logging
 
 import pki.cli
-import pki.server as server
+import pki.server
 
 
 class SelfTestCLI(pki.cli.CLI):
@@ -86,7 +86,7 @@ class EnableSelfTestCLI(pki.cli.CLI):
                 sys.exit(1)
 
         # Load instance
-        instance = server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             print('ERROR: Invalid instance %s.' % instance_name)
@@ -112,7 +112,7 @@ class EnableSelfTestCLI(pki.cli.CLI):
                 # Save the updated CS.cfg to disk
                 subsys.save()
 
-        except server.PKIServerException as e:
+        except pki.server.PKIServerException as e:
             logging.error(str(e))
             sys.exit(1)
 
@@ -166,7 +166,7 @@ class DisableSelftestCLI(pki.cli.CLI):
                 sys.exit(1)
 
         # Load instance
-        instance = server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             print('ERROR: Invalid instance %s.' % instance_name)
@@ -192,6 +192,6 @@ class DisableSelftestCLI(pki.cli.CLI):
                 # Save the updated CS.cfg to disk
                 subsys.save()
 
-        except server.PKIServerException as e:
+        except pki.server.PKIServerException as e:
             logging.error(str(e))
             sys.exit(1)

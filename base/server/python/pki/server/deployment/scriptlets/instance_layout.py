@@ -49,7 +49,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Creating new %s instance', deployer.mdict['pki_instance_name'])
 
-        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
 
         # establish instance logs

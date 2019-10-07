@@ -39,7 +39,7 @@ from six.moves.urllib.parse import quote  # pylint: disable=F0401,E0611
 import pki.cert
 import pki.cli
 import pki.nssdb
-import pki.server as server
+import pki.server
 
 logger = logging.getLogger(__name__)
 
@@ -147,7 +147,7 @@ class CertFindCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -247,7 +247,7 @@ class CertShowCLI(pki.cli.CLI):
 
         cert_id = args[0]
 
-        instance = server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -255,7 +255,7 @@ class CertShowCLI(pki.cli.CLI):
 
         instance.load()
 
-        subsystem_name, cert_tag = server.PKIServer.split_cert_id(cert_id)
+        subsystem_name, cert_tag = pki.server.PKIServer.split_cert_id(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -341,7 +341,7 @@ class CertUpdateCLI(pki.cli.CLI):
 
         cert_id = args[0]
 
-        instance = server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -349,7 +349,7 @@ class CertUpdateCLI(pki.cli.CLI):
 
         instance.load()
 
-        subsystem_name, cert_tag = server.PKIServer.split_cert_id(cert_id)
+        subsystem_name, cert_tag = pki.server.PKIServer.split_cert_id(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -570,7 +570,7 @@ class CertCreateCLI(pki.cli.CLI):
 
         cert_id = args[0]
 
-        instance = server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -588,7 +588,7 @@ class CertCreateCLI(pki.cli.CLI):
                 serial=serial, temp_cert=temp_cert, renew=renew, output=output,
                 username=agent_username, password=agent_password, secure_port=port)
 
-        except server.PKIServerException as e:
+        except pki.server.PKIServerException as e:
             logger.error(str(e))
             sys.exit(1)
 
@@ -655,7 +655,7 @@ class CertImportCLI(pki.cli.CLI):
 
         cert_id = args[0]
 
-        instance = server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -668,7 +668,7 @@ class CertImportCLI(pki.cli.CLI):
             # Load the cert into NSS db and update all corresponding subsystem's CS.cfg
             instance.cert_import(cert_id, cert_file)
 
-        except server.PKIServerException as e:
+        except pki.server.PKIServerException as e:
             logger.error(str(e))
             sys.exit(1)
 
@@ -812,7 +812,7 @@ class CertExportCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        instance = server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -820,7 +820,7 @@ class CertExportCLI(pki.cli.CLI):
 
         instance.load()
 
-        subsystem_name, cert_tag = server.PKIServer.split_cert_id(cert_id)
+        subsystem_name, cert_tag = pki.server.PKIServer.split_cert_id(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -978,7 +978,7 @@ class CertRemoveCLI(pki.cli.CLI):
 
         cert_id = args[0]
 
-        instance = server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -1102,7 +1102,7 @@ class CertFixCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -1282,7 +1282,7 @@ class CertFixCLI(pki.cli.CLI):
             logger.info('Starting the instance with renewed certs')
             instance.start()
 
-        except server.PKIServerException as e:
+        except pki.server.PKIServerException as e:
             logger.error(str(e))
             sys.exit(1)
 

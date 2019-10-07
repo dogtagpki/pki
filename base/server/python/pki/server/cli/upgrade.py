@@ -24,9 +24,9 @@ import getopt
 import logging
 import sys
 
-import pki
 import pki.cli
 import pki.upgrade
+import pki.server.instance
 import pki.server.upgrade
 
 

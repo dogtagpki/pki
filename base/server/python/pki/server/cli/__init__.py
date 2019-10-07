@@ -358,7 +358,7 @@ class CreateCLI(pki.cli.CLI):
         if len(args) > 0:
             instance_name = args[0]
 
-        instance = pki.server.PKIServerFactory.create(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not force and instance.is_valid():
             logger.error('Instance already exists: %s', instance_name)
@@ -421,7 +421,7 @@ class RemoveCLI(pki.cli.CLI):
         if len(args) > 0:
             instance_name = args[0]
 
-        instance = pki.server.PKIServerFactory.create(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not force and not instance.is_valid():
             logger.error('Invalid instance: %s', instance_name)
@@ -478,7 +478,7 @@ class StatusCLI(pki.cli.CLI):
         if len(args) > 0:
             instance_name = args[0]
 
-        instance = pki.server.PKIServerFactory.create(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance: %s', instance_name)
@@ -534,7 +534,7 @@ class StartCLI(pki.cli.CLI):
         if len(args) > 0:
             instance_name = args[0]
 
-        instance = pki.server.PKIServerFactory.create(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance: %s', instance_name)
@@ -592,7 +592,7 @@ class StopCLI(pki.cli.CLI):
         if len(args) > 0:
             instance_name = args[0]
 
-        instance = pki.server.PKIServerFactory.create(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance: %s', instance_name)
@@ -650,7 +650,7 @@ class RestartCLI(pki.cli.CLI):
         if len(args) > 0:
             instance_name = args[0]
 
-        instance = pki.server.PKIServerFactory.create(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance: %s', instance_name)
@@ -715,7 +715,7 @@ class RunCLI(pki.cli.CLI):
         if len(args) > 0:
             instance_name = args[0]
 
-        instance = pki.server.PKIServerFactory.create(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance: %s', instance_name)

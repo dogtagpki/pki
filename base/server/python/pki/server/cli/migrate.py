@@ -30,7 +30,7 @@ import sys
 from lxml import etree
 
 import pki.cli
-import pki.server
+import pki.server.instance
 import pki.util
 
 logger = logging.getLogger(__name__)
@@ -98,7 +98,7 @@ class MigrateCLI(pki.cli.CLI):
 
         if instance_name:
 
-            instance = pki.server.PKIInstance(instance_name)
+            instance = pki.server.instance.PKIInstance(instance_name)
 
             if not instance.is_valid():
                 logger.error('Invalid instance %s.', instance_name)
@@ -109,7 +109,7 @@ class MigrateCLI(pki.cli.CLI):
             self.migrate(instance, tomcat_version)
 
         else:
-            instances = pki.server.PKIServer.instances()
+            instances = pki.server.instance.PKIInstance.instances()
 
             for instance in instances:
                 self.migrate(instance, tomcat_version)

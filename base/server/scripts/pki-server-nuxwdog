@@ -32,7 +32,7 @@ import os
 import subprocess
 import sys
 
-import pki.server as server
+import pki.server
 
 from pki.keyring import Keyring
 
@@ -88,7 +88,7 @@ instance_name = os.getenv('NAME', 'pki-tomcat')
 # cms.tokenList, cms.passwordList --> For each subsystem in the <instance>
 
 # Load the instance
-instance = server.PKIInstance(instance_name)
+instance = pki.server.instance.PKIInstance(instance_name)
 instance.load()
 
 subsystems = instance.subsystems

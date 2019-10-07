@@ -95,7 +95,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instances = pki.server.PKIServer.instances()
+        instances = pki.server.instance.PKIInstance.instances()
 
         for instance in instances:
             self.enable_nuxwdog(instance)
@@ -269,7 +269,7 @@ class NuxwdogDisableCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instances = pki.server.PKIServer.instances()
+        instances = pki.server.instance.PKIInstance.instances()
 
         for instance in instances:
             self.disable_nuxwdog(instance)

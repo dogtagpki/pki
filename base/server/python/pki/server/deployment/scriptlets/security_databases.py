@@ -46,7 +46,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Creating NSS database')
 
-        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
 
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
@@ -335,7 +335,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             password_file=deployer.mdict['pki_client_password_conf'])
 
     def update_external_certs_conf(self, external_path, deployer):
-        external_certs = pki.server.PKIInstance.read_external_certs(
+        external_certs = pki.server.instance.PKIInstance.read_external_certs(
             external_path)
 
         if len(external_certs) > 0:

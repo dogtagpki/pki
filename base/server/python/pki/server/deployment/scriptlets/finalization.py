@@ -47,7 +47,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Finalizing subsystem creation')
 
-        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
 
         # Optionally, programmatically 'enable' the configured PKI instance
@@ -79,7 +79,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Finalizing subsystem removal')
 
-        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
 
         # If this is the last remaining PKI instance, ALWAYS remove the

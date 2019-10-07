@@ -162,7 +162,7 @@ class InstanceCertExportCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -246,7 +246,7 @@ class InstanceFindCLI(pki.cli.CLI):
             else:
                 print()
 
-            instance = pki.server.PKIInstance(instance_name)
+            instance = pki.server.instance.PKIInstance(instance_name)
             instance.load()
 
             InstanceCLI.print_instance(instance)
@@ -299,7 +299,7 @@ class InstanceShowCLI(pki.cli.CLI):
 
         instance_name = args[0]
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -357,7 +357,7 @@ class InstanceStartCLI(pki.cli.CLI):
 
         instance_name = args[0]
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -420,7 +420,7 @@ class InstanceStopCLI(pki.cli.CLI):
 
         instance_name = args[0]
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -497,7 +497,7 @@ class InstanceMigrateCLI(pki.cli.CLI):
 
         module = self.get_top_module().find_module('migrate')
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -563,7 +563,7 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
         module = self.get_top_module().find_module('nuxwdog-enable')
         module = pki.server.cli.nuxwdog.NuxwdogEnableCLI()
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -626,7 +626,7 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
 
         module = self.get_top_module().find_module('nuxwdog-disable')
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -720,7 +720,7 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
@@ -819,7 +819,7 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)

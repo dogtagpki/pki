@@ -545,7 +545,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if PKISPAWN_STARTUP_TIMEOUT_SECONDS <= 0:
             PKISPAWN_STARTUP_TIMEOUT_SECONDS = 60
 
-        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
 
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())

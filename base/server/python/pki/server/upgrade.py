@@ -181,7 +181,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def instances(self):
         if self.instanceName and self.instance_version:
-            instance = pki.server.PKIInstance(
+            instance = pki.server.instance.PKIInstance(
                 self.instanceName,
                 self.instance_version)
             instance.validate()
@@ -195,7 +195,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 for instanceName in os.listdir(pki.server.PKIServer.BASE_DIR):
                     if not self.instanceName or \
                             self.instanceName == instanceName:
-                        instance = pki.server.PKIInstance(instanceName)
+                        instance = pki.server.instance.PKIInstance(instanceName)
                         instance.validate()
                         instance.load()
                         instance_list.append(instance)
@@ -207,7 +207,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                             os.path.join(pki.server.PKIServer.REGISTRY_DIR, s)):
                         if not self.instanceName or \
                                 self.instanceName == instanceName:
-                            instance = pki.server.PKIInstance(instanceName, version=9)
+                            instance = pki.server.instance.PKIInstance(instanceName, version=9)
                             instance.validate()
                             instance.load()
                             instance_list.append(instance)

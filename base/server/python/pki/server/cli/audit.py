@@ -137,7 +137,7 @@ class AuditConfigShowCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
@@ -266,7 +266,7 @@ class AuditConfigModifyCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
@@ -390,7 +390,7 @@ class AuditEventFindCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
@@ -479,7 +479,7 @@ class AuditEventShowCLI(pki.cli.CLI):
 
         event_name = args[0]
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
@@ -555,7 +555,7 @@ class AuditEventEnableCLI(pki.cli.CLI):
             raise getopt.GetoptError("Too many arguments specified.")
         event_name = args[0]
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
@@ -650,7 +650,7 @@ class AuditEventUpdateCLI(pki.cli.CLI):
 
         event_name = args[0]
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
@@ -729,7 +729,7 @@ class AuditEventDisableCLI(pki.cli.CLI):
 
         event_name = args[0]
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
@@ -811,7 +811,7 @@ class AuditFileFindCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
@@ -889,7 +889,7 @@ class AuditFileVerifyCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIInstance(instance_name)
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
