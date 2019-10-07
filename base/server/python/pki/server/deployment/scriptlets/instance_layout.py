@@ -262,5 +262,8 @@ def file_ignore_callback_src_server(src, names):
         'manager.ldif',
         'pki.xml',
         'logging.properties',
-        'serverCertNick.conf'
+        'schema-authority.ldif',
+        'schema-certProfile.ldif',
+        'serverCertNick.conf',
+        'usn.ldif'
     }
