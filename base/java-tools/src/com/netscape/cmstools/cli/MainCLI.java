@@ -46,6 +46,7 @@ import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
+import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.Level;
 import org.mozilla.jss.CryptoManager;
@@ -470,24 +471,11 @@ public class MainCLI extends CLI {
             return;
         }
 
-        // Create NSS database if it doesn't exist
-        if (!certDatabase.exists()) {
+        NSSDatabase nssdb = new NSSDatabase(certDatabase);
 
-            logger.info("Creating NSS database");
-
-            certDatabase.mkdirs();
-
-            String[] commands = {
-                    "/usr/bin/certutil", "-N",
-                    "-d", certDatabase.getAbsolutePath(),
-                    "--empty-password"
-            };
-
-            try {
-                runExternal(commands);
-            } catch (Exception e) {
-                throw new Exception("Unable to create NSS database", e);
-            }
+        if (!nssdb.exists()) {
+            // Create a default NSS database without password
+            nssdb.create();
         }
 
         logger.info("Initializing NSS");

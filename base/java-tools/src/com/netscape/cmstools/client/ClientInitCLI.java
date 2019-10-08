@@ -20,15 +20,11 @@ package com.netscape.cmstools.client;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.io.FileUtils;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.nss.NSSDatabase;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.MainCLI;
@@ -65,8 +61,10 @@ public class ClientInitCLI extends CommandCLI {
 
         MainCLI mainCLI = clientCLI.mainCLI;
         File certDatabase = mainCLI.getNSSDatabase();
+        NSSDatabase nssdb = new NSSDatabase(certDatabase);
 
-        if (certDatabase.exists()) {
+        // Make sure existing NSS database is deleted
+        if (nssdb.exists()) {
 
             boolean force = cmd.hasOption("force");
 
@@ -83,42 +81,11 @@ public class ClientInitCLI extends CommandCLI {
                 }
             }
 
-            FileUtils.deleteDirectory(certDatabase);
+            nssdb.delete();
         }
 
-        File passwordFile = new File(certDatabase, "password.txt");
-
-        try {
-            certDatabase.mkdirs();
-
-            List<String> command = new ArrayList<>();
-            command.add("certutil");
-            command.add("-N");
-            command.add("-d");
-            command.add(certDatabase.getAbsolutePath());
-
-            ClientConfig config = mainCLI.getConfig();
-            String password = config.getNSSPassword();
-
-            if (password == null) {
-                command.add("--empty-password");
-
-            } else {
-                try (PrintWriter out = new PrintWriter(new FileWriter(passwordFile))) {
-                    out.println(password);
-                }
-
-                command.add("-f");
-                command.add(passwordFile.getAbsolutePath());
-            }
-
-            runExternal(command);
-
-        } catch (Exception e) {
-            throw new Exception("Unable to create NSS database: " + e.getMessage(), e);
-
-        } finally {
-            if (passwordFile.exists()) passwordFile.delete();
-        }
+        // Create NSS database with the provided password
+        ClientConfig config = mainCLI.getConfig();
+        nssdb.create(config.getNSSPassword());
     }
 }

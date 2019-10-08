@@ -477,6 +477,7 @@ Summary:          PKI Base Package
 BuildArch:        noarch
 
 Requires:         nss >= 3.36.1
+
 %if 0%{?with_python3_default}
 Requires:         python3-pki = %{version}
 Requires(post):   python3-pki = %{version}
@@ -626,6 +627,7 @@ Summary:          PKI Tools Package
 Requires:         openldap-clients
 Requires:         nss-tools >= 3.36.1
 Requires:         pki-base-java = %{version}
+Requires:         p11-kit-trust
 
 # PKICertImport depends on certutil and openssl
 Requires:         nss-tools
@@ -1018,6 +1020,7 @@ cd build
     --no-warn-unused-cli \
     -DVERSION=%{version}-%{release} \
     -DVAR_INSTALL_DIR:PATH=/var \
+    -DP11_KIT_TRUST=/etc/alternatives/libnssckbi.so.%{_arch} \
     -DJAVA_HOME=%{java_home} \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
     -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
@@ -1329,6 +1332,7 @@ fi
 %dir %{_datadir}/pki/etc
 %{_datadir}/pki/etc/pki.conf
 %{_datadir}/pki/etc/logging.properties
+%dir %{_datadir}/pki/lib
 %dir %{_datadir}/pki/scripts
 %{_datadir}/pki/scripts/config
 %{_datadir}/pki/upgrade/
@@ -1363,7 +1367,7 @@ fi
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
 %{_datadir}/pki/examples/java/
-%{_datadir}/pki/lib/
+%{_datadir}/pki/lib/*.jar
 %dir %{_javadir}/pki
 %{_javadir}/pki/pki-cmsutil.jar
 %{_javadir}/pki/pki-nsutil.jar
@@ -1421,6 +1425,7 @@ fi
 %{_bindir}/TokenInfo
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/java-tools/
+%{_datadir}/pki/lib/p11-kit-trust.so
 %{_mandir}/man1/AtoB.1.gz
 %{_mandir}/man1/AuditVerify.1.gz
 %{_mandir}/man1/BtoA.1.gz
