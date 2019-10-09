@@ -29,7 +29,6 @@ import java.util.HashMap;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -265,29 +264,6 @@ public class CertEnrollmentRequest extends ResourceMessage {
         this.outputs.addAll(outputs);
     }
 
-    public static CertEnrollmentRequest fromXML(String string) throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        return (CertEnrollmentRequest) unmarshaller.unmarshal(new StringReader(string));
-    }
-
-    public String toXML() throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(this, sw);
-        return sw.toString();
-    }
-
-    public String toString() {
-        try {
-            return toXML();
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -344,6 +320,29 @@ public class CertEnrollmentRequest extends ResourceMessage {
         } else if (!serialNum.equals(other.serialNum))
             return false;
         return true;
+    }
+
+    public String toXML() throws Exception {
+        JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static CertEnrollmentRequest fromXML(String string) throws Exception {
+        JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        return (CertEnrollmentRequest) unmarshaller.unmarshal(new StringReader(string));
+    }
+
+    public String toString() {
+        try {
+            return toXML();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void main(String args[]) throws Exception {

@@ -17,13 +17,15 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.cert;
 
-import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -196,22 +198,6 @@ public class CertReviewResponse extends CertEnrollmentRequest {
         this.profileRemoteAddr = profileRemoteAddr;
     }
 
-    public String toString() {
-        try {
-            JAXBContext context = JAXBContext.newInstance(CertReviewResponse.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-            marshaller.marshal(this, stream);
-            return stream.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public List<ProfilePolicySet> getPolicySets() {
         return policySets;
     }
@@ -249,4 +235,18 @@ public class CertReviewResponse extends CertEnrollmentRequest {
         return ret;
     }
 
+    public String toXML() throws Exception {
+        JAXBContext context = JAXBContext.newInstance(CertReviewResponse.class);
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static CertReviewResponse fromXML(String xml) throws Exception {
+        JAXBContext context = JAXBContext.newInstance(CertReviewResponse.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        return (CertReviewResponse) unmarshaller.unmarshal(new StringReader(xml));
+    }
 }
