@@ -41,13 +41,17 @@ public class CACertRequestReviewCLI extends CommandCLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "action", true, "Action: " + StringUtils.join(actions, ", "));
+        Option option = new Option(null, "action", true, "DEPRECATED: Action: " + StringUtils.join(actions, ", "));
         option.setArgName("action");
         options.addOption(option);
 
         option = new Option(null, "file", true,
-                            "File to store the retrieved certificate request.\n"
+                            "DEPRECATED: File to store the retrieved certificate request.\n"
                           + "Action will be prompted for to run against request read in from file.");
+        option.setArgName("filename");
+        options.addOption(option);
+
+        option = new Option(null, "output-file", true, "Ouput file to store the certificate request.");
         option.setArgName("filename");
         options.addOption(option);
     }
@@ -71,12 +75,19 @@ public class CACertRequestReviewCLI extends CommandCLI {
         String action = cmd.getOptionValue("action");
         String filename = cmd.getOptionValue("file");
 
-        if (action != null && filename != null) {
-            throw new Exception("Action and filename are mutually exclusive");
+        if (action != null) {
+            logger.warn("The --action option has been deprecated. Use the following command instead:");
+            logger.warn("  $ pki ca-cert-request-<action> <request ID>");
         }
 
-        if (action == null && filename == null) {
-            throw new Exception("Missing action or filename");
+        if (filename != null) {
+            logger.warn("The --file option has been deprecated. Use the --output-file option instead.");
+        } else {
+            filename = cmd.getOptionValue("output-file");
+        }
+
+        if (action != null && filename != null) {
+            throw new Exception("Action and filename are mutually exclusive");
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
@@ -87,35 +98,80 @@ public class CACertRequestReviewCLI extends CommandCLI {
         CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
         logger.info("Nonce: " + reviewInfo.getNonce());
 
-        if (filename != null) {
+        if (action == null) {
 
             MainCLI.printMessage("Retrieved certificate request " + requestId);
             CACertRequestCLI.printCertReviewResponse(reviewInfo);
+
+            System.out.println();
+        }
+
+        if (cmd.hasOption("output-file")) {
+
+            // new process -> store request into file, show the next command
 
             logger.info("Storing certificate request into " + filename);
             try (Writer writer = new FileWriter(filename)) {
                 writer.write(reviewInfo.toXML());
             }
 
+            System.out.println("Please review the certificate request in " + filename + ".");
+            System.out.println("Update the file if necessary, then execute:");
             System.out.println();
+            System.out.println("  $ pki ... ca-cert-request-<action> " + requestId + " --input-file " + filename);
+            System.out.println();
+            System.out.println("Available actions: " + StringUtils.join(actions, ", "));
+
+            return;
+
+        } else if (cmd.hasOption("file")) {
+
+            // old process -> store request into file, wait for action
+
+            logger.info("Storing certificate request into " + filename);
+            try (Writer writer = new FileWriter(filename)) {
+                writer.write(reviewInfo.toXML());
+            }
+
             System.out.println("Please review the certificate request in " + filename + ".");
             System.out.println("Update the file if necessary, then select an action below.");
             System.out.println();
+        }
+
+        if (action == null) {
+
+            // ask for an action
 
             while (true) {
+
                 System.out.print("Action (" + StringUtils.join(actions, "/") + "): ");
                 System.out.flush();
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
                 action = reader.readLine().trim().toLowerCase();
 
-                if (actions.contains(action)) break;
+                if (StringUtils.isEmpty(action)) {
+                    return;
+
+                } else if (actions.contains(action)) {
+                    break;
+
+                } else {
+                    System.out.println("Invalid action: " + action);
+                }
             }
+        }
+
+        if (filename != null) {
+
+            // load updated request from file
 
             logger.info("Loading certificate request from " + filename);
             String xml = new String(Files.readAllBytes(Paths.get(filename)));
             reviewInfo = CertReviewResponse.fromXML(xml);
         }
+
+        // execute action
 
         if (action.equalsIgnoreCase("approve")) {
             certClient.approveRequest(requestId, reviewInfo);
