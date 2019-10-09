@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.ca;
 
+import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.ca.CACertClient;
@@ -25,6 +26,8 @@ import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.profile.ProfileAttribute;
+import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 
@@ -44,6 +47,13 @@ public class CACertRequestCLI extends CLI {
         addModule(new CACertRequestShowCLI(this));
         addModule(new CACertRequestSubmitCLI(this));
         addModule(new CACertRequestReviewCLI(this));
+        addModule(new CACertRequestApproveCLI(this));
+        addModule(new CACertRequestRejectCLI(this));
+        addModule(new CACertRequestCancelCLI(this));
+        addModule(new CACertRequestUpdateCLI(this));
+        addModule(new CACertRequestValidateCLI(this));
+        addModule(new CACertRequestAssignCLI(this));
+        addModule(new CACertRequestUnassignCLI(this));
 
         addModule(new CACertRequestProfileFindCLI(this));
         addModule(new CACertRequestProfileShowCLI(this));
@@ -113,9 +123,32 @@ public class CACertRequestCLI extends CLI {
     }
 
     public static void printCertReviewResponse(CertReviewResponse response) {
+
         System.out.println("  Request ID: " + response.getRequestId());
         System.out.println("  Profile: " + response.getProfileName());
         System.out.println("  Type: " + response.getRequestType());
         System.out.println("  Status: " + response.getRequestStatus());
+
+        for (ProfileInput input : response.getInputs()) {
+
+            System.out.println();
+            System.out.println("  " + input.getName() + ":");
+            boolean inputProvided = false;
+
+            for (ProfileAttribute attribute : input.getAttributes()) {
+
+                String name = attribute.getName();
+                String value = attribute.getValue().trim();
+
+                if (!StringUtils.isEmpty(value)) {
+                    System.out.println("    " + name + ": " + value);
+                    inputProvided = true;
+                }
+            }
+
+            if (!inputProvided) {
+                System.out.println("    none");
+            }
+        }
     }
 }
