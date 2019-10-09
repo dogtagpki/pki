@@ -1,15 +1,13 @@
 package com.netscape.cmstools.ca;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -60,62 +58,51 @@ public class CACertRequestReviewCLI extends CommandCLI {
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length < 1) {
-            throw new Exception("Missing Certificate Request ID.");
+            throw new Exception("Missing certificate request ID");
         }
 
-        RequestId requestId = null;
+        RequestId requestId;
         try {
             requestId = new RequestId(cmdArgs[0]);
         } catch (NumberFormatException e) {
-            throw new Exception("Invalid certificate request ID " + cmdArgs[0] + ".", e);
-        }
-
-        // Since "--action <action>" and "--file <filename>" are mutually
-        // exclusive, check to make certain that only one has been set
-        if (cmd.hasOption("action") && cmd.hasOption("file")) {
-            throw new Exception("The '--action <action>' and '--file <filename>' " +
-                                "options are mutually exclusive!");
+            throw new Exception("Invalid certificate request ID: " + cmdArgs[0], e);
         }
 
         String action = cmd.getOptionValue("action");
-        String filename = null;
+        String filename = cmd.getOptionValue("file");
 
-        if (action == null) {
-            if (cmd.hasOption("file")) {
-                filename = cmd.getOptionValue("file");
-            } else {
-                throw new Exception("Missing '--action <action>' or '--file <filename>' option.");
-            }
+        if (action != null && filename != null) {
+            throw new Exception("Action and filename are mutually exclusive");
+        }
 
-            if (filename == null || filename.trim().length() == 0) {
-                throw new Exception("Missing output file name.");
-            }
+        if (action == null && filename == null) {
+            throw new Exception("Missing action or filename");
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        // Retrieve certificate request.
+        logger.info("Retrieving certificate request " + requestId);
         CACertClient certClient = certRequestCLI.getCertClient();
         CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
+        logger.info("Nonce: " + reviewInfo.getNonce());
 
-        if (action == null) {
-            // Store certificate request in a file.
-            JAXBContext context = JAXBContext.newInstance(CertReviewResponse.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            FileOutputStream stream = new FileOutputStream(filename);
-            marshaller.marshal(reviewInfo, stream);
+        if (filename != null) {
 
             MainCLI.printMessage("Retrieved certificate request " + requestId);
             CACertRequestCLI.printCertReviewResponse(reviewInfo);
-            System.out.println("  Filename: " + filename);
-            logger.info("Nonce: " + reviewInfo.getNonce());
+
+            logger.info("Storing certificate request into " + filename);
+            try (Writer writer = new FileWriter(filename)) {
+                writer.write(reviewInfo.toXML());
+            }
+
+            System.out.println();
+            System.out.println("Please review the certificate request in " + filename + ".");
+            System.out.println("Update the file if necessary, then select an action below.");
             System.out.println();
 
             while (true) {
-                // Prompt for action.
                 System.out.print("Action (" + StringUtils.join(actions, "/") + "): ");
                 System.out.flush();
 
@@ -125,38 +112,37 @@ public class CACertRequestReviewCLI extends CommandCLI {
                 if (actions.contains(action)) break;
             }
 
-            // Read certificate request file.
-            Unmarshaller unmarshaller = context.createUnmarshaller();
-            FileInputStream fis = new FileInputStream(filename);
-            reviewInfo = (CertReviewResponse) unmarshaller.unmarshal(fis);
+            logger.info("Loading certificate request from " + filename);
+            String xml = new String(Files.readAllBytes(Paths.get(filename)));
+            reviewInfo = CertReviewResponse.fromXML(xml);
         }
 
         if (action.equalsIgnoreCase("approve")) {
-            certClient.approveRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.approveRequest(requestId, reviewInfo);
             MainCLI.printMessage("Approved certificate request " + requestId);
 
         } else if (action.equalsIgnoreCase("reject")) {
-            certClient.rejectRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.rejectRequest(requestId, reviewInfo);
             MainCLI.printMessage("Rejected certificate request " + requestId);
 
         } else if (action.equalsIgnoreCase("cancel")) {
-            certClient.cancelRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.cancelRequest(requestId, reviewInfo);
             MainCLI.printMessage("Canceled certificate request " + requestId);
 
         } else if (action.equalsIgnoreCase("update")) {
-            certClient.updateRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.updateRequest(requestId, reviewInfo);
             MainCLI.printMessage("Updated certificate request " + requestId);
 
         } else if (action.equalsIgnoreCase("validate")) {
-            certClient.validateRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.validateRequest(requestId, reviewInfo);
             MainCLI.printMessage("Validated certificate request " + requestId);
 
         } else if (action.equalsIgnoreCase("assign")) {
-            certClient.assignRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.assignRequest(requestId, reviewInfo);
             MainCLI.printMessage("Assigned certificate request " + requestId);
 
         } else if (action.equalsIgnoreCase("unassign")) {
-            certClient.unassignRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.unassignRequest(requestId, reviewInfo);
             MainCLI.printMessage("Unassigned certificate request " + requestId);
 
         } else {

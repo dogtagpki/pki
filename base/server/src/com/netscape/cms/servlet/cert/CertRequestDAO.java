@@ -148,10 +148,13 @@ public class CertRequestDAO extends CMSRequestDAO {
      */
     public CertReviewResponse reviewRequest(HttpServletRequest servletRequest, RequestId id,
             UriInfo uriInfo, Locale locale) throws EBaseException {
+
         IRequest request = queue.findRequest(id);
+
         if (request == null) {
             return null;
         }
+
         String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
         IProfile profile = ps.getProfile(profileId);
         CertReviewResponse info = CertReviewResponseFactory.create(request, profile, uriInfo, locale);
@@ -159,6 +162,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         if (ca.noncesEnabled()) {
             // generate nonce
             long n = random.nextLong();
+            logger.info("CertRequestDAO: Nonce: " + n);
 
             // store nonce in session
             Map<Object, Long> nonces = ca.getNonces(servletRequest, "cert-request");
@@ -167,6 +171,7 @@ public class CertRequestDAO extends CMSRequestDAO {
             // return nonce to client
             info.setNonce(Long.toString(n));
         }
+
         return info;
     }
 

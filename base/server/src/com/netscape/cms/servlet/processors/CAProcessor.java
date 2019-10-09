@@ -1009,6 +1009,8 @@ public class CAProcessor extends Processor {
             Object id,
             Long nonce) throws EBaseException {
 
+        logger.info("CAProcessor: Nonce: " + nonce);
+
         if (nonce == null) {
             throw new BadRequestException("Missing nonce.");
         }
@@ -1016,16 +1018,19 @@ public class CAProcessor extends Processor {
         Map<Object, Long> nonces = authority.getNonces(servletRequest, name);
 
         Long storedNonce = nonces.get(id);
+
         if (storedNonce == null) {
-            throw new BadRequestException("Nonce for "+name+" "+id+" does not exist.");
+            logger.warn("CAProcessor: Nonce for " + name + " " + id + " does not exist");
+            throw new BadRequestException("Nonce for " + name + " " + id + " does not exist");
         }
 
         if (!nonce.equals(storedNonce)) {
-            throw new ForbiddenException("Invalid nonce");
+            logger.warn("CAProcessor: Invalid nonce: " + nonce);
+            throw new ForbiddenException("Invalid nonce: " + nonce);
         }
 
         nonces.remove(id);
 
-        logger.debug("Processor: Nonce verified");
+        logger.debug("CAProcessor: Nonce verified");
     }
 }
