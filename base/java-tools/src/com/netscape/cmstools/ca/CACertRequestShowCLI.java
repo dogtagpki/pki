@@ -12,11 +12,11 @@ public class CACertRequestShowCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertRequestShowCLI.class);
 
-    CACertCLI certCLI;
+    CACertRequestCLI certRequestCLI;
 
-    public CACertRequestShowCLI(CACertCLI certCLI) {
-        super("request-show", "Show certificate request", certCLI);
-        this.certCLI = certCLI;
+    public CACertRequestShowCLI(CACertRequestCLI certRequestCLI) {
+        super("show", "Show certificate request", certRequestCLI);
+        this.certRequestCLI = certRequestCLI;
     }
 
     @Override
@@ -43,10 +43,10 @@ public class CACertRequestShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certRequestCLI.getCertClient();
         CertRequestInfo certRequest = certClient.getRequest(requestId);
 
         MainCLI.printMessage("Certificate request \"" + requestId + "\"");
-        CACertCLI.printCertRequestInfo(certRequest);
+        CACertRequestCLI.printCertRequestInfo(certRequest);
     }
 }

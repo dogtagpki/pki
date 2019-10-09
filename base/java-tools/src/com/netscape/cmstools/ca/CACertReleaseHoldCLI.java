@@ -89,7 +89,7 @@ public class CACertReleaseHoldCLI extends CommandCLI {
         CertRequestInfo certRequestInfo = certClient.unrevokeCert(certID);
 
         if (logger.isInfoEnabled()) {
-            CACertCLI.printCertRequestInfo(certRequestInfo);
+            CACertRequestCLI.printCertRequestInfo(certRequestInfo);
         }
 
         if (certRequestInfo.getRequestStatus() == RequestStatus.COMPLETE) {

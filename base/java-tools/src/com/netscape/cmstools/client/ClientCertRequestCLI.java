@@ -55,7 +55,7 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.cmstools.CRMFPopClient;
-import com.netscape.cmstools.ca.CACertCLI;
+import com.netscape.cmstools.ca.CACertRequestCLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -371,7 +371,7 @@ public class ClientCertRequestCLI extends CommandCLI {
 
         CertRequestInfos infos = certClient.enrollRequest(request, aid, adn);
 
-        CACertCLI.printCertRequestInfos(infos);
+        CACertRequestCLI.printCertRequestInfos(infos);
     }
 
     public String generatePkcs10Request(

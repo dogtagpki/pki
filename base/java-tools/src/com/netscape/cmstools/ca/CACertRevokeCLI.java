@@ -137,7 +137,7 @@ public class CACertRevokeCLI extends CommandCLI {
         }
 
         if (logger.isInfoEnabled()) {
-            CACertCLI.printCertRequestInfo(certRequestInfo);
+            CACertRequestCLI.printCertRequestInfo(certRequestInfo);
         }
 
         if (certRequestInfo.getRequestStatus() == RequestStatus.COMPLETE) {

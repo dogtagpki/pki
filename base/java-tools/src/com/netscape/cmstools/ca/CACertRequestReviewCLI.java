@@ -26,15 +26,15 @@ public class CACertRequestReviewCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertRequestReviewCLI.class);
 
-    CACertCLI certCLI;
+    CACertRequestCLI certRequestCLI;
 
     List<String> actions = Arrays.asList(
         "approve", "reject", "cancel", "update", "validate", "assign", "unassign"
     );
 
-    public CACertRequestReviewCLI(CACertCLI certCLI) {
-        super("request-review", "Review certificate request", certCLI);
-        this.certCLI = certCLI;
+    public CACertRequestReviewCLI(CACertRequestCLI certRequestCLI) {
+        super("review", "Review certificate request", certRequestCLI);
+        this.certRequestCLI = certRequestCLI;
     }
 
     @Override
@@ -96,7 +96,7 @@ public class CACertRequestReviewCLI extends CommandCLI {
         mainCLI.init();
 
         // Retrieve certificate request.
-        CACertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certRequestCLI.getCertClient();
         CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
 
         if (action == null) {
@@ -109,7 +109,7 @@ public class CACertRequestReviewCLI extends CommandCLI {
             marshaller.marshal(reviewInfo, stream);
 
             MainCLI.printMessage("Retrieved certificate request " + requestId);
-            CACertCLI.printCertReviewResponse(reviewInfo);
+            CACertRequestCLI.printCertReviewResponse(reviewInfo);
             System.out.println("  Filename: " + filename);
             logger.info("Nonce: " + reviewInfo.getNonce());
             System.out.println();
@@ -164,6 +164,6 @@ public class CACertRequestReviewCLI extends CommandCLI {
         }
 
         CertRequestInfo certRequest = certClient.getRequest(requestId);
-        CACertCLI.printCertRequestInfo(certRequest);
+        CACertRequestCLI.printCertRequestInfo(certRequest);
     }
 }

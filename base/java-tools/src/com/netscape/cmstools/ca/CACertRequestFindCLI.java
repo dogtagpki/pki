@@ -37,11 +37,11 @@ public class CACertRequestFindCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertRequestFindCLI.class);
 
-    public CACertCLI certCLI;
+    public CACertRequestCLI certRequestCLI;
 
-    public CACertRequestFindCLI(CACertCLI certCLI) {
-        super("request-find", "Find certificate requests", certCLI);
-        this.certCLI = certCLI;
+    public CACertRequestFindCLI(CACertRequestCLI certRequestCLI) {
+        super("find", "Find certificate requests", certRequestCLI);
+        this.certRequestCLI = certRequestCLI;
     }
 
     public void printHelp() {
@@ -109,7 +109,7 @@ public class CACertRequestFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certRequestCLI.getCertClient();
         CertRequestInfos response = certClient.listRequests(requestState, requestType, start, size, maxResults, maxTime);
 
         MainCLI.printMessage(response.getTotal() + " entries matched");
@@ -125,7 +125,7 @@ public class CACertRequestFindCLI extends CommandCLI {
                 System.out.println();
             }
 
-            CACertCLI.printCertRequestInfo(certRequest);
+            CACertRequestCLI.printCertRequestInfo(certRequest);
         }
 
         MainCLI.printMessage("Number of entries returned " + entries.size());

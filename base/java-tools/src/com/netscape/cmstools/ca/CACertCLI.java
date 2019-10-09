@@ -27,9 +27,6 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
-import com.netscape.certsrv.cert.CertRequestInfo;
-import com.netscape.certsrv.cert.CertRequestInfos;
-import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
@@ -56,13 +53,7 @@ public class CACertCLI extends CLI {
         addModule(new CACertReleaseHoldCLI(this));
         addModule(new CACertStatusCLI(this));
 
-        addModule(new CACertRequestFindCLI(this));
-        addModule(new CACertRequestShowCLI(this));
-        addModule(new CACertRequestSubmitCLI(this));
-        addModule(new CACertRequestReviewCLI(this));
-
-        addModule(new CACertRequestProfileFindCLI(this));
-        addModule(new CACertRequestProfileShowCLI(this));
+        addModule(new CACertRequestCLI(this));
     }
 
     public String getFullName() {
@@ -189,40 +180,5 @@ public class CACertCLI extends CLI {
             System.out.println();
             System.out.println(encoded);
         }
-    }
-
-    public static void printCertRequestInfos(CertRequestInfos infos) {
-        boolean first = true;
-        for (CertRequestInfo info : infos.getEntries()) {
-            if (first) {
-                first = false;
-            } else {
-                System.out.println();
-            }
-            printCertRequestInfo(info);
-        }
-    }
-
-    public static void printCertRequestInfo(CertRequestInfo info) {
-        System.out.println("  Request ID: " + info.getRequestId());
-        System.out.println("  Type: " + info.getRequestType());
-        System.out.println("  Request Status: " + info.getRequestStatus());
-        System.out.println("  Operation Result: " + info.getOperationResult());
-
-        String error = info.getErrorMessage();
-        if (error != null) {
-            System.out.println("  Reason: " + error);
-        }
-
-        if (info.getCertId() != null) {
-            System.out.println("  Certificate ID: " + info.getCertId().toHexString());
-        }
-    }
-
-    public static void printCertReviewResponse(CertReviewResponse response) {
-        System.out.println("  Request ID: " + response.getRequestId());
-        System.out.println("  Profile: " + response.getProfileName());
-        System.out.println("  Type: " + response.getRequestType());
-        System.out.println("  Status: " + response.getRequestStatus());
     }
 }

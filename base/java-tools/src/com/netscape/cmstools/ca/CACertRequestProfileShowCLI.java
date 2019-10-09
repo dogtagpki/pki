@@ -13,11 +13,11 @@ public class CACertRequestProfileShowCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertRequestProfileShowCLI.class);
 
-    public CACertCLI certCLI;
+    public CACertRequestCLI certRequestCLI;
 
-    public CACertRequestProfileShowCLI(CACertCLI certCLI) {
-        super("request-profile-show", "Get Enrollment template", certCLI);
-        this.certCLI = certCLI;
+    public CACertRequestProfileShowCLI(CACertRequestCLI certRequestCLI) {
+        super("profile-show", "Get Enrollment template", certRequestCLI);
+        this.certRequestCLI = certRequestCLI;
     }
 
     public void printHelp() {
@@ -52,7 +52,7 @@ public class CACertRequestProfileShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certRequestCLI.getCertClient();
         CertEnrollmentRequest request = certClient.getEnrollmentTemplate(profileId);
 
         MainCLI.printMessage("Enrollment Template for Profile \"" + profileId + "\"");

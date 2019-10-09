@@ -30,11 +30,11 @@ public class CACertRequestSubmitCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertRequestSubmitCLI.class);
 
-    CACertCLI certCLI;
+    CACertRequestCLI certRequestCLI;
 
-    public CACertRequestSubmitCLI(CACertCLI certCLI) {
-        super("request-submit", "Submit certificate request", certCLI);
-        this.certCLI = certCLI;
+    public CACertRequestSubmitCLI(CACertRequestCLI CACertRequestCLI) {
+        super("submit", "Submit certificate request", CACertRequestCLI);
+        this.certRequestCLI = CACertRequestCLI;
     }
 
     public void createOptions() {
@@ -129,7 +129,7 @@ public class CACertRequestSubmitCLI extends CommandCLI {
 
             logger.info("Retrieving " + profileID + " profile");
 
-            CACertClient certClient = certCLI.getCertClient();
+            CACertClient certClient = certRequestCLI.getCertClient();
             request = certClient.getEnrollmentTemplate(profileID);
 
             // set default request type for new request
@@ -247,10 +247,10 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certRequestCLI.getCertClient();
         CertRequestInfos cri = certClient.enrollRequest(request, aid, adn);
         MainCLI.printMessage("Submitted certificate request");
-        CACertCLI.printCertRequestInfos(cri);
+        CACertRequestCLI.printCertRequestInfos(cri);
     }
 
     private String loadFile(String fileName) throws FileNotFoundException {

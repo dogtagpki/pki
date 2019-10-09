@@ -16,11 +16,11 @@ public class CACertRequestProfileFindCLI extends CommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertRequestProfileFindCLI.class);
 
-    public CACertCLI certCLI;
+    public CACertRequestCLI certRequestCLI;
 
-    public CACertRequestProfileFindCLI(CACertCLI certCLI) {
-        super("request-profile-find", "List Enrollment templates", certCLI);
-        this.certCLI = certCLI;
+    public CACertRequestProfileFindCLI(CACertRequestCLI certRequestCLI) {
+        super("profile-find", "List Enrollment templates", certRequestCLI);
+        this.certRequestCLI = certRequestCLI;
     }
 
     public void printHelp() {
@@ -54,7 +54,7 @@ public class CACertRequestProfileFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certRequestCLI.getCertClient();
         ProfileDataInfos response = certClient.listEnrollmentTemplates(start, size);
 
         MainCLI.printMessage(response.getTotal() + " entries matched");
