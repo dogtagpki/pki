@@ -98,35 +98,30 @@ public class KRAKeyCLI extends CLI {
         // create new key client
         keyClient = new KeyClient(client, subsystem);
 
-        // if security database password is specified,
-        // prepare key client for archival/retrieval
-        if (client.getConfig().getNSSPassword() != null) {
+        // create crypto provider for key client
+        keyClient.setCrypto(new NSSCryptoProvider(client.getConfig()));
 
-            // create crypto provider for key client
-            keyClient.setCrypto(new NSSCryptoProvider(client.getConfig()));
+        CryptoManager manager = CryptoManager.getInstance();
+        X509Certificate transportCert;
 
-            CryptoManager manager = CryptoManager.getInstance();
-            X509Certificate transportCert;
+        if (transportNickname == null) {
+            // download transport cert
+            KRASystemCertClient systemCertClient = new KRASystemCertClient(client, subsystem);
+            String pemCert = systemCertClient.getTransportCert().getEncoded();
+            String b64Cert = pemCert.substring(Cert.HEADER.length(), pemCert.indexOf(Cert.FOOTER));
+            byte[] binCert = Utils.base64decode(b64Cert);
 
-            if (transportNickname == null) {
-                // download transport cert
-                KRASystemCertClient systemCertClient = new KRASystemCertClient(client, subsystem);
-                String pemCert = systemCertClient.getTransportCert().getEncoded();
-                String b64Cert = pemCert.substring(Cert.HEADER.length(), pemCert.indexOf(Cert.FOOTER));
-                byte[] binCert = Utils.base64decode(b64Cert);
+            transportCert = manager.importCACertPackage(binCert);
 
-                transportCert = manager.importCACertPackage(binCert);
-
-            } else {
-                // load transport cert
-                transportCert = manager.findCertByNickname(transportNickname);
-            }
-
-            logger.info("Transport cert: " + transportCert.getNickname());
-
-            // set transport cert for key client
-            keyClient.setTransportCert(transportCert);
+        } else {
+            // load transport cert
+            transportCert = manager.findCertByNickname(transportNickname);
         }
+
+        logger.info("Transport cert: " + transportCert.getNickname());
+
+        // set transport cert for key client
+        keyClient.setTransportCert(transportCert);
 
         return keyClient;
     }
