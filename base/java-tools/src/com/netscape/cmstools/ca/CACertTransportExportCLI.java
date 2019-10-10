@@ -16,15 +16,15 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.kra;
+package com.netscape.cmstools.ca;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.ca.CASystemCertClient;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.kra.KRASystemCertClient;
 import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.certsrv.cert.CertData;
@@ -34,14 +34,14 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class KRACertTransportExportCLI extends CommandCLI {
+public class CACertTransportExportCLI extends CommandCLI {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRACertTransportExportCLI.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertTransportExportCLI.class);
 
-    public KRACertCLI certCLI;
+    public CACertCLI certCLI;
 
-    public KRACertTransportExportCLI(KRACertCLI certCLI) {
-        super("transport-export", "Export KRA transport certificate", certCLI);
+    public CACertTransportExportCLI(CACertCLI certCLI) {
+        super("transport-export", "Export CA transport certificate", certCLI);
         this.certCLI = certCLI;
     }
 
@@ -65,7 +65,7 @@ public class KRACertTransportExportCLI extends CommandCLI {
         mainCLI.init();
 
         PKIClient client = getClient();
-        KRASystemCertClient certClient = new KRASystemCertClient(client, "kra");
+        CASystemCertClient certClient = new CASystemCertClient(client, "ca");
         CertData certData = certClient.getTransportCert();
 
         String outputFormat = cmd.getOptionValue("output-format");

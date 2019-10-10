@@ -16,11 +16,11 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.kra;
+package com.netscape.cmstools.ca;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.ca.CASystemCertClient;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.kra.KRASystemCertClient;
 
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
@@ -29,14 +29,14 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class KRACertTransportShowCLI extends CommandCLI {
+public class CACertTransportShowCLI extends CommandCLI {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRACertTransportShowCLI.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertTransportShowCLI.class);
 
-    public KRACertCLI certCLI;
+    public CACertCLI certCLI;
 
-    public KRACertTransportShowCLI(KRACertCLI certCLI) {
-        super("transport-show", "Show KRA transport certificate", certCLI);
+    public CACertTransportShowCLI(CACertCLI certCLI) {
+        super("transport-show", "Show CA transport certificate", certCLI);
         this.certCLI = certCLI;
     }
 
@@ -50,7 +50,7 @@ public class KRACertTransportShowCLI extends CommandCLI {
         mainCLI.init();
 
         PKIClient client = getClient();
-        KRASystemCertClient certClient = new KRASystemCertClient(client, "kra");
+        CASystemCertClient certClient = new CASystemCertClient(client, "ca");
         CertData certData = certClient.getTransportCert();
 
         System.out.println("  Serial Number: " + certData.getSerialNumber().toHexString());

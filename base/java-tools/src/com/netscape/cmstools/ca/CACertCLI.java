@@ -54,6 +54,9 @@ public class CACertCLI extends CLI {
         addModule(new CACertStatusCLI(this));
 
         addModule(new CACertRequestCLI(this));
+
+        addModule(new CACertTransportShowCLI(this));
+        addModule(new CACertTransportExportCLI(this));
     }
 
     public String getFullName() {
