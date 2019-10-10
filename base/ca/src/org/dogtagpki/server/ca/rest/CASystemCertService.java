@@ -23,14 +23,20 @@ import java.net.URI;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.ca.CASystemCertResource;
+import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.dogtagpki.server.rest.SystemCertService;
 import org.jboss.resteasy.plugins.providers.atom.Link;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
+import com.netscape.ca.SigningUnit;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author alee
@@ -38,6 +44,23 @@ import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 public class CASystemCertService extends SystemCertService implements CASystemCertResource {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CASystemCertService.class);
+
+    public Response getSigningCert() throws Exception {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        SigningUnit su = (SigningUnit) ca.getSigningUnit();
+
+        X509Certificate signingCert = su.getCert();
+        X509CertImpl cert = new X509CertImpl(signingCert.getEncoded());
+
+        CertData certData = createCertificateData(cert);
+
+        URI uri = uriInfo.getRequestUri();
+        certData.setLink(new Link("self", uri));
+
+        return sendConditionalGetResponse(DEFAULT_LONG_CACHE_LIFETIME, certData, request);
+    }
 
     public Response getTransportCert() throws Exception {
 

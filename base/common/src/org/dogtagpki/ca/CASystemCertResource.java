@@ -12,6 +12,11 @@ import com.netscape.certsrv.cert.CertData;
 public interface CASystemCertResource {
 
     @GET
+    @Path("signing")
+    @ClientResponseType(entityType=CertData.class)
+    public Response getSigningCert() throws Exception;
+
+    @GET
     @Path("transport")
     @ClientResponseType(entityType=CertData.class)
     public Response getTransportCert() throws Exception;

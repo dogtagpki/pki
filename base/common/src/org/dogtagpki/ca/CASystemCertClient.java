@@ -41,6 +41,11 @@ public class CASystemCertClient extends Client {
         resource = createProxy(CASystemCertResource.class);
     }
 
+    public CertData getSigningCert() throws Exception {
+        Response response = resource.getSigningCert();
+        return client.getEntity(response, CertData.class);
+    }
+
     public CertData getTransportCert() throws Exception {
         Response response = resource.getTransportCert();
         return client.getEntity(response, CertData.class);

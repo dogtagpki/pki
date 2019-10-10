@@ -55,6 +55,8 @@ public class CACertCLI extends CLI {
 
         addModule(new CACertRequestCLI(this));
 
+        addModule(new CACertSigningShowCLI(this));
+        addModule(new CACertSigningExportCLI(this));
         addModule(new CACertTransportShowCLI(this));
         addModule(new CACertTransportExportCLI(this));
     }
