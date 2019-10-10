@@ -1,13 +1,10 @@
 package com.netscape.certsrv.util;
 
 import java.io.File;
-import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
-import org.mozilla.jss.CertDatabaseException;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.KeyDatabaseException;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -48,21 +45,19 @@ public class NSSCryptoProvider extends CryptoProvider {
         this.token = token;
     }
 
-    public NSSCryptoProvider(ClientConfig config)
-            throws Exception {
+    public NSSCryptoProvider(ClientConfig config) throws Exception {
+
         if (config == null) {
             throw new IllegalArgumentException("ClientConfig object must be specified.");
         }
-        if ((config.getNSSDatabase() == null) || (config.getNSSPassword() == null)) {
-            throw new IllegalArgumentException(" Both the db directory path and the password must be specified.");
+
+        if (config.getNSSDatabase() == null) {
+            throw new IllegalArgumentException("Missing NSS database directory");
         }
-        this.certDBDir = new File(config.getNSSDatabase());
-        if (this.certDBDir.exists()) {
-            if (!this.certDBDir.isDirectory())
-                throw new IllegalArgumentException("Cert database must be a directory.");
-        }
-        this.certDBDir.mkdir();
-        this.certDBPassword = config.getNSSPassword();
+
+        certDBDir = new File(config.getNSSDatabase());
+        certDBPassword = config.getNSSPassword();
+
         initialize();
     }
 
@@ -72,19 +67,17 @@ public class NSSCryptoProvider extends CryptoProvider {
      */
     @Override
     public void initialize() throws Exception {
-        if ((certDBDir == null) || (certDBPassword == null)) {
-            throw new Exception("NSS db location and password need to be specified.");
-        }
+
         try {
             CryptoManager.initialize(certDBDir.getAbsolutePath());
         } catch (AlreadyInitializedException e) {
-            // Can be ignored since it is just for getting the token
-        } catch (KeyDatabaseException | CertDatabaseException | GeneralSecurityException e1) {
-            throw e1;
+            // ignore
         }
-        try {
-            manager = CryptoManager.getInstance();
-            token = manager.getInternalKeyStorageToken();
+
+        manager = CryptoManager.getInstance();
+        token = manager.getInternalKeyStorageToken();
+
+        if (certDBPassword != null) {
             Password password = new Password(certDBPassword.toCharArray());
             try {
                 token.login(password);
@@ -95,10 +88,6 @@ public class NSSCryptoProvider extends CryptoProvider {
             } finally {
                 password.clear();
             }
-        } catch (AlreadyInitializedException e1) {
-            //Ignore
-        } catch (NotInitializedException | TokenException | IncorrectPasswordException e2) {
-            throw e2;
         }
     }
 
