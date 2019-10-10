@@ -1,4 +1,4 @@
-package com.netscape.certsrv.system;
+package org.dogtagpki.ca;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -9,14 +9,10 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 import com.netscape.certsrv.cert.CertData;
 
 @Path("config/cert")
-public interface SystemCertResource {
+public interface CASystemCertResource {
 
-    /**
-     * Used to retrieve the transport certificate
-     */
     @GET
     @Path("transport")
     @ClientResponseType(entityType=CertData.class)
-    public Response getTransportCert();
-
+    public Response getTransportCert() throws Exception;
 }

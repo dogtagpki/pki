@@ -30,7 +30,6 @@ import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.PKIExceptionMapper;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
-import org.dogtagpki.server.rest.SystemCertService;
 import org.dogtagpki.server.rest.UserService;
 import org.dogtagpki.server.tps.TPSAccountService;
 import org.dogtagpki.server.tps.config.ConfigService;
@@ -57,9 +56,6 @@ public class TPSApplication extends Application {
         // user and group management
         classes.add(GroupService.class);
         classes.add(UserService.class);
-
-        // system certs
-        classes.add(SystemCertService.class);
 
         // activities
         classes.add(ActivityService.class);

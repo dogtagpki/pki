@@ -1,13 +1,13 @@
 package com.netscape.certsrv.kra;
 
 import org.dogtagpki.common.KRAInfoClient;
+import org.dogtagpki.kra.KRASystemCertClient;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
-import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.certsrv.user.UserClient;
 
 public class KRAClient extends SubsystemClient {
@@ -22,7 +22,7 @@ public class KRAClient extends SubsystemClient {
         addClient(new GroupClient(client, name));
         addClient(new KeyClient(client, name));
         addClient(new SelfTestClient(client, name));
-        addClient(new SystemCertClient(client, name));
+        addClient(new KRASystemCertClient(client, name));
         addClient(new UserClient(client, name));
         addClient(new KRAInfoClient(client, name));
     }

@@ -15,7 +15,7 @@
 //(C) 2014 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.system;
+package org.dogtagpki.ca;
 
 import java.net.URISyntaxException;
 
@@ -28,20 +28,20 @@ import com.netscape.certsrv.client.PKIClient;
 /**
  * @author Endi S. Dewata
  */
-public class SystemCertClient extends Client {
+public class CASystemCertClient extends Client {
 
-    public SystemCertResource resource;
+    public CASystemCertResource resource;
 
-    public SystemCertClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public CASystemCertClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "systemcert");
         init();
     }
 
     public void init() throws URISyntaxException {
-        resource = createProxy(SystemCertResource.class);
+        resource = createProxy(CASystemCertResource.class);
     }
 
-    public CertData getTransportCert() {
+    public CertData getTransportCert() throws Exception {
         Response response = resource.getTransportCert();
         return client.getEntity(response, CertData.class);
     }

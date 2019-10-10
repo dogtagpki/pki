@@ -17,7 +17,6 @@ import org.dogtagpki.server.rest.PKIExceptionMapper;
 import org.dogtagpki.server.rest.SecurityDomainService;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
-import org.dogtagpki.server.rest.SystemCertService;
 import org.dogtagpki.server.rest.UserService;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -61,7 +60,7 @@ public class CAApplication extends Application {
         classes.add(UserService.class);
 
         // system certs
-        classes.add(SystemCertService.class);
+        classes.add(CASystemCertService.class);
 
         // kra connector
         classes.add(KRAConnectorService.class);

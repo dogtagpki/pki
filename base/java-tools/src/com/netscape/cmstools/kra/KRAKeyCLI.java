@@ -19,6 +19,7 @@
 package com.netscape.cmstools.kra;
 
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.kra.KRASystemCertClient;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
@@ -28,7 +29,6 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyRequestInfo;
-import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.certsrv.util.NSSCryptoProvider;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
@@ -110,7 +110,7 @@ public class KRAKeyCLI extends CLI {
 
             if (transportNickname == null) {
                 // download transport cert
-                SystemCertClient systemCertClient = new SystemCertClient(client, subsystem);
+                KRASystemCertClient systemCertClient = new KRASystemCertClient(client, subsystem);
                 String pemCert = systemCertClient.getTransportCert().getEncoded();
                 String b64Cert = pemCert.substring(Cert.HEADER.length(), pemCert.indexOf(Cert.FOOTER));
                 byte[] binCert = Utils.base64decode(b64Cert);

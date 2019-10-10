@@ -33,6 +33,7 @@ import java.util.Vector;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.ca.CASystemCertClient;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -53,7 +54,6 @@ import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
-import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.cmstools.CRMFPopClient;
 import com.netscape.cmstools.ca.CACertRequestCLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -268,7 +268,7 @@ public class ClientCertRequestCLI extends CommandCLI {
 
             String encoded;
             if (transportCertFilename == null) {
-                SystemCertClient certClient = new SystemCertClient(client, "ca");
+                CASystemCertClient certClient = new CASystemCertClient(client, "ca");
                 encoded = certClient.getTransportCert().getEncoded();
 
             } else {

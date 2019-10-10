@@ -20,10 +20,10 @@ package com.netscape.cmstools.kra;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.kra.KRASystemCertClient;
 
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -50,7 +50,7 @@ public class KRACertTransportShowCLI extends CommandCLI {
         mainCLI.init();
 
         PKIClient client = getClient();
-        SystemCertClient certClient = new SystemCertClient(client, "kra");
+        KRASystemCertClient certClient = new KRASystemCertClient(client, "kra");
         CertData certData = certClient.getTransportCert();
 
         System.out.println("  Serial Number: " + certData.getSerialNumber().toHexString());

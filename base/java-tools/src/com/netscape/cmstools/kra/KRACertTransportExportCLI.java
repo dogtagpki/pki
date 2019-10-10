@@ -24,11 +24,11 @@ import java.io.PrintStream;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.kra.KRASystemCertClient;
 import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -65,7 +65,7 @@ public class KRACertTransportExportCLI extends CommandCLI {
         mainCLI.init();
 
         PKIClient client = getClient();
-        SystemCertClient certClient = new SystemCertClient(client, "kra");
+        KRASystemCertClient certClient = new KRASystemCertClient(client, "kra");
         CertData certData = certClient.getTransportCert();
 
         String outputFormat = cmd.getOptionValue("output-format");
