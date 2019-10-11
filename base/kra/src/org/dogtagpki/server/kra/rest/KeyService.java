@@ -774,7 +774,8 @@ public class KeyService extends SubsystemService implements KeyResource {
         if (pkcs12 == null) {
             throw new HTTPGoneException("Unable to generate PKCS #12 file");
         }
-        String pkcs12base64encoded = Utils.base64encode(pkcs12, true);
+
+        String pkcs12base64encoded = Utils.base64encode(pkcs12, false);
 
         KeyData keyData = new KeyData();
         keyData.setP12Data(pkcs12base64encoded);
