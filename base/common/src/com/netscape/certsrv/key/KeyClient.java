@@ -49,6 +49,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 public class KeyClient extends Client {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyClient.class);
+
     public KeyResource keyClient;
     public KeyRequestResource keyRequestClient;
     public KRAInfoResource kraInfoClient;
@@ -312,6 +314,9 @@ public class KeyClient extends Client {
         if (request == null) {
             throw new IllegalArgumentException("A Request object must be specified.");
         }
+
+        logger.info("Submitting " + request.getClassName() + " to KRA");
+
         Response response = keyRequestClient.submitRequest(request);
         return client.getEntity(response, KeyRequestResponse.class);
     }
@@ -367,9 +372,13 @@ public class KeyClient extends Client {
      * @return A Key object containing the wrapped secret.
      */
     public KeyData retrieveKeyData(KeyRecoveryRequest data) {
+
         if (data == null) {
             throw new IllegalArgumentException("A KeyRecoveryRequest object must be specified");
         }
+
+        logger.info("Submitting key retrieval request to KRA");
+
         Response response = keyClient.retrieveKey(data);
         return client.getEntity(response, KeyData.class);
     }
@@ -398,9 +407,13 @@ public class KeyClient extends Client {
      */
     public KeyData retrieveKey(KeyId keyId, SymmetricKey sessionKey) throws Exception {
 
+        logger.info("Retrieving key " + keyId + " with session key");
+
         if (keyId == null) {
             throw new IllegalArgumentException("KeyId must be specified.");
         }
+
+        logger.info("Wrapping session key with transport certificate");
 
         byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
 
@@ -487,6 +500,8 @@ public class KeyClient extends Client {
      *             BadPaddingException, IllegalBlockSizeException
      */
     public KeyData retrieveKey(KeyId keyId, byte[] transWrappedSessionKey) throws Exception {
+
+        logger.info("Retrieving key " + keyId + " with session key wrapped by transport certificate");
 
         if (keyId == null) {
             throw new IllegalArgumentException("KeyId must be specified.");
@@ -780,6 +795,8 @@ public class KeyClient extends Client {
             byte[] encryptedData,
             byte[] transWrappedSessionKey,
             String realm) throws Exception {
+
+        logger.info("Archiving encrypted data");
 
         if (clientKeyId == null || dataType == null) {
             throw new IllegalArgumentException("Client key id and data type must be specified.");
