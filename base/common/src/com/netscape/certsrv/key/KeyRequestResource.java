@@ -57,11 +57,11 @@ public interface KeyRequestResource {
     @POST
     @ClientResponseType(entityType=KeyRequestResponse.class)
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
-    public Response submitRequest(MultivaluedMap<String, String> form);
+    public Response submitRequest(MultivaluedMap<String, String> form) throws Exception;
 
     @POST
     @ClientResponseType(entityType=KeyRequestResponse.class)
-    public Response submitRequest(ResourceMessage data);
+    public Response submitRequest(ResourceMessage data) throws Exception;
 
     /**
      * Used to retrieve key request info for a specific request

@@ -307,7 +307,8 @@ public class KeyClient extends Client {
      * @param data -- A KeyArchivalRequest/KeyRecoveryRequest/SymKeyGenerationRequest object
      * @return A KeyRequestResponse object
      */
-    private KeyRequestResponse submitRequest(ResourceMessage request) {
+    private KeyRequestResponse submitRequest(ResourceMessage request) throws Exception {
+
         if (request == null) {
             throw new IllegalArgumentException("A Request object must be specified.");
         }
@@ -333,7 +334,7 @@ public class KeyClient extends Client {
      * @return A KeyRequestResponse object containing information about the key request and the key.
      */
     public KeyRequestResponse recoverKey(KeyId keyId, byte[] sessionWrappedPassphrase, byte[] transWrappedSessionKey,
-            byte[] nonceData, String b64Certificate) {
+            byte[] nonceData, String b64Certificate) throws Exception {
         // create recovery request
         if (keyId == null) {
             throw new IllegalArgumentException("KeyId nust be specified.");
@@ -640,7 +641,7 @@ public class KeyClient extends Client {
      * @param passphrase -- A passphrase for the pkcs12 file.
      * @return A Key object with the wrapped secret
      */
-    public KeyData retrieveKeyByPKCS12(KeyId keyId, String certificate, String passphrase) {
+    public KeyData retrieveKeyByPKCS12(KeyId keyId, String certificate, String passphrase) throws Exception {
         if (keyId == null || certificate == null || passphrase == null) {
             throw new IllegalArgumentException("KeyId, certificate and passphrase must be specified.");
         }
@@ -778,7 +779,7 @@ public class KeyClient extends Client {
             byte[] nonceData,
             byte[] encryptedData,
             byte[] transWrappedSessionKey,
-            String realm) {
+            String realm) throws Exception {
 
         if (clientKeyId == null || dataType == null) {
             throw new IllegalArgumentException("Client key id and data type must be specified.");
@@ -814,7 +815,7 @@ public class KeyClient extends Client {
     @Deprecated
     public KeyRequestResponse archiveEncryptedData(String clientKeyId, String dataType, String keyAlgorithm,
             Integer keySize, String algorithmOID, byte[] nonceData, byte[] encryptedData,
-            byte[] transWrappedSessionKey) {
+            byte[] transWrappedSessionKey) throws Exception {
         return archiveEncryptedData(clientKeyId, dataType, keyAlgorithm, keySize, algorithmOID, nonceData,
                 encryptedData, transWrappedSessionKey, null);
     }
@@ -833,7 +834,7 @@ public class KeyClient extends Client {
      * @throws Exception
      */
     public KeyRequestResponse archivePKIOptions(String clientKeyId, String dataType, String keyAlgorithm, int keySize,
-            byte[] pkiArchiveOptions, String realm) {
+            byte[] pkiArchiveOptions, String realm) throws Exception {
 
         if (clientKeyId == null || dataType == null) {
             throw new IllegalArgumentException("Client key id and data type must be specified.");
@@ -865,7 +866,7 @@ public class KeyClient extends Client {
     /* old method signature for backwards compatibility */
     @Deprecated
     public KeyRequestResponse archivePKIOptions(String clientKeyId, String dataType, String keyAlgorithm, int keySize,
-            byte[] pkiArchiveOptions) {
+            byte[] pkiArchiveOptions) throws Exception {
         return archivePKIOptions(clientKeyId, dataType, keyAlgorithm, keySize, pkiArchiveOptions, null);
     }
 
@@ -883,7 +884,7 @@ public class KeyClient extends Client {
      *         object that describes the URL for the request and generated key.
      */
     public KeyRequestResponse generateSymmetricKey(String clientKeyId, String keyAlgorithm, int keySize,
-            List<String> usages, String transWrappedSessionKey, String realm) {
+            List<String> usages, String transWrappedSessionKey, String realm) throws Exception {
         if (clientKeyId == null) {
             throw new IllegalArgumentException("Client Key Identifier must be specified.");
         }
@@ -911,7 +912,7 @@ public class KeyClient extends Client {
     /* old method signature for backwards compatibility */
     @Deprecated
     public KeyRequestResponse generateSymmetricKey(String clientKeyId, String keyAlgorithm, int keySize,
-            List<String> usages, String transWrappedSessionKey) {
+            List<String> usages, String transWrappedSessionKey) throws Exception {
         return generateSymmetricKey(clientKeyId, keyAlgorithm, keySize, usages, transWrappedSessionKey, null);
     }
 
@@ -927,7 +928,7 @@ public class KeyClient extends Client {
      * @param realm  -- authorization realm
      */
     public KeyRequestResponse generateAsymmetricKey(String clientKeyId, String keyAlgorithm, int keySize,
-            List<String> usages, byte[] transWrappedSessionKey, String realm) {
+            List<String> usages, byte[] transWrappedSessionKey, String realm) throws Exception {
 
         if (clientKeyId == null) {
             throw new IllegalArgumentException("Client Key Identifier must be specified.");
@@ -980,7 +981,7 @@ public class KeyClient extends Client {
     /* old method signature for backwards compatibility */
     @Deprecated
     public KeyRequestResponse generateAsymmetricKey(String clientKeyId, String keyAlgorithm, int keySize,
-            List<String> usages, byte[] transWrappedSessionKey) {
+            List<String> usages, byte[] transWrappedSessionKey) throws Exception {
         return generateAsymmetricKey(clientKeyId, keyAlgorithm, keySize, usages, transWrappedSessionKey, null);
     }
 }

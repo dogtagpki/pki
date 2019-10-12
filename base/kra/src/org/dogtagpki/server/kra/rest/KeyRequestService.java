@@ -112,7 +112,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
         return createOKResponse(info);
     }
 
-    public Response archiveKey(KeyArchivalRequest data) {
+    public Response archiveKey(KeyArchivalRequest data) throws Exception {
         // auth and authz
         // Catch this before internal server processing has to deal with it
 
@@ -408,13 +408,14 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     }
 
     @Override
-    public Response submitRequest(MultivaluedMap<String, String> form) {
+    public Response submitRequest(MultivaluedMap<String, String> form) throws Exception {
         ResourceMessage data = new ResourceMessage(form);
         return submitRequest(data);
     }
 
     @Override
-    public Response submitRequest(ResourceMessage data) {
+    public Response submitRequest(ResourceMessage data) throws Exception {
+
         Object request = null;
         try {
             Class<?> requestClazz = Class.forName(data.getClassName());

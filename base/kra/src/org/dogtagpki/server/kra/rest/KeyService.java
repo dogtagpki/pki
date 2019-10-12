@@ -129,7 +129,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         }
     }
 
-    public Response retrieveKeyImpl(KeyRecoveryRequest data) {
+    public Response retrieveKeyImpl(KeyRecoveryRequest data) throws Exception {
         boolean synchronous = false;
         boolean ephemeral = false;
         String realm = null;
@@ -698,7 +698,8 @@ public class KeyService extends SubsystemService implements KeyResource {
      * @param data
      * @return
      */
-    private KeyData recoverKey(KeyRecoveryRequest data) throws UnauthorizedException, HTTPGoneException {
+    private KeyData recoverKey(KeyRecoveryRequest data) throws Exception {
+
         String method = "KeyService.recoverKey: ";
         auditInfo = "KeyService.recoverKey";
         logger.debug(method + "begins.");
