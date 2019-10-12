@@ -119,37 +119,48 @@ public class KeyService extends SubsystemService implements KeyResource {
      */
     @Override
     public Response retrieveKey(KeyRecoveryRequest data) {
+
+        logger.info("KeyService: Processing key recovery request");
+
         try {
             Response response = retrieveKeyImpl(data);
             return response;
+
         } catch(RuntimeException e) {
+            logger.error("Unable to recover key: " + e.getMessage(), e);
             throw e;
+
         } catch (Exception e) {
+            logger.error("Unable to recover key: " + e.getMessage(), e);
             throw new PKIException(e.getMessage(), e);
         }
     }
 
     public Response retrieveKeyImpl(KeyRecoveryRequest data) throws Exception {
-        boolean synchronous = false;
-        boolean ephemeral = false;
-        String realm = null;
-
-        auditInfo = "KeyService.retrieveKey";
-        logger.debug(auditInfo);
 
         if (data == null) {
-            auditRetrieveKeyError("Bad Request: Missing key Recovery Request");
-            throw new BadRequestException("Missing key Recovery Request");
+            auditRetrieveKeyError("KeyService: Missing key recovery request");
+            throw new BadRequestException("Missing key recovery request");
         }
 
+        logger.info("KeyService: Request:\n" + data.toJSON());
+
+        auditInfo = "KeyService.retrieveKey";
+
+        String realm = null;
+        boolean synchronous = false;
+        boolean ephemeral = false;
+
         // get or create request
-        IRequest request = null;
         requestId = data.getRequestId();
+        IRequest request = null;
+
         if (requestId != null) {
-            // this is an asynchronous request
+
+            logger.debug("KeyService: Searching for asynchronous request " + requestId);
             // We assume that the request is valid and has been approved
-            logger.debug("KeyService: request ID: " + requestId);
-            auditInfo += ";requestID=" + requestId.toString();
+
+            auditInfo += ";requestID=" + requestId;
 
             try {
                 request = queue.findRequest(requestId);
@@ -159,47 +170,64 @@ public class KeyService extends SubsystemService implements KeyResource {
             }
 
             if (request == null) {
-                auditRetrieveKeyError("Bad Request: No request found");
-                throw new BadRequestException("No request found");
+                auditRetrieveKeyError("Request not found: " + requestId);
+                throw new BadRequestException("Request not found: " + requestId);
             }
 
             keyId = new KeyId(request.getExtDataInString(ATTR_SERIALNO));
-            auditInfo += ";keyID=" + keyId.toString();
+            logger.debug("KeyService: Request found for key " + keyId);
+
+            auditInfo += ";keyID=" + keyId;
 
             data.setKeyId(keyId);
+
         } else {
+
             keyId = data.getKeyId();
+            logger.info("KeyService: Retrieving key " + keyId);
+
             if (keyId == null) {
-                auditRetrieveKeyError("Bad Request: Missing key recovery request and key_id");
-                throw new BadRequestException("Missing recovery request and key id");
+                auditRetrieveKeyError("Missing recovery request ID and key ID");
+                throw new BadRequestException("Missing recovery request ID and key ID");
             }
 
-            auditInfo += ";keyID=" + keyId.toString();
+            auditInfo += ";keyID=" + keyId;
 
             // TODO(alee): get the realm from the key record
+            logger.info("KeyService: realm: " + realm);
+
             synchronous = kra.isRetrievalSynchronous(realm);
+            logger.info("KeyService: synchronous: " + synchronous);
+
             ephemeral = kra.isEphemeral(realm);
+            logger.info("KeyService: ephemeral: " + ephemeral);
 
             // Only synchronous requests can be ephemeral
             if (!synchronous) ephemeral = false;
 
-            auditInfo += ";synchronous=" + Boolean.toString(synchronous);
-            auditInfo += ";ephemeral=" + Boolean.toString(ephemeral);
+            auditInfo += ";synchronous=" + synchronous;
+            auditInfo += ";ephemeral=" + ephemeral;
+
+            logger.info("KeyService: Creating recovery request");
 
             KeyRequestDAO reqDAO = new KeyRequestDAO();
             try {
-                request = reqDAO.createRecoveryRequest(data, uriInfo, getRequestor(),
-                        getAuthToken(), ephemeral);
+                request = reqDAO.createRecoveryRequest(
+                        data, uriInfo, getRequestor(), getAuthToken(), ephemeral);
             } catch (EBaseException e) {
                 auditRetrieveKeyError("Unable to create recovery request: " + e.getMessage());
-                throw new PKIException(e.getMessage(), e);
+                throw new PKIException("Unable to create recovery request: " + e.getMessage(), e);
             }
 
             requestId = request.getRequestId();
-            auditInfo += ";requestID=" + requestId.toString();
+            logger.info("KeyService: Created request " + requestId);
+
+            auditInfo += ";requestID=" + requestId;
 
             if (!synchronous) {
-                // store the request in LDAP
+
+                logger.info("KeyService: Storing request in database");
+
                 try {
                     queue.updateRequest(request);
                 } catch (EBaseException e) {
@@ -208,11 +236,15 @@ public class KeyService extends SubsystemService implements KeyResource {
                     throw new PKIException(e.getMessage(), e);
                 }
 
-                logger.debug("Returning created recovery request");
                 auditRecoveryRequest(ILogger.SUCCESS);
+
+                logger.info("KeyService: Returning created recovery request");
 
                 KeyData keyData = new KeyData();
                 keyData.setRequestID(requestId);
+
+                logger.info("KeyService: Response:\n" + keyData.toJSON());
+
                 return createOKResponse(keyData);
             }
 
@@ -230,16 +262,23 @@ public class KeyService extends SubsystemService implements KeyResource {
         try {
             switch(type) {
                 case IRequest.KEYRECOVERY_REQUEST:
+
+                    logger.info("KeyService: Processing key recovery request");
                     keyData = recoverKey(data);
                     break;
+
                 case IRequest.SECURITY_DATA_RECOVERY_REQUEST:
+
+                    logger.info("KeyService: Processing security data recovery request");
                     if (synchronous)  request.setRequestStatus(RequestStatus.APPROVED);
                     validateRequest(data, request);
                     keyData = getKey(keyId, request, data, synchronous, ephemeral);
                     break;
+
                 default:
                     throw new BadRequestException("Invalid request type: " + type);
             }
+
         } catch (Exception e) {
             auditRecoveryRequestProcessed(ILogger.FAILURE, e.getMessage());
             throw new PKIException(e.getMessage(), e);
@@ -253,7 +292,8 @@ public class KeyService extends SubsystemService implements KeyResource {
         approvers = request.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
         auditRecoveryRequestProcessed(ILogger.SUCCESS, null);
 
-        logger.debug("KeyService: key retrieved");
+        logger.info("KeyService: Response:\n" + keyData.toJSON());
+
         auditRetrieveKey(ILogger.SUCCESS);
         return createOKResponse(keyData);
     }
@@ -704,19 +744,18 @@ public class KeyService extends SubsystemService implements KeyResource {
         auditInfo = "KeyService.recoverKey";
         logger.debug(method + "begins.");
 
-        // confirm request exists
         RequestId reqId = data.getRequestId();
 
-        IRequest request = null;
-        try {
-            request = queue.findRequest(reqId);
-        } catch (EBaseException e) {
-        }
+        // confirm request exists
+        IRequest request = queue.findRequest(reqId);
+
         if (request == null) {
-            throw new HTTPGoneException("No request record");
+            throw new HTTPGoneException("Request not found: " + reqId);
         }
+
         String type = request.getRequestType();
         RequestStatus status = request.getRequestStatus();
+
         if (!IRequest.KEYRECOVERY_REQUEST.equals(type) ||
             !status.equals(RequestStatus.APPROVED)) {
             throw new UnauthorizedException("Request not approved");
@@ -726,28 +765,22 @@ public class KeyService extends SubsystemService implements KeyResource {
         try {
             dao.setTransientData(data, request);
         } catch(EBaseException e) {
-            throw new PKIException("Cannot set transient data", e);
+            throw new PKIException("Unable to set transient data: " + e.getMessage(), e);
         }
 
         String passphrase = data.getPassphrase();
-        byte pkcs12[] = null;
-        try {
-            pkcs12 = service.doKeyRecovery(reqId.toString(), passphrase);
-        } catch (EBaseException e) {
-        }
+        byte[] pkcs12 = service.doKeyRecovery(reqId.toString(), passphrase);
+
         if (pkcs12 == null) {
-            throw new HTTPGoneException("pkcs12 null; Key not recovered");
+            throw new HTTPGoneException("Unable to generate PKCS #12 file");
         }
         String pkcs12base64encoded = Utils.base64encode(pkcs12, true);
 
         KeyData keyData = new KeyData();
         keyData.setP12Data(pkcs12base64encoded);
 
-        try {
-            queue.processRequest(request);
-            queue.markAsServiced(request);
-        } catch (EBaseException e) {
-        }
+        queue.processRequest(request);
+        queue.markAsServiced(request);
 
         return keyData;
     }
