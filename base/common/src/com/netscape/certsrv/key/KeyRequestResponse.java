@@ -57,4 +57,35 @@ public class KeyRequestResponse {
     public RequestId getRequestId(){
         return this.requestInfo.getRequestId();
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((keyData == null) ? 0 : keyData.hashCode());
+        result = prime * result + ((requestInfo == null) ? 0 : requestInfo.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        KeyRequestResponse other = (KeyRequestResponse) obj;
+        if (keyData == null) {
+            if (other.keyData != null)
+                return false;
+        } else if (!keyData.equals(other.keyData))
+            return false;
+        if (requestInfo == null) {
+            if (other.requestInfo != null)
+                return false;
+        } else if (!requestInfo.equals(other.requestInfo))
+            return false;
+        return true;
+    }
 }
