@@ -18,17 +18,27 @@
 
 package com.netscape.certsrv.key;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
 
 @XmlRootElement(name = "KeyRequestResponse")
 @XmlAccessorType(XmlAccessType.NONE)
 public class KeyRequestResponse {
+
     KeyRequestInfo requestInfo;
     KeyData keyData;
 
@@ -87,5 +97,67 @@ public class KeyRequestResponse {
         } else if (!requestInfo.equals(other.requestInfo))
             return false;
         return true;
+    }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(KeyRequestResponse.class).createMarshaller();
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static KeyRequestResponse fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(KeyRequestResponse.class).createUnmarshaller();
+        return (KeyRequestResponse) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        mapper.setSerializationInclusion(Include.NON_NULL);
+        return mapper.writeValueAsString(this);
+    }
+
+    public static KeyRequestResponse fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        return mapper.readValue(json, KeyRequestResponse.class);
+    }
+
+    public String toString() {
+        try {
+            return toXML();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void main(String args[]) throws Exception {
+
+        KeyRequestResponse before = new KeyRequestResponse();
+
+        KeyRequestInfo requestInfo = new KeyRequestInfo();
+        requestInfo.setRequestType("test");
+        before.setRequestInfo(requestInfo);
+
+        KeyData keyData = new KeyData();
+        keyData.setAlgorithm("AES");
+        before.setKeyData(keyData);
+
+        String xml = before.toString();
+        System.out.println("XML (before): " + xml);
+
+        KeyRequestResponse afterXML = KeyRequestResponse.fromXML(xml);
+        System.out.println("XML (after): " + afterXML);
+
+        System.out.println(before.equals(afterXML));
+
+        String json = before.toJSON();
+        System.out.println("JSON (before): " + json);
+
+        KeyRequestResponse afterJSON = KeyRequestResponse.fromJSON(json);
+        System.out.println("JSON (after): " + json);
+
+        System.out.println(before.equals(afterJSON));
     }
 }
