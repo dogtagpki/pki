@@ -143,8 +143,7 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
                     key = new Key(keyData);
 
                 } else if (req.getTransWrappedSessionKey() != null) {
-                    keyData = keyClient.retrieveKey(req.getKeyId(),
-                            Utils.base64decode(req.getTransWrappedSessionKey()));
+                    keyData = keyClient.retrieveKeyData(req);
                     key = new Key(keyData);
 
                 } else {
