@@ -116,7 +116,13 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
         // auth and authz
         // Catch this before internal server processing has to deal with it
 
-        if (data == null || data.getClientKeyId() == null || data.getDataType() == null) {
+        if (data == null) {
+            throw new BadRequestException("Missing key archival request");
+        }
+
+        logger.info("Request:\n" + data.toJSON());
+
+        if (data.getClientKeyId() == null || data.getDataType() == null) {
             throw new BadRequestException("Invalid key archival request.");
         }
 
@@ -158,6 +164,8 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
                     null,
                     response.getRequestInfo().getRequestId(),
                     data.getClientKeyId()));
+
+            logger.info("Response:\n" + response.toJSON());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
 
@@ -417,6 +425,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     public Response submitRequest(ResourceMessage data) throws Exception {
 
         Object request = null;
+
         try {
             Class<?> requestClazz = Class.forName(data.getClassName());
             request = requestClazz.getDeclaredConstructor(ResourceMessage.class).newInstance(data);
@@ -427,12 +436,16 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
         if (request instanceof KeyArchivalRequest) {
             return archiveKey(new KeyArchivalRequest(data));
+
         } else if (request instanceof KeyRecoveryRequest) {
             return recoverKey(new KeyRecoveryRequest(data));
+
         } else if (request instanceof SymKeyGenerationRequest) {
             return generateSymKey(new SymKeyGenerationRequest(data));
+
         } else if (request instanceof AsymKeyGenerationRequest) {
             return generateAsymKey(new AsymKeyGenerationRequest(data));
+
         } else {
             throw new BadRequestException("Invalid request class.");
         }
