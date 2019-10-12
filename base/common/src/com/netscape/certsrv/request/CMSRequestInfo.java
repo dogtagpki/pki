@@ -17,11 +17,24 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.netscape.certsrv.key.KeyRequestInfo;
+
+@XmlRootElement(name="CMSRequestInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
 public  class CMSRequestInfo {
 
@@ -137,5 +150,62 @@ public  class CMSRequestInfo {
         } else if (!requestURL.equals(other.requestURL))
             return false;
         return true;
+    }
+
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(KeyRequestInfo.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static CMSRequestInfo fromXML(String string) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(CMSRequestInfo.class).createUnmarshaller();
+        return (CMSRequestInfo)unmarshaller.unmarshal(new StringReader(string));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        mapper.setSerializationInclusion(Include.NON_NULL);
+        return mapper.writeValueAsString(this);
+    }
+
+    public static CMSRequestInfo fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        return mapper.readValue(json, CMSRequestInfo.class);
+    }
+
+    public String toString() {
+        try {
+            return toXML();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void main(String args[]) throws Exception {
+
+        CMSRequestInfo before = new CMSRequestInfo();
+        before.setRequestType("securityDataEnrollment");
+        before.setRequestStatus(RequestStatus.COMPLETE);
+
+        String xml = before.toString();
+        System.out.println("XML (before): " + xml);
+
+        CMSRequestInfo afterXML = CMSRequestInfo.fromXML(xml);
+        System.out.println("XML (after): " + afterXML.toXML());
+
+        System.out.println(before.equals(afterXML));
+
+        String json = before.toJSON();
+        System.out.println("JSON (before): " + json);
+
+        CMSRequestInfo afterJSON = CMSRequestInfo.fromJSON(json);
+        System.out.println("JSON (after): " + afterJSON.toJSON());
+
+        System.out.println(before.equals(afterJSON));
     }
 }
