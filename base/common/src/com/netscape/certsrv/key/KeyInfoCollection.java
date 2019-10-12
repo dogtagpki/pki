@@ -22,6 +22,7 @@ import java.util.Collection;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.base.DataCollection;
@@ -37,6 +38,7 @@ public class KeyInfoCollection extends DataCollection<KeyInfo> {
     public String toJSON() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        mapper.setSerializationInclusion(Include.NON_NULL);
         return mapper.writeValueAsString(this);
     }
 

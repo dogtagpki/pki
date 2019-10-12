@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.base.ResourceMessage;
@@ -257,6 +258,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     public String toJSON() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        mapper.setSerializationInclusion(Include.NON_NULL);
         return mapper.writeValueAsString(this);
     }
 
@@ -285,15 +287,19 @@ public class KeyArchivalRequest extends ResourceMessage {
         before.setKeySize(128);
 
         String xml = before.toString();
-        System.out.println(xml);
+        System.out.println("XML (before): " + xml);
 
         KeyArchivalRequest afterXML = KeyArchivalRequest.fromXML(xml);
+        System.out.println("XML (after): " + afterXML.toXML());
+
         System.out.println(before.equals(afterXML));
 
         String json = before.toJSON();
-        System.out.println(json);
+        System.out.println("JSON (before): " + json);
 
         KeyArchivalRequest afterJSON = KeyArchivalRequest.fromJSON(json);
+        System.out.println("JSON (after): " + afterJSON.toJSON());
+
         System.out.println(before.equals(afterJSON));
     }
 

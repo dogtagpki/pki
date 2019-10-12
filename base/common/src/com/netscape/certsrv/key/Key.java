@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.request.RequestId;
@@ -190,6 +191,7 @@ public class Key {
     public String toJSON() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        mapper.setSerializationInclusion(Include.NON_NULL);
         return mapper.writeValueAsString(this);
     }
 

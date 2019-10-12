@@ -34,6 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.base.ResourceMessage;
@@ -242,6 +243,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
     public String toJSON() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        mapper.setSerializationInclusion(Include.NON_NULL);
         return mapper.writeValueAsString(this);
     }
 
