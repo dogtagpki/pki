@@ -227,6 +227,92 @@ public class KeyData {
         this.publicKey = publicKey;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((additionalWrappedPrivateData == null) ? 0 : additionalWrappedPrivateData.hashCode());
+        result = prime * result + ((algorithm == null) ? 0 : algorithm.hashCode());
+        result = prime * result + ((encryptAlgorithmOID == null) ? 0 : encryptAlgorithmOID.hashCode());
+        result = prime * result + ((nonceData == null) ? 0 : nonceData.hashCode());
+        result = prime * result + ((p12Data == null) ? 0 : p12Data.hashCode());
+        result = prime * result + ((publicKey == null) ? 0 : publicKey.hashCode());
+        result = prime * result + ((requestID == null) ? 0 : requestID.hashCode());
+        result = prime * result + ((size == null) ? 0 : size.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        result = prime * result + ((wrapAlgorithm == null) ? 0 : wrapAlgorithm.hashCode());
+        result = prime * result + ((wrappedPrivateData == null) ? 0 : wrappedPrivateData.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        KeyData other = (KeyData) obj;
+        if (additionalWrappedPrivateData == null) {
+            if (other.additionalWrappedPrivateData != null)
+                return false;
+        } else if (!additionalWrappedPrivateData.equals(other.additionalWrappedPrivateData))
+            return false;
+        if (algorithm == null) {
+            if (other.algorithm != null)
+                return false;
+        } else if (!algorithm.equals(other.algorithm))
+            return false;
+        if (encryptAlgorithmOID == null) {
+            if (other.encryptAlgorithmOID != null)
+                return false;
+        } else if (!encryptAlgorithmOID.equals(other.encryptAlgorithmOID))
+            return false;
+        if (nonceData == null) {
+            if (other.nonceData != null)
+                return false;
+        } else if (!nonceData.equals(other.nonceData))
+            return false;
+        if (p12Data == null) {
+            if (other.p12Data != null)
+                return false;
+        } else if (!p12Data.equals(other.p12Data))
+            return false;
+        if (publicKey == null) {
+            if (other.publicKey != null)
+                return false;
+        } else if (!publicKey.equals(other.publicKey))
+            return false;
+        if (requestID == null) {
+            if (other.requestID != null)
+                return false;
+        } else if (!requestID.equals(other.requestID))
+            return false;
+        if (size == null) {
+            if (other.size != null)
+                return false;
+        } else if (!size.equals(other.size))
+            return false;
+        if (type == null) {
+            if (other.type != null)
+                return false;
+        } else if (!type.equals(other.type))
+            return false;
+        if (wrapAlgorithm == null) {
+            if (other.wrapAlgorithm != null)
+                return false;
+        } else if (!wrapAlgorithm.equals(other.wrapAlgorithm))
+            return false;
+        if (wrappedPrivateData == null) {
+            if (other.wrappedPrivateData != null)
+                return false;
+        } else if (!wrappedPrivateData.equals(other.wrappedPrivateData))
+            return false;
+        return true;
+    }
+
     public String toXML() throws Exception {
         Marshaller marshaller = JAXBContext.newInstance(KeyData.class).createMarshaller();
         StringWriter sw = new StringWriter();
