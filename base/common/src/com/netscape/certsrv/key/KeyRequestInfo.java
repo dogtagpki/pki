@@ -29,6 +29,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.RequestStatus;
@@ -92,25 +95,37 @@ public class KeyRequestInfo extends CMSRequestInfo {
         return true;
     }
 
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            Marshaller marshaller = JAXBContext.newInstance(KeyRequestInfo.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(this, sw);
-            return sw.toString();
-
-        } catch (Exception e) {
-            return super.toString();
-        }
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(KeyRequestInfo.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static KeyRequestInfo valueOf(String string) throws Exception {
+    public static KeyRequestInfo fromXML(String string) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(KeyRequestInfo.class).createUnmarshaller();
+        return (KeyRequestInfo)unmarshaller.unmarshal(new StringReader(string));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        mapper.setSerializationInclusion(Include.NON_NULL);
+        return mapper.writeValueAsString(this);
+    }
+
+    public static KeyRequestInfo fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        return mapper.readValue(json, KeyRequestInfo.class);
+    }
+
+    public String toString() {
         try {
-            Unmarshaller unmarshaller = JAXBContext.newInstance(KeyRequestInfo.class).createUnmarshaller();
-            return (KeyRequestInfo)unmarshaller.unmarshal(new StringReader(string));
+            return toXML();
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -119,13 +134,22 @@ public class KeyRequestInfo extends CMSRequestInfo {
         KeyRequestInfo before = new KeyRequestInfo();
         before.setRequestType("securityDataEnrollment");
         before.setRequestStatus(RequestStatus.COMPLETE);
+        before.setKeyURL("https://localhost:8443/kra/rest/agent/keys/123");
 
-        String string = before.toString();
-        System.out.println(string);
+        String xml = before.toString();
+        System.out.println("XML (before): " + xml);
 
-        KeyRequestInfo after = KeyRequestInfo.valueOf(string);
-        System.out.println(after);
+        KeyRequestInfo afterXML = KeyRequestInfo.fromXML(xml);
+        System.out.println("XML (before): " + afterXML.toXML());
 
-        System.out.println(before.equals(after));
+        System.out.println(before.equals(afterXML));
+
+        String json = before.toJSON();
+        System.out.println("JSON (before): " + json);
+
+        KeyRequestInfo afterJSON = KeyRequestInfo.fromJSON(json);
+        System.out.println("JSON (after): " + afterJSON.toJSON());
+
+        System.out.println(before.equals(afterJSON));
     }
 }
