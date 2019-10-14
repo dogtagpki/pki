@@ -1181,39 +1181,6 @@ fi
 
 %endif # with server
 
-%if %{with base}
-
-%if 0%{?rhel} && 0%{?rhel} <= 7
-# no upgrade check
-%else
-%pretrans -n pki-base -p <lua>
-function test(a)
-    if posix.stat(a) then
-        for f in posix.files(a) do
-            if f~=".." and f~="." then
-                return true
-            end
-        end
-    end
-    return false
-end
-
-if (test("/etc/sysconfig/pki/ca") or
-    test("/etc/sysconfig/pki/kra") or
-    test("/etc/sysconfig/pki/ocsp") or
-    test("/etc/sysconfig/pki/tks")) then
-   msg = "Unable to upgrade to Fedora 20.  There are PKI 9 instances\n" ..
-         "that will no longer work since they require Tomcat 6, and \n" ..
-         "Tomcat 6 is no longer available in Fedora 20.\n\n" ..
-         "Please follow these instructions to migrate the instances to \n" ..
-         "PKI 10:\n\n" ..
-         "http://www.dogtagpki.org/wiki/Migrating_PKI_9_Instances_to_PKI_10"
-   error(msg)
-end
-%endif
-
-%endif # with base
-
 %if %{with server}
 
 %pre -n pki-server
