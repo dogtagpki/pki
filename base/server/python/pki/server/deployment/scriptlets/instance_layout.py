@@ -247,15 +247,18 @@ def file_ignore_callback_src_server(src, names):
     logger.debug(log.FILE_EXCLUDE_CALLBACK_2, src, names)
 
     return {
+        'catalina.policy',
         'catalina.properties',
         'ciphers.info',
-        'schema.ldif',
+        'custom.policy',
         'database.ldif',
-        'manager.ldif',
-        'pki.xml',
         'logging.properties',
+        'manager.ldif',
+        'pki.policy',
+        'pki.xml',
         'schema-authority.ldif',
         'schema-certProfile.ldif',
+        'schema.ldif',
         'serverCertNick.conf',
         'tomcat-users.xml',
         'usn.ldif'

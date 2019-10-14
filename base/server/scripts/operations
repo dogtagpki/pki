@@ -910,13 +910,21 @@ start_instance()
         rm -f ${RESTART_SERVER}
     fi
 
-    # Copy pki.policy template
-    /bin/cp /usr/share/pki/server/conf/pki.policy /var/lib/pki/$PKI_INSTANCE_NAME/conf
+    # Generate initial catalina.policy
+    cat /usr/share/pki/server/conf/catalina.policy \
+        /usr/share/tomcat/conf/catalina.policy > \
+        /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
+
+    echo >> /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
+    echo >> /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
+
+    cat /usr/share/pki/server/conf/pki.policy >> \
+        /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
 
     # Add permissions for all JAR files in /var/lib/pki/$PKI_INSTANCE_NAME/common/lib
     for path in /var/lib/pki/$PKI_INSTANCE_NAME/common/lib/*; do
 
-        cat >> /var/lib/pki/$PKI_INSTANCE_NAME/conf/pki.policy << EOF
+        cat >> /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy << EOF
 
 grant codeBase "file:$(realpath $path)" {
     permission java.security.AllPermission;
@@ -924,12 +932,12 @@ grant codeBase "file:$(realpath $path)" {
 EOF
     done
 
-    # Generate catalina.policy dynamically.
-    cat /usr/share/pki/server/conf/catalina.policy \
-        /usr/share/tomcat/conf/catalina.policy \
-        /var/lib/pki/$PKI_INSTANCE_NAME/conf/pki.policy \
-        /var/lib/pki/$PKI_INSTANCE_NAME/conf/custom.policy > \
-        /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
+    # Append custom.policy
+    if [ -f /var/lib/pki/$PKI_INSTANCE_NAME/conf/custom.policy ]; then
+        echo >> /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
+        cat /var/lib/pki/$PKI_INSTANCE_NAME/conf/custom.policy >> \
+            /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
+    fi
 
     /usr/sbin/pki-server banner-validate -i "$PKI_INSTANCE_NAME" --silent
     rv=$?

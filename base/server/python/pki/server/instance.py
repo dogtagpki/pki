@@ -150,10 +150,6 @@ class PKIInstance(pki.server.PKIServer):
         return os.path.join(pki.server.PKIServer.LOG_DIR, self.name)
 
     @property
-    def custom_policy(self):
-        return os.path.join(self.conf_dir, 'custom.policy')
-
-    @property
     def service_conf(self):
         return os.path.join(pki.server.SYSCONFIG_DIR, self.name)
 
@@ -211,9 +207,6 @@ class PKIInstance(pki.server.PKIServer):
     def create(self, force=False):
 
         super(PKIInstance, self).create(force=force)
-
-        custom_policy = pki.server.PKIServer.SHARE_DIR + '/server/conf/custom.policy'
-        self.copy(custom_policy, self.custom_policy, force=force)
 
         conf_dir = os.path.join(self.base_dir, 'conf')
         self.symlink(self.conf_dir, conf_dir, force=force)
