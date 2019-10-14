@@ -91,12 +91,12 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
   <GlobalNamingResources>
     <!-- Editable user database that can also be used by
          UserDatabaseRealm to authenticate users
-    -->
     <Resource name="UserDatabase" auth="Container"
               type="org.apache.catalina.UserDatabase"
               description="User database that can be updated and saved"
               factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
               pathname="conf/tomcat-users.xml" />
+    -->
   </GlobalNamingResources>
 
   <!-- A "Service" is a collection of one or more "Connectors" that share
