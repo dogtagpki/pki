@@ -233,7 +233,7 @@ class FIPS:
         command = ['sysctl', 'crypto.fips_enabled', '-bn']
 
         with open(os.devnull, 'w') as fnull:
-            output = subprocess.check_output(command, stderr=fnull, close_fds=True)
+            output = subprocess.check_output(command, stderr=fnull)
 
         if output != '0':
             logger.info('FIPS mode is enabled')

@@ -199,14 +199,12 @@ class PKIInstance(pki.server.PKIServer):
             cmd = prefix + ['/usr/sbin/pki-server', 'upgrade', '--validate', self.name]
             logger.debug('Command: %s', ' '.join(cmd))
 
-            cp = subprocess.run(cmd, env=self.config)
-            cp.check_returncode()
+            subprocess.run(cmd, env=self.config, check=True)
 
             cmd = prefix + ['/usr/bin/pkidaemon', 'start', self.name]
             logger.debug('Command: %s', ' '.join(cmd))
 
-            cp = subprocess.run(cmd, env=self.config)
-            cp.check_returncode()
+            subprocess.run(cmd, env=self.config, check=True)
 
         return super(PKIInstance, self).execute(command, jdb=jdb, as_current_user=as_current_user)
 
