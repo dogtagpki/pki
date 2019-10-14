@@ -112,7 +112,9 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 %define package_option() %bcond_with %1
 %else
 %define package_option() %bcond_without %1
-%endif # with pkgs
+
+# with pkgs
+%endif
 
 # Define --with <package> or --without <package> options depending on
 # package selection method.
@@ -132,7 +134,9 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 
 %if ! %{with debug}
 %define debug_package %{nil}
-%endif # with debug
+
+# with debug
+%endif
 
 # ignore unpackaged files from native 'tpsclient'
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
@@ -252,7 +256,9 @@ BuildRequires:    python2-flake8 >= 2.5.4
 BuildRequires:    python2-pyflakes >= 1.2.3
 %endif
 %endif
-%endif  # with_python2
+
+# with_python2
+%endif
 
 %if 0%{?with_python3}
 %if 0%{?rhel}
@@ -262,7 +268,9 @@ BuildRequires:    python3-pylint
 BuildRequires:    python3-flake8 >= 2.5.4
 BuildRequires:    python3-pyflakes >= 1.2.3
 %endif
-%endif  # with_python3
+
+# with_python3
+%endif
 
 %if 0%{?with_python2}
 BuildRequires:    python2
@@ -288,7 +296,9 @@ BuildRequires:    python2-ldap
 %else
 BuildRequires:    policycoreutils-python-utils
 %endif
-%endif  # with_python2
+
+# with_python2
+%endif
 
 %if 0%{?with_python3}
 BuildRequires:    python3
@@ -305,7 +315,9 @@ BuildRequires:    python3-libselinux
 BuildRequires:    python3-nss
 BuildRequires:    python3-requests >= 2.6.0
 BuildRequires:    python3-six
-%endif  # with_python3
+
+# with_python3
+%endif
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
@@ -428,7 +440,8 @@ PKI consists of the following components:
   * Token Key Service (TKS)
   * Token Processing Service (TPS)
 
-%endif # with meta
+# with meta
+%endif
 
 %if %{with base}
 ################################################################################
@@ -470,7 +483,9 @@ Requires(post):   python3-pki = %{version}
 %else
 Requires:         python2-pki = %{version}
 Requires(post):   python2-pki = %{version}
-%endif  # with_python3_default
+
+# with_python3_default
+%endif
 
 # Ensure we end up with a useful installation
 Conflicts:        pki-symkey < %{version}
@@ -511,7 +526,8 @@ Requires:         python2-six
 %description -n   python2-pki
 This package contains PKI client library for Python 2.
 
-%endif  # with_python2
+# with_python2
+%endif
 
 %if 0%{?with_python3}
 ################################################################################
@@ -537,7 +553,8 @@ Requires:         python3-six
 %description -n   python3-pki
 This package contains PKI client library for Python 3.
 
-%endif  # with_python3 for python3-pki
+# with_python3 for python3-pki
+%endif
 
 ################################################################################
 %package -n       pki-base-java
@@ -618,7 +635,8 @@ Requires:         openssl
 This package contains PKI executables that can be used to help make
 Certificate System into a more complete and robust PKI solution.
 
-%endif # with base
+# with base
+%endif
 
 %if %{with server}
 ################################################################################
@@ -671,7 +689,9 @@ Requires:         python2-lxml
 Requires:         python2-libselinux
 Requires:         python2-policycoreutils
 %endif
-%endif  # with_python3_default
+
+# with_python3_default
+%endif
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
@@ -721,7 +741,8 @@ following PKI subsystems:
     the Token Key Service (TKS), and
     the Token Processing Service (TPS).
 
-%endif # with server
+# with server
+%endif
 
 %if %{with ca}
 ################################################################################
@@ -745,7 +766,8 @@ The Certificate Authority can be configured as a self-signing Certificate
 Authority, where it is the root CA, or it can act as a subordinate CA,
 where it obtains its own signing certificate from a public CA.
 
-%endif # with ca
+# with ca
+%endif
 
 %if %{with kra}
 ################################################################################
@@ -775,7 +797,8 @@ protection of the public encryption keys for the users in the PKI deployment.
 Note that the KRA archives encryption keys; it does NOT archive signing keys,
 since such archival would undermine non-repudiation properties of signing keys.
 
-%endif # with kra
+# with kra
+%endif
 
 %if %{with ocsp}
 ################################################################################
@@ -812,7 +835,8 @@ When an instance of OCSP Manager is set up with an instance of CA, and
 publishing is set up to this OCSP Manager, CRLs are published to it
 whenever they are issued or updated.
 
-%endif # with ocsp
+# with ocsp
+%endif
 
 %if %{with tks}
 ################################################################################
@@ -843,7 +867,8 @@ TKS.  Tokens with older keys will get new token keys.
 Because of the sensitivity of the data that TKS manages, TKS should be set up
 behind the firewall with restricted access.
 
-%endif # with tks
+# with tks
+%endif
 
 %if %{with tps}
 ################################################################################
@@ -883,7 +908,8 @@ The utility "tpsclient" is a test tool that interacts with TPS.  This
 tool is useful to test TPS server configs without risking an actual
 smart card.
 
-%endif # with tps
+# with tps
+%endif
 
 %if %{with javadoc}
 ################################################################################
@@ -902,7 +928,8 @@ Conflicts:        pki-console-theme < %{version}
 %description -n   pki-javadoc
 This package contains PKI API documentation.
 
-%endif # with javadoc
+# with javadoc
+%endif
 
 %if %{with console}
 ################################################################################
@@ -921,7 +948,8 @@ Requires:         pki-console-theme = %{version}
 %description -n   pki-console
 The PKI Console is a Java application used to administer PKI server.
 
-%endif # with console
+# with console
+%endif
 
 %if %{with theme}
 ################################################################################
@@ -962,7 +990,8 @@ Conflicts:        pki-javadoc < %{version}
 This PKI Console Theme Package contains
 %{brand} textual and graphical user interface for PKI Console.
 
-%endif # with theme
+# with theme
+%endif
 
 ################################################################################
 %prep
@@ -1038,7 +1067,9 @@ cat > %{buildroot}%{_datadir}/doc/pki/README << EOF
 This package is a "meta-package" whose dependencies pull in all of the
 packages comprising the %{brand} Public Key Infrastructure (PKI) Suite.
 EOF
-%endif # with meta
+
+# with meta
+%endif
 
 # Customize system upgrade scripts in /usr/share/pki/upgrade
 %if 0%{?rhel} && 0%{?rhel} <= 7
@@ -1155,7 +1186,9 @@ if [ $? -ne 0 ]; then
     echo "pylint for Python 2 with --py3k failed. RC: $?"
     exit 1
 fi
-%endif  # with_python3_default
+
+# with_python3_default
+%endif
 
 ################################################################################
 echo "Scanning Python code with flake8"
@@ -1167,7 +1200,9 @@ if [ $? -ne 0 ]; then
     echo "flake8 for Python 2 failed. RC: $?"
     exit 1
 fi
-%endif  # with_python2
+
+# with_python2
+%endif
 
 %if 0%{?with_python3}
 python3-flake8 --config ../tox.ini %{buildroot}
@@ -1175,11 +1210,14 @@ if [ $? -ne 0 ]; then
     echo "flake8 for Python 3 failed. RC: $?"
     exit 1
 fi
-%endif  # with_python3
+
+# with_python3
+%endif
 
 %endif
 
-%endif # with server
+# with server
+%endif
 
 %if %{with server}
 
@@ -1194,7 +1232,8 @@ if ! getent passwd %{pki_username} >/dev/null ; then
 fi
 exit 0
 
-%endif # with server
+# with server
+%endif
 
 %if %{with base}
 
@@ -1220,7 +1259,8 @@ then
     rm -f %{_sysconfdir}/pki/pki.version
 fi
 
-%endif # with base
+# with base
+%endif
 
 %if %{with server}
 
@@ -1250,7 +1290,8 @@ fi
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
 
-%endif # with server
+# with server
+%endif
 
 %if %{with meta}
 %if "%{name}" != "%{vendor_id}-pki"
@@ -1263,7 +1304,8 @@ fi
 
 %doc %{_datadir}/doc/pki/README
 
-%endif # with meta
+# with meta
+%endif
 
 %if %{with base}
 ################################################################################
@@ -1310,7 +1352,9 @@ fi
 %exclude %{python2_sitelib}/pki/server
 %endif
 %{python2_sitelib}/pki
-%endif # with_python2
+
+# with_python2
+%endif
 
 ################################################################################
 %files -n pki-base-java
@@ -1336,7 +1380,9 @@ fi
 %exclude %{python3_sitelib}/pki/server
 %endif
 %{python3_sitelib}/pki
-%endif # with_python3
+
+# with_python3
+%endif
 
 ################################################################################
 %files -n pki-tools
@@ -1406,7 +1452,8 @@ fi
 %{_mandir}/man1/PKCS10Client.1.gz
 %{_mandir}/man1/PKICertImport.1.gz
 
-%endif # with base
+# with base
+%endif
 
 %if %{with server}
 ################################################################################
@@ -1426,7 +1473,9 @@ fi
 %{python3_sitelib}/pki/server/
 %else
 %{python2_sitelib}/pki/server/
-%endif  # with_python3_default
+
+# with_python3_default
+%endif
 
 %{_datadir}/pki/etc/tomcat.conf
 %dir %{_datadir}/pki/deployment
@@ -1464,7 +1513,8 @@ fi
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
 
-%endif # with server
+# with server
+%endif
 
 %if %{with ca}
 ################################################################################
@@ -1481,7 +1531,8 @@ fi
 %{_datadir}/pki/ca/setup/
 %{_datadir}/pki/ca/webapps/
 
-%endif # with ca
+# with ca
+%endif
 
 %if %{with kra}
 ################################################################################
@@ -1495,7 +1546,8 @@ fi
 %{_datadir}/pki/kra/setup/
 %{_datadir}/pki/kra/webapps/
 
-%endif # with kra
+# with kra
+%endif
 
 %if %{with ocsp}
 ################################################################################
@@ -1509,7 +1561,8 @@ fi
 %{_datadir}/pki/ocsp/setup/
 %{_datadir}/pki/ocsp/webapps/
 
-%endif # with ocsp
+# with ocsp
+%endif
 
 %if %{with tks}
 ################################################################################
@@ -1523,7 +1576,8 @@ fi
 %{_datadir}/pki/tks/setup/
 %{_datadir}/pki/tks/webapps/
 
-%endif # with tks
+# with tks
+%endif
 
 %if %{with tps}
 ################################################################################
@@ -1548,7 +1602,8 @@ fi
 %{_libdir}/tps/libtps.so
 %{_libdir}/tps/libtokendb.so
 
-%endif # with tps
+# with tps
+%endif
 
 %if %{with javadoc}
 ################################################################################
@@ -1557,7 +1612,8 @@ fi
 
 %{_javadocdir}/pki-%{version}/
 
-%endif # with javadoc
+# with javadoc
+%endif
 
 %if %{with console}
 ################################################################################
@@ -1568,7 +1624,8 @@ fi
 %{_bindir}/pkiconsole
 %{_javadir}/pki/pki-console.jar
 
-%endif # with console
+# with console
+%endif
 
 %if %{with theme}
 ################################################################################
@@ -1596,7 +1653,8 @@ fi
 %doc themes/%{vendor_id}/console-ui/LICENSE
 %{_javadir}/pki/pki-console-theme.jar
 
-%endif # with theme
+# with theme
+%endif
 
 ################################################################################
 %changelog
