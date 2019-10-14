@@ -24,6 +24,7 @@ from __future__ import print_function
 import functools
 import logging
 import os
+import re
 import shutil
 import traceback
 
@@ -484,16 +485,14 @@ class PKIUpgrader(object):
         filenames = os.listdir(version_dir)
         for filename in filenames:
 
-            # parse <index>-<classname>
-            try:
-                i = filename.index('-')
-            except ValueError as e:
-                raise pki.PKIException(
-                    'Invalid scriptlet name: ' + filename,
-                    e)
+            # parse <index>_<classname>.py
+            match = re.match(r'^(.+)-(.+)\.py$', filename)
 
-            index = int(filename[0:i])
-            classname = filename[i + 1:]
+            if not match:
+                continue
+
+            index = int(match.group(1))
+            classname = match.group(2)
 
             if self.index and index != self.index:
                 continue
