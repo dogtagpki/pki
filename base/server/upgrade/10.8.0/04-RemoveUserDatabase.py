@@ -20,6 +20,7 @@
 from __future__ import absolute_import
 import logging
 from lxml import etree
+import os
 
 import pki
 
@@ -35,6 +36,26 @@ class RemoveUserDatabase(pki.server.upgrade.PKIServerUpgradeScriptlet):
         self.parser = etree.XMLParser(remove_blank_text=True)
 
     def upgrade_instance(self, instance):
+
+        self.remove_user_database(instance)
+
+        logger.info('Removing tomcat-users.xml')
+
+        tomcat_users_xml = os.path.join(instance.conf_dir, 'tomcat-users.xml')
+
+        if os.path.lexists(tomcat_users_xml):
+            self.backup(tomcat_users_xml)
+            pki.util.remove(tomcat_users_xml)
+
+        logger.info('Removing tomcat-users.xsd')
+
+        tomcat_users_xsd = os.path.join(instance.conf_dir, 'tomcat-users.xsd')
+
+        if os.path.lexists(tomcat_users_xsd):
+            self.backup(tomcat_users_xsd)
+            pki.util.remove(tomcat_users_xsd)
+
+    def remove_user_database(self, instance):
 
         document = etree.parse(instance.server_xml, self.parser)
 

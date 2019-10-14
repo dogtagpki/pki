@@ -115,16 +115,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_target_tomcat_conf'],
             overwrite_flag=True)
 
-        # Link /etc/pki/<instance>/tomcat-users.xml
-        # to /usr/share/tomcat/conf/tomcat-users.xml.
-        tomcat_users_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'tomcat-users.xml')
-        instance.symlink(tomcat_users_xml, instance.tomcat_users_xml)
-
-        # Link /etc/pki/<instance>/tomcat-users.xsd
-        # to /usr/share/tomcat/conf/tomcat-users.xsd.
-        tomcat_users_xsd = os.path.join(pki.server.Tomcat.CONF_DIR, 'tomcat-users.xsd')
-        instance.symlink(tomcat_users_xsd, instance.tomcat_users_xsd)
-
         # Link /etc/pki/<instance>/web.xml
         # to /usr/share/tomcat/conf/web.xml.
         web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')

@@ -42,26 +42,6 @@ class FixDefaultTomcatFiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
             context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
             instance.symlink(context_xml, instance.context_xml)
 
-        if not os.path.islink(instance.tomcat_users_xml):
-
-            self.backup(instance.tomcat_users_xml)
-
-            if os.path.exists(instance.tomcat_users_xml):
-                pki.util.remove(instance.tomcat_users_xml)
-
-            tomcat_users_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'tomcat-users.xml')
-            instance.symlink(tomcat_users_xml, instance.tomcat_users_xml)
-
-        if not os.path.islink(instance.tomcat_users_xsd):
-
-            self.backup(instance.tomcat_users_xsd)
-
-            if os.path.exists(instance.tomcat_users_xsd):
-                pki.util.remove(instance.tomcat_users_xsd)
-
-            tomcat_users_xsd = os.path.join(pki.server.Tomcat.CONF_DIR, 'tomcat-users.xsd')
-            instance.symlink(tomcat_users_xsd, instance.tomcat_users_xsd)
-
         if not os.path.islink(instance.web_xml):
 
             self.backup(instance.web_xml)

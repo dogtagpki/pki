@@ -192,14 +192,6 @@ class PKIServer(object):
         return os.path.join(self.conf_dir, 'tomcat.conf')
 
     @property
-    def tomcat_users_xml(self):
-        return os.path.join(self.conf_dir, 'tomcat-users.xml')
-
-    @property
-    def tomcat_users_xsd(self):
-        return os.path.join(self.conf_dir, 'tomcat-users.xsd')
-
-    @property
     def web_xml(self):
         return os.path.join(self.conf_dir, 'web.xml')
 
@@ -377,12 +369,6 @@ class PKIServer(object):
         self.copy(server_xml, self.server_xml, force=force)
 
         self.copy(Tomcat.TOMCAT_CONF, self.tomcat_conf, force=force)
-
-        tomcat_users_xml = os.path.join(Tomcat.CONF_DIR, 'tomcat-users.xml')
-        self.symlink(tomcat_users_xml, self.tomcat_users_xml, force=force)
-
-        tomcat_users_xsd = os.path.join(Tomcat.CONF_DIR, 'tomcat-users.xsd')
-        self.symlink(tomcat_users_xsd, self.tomcat_users_xsd, force=force)
 
         web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
         self.symlink(web_xml, self.web_xml, force=force)
