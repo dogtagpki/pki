@@ -389,14 +389,6 @@ class PKIInstance(pki.server.PKIServer):
             external_certs = tmp_certs.values()
         return external_certs
 
-    def open_nssdb(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
-        return pki.nssdb.NSSDatabase(
-            directory=self.nssdb_dir,
-            token=token,
-            password=self.get_token_password(token),
-            internal_password=self.get_token_password(),
-            passwords=self.passwords)
-
     def external_cert_exists(self, nickname, token):
         for cert in self.external_certs:
             if cert.nickname == nickname and cert.token == token:

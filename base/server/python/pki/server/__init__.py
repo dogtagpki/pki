@@ -430,6 +430,14 @@ class PKIServer(object):
 
         pki.util.chown(self.nssdb_dir, self.uid, self.gid)
 
+    def open_nssdb(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
+        return pki.nssdb.NSSDatabase(
+            directory=self.nssdb_dir,
+            token=token,
+            password=self.get_token_password(token),
+            internal_password=self.get_token_password(),
+            passwords=self.passwords)
+
     def get_webapps(self):
 
         webapps = []
