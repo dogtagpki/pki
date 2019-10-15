@@ -218,7 +218,7 @@ public class TPSTokendb {
         } catch (EDBRecordNotFoundException e) {
             String logMsg = method + e.getMessage();
             logger.error(logMsg, e);
-            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN, e);
+            throw new TPSException(logMsg);
         }
         // token found; modify
         logger.debug(method + " token entry found; Modifying with status: " + tokenRecord.getTokenStatus());
@@ -541,11 +541,10 @@ public class TPSTokendb {
             try {
                 tokenRecord = tdbGetTokenEntry(cert.getTokenID());
             } catch (Exception e) {
-                throw new TPSException("Unable to get token " + cert.getTokenID() + ": " + e.getMessage(), e);
+                throw new TPSException("error getting token entry for: " + cert.getTokenID() + ": " + e.getMessage(), e);
             }
 
-            if ((tokenRecord.getTokenStatus() == TokenStatus.ACTIVE) ||
-                    (tokenRecord.getTokenStatus() == TokenStatus.SUSPENDED)) {
+            if (tokenRecord.getTokenStatus() == TokenStatus.ACTIVE) {
                 logger.warn(method + "token " + cert.getTokenID() + " contains the cert and has status: "
                         + tokenRecord.getTokenStatus() + "... returning false");
                 return false;
@@ -669,14 +668,14 @@ public class TPSTokendb {
             logMsg = "certificate unrevoked: " + cert.getSerialNumber();
             logger.debug(method + ": " + logMsg);
 
-            tdbActivity(ActivityDatabase.OP_CERT_UNREVOCATION, tokenRecord,
+            tdbActivity(ActivityDatabase.OP_CERT_RESTORATION, tokenRecord,
                     ipAddress, logMsg, "success", remoteUser);
 
         } catch (Exception e) {
             logMsg = "certificate not unrevoked: " + cert.getSerialNumber() + " : " + e.getMessage();
             logger.warn(method + ": " + logMsg, e);
 
-            tdbActivity(ActivityDatabase.OP_CERT_UNREVOCATION, tokenRecord,
+            tdbActivity(ActivityDatabase.OP_CERT_RESTORATION, tokenRecord,
                     ipAddress, e.getMessage(), "failure", remoteUser);
 
             // continue unrevoking the next certificate
@@ -695,9 +694,22 @@ public class TPSTokendb {
             throw new TPSException("Missing token certificate");
         }
         if (cert.getStatus().equalsIgnoreCase(TokenCertStatus.REVOKED.toString())) {
-            throw new TPSException(
-                    method + "certificate " + cert.getSerialNumber() +
-                            " already revoked.");
+            String existingTokenReason = tokenRecord.getReason();
+            if( (existingTokenReason != null && existingTokenReason.equals(tokenReason)) ||
+                (existingTokenReason == null && tokenReason == null) )
+            {
+                throw new TPSException(
+                        method + "certificate " + cert.getSerialNumber() +
+                                " already revoked and reason has not changed.");
+            }
+            else {
+                logger.debug(method + "Cert " + cert.getSerialNumber() +
+                        " already revoked, but reason has changed, so revoking again.");
+                logger.debug(method + "Previous reason was: " +
+                        ((existingTokenReason == null) ? "(null)" : existingTokenReason));
+                logger.debug(method + "New reason is: " +
+                        ((tokenReason == null) ? "(null)" : tokenReason));
+            }
         }
         logger.debug(method + "begins: ");
 

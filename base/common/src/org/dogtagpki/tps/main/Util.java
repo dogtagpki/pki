@@ -344,15 +344,15 @@ public class Util {
     }
 
     //Use AES-CMAC (SCP03, counter method) to calculate cryptogram, constant determines whether it is a card or host cryptogram
-    //Stub for temporarily commented out routine.
 
+    //Stub for temporarily commented out routine.
     public static TPSBuffer compute_AES_CMAC_Cryptogram(SymmetricKey symKey, TPSBuffer context, byte kdfConstant)
              throws EBaseException {
 
 	     throw new EBaseException("Not Implemented");
     }
 
-    /*    
+/*
     public static TPSBuffer compute_AES_CMAC_Cryptogram(SymmetricKey symKey, TPSBuffer context, byte kdfConstant)
              throws EBaseException {
 
@@ -411,7 +411,7 @@ public class Util {
 
         return output.substr(0,8);
     }
-    */
+*/
 
     // Implements agorithm http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38b.pdf
     // Input an aes key of 128, 192, or 256 bits
@@ -424,7 +424,7 @@ public class Util {
         throw new EBaseException("Not Implemented!");
     }
 
-    /*
+/*
     public static TPSBuffer computeAES_CMAC(SymmetricKey aesKey, TPSBuffer input) throws EBaseException {
 
         String method = "Util.computeAES_CMAC:";
@@ -533,6 +533,7 @@ public class Util {
         return aesMacData;
 
     }
+*/
 
     //Support method for AES-CMAC alg (SCP03).
     private static byte[] getAES_CMAC_SubKey(byte[] input) {
@@ -551,7 +552,7 @@ public class Util {
         }
         return output;
     }
-    */
+
     public static TPSBuffer computeMAC(PK11SymKey symKey, TPSBuffer input, TPSBuffer icv) throws EBaseException {
         TPSBuffer output = null;
         TPSBuffer result = null;

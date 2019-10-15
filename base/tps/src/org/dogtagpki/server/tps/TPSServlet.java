@@ -54,6 +54,7 @@ public class TPSServlet extends HttpServlet {
         }
 
         response.setHeader("Transfer-Encoding", "chunked");
+        response.flushBuffer();
 
         TPSConnection con = new TPSConnection(
                 request.getInputStream(), response.getOutputStream(), true);

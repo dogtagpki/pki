@@ -118,6 +118,7 @@ var TokenDialog = Dialog.extend({
 
         var select = input.empty();
         var status = self.entry.status;
+        var saveBtn = self.$(".modal-footer button[name='save']");
 
         $('<option/>', {
             text: status.label,
@@ -126,12 +127,19 @@ var TokenDialog = Dialog.extend({
         }).appendTo(select);
 
         var nextStates = self.entry.nextStates;
-        _.each(nextStates, function(nextState) {
-            $('<option/>', {
-                text: nextState.label,
-                value: nextState.name
-            }).appendTo(select);
-        });
+        if(nextStates && nextStates.length > 0) {
+            _.each(nextStates, function(nextState) {
+                $('<option/>', {
+                    text: nextState.label,
+                    value: nextState.name
+                }).appendTo(select);
+            });
+            select.prop("disabled", false);
+            saveBtn.prop("disabled", false);
+        } else {
+            select.prop("disabled", true);
+            saveBtn.prop("disabled", true);
+        }
     }
 });
 

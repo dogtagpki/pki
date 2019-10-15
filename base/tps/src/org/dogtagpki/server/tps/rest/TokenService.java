@@ -36,9 +36,11 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
+import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBVirtualList;
@@ -72,6 +74,8 @@ public class TokenService extends SubsystemService implements TokenResource {
                     throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore config = engine.getConfigStore();
+
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         TokenStatus oldStatus = tokenRecord.getTokenStatus();
@@ -79,15 +83,31 @@ public class TokenService extends SubsystemService implements TokenResource {
         TokenStatus newStatus = tokenState;
         String newReason = null;
 
+        boolean clearOnUnformatUserID = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_USERID, true);
+        boolean clearOnUnformatType = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_TYPE, true);
+        boolean clearOnUnformatAppletID = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_APPLETID, true);
+        boolean clearOnUnformatKeyInfo = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_KEYINFO, true);
+        boolean clearOnUnformatPolicy = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_POLICY, true);
+
         auditModParams.put("UserID", tokenRecord.getUserID());
 
         switch (tokenState.getValue()) {
         case TokenStatus.TOKEN_UNFORMATTED:
-            tokenRecord.setUserID(null);
-            tokenRecord.setType(null);
-            tokenRecord.setAppletID(null);
-            tokenRecord.setKeyInfo(null);
-            tokenRecord.setPolicy(null);
+            if(clearOnUnformatUserID) {
+                tokenRecord.setUserID(null);
+            }
+            if(clearOnUnformatType) {
+                tokenRecord.setType(null);
+            }
+            if(clearOnUnformatAppletID) {
+                tokenRecord.setAppletID(null);
+            }
+            if(clearOnUnformatKeyInfo) {
+                tokenRecord.setKeyInfo(null);
+            }
+            if(clearOnUnformatPolicy) {
+                tokenRecord.setPolicy(null);
+            }
             tokenRecord.setTokenStatus(tokenState);
             tokenRecord.setReason(null);
             break;
@@ -181,18 +201,20 @@ public class TokenService extends SubsystemService implements TokenResource {
         tokenData.setStatus(statusData);
 
         Collection<TokenStatus> nextStates = subsystem.getUINextTokenStates(tokenRecord);
-        Collection<TokenStatusData> nextStatesData = new ArrayList<TokenStatusData>();
-        for (TokenStatus nextState : nextStates) {
-            TokenStatusData nextStateData = new TokenStatusData();
-            nextStateData.name = nextState;
-            try {
-                nextStateData.label = labels.getString(status + "." + nextState);
-            } catch (MissingResourceException e) {
-                nextStateData.label = nextState.toString();
+        if(nextStates != null) {
+            Collection<TokenStatusData> nextStatesData = new ArrayList<TokenStatusData>();
+            for (TokenStatus nextState : nextStates) {
+                TokenStatusData nextStateData = new TokenStatusData();
+                nextStateData.name = nextState;
+                try {
+                    nextStateData.label = labels.getString(status + "." + nextState);
+                } catch (MissingResourceException e) {
+                    nextStateData.label = nextState.toString();
+                }
+                nextStatesData.add(nextStateData);
             }
-            nextStatesData.add(nextStateData);
+            tokenData.setNextStates(nextStatesData);
         }
-        tokenData.setNextStates(nextStatesData);
 
         tokenData.setAppletID(tokenRecord.getAppletID());
         tokenData.setKeyInfo(tokenRecord.getKeyInfo());
@@ -657,6 +679,11 @@ public class TokenService extends SubsystemService implements TokenResource {
         }
 
         auditModParams.put("tokenID", tokenID);
+        if (tokenStatus == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Token state is null.");
+            throw new BadRequestException("Token state is null.");
+        }
         auditModParams.put("tokenStatus", tokenStatus.toString());
 
         logger.debug("TokenService.changeTokenStatus(\"" + tokenID + "\", \"" + tokenStatus + "\")");
@@ -693,6 +720,16 @@ public class TokenService extends SubsystemService implements TokenResource {
             }
 
             msg = msg + " from " + currentTokenStatus + " to " + tokenStatus;
+
+            // Check for invalid current status
+            if(!oldStatus.isValid()) {
+                logger.debug("TokenService.changeTokenStatus(): current status is invalid: " + oldStatus);
+                Exception ex = new BadRequestException("Cannot change status of token with current status: " + oldStatus);
+                auditTokenStateChange(ILogger.FAILURE, oldStatus,
+                        newStatus, oldReason, newReason,
+                        auditModParams, ex.toString());
+                throw ex;
+            }
 
             // make sure transition is allowed
             if (!subsystem.isUITransitionAllowed(tokenRecord, tokenStatus)) {

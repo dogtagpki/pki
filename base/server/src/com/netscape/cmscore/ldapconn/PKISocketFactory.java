@@ -34,6 +34,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
@@ -52,6 +54,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     private String mClientAuthCertNickname;
     private boolean mClientAuth;
     private boolean keepAlive;
+    private static boolean external = false;
     PKIClientSocketListener sockListener = null;
 
     public PKISocketFactory() {
@@ -66,9 +69,26 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         mClientAuthCertNickname = certNickname;
     }
 
+    public PKISocketFactory(String certNickname, boolean external) {
+        this.secure = true;
+        PKISocketFactory.external = external;
+        mClientAuthCertNickname = certNickname;
+        init();
+    }
+
+    public void init() {
+        init (null);
+    }
     public void init(IConfigStore cs) {
         try {
-            keepAlive = cs.getBoolean("tcp.keepAlive", true);
+            if (!external) {
+                if (cs == null) {
+                    CMSEngine engine = CMS.getCMSEngine();
+                    cs = engine.getConfigStore();
+                }
+                keepAlive = cs.getBoolean("tcp.keepAlive", true);
+            } else
+                keepAlive = true;
             logger.debug("TCP Keep-Alive: " + keepAlive);
             sockListener = new PKIClientSocketListener();
 

@@ -29,6 +29,9 @@ import org.dogtagpki.tps.msg.TPSMessage;
  */
 public class TPSConnection {
 
+    public static final int MAX_MESSAGE_SIZE_DEFAULT = 9999;
+    private static int maxMessageSize = MAX_MESSAGE_SIZE_DEFAULT;
+
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSConnection.class);
 
     public InputStream in;
@@ -51,8 +54,27 @@ public class TPSConnection {
         StringBuilder sb = new StringBuilder();
         int b;
 
-        // read the first parameter
-        while ((b = in.read()) >= 0) {
+        // Determine # of digits in maxMessageSize so we can limit the number of
+        // read()s to the number of digits.
+        int maxMessageSizeNumDigits = 1;
+        for(int i = maxMessageSize; i != 0; i /= 10)
+            maxMessageSizeNumDigits++;
+
+        // Check first two bytes from InputStream (s=).
+        // The first char can be anything.
+        if((b = in.read()) < 0)
+            throw new IOException("Unexpected end of stream");
+        else
+            sb.append((char)b);
+
+        // The second char must be '='.
+        if((b = in.read()) != (int)'=')
+            throw new IOException("Unexpected end of stream");
+        else
+            sb.append((char)b);
+
+        // read the first parameter (not including the "s=")
+        while ((b = in.read()) >= 0 && maxMessageSizeNumDigits-- > 0) {
             char c = (char) b;
             if (c == '&')
                 break;
@@ -61,11 +83,17 @@ public class TPSConnection {
 
         if (b < 0)
             throw new IOException("Unexpected end of stream");
+        if (b != (int)'&')
+            throw new IOException("Received message size is too large.");
 
         // parse message size
         String nvp = sb.toString();
         String[] s = nvp.split("=");
         int size = Integer.parseInt(s[1]);
+
+        // Validate message size
+        if(size > maxMessageSize)
+            throw new IOException("Received message size is too large.");
 
         sb.append('&');
 
@@ -114,4 +142,27 @@ public class TPSConnection {
         out.flush();
     }
 
+    /**
+     * Getter for static variable maxMessageSize.
+     * @return maxMessageSize
+     */
+    public static int getMaxMessageSize() {
+        return maxMessageSize;
+    }
+
+    /**
+     * Setter for static variable maxMessageSize. This variable places a limit on the value
+     * (and thus, length) of the first parameter of an incoming stream of data. For example,
+     * incoming data conforms to the following format: "s=(message length here)&".
+     * TPSConnection will read one character (typically 's', but can be any char), and will
+     * expect the second character to be an '='. The following characters until the '&' are
+     * interpreted as the messageSize. This number cannot be larger than maxMessageSize.
+     * @param maxSize
+     */
+    public static void setMaxMessageSize(int maxSize) {
+        if(maxSize > 0)
+            maxMessageSize = maxSize;
+        else
+            logger.debug("TPSConnection: Cannot set maxMessageSize to out-of-range value: " + maxSize);
+    }
 }

@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -390,7 +391,8 @@ public class TPSProcessor {
 
         if (apdu_data.size() != 6) {
             logger.error("TPSProcessor.getAppletVersion: incorrect return data size!");
-            throw new TPSException("TPSProcessor.getAppletVersion: invalid applet version string returned!");
+            throw new TPSException("TPSProcessor.getAppletVersion: invalid applet version string returned!",
+                     TPSStatus.STATUS_ERROR_CANNOT_PERFORM_OPERATION);
         }
 
         TPSBuffer build_id = apdu_data.substr(0, 4);
@@ -568,12 +570,12 @@ public class TPSProcessor {
 
         TPSBuffer initUpdateResp = initializeUpdate(keyVersion, keyIndex, randomData);
 
-        logger.debug("TPSProcessor.setupSecureChanne: initUpdateResponse: " + initUpdateResp.toHexString());
+        //logger.debug("TPSProcessor.setupSecureChanne: initUpdateResponse: " + initUpdateResp.toHexString());
 
         TPSBuffer key_diversification_data = initUpdateResp.substr(0, DIVERSIFICATION_DATA_SIZE);
         appletInfo.setKDD(key_diversification_data);
 
-        logger.debug("TPSProcessor.setupSecureChannel: diversification data: " + key_diversification_data.toHexString());
+        //logger.debug("TPSProcessor.setupSecureChannel: diversification data: " + key_diversification_data.toHexString());
 
         TPSBuffer key_info_data =  null;
 
@@ -587,7 +589,6 @@ public class TPSProcessor {
         logger.debug("TPSProcessor.setupSecureChannel: key info data: " + key_info_data.toHexString());
 
         TokenRecord tokenRecord = getTokenRecord();
-        tokenRecord.setKeyInfo(key_info_data.toHexStringPlain());
 
         TPSBuffer card_cryptogram = null;
         TPSBuffer sequenceCounter = null;
@@ -622,15 +623,13 @@ public class TPSProcessor {
             key_info_data.setAt(1, (byte) 0x1);
             logger.debug("TPSProcessor.setupSecureChannel 02: key Info , after massage: " + key_info_data.toHexString());
 
-            tokenRecord.setKeyInfo(key_info_data.toHexStringPlain());
-
         } else if (platProtInfo.isSCP03()) {
             card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET_GP211_SC03,CARD_CHALLENGE_SIZE);
             card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET_GP211_SC03, CARD_CRYPTOGRAM_SIZE);
 
-            logger.debug("TPSProcessor.setupSecureChannel 03: card cryptogram: " + card_cryptogram.toHexString());
-            logger.debug("TPSProcessor.setupSecureChannel 03: card challenge: " + card_challenge.toHexString());
-            logger.debug("TPSProcessor.setupSecureChannel 03: host challenge: " + randomData.toHexString());
+            // logger.debug("TPSProcessor.setupSecureChannel 03: card cryptogram: " + card_cryptogram.toHexString());
+            // logger.debug("TPSProcessor.setupSecureChannel 03: card challenge: " + card_challenge.toHexString());
+            // logger.debug("TPSProcessor.setupSecureChannel 03: host challenge: " + randomData.toHexString());
         } else {
 
             card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET, CARD_CHALLENGE_SIZE);
@@ -644,6 +643,16 @@ public class TPSProcessor {
             channel = generateSecureChannel(connId, key_diversification_data, key_info_data, card_challenge,
                     card_cryptogram,
                     randomData, sequenceCounter,appletInfo);
+
+            // Placing this update to the token record's keyInfo here prevents a situation where a token could
+            // be locked out of the system after an unsuccessful format or enroll. If an operation failed in
+            // such a way that the token record didn't contain a keyInfo attribute, and validateCardKeyInfoAgainstTokenDB
+            // was activated, the TPS will refuse to generate a Secure Channel with the card. Having it here ensures
+            // that as soon as a Secure Channel can be established, a record of the keyInfo is kept for future connections
+            // to the card.
+            if(channel != null)
+                tokenRecord.setKeyInfo(key_info_data.toHexStringPlain());
+
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.setupSecureChannel: Can't set up secure channel: " + e,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
@@ -740,7 +749,6 @@ public class TPSProcessor {
             token = protocol.returnTokenByName(tokenName, cm);
 
             sharedSecret = SecureChannelProtocol.getSymKeyByName(token, sharedSecretName);
-
             // sharedSecret = getSharedSecretTransportKey(connId);
         } catch (Exception e) {
             logger.error("TPSProcessor: " + e.getMessage(), e);
@@ -768,7 +776,7 @@ public class TPSProcessor {
              /* sessionKey = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, (PK11SymKey) sharedSecret,
                         sessionKeyWrapped.toBytesArray()); */
 
-               sessionKey =  (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret, sessionKeyWrapped.toBytesArray(), false,SymmetricKey.DES3);
+                sessionKey =  (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret, sessionKeyWrapped.toBytesArray(), false,SymmetricKey.DES3);
 
                 if (sessionKey == null) {
                     logger.error("TPSProcessor.generateSecureChannel: Can't extract session key!");
@@ -930,6 +938,7 @@ public class TPSProcessor {
             TPSBuffer drmDesKeyBuff = resp.getDRM_Trans_DesKey();
             TPSBuffer kekDesKeyBuff = resp.getKekWrappedDesKey();
 
+            /*
             if (encSessionKeyBuff != null)
                 logger.debug(method + " encSessionKeyBuff: " + encSessionKeyBuff.toHexString());
 
@@ -950,7 +959,7 @@ public class TPSProcessor {
 
             if (kekDesKeyBuff != null)
                 logger.debug(method + " kekDesKeyBuff: " + kekDesKeyBuff.toHexString());
-
+            */
 
             if (encSessionKeyBuff != null)
                 encSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
@@ -964,9 +973,9 @@ public class TPSProcessor {
                 kekSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
                         kekSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
 
-            logger.debug(" encSessionKeySCP03 " + encSessionKeySCP03);
-            logger.debug(" macSessionKeySCP03 " + macSessionKeySCP03);
-            logger.debug(" kekSessionKeySCP03 " + kekSessionKeySCP03);
+            // logger.debug(" encSessionKeySCP03 " + encSessionKeySCP03);
+            // logger.debug(" macSessionKeySCP03 " + macSessionKeySCP03);
+            // logger.debug(" kekSessionKeySCP03 " + kekSessionKeySCP03);
 
             channel = new SecureChannel(this, encSessionKeySCP03, macSessionKeySCP03, kekSessionKeySCP03,
                     drmDesKeyBuff, kekDesKeyBuff,
@@ -1090,7 +1099,8 @@ public class TPSProcessor {
         if (!select.checkResult()) {
             String logMsg = "Can't selelect the card manager!";
             auditAppletUpgrade(appletInfo, "failure", null /*unavailable*/, new_version, logMsg);
-            throw new TPSException("TPSProcessor.upgradeApplet:" + logMsg);
+            throw new TPSException("TPSProcessor.upgradeApplet:" + logMsg,
+                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
         SecureChannel channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, connId, appletInfo);
@@ -1281,12 +1291,12 @@ public class TPSProcessor {
             throws EBaseException, TPSException {
 
         String logMsg = null;
-        logger.debug("TPSProcessor.authenticateUser");
         if (op.isEmpty() || userAuth == null || userCred == null) {
             logMsg = "TPSProcessor.authenticateUser: missing parameter(s): op, userAuth, or userCred";
             logger.error(logMsg);
             throw new EBaseException(logMsg);
         }
+        logger.debug("TPSProcessor.authenticateUser: op: " + op);
         IAuthManager auth = userAuth.getAuthManager();
 
         try {
@@ -1298,6 +1308,12 @@ public class TPSProcessor {
                 while (n.hasMoreElements()) {
                     String name = n.nextElement();
                     logger.debug("TPSProcessor.authenticateUser: got authToken val name:" + name);
+                    /* debugging authToken content vals
+                    String[] vals = authToken.getInStringArray(name);
+                    if (vals != null) {
+                        logger.debug("TPSProcessor.authenticateUser: got authToken val :" + vals[0]);
+                    }
+                    */
                 }
                 return authToken;
             } else {
@@ -1514,26 +1530,24 @@ public class TPSProcessor {
     protected TokenRecord isTokenRecordPresent(AppletInfo appletInfo) throws TPSException {
 
         if (appletInfo == null) {
-            throw new TPSException("Missing applet info");
+            throw new TPSException("TPSProcessor.isTokenRecordPresent: invalid input data.");
         }
 
-        String cuid = appletInfo.getCUIDhexStringPlain();
-        logger.info("TPSProcessor: Searching for token " + cuid);
+        logger.debug("TPSProcessor.isTokenRecordPresent: " + appletInfo.getCUIDhexString());
 
         CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
-
         TokenRecord tokenRecord = null;
         try {
-            tokenRecord = tps.tdb.tdbGetTokenEntry(cuid);
+            tokenRecord = tps.tdb.tdbGetTokenEntry(appletInfo.getCUIDhexStringPlain());
             // now the in memory tokenRecord is replaced by the actual token data
-            logger.debug("TPSProcessor: Token " + cuid + " found");
+            logger.debug("TPSProcessor.isTokenRecordPresent: found token...");
 
         } catch (EDBRecordNotFoundException e) {
-            logger.debug("TPSProcessor: Token " + cuid + " not found, creating token in memory");
+            logger.debug("TPSProcessor.isTokenRecordPresent: Token " + appletInfo.getCUIDhexStringPlain() + " not found, creating token in memory");
 
         } catch (Exception e) {
-            logger.warn("TPSProcessor: Unable to find token " + cuid + ": " + e.getMessage(), e);
+            logger.warn("TPSProcessor.isTokenRecordPresent: Unable to find token " + appletInfo.getCUIDhexStringPlain() + ": " + e.getMessage(), e);
         }
 
         return tokenRecord;
@@ -1572,7 +1586,8 @@ public class TPSProcessor {
         try {
             id = configStore.getString(config);
         } catch (EBaseException e) {
-            throw new TPSException(method + " Internal error finding config value:" + config);
+            throw new TPSException(method + " Internal error finding config value:" + config,
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -1804,9 +1819,24 @@ public class TPSProcessor {
         try {
             ret = configStore.getBoolean(configName, true);
         } catch (EBaseException e) {
-            throw new TPSException(method + e.getMessage() , TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            throw new TPSException(method + e.getMessage() , TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
         return ret;
+    }
+
+   /*
+    * listCaseInsensitiveContains - case insensitive contain check
+    * @param s the string checked if contained in list
+    * @param list the list
+    * @returns true if list contains s; false otherwise
+    */
+    public boolean listCaseInsensitiveContains(String s, List<String> list){
+        for (String element : list){
+            if (element.equalsIgnoreCase(s)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /*
@@ -1818,81 +1848,129 @@ public class TPSProcessor {
     ExternalRegAttrs processExternalRegAttrs(/*IAuthToken authToken,*/String authId) throws NumberFormatException, EBaseException {
         String method = "processExternalRegAttrs";
         String configName;
+        List<String> attributesToProcess = null;
         String tVal;
         String[] vals;
         ExternalRegAttrs erAttrs = new ExternalRegAttrs(authId);
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
 
-        logger.debug(method + ": getting from authToken: " + erAttrs.ldapAttrNameTokenType);
-        vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenType);
-        if (vals == null) {
-            // get the default externalReg tokenType
-            configName = "externalReg.default.tokenType";
-            tVal = configStore.getString(configName,
-                    "externalRegAddToToken");
-            logger.debug(method + ": set default tokenType: " + tVal);
-            erAttrs.setTokenType(tVal);
-        } else {
-            logger.debug(method + ": retrieved tokenType: " + vals[0]);
-            erAttrs.setTokenType(vals[0]);
-        }
+        String attributesToProcessStr = configStore.getString(
+                "auths.instance." + authId +
+                ".externalReg.attributes", "");
 
-        logger.debug(method + ": getting from authToken: " + erAttrs.ldapAttrNameTokenCUID);
-        vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenCUID);
-        if (vals != null) {
-            logger.debug(method + ": retrieved cuid:" + vals[0]);
-            erAttrs.setTokenCUID(vals[0]);
-        }
+        if(attributesToProcessStr.length() > 0)
+            attributesToProcess = Arrays.asList(attributesToProcessStr.split(","));
 
-        /*
-         * certs to be recovered for this user
-         *     - multi-valued
-         */
-        logger.debug(method + ": getting from authToken:"
-                + erAttrs.ldapAttrNameCertsToRecover);
-        vals = authToken.getInStringArray(erAttrs.ldapAttrNameCertsToRecover);
-        if (vals != null) {
-            // if any cert is mis-configured, the whole thing will bail
-            for (String val : vals) {
-                logger.debug(method + ": retrieved certsToRecover:" + val);
-                /*
-                 * Each cert is represented as
-                 *    (serial#, caID, keyID, kraID)
-                 * e.g.
-                 *    (1234, ca1, 81, kra1)
-                 *    note: numbers above are in decimal
-                 *    note: if keyID is less than or equal to 0, then recovery will be done by cert
-                 *          otherwise recovery is done by keyID
-                 *    note: if it only contains the serial# and caID (missing keyID and kraID)
-                 *          then it is used for retaining certs already existing on token
-                 */
-                String[] items = val.split(",");
-                if (items.length !=2 && items.length !=4)
-                    throw new EBaseException(method + ": certsToRecover format error");
-                ExternalRegCertToRecover erCert =
-                        new ExternalRegCertToRecover();
-                int i = 0;
-                for (i = 0; i < items.length; i++) {
-                    if (i == 0) {
-                        logger.debug(method + "setting serial: " + items[i]);
-                        erCert.setSerial(new BigInteger(items[i]));
-                    } else if (i == 1)
-                        erCert.setCaConn(items[i]);
-                    else if (i == 2) {
-                        logger.debug(method + "setting keyid: " + items[i]);
-                        erCert.setKeyid(new BigInteger(items[i]));
-                    } else if (i == 3)
-                        erCert.setKraConn(items[i]);
-                }
-                if (i<3) {
-                    erCert.setIsRetainable(true);
-                }
-                erAttrs.addCertToRecover(erCert);
+        if(attributesToProcess == null)
+            return erAttrs;
+
+        if(listCaseInsensitiveContains(erAttrs.ldapAttrNameTokenType, attributesToProcess)) {
+            logger.debug(method + ": getting from authToken: " + erAttrs.ldapAttrNameTokenType);
+            vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenType);
+            if (vals == null) {
+                // get the default externalReg tokenType
+                configName = "externalReg.default.tokenType";
+                tVal = configStore.getString(configName,
+                        "externalRegAddToToken");
+                logger.debug(method + ": set default tokenType: " + tVal);
+                erAttrs.setTokenType(tVal);
+            } else {
+                logger.debug(method + ": retrieved tokenType: " + vals[0]);
+                erAttrs.setTokenType(vals[0]);
             }
-        } else {
-            logger.debug(method + ": certsToRecover attribute " + erAttrs.ldapAttrNameCertsToRecover +
-                    " not found");
+        }
+
+        if(listCaseInsensitiveContains(erAttrs.ldapAttrNameTokenCUID, attributesToProcess)) {
+            logger.debug(method + ": getting from authToken:"
+                    + erAttrs.ldapAttrNameTokenCUID);
+            vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenCUID);
+            if (vals != null) {
+                logger.debug(method + ": retrieved cuid:" + vals[0]);
+                erAttrs.setTokenCUID(vals[0]);
+            } else {
+                logger.debug(method + ": " + erAttrs.ldapAttrNameTokenCUID +
+                        " attribute not found");
+            }
+        }
+
+        if(listCaseInsensitiveContains(erAttrs.ldapAttrNameRegistrationType, attributesToProcess)) {
+            logger.debug(method + ": getting from authToken:"
+                    + erAttrs.ldapAttrNameRegistrationType);
+            vals = authToken.getInStringArray(erAttrs.ldapAttrNameRegistrationType);
+            if(vals != null) {
+                logger.debug(method + ": retrieved registrationType:" + vals[0]);
+                erAttrs.setRegistrationType(vals[0]);
+            } else {
+                logger.debug(method + ": registrationType attribute not found.");
+                erAttrs.setRegistrationType(null);
+            }
+        }
+
+        if(listCaseInsensitiveContains(erAttrs.ldapAttrNameCertsToRecover, attributesToProcess)) {
+            /*
+             * certs to be recovered for this user
+             *     - multi-valued
+             */
+            logger.debug(method + ": getting from authToken:"
+                    + erAttrs.ldapAttrNameCertsToRecover);
+            vals = authToken.getInStringArray(erAttrs.ldapAttrNameCertsToRecover);
+            if (vals != null) {
+                // A temporary list to hold retainable certs.
+                ArrayList<ExternalRegCertToRecover> retainableCerts = new ArrayList<ExternalRegCertToRecover>();
+
+                // if any cert is mis-configured, the whole thing will bail
+                for (String val : vals) {
+                    logger.debug(method + ": retrieved certsToRecover:" + val);
+                    /*
+                     * Each cert is represented as
+                     *    (serial#, caID, keyID, kraID)
+                     * e.g.
+                     *    (1234, ca1, 81, kra1)
+                     *    note: numbers above are in decimal
+                     *    note: if keyID is less than or equal to 0, then recovery will be done by cert
+                     *          otherwise recovery is done by keyID
+                     *    note: if it only contains the serial# and caID (missing keyID and kraID)
+                     *          then it is used for retaining certs already existing on token
+                     */
+                    String[] items = val.split(",");
+                    if (items.length !=2 && items.length !=4)
+                        throw new EBaseException(method + ": certsToRecover format error");
+                    ExternalRegCertToRecover erCert =
+                            new ExternalRegCertToRecover();
+                    int i = 0;
+                    for (i = 0; i < items.length; i++) {
+                        if (i == 0) {
+                            logger.debug(method + "setting serial: " + items[i]);
+                            erCert.setSerial(new BigInteger(items[i]));
+                        } else if (i == 1)
+                            erCert.setCaConn(items[i]);
+                        else if (i == 2) {
+                            logger.debug(method + "setting keyid: " + items[i]);
+                            erCert.setKeyid(new BigInteger(items[i]));
+                        } else if (i == 3)
+                            erCert.setKraConn(items[i]);
+                    }
+                    if (i<3) {
+                        erCert.setIsRetainable(true);
+                        retainableCerts.add(erCert);
+                    } else {
+                        erAttrs.addCertToRecover(erCert);
+                    }
+                }
+
+                /**
+                 * Add the retainable certs after the other certs. Because "un-retainable"
+                 * (e.g. revoked encryption certs or active encryption certs from previous
+                 * registrations) are processed before retainable certs, "un-retainable" certs
+                 * must all come first in the list.
+                 */
+                if(!retainableCerts.isEmpty())
+                    erAttrs.getCertsToRecover().addAll(retainableCerts);
+            } else {
+                logger.debug(method + ": certsToRecover attribute " + erAttrs.ldapAttrNameCertsToRecover +
+                        " not found");
+            }
         }
 
         /*
@@ -2252,6 +2330,8 @@ public class TPSProcessor {
             TokenStatus newState = TokenStatus.FORMATTED;
             // Check for transition to FORMATTED status.
 
+            checkInvalidTokenStatus(tokenRecord, ActivityDatabase.OP_FORMAT);
+
             if (!tps.isOperationTransitionAllowed(tokenRecord, newState)) {
                 String info = " illegal transition attempted: " + tokenRecord.getTokenStatus() +
                         " to " + newState;
@@ -2270,7 +2350,7 @@ public class TPSProcessor {
                         " to " + newState);
             }
         } else {
-            checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
+            checkAllowUnknownToken(TPSEngine.FORMAT_OP);
 
             tokenRecord.setTokenStatus(TokenStatus.UNFORMATTED);
             logger.debug("TPSProcessor.format: token does not exist");
@@ -2283,7 +2363,7 @@ public class TPSProcessor {
                 logMsg = logMsg + ":" + e.toString();
                 tps.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
-                throw new TPSException(logMsg);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
             }
 
         }
@@ -2347,14 +2427,14 @@ public class TPSProcessor {
                 logger.error("TPSProcessor.format: " + logMsg, te);
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
-                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
             } catch (Exception ee) {
                 String failMsg = "revoke certificates failure";
                 logMsg = failMsg + ":" + ee.getMessage();
                 logger.error("TPSProcessor.format: " + logMsg, ee);
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
-                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
             }
         }
 
@@ -2367,6 +2447,9 @@ public class TPSProcessor {
             logger.warn("TPSProcessor.format: " + logMsg, e);
         }
 
+       // Set token's userID attribute to null
+       tokenRecord.setUserID(null);
+
         // Update Token DB
         tokenRecord.setTokenStatus(TokenStatus.FORMATTED);
         logMsg = "token format operation";
@@ -2378,7 +2461,7 @@ public class TPSProcessor {
             tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
 
-            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
         }
 
         logger.debug("TPSProcessor.format:: ends");
@@ -2450,7 +2533,8 @@ public class TPSProcessor {
         try {
             resolverInstName = configStore.getString(config, opDefault);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.getResolverInstanceName: Internal error finding config value.");
+            throw new TPSException("TPSProcessor.getResolverInstanceName: Internal error finding config value.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -2477,7 +2561,7 @@ public class TPSProcessor {
         try {
             resolverInstName = configStore.getString(config, "none");
         } catch (EBaseException e) {
-            throw new TPSException(e.getMessage());
+            throw new TPSException(e.getMessage(), TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
         if (resolverInstName.equals(""))
             resolverInstName = "none";
@@ -2546,13 +2630,14 @@ public class TPSProcessor {
         try {
             info = configStore.getString(config, null);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.getIssuerInfoValue: Internal error finding config value.");
+            throw new TPSException("TPSProcessor.getIssuerInfoValue: Internal error finding config value.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
         if (info == null) {
             throw new TPSException("TPSProcessor.getIssuerInfoValue: Can't find issuer info value in the config.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         logger.debug("TPSProcessor.getIssuerInfoValue: returning: " + info);
@@ -2570,12 +2655,14 @@ public class TPSProcessor {
         } catch (EBaseException e) {
             //Default TPSException will return a "contact admin" error code.
             throw new TPSException(
-                    "TPSProcessor.checkProfileStateOK: internal error in getting profile state from config.");
+                    "TPSProcessor.checkProfileStateOK: internal error in getting profile state from config.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         if (!profileState.equals(Constants.CFG_ENABLED)) {
             logger.error("TPSProcessor.checkProfileStateOK: profile specifically disabled.");
-            throw new TPSException("TPSProcessor.checkProfileStateOK: profile disabled!");
+            throw new TPSException("TPSProcessor.checkProfileStateOK: profile disabled!",
+                    TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
         }
 
     }
@@ -2625,7 +2712,8 @@ public class TPSProcessor {
         } catch (EBaseException e1) {
             logger.error("TPS_Processor.checkIsExternalReg: Internal Error obtaining mandatory config values: "
                     + e1.getMessage(), e1);
-            throw new TPSException("TPS error getting config values from config store.");
+            throw new TPSException("TPS error getting config values from config store.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
     }
@@ -2642,7 +2730,8 @@ public class TPSProcessor {
         try {
             result = configStore.getBoolean(profileConfig, false);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor: checkServerSideKeyGen: Internal error obtaining config value!");
+            throw new TPSException("TPSProcessor: checkServerSideKeyGen: Internal error obtaining config value!",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         return result;
@@ -2659,12 +2748,13 @@ public class TPSProcessor {
         try {
             allow = configStore.getBoolean(noAppletConfig, true);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.checkAllowNoAppletToken: Internal error getting config param.");
+            throw new TPSException("TPSProcessor.checkAllowNoAppletToken: Internal error getting config param.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         if (!allow) {
             throw new TPSException("TPSProcessor.checkAllowNoAppletToken: token without applet not permitted!",
-                    TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+                    TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
         }
 
     }
@@ -2683,7 +2773,7 @@ public class TPSProcessor {
         } catch (EBaseException e) {
             throw new TPSException(
                     "TPSProcessor.checkForAppleUpdateEnabled: Can't find applet Update Enable. Internal error obtaining value.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
         logger.debug("TPSProcessor.checkForAppletUpdateEnabled: returning " + enabled);
@@ -2716,12 +2806,12 @@ public class TPSProcessor {
         } catch (EBaseException e) {
             throw new TPSException(
                     "TPSProcessor.checkForAppletUpgrade: Can't find applet required Version. Internal error obtaining version.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         if (requiredVersion == null) {
             throw new TPSException("TPSProcessor.checkForAppletUpgrade: Can't find applet required Version.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         logger.debug("TPSProcessor.checkForAppletUpgrade: returning: " + requiredVersion);
@@ -2741,13 +2831,14 @@ public class TPSProcessor {
         try {
             allow = configStore.getBoolean(unknownConfig, true);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.checkAllowUnknownToken: Internal error getting config value.");
+            throw new TPSException("TPSProcessor.checkAllowUnknownToken: Internal error getting config value.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         if (allow == false) {
             throw new TPSException(
                     "TPSProcessor.checkAllowUnknownToken: Unknown tokens not allowed for this operation!",
-                    TPSStatus.STATUS_ERROR_TOKEN_DISABLED);
+                    TPSStatus.STATUS_ERROR_UNKNOWN_TOKEN);
         }
 
     }
@@ -2763,7 +2854,8 @@ public class TPSProcessor {
         try {
             id = configStore.getString(config, "tks1");
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.getTKSConnectorID: Internal error finding config value.");
+            throw new TPSException("TPSProcessor.getTKSConnectorID: Internal error finding config value.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -2785,7 +2877,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e1) {
             logger.error("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
-            throw new TPSException("TPS error getting config values from config store.");
+            throw new TPSException("TPS error getting config values from config store.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         TPSBuffer ret = new TPSBuffer(NetKeyAID);
@@ -2806,7 +2898,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e1) {
             logger.error("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
-            throw new TPSException("TPS error getting config values from config store.");
+            throw new TPSException("TPS error getting config values from config store.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         TPSBuffer ret = new TPSBuffer(NetKeyPAID);
@@ -2827,7 +2919,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e1) {
             logger.error("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
-            throw new TPSException("TPS error getting config values from config store.");
+            throw new TPSException("TPS error getting config values from config store.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         TPSBuffer ret = new TPSBuffer(cardMgrAID);
@@ -2844,7 +2936,7 @@ public class TPSProcessor {
         try {
             extension = configStore.getString(extensionConfig, "ijc");
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.getAppletExtension: Internal error finding config value.");
+            throw new TPSException("TPSProcessor.getAppletExtension: Internal error finding config value.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -2867,10 +2959,10 @@ public class TPSProcessor {
             directory = configStore.getString(directoryConfig);
         } catch (EPropertyNotFound e) {
             throw new TPSException("TPSProcessor.getAppletDirectory: Required config param missing.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getAppletDirectory: Internal error finding config value.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         logger.debug("getAppletDirectory: returning: " + directory);
@@ -2886,7 +2978,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getChannelBlockSize: Internal error finding config value: " + e,
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -2905,7 +2997,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getChannelInstanceSize: Internal error finding config value: " + e,
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -2925,7 +3017,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getAppletMemorySize: Internal error finding config value: " + e,
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
         logger.debug("TPSProcess.getAppletMemorySize: returning: " + memSize);
@@ -2942,7 +3034,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getChannelDefKeyVersion: Internal error finding config value: " + e,
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -2961,7 +3053,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getChannelDefKeyIndex: Internal error finding config value: " + e,
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -3007,12 +3099,12 @@ public class TPSProcessor {
             symmKeys = SessionKey.ListSymmetricKeys(CryptoUtil.INTERNAL_TOKEN_NAME);
             logger.debug("TPSProcessor.getSharedSecretTransportKey: symmKeys List: " + symmKeys);
         } catch (Exception e) {
-            logger.warn("TPSProcessor: " + e.getMessage(), e);
+            logger.warn("TPSProcessor.getSharedSecretTransportKey: " + e.getMessage(), e);
         }
 
         for (String keyName : symmKeys.split(",")) {
             if (sharedSecretName.equals(keyName)) {
-                logger.debug("TPSProcessor.getSharedSecret: shared secret key found!");
+                logger.debug("TPSProcessor.getSharedSecretTransportKey: shared secret key found!");
                 keyPresent = true;
                 break;
             }
@@ -3167,7 +3259,8 @@ public class TPSProcessor {
         APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, aidBuf);
 
         if (!select.checkResult()) {
-            throw new TPSException("TPSProcessor.selectCardManager: Can't selelect the card manager applet!");
+            throw new TPSException("TPSProcessor.selectCardManager: Can't selelect the card manager applet!",
+                    TPSStatus.STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION);
         }
     }
 
@@ -3186,7 +3279,8 @@ public class TPSProcessor {
         try {
             result = configStore.getBoolean(symmConfig, true);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.checkSymmetricKeysEnabled: Internal error getting config value.");
+            throw new TPSException("TPSProcessor.checkSymmetricKeysEnabled: Internal error getting config value.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         return result;
@@ -3205,7 +3299,8 @@ public class TPSProcessor {
         try {
             version = configStore.getInteger(requiredVersionConfig, 0x0);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.getSymmetricKeysRequired: Internal error getting config value.");
+            throw new TPSException("TPSProcessor.getSymmetricKeysRequired: Internal error getting config value.",
+                   TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         logger.debug("TPSProcessor.getSymmetricKeysRequiredVersion: returning version: " + version);
@@ -3245,6 +3340,8 @@ public class TPSProcessor {
             throw new TPSException("TPSProcessor.checkAndUpgradeSymKeys: invalid input data!");
         }
 
+        CMSEngine eng = CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) eng.getSubsystem(TPSSubsystem.ID);
         SecureChannel channel = null;
 
         int defKeyVersion = 0;
@@ -3351,10 +3448,12 @@ public class TPSProcessor {
 
                 try {
                     channel.putKeys(curVersion, curIndex, keySetData);
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
+                            "Sent new GP Key Set to token", "success");
                 } catch (TPSException e) {
 
                     logger.warn("TPSProcessor.checkAndUpgradeSymKeys: failed to put key: " + e.getMessage(), e);
-                    logger.warn("TPSProcessor: checking to see if this a SCP02 with 0xFF default key set.");
+                    logger.warn("TPSProcessor.checkAndUpgradeSymKeys: checking to see if this a SCP02 with 0xFF default key set.");
 
                     if (protocol == 2 && curVersion == (byte) 0xff) {
                         logger.debug("TPSProcessor.checkAndUpgradeSymKeys: failed to put key, but we have SCP02 and the 0xFF dev key, try again.");
@@ -3369,6 +3468,8 @@ public class TPSProcessor {
                         logger.debug("TPSProcessor.checkAndUpgradeSymKeys: We've only upgraded to the dev key set on key set #01, will have to try again to upgrade to #02");
 
                     } else {
+                        tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
+                                "Failed to send new GP Key Set to token", "failure");
                         throw e;
                     }
 
@@ -3473,8 +3574,7 @@ public class TPSProcessor {
         String result = "";
 
         if (inPattern == null || map == null) {
-            throw new TPSException("TPSProcessor.mapPattern: Illegal input paramters!",
-                    TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            throw new TPSException("TPSProcessor.mapPattern: Illegal input paramters!");
         }
 
         final char delim = '$';
@@ -3556,7 +3656,7 @@ public class TPSProcessor {
          */
 
         if (aInfo == null) {
-            throw new TPSException("TPSProcessor.formatCurrentAppletVersion: ", TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            throw new TPSException("TPSProcessor.formatCurrentAppletVersion: ");
         }
 
         if (aInfo.getFinalAppletVersion() != null) {
@@ -3587,7 +3687,7 @@ public class TPSProcessor {
 
         if (channel == null) {
             throw new TPSException("TPSProcessor.checkAndHandlePinReset: invalid input data!",
-                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -3884,8 +3984,8 @@ public class TPSProcessor {
     boolean checkCardGPKeyVersionIsInRange(String CUID, String KDD, String keyInfoData) throws TPSException {
         boolean result = true;
 
-        //ToDo : Add Audit messages .
-
+        CMSEngine engine = CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         String method = "checkCardGPKeyVersionIsInRange: ";
 
@@ -3895,7 +3995,6 @@ public class TPSProcessor {
             throw new TPSException(method + " Invalid input data!");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
 
         String checkBoundedGPKeyVersionConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
@@ -3962,10 +4061,61 @@ public class TPSProcessor {
                     logger.debug(method + " Version : " + keyInfoVer + " is in range of: " + minVersion + " and: "
                             + maxVersion);
                     result = true;
+                    String logMsg = "Token GP key version is within GP key version range.";
+                    auditKeySanityCheck(
+                            userid,
+                            CUID,
+                            KDD,
+                            "success",
+                            keyInfoVer,
+                            null, // newKeyVersion
+                            null, // tokenDBKeyVersion
+                            logMsg);
                 } else {
                     result = false;
                     logger.debug(method + " Version : " + keyInfoVer + " is NOT in range of: " + minVersion + " and: "
                             + maxVersion);
+                    if(versionMinCompare < 0) {
+                        // the token's key version is less than the minimum version
+                        String logMsg = "Token key version " + keyInfoVer + " is less than minimum GP key version " +
+                                minVersion;
+                        auditKeySanityCheck(
+                                userid,
+                                CUID,
+                                KDD,
+                                "failure",
+                                keyInfoVer,
+                                null, // newKeyVersion
+                                null, // tokenDBKeyVersion
+                                logMsg);
+                        tps.tdb.tdbActivity(
+                                currentTokenOperation,
+                                session.getTokenRecord(),
+                                session.getIpAddress(),
+                                logMsg,
+                                "failure");
+                    }
+
+                    if(versionMaxCompare > 0) {
+                     // the token's key version is greater than the maximum version
+                        String logMsg = "Token key version " + keyInfoVer + " is greater than maximum GP key version " +
+                                maxVersion;
+                        auditKeySanityCheck(
+                                userid,
+                                CUID,
+                                KDD,
+                                "failure",
+                                keyInfoVer,
+                                null, // newKeyVersion
+                                null, // tokenDBKeyVersion
+                                logMsg);
+                        tps.tdb.tdbActivity(
+                                currentTokenOperation,
+                                session.getTokenRecord(),
+                                session.getIpAddress(),
+                                logMsg,
+                                "failure");
+                    }
                 }
             }
 
@@ -3991,6 +4141,7 @@ public class TPSProcessor {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         IConfigStore configStore = engine.getConfigStore();
 
         String checkCUIDMatchesKDDConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
@@ -4015,6 +4166,22 @@ public class TPSProcessor {
             } else {
                 logger.debug(method + " CUID and KDD values differ!");
                 result = false;
+                auditKeySanityCheck(
+                        userid,
+                        CUID,
+                        KDD,
+                        "failure",
+                        null, // tokenKeyVersion
+                        null, // newKeyVersion
+                        null, // tokenDBKeyVersion
+                        "CUID does not equal KDD");
+                tps.tdb.tdbActivity(
+                        currentTokenOperation,
+                        session.getTokenRecord(),
+                        session.getIpAddress(),
+                        "CUID: " + CUID + " does not equal KDD: " + KDD,
+                        "failure");
+
             }
         } else {
             //Configured to ignore, report success.
@@ -4048,6 +4215,8 @@ public class TPSProcessor {
             String keyInfoData) throws TPSException {
 
         String method = "checkCardGPKeyVersionMatchesTokenDB: ";
+        CMSEngine eng = CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) eng.getSubsystem(TPSSubsystem.ID);
 
         if(CUID == null || KDD == null || keyInfoData == null) {
             throw new TPSException(method + " Invalid input data!");
@@ -4081,13 +4250,65 @@ public class TPSProcessor {
             logger.debug(method + " keyInfoFromTokenDB: " + keyInfoInDB);
             logger.debug(method + " keyInfoFromToken: " +  keyInfoData);
 
+            if(keyInfoInDB == null) {
+                try {
+                    checkAllowUnknownToken(currentTokenOperation);
 
-            if(keyInfoData.compareToIgnoreCase(keyInfoInDB) != 0) {
+                    // checkAllowUnknownToken(..) does not throw an exception if allowUnknownToken = true
+                    result = true;
+                }
+                catch(TPSException e) {
+                    // checkAllowUnknownToken(..) throws an exception if allowUnknownToken = false
+                    result = false;
+
+                    String logMsg = "getKeyInfoFromTokenDB returned null but token CUID is present in database";
+                    auditKeySanityCheck(
+                            userid,
+                            CUID,
+                            KDD,
+                            "failure",
+                            keyInfoData,
+                            null, // newKeyVersion
+                            null, // tokenDBKeyVersion
+                            logMsg);
+                }
+            }
+            else if(keyInfoData.compareToIgnoreCase(keyInfoInDB) != 0) {
                 logger.debug(method + " Key Info in the DB is NOT the same as the one from the token!");
                 result = false;
+
+                String logMsg = "Card claimed key info: " + keyInfoData + " does not match Card DB key info: " + keyInfoInDB;
+                auditKeySanityCheck(
+                        userid,
+                        CUID,
+                        KDD,
+                        "failure",
+                        keyInfoData,
+                        null, // newKeyInfo
+                        keyInfoInDB,
+                        logMsg);
+                tps.tdb.tdbActivity(
+                        currentTokenOperation,
+                        session.getTokenRecord(),
+                        session.getIpAddress(),
+                        logMsg,
+                        "failure");
+
             } else {
                 logger.debug(method + " Key Info in the DB IS the same as the one from the token!");
                 result = true;
+
+                String logMsg = "Card GP key info matches TokenDB GP key info.";
+                auditKeySanityCheck(
+                        userid,
+                        CUID,
+                        KDD,
+                        "success",
+                        keyInfoData,
+                        null, // newKeyInfo
+                        keyInfoInDB,
+                        logMsg);
+
             }
 
         } else {
@@ -4098,6 +4319,18 @@ public class TPSProcessor {
 
         return result;
 
+    }
+
+    protected void checkInvalidTokenStatus(TokenRecord tokenRecord, String activityDBOperation) throws TPSException {
+        CMSEngine engine = CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
+        TokenStatus status = tokenRecord.getTokenStatus();
+
+        if(!status.isValid()) {
+            String logMsg = "Illegal transition attempted for token with status: " + status;
+            tps.tdb.tdbActivity(activityDBOperation, tokenRecord, session.getIpAddress(), logMsg, "failure");
+            throw new TPSException(activityDBOperation + ": " + logMsg, TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
+        }
     }
 
     /* Only for debugging, extract bytes of a PK11SymKey
@@ -4295,6 +4528,40 @@ public class TPSProcessor {
                 info);
 
         signedAuditLogger.log(event);
+    }
+
+    protected void auditKeySanityCheck(
+            String subjectID,
+            String cuid,
+            String kdd,
+            String status,
+            String tokenKeyVersion,
+            String newKeyVersion,
+            String tokenDBKeyVersion,
+            String info) {
+
+        String auditType;
+        switch(status) {
+        case "success":
+            auditType = AuditEvent.TOKEN_KEY_SANITY_CHECK_SUCCESS;
+            break;
+        default:
+            auditType = AuditEvent.TOKEN_KEY_SANITY_CHECK_FAILURE;
+        }
+
+        String auditMessage = CMS.getLogMessage(
+                auditType,
+                session.getIpAddress(),
+                subjectID,
+                cuid,
+                kdd,
+                status,
+                tokenKeyVersion,
+                newKeyVersion,
+                tokenDBKeyVersion,
+                info);
+
+        audit(auditMessage);
     }
 
     /*

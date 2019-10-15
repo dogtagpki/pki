@@ -966,12 +966,14 @@ public class CAService implements ICAService, IService {
 
     public void revokeCert(RevokedCertImpl crlentry, String requestId)
             throws EBaseException {
+
+        final String method = "CAService.revokeCert";
         BigInteger serialno = crlentry.getSerialNumber();
         Date revdate = crlentry.getRevocationDate();
         CRLExtensions crlentryexts = crlentry.getExtensions();
         String msg = "";
 
-        logger.debug("CAService.revokeCert: revokeCert begins");
+        logger.debug(method + ": begins: serial:" + serialno.toString());
 
         // Get the revocation reason
         Enumeration<Extension> enum1 = crlentryexts.getElements();
@@ -984,16 +986,17 @@ public class CAService implements ICAService, IService {
             }
         }
         if (revReason == null) {
-            logger.error("CAService: " + CMS.getLogMessage("CMSCORE_CA_MISSING_REV_REASON", serialno.toString(16)));
+            logger.error(method + ":" + CMS.getLogMessage("CMSCORE_CA_MISSING_REV_REASON", serialno.toString(16)));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_MISSING_REV_REASON",
                             "0x" + serialno.toString(16)));
         }
 
+        logger.debug(method + ": revocaton request revocation reason: " + revReason.toString());
         CertRecord certRec = (CertRecord) mCA.getCertificateRepository().readCertificateRecord(serialno);
 
         if (certRec == null) {
-            logger.error("CAService: " + CMS.getLogMessage("CMSCORE_CA_CERT_NOT_FOUND", serialno.toString(16)));
+            logger.error(method + ": " + CMS.getLogMessage("CMSCORE_CA_CERT_NOT_FOUND", serialno.toString(16)));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
                             "0x" + serialno.toString(16)));
@@ -1011,9 +1014,10 @@ public class CAService implements ICAService, IService {
             }
             if (recRevReason == null) {
                 msg = "existing revoked cert missing revocation reason";
-                logger.error("CAService.revokeCert: " + msg);
+                logger.error(method + ": " + msg);
                 throw new EBaseException(msg);
             }
+            logger.debug(method + ": already revoked cert with existing revocation reason:" + recRevReason.toString());
         }
 
         // for cert already revoked, also check whether revocation reason is changed from SUPERSEDED to KEY_COMPROMISE
@@ -1023,7 +1027,7 @@ public class CAService implements ICAService, IService {
                         revReason != RevocationReason.KEY_COMPROMISE))
                 ||
                 certStatus.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
-            logger.debug("CAService.revokeCert: cert already revoked:" +
+            logger.debug(method + ": cert already revoked:" +
                     serialno.toString());
             throw new ECAException(CMS.getUserMessage("CMS_CA_CERT_ALREADY_REVOKED",
                     "0x" + Long.toHexString(serialno.longValue())));
@@ -1031,13 +1035,13 @@ public class CAService implements ICAService, IService {
 
         try {
             // if cert has already revoked, update the revocation info only
-            logger.debug("CAService.revokeCert: about to call markAsRevoked");
-            if (certStatus.equals(ICertRecord.STATUS_REVOKED) && certRec.isCertOnHold()) {
+            logger.debug(method + ": about to call markAsRevoked");
+            if (certStatus.equals(ICertRecord.STATUS_REVOKED)) {
                 mCA.getCertificateRepository().markAsRevoked(serialno,
                         new RevocationInfo(revdate, crlentryexts),
                         true /*isAlreadyRevoked*/);
 
-                logger.debug("CAService.revokeCert: on_hold cert marked revoked");
+                logger.debug(method + ": Already-revoked cert marked revoked");
 
                 logger.info(CMS.getLogMessage("CMSCORE_CA_CERT_REVO_INFO_UPDATE",
                                 recRevReason.toString(),
@@ -1081,7 +1085,7 @@ public class CAService implements ICAService, IService {
             }
         } catch (EBaseException e) {
             String message = CMS.getLogMessage("CMSCORE_CA_ERROR_REVOCATION", serialno.toString(), e.toString());
-            logger.error(message, e);
+            logger.error(method + ":" + message, e);
             throw e;
         }
         return;

@@ -95,12 +95,20 @@ public class TPSEngine {
     public static final String CFG_TOKENDB = "tokendb";
     public static final String CFG_TOKENDB_ALLOWED_TRANSITIONS = "tokendb.allowedTransitions";
     public static final String CFG_OPERATIONS_ALLOWED_TRANSITIONS = "tps.operations.allowedTransitions";
+    public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_USERID = "tokenservice.status.unformatted.clearUserID";
+    public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_TYPE = "tokenservice.status.unformatted.clearType";
+    public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_APPLETID = "tokenservice.status.unformatted.clearAppletID";
+    public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_KEYINFO = "tokenservice.status.unformatted.clearKeyInfo";
+    public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_POLICY = "tokenservice.status.unformatted.clearPolicy";
 
     public static final String CFG_PRINTBUF_FULL = "tps.printBufFull";
     public static final String CFG_RECV_BUF_SIZE = "tps.recvBufSize";
+    public static final String CFG_CONNECTION_PREFIX = "tps.connection";
+    public static final String CFG_CONNECTION_MAX_MESSAGE_SIZE = "maxMessageSize";
+
     public static final String CFG_AUTHS_ENABLE = "auth.enable";
     public static final String CFG_PROFILE_MAPPING_ORDER = "mapping.order";
-    public static final String CFG_ALLOW_UNKNOWN_TOKEN = "allowUnkonwnToken";
+    public static final String CFG_ALLOW_UNKNOWN_TOKEN = "allowUnknownToken";
     public static final String CFG_ALLOW_NO_APPLET = "update.applet.emptyToken.enable";
     public static final String CFG_APPLET_UPDATE_REQUIRED_VERSION = "update.applet.requiredVersion";
     public static final String CFG_APPLET_DIRECTORY = "update.applet.directory";
@@ -243,7 +251,8 @@ public class TPSEngine {
         int status = resp.getStatus();
         if (status != 0) {
             logger.error("TPSEngine.computeSessionKeySCP02: Non zero status result: " + status);
-            throw new TPSException("TPSEngine.computeSessionKeySCP02: invalid returned status: " + status);
+            throw new TPSException("TPSEngine.computeSessionKeySCP02: invalid returned status: " + status,
+                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
         }
 
@@ -284,7 +293,8 @@ public class TPSEngine {
         int status = resp.getStatus();
         if (status != 0) {
             logger.error("TPSEngine.computeSessionKeysSCP03: Non zero status result: " + status);
-            throw new TPSException("TPSEngine.computeSessionKeysSCP03: invalid returned status: " + status);
+            throw new TPSException("TPSEngine.computeSessionKeysSCP03: invalid returned status: " + status,
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
         }
 
@@ -325,7 +335,8 @@ public class TPSEngine {
         int status = resp.getStatus();
         if (status != 0) {
             logger.error("TPSEngine.computeSessionKey: Non zero status result: " + status);
-            throw new TPSException("TPSEngine.computeSessionKey: invalid returned status: " + status);
+            throw new TPSException("TPSEngine.computeSessionKey: invalid returned status: " + status,
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
         }
 
@@ -367,7 +378,7 @@ public class TPSEngine {
         }
 
         if (retrievedCertB64 == null) {
-            throw new TPSException(method + " Unable to get valid cert blob.", TPSStatus.STATUS_ERROR_CA_RESPONSE);
+            throw new TPSException(method + " Unable to get valid cert blob.", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
         return retrieveResponse;
@@ -412,7 +423,7 @@ public class TPSEngine {
         }
 
         if (retrievedCertB64 == null) {
-            throw new TPSException(method + " Unable to get valid cert blob.", TPSStatus.STATUS_ERROR_CA_RESPONSE);
+            throw new TPSException(method + " Unable to get valid cert blob.", TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
         return renewResponse;
@@ -427,7 +438,7 @@ public class TPSEngine {
 
         if (newMasterVersion == null || oldVersion == null || cuid == null || kdd == null || connId == null) {
             throw new TPSException(method + " Invalid input data",
-                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
         TKSRemoteRequestHandler tks = null;
@@ -440,14 +451,14 @@ public class TPSEngine {
         } catch (EBaseException e) {
 
             throw new TPSException(method + " failure to get key set data from TKS",
-                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
         int status = resp.getStatus();
         if (status != 0) {
             logger.debug(method + " Non zero status result: " + status);
             throw new TPSException(method + " invalid returned status: " + status,
-                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
 
         }
 
@@ -456,7 +467,7 @@ public class TPSEngine {
         if (keySetData == null) {
             logger.error(method + " No valid key set data returned.");
             throw new TPSException(method + " No valid key set data returned.",
-                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
 
         }
 

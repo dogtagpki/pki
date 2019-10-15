@@ -38,6 +38,7 @@ import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.mapping.MappingResolverManager;
 import org.dogtagpki.tps.main.TPSException;
+import org.dogtagpki.tps.TPSConnection;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -59,6 +60,10 @@ import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
+// cfu??
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
+
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
  */
@@ -67,6 +72,9 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
 
     public final static String ID = "tps";
+
+    // cfu??
+    public Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_TPS);
 
     public String id;
     public String nickname;
@@ -143,6 +151,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         operationTransitions = loadAndValidateTokenStateTransitions(
                 defaultConfig, cs, TPSEngine.CFG_OPERATIONS_ALLOWED_TRANSITIONS);
 
+        configureTPSConnection(cs);
         tdb = new TPSTokendb(this);
 
         tpsEngine = new TPSEngine();
@@ -175,6 +184,11 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
             TokenStatus currentState = TokenStatus.fromInt(Integer.valueOf(states[0]));
             TokenStatus nextState = TokenStatus.fromInt(Integer.valueOf(states[1]));
+
+            if(!currentState.isValid() || !nextState.isValid()) {
+                logger.debug("Invalid token state transition in " + property + ": " + transition);
+                throw new EBaseException("Invalid token state transition in " + property + ": " + transition);
+            }
 
             String info = currentState + " to " + nextState +
                     " (" + currentState.getValue() + ":" + nextState.getValue() + ")";
@@ -274,6 +288,23 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         return operationTransitions.get(currentState);
     }
 
+    public void configureTPSConnection(IConfigStore cs) {
+        String configValue = TPSEngine.CFG_CONNECTION_PREFIX + "." + TPSEngine.CFG_CONNECTION_MAX_MESSAGE_SIZE;
+        int configValueDefault = TPSConnection.MAX_MESSAGE_SIZE_DEFAULT;
+
+        logger.debug("TPSConnection: Retrieving config value with name: " + configValue);
+        try {
+            // Try to set TPSConnection static variable to CS.cfg config value
+            TPSConnection.setMaxMessageSize(cs.getInteger(configValue));
+            logger.debug("TPSConnection: " + TPSEngine.CFG_CONNECTION_MAX_MESSAGE_SIZE +
+                    " set to " + TPSConnection.getMaxMessageSize());
+        } catch(EBaseException e) {
+            // Set TPSConnection static variable to default value
+            TPSConnection.setMaxMessageSize(configValueDefault);
+            logger.debug("TPSConnection: Could not find given config line. Defaulting to value: " + configValueDefault);
+        }
+    }
+
     @Override
     public void startup() throws EBaseException {
         logger.debug("TPSSubsystem: startup() begins");
@@ -310,6 +341,8 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     @Override
     public void log(int level, String msg) {
+        // cfu: do we need this?
+        systemLogger.log(level, msg);
     }
 
     @Override

@@ -88,7 +88,7 @@ public class StandardKDF extends KDF {
                 logger.warn(method + "Now try this the old fashioned way");
 
                 byte[] encrypted = this.protocol.computeDes3EcbEncryption(masterKey, token.getName(), derivationData);
-                SecureChannelProtocol.debugByteArray(encrypted, "calculated key: ");
+                //SecureChannelProtocol.debugByteArray(encrypted, "calculated key: ");
               //  byte[] parityEncrypted = KDF.getDesParity(encrypted);
                 logger.debug(method + "done computeDes3EcbEncryptiong");
 

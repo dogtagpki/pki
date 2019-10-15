@@ -29,6 +29,7 @@ public class GPParams {
     public static String DIVER_EMV = "emv";
     public static String DIVER_NONE = "none";
     public static String DIVER_VISA2 = "visa2";
+    public static String DIVER_GPKMC = "gpkmc";
     public static String NIST_SP800 = "nistsp_800";
     public static String AES = "AES";
     public static String DES3 ="DES3";
@@ -60,6 +61,10 @@ public class GPParams {
         masterKeyType = newType;
     }
 
+    public boolean isDiversGPKMC() {
+        return DIVER_GPKMC.equalsIgnoreCase(diversificationScheme);
+    }
+
     public boolean isDiversEmv() {
         if (DIVER_EMV.equalsIgnoreCase(diversificationScheme))
             return true;
@@ -79,6 +84,10 @@ public class GPParams {
             return true;
         else
             return false;
+    }
+
+    public boolean isVer1DiversGPKMC() {
+        return DIVER_GPKMC.equalsIgnoreCase(version1DiversificationScheme);
     }
 
     public boolean isVer1DiversEmv() {

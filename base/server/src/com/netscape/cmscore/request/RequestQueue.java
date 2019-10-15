@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
@@ -243,35 +244,50 @@ public class RequestQueue
     }
 
     public BigInteger getLastRequestIdInRange(BigInteger reqId_low_bound, BigInteger reqId_upper_bound) {
-        logger.debug("RequestQueue: getLastRequestId: low " + reqId_low_bound + " high " + reqId_upper_bound);
+
+        String method = "RequestQueue.getLastRequestIdInRange";
+        logger.debug(method + ": low " + reqId_low_bound + " high " + reqId_upper_bound);
         if (reqId_low_bound == null || reqId_upper_bound == null || reqId_low_bound.compareTo(reqId_upper_bound) >= 0) {
-            logger.warn("RequestQueue: getLastRequestId: bad upper and lower bound range.");
+            logger.warn(method + ": bad upper and lower bound range.");
             return null;
         }
 
-        String filter = "(" + "requeststate" + "=*" + ")";
+        String filter = null;
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore config = engine.getConfigStore();
+        String csType = null;
+
+        try {
+            csType = config.getString("cs.type");
+        } catch (EBaseException e) { }
+
+        if("KRA".equals(csType))
+            filter = "(&(" + "requeststate" + "=*" + ")(!(realm=*)))";
+        else
+            filter = "(" + "requeststate" + "=*" + ")";
 
         RequestId fromId = new RequestId(reqId_upper_bound);
 
-        logger.debug("RequestQueue: getLastRequestId: filter " + filter + " fromId " + fromId);
+        logger.debug(method + ": filter " + filter + " fromId " + fromId);
         ListEnumeration recList = (ListEnumeration) getPagedRequestsByFilter(fromId, filter, 5 * -1, "requestId");
 
         int size = recList.getSize();
 
-        logger.debug("RequestQueue: getLastRequestId: size   " + size);
+        logger.debug(method + ": size   " + size);
 
         int ltSize = recList.getSizeBeforeJumpTo();
 
-        logger.debug("RequestQueue: getSizeBeforeJumpTo: " + ltSize);
+        logger.debug(method +": " + ltSize);
 
         if (size <= 0) {
-            logger.debug("RequestQueue: getLastRequestId:  request list is empty.");
+            logger.debug(method + ":  request list is empty.");
 
             BigInteger ret = new BigInteger(reqId_low_bound.toString(10));
 
             ret = ret.add(new BigInteger("-1"));
 
-            logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
+            logger.debug(method +": returning " + ret);
             return ret;
         }
 
@@ -296,7 +312,7 @@ public class RequestQueue
 
                 if (((curIdInt.compareTo(reqId_low_bound) == 0) || (curIdInt.compareTo(reqId_low_bound) == 1)) &&
                         ((curIdInt.compareTo(reqId_upper_bound) == 0) || (curIdInt.compareTo(reqId_upper_bound) == -1))) {
-                    logger.debug("RequestQueue: getLastRequestId : returning value " + curIdInt);
+                    logger.debug(method + " : returning value " + curIdInt);
                     return curIdInt;
                 }
 
@@ -308,7 +324,7 @@ public class RequestQueue
 
         ret = ret.add(new BigInteger("-1"));
 
-        logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
+        logger.debug("RequestQueue:getLastRequestIdInRange: returning " + ret);
         return ret;
 
     }

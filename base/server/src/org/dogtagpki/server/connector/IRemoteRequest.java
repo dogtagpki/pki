@@ -75,6 +75,7 @@ public interface IRemoteRequest {
     public static final String CA_ENROLL_publickey = "publickey";
     public static final String CA_ENROLL_subjectdn = "subject";
     public static final String CA_ENROLL_san_num = "req_san_entries";
+    public static final String CA_ENROLL_tokentype = "tokentype";
     public static final String CA_RenewedCertificate = "renewedCertificate";
     public static final String CA_RENEWAL_SerialNum = "serial_num";
     public static final String CA_RENEWAL= "renewal";

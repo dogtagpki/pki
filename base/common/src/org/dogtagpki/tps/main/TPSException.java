@@ -28,7 +28,7 @@ public class TPSException extends EBaseException {
 
     public TPSException(String message) {
         super(message);
-        status = TPSStatus.STATUS_ERROR_CONTACT_ADMIN;
+        status = TPSStatus.STATUS_ERROR_SNAC;
     }
 
     public TPSException(String message, TPSStatus status) {
@@ -38,12 +38,12 @@ public class TPSException extends EBaseException {
 
     public TPSException(Throwable cause) {
         super(cause.getMessage(), cause);
-        status = TPSStatus.STATUS_ERROR_CONTACT_ADMIN;
+        status = TPSStatus.STATUS_ERROR_SNAC;
     }
 
     public TPSException(String message, Throwable cause) {
         super(message, cause);
-        status = TPSStatus.STATUS_ERROR_CONTACT_ADMIN;
+        status = TPSStatus.STATUS_ERROR_SNAC;
     }
 
     public TPSException(String message, TPSStatus status, Throwable cause) {

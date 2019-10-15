@@ -16,11 +16,13 @@ public class ExternalRegAttrs {
     public String ldapAttrNameTokenType;
     public String ldapAttrNameTokenCUID;
     public String ldapAttrNameCertsToRecover;
+    public String ldapAttrNameRegistrationType;
 
     String tokenCUID;
     String tokenType;
     String tokenUserId;
     String tokenMSN;
+    String registrationType;
 
     ArrayList<ExternalRegCertToRecover> certsToRecover;
 
@@ -51,6 +53,10 @@ public class ExternalRegAttrs {
             String RH_Delegation_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." +
                     TPSEngine.CFG_ER_DELEGATION + ".enable";
             isDelegation = configStore.getBoolean(RH_Delegation_Cfg, false);
+
+            configName = "auths.instance." + authId + ".externalReg.registrationTypeAttributeName";
+            logger.debug(method + ": getting config: " + configName);
+            ldapAttrNameRegistrationType = configStore.getString(configName, "registrationtype");
         } catch (EBaseException e) {
             logger.warn("ExternalRegAttrs: unable to obtain certain config values. Default to be used: " + e.getMessage(), e);
         }
@@ -110,6 +116,14 @@ public class ExternalRegAttrs {
 
     public boolean getIsDelegation() {
         return isDelegation;
+    }
+
+    public void setRegistrationType(String regType) {
+        registrationType = regType;
+    }
+
+    public String getRegistrationType() {
+        return registrationType;
     }
 
 }

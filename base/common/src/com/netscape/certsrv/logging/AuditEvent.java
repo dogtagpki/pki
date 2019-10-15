@@ -115,6 +115,10 @@ public class AuditEvent extends LogEvent {
             "LOGGING_SIGNED_AUDIT_TOKEN_OP_REQUEST_6";
     public final static String TOKEN_KEY_CHANGEOVER_REQUIRED =
             "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_REQUIRED_10";
+    public final static String TOKEN_KEY_SANITY_CHECK_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_TOKEN_KEY_SANITY_CHECK_SUCCESS_9";
+    public final static String TOKEN_KEY_SANITY_CHECK_FAILURE =
+            "LOGGING_SIGNED_AUDIT_TOKEN_KEY_SANITY_CHECK_FAILURE_9";
 
     public final static String CONFIG_TOKEN_GENERAL =
             "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_GENERAL_5";

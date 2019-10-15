@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.TPSTokenPolicy;
+import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
@@ -31,11 +32,14 @@ import org.dogtagpki.server.tps.mapping.FilterMappingParams;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.BeginOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
+import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 
 import com.netscape.certsrv.logging.event.TokenPinResetEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 
 public class TPSPinResetProcessor extends TPSProcessor {
 
@@ -50,10 +54,11 @@ public class TPSPinResetProcessor extends TPSProcessor {
     public void process(BeginOpMsg beginMsg) throws TPSException, IOException {
         if (beginMsg == null) {
             throw new TPSException("TPSPinResetProcessor.process: invalid input data, not beginMsg provided.",
-                    TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
         setBeginMessage(beginMsg);
         setCurrentTokenOperation(TPSEngine.PIN_RESET_OP);
+        checkIsExternalReg();
 
         resetPin();
 
@@ -73,6 +78,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         AppletInfo appletInfo = null;
         TokenRecord tokenRecord = null;
+        ExternalRegAttrs erAttrs = null;
 
         statusUpdate(10, "PROGRESS_START_PIN_RESET");
 
@@ -91,6 +97,8 @@ public class TPSPinResetProcessor extends TPSProcessor {
         }
         appletInfo.setAid(getCardManagerAID());
 
+        logger.debug(method + " token cuid: " + appletInfo.getCUIDhexStringPlain());
+
         tokenRecord = isTokenRecordPresent(appletInfo);
 
         if (tokenRecord == null) {
@@ -102,55 +110,168 @@ public class TPSPinResetProcessor extends TPSProcessor {
                     "failure");
             logger.error(logMsg);
             throw new TPSException(logMsg +
-                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+                    TPSStatus.STATUS_ERROR_UNKNOWN_TOKEN);
         }
 
         TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
 
+        fillTokenRecord(tokenRecord, appletInfo);
         session.setTokenRecord(tokenRecord);
 
+        String cuid = appletInfo.getCUIDhexStringPlain();
         String tokenType = null;
 
-        try {
-            String resolverInstName = getResolverInstanceName();
+        if(isExternalReg) {
+            logger.debug(method + " isExternalReg: ON");
 
-            if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
-                FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
-                        appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
-                        appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
-                TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
-                BaseMappingResolver resolverInst =
-                        subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
-                tokenType = resolverInst.getResolvedMapping(mappingParams);
-                setSelectedTokenType(tokenType);
-                logger.debug(method + " resolved tokenType: " + tokenType);
+            // Get authId for external reg attributes (e.g. "ldap1")
+            IConfigStore configStore = engine.getConfigStore();
+            String configName = "externalReg.authId";
+            String authId;
+            try {
+                authId = configStore.getString(configName);
+            } catch (EBaseException e) {
+                logger.debug(method + " Internal Error obtaining mandatory config values. Error: " + e);
+                logMsg = "TPS error getting config values from config store." + e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
-        } catch (TPSException e) {
-            logMsg = e.toString();
-            auditPinResetFailure(session.getIpAddress(), userid, appletInfo, logMsg);
 
-            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
-                    "failure");
+            // Log in with user-provided ID and password
+            TPSAuthenticator userAuth = null;
+            try {
+                logger.debug(method + " isExternalReg: calling requestUserId");
+                userAuth = getAuthentication(authId);
+                processAuthentication(TPSEngine.PIN_RESET_OP, userAuth, cuid, tokenRecord);
+                auditAuthSuccess(userid, currentTokenOperation, appletInfo, authId);
+            } catch (Exception e) {
+                auditAuthFailure(userid, currentTokenOperation, appletInfo,
+                        (userAuth != null) ? userAuth.getID() : null);
+                // all exceptions are considered login failure
+                logger.debug(method + ": authentication exception thrown: " + e);
+                logMsg = "ExternalReg authentication failed, status = STATUS_ERROR_LOGIN";
 
-            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+
+                throw new TPSException(logMsg,
+                        TPSStatus.STATUS_ERROR_LOGIN);
+            }
+
+	    // Get and process external reg attributes
+            try {
+                erAttrs = processExternalRegAttrs(authId);
+            } catch (Exception ee) {
+                logMsg = "after processExternalRegAttrs: " + ee.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+
+            // Check if the external reg parameter registrationType matches currentTokenOperation,
+            // otherwise stop the operation.
+            logger.debug(method + " checking if record registrationtype matches currentTokenOperation.");
+            if(erAttrs.getRegistrationType() != null && erAttrs.getRegistrationType().length() > 0) {
+                if(!erAttrs.getRegistrationType().equalsIgnoreCase(currentTokenOperation)) {
+                    logger.debug(
+                            method + " Error: registrationType " +
+                            erAttrs.getRegistrationType() +
+                            " does not match currentTokenOperation " +
+                            currentTokenOperation);
+                    logMsg = "Improper Use of CRI, Enrollment CRI used for PIN Reset";
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                            "failure");
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_LOGIN);
+                } else {
+                    logger.debug(method + " --> registrationtype matches currentTokenOperation");
+                }
+            } else {
+                logger.debug(method + " --> registrationtype attribute disabled or not found, continuing.");
+            }
+
+            session.setExternalRegAttrs(erAttrs);
+            setExternalRegSelectedTokenType(erAttrs);
+
+            logger.debug(method + " isExternalReg: about to process keySet resolver");
+            /*
+             * Note: externalReg.mappingResolver=none indicates no resolver
+             *    plugin used
+             */
+
+            try {
+                String resolverInstName = getKeySetResolverInstanceName();
+
+                if (!resolverInstName.equals("none") && (selectedKeySet == null)) {
+                    FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
+                            appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
+                            appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
+                    TPSSubsystem subsystem =
+                            (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
+                    BaseMappingResolver resolverInst =
+                            subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
+                    String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet");
+                    setSelectedKeySet(keySet);
+                    logger.debug(method + " resolved keySet: " + keySet);
+                }
+            } catch (TPSException e) {
+                logMsg = e.toString();
+                auditPinResetFailure(session.getIpAddress(), userid, appletInfo, logMsg);
+
+                tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+    
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+	} else {
+            logger.debug(method + " isExternalReg: OFF");
+
+            try {
+                String resolverInstName = getResolverInstanceName();
+
+                if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
+                    FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
+                            appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
+                            appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
+                    TPSSubsystem subsystem =
+                            (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
+                    BaseMappingResolver resolverInst =
+                            subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
+                    tokenType = resolverInst.getResolvedMapping(mappingParams);
+                    setSelectedTokenType(tokenType);
+                    logger.debug(method + " resolved tokenType: " + tokenType);
+                }
+            } catch (TPSException e) {
+                logMsg = e.toString();
+                auditPinResetFailure(session.getIpAddress(), userid, appletInfo, logMsg);
+                tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
         }
 
         statusUpdate(15, "PROGRESS_PIN_RESET_RESOLVE_PROFILE");
 
         checkProfileStateOK();
 
-        checkAndAuthenticateUser(appletInfo, tokenType);
+        if(!isExternalReg)
+            checkAndAuthenticateUser(appletInfo, tokenType);
 
         TokenStatus status = tokenRecord.getTokenStatus();
 
         logger.debug(method + ": Token status: " + status);
+
+        checkInvalidTokenStatus(tokenRecord, ActivityDatabase.OP_PIN_RESET);
 
         if (!status.equals(TokenStatus.ACTIVE)) {
             logMsg = method + "Can not reset the pin of a non active token.";
             auditPinResetFailure(session.getIpAddress(), userid, appletInfo, logMsg);
 
             throw new TPSException(method + " Attempt to reset pin of token not currently active!",
-                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+                    TPSStatus.STATUS_ERROR_NOT_PIN_RESETABLE);
 
         }
 
@@ -162,7 +283,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
             auditPinResetFailure(session.getIpAddress(), userid, appletInfo, logMsg);
 
             throw new TPSException(method + " Attempt to reset pin when token policy disallows it.!",
-                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+                    TPSStatus.STATUS_ERROR_NOT_PIN_RESETABLE);
 
         }
 

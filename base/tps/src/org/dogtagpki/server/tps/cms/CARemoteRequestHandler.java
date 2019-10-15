@@ -95,10 +95,15 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             String keyType)
             throws EBaseException {
 
-        logger.debug("CARemoteRequestHandler: enrollCertificate(): begins.");
+        String method = "CARemoteRequestHandler: enrollCertificate()";
+        logger.debug(method + ": begins.");
         if (pubKeybuf == null || uid == null || cuid == null) {
-            throw new EBaseException("CARemoteRequestHandler: enrollCertificate(): input parameter null.");
+            throw new EBaseException(method + ": input parameter null.");
         }
+
+        // tokenType could be null. If it is, make it an empty string.
+        if(tokenType == null)
+            tokenType = "";
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
@@ -111,21 +116,21 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
         if (conn == null) {
-            throw new EBaseException("CARemoteRequestHandler: enrollCertificate() to connid: " + connid + ": HttpConnector conn null.");
+            throw new EBaseException(method + " to connid: " + connid + ": HttpConnector conn null.");
         }
-        logger.debug("CARemoteRequestHandler: enrollCertificate(): sending request to CA");
+        logger.debug(method + ": sending request to CA");
         String encodedPubKey = null;
         try {
             encodedPubKey = Util.uriEncode(Utils.base64encode(pubKeybuf.toBytesArray(), true));
         } catch (Exception e) {
-            logger.error("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e.getMessage(), e);
-            throw new EBaseException("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e);
+            logger.error(method + ": uriEncode of pubkey failed: " + e.getMessage(), e);
+            throw new EBaseException(method + ": uriEncode of pubkey failed: " + e);
         }
         String sendMsg = null;
         if (subjectdn == null)
-            logger.debug("CARemoteRequestHandler: enrollCertificate():subjectdn null");
+            logger.debug(method + ":subjectdn null");
         if (sanNum == 0)
-            logger.debug("CARemoteRequestHandler: enrollCertificate():sanNum 0");
+            logger.debug(method + ":sanNum 0");
         if (subjectdn == null && sanNum == 0) {
             sendMsg = IRemoteRequest.GET_XML + "=" +
                     true +
@@ -136,9 +141,11 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                     "&" + IRemoteRequest.CA_ENROLL_publickey + "=" +
                     encodedPubKey +
                     "&" + IRemoteRequest.CA_ProfileId + "=" +
-                    profileId;
+                    profileId +
+                    "&" + IRemoteRequest.CA_ENROLL_tokentype + "=" +
+                    tokenType;
         } else {
-            logger.debug("CARemoteRequestHandler: enrollCertificate(): before send() with subjectdn and/or url_SAN_ext");
+            logger.debug(method + ": before send() with subjectdn and/or url_SAN_ext");
             if (subjectdn != null && sanNum == 0) {
                 try {
                     String urlSubjectdn = Util.uriEncode(subjectdn);
@@ -153,11 +160,13 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                             "&" + IRemoteRequest.CA_ProfileId + "=" +
                             profileId +
                             "&" + IRemoteRequest.CA_ENROLL_subjectdn + "=" +
-                            urlSubjectdn;
+                            urlSubjectdn +
+                            "&" + IRemoteRequest.CA_ENROLL_tokentype + "=" +
+                            tokenType;
                 } catch (Exception e) {
-                    logger.error("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e.getMessage(), e);
+                    logger.error(method + ": uriEncode of pubkey failed: " + e.getMessage(), e);
                     throw new EBaseException(
-                            "CARemoteRequestHandler: enrollCertificate(): uriEncode of subjectdn failed: " + e);
+                            method + ": uriEncode of subjectdn failed: " + e);
                 }
             } else if (subjectdn == null && sanNum != 0) {
                 sendMsg = IRemoteRequest.GET_XML + "=" +
@@ -170,6 +179,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                         encodedPubKey +
                         "&" + IRemoteRequest.CA_ProfileId + "=" +
                         profileId +
+                        "&" + IRemoteRequest.CA_ENROLL_tokentype + "=" +
+                        tokenType +
                         "&" + urlSANext;
             } else if (subjectdn != null && sanNum != 0) {
                 try {
@@ -186,26 +197,28 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                             profileId +
                             "&" + IRemoteRequest.CA_ENROLL_subjectdn + "=" +
                             urlSubjectdn +
+                            "&" + IRemoteRequest.CA_ENROLL_tokentype + "=" +
+                            tokenType +
                             "&" + urlSANext;
                 } catch (Exception e) {
-                    logger.error("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e.getMessage(), e);
+                    logger.error(method + ": uriEncode of pubkey failed: " + e.getMessage(), e);
                     throw new EBaseException(
-                            "CARemoteRequestHandler: enrollCertificate(): uriEncode of subjectdn failed: " + e);
+                            method + ": uriEncode of subjectdn failed: " + e);
                 }
             }
         }
-        //logger.debug("CARemoteRequestHandler: enrollCertificate(): sendMsg =" + sendMsg);
+        //logger.debug(method + ": sendMsg =" + sendMsg);
         HttpResponse resp =
                 conn.send("enrollment", sendMsg);
         if (resp == null) {
-            throw new EBaseException("CARemoteRequestHandler: enrollCertificate() to connid: " + connid + ": response null.");
+            throw new EBaseException(method + " to connid: " + connid + ": response null.");
         }
 
         String content = resp.getContent();
 
         if (content != null && !content.equals("")) {
-            //logger.debug("CARemoteRequestHandler: enrollCertificate(): got content = " + content);
-            logger.debug("CARemoteRequestHandler: enrollCertificate(): got content");
+            //logger.debug(method + ": got content = " + content);
+            logger.debug(method + ": got content");
             XMLObject xmlResponse =
                     getXMLparser(content);
 
@@ -221,59 +234,59 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
             if (value == null) {
-                logger.debug("CARemoteRequestHandler: enrollCertificate(): Status not found.");
-                //logger.debug("CARemoteRequestHandler: enrollCertificate(): got content = " + content);
-                logger.debug("CARemoteRequestHandler: enrollCertificate(): got content");
+                logger.debug(method + ": Status not found.");
+                //logger.debug(method + ": got content = " + content);
+                logger.debug(method + ": got content");
             } else {
-                logger.debug("CARemoteRequestHandler: enrollCertificate(): got Status = " + value);
+                logger.debug(method + ": got Status = " + value);
                 ist = Integer.parseInt(value);
             }
             response.put(IRemoteRequest.RESPONSE_STATUS, ist);
 
             value = xmlResponse.getValue("SubjectDN");
             if (value == null) {
-                logger.debug("CARemoteRequestHandler:: enrollCertificate(): response missing name-value pair for: " +
+                logger.debug(method + ": response missing name-value pair for: " +
                         IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN);
             } else {
-                logger.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN = "
+                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN = "
                         + value);
                 response.put(IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN, value);
             }
 
             value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_serial);
             if (value == null) {
-                logger.debug("CARemoteRequestHandler:: enrollCertificate(): response missing name-value pair for: " +
+                logger.debug(method + ": response missing name-value pair for: " +
                         IRemoteRequest.CA_RESPONSE_Certificate_serial);
             } else {
-                logger.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_serial = 0x"
+                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_serial = 0x"
                         + value);
                 response.put(IRemoteRequest.CA_RESPONSE_Certificate_serial, value);
             }
 
             value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_b64);
             if (value == null) {
-                logger.debug("CARemoteRequestHandler:: enrollCertificate(): response missing name-value pair for: " +
+                logger.debug(method + ": response missing name-value pair for: " +
                         IRemoteRequest.CA_RESPONSE_Certificate_b64);
             } else {
                 try {
-                    //logger.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
+                    //logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
                     //        + value);
-                    logger.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_b64");
+                    logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_b64");
                     response.put(IRemoteRequest.CA_RESPONSE_Certificate_b64, value);
                     X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
                     response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
-                    logger.debug("CARemoteRequestHandler: enrollCertificate(): new cert parsed successfully");
+                    logger.debug(method + ": new cert parsed successfully");
                 } catch (Exception e) {
                     // we don't exit.  Keep going.
-                    logger.warn("CARemoteRequestHandler: enrollCertificate(): exception:" + e.getMessage(), e);
+                    logger.warn(method + ": exception:" + e.getMessage(), e);
                 }
             }
 
-            logger.debug("CARemoteRequestHandler: enrollCertificate(): ends.");
+            logger.debug(method + ": ends.");
             return new CAEnrollCertResponse(connid, response);
         } else {
-            logger.error("CARemoteRequestHandler: enrollCertificate(): no response content");
-            throw new EBaseException("CARemoteRequestHandler: enrollCertificate(): no response content.");
+            logger.error(method + ": no response content");
+            throw new EBaseException(method + ": no response content.");
         }
     }
 
@@ -287,9 +300,10 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             BigInteger serialno)
             throws EBaseException {
 
-        logger.debug("CARemoteRequestHandler: retrieveCertificate(): begins.");
+        String method = "CARemoteRequestHandler: retrieveCertificate()";
+        logger.debug(method + ": begins.");
         if (serialno == null) {
-            throw new EBaseException("CARemoteRequestHandler: retrieveCertificate(): input parameter null.");
+            throw new EBaseException(method + ": input parameter null.");
         }
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -307,16 +321,16 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
         if (conn == null) {
-            throw new EBaseException("CARemoteRequestHandler: retrieveCertificate() to connid: " + connid + ": HttpConnector conn null.");
+            throw new EBaseException(method + " to connid: " + connid + ": HttpConnector conn null.");
         }
-        logger.debug("CARemoteRequestHandler: retrieveCertificate(): sending request to CA");
+        logger.debug(method + ": sending request to CA");
         HttpResponse resp =
                 conn.send("getcert",
                         IRemoteRequest.GET_XML + "=" + true +
                                 "&" + IRemoteRequest.CA_GET_CERT_B64CertOnly + "=" + true +
                                 "&" + IRemoteRequest.CA_GET_CERT_SERIAL + "=" + serialno.toString());
         if (resp == null) {
-            throw new EBaseException("CARemoteRequestHandler: retrieveCertificate() to connid: " + connid + ": response null.");
+            throw new EBaseException(method + " to connid: " + connid + ": response null.");
         }
 
         String content = resp.getContent();
@@ -327,9 +341,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             Hashtable<String, Object> response =
                     new Hashtable<String, Object>();
 
-            //logger.debug("CARemoteRequestHandler: retrieveCertificate(): received:" +
+            //logger.debug(method + ": received:" +
             //        content);
-            logger.debug("CARemoteRequestHandler: retrieveCertificate(): content received");
+            logger.debug(method + ": content received");
 
             /**
              * When a value is not found in response, keep going so we know
@@ -338,49 +352,49 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
             if (value == null) {
-                logger.debug("CARemoteRequestHandler: retrieveCertificate(): Status not found.");
-                //logger.debug("CARemoteRequestHandler: retrieveCertificate(): got content = " + content);
-                logger.debug("CARemoteRequestHandler: retrieveCertificate(): got content");
+                logger.debug(method + ": Status not found.");
+                //logger.debug(method + ": got content = " + content);
+                logger.debug(method + ": got content");
             } else {
-                logger.debug("CARemoteRequestHandler: retrieveCertificate(): got Status = " + value);
+                logger.debug(method + ": got Status = " + value);
                 ist = Integer.parseInt(value);
             }
             response.put(IRemoteRequest.RESPONSE_STATUS, ist);
 
             value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_chain_b64);
             if (value == null) {
-                logger.debug("CARemoteRequestHandler:: retrieveCertificate(): response missing name-value pair for: " +
+                logger.debug(method + ": response missing name-value pair for: " +
                         IRemoteRequest.CA_RESPONSE_Certificate_chain_b64);
             } else {
-                //logger.debug("CARemoteRequestHandler:: retrieveCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_chain_b64 = "
+                //logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_chain_b64 = "
                 //        + value);
-                logger.debug("CARemoteRequestHandler:: retrieveCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_chain_b64");
+                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_chain_b64");
                 response.put(IRemoteRequest.CA_RESPONSE_Certificate_chain_b64, value);
                 try {
                     X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
                     response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
-                    logger.debug("CARemoteRequestHandler: retrieveCertificate(): retrieved cert parsed successfully");
+                    logger.debug(method + ": retrieved cert parsed successfully");
                 } catch (CertificateException e) {
                     // we don't exit.  Keep going.
-                    logger.warn("CARemoteRequestHandler: retrieveCertificate(): exception:" + e.getMessage(), e);
+                    logger.warn(method + ": exception:" + e.getMessage(), e);
                 }
             }
 
             value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason);
             if (value == null) {
-                logger.debug("CARemoteRequestHandler:: retrieveCertificate(): response missing name-value pair for: " +
+                logger.debug(method + ": response missing name-value pair for: " +
                         IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason);
             } else {
-                logger.debug("CARemoteRequestHandler:: retrieveCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason = "
+                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason = "
                         + value);
                 response.put(IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason, value);
             }
 
-            logger.debug("CARemoteRequestHandler: retrieveCertificate(): ends.");
+            logger.debug(method + ": ends.");
             return new CARetrieveCertResponse(connid, response);
         } else {
-            logger.error("CARemoteRequestHandler: retrieveCertificate(): no response content");
-            throw new EBaseException("CARemoteRequestHandler: retrieveCertificate(): no response content.");
+            logger.error(method + ": no response content");
+            throw new EBaseException(method + ": no response content.");
         }
     }
 
@@ -396,9 +410,10 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             String keyType)
             throws EBaseException {
 
-        logger.debug("CARemoteRequestHandler: renewCertificate(): begins.");
+        String method = "CARemoteRequestHandler: renewCertificate()";
+        logger.debug(method + ": begins.");
         if (serialno == null) {
-            throw new EBaseException("CARemoteRequestHandler: renewCertificate(): input parameter null.");
+            throw new EBaseException(method + ": input parameter null.");
         }
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -413,9 +428,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
         if (conn == null) {
-            throw new EBaseException("CARemoteRequestHandler: renewCertificate() to connid: " + connid + ": HttpConnector conn null.");
+            throw new EBaseException(method + " to connid: " + connid + ": HttpConnector conn null.");
         }
-        logger.debug("CARemoteRequestHandler: renewCertificate(): sending request to CA");
+        logger.debug(method + ": sending request to CA");
         HttpResponse resp =
                 conn.send("renewal",
                         IRemoteRequest.GET_XML + "=" + true +
@@ -424,7 +439,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                                 "&" + IRemoteRequest.CA_ProfileId + "=" + profileId);
 
         if (resp == null) {
-            throw new EBaseException("CARemoteRequestHandler: renewCertificate() to connid: " + connid + ": response null.");
+            throw new EBaseException(method + " to connid: " + connid + ": response null.");
         }
         String content = resp.getContent();
 
@@ -435,7 +450,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             Hashtable<String, Object> response =
                     new Hashtable<String, Object>();
 
-            logger.debug("CARemoteRequestHandler: renewCertificate(): received:" +
+            logger.debug(method + ": received:" +
                     content);
 
             /**
@@ -447,59 +462,59 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
             if (value == null) {
-                logger.debug("CARemoteRequestHandler: renewCertificate(): Status not found.");
-                //logger.debug("CARemoteRequestHandler: renewCertificate(): got content = " + content);
-                logger.debug("CARemoteRequestHandler: renewCertificate(): got content");
+                logger.debug(method + ": Status not found.");
+                //logger.debug(method + ": got content = " + content);
+                logger.debug(method + ": got content");
             } else {
-                logger.debug("CARemoteRequestHandler: renewCertificate(): got Status = " + value);
+                logger.debug(method + ": got Status = " + value);
                 ist = Integer.parseInt(value);
             }
             response.put(IRemoteRequest.RESPONSE_STATUS, ist);
 
             value = xmlResponse.getValue("SubjectDN");
             if (value == null) {
-                logger.debug("CARemoteRequestHandler:: renewCertificate(): response missing name-value pair for: " +
+                logger.debug(method + ": response missing name-value pair for: " +
                         IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN);
             } else {
-                logger.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN = "
+                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN = "
                         + value);
                 response.put(IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN, value);
             }
 
             value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_serial);
             if (value == null) {
-                logger.debug("CARemoteRequestHandler:: renewCertificate(): response missing name-value pair for: " +
+                logger.debug(method + ": response missing name-value pair for: " +
                         IRemoteRequest.CA_RESPONSE_Certificate_serial);
             } else {
-                logger.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_serial = 0x"
+                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_serial = 0x"
                         + value);
                 response.put(IRemoteRequest.CA_RESPONSE_Certificate_serial, value);
             }
 
             value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_b64);
             if (value == null) {
-                logger.debug("CARemoteRequestHandler:: renewCertificate(): response missing name-value pair for: " +
+                logger.debug(method + ": response missing name-value pair for: " +
                         IRemoteRequest.CA_RESPONSE_Certificate_b64);
             } else {
-                //logger.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
+                //logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
                 //        + value);
-                logger.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_b64");
+                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_b64");
                 response.put(IRemoteRequest.CA_RESPONSE_Certificate_b64, value);
                 try {
                     X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
                     response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
-                    logger.debug("CARemoteRequestHandler: renewCertificate(): new cert parsed successfully");
+                    logger.debug(method + ": new cert parsed successfully");
                 } catch (CertificateException e) {
                     // we don't exit.  Keep going.
-                    logger.warn("CARemoteRequestHandler: renewCertificate(): exception:" + e.getMessage(), e);
+                    logger.warn(method + ": exception:" + e.getMessage(), e);
                 }
             }
 
-            logger.debug("CARemoteRequestHandler: renewCertificate(): ends.");
+            logger.debug(method + ": ends.");
             return new CARenewCertResponse(connid, response);
         } else {
-            logger.error("CARemoteRequestHandler: renewCertificate(): no response content");
-            throw new EBaseException("CARemoteRequestHandler: renewCertificate(): no response content.");
+            logger.error(method + ": no response content");
+            throw new EBaseException(method + ": no response content.");
         }
     }
 
@@ -524,17 +539,19 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             RevocationReason reason)
             throws EBaseException {
 
+        String method = "CARemoteRequestHandler: revokeCertificate";
         String revCAid = connid;
         if (caConn != null) {
-            logger.debug("CARemoteRequestHandler: revokeCertificate(): passed in ca ID: " + caConn);
+            logger.debug(method +": passed in ca ID: " + caConn);
             revCAid = caConn;
         } else {
-            logger.debug("CARemoteRequestHandler: revokeCertificate(): using default ca ID:" + connid);
+            logger.debug(method +": using default ca ID:" + connid);
         }
-        logger.debug("CARemoteRequestHandler: revokeCertificate(): begins on serial#:" + serialno);
+        logger.debug(method +": begins");
         if (serialno == null || reason == null) {
-            throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): input parameter null.");
+            throw new EBaseException(method +": input parameter null.");
         }
+        logger.debug(method +": revoking serial#:" + serialno + "; reason String:" + reason.toString() + "; reason code:" + reason.getCode());
 
         CMSEngine engine = CMS.getCMSEngine();
         // IConfigStore conf = CMS.getConfigStore();
@@ -543,9 +560,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(revCAid);
         if (conn == null) {
-            throw new EBaseException("CARemoteRequestHandler: revokeCertificate() to connid: " + revCAid + ": HttpConnector conn null.");
+            throw new EBaseException(method +" to connid: " + revCAid + ": HttpConnector conn null.");
         }
-        logger.debug("CARemoteRequestHandler: revokeCertificate(): sending request to CA");
+        logger.debug(method +": sending request to CA");
         HttpResponse resp =
                 conn.send("revoke",
                         IRemoteRequest.CA_OP + "=" + IRemoteRequest.CA_REVOKE +
@@ -554,12 +571,12 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                                 IRemoteRequest.CA_REVOKE_SERIAL + "=" + serialno + ")&" +
                                 IRemoteRequest.CA_REVOKE_COUNT + "=1");
         if (resp == null) {
-            throw new EBaseException("CARemoteRequestHandler: revokeCertificate() to connid: " + revCAid + ": response null.");
+            throw new EBaseException(method +" to connid: " + revCAid + ": response null.");
         }
         String content = resp.getContent();
 
         if (content != null && !content.equals("")) {
-            logger.debug("CARemoteRequestHandler: revokeCertificate(): got content = " + content);
+            logger.debug(method +": got content = " + content);
             Hashtable<String, Object> response =
                     parseResponse(content);
 
@@ -570,27 +587,27 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
 
-            logger.debug("CARemoteRequestHandler: revokeCertificate(): got status = " + value);
+            logger.debug(method +": got status = " + value);
             ist = Integer.parseInt(value);
             if (ist != 0) {
-                logger.debug("CARemoteRequestHandler: revokeCertificate(): status not 0, getting error string... ");
+                logger.debug(method +": status not 0, getting error string... ");
                 value = (String) response.get(IRemoteRequest.RESPONSE_ERROR_STRING);
                 if (value == null) {
-                    logger.debug("CARemoteRequestHandler: revokeCertificate(): response missing name-value pair for: " +
+                    logger.debug(method +": response missing name-value pair for: " +
                             IRemoteRequest.RESPONSE_ERROR_STRING);
                 } else {
-                    logger.debug("CARemoteRequestHandler: revokeCertificate(): got IRemoteRequest.RESPONSE_ERROR_STRING = "
+                    logger.debug(method +": got IRemoteRequest.RESPONSE_ERROR_STRING = "
                             + value);
                     response.put(IRemoteRequest.RESPONSE_ERROR_STRING, value);
                 }
             }
             response.put(IRemoteRequest.RESPONSE_STATUS, ist);
 
-            logger.debug("CARemoteRequestHandler: revokeCertificate(): ends.");
+            logger.debug(method +": ends.");
             return new CARevokeCertResponse(revCAid, response);
         } else {
-            logger.error("CARemoteRequestHandler: revokeCertificate(): no response content.");
-            throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): no response content.");
+            logger.error(method +": no response content.");
+            throw new EBaseException(method +": no response content.");
         }
     }
 
@@ -612,16 +629,17 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             String serialno)
             throws EBaseException {
 
+        String method = "CARemoteRequestHandler: unrevokeCertificate()";
         String unrevCAid = connid;
         if (caConn != null) {
-            logger.debug("CARemoteRequestHandler: unrevokeCertificate(): passed in ca ID: " + caConn);
+            logger.debug(method + ": passed in ca ID: " + caConn);
             unrevCAid = caConn;
         } else {
-            logger.debug("CARemoteRequestHandler: unrevokeCertificate(): using default ca ID:" + connid);
+            logger.debug(method + ": using default ca ID:" + connid);
         }
-        logger.debug("CARemoteRequestHandler: unrevokeCertificate(): begins on serial#:" + serialno);
+        logger.debug(method + ": begins on serial#:" + serialno);
         if (serialno == null) {
-            throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate(): input parameter null.");
+            throw new EBaseException(method + ": input parameter null.");
         }
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -629,19 +647,19 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(unrevCAid);
         if (conn == null) {
-            throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate() to connid: " + unrevCAid + ": HttpConnector conn null.");
+            throw new EBaseException(method + " to connid: " + unrevCAid + ": HttpConnector conn null.");
         }
-        logger.debug("CARemoteRequestHandler: unrevokeCertificate(): sending request to CA");
+        logger.debug(method + ": sending request to CA");
         HttpResponse resp =
                 conn.send("unrevoke",
                         IRemoteRequest.CA_UNREVOKE_SERIAL + "=" + serialno);
         if (resp == null) {
-            throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate() to connid: " + unrevCAid + ": response null.");
+            throw new EBaseException(method + " to connid: " + unrevCAid + ": response null.");
         }
         String content = resp.getContent();
 
         if (content != null && !content.equals("")) {
-            logger.debug("CARemoteRequestHandler: unrevokeCertificate(): got content = " + content);
+            logger.debug(method + ": got content = " + content);
             Hashtable<String, Object> response =
                     parseResponse(content);
 
@@ -652,27 +670,27 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
 
-            logger.debug("CARemoteRequestHandler: unrevokeCertificate(): got status = " + value);
+            logger.debug(method + ": got status = " + value);
             ist = Integer.parseInt(value);
             if (ist != 0) {
-                logger.debug("CARemoteRequestHandler: unrevokeCertificate(): status not 0, getting error string... ");
+                logger.debug(method + ": status not 0, getting error string... ");
                 value = (String) response.get(IRemoteRequest.RESPONSE_ERROR_STRING);
                 if (value == null) {
-                    logger.debug("CARemoteRequestHandler: unrevokeCertificate(): response missing name-value pair for: " +
+                    logger.debug(method + ": response missing name-value pair for: " +
                             IRemoteRequest.RESPONSE_ERROR_STRING);
                 } else {
-                    logger.debug("CARemoteRequestHandler: unrevokeCertificate(): got IRemoteRequest.RESPONSE_ERROR_STRING = "
+                    logger.debug(method + ": got IRemoteRequest.RESPONSE_ERROR_STRING = "
                             + value);
                     response.put(IRemoteRequest.RESPONSE_ERROR_STRING, value);
                 }
             }
             response.put(IRemoteRequest.RESPONSE_STATUS, ist);
 
-            logger.debug("CARemoteRequestHandler: unrevokeCertificate(): ends.");
+            logger.debug(method + ": ends.");
             return new CARevokeCertResponse(unrevCAid, response);
         } else {
-            logger.error("CARemoteRequestHandler: unrevokeCertificate(): no response content.");
-            throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate(): no response content.");
+            logger.error(method + ": no response content.");
+            throw new EBaseException(method + ": no response content.");
         }
     }
 
@@ -694,14 +712,16 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             X509CertImpl cert,
             RevocationReason reason)
             throws EBaseException, IOException {
+
+        String method = "CARemoteRequestHandler: revokeFromOtherCA()";
         if (cert == null) {
-            throw new EBaseException("CARemoteRequestHandler: revokeFromOtherCA(): input parameter cert null.");
+            throw new EBaseException(method + ": input parameter cert null.");
         }
         String certAkiString = null;
         try {
             certAkiString = Util.getCertAkiString(cert);
         } catch (Exception e) {
-            throw new EBaseException("CARemoteRequestHandler: revokeFromOtherCA(): getCertAkiString failed:" + e);
+            throw new EBaseException(method + ": getCertAkiString failed:" + e);
         }
         return revokeFromOtherCA(revoke, cert.getSerialNumber().toString(), certAkiString, reason);
     }
@@ -713,7 +733,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             RevocationReason reason)
             throws EBaseException {
 
-        logger.debug("CARemoteRequestHandler: revokeFromOtherCA: begins");
+        String method = "CARemoteRequestHandler: revokeFromOtherCA()";
+        logger.debug(method +": begins");
 
         CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
@@ -723,30 +744,30 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         Exception exception = null;
 
         for (String ca : caList) {
-            logger.debug("CARemoteRequestHandler: revokeFromOtherCA: processing caList: ca id:" + ca);
+            logger.debug(method + ": processing caList: ca id:" + ca);
             try {
                 String caSkiString = getCaSki(ca);
                 if (certAkiString.equals(caSkiString)) {
-                    logger.debug("CARemoteRequestHandler: revokeFromOtherCA() cert AKI and caCert SKI matched");
+                    logger.debug(method + " cert AKI and caCert SKI matched");
                     if (revoke) {
                         return revokeCertificate(ca, serialno, reason);
                     } else {
                         return unrevokeCertificate(ca, serialno);
                     }
                 } else { // not a match then iterate to next ca in list
-                    logger.debug("CARemoteRequestHandler: revokeFromOtherCA() cert AKI and caCert SKI not matched");
+                    logger.debug(method + " cert AKI and caCert SKI not matched");
                 }
             } catch (Exception e) {
                 // any issue then iterate to next ca in list
-                logger.warn("CARemoteRequestHandler: revokeFromOtherCA() issue found, iterate to next ca in list: "
+                logger.warn(method + " issue found, iterate to next ca in list: "
                         + e.getMessage(), e);
                 exception = e;
             }
         }
         if (exception == null) {
-            throw new EBaseException("revokeFromOtherCA: signing ca not found");
+            throw new EBaseException(method + ": signing ca not found");
         } else {
-            throw new EBaseException(exception.toString());
+            throw new EBaseException(method + exception.toString());
         }
     }
 
@@ -762,9 +783,10 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
     private String getCaSki(String conn)
             throws EBaseException, IOException {
 
+        String method = "CARemoteRequestHandler: getCaSki()";
         String caSkiString = null;
         if (conn == null) {
-            throw new EBaseException("CARemoteRequestHandler: getCaSki(): input parameter conn null.");
+            throw new EBaseException(method + ": input parameter conn null.");
         }
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -777,11 +799,11 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
          */
         try {
             String configName = "tps.connector." + conn + ".caSKI";
-            logger.debug("CARemoteRequestHandler: getCaSki() retriving configName=" + configName);
+            logger.debug(method + " retriving configName=" + configName);
             return conf.getString(configName);
         } catch (EPropertyNotFound e) {
             // caSKI not yet calculated; proceed to calculate
-            logger.warn("CARemoteRequestHandler: getCaSki() caSKI not yet calculated:" + e.getMessage(), e);
+            logger.warn(method + " caSKI not yet calculated:" + e.getMessage(), e);
         } catch (EBaseException e) {
             throw e;
         }
@@ -789,7 +811,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         try {
             String caNickname =
                     conf.getString("tps.connector." + conn + ".caNickname");
-            logger.debug("CARemoteRequestHandler: getCaSki() Calculating caSKI...searching for ca cert in nss db:"
+            logger.debug(method + " Calculating caSKI...searching for ca cert in nss db:"
                     + caNickname);
             CryptoManager cm = CryptoManager.getInstance();
             try {
@@ -797,15 +819,15 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 X509CertImpl caCert = new X509CertImpl(c.getEncoded());
                 // now retrieve caSKI and store in config
                 caSkiString = Util.getCertSkiString(caCert);
-                logger.debug("CARemoteRequestHandler: getCaSki() caSKI calculated. Saving it.");
+                logger.debug(method + " caSKI calculated. Saving it.");
                 conf.putString("tps.connector." + conn + ".caSKI", caSkiString);
                 conf.commit(false);
             } catch (IOException e) {
                 throw e;
             } catch (Exception et) {
                 /* ca cert not found in nss db; no match needed */
-                logger.error("CARemoteRequestHandler: getCaSki() caSKI calculation failure." + et.getMessage(), et);
-                throw new EBaseException("CARemoteRequestHandler: getCaSki(): skip match.");
+                logger.error(method + " caSKI calculation failure." + et.getMessage(), et);
+                throw new EBaseException(method + ": skip match.");
             }
         } catch (EBaseException e) {
             /*
@@ -815,11 +837,11 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
              *  now assume default of just using the issuing ca and
              *  no search performed
              */
-            logger.debug("CARemoteRequestHandler: getCaSki() caSKI calculation failure." + e);
+            logger.debug(method + " caSKI calculation failure." + e);
             throw e;
         } catch (NotInitializedException e) {
-            logger.error("CARemoteRequestHandler: getCaSki() caSKI calculation failure." + e.getMessage(), e);
-            throw new EBaseException("CARemoteRequestHandler: getCaSki(): skip match.:" + e);
+            logger.error(method + " caSKI calculation failure." + e.getMessage(), e);
+            throw new EBaseException(method + ": skip match.:" + e);
         }
 
         return caSkiString;
@@ -846,14 +868,16 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             X509CertImpl cert,
             RevocationReason reason)
             throws EBaseException {
+
+        String method = "CARemoteRequestHandler: revokeCertificate()";
         if (cert == null) {
-            throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): input parameter cert null.");
+            throw new EBaseException(method +": input parameter cert null.");
         }
         String certAkiString = null;
         try {
             certAkiString = Util.getCertAkiString(cert);
         } catch (IOException e) {
-            throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): getCertAkiString failed:" + e);
+            throw new EBaseException(method +": getCertAkiString failed:" + e);
         }
 
         return revokeCertificate(revoke, cert.getSerialNumber().toString(), certAkiString, reason);
@@ -866,10 +890,11 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             RevocationReason reason)
             throws EBaseException {
 
-        logger.debug("CARemoteRequestHandler: revokeCertificate() begins with CA discovery");
+        String method = "CARemoteRequestHandler: revokeCertificate()";
+        logger.debug(method +" begins with CA discovery");
 
         if (revoke == true && reason == null) {
-            throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): input parameter reason null.");
+            throw new EBaseException(method +": input parameter reason null.");
         }
 
         boolean skipMatch = false;
@@ -879,7 +904,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         try {
             caSkiString = getCaSki(connid);
         } catch (Exception e) {
-            logger.warn("CARemoteRequestHandler: revokeCertificate() exception: " + e.getMessage(), e);
+            logger.warn(method +" exception: " + e.getMessage(), e);
             skipMatch = true;
         }
         if (!skipMatch) {
@@ -887,16 +912,16 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
              *   if matched, continue,
              *   if not, search in the ca list
              */
-            logger.debug("CARemoteRequestHandler: revokeCertificate() cert AKI and caCert SKI matching begins");
+            logger.debug(method +" cert AKI and caCert SKI matching begins");
             if (certAkiString.equals(caSkiString)) {
-                logger.debug("CARemoteRequestHandler: revokeCertificate() cert AKI and caCert SKI matched");
+                logger.debug(method +" cert AKI and caCert SKI matched");
                 if (revoke) {
                     return revokeCertificate(serialno, reason);
                 } else {
                     return unrevokeCertificate(serialno);
                 }
             } else {
-                logger.debug("CARemoteRequestHandler: revokeCertificate() cert AKI and caCert SKI of the designated issuing ca do not match...calling revokeFromOtherCA to search for another ca");
+                logger.debug(method +" cert AKI and caCert SKI of the designated issuing ca do not match...calling revokeFromOtherCA to search for another ca");
                 return revokeFromOtherCA(revoke, serialno, certAkiString, reason);
             }
         } else {
