@@ -205,7 +205,7 @@ TKS_ComputeAndDisplayKCV( PRUint8    *newKey,
                           PRIntn      KCVLen,
                           PK11SymKey *symKey,
                           char       *keyName,
-                          char       *keyType,
+                          const char *keyType,
                           PRBool      displayKCV,
                           PRUint8    *expectedHexKCV );
 

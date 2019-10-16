@@ -105,7 +105,7 @@ SECU_GetString(int16 error_number)
 }
 
 void 
-SECU_PrintErrMsg(FILE *out, int level, char *progName, char *msg, ...)
+SECU_PrintErrMsg(FILE *out, int level, const char *progName, const char *msg, ...)
 {
     va_list args;
     PRErrorCode err = PORT_GetError();
@@ -125,7 +125,7 @@ SECU_PrintErrMsg(FILE *out, int level, char *progName, char *msg, ...)
 }
 
 void 
-SECU_PrintError(char *progName, char *msg, ...)
+SECU_PrintError(const char *progName, const char *msg, ...)
 {
     va_list args;
     PRErrorCode err = PORT_GetError();
@@ -896,7 +896,7 @@ SECU_StripTagAndLength(SECItem *i)
 ** call SECU_PrintEncodedInteger();
 */
 void
-SECU_PrintInteger(FILE *out, SECItem *i, char *m, int level)
+SECU_PrintInteger(FILE *out, SECItem *i, const char *m, int level)
 {
     int iv;
 
@@ -953,7 +953,7 @@ secu_PrintRawString(FILE *out, SECItem *si, char *m, int level)
 }
 
 void
-SECU_PrintString(FILE *out, SECItem *si, char *m, int level)
+SECU_PrintString(FILE *out, SECItem *si, const char *m, int level)
 {
     SECItem my = *si;
 
@@ -1035,7 +1035,7 @@ SECU_PrintUTCTime(FILE *out, SECItem *t, char *m, int level)
  * afterward; otherwise just print the formatted time string only.
  */
 void
-SECU_PrintGeneralizedTime(FILE *out, SECItem *t, char *m, int level)
+SECU_PrintGeneralizedTime(FILE *out, SECItem *t, const char *m, int level)
 {
     int64 time;
     SECStatus rv;
@@ -1357,7 +1357,7 @@ secu_PrintUniversal(FILE *out, SECItem *i, char *m, int level)
 }
 
 void
-SECU_PrintAny(FILE *out, SECItem *i, char *m, int level)
+SECU_PrintAny(FILE *out, SECItem *i, const char *m, int level)
 {
     if ( i && i->len && i->data ) {
 	switch (i->data[0] & SEC_ASN1_CLASS_MASK) {
@@ -1385,7 +1385,7 @@ secu_PrintValidity(FILE *out, CERTValidity *v, char *m, int level)
 
 /* This function does NOT expect a DER type and length. */
 SECOidTag
-SECU_PrintObjectID(FILE *out, SECItem *oid, char *m, int level)
+SECU_PrintObjectID(FILE *out, const SECItem *oid, const char *m, int level)
 {
     SECOidData *oiddata;
     char *      oidString = NULL;
@@ -1415,7 +1415,7 @@ SECU_PrintObjectID(FILE *out, SECItem *oid, char *m, int level)
 
 /* This function does NOT expect a DER type and length. */
 void
-SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, char *m, int level)
+SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, const char *m, int level)
 {
     SECU_PrintObjectID(out, &a->algorithm, m, level);
 
