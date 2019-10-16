@@ -38,10 +38,3 @@ set_target_properties(${TOKENDB_MODULE}
             mod_tokendb
         PREFIX ""
 )
-
-install(
-    TARGETS
-        ${TOKENDB_MODULE}
-    DESTINATION
-        ${LIB_INSTALL_DIR}/httpd/modules
-)

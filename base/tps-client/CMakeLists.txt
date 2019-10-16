@@ -42,31 +42,6 @@ add_subdirectory(tools)
 # install files
 add_subdirectory(setup)
 
-# install systemd scripts
-install(
-    FILES
-        lib/systemd/system/pki-tpsd.target
-        lib/systemd/system/pki-tpsd@.service
-    DESTINATION
-        ${SYSTEMD_LIB_INSTALL_DIR}
-    PERMISSIONS
-        OWNER_WRITE OWNER_READ
-        GROUP_READ
-        WORLD_READ
-)
-
-# install init script
-install(
-    FILES
-        etc/init.d/pki-tpsd
-    DESTINATION
-        ${SYSCONF_INSTALL_DIR}/rc.d/init.d
-    PERMISSIONS
-        OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ
-        WORLD_EXECUTE WORLD_READ
-)
-
 install(
     FILES
         applets/1.3.44724DDE.ijc
@@ -78,54 +53,9 @@ install(
 
 install(
     DIRECTORY
-        apache/cgi-bin
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
-)
-
-install(
-    DIRECTORY
         apache/conf
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
-)
-
-install(
-    DIRECTORY
-        apache/docroot
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
-)
-
-install(
-    DIRECTORY
-        lib
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
-)
-
-install(
-    FILES
-        scripts/nss_pcache
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/scripts
-    PERMISSIONS
-        OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ
-        WORLD_EXECUTE WORLD_READ
-)
-
-install(
-    FILES
-        scripts/addAgents.ldif
-        scripts/addIndexes.ldif
-        scripts/addTokens.ldif
-        scripts/addVLVIndexes.ldif
-        scripts/database.ldif
-        scripts/schemaMods.ldif
-        scripts/vlvtasks.ldif
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/scripts
 )
 
 # install empty directories

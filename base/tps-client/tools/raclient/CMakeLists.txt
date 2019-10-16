@@ -36,12 +36,3 @@ install(
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}/tps
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/tps
 )
-
-install(
-    FILES
-        enroll.tps
-        format.tps
-        reset_pin.tps
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/tps/samples
-)

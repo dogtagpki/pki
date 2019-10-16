@@ -48,17 +48,6 @@ install(
 )
 
 install(
-    FILES
-        shared/applets/listappletdates
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/shared/applets
-    PERMISSIONS
-        OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ
-        WORLD_EXECUTE WORLD_READ
-)
-
-install(
     DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/
     DESTINATION
