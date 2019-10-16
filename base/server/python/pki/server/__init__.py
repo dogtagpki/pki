@@ -365,8 +365,7 @@ class PKIServer(object):
         logging_properties = os.path.join(Tomcat.CONF_DIR, 'logging.properties')
         self.copy(logging_properties, self.logging_properties, force=force)
 
-        server_xml = os.path.join(Tomcat.CONF_DIR, 'server.xml')
-        self.copy(server_xml, self.server_xml, force=force)
+        self.create_server_xml()
 
         self.copy(Tomcat.TOMCAT_CONF, self.tomcat_conf, force=force)
 
@@ -401,6 +400,47 @@ class PKIServer(object):
 
         with open(self.service_conf, 'a') as f:
             print('CATALINA_BASE="%s"' % self.base_dir, file=f)
+
+    def create_server_xml(self):
+
+        server_xml = os.path.join(Tomcat.CONF_DIR, 'server.xml')
+        document = etree.parse(server_xml, parser)
+
+        self.remove_default_user_database(document)
+
+        with open(self.server_xml, 'wb') as f:
+            document.write(f, pretty_print=True, encoding='utf-8')
+
+    def remove_default_user_database(self, document):
+
+        server = document.getroot()
+
+        logger.info('Searching for GlobalNamingResources')
+        global_naming_resources = server.find('GlobalNamingResources')
+
+        if len(global_naming_resources) == 0:
+            logger.info('GlobalNamingResources not found')
+            return
+
+        logger.info('Searching for Resources under GlobalNamingResources')
+        resources = global_naming_resources.findall('Resource')
+
+        if len(resources) == 0:
+            logger.info('No Resources under GlobalNamingResources')
+            return
+
+        logger.info('Searching for UserDatabase Resource')
+
+        user_database = None
+        for resource in resources:
+            name = resource.get('name')
+            if name == 'UserDatabase':
+                user_database = resource
+                break
+
+        if user_database is not None:
+            logger.info('Removing UserDatabase Resource')
+            global_naming_resources.remove(user_database)
 
     def create_libs(self, force=False):
 

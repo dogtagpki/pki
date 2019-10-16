@@ -37,7 +37,7 @@ class RemoveUserDatabase(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def upgrade_instance(self, instance):
 
-        self.remove_user_database(instance)
+        self.upgrade_server_xml(instance)
 
         logger.info('Removing tomcat-users.xml')
 
@@ -55,46 +55,13 @@ class RemoveUserDatabase(pki.server.upgrade.PKIServerUpgradeScriptlet):
             self.backup(tomcat_users_xsd)
             pki.util.remove(tomcat_users_xsd)
 
-    def remove_user_database(self, instance):
-
-        document = etree.parse(instance.server_xml, self.parser)
-
-        server = document.getroot()
-
-        logger.info('Searching for GlobalNamingResources')
-
-        global_naming_resources = server.find('GlobalNamingResources')
-
-        if len(global_naming_resources) == 0:
-            logger.info('GlobalNamingResources not found')
-            return
-
-        logger.info('Searching for Resources under GlobalNamingResources')
-
-        resources = global_naming_resources.findall('Resource')
-
-        if len(resources) == 0:
-            logger.info('No Resources under GlobalNamingResources')
-            return
-
-        logger.info('Searching for UserDatabase Resource')
-
-        user_database = None
-        for resource in resources:
-            name = resource.get('name')
-            if name == 'UserDatabase':
-                user_database = resource
-                break
-
-        if user_database is None:
-            logger.info('UserDatabase not found')
-            return
-
-        logger.info('Removing UserDatabase Resource')
+    def upgrade_server_xml(self, instance):
 
         self.backup(instance.server_xml)
 
-        global_naming_resources.remove(user_database)
+        document = etree.parse(instance.server_xml, self.parser)
+
+        instance.remove_default_user_database(document)
 
         with open(instance.server_xml, 'wb') as f:
             document.write(f, pretty_print=True, encoding='utf-8')
