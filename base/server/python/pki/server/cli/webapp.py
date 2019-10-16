@@ -195,7 +195,7 @@ class WebappUndeployCLI(pki.cli.CLI):
         super(WebappUndeployCLI, self).__init__('undeploy', 'Undeploy webapp')
 
     def print_help(self):
-        print('Usage: pki-server webapp-undeploy [OPTIONS] [<instance ID>]')
+        print('Usage: pki-server webapp-undeploy [OPTIONS] [<webapp ID>]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
