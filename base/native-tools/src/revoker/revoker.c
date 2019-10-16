@@ -157,7 +157,7 @@ Usage(const char *progName)
 
 
 static void
-errWarn(char * funcString)
+errWarn(const char * funcString)
 {
     PRErrorCode  perr      = PR_GetError();
 
@@ -165,7 +165,7 @@ errWarn(char * funcString)
 }
 
 static void
-errExit(char * funcString)
+errExit(const char * funcString)
 {
     errWarn(funcString);
     exit(1);
