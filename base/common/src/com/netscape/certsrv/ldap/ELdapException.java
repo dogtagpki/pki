@@ -51,8 +51,7 @@ public class ELdapException extends EBaseException {
      * Constructs a Ldap exception.
      *
      * @param msgFormat Resource Key, if key not present, serves as the message.
-     * @param e Common exception.
-     *            <P>
+     * @param cause the cause
      */
     public ELdapException(String msgFormat, Throwable cause) {
         super(msgFormat, cause);

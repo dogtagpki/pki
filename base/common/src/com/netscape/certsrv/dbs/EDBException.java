@@ -51,7 +51,7 @@ public class EDBException extends EBaseException {
      * <P>
      *
      * @param msgFormat message format
-     * @param e exception as parameter
+     * @param cause the cause
      */
     public EDBException(String msgFormat, Throwable cause) {
         super(msgFormat, cause);
