@@ -406,10 +406,35 @@ class PKIServer(object):
         server_xml = os.path.join(Tomcat.CONF_DIR, 'server.xml')
         document = etree.parse(server_xml, parser)
 
+        self.remove_lockout_realm(document)
         self.remove_default_user_database(document)
 
         with open(self.server_xml, 'wb') as f:
             document.write(f, pretty_print=True, encoding='utf-8')
+
+    def remove_lockout_realm(self, document):
+
+        server = document.getroot()
+
+        logger.info('Searching for LockOutRealm')
+        for engine in server.findall('Service/Engine'):
+
+            for realm in engine.findall('Realm'):
+                class_name = realm.get('className')
+
+                if class_name != 'org.apache.catalina.realm.LockOutRealm':
+                    continue
+
+                logger.info('Searching for nested UserDatabase Realm')
+                nested_realm = realm.find('Realm')
+                resource_name = nested_realm.get('resourceName')
+
+                if resource_name != 'UserDatabase':
+                    logger.info('Nested UserDatabase Realm not found')
+                    continue
+
+                logger.info('Removing LockOutRealm')
+                engine.remove(realm)
 
     def remove_default_user_database(self, document):
 

@@ -61,6 +61,7 @@ class RemoveUserDatabase(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         document = etree.parse(instance.server_xml, self.parser)
 
+        instance.remove_lockout_realm(document)
         instance.remove_default_user_database(document)
 
         with open(instance.server_xml, 'wb') as f:
