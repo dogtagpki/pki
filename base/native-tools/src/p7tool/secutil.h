@@ -204,7 +204,7 @@ extern void SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, const char *m,
 				  int level);
 
 /* Print SECItem as hex */
-extern void SECU_PrintAsHex(FILE *out, SECItem *i, const const char *m, int level);
+extern void SECU_PrintAsHex(FILE *out, SECItem *i, const char *m, int level);
 
 /* dump a buffer in hex and ASCII */
 extern void SECU_PrintBuf(FILE *out, const char *msg, const void *vp, int len);
