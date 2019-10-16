@@ -89,11 +89,13 @@ public class UserSubjectNameDefault extends EnrollDefault {
 
                 // oldName is what comes with the CSR
                 CertificateSubjectName oldName = info.getSubjectObj();
+
                 if (oldName != null) {
-                    logger.debug(method + "subjectDN exists in CSR. ");
+                    logger.debug(method + "subjectDN exists in CSR: " + oldName);
                 } else {
                     logger.debug(method + "subjectDN does not exist in CSR. ");
                 }
+
                 if ((useSysEncoding == false) && (oldName != null)) {
                     /* If the canonical string representations of
                      * existing Subject DN and new DN are equal,
@@ -103,13 +105,13 @@ public class UserSubjectNameDefault extends EnrollDefault {
                     if (x500name == null) {
                         logger.debug( method
                             + "new Subject DN is null; "
-                            + "retaining current value."
+                            + "retaining current value: " + oldX500name
                         );
                         x500name = oldX500name;
                     } else if (x500name.toString().equals(oldX500name.toString())) {
                         logger.debug( method
                             + "new Subject DN has same string representation "
-                            + "as current value; retaining current value."
+                            + "as current value; retaining current value: " + oldX500name
                         );
                         x500name = oldX500name;
                     } else {
@@ -123,6 +125,9 @@ public class UserSubjectNameDefault extends EnrollDefault {
                 logger.warn(method + e.getMessage(), e);
                 // failed to build x500 name
             }
+
+            logger.debug(method + "subject: " + x500name);
+
             return x500name;
     }
 
@@ -193,16 +198,20 @@ public class UserSubjectNameDefault extends EnrollDefault {
      */
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
+
         // authenticate the subject name and populate it
         // to the certinfo
         CertificateSubjectName req_sbj = request.getExtDataInCertSubjectName(
                     IEnrollProfile.REQUEST_SUBJECT_NAME);
+        logger.info("UserSubjectNameDefault: Subject: " + req_sbj);
+
         if (req_sbj == null) {
             // failed to retrieve subject name
             logger.error("UserSubjectNameDefault: populate req_sbj is null");
             throw new EProfileException(CMS.getUserMessage(getLocale(request),
                         "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
         }
+
         try {
             info.set(X509CertInfo.SUBJECT, req_sbj);
 
