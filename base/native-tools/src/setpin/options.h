@@ -45,7 +45,7 @@ struct option {
 
 typedef struct option OPTION;
 
-/* OPT_getValue(char *option, char** output)
+/* OPT_getValue(const char *option, char** output)
 
    returns 1 if the specified option exists,
       - value is put into 'output'
@@ -60,7 +60,7 @@ typedef struct option OPTION;
 
 */
 
-extern int OPT_getValue(char *option, char **output);
+extern int OPT_getValue(const char *option, char **output);
 
 /* void OPT_parseOptions(int ac, char **av)
    

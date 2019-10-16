@@ -26,7 +26,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-extern int OPT_getValue(char *option, char **output);
+extern int OPT_getValue(const char *option, char **output);
 extern void exitError(char *errstring);
 extern int errcode;
 
@@ -178,7 +178,7 @@ void getOptions() {
 
 }
 
-int equals(char *s, char *t) {
+int equals(const char *s, const char *t) {
   return !(strcmp(s,t));
 }
 

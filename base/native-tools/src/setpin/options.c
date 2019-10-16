@@ -45,7 +45,7 @@ static OPTION *last_option = NULL;
 static char* OPT_parseArgument(char *arg,char**valid);
 
 
-/* OPT_getValue(char *option, char** output)
+/* OPT_getValue(const char *option, char** output)
 
    returns 1 if the specified option exists,
       - value is put into 'output'
@@ -55,7 +55,7 @@ static char* OPT_parseArgument(char *arg,char**valid);
 */
 
 
-int OPT_getValue(char *option, char **output) {
+int OPT_getValue(const char *option, char **output) {
   OPTION *opt = option_list;
 
   while (opt) {
