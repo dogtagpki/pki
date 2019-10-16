@@ -48,6 +48,7 @@ class NSSCreateCLI(pki.cli.CLI):
         print('Usage: pki-server nss-create [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --no-password                  Without NSS database password.')
         print('      --password <password>          NSS database password.')
         print('      --password-file <path>         NSS database password file.')
         print('      --force                        Force creation.')
@@ -61,7 +62,7 @@ class NSSCreateCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:d:v', [
                 'instance=',
-                'password=', 'password-file=', 'force',
+                'no-password', 'password=', 'password-file=', 'force',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -70,6 +71,7 @@ class NSSCreateCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        no_password = False
         password = None
         password_file = None
         force = False
@@ -77,6 +79,9 @@ class NSSCreateCLI(pki.cli.CLI):
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--no-password':
+                no_password = True
 
             elif o == '--password':
                 password = a
@@ -107,16 +112,24 @@ class NSSCreateCLI(pki.cli.CLI):
         if not instance.is_valid():
             raise Exception('Invalid instance: %s' % instance_name)
 
-        if password_file is not None:
+        instance.load()
+
+        if no_password:
+            pass
+
+        elif password is not None:
+            pass
+
+        elif password_file is not None:
             with open(password_file) as f:
                 password = f.read().splitlines()[0]
 
-        elif password is None:
+        else:
             password = getpass.getpass(prompt='Enter password for NSS database: ')
 
-        instance.load()
+        if password is not None:
+            instance.passwords['internal'] = password
 
-        instance.passwords['internal'] = password
         instance.store_passwords()
 
         instance.create_nssdb(force=force)

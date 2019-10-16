@@ -148,7 +148,7 @@ See also [PKI Server HTTP Connector Cert CLI](https://www.dogtagpki.org/wiki/PKI
 To create NSS database:
 
 ```
-$ pki-server nss-create -i tomcat@pki --password Secret.123
+$ pki-server nss-create -i tomcat@pki --no-password
 ```
 
 See also [NSS Database](https://www.dogtagpki.org/wiki/NSS_Database).

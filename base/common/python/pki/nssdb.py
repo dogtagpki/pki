@@ -231,6 +231,8 @@ class NSSDatabase(object):
 
         if self.internal_password_file:
             cmd.extend(['-f', self.internal_password_file])
+        else:
+            cmd.extend(['--empty-password'])
 
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
