@@ -32,6 +32,7 @@ import org.mozilla.jss.netscape.security.x509.CertificatePolicyInfo;
 import org.mozilla.jss.netscape.security.x509.DisplayText;
 import org.mozilla.jss.netscape.security.x509.NoticeReference;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo;
 import org.mozilla.jss.netscape.security.x509.PolicyQualifiers;
 import org.mozilla.jss.netscape.security.x509.Qualifier;
 import org.mozilla.jss.netscape.security.x509.UserNotice;
@@ -633,77 +634,103 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                 ext, info);
     }
 
-    public CertificatePoliciesExtension createExtension()
-            throws EProfileException {
-        CertificatePoliciesExtension ext = null;
-
+    public CertificatePoliciesExtension createExtension() throws EProfileException {
         try {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
             Vector<CertificatePolicyInfo> certificatePolicies = new Vector<CertificatePolicyInfo>();
+
             int num = getNumPolicies();
-            logger.debug("CertificatePoliciesExtension: createExtension: number of policies=" + num);
+            logger.info("CertificatePoliciesExtension: policies: " + num);
+
             IConfigStore config = getConfigStore();
 
             for (int i = 0; i < num; i++) {
+
                 IConfigStore basesubstore = config.getSubStore("params");
                 IConfigStore substore = basesubstore.getSubStore(CONFIG_PREFIX + i);
                 String enable = substore.getString(CONFIG_POLICY_ENABLE);
 
-                logger.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy " + i + " enable=" + enable);
-                if (enable != null && enable.equals("true")) {
-                    String policyId = substore.getString(CONFIG_POLICY_ID);
-                    CertificatePolicyId cpolicyId = getPolicyId(policyId);
-                    logger.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy "
-                            + i + " policyId=" + policyId);
-                    int qualifierNum = getNumQualifiers();
-                    PolicyQualifiers policyQualifiers = new PolicyQualifiers();
-                    for (int j = 0; j < qualifierNum; j++) {
-                        IConfigStore substore1 = substore.getSubStore(CONFIG_PREFIX1 + j);
-                        String cpsuriEnable = substore1.getString(CONFIG_CPSURI_ENABLE);
-                        String usernoticeEnable = substore1.getString(CONFIG_USERNOTICE_ENABLE);
+                logger.info("CertificatePoliciesExtension: policy #" + i);
+                logger.info("CertificatePoliciesExtension: - enable: " + enable);
 
-                        if (cpsuriEnable != null && cpsuriEnable.equals("true")) {
+                if (enable != null && enable.equals("true")) {
+
+                    String policyId = substore.getString(CONFIG_POLICY_ID);
+                    logger.info("CertificatePoliciesExtension: - policy ID: " + policyId);
+
+                    CertificatePolicyId cpolicyId = getPolicyId(policyId);
+
+                    int qualifierNum = Integer.parseInt(substore.getString(CONFIG_POLICY_QUALIFIERS_NUM, "0"));
+                    logger.info("CertificatePoliciesExtension: - qualifiers: " + qualifierNum);
+
+                    PolicyQualifiers policyQualifiers = new PolicyQualifiers();
+
+                    for (int j = 0; j < qualifierNum; j++) {
+
+                        IConfigStore substore1 = substore.getSubStore(CONFIG_PREFIX1 + j);
+
+                        String cpsuriEnable = substore1.getString(CONFIG_CPSURI_ENABLE, "false");
+                        logger.info("CertificatePoliciesExtension:   - CPS URI enable: " + cpsuriEnable);
+
+                        if (cpsuriEnable.equals("true")) {
+
                             String cpsuri = substore1.getString(CONFIG_CPSURI_VALUE, "");
-                            org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo qualifierInfo = createCPSuri(cpsuri);
-                            if (qualifierInfo != null)
+                            logger.info("CertificatePoliciesExtension:     CPS URI: " + cpsuri);
+
+                            PolicyQualifierInfo qualifierInfo = createCPSuri(cpsuri);
+
+                            if (qualifierInfo != null) {
                                 policyQualifiers.add(qualifierInfo);
-                        } else if (usernoticeEnable != null &&
-                                     usernoticeEnable.equals("true")) {
+                            }
+
+                            continue;
+                        }
+
+                        String usernoticeEnable = substore1.getString(CONFIG_USERNOTICE_ENABLE, "false");
+                        logger.info("CertificatePoliciesExtension:   - user notice enable: " + cpsuriEnable);
+
+                        if (usernoticeEnable.equals("true")) {
 
                             String orgName = substore1.getString(CONFIG_USERNOTICE_ORG);
+                            logger.info("CertificatePoliciesExtension:     organization: " + orgName);
+
                             String noticenumbers = substore1.getString(CONFIG_USERNOTICE_NUMBERS);
                             String explicitText = substore1.getString(CONFIG_USERNOTICE_TEXT);
-                            org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(orgName,
+
+                            PolicyQualifierInfo qualifierInfo = createUserNotice(orgName,
                                     explicitText, noticenumbers);
-                            if (qualifierInfo != null)
+
+                            if (qualifierInfo != null) {
                                 policyQualifiers.add(qualifierInfo);
+                            }
+
+                            continue;
                         }
                     }
 
-                    CertificatePolicyInfo info = null;
+                    CertificatePolicyInfo info;
                     if (policyQualifiers.size() <= 0) {
-                        info =
-                                new CertificatePolicyInfo(cpolicyId);
+                        info = new CertificatePolicyInfo(cpolicyId);
                     } else {
-                        info =
-                                new CertificatePolicyInfo(cpolicyId, policyQualifiers);
+                        info = new CertificatePolicyInfo(cpolicyId, policyQualifiers);
                     }
 
-                    if (info != null)
-                        certificatePolicies.addElement(info);
+                    certificatePolicies.addElement(info);
                 }
             }
 
-            ext = new CertificatePoliciesExtension(critical, certificatePolicies);
+            return new CertificatePoliciesExtension(critical, certificatePolicies);
+
         } catch (EPropertyException e) {
             throw new EProfileException(e.toString());
+
         } catch (EProfileException e) {
             throw e;
-        } catch (Exception e) {
-            logger.warn("CertificatePoliciesExtDefault: createExtension " + e.getMessage(), e);
-        }
 
-        return ext;
+        } catch (Exception e) {
+            logger.error("Unable to create CertificatePoliciesExtension: " + e.getMessage(), e);
+            throw new EProfileException("Unable to create CertificatePoliciesExtension: " + e.getMessage(), e);
+        }
     }
 
     private CertificatePolicyId getPolicyId(String policyId) throws EPropertyException {
