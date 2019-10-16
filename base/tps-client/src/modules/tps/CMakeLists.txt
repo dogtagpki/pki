@@ -42,10 +42,3 @@ set_target_properties(${TPS_MODULE}
             mod_tps
         PREFIX ""
 )
-
-install(
-    TARGETS
-        ${TPS_MODULE}
-    DESTINATION
-        ${LIB_INSTALL_DIR}/httpd/modules
-)

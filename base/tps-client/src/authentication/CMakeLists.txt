@@ -43,9 +43,3 @@ set_target_properties(${LDAPAUTH_SHARED_LIBRARY}
         OUTPUT_NAME
             ldapauth
 )
-
-install(
-    TARGETS
-        ${LDAPAUTH_SHARED_LIBRARY}
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/tps
-)
