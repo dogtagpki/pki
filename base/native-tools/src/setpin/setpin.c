@@ -64,10 +64,10 @@ typedef struct RNGContextStr RNGContext;
 #include <secoidt.h>
 #include <nss.h>
 
-extern int equals(char *s, char *t);
+extern int equals(const char *s, const char *t);
 extern SECStatus PK11_HashBuf(SECOidTag hashAlg,
                               unsigned char *out,
-                              unsigned char *in,
+                              const unsigned char *in,
                               int32 len);
 extern SECStatus PK11_GenerateRandom(unsigned char *data,
                                      int len);
@@ -75,8 +75,8 @@ extern SECStatus PK11_GenerateRandom(unsigned char *data,
 /* use NSS's new generic hash api */
 #define USE_NSS_GEN_HASH
 
-void exitError(char *errstring);
-void exitLDAPError(char *errstring);
+void exitError(const char *errstring);
+void exitLDAPError(const char *errstring);
 void doLDAPBind();
 void doLDAPSearch(LDAPMessage **result);
 void doLDAPUnbind();
@@ -109,7 +109,7 @@ RNGContext *rngc = NULL;
 #define strcasecmp stricmp
 #endif
 
-void exitError(char *errstring) {
+void exitError(const char *errstring) {
     char *errbuf;
   
     errbuf = malloc(strlen(errstring)+strlen(programName)+10);
@@ -120,7 +120,7 @@ void exitError(char *errstring) {
 }
 
 
-void exitLDAPError(char *errstring) {
+void exitLDAPError(const char *errstring) {
     char *ldaperr;
     char newerror[500];
     int err;
