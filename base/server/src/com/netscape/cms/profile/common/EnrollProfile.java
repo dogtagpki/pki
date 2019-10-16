@@ -2297,8 +2297,10 @@ public abstract class EnrollProfile extends BasicProfile
 
     public void fillPKCS10(Locale locale, PKCS10 pkcs10, X509CertInfo info, IRequest req)
             throws EProfileException, ECMCUnsupportedExtException {
+
         String method = "EnrollProfile: fillPKCS10: ";
-        logger.debug(method + "begins");
+        logger.info(method + "Filling PKCS #10 data");
+
         X509Key key = pkcs10.getSubjectPublicKeyInfo();
 
         try {
@@ -2307,16 +2309,19 @@ public abstract class EnrollProfile extends BasicProfile
             certKey.encode(certKeyOut);
             req.setExtData(IEnrollProfile.REQUEST_KEY, certKeyOut.toByteArray());
 
+            X500Name subjectName = pkcs10.getSubjectName();
             req.setExtData(EnrollProfile.REQUEST_SUBJECT_NAME,
-                    new CertificateSubjectName(pkcs10.getSubjectName()));
+                    new CertificateSubjectName(subjectName));
+
             try {
-                String subjectCN = pkcs10.getSubjectName().getCommonName();
+                String subjectCN = subjectName.getCommonName();
                 if (subjectCN == null)
                     subjectCN = "";
                 req.setExtData(REQUEST_SUBJECT_NAME + ".cn", subjectCN);
             } catch (Exception ee) {
                 req.setExtData(REQUEST_SUBJECT_NAME + ".cn", "");
             }
+
             try {
                 String subjectUID = pkcs10.getSubjectName().getUserID();
                 if (subjectUID == null)
@@ -2330,6 +2335,13 @@ public abstract class EnrollProfile extends BasicProfile
 
             PKCS10Attributes p10Attrs = pkcs10.getAttributes();
             if (p10Attrs != null) {
+                logger.info(method + "Attributes:");
+                for (Enumeration<PKCS10Attribute> e = p10Attrs.getElements();
+                        e.hasMoreElements(); ) {
+                    PKCS10Attribute p10Attr = e.nextElement();
+                    logger.info(method + "- " + p10Attr.getAttributeId());
+                }
+
                 PKCS10Attribute p10Attr = p10Attrs.getAttribute(CertificateExtensions.NAME);
                 if (p10Attr != null && p10Attr.getAttributeId().equals(
                         PKCS9Attribute.EXTENSION_REQUEST_OID)) {
