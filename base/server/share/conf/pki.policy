@@ -13,21 +13,11 @@
 grant codeBase "file:${catalina.home}/bin/tomcat-juli.jar" {
         permission java.lang.RuntimePermission "accessClassInPackage.sun.util.logging.resources";
 
-        // Allow Tomcat JULI to read subsystem logging configuration.
-        permission java.io.FilePermission "/usr/share/pki/server/webapps/pki/WEB-INF/classes/logging.properties", "read";
-        permission java.io.FilePermission "/usr/share/pki/ca/webapps/ca/WEB-INF/classes/logging.properties", "read";
-        permission java.io.FilePermission "/usr/share/pki/kra/webapps/kra/WEB-INF/classes/logging.properties", "read";
-        permission java.io.FilePermission "/usr/share/pki/ocsp/webapps/ocsp/WEB-INF/classes/logging.properties", "read";
-        permission java.io.FilePermission "/usr/share/pki/tks/webapps/tks/WEB-INF/classes/logging.properties", "read";
-        permission java.io.FilePermission "/usr/share/pki/tps/webapps/tps/WEB-INF/classes/logging.properties", "read";
+        // Allow Tomcat JULI to read subsystem logging.properties files.
+        permission java.io.FilePermission "/usr/share/pki/-", "read";
 
         // Allow Tomcat JULI to generate subsystem log files.
-        permission java.io.FilePermission "${catalina.base}/logs/pki/-", "read,write";
-        permission java.io.FilePermission "${catalina.base}/logs/ca/-", "read,write";
-        permission java.io.FilePermission "${catalina.base}/logs/kra/-", "read,write";
-        permission java.io.FilePermission "${catalina.base}/logs/ocsp/-", "read,write";
-        permission java.io.FilePermission "${catalina.base}/logs/tks/-", "read,write";
-        permission java.io.FilePermission "${catalina.base}/logs/tps/-", "read,write";
+        permission java.io.FilePermission "${catalina.base}/logs/-", "read,write";
 };
 
 grant codeBase "file:${catalina.base}/bin/bootstrap.jar" {
@@ -90,26 +80,6 @@ grant codeBase "file:/usr/share/java/pki/-" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:${catalina.base}/webapps/pki/-" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:${catalina.base}/webapps/ca/-" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:${catalina.base}/webapps/kra/-" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:${catalina.base}/webapps/ocsp/-" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:${catalina.base}/webapps/tks/-" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:${catalina.base}/webapps/ROOT/-" {
+grant codeBase "file:${catalina.base}/webapps/-" {
         permission java.security.AllPermission;
 };
