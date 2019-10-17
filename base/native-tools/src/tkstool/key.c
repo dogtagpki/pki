@@ -818,7 +818,7 @@ done:
 
 
 SECStatus
-TKS_GenerateSessionKeyShare( char    *sessionKeyShareName,
+TKS_GenerateSessionKeyShare( const char *sessionKeyShareName,
                              SECItem *sessionKeyShare )
 {
     PRIntn       count                 = 0;
@@ -969,7 +969,7 @@ destroyHexSessionKeyShare:
 }
 
 SECStatus
-TKS_InputSessionKeyShare( char    *sessionKeyShareName,
+TKS_InputSessionKeyShare( const char *sessionKeyShareName,
                           SECItem *sessionKeyShare )
 {
     int          rv                    = 0;

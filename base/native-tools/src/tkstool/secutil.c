@@ -921,7 +921,7 @@ SECU_PrintInteger(FILE *out, SECItem *i, const char *m, int level)
 }
 
 static void
-secu_PrintRawString(FILE *out, SECItem *si, char *m, int level)
+secu_PrintRawString(FILE *out, SECItem *si, const char *m, int level)
 {
     int column;
     unsigned int i;
@@ -1054,7 +1054,7 @@ SECU_PrintGeneralizedTime(FILE *out, SECItem *t, const char *m, int level)
  * afterward; otherwise just print the formatted time string only.
  */
 void
-SECU_PrintTimeChoice(FILE *out, SECItem *t, char *m, int level)
+SECU_PrintTimeChoice(FILE *out, SECItem *t, const char *m, int level)
 {
     switch (t->type) {
         case siUTCTime:
@@ -1187,7 +1187,7 @@ secu_PrintBitString(FILE *out, SECItem *i, char *m, int level)
 
 /* in a decoded bit string, the len member is a bit length. */
 static void
-secu_PrintDecodedBitString(FILE *out, SECItem *i, char *m, int level)
+secu_PrintDecodedBitString(FILE *out, SECItem *i, const char *m, int level)
 {
     int unused_bits;
     SECItem tmp = *i;
@@ -1757,7 +1757,7 @@ loser:
 
 
 static void
-secu_PrintGeneralName(FILE *out, CERTGeneralName *gname, char *msg, int level) 
+secu_PrintGeneralName(FILE *out, CERTGeneralName *gname, const char *msg, int level) 
 {
     char label[40];
     if (msg && msg[0]) {
@@ -1989,7 +1989,7 @@ secu_PrintAuthorityInfoAcess(FILE *out, SECItem *value, char *msg, int level)
 
 void
 SECU_PrintExtensions(FILE *out, CERTCertExtension **extensions,
-		     char *msg, int level)
+		     const char *msg, int level)
 {
     SECOidTag oidTag;
     
@@ -2119,7 +2119,7 @@ SECU_PrintExtensions(FILE *out, CERTCertExtension **extensions,
 
 
 void
-SECU_PrintName(FILE *out, CERTName *name, char *msg, int level)
+SECU_PrintName(FILE *out, CERTName *name, const char *msg, int level)
 {
     char *nameStr;
     char *str;
@@ -2469,7 +2469,7 @@ secu_PrintPKCS7ContentInfo(FILE *, SEC_PKCS7ContentInfo *, char *, int);
 */
 static void
 secu_PrintPKCS7EncContent(FILE *out, SEC_PKCS7EncryptedContentInfo *src, 
-			  char *m, int level)
+			  const char *m, int level)
 {
     if (src == NULL) {
         fprintf(out,"Invalid input to secu_PrintPKCS7EncContent!\n");

@@ -210,11 +210,11 @@ TKS_ComputeAndDisplayKCV( PRUint8    *newKey,
                           PRUint8    *expectedHexKCV );
 
 SECStatus
-TKS_GenerateSessionKeyShare( char    *sessionKeyShareName,
+TKS_GenerateSessionKeyShare( const char *sessionKeyShareName,
                              SECItem *sessionKeyShare );
 
 SECStatus
-TKS_InputSessionKeyShare( char    *sessionKeyShareName,
+TKS_InputSessionKeyShare( const char *sessionKeyShareName,
                           SECItem *sessionKeyShare );
 
 PK11SymKey *

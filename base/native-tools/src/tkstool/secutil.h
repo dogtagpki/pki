@@ -229,7 +229,7 @@ extern void SECU_PrintGeneralizedTime(FILE *out, SECItem *t, const char *m,
  * "m" is not NULL, do indent formatting based on "level" and add a newline
  * afterward; otherwise just print the formatted time string only.
  */
-extern void SECU_PrintTimeChoice(FILE *out, SECItem *t, char *m, int level);
+extern void SECU_PrintTimeChoice(FILE *out, SECItem *t, const char *m, int level);
 
 /* callback for listing certs through pkcs11 */
 extern SECStatus SECU_PrintCertNickname(CERTCertListNode* cert, void *data);
@@ -288,9 +288,9 @@ extern void SECU_PrintPrivKeyUsagePeriodExtension(FILE *out, SECItem *value,
                                  char *msg, int level);
 
 extern void SECU_PrintExtensions(FILE *out, CERTCertExtension **extensions,
-				 char *msg, int level);
+				 const char *msg, int level);
 
-extern void SECU_PrintName(FILE *out, CERTName *name, char *msg, int level);
+extern void SECU_PrintName(FILE *out, CERTName *name, const char *msg, int level);
 
 #ifdef SECU_GetPassword
 /* Convert a High public Key to a Low public Key */
