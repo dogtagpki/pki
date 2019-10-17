@@ -4,6 +4,7 @@ javac(pki-acme-classes
     SOURCES
         *.java
     CLASSPATH
+        ${SERVLET_JAR}
         ${JAXRS_API_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR}
