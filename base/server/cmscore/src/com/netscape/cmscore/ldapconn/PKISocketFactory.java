@@ -85,12 +85,12 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
             if(!external){
                 IConfigStore cs = CMS.getConfigStore();
                 keepAlive = cs.getBoolean("tcp.keepAlive", true);
+                sockListener = new PKIClientSocketListener();
             } else {
                 keepAlive = true;
             }
 
             log(Level.INFO, "TCP Keep-Alive: " + keepAlive, null);
-            sockListener = new PKIClientSocketListener();
 
         } catch (Exception e) {
             log(Level.SEVERE, null, e);
@@ -162,23 +162,26 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
             s.setKeepAlive(keepAlive);
 
         } catch (Exception e) {
-            // for auditing
-            String localIP = "localhost";
-            try {
-                localIP = InetAddress.getLocalHost().getHostAddress();
-            } catch (UnknownHostException e2) {
-                // default to "localhost";
-            }
-            SignedAuditEvent auditEvent;
-            auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
+            if (!external) {
+                // for auditing
+                String localIP = "localhost";
+                try {
+                    localIP = InetAddress.getLocalHost().getHostAddress();
+                } catch (UnknownHostException e2) {
+                    // default to "localhost";
+                }
+
+                SignedAuditEvent auditEvent;
+                auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
                         localIP,
                         host,
                         Integer.toString(port),
                         "SYSTEM",
                         "connect:" +e.toString());
-            signedAuditLogger.log(auditEvent);
+                signedAuditLogger.log(auditEvent);
+            }
+            log(Level.SEVERE, null, e);
 
-            CMS.debug(e);
             if (s != null) {
                 try {
                     s.close();
