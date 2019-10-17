@@ -6,6 +6,9 @@ javac(pki-acme-classes
     CLASSPATH
         ${JAXRS_API_JAR}
         ${SLF4J_API_JAR}
+        ${COMMONS_CODEC_JAR}
+        ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR}
+        ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
