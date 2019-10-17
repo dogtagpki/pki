@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Copyright Red Hat, Inc.
+
+SPDX-License-Identifier: GPL-2.0-or-later
+-->
+<web-app>
+
+    <display-name>ACME Service</display-name>
+
+    <listener>
+        <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+    </listener>
+
+    <context-param>
+        <param-name>resteasy.resource.method-interceptors</param-name>
+        <param-value>org.jboss.resteasy.core.ResourceMethodSecurityInterceptor</param-value>
+    </context-param>
+
+    <servlet>
+        <servlet-name>Resteasy</servlet-name>
+        <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+        <init-param>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>org.dogtagpki.acme.server.ACMEApplication</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Resteasy</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+</web-app>

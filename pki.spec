@@ -1517,6 +1517,8 @@ fi
 %{_mandir}/man8/pki-server-tps.8.gz
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
+%{_datadir}/pki/acme/
+%{_javadir}/pki/pki-acme.jar
 
 # with server
 %endif
