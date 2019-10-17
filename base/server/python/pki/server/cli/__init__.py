@@ -27,6 +27,7 @@ import sys
 
 import pki.cli
 import pki.server
+import pki.server.cli.acme
 import pki.server.cli.audit
 import pki.server.cli.banner
 import pki.server.cli.ca
@@ -84,6 +85,7 @@ class PKIServerCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.ocsp.OCSPCLI())
         self.add_module(pki.server.cli.tks.TKSCLI())
         self.add_module(pki.server.cli.tps.TPSCLI())
+        self.add_module(pki.server.cli.acme.ACMECLI())
 
         self.add_module(pki.server.cli.banner.BannerCLI())
         self.add_module(pki.server.cli.db.DBCLI())

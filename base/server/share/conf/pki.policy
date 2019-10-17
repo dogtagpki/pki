@@ -13,7 +13,7 @@
 grant codeBase "file:${catalina.home}/bin/tomcat-juli.jar" {
         permission java.lang.RuntimePermission "accessClassInPackage.sun.util.logging.resources";
 
-        // Allow Tomcat JULI to read subsystem logging.properties files.
+        // Allow Tomcat JULI to read shared PKI files including logging.properties.
         permission java.io.FilePermission "/usr/share/pki/-", "read";
 
         // Allow Tomcat JULI to generate subsystem log files.

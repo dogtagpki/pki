@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+Copyright Red Hat, Inc.
+
+SPDX-License-Identifier: GPL-2.0-or-later
+-->
+<Context docBase="/usr/share/pki/acme/webapps/acme">
+    <Resources allowLinking="true" />
+</Context>
