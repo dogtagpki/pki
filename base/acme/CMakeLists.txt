@@ -13,6 +13,14 @@ add_custom_command(
     COMMAND ln -sf /usr/share/java/pki/pki-acme.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-acme.jar
 )
 
+# install configuration files
+install(
+    DIRECTORY
+        conf/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/acme/conf/
+)
+
 # install deployment descriptor
 install(
     DIRECTORY
