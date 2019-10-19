@@ -1,0 +1,8 @@
+{
+    "termsOfService": "https://www.dogtagpki.org/wiki/PKI_ACME_Service",
+    "website": "https://www.dogtagpki.org",
+    "caaIdentities": [
+        "dogtagpki.org"
+    ],
+    "externalAccountRequired": "false"
+}
