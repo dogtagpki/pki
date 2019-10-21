@@ -207,7 +207,7 @@ secu_PrintUserNoticeQualifier(FILE *out, SECItem * qualifierValue,
 
 static SECStatus
 secu_PrintPolicyQualifier(FILE *out,CERTPolicyQualifier *policyQualifier,
-			  char *msg,int level)
+			  const char *msg,int level)
 {
    SECStatus rv;
    SECItem * qualifierValue = &policyQualifier->qualifierValue;
@@ -233,7 +233,7 @@ secu_PrintPolicyQualifier(FILE *out,CERTPolicyQualifier *policyQualifier,
 }
 
 static SECStatus
-secu_PrintPolicyInfo(FILE *out,CERTPolicyInfo *policyInfo,char *msg,int level)
+secu_PrintPolicyInfo(FILE *out,CERTPolicyInfo *policyInfo,const char *msg,int level)
 {
    CERTPolicyQualifier **policyQualifiers;
 
@@ -248,7 +248,7 @@ secu_PrintPolicyInfo(FILE *out,CERTPolicyInfo *policyInfo,char *msg,int level)
 }
 
 void
-SECU_PrintPolicy(FILE *out, SECItem *value, char *msg, int level)
+SECU_PrintPolicy(FILE *out, SECItem *value, const char *msg, int level)
 {
    CERTCertificatePolicies *policies = NULL;
    CERTPolicyInfo **policyInfos;

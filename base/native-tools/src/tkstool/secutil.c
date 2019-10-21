@@ -1128,7 +1128,7 @@ SECU_PrintSet(FILE *out, SECItem *t, char *m, int level)
 }
 
 static void
-secu_PrintContextSpecific(FILE *out, SECItem *i, char *m, int level)
+secu_PrintContextSpecific(FILE *out, SECItem *i, const char *m, int level)
 {
     int type        = i->data[0] & SEC_ASN1_TAGNUM_MASK;
     int constructed = i->data[0] & SEC_ASN1_CONSTRUCTED;
@@ -1469,7 +1469,7 @@ secu_PrintAttribute(FILE *out, SEC_PKCS7Attribute *attr, char *m, int level)
 }
 
 static void
-secu_PrintRSAPublicKey(FILE *out, SECKEYPublicKey *pk, char *m, int level)
+secu_PrintRSAPublicKey(FILE *out, SECKEYPublicKey *pk, const char *m, int level)
 {
 
     SECU_Indent(out, level); fprintf(out, "%s:\n", m);
@@ -1603,7 +1603,7 @@ PrintExtKeyUsageExtension  (FILE *out, SECItem *value, char *msg, int level)
 }
 
 static SECStatus
-secu_PrintBasicConstraints(FILE *out, SECItem *value, char *msg, int level) {
+secu_PrintBasicConstraints(FILE *out, SECItem *value, const char *msg, int level) {
     CERTBasicConstraints constraints;
     SECStatus rv;
 
@@ -1638,7 +1638,7 @@ static const char * const nsTypeBits[] = {
 
 /* NSCertType is merely a bit string whose bits are displayed symbolically */
 static SECStatus
-secu_PrintNSCertType(FILE *out, SECItem *value, char *msg, int level) 
+secu_PrintNSCertType(FILE *out, SECItem *value, const char *msg, int level)
 {
     int     unused;
     int     NS_Type;
@@ -2210,7 +2210,7 @@ SECU_PrintCertNickname(CERTCertListNode *node, void *data)
 }
 
 int
-SECU_DecodeAndPrintExtensions(FILE *out, SECItem *any, char *m, int level)
+SECU_DecodeAndPrintExtensions(FILE *out, SECItem *any, const char *m, int level)
 {
     CERTCertExtension **extensions = NULL;
     PRArenaPool *arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
@@ -2274,7 +2274,7 @@ SECU_PrintCertAttribute(FILE *out, CERTAttribute *attr, char *m, int level)
 }
 
 int
-SECU_PrintCertAttributes(FILE *out, CERTAttribute **attrs, char *m, int level)
+SECU_PrintCertAttributes(FILE *out, CERTAttribute **attrs, const char *m, int level)
 {
     int rv = 0;
     while (attrs[0]) {
@@ -2461,7 +2461,7 @@ SECU_PrintFingerprints(FILE *out, SECItem *derCert, char *m, int level)
 
 /* forward declaration */
 static int
-secu_PrintPKCS7ContentInfo(FILE *, SEC_PKCS7ContentInfo *, char *, int);
+secu_PrintPKCS7ContentInfo(FILE *, SEC_PKCS7ContentInfo *, const char *, int);
 
 /*
 ** secu_PrintPKCS7EncContent
@@ -2863,7 +2863,7 @@ secu_PrintPKCS7Digested(FILE *out, SEC_PKCS7DigestedData *src,
 */
 static int
 secu_PrintPKCS7ContentInfo(FILE *out, SEC_PKCS7ContentInfo *src,
-			   char *m, int level)
+			   const char *m, int level)
 {
     const char *desc;
     SECOidTag kind;

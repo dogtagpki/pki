@@ -120,7 +120,7 @@ extern PRBool SEC_BlindCheckPassword(char *password);
 ** First prompt with "msg" on "out", then read the password from "in".
 ** The password is then checked using "chkpw".
 */
-extern char *SEC_GetPassword(FILE *in, FILE *out, char *msg,
+extern char *SEC_GetPassword(FILE *in, FILE *out, const char *msg,
 				      PRBool (*chkpw)(char *));
 
 char *SECU_FilePasswd(PK11SlotInfo *slot, PRBool retry, void *arg);
@@ -283,7 +283,7 @@ SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, char *m, int level);
 extern void SECU_PrintString(FILE *out, SECItem *si, const char *m, int level);
 extern void SECU_PrintAny(FILE *out, SECItem *i, const char *m, int level);
 
-extern void SECU_PrintPolicy(FILE *out, SECItem *value, char *msg, int level);
+extern void SECU_PrintPolicy(FILE *out, SECItem *value, const char *msg, int level);
 extern void SECU_PrintPrivKeyUsagePeriodExtension(FILE *out, SECItem *value,
                                  char *msg, int level);
 
