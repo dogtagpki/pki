@@ -157,5 +157,4 @@ install(
 )
 
 add_subdirectory(authentication)
-add_subdirectory(modules)
 
