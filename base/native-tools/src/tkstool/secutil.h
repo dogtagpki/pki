@@ -214,7 +214,7 @@ extern void SECU_PrintBuf(FILE *out, const char *msg, const void *vp, int len);
  * do indent formatting based on "level" and add a newline afterward;
  * otherwise just print the formatted time string only.
  */
-extern void SECU_PrintUTCTime(FILE *out, SECItem *t, char *m, int level);
+extern void SECU_PrintUTCTime(FILE *out, SECItem *t, const char *m, int level);
 
 /*
  * Format and print the Generalized Time "t".  If the tag message "m"

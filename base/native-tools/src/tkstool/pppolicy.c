@@ -178,7 +178,7 @@ itemToString(SECItem *item)
 
 static SECStatus
 secu_PrintUserNoticeQualifier(FILE *out, SECItem * qualifierValue,
-                              char *msg, int level)
+                              const char *msg, int level)
 {
     CERTUserNotice *userNotice = NULL;
     if (qualifierValue)

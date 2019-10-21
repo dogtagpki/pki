@@ -1017,7 +1017,7 @@ secu_PrintTime(FILE *out, int64 time, const char *m, int level)
  * otherwise just print the formatted time string only.
  */
 void
-SECU_PrintUTCTime(FILE *out, SECItem *t, char *m, int level)
+SECU_PrintUTCTime(FILE *out, SECItem *t, const char *m, int level)
 {
     int64 time;
     SECStatus rv;
@@ -1266,7 +1266,7 @@ loser:
 }
 
 static void
-secu_PrintUniversalString(FILE *out, SECItem *i, char *m, int level)
+secu_PrintUniversalString(FILE *out, SECItem *i, const char *m, int level)
 {
     unsigned char * s;
     unsigned char * d;
@@ -1301,7 +1301,7 @@ loser:
 }
 
 static void
-secu_PrintUniversal(FILE *out, SECItem *i, char *m, int level)
+secu_PrintUniversal(FILE *out, SECItem *i, const char *m, int level)
 {
 	switch (i->data[0] & SEC_ASN1_TAGNUM_MASK) {
 	  case SEC_ASN1_ENUMERATED:
@@ -1375,7 +1375,7 @@ SECU_PrintAny(FILE *out, SECItem *i, const char *m, int level)
 }
 
 static int
-secu_PrintValidity(FILE *out, CERTValidity *v, char *m, int level)
+secu_PrintValidity(FILE *out, CERTValidity *v, const char *m, int level)
 {
     SECU_Indent(out, level);  fprintf(out, "%s:\n", m);
     SECU_PrintTimeChoice(out, &v->notBefore, "Not Before", level+1);
@@ -1559,7 +1559,7 @@ loser:
 }
 
 static SECStatus
-secu_PrintX509InvalidDate(FILE *out, SECItem *value, char *msg, int level)
+secu_PrintX509InvalidDate(FILE *out, SECItem *value, const char *msg, int level)
 {
     SECItem decodedValue;
     SECStatus rv;

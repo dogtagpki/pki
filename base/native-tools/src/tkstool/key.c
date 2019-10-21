@@ -471,7 +471,7 @@ TKS_ComputeAndDisplayKCV( PRUint8    *newKey,
                           PRUint8    *KCV,
                           PRIntn      KCVLen,
                           PK11SymKey *symKey,
-                          char       *keyName,
+                          const char *keyName,
                           const char *keyType,
                           PRBool      displayKCV,
                           PRUint8    *expectedHexKCV )
@@ -1072,7 +1072,7 @@ destroyHexSessionKeyShare:
 /**************************************/
 
 PK11SymKey *
-TKS_ImportSymmetricKey( char              *symmetricKeyName,
+TKS_ImportSymmetricKey( const char        *symmetricKeyName,
                         PK11SlotInfo      *slot,
                         CK_MECHANISM_TYPE  mechanism,
                         CK_ATTRIBUTE_TYPE  operation,
@@ -1155,7 +1155,7 @@ cleanup:
 
 
 PK11SymKey *
-TKS_DeriveSymmetricKey( char              *symmetricKeyName,
+TKS_DeriveSymmetricKey( const char        *symmetricKeyName,
                         PK11SymKey        *symKey,
                         CK_MECHANISM_TYPE  derive,
                         SECItem           *sessionKeyShare,
@@ -1189,8 +1189,8 @@ TKS_DeriveSymmetricKey( char              *symmetricKeyName,
 
 
 SECStatus
-TKS_StoreSymmetricKeyAndNameIt( char              *symmetricKeyName,
-                                char              *keyname,
+TKS_StoreSymmetricKeyAndNameIt( const char        *symmetricKeyName,
+                                const char        *keyname,
                                 PK11SlotInfo      *slot,
                                 CK_ATTRIBUTE_TYPE  operation,
                                 CK_FLAGS           flags,
