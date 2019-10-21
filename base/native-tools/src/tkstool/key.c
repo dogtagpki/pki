@@ -30,7 +30,7 @@ secuPWData    pwdata = { PW_NONE,
 
 /* returns 0 for success, -1 for failure (EOF encountered) */
 static int
-InputHexSessionKey( char    *sessionKeyShareName,
+InputHexSessionKey( const char *sessionKeyShareName,
                     SECItem *hexSessionKeyShare )
 {
     int             fd;
@@ -257,7 +257,7 @@ InputHexSessionKey( char    *sessionKeyShareName,
 
 /* returns 0 for success, -1 for failure (EOF encountered) */
 static int
-InputHexKCV( char    *sessionKeyShareName,
+InputHexKCV( const char *sessionKeyShareName,
              PRUint8 *hexKCV )
 {
     int             fd;

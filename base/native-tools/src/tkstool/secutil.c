@@ -738,7 +738,7 @@ static void secu_Newline(FILE *out)
 }
 
 void
-SECU_PrintAsHex(FILE *out, SECItem *data, const char *m, int level)
+SECU_PrintAsHex(FILE *out, const SECItem *data, const char *m, int level)
 {
     unsigned i;
     int column;
@@ -1074,7 +1074,7 @@ SECU_PrintTimeChoice(FILE *out, SECItem *t, const char *m, int level)
 
 /* This prints a SET or SEQUENCE */
 void
-SECU_PrintSet(FILE *out, SECItem *t, char *m, int level)
+SECU_PrintSet(FILE *out, SECItem *t, const char *m, int level)
 {
     int            type        = t->data[0] & SEC_ASN1_TAGNUM_MASK;
     int            constructed = t->data[0] & SEC_ASN1_CONSTRUCTED;
@@ -1159,7 +1159,7 @@ secu_PrintContextSpecific(FILE *out, SECItem *i, const char *m, int level)
 }
 
 static void
-secu_PrintOctetString(FILE *out, SECItem *i, char *m, int level)
+secu_PrintOctetString(FILE *out, SECItem *i, const char *m, int level)
 {
     SECItem tmp = *i;
     if (SECSuccess == SECU_StripTagAndLength(&tmp))
@@ -1167,7 +1167,7 @@ secu_PrintOctetString(FILE *out, SECItem *i, char *m, int level)
 }
 
 static void
-secu_PrintBitString(FILE *out, SECItem *i, char *m, int level)
+secu_PrintBitString(FILE *out, SECItem *i, const char *m, int level)
 {
     int unused_bits;
     SECItem tmp = *i;
@@ -1206,7 +1206,7 @@ secu_PrintDecodedBitString(FILE *out, SECItem *i, const char *m, int level)
 
 /* Print a DER encoded Boolean */
 void
-SECU_PrintEncodedBoolean(FILE *out, SECItem *i, char *m, int level)
+SECU_PrintEncodedBoolean(FILE *out, SECItem *i, const char *m, int level)
 {
     SECItem my    = *i;
     if (SECSuccess == SECU_StripTagAndLength(&my))
@@ -1215,7 +1215,7 @@ SECU_PrintEncodedBoolean(FILE *out, SECItem *i, char *m, int level)
 
 /* Print a DER encoded integer */
 void
-SECU_PrintEncodedInteger(FILE *out, SECItem *i, char *m, int level)
+SECU_PrintEncodedInteger(FILE *out, SECItem *i, const char *m, int level)
 {
     SECItem my    = *i;
     if (SECSuccess == SECU_StripTagAndLength(&my))
@@ -1224,7 +1224,7 @@ SECU_PrintEncodedInteger(FILE *out, SECItem *i, char *m, int level)
 
 /* Print a DER encoded OID */
 void
-SECU_PrintEncodedObjectID(FILE *out, SECItem *i, char *m, int level)
+SECU_PrintEncodedObjectID(FILE *out, SECItem *i, const char *m, int level)
 {
     SECItem my    = *i;
     if (SECSuccess == SECU_StripTagAndLength(&my))
@@ -1232,7 +1232,7 @@ SECU_PrintEncodedObjectID(FILE *out, SECItem *i, char *m, int level)
 }
 
 static void
-secu_PrintBMPString(FILE *out, SECItem *i, char *m, int level)
+secu_PrintBMPString(FILE *out, SECItem *i, const char *m, int level)
 {
     unsigned char * s;
     unsigned char * d;
@@ -1574,7 +1574,7 @@ secu_PrintX509InvalidDate(FILE *out, SECItem *value, const char *msg, int level)
 	rv = DER_GeneralizedTimeToTime(&invalidTime, &decodedValue);
 	if (rv == SECSuccess) {
 	    formattedTime = CERT_GenTime2FormattedAscii
-			    (invalidTime, "%a %b %d %H:%M:%S %Y");
+			    (invalidTime, (char *) "%a %b %d %H:%M:%S %Y");
 	    SECU_Indent(out, level +1);
 	    fprintf (out, "%s: %s\n", msg, formattedTime);
 	    PORT_Free (formattedTime);
@@ -2285,7 +2285,7 @@ SECU_PrintCertAttributes(FILE *out, CERTAttribute **attrs, const char *m, int le
 }
 
 int  /* sometimes a PRErrorCode, other times a SECStatus.  Sigh. */
-SECU_PrintCertificateRequest(FILE *out, SECItem *der, char *m, int level)
+SECU_PrintCertificateRequest(FILE *out, SECItem *der, const char *m, int level)
 {
     PRArenaPool *arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
     CERTCertificateRequest *cr;
@@ -2319,7 +2319,7 @@ loser:
 }
 
 int
-SECU_PrintCertificate(FILE *out, SECItem *der, char *m, int level)
+SECU_PrintCertificate(FILE *out, SECItem *der, const char *m, int level)
 {
     PRArenaPool *arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
     CERTCertificate *c;
@@ -2992,7 +2992,7 @@ SECU_PrintTrustFlags(FILE *out, CERTCertTrust *trust, char *m, int level)
     printFlags(out, trust->objectSigningFlags, level+2);
 }
 
-int SECU_PrintSignedData(FILE *out, SECItem *der, char *m,
+int SECU_PrintSignedData(FILE *out, SECItem *der, const char *m,
 			   int level, SECU_PPFunc inner)
 {
     PRArenaPool *arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);

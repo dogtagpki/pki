@@ -77,9 +77,9 @@ extern SECStatus SEC_AddPermCertificate(CERTCertDBHandle *handle,
 
 #ifdef SECUTIL_NEW
 typedef int (*SECU_PPFunc)(PRFileDesc *out, SECItem *item, 
-                           char *msg, int level);
+                           const char *msg, int level);
 #else
-typedef int (*SECU_PPFunc)(FILE *out, SECItem *item, char *msg, int level);
+typedef int (*SECU_PPFunc)(FILE *out, SECItem *item, const char *msg, int level);
 #endif
 
 typedef struct {
@@ -204,7 +204,7 @@ extern void SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, const char *m,
 				  int level);
 
 /* Print SECItem as hex */
-extern void SECU_PrintAsHex(FILE *out, SECItem *i, const char *m, int level);
+extern void SECU_PrintAsHex(FILE *out, const SECItem *i, const char *m, int level);
 
 /* dump a buffer in hex and ASCII */
 extern void SECU_PrintBuf(FILE *out, const char *msg, const void *vp, int len);
@@ -243,11 +243,11 @@ SECU_PrintCertificateNames(CERTCertDBHandle *handle, PRFileDesc* out,
 int SECU_CheckCertNameExists(CERTCertDBHandle *handle, char *nickname);
 
 /* Dump contents of cert req */
-extern int SECU_PrintCertificateRequest(FILE *out, SECItem *der, char *m,
+extern int SECU_PrintCertificateRequest(FILE *out, SECItem *der, const char *m,
 	int level);
 
 /* Dump contents of certificate */
-extern int SECU_PrintCertificate(FILE *out, SECItem *der, char *m, int level);
+extern int SECU_PrintCertificate(FILE *out, SECItem *der, const char *m, int level);
 
 /* print trust flags on a cert */
 extern void SECU_PrintTrustFlags(FILE *out, CERTCertTrust *trust, char *m, int level);
@@ -272,7 +272,7 @@ extern int SECU_PrintPKCS7ContentInfo(FILE *out, SECItem *der, char *m,
 extern SECStatus SECU_PKCS11Init(PRBool readOnly);
 
 /* Dump contents of signed data */
-extern int SECU_PrintSignedData(FILE *out, SECItem *der, char *m, int level,
+extern int SECU_PrintSignedData(FILE *out, SECItem *der, const char *m, int level,
 				SECU_PPFunc inner);
 
 extern int SECU_PrintCrl(FILE *out, SECItem *der, char *m, int level);
