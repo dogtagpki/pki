@@ -996,19 +996,19 @@ void processSearchResults(LDAPMessage *r) {
 /* this function uses i_minlength and i_maxlength to determine the
    size of the password to generate */
 
-static char *UCalpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const char *UCalpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
-static char *LCalpha = "abcdefghijklmnopqrstuvwxyz";
-static char *numbers = "0123456789";
-static char *punc = "!#$%&*+,-./:;<=>?@[]^{|}";
+static const char *LCalpha = "abcdefghijklmnopqrstuvwxyz";
+static const char *numbers = "0123456789";
+static const char *punc = "!#$%&*+,-./:;<=>?@[]^{|}";
 
 static char *charpool = NULL;  /* carpool, geddit? */
 static int charpoolsize;
 
-static char *RNG_ALPHA = "RNG-alpha";
-static char *RNG_PRINTABLEASCII = "RNG-printableascii";
-static char *RNG_ALPHANUM = "RNG-alphanum";
+static const char *RNG_ALPHA = "RNG-alpha";
+static const char *RNG_PRINTABLEASCII = "RNG-printableascii";
+static const char *RNG_ALPHANUM = "RNG-alphanum";
 
 
 /* build the pool of characters we can use for the password */

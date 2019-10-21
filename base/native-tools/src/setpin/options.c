@@ -69,7 +69,7 @@ int OPT_getValue(const char *option, char **output) {
 }
 
 
-static char* OPT_parseOptFile(char *filename, char*validlist[])
+static const char* OPT_parseOptFile(char *filename, char*validlist[])
 {
   FILE *fp;
   char buffer[1024];
@@ -95,7 +95,7 @@ static char* OPT_parseOptFile(char *filename, char*validlist[])
 
 static char *OPT_parseArgument(char *arg, char* validlist[]) {
   char *error;
-  char *INV_ARG = "invalid argument: %s";
+  const char *INV_ARG = "invalid argument: %s";
   char *eq;
 
   OPTION *new_opt;

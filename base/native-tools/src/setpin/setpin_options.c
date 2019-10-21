@@ -33,7 +33,7 @@ extern int errcode;
 #define PW_DEFAULT_LENGTH 6
 #define ERR_BUF_LENGTH 512
 
-char *valid_args[] = {
+const char *valid_args[] = {
   "host",     "LDAP host                                [required]",
   "port",     "LDAP port (default 389)",
   "binddn",   "DN to bind to directory as               [required]",
