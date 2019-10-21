@@ -261,7 +261,7 @@ extern int SECU_PrintPrivateKey(FILE *out, SECItem *der, char *m, int level);
 #endif
 
 /* Print the MD5 and SHA1 fingerprints of a cert */
-extern int SECU_PrintFingerprints(FILE *out, SECItem *derCert, char *m,
+extern int SECU_PrintFingerprints(FILE *out, SECItem *derCert, const char *m,
                                   int level);
 
 /* Pretty-print any PKCS7 thing */
@@ -278,7 +278,7 @@ extern int SECU_PrintSignedData(FILE *out, SECItem *der, char *m, int level,
 extern int SECU_PrintCrl(FILE *out, SECItem *der, char *m, int level);
 
 extern void
-SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, char *m, int level);
+SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, const char *m, int level);
 
 extern void SECU_PrintString(FILE *out, SECItem *si, const char *m, int level);
 extern void SECU_PrintAny(FILE *out, SECItem *i, const char *m, int level);

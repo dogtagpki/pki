@@ -985,7 +985,7 @@ secu_PrintBoolean(FILE *out, SECItem *i, const char *m, int level)
  * otherwise just print the formatted time string only.
  */
 static void
-secu_PrintTime(FILE *out, int64 time, char *m, int level)
+secu_PrintTime(FILE *out, int64 time, const char *m, int level)
 {
     PRExplodedTime printableTime; 
     char *timeString;
@@ -1482,7 +1482,7 @@ secu_PrintRSAPublicKey(FILE *out, SECKEYPublicKey *pk, const char *m, int level)
 }
 
 static void
-secu_PrintDSAPublicKey(FILE *out, SECKEYPublicKey *pk, char *m, int level)
+secu_PrintDSAPublicKey(FILE *out, SECKEYPublicKey *pk, const char *m, int level)
 {
     SECU_Indent(out, level); fprintf(out, "%s:\n", m);
     SECU_PrintInteger(out, &pk->u.dsa.params.prime, "Prime", level+1);
@@ -1513,7 +1513,7 @@ secu_PrintECPublicKey(FILE *out, SECKEYPublicKey *pk, char *m, int level)
 
 static void
 secu_PrintSubjectPublicKeyInfo(FILE *out, PRArenaPool *arena,
-		       CERTSubjectPublicKeyInfo *i,  char *msg, int level)
+		       CERTSubjectPublicKeyInfo *i, const char *msg, int level)
 {
     SECKEYPublicKey *pk;
 
@@ -1722,7 +1722,7 @@ secu_PrintX509KeyUsage(FILE *out, SECItem *value, char *msg, int level)
 }
 
 static void
-secu_PrintIPAddress(FILE *out, SECItem *value, char *msg, int level)
+secu_PrintIPAddress(FILE *out, SECItem *value, const char *msg, int level)
 {
     PRStatus   st;
     PRNetAddr  addr;
@@ -1912,7 +1912,7 @@ secu_PrintCRLDistPtsExtension(FILE *out, SECItem *value, char *msg, int level)
 
 static void
 secu_PrintNameConstraintSubtree(FILE *out, CERTNameConstraint *value, 
-                                char *msg, int level)
+                                const char *msg, int level)
 {
     CERTNameConstraint *head = value;
     SECU_Indent(out, level); fprintf(out, "%s Subtree:\n", msg);
@@ -2231,7 +2231,7 @@ SECU_DecodeAndPrintExtensions(FILE *out, SECItem *any, const char *m, int level)
 
 /* print a decoded SET OF or SEQUENCE OF Extensions */
 int
-SECU_PrintSetOfExtensions(FILE *out, SECItem **any, char *m, int level)
+SECU_PrintSetOfExtensions(FILE *out, SECItem **any, const char *m, int level)
 {
     int rv = 0;
     if (m && *m) {
@@ -2246,7 +2246,7 @@ SECU_PrintSetOfExtensions(FILE *out, SECItem **any, char *m, int level)
 
 /* print a decoded SET OF or SEQUENCE OF "ANY" */
 int
-SECU_PrintSetOfAny(FILE *out, SECItem **any, char *m, int level)
+SECU_PrintSetOfAny(FILE *out, SECItem **any, const char *m, int level)
 {
     int rv = 0;
     if (m && *m) {
@@ -2260,7 +2260,7 @@ SECU_PrintSetOfAny(FILE *out, SECItem **any, char *m, int level)
 }
 
 int
-SECU_PrintCertAttribute(FILE *out, CERTAttribute *attr, char *m, int level)
+SECU_PrintCertAttribute(FILE *out, CERTAttribute *attr, const char *m, int level)
 {
     int rv = 0;
     SECOidTag tag;
@@ -2415,7 +2415,7 @@ loser:
 #endif
 
 int
-SECU_PrintFingerprints(FILE *out, SECItem *derCert, char *m, int level)
+SECU_PrintFingerprints(FILE *out, SECItem *derCert, const char *m, int level)
 {
     unsigned char fingerprint[20];
     char *fpStr = NULL;
@@ -2566,7 +2566,7 @@ secu_PrintSignerInfo(FILE *out, SEC_PKCS7SignerInfo *info, char *m, int level)
    some */
 
 void
-SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, char *m, int level)
+SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, const char *m, int level)
 {
     CERTCrlEntry *entry;
     int iv;
