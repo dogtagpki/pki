@@ -365,19 +365,35 @@ class KeyRecoveryRequest(pki.ResourceMessage):
                  passphrase=None, payload_wrapping_name=None,
                  payload_encryption_oid=None):
         """ Constructor """
-        pki.ResourceMessage.__init__(
-            self,
-            "com.netscape.certsrv.key.KeyRecoveryRequest")
-        self.add_attribute("requestId", request_id)
-        self.add_attribute("transWrappedSessionKey", trans_wrapped_session_key)
-        self.add_attribute("sessionWrappedPassphrase",
-                           session_wrapped_passphrase)
-        self.add_attribute("nonceData", nonce_data)
-        self.add_attribute("certificate", certificate)
-        self.add_attribute("passphrase", passphrase)
-        self.add_attribute("keyId", key_id)
-        self.add_attribute("payloadWrappingName", payload_wrapping_name)
-        self.add_attribute("payloadEncryptionOID", payload_encryption_oid)
+
+        pki.ResourceMessage.__init__(self, 'com.netscape.certsrv.key.KeyRecoveryRequest')
+
+        if request_id is not None:
+            self.add_attribute('requestId', request_id)
+
+        if trans_wrapped_session_key is not None:
+            self.add_attribute('transWrappedSessionKey', trans_wrapped_session_key)
+
+        if session_wrapped_passphrase is not None:
+            self.add_attribute('sessionWrappedPassphrase', session_wrapped_passphrase)
+
+        if nonce_data is not None:
+            self.add_attribute('nonceData', nonce_data)
+
+        if certificate is not None:
+            self.add_attribute('certificate', certificate)
+
+        if passphrase is not None:
+            self.add_attribute('passphrase', passphrase)
+
+        if key_id is not None:
+            self.add_attribute('keyId', key_id)
+
+        if payload_wrapping_name is not None:
+            self.add_attribute('payloadWrappingName', payload_wrapping_name)
+
+        if payload_encryption_oid is not None:
+            self.add_attribute('payloadEncryptionOID', payload_encryption_oid)
 
 
 class SymKeyGenerationRequest(pki.ResourceMessage):
