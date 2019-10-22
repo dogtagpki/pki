@@ -424,7 +424,7 @@ public abstract class EnrollProfile extends Profile {
             info.set(X509CertInfo.VALIDITY,
                     new CertificateValidity(new Date(), new Date()));
             info.set(X509CertInfo.ALGORITHM_ID,
-                    new CertificateAlgorithmId(AlgorithmId.get("MD5withRSA")));
+                    new CertificateAlgorithmId(AlgorithmId.get("SHA256withRSA")));
 
             // add default extension container
             info.set(X509CertInfo.EXTENSIONS,
