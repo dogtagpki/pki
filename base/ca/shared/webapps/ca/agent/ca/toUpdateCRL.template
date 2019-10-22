@@ -188,7 +188,7 @@ if (result.header.crlIssuingPoints != null &&
 if (result.header.validAlgorithms != null) {
     algorithmName = result.header.validAlgorithms.split('+');
 } else {
-    validAlgorithms = "SHA1withRSA+MD5withRSA+SHA1withDSA+SHA1withEC";
+    validAlgorithms = "SHA256withRSA+SHA384withRSA+SHA512withRSA+SHA256withEC+SHA384withEC+SHA512withEC";
     algorithmName = validAlgorithms.split('+');
 }
 
