@@ -197,9 +197,9 @@ public class KeyRequestDAO extends CMSRequestDAO {
                 data.getKeySize(): 0;
         String realm = data.getRealm();
 
-        boolean keyExists = doesKeyExist(clientKeyId, "active");
+        boolean keyExists = keyExists(clientKeyId, "active");
 
-        if (keyExists == true) {
+        if (keyExists) {
             throw new BadRequestException("Can not archive already active existing key!");
         }
 
@@ -408,8 +408,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new BadRequestException("Invalid key generation request. Missing client ID");
         }
 
-        boolean keyExists = doesKeyExist(clientKeyId, "active");
-        if (keyExists == true) {
+        boolean keyExists = keyExists(clientKeyId, "active");
+        if (keyExists) {
             throw new BadRequestException("Can not archive already active existing key!");
         }
 
@@ -477,8 +477,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        boolean keyExists = doesKeyExist(clientKeyId, "active");
-        if (keyExists == true) {
+        boolean keyExists = keyExists(clientKeyId, "active");
+        if (keyExists) {
             throw new BadRequestException("Cannot archive already active existing key!");
         }
 
@@ -632,26 +632,26 @@ public class KeyRequestDAO extends CMSRequestDAO {
         return createKeyRequestResponse(request, uriInfo);
     }
 
-    //We only care if the key exists or not
-    private boolean doesKeyExist(String clientKeyId, String keyStatus) {
-        String filter = null;
-        if (keyStatus == null) {
-            filter = "(" + IKeyRecord.ATTR_CLIENT_ID + "=" + clientKeyId + ")";
-        } else {
-            filter = "(&(" + IKeyRecord.ATTR_CLIENT_ID + "=" + clientKeyId + ")"
-                     + "(" + IKeyRecord.ATTR_STATUS + "=" + keyStatus + "))";
-        }
-        try {
-            Enumeration<IKeyRecord> existingKeys = null;
+    private boolean keyExists(String clientKeyId, String keyStatus) throws EBaseException {
 
-            existingKeys = repo.searchKeys(filter, 1, 10);
-            if (existingKeys != null && existingKeys.hasMoreElements()) {
-                return true;
-            }
-        } catch (EBaseException e) {
-            return false;
+        logger.info("KeyRequestDAO: Checking for key existence");
+        logger.info("KeyRequestDAO: - client key ID: " + clientKeyId);
+        logger.info("KeyRequestDAO: - status: " + keyStatus);
+
+        String filter = "(" + IKeyRecord.ATTR_CLIENT_ID + "=" + clientKeyId + ")";
+        if (keyStatus != null) {
+            filter = "(&" + filter + "(" + IKeyRecord.ATTR_STATUS + "=" + keyStatus + "))";
+        }
+        logger.info("KeyRequestDAO: - filter: " + filter);
+
+        Enumeration<IKeyRecord> existingKeys = repo.searchKeys(filter, 1, 10);
+
+        if (existingKeys != null && existingKeys.hasMoreElements()) {
+            logger.info("KeyRequestDAO: Key exists");
+            return true;
         }
 
+        logger.info("KeyRequestDAO: Key does not exist");
         return false;
     }
 }
