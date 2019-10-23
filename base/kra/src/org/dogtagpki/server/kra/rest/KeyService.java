@@ -464,9 +464,11 @@ public class KeyService extends SubsystemService implements KeyResource {
     @Override
     public Response listKeys(String clientKeyID, String status, Integer maxResults, Integer maxTime,
             Integer start, Integer size, String realm) {
-        logger.debug("KeyService.listKeys: begins.");
+
+        KeyInfoCollection keys = listKeyInfos(clientKeyID, status, maxResults, maxTime, start, size, realm);
+
         try {
-            return createOKResponse(listKeyInfos(clientKeyID, status, maxResults, maxTime, start, size, realm));
+            return createOKResponse(keys);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -476,9 +478,12 @@ public class KeyService extends SubsystemService implements KeyResource {
 
     public KeyInfoCollection listKeyInfos(String clientKeyID, String status, Integer maxResults, Integer maxTime,
             Integer start, Integer size, String realm) {
-        String method = "KeyService.listKeyInfos: ";
+
+        logger.info("KeyService: Searching for keys");
+        logger.info("KeyService: - client key ID: " + clientKeyID);
+        logger.info("KeyService: - status: " + status);
+
         auditInfo = "KeyService.listKeyInfos; status =" + status;
-        logger.debug(method + "begins.");
 
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
@@ -486,19 +491,22 @@ public class KeyService extends SubsystemService implements KeyResource {
         if (realm != null) {
             try {
                 authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.keys", "list");
+
             } catch (EAuthzAccessDenied e) {
-                throw new UnauthorizedException("Not authorized to list these keys", e);
+                throw new UnauthorizedException("Unauthorized: " + e.getMessage(), e);
+
             } catch (EAuthzUnknownRealm e) {
-                throw new BadRequestException("Invalid realm", e);
+                throw new BadRequestException("Unknown realm: " + e.getMessage(), e);
+
             } catch (EBaseException e) {
-                logger.error("listRequests: unable to authorize realm: " + e.getMessage(), e);
-                throw new PKIException(e.toString(), e);
+                logger.error("Unable to access realm: " + e.getMessage(), e);
+                throw new PKIException("Unable to access realm: " + e.getMessage(), e);
             }
         }
 
         // get ldap filter
         String filter = createSearchFilter(status, clientKeyID, realm);
-        logger.debug("listKeys: filter is " + filter);
+        logger.info("KeyService: - filter: " + filter);
 
         maxResults = maxResults == null ? DEFAULT_MAXRESULTS : maxResults;
         maxTime = maxTime == null ? DEFAULT_MAXTIME : maxTime;
@@ -510,6 +518,8 @@ public class KeyService extends SubsystemService implements KeyResource {
                 return infos;
             }
 
+            logger.info("KeyService: Results:");
+
             // store non-null results in a list
             List<KeyInfo> results = new ArrayList<KeyInfo>();
             while (e.hasMoreElements()) {
@@ -517,12 +527,14 @@ public class KeyService extends SubsystemService implements KeyResource {
                 if (rec == null) continue;
 
                 KeyInfo info = createKeyDataInfo(rec, false);
+                logger.info("KeyService: - key " + info.getKeyId());
                 results.add(info);
 
                 auditKeyInfoSuccess(info.getKeyId(), null);
             }
 
             int total = results.size();
+            logger.info("KeyService: Total: " + total);
             infos.setTotal(total);
 
             // return entries in the requested page
@@ -541,7 +553,7 @@ public class KeyService extends SubsystemService implements KeyResource {
             }
 
         } catch (EBaseException e) {
-            throw new PKIException(e.getMessage(), e);
+            throw new PKIException("Unable to list keys: " + e.getMessage(), e);
         }
 
         return infos;
@@ -830,11 +842,13 @@ public class KeyService extends SubsystemService implements KeyResource {
 
     @Override
     public Response modifyKeyStatus(KeyId keyId, String status) {
+
         String method = "KeyService.modifyKeyStatus: ";
         //TODO: what was the original status?  find it and record that in Info as well
         auditInfo = "KeyService.modifyKeyStatus";
 
-        logger.debug(method + "begins.");
+        logger.info("Modifying key " + keyId + " status to " + status);
+
         IKeyRecord rec = null;
         KeyInfo info = null;
         try {
@@ -843,30 +857,39 @@ public class KeyService extends SubsystemService implements KeyResource {
             info = createKeyDataInfo(rec, true); // for getting the old status for auditing purpose
 
             ModificationSet mods = new ModificationSet();
-            mods.add(IKeyRecord.ATTR_STATUS, Modification.MOD_REPLACE,
-                    status);
+            mods.add(IKeyRecord.ATTR_STATUS, Modification.MOD_REPLACE, status);
+
             repo.modifyKeyRecord(keyId.toBigInteger(), mods);
+
+            logger.info("Key status modified");
+
             auditKeyStatusChange(ILogger.SUCCESS, keyId,
                     (info!=null)?info.getStatus():null, status, auditInfo);
 
             return createNoContentResponse();
+
         } catch (EDBRecordNotFoundException e) {
+
+            logger.error("Unable to modify key status: " + e.getMessage(), e);
+
             auditInfo = auditInfo + ":" + e.getMessage();
-            logger.error(auditInfo, e);
             auditKeyStatusChange(ILogger.FAILURE, keyId,
                     (info!=null)?info.getStatus():null, status, auditInfo);
             throw new KeyNotFoundException(keyId, "key not found to modify", e);
+
         } catch (Exception e) {
+
+            logger.error("Unable to modify key status: " + e.getMessage(), e);
+
             auditInfo = auditInfo + ":" + e.getMessage();
-            logger.error(auditInfo, e);
             auditKeyStatusChange(ILogger.FAILURE, keyId,
                     (info!=null)?info.getStatus():null, status, auditInfo);
-            throw new PKIException(e.getMessage(), e);
+
+            throw new PKIException("Unable to modify key status: " + e.getMessage(), e);
         }
     }
 
     private String getRequestor() {
         return servletRequest.getUserPrincipal().getName();
     }
-
 }
