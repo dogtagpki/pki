@@ -59,6 +59,10 @@ public class KRAKeyArchiveCLI extends CommandCLI {
         option = new Option(null, "transport", true, "Transport certificate nickname.");
         option.setArgName("Nickname");
         options.addOption(option);
+
+        option = new Option(null, "output-format", true, "Output format: none (default), json");
+        option.setArgName("format");
+        options.addOption(option);
     }
 
     public void execute(CommandLine cmd) throws Exception {
@@ -76,6 +80,7 @@ public class KRAKeyArchiveCLI extends CommandCLI {
         String inputFormat = cmd.getOptionValue("input-format", "xml");
         String requestFile = cmd.getOptionValue("input");
         String transportNickname = cmd.getOptionValue("transport");
+        String outputFormat = cmd.getOptionValue("output-format", "none");
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
@@ -120,7 +125,7 @@ public class KRAKeyArchiveCLI extends CommandCLI {
                 logger.info("Request: " + req.toJSON());
 
             } else {
-                throw new Exception("Unsupported format: " + inputFormat);
+                throw new Exception("Unsupported input format: " + inputFormat);
             }
 
             if (req.getPKIArchiveOptions() != null) {
@@ -148,7 +153,15 @@ public class KRAKeyArchiveCLI extends CommandCLI {
             throw new Exception("Missing input data, passphrase, or request.");
         }
 
-        MainCLI.printMessage("Archival request details");
-        KRAKeyCLI.printKeyRequestInfo(response.getRequestInfo());
+        if (outputFormat.equalsIgnoreCase("json")) {
+            System.out.println(response.toJSON());
+
+        } else if (outputFormat.equalsIgnoreCase("none")) {
+            MainCLI.printMessage("Archival request details");
+            KRAKeyCLI.printKeyRequestInfo(response.getRequestInfo());
+
+        } else {
+            throw new Exception("Unsupported output format: " + outputFormat);
+        }
     }
 }
