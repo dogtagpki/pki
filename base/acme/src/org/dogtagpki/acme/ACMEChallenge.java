@@ -6,6 +6,7 @@
 package org.dogtagpki.acme;
 
 import java.net.URI;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -33,6 +34,9 @@ public class ACMEChallenge {
     private String status;
     private String validated;
     private String error;
+
+    @JsonIgnore
+    private Date validationTime;
 
     public String getID() {
         return id;
@@ -104,6 +108,15 @@ public class ACMEChallenge {
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    public Date getValidationTime() {
+        return validationTime;
+    }
+
+    public void setValidationTime(Date validationTime) {
+        this.validationTime = validationTime;
+        validated = ACME.DATE_FORMAT.format(validationTime);
     }
 
     public String toJSON() throws Exception {
