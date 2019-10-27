@@ -14,7 +14,10 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -36,6 +39,9 @@ import org.dogtagpki.acme.backend.ACMEBackend;
 import org.dogtagpki.acme.backend.ACMEBackendConfig;
 import org.dogtagpki.acme.database.ACMEDatabase;
 import org.dogtagpki.acme.database.ACMEDatabaseConfig;
+import org.dogtagpki.acme.validator.ACMEValidator;
+import org.dogtagpki.acme.validator.ACMEValidatorConfig;
+import org.dogtagpki.acme.validator.ACMEValidatorsConfig;
 
 /**
  * @author Endi S. Dewata
@@ -53,6 +59,9 @@ public class ACMEEngine implements ServletContextListener {
 
     private ACMEDatabaseConfig databaseConfig;
     private ACMEDatabase database;
+
+    private ACMEValidatorsConfig validatorsConfig;
+    private Map<String, ACMEValidator> validators = new HashMap<>();
 
     private ACMEBackendConfig backendConfig;
     private ACMEBackend backend;
@@ -95,6 +104,18 @@ public class ACMEEngine implements ServletContextListener {
 
     public void setDatabase(ACMEDatabase database) {
         this.database = database;
+    }
+
+    public Collection<ACMEValidator> getValidators() {
+        return validators.values();
+    }
+
+    public ACMEValidator getValidator(String name) {
+        return validators.get(name);
+    }
+
+    public void addValidator(String name, ACMEValidator validator) {
+        validators.put(name, validator);
     }
 
     public ACMEBackendConfig getBackendConfig() {
@@ -163,6 +184,51 @@ public class ACMEEngine implements ServletContextListener {
         database.close();
     }
 
+    public void loadValidatorsConfig(String filename) throws Exception {
+
+        File validatorsConfigFile = new File(filename);
+
+        if (validatorsConfigFile.exists()) {
+            logger.info("Loading ACME validators config from " + validatorsConfigFile);
+            String content = new String(Files.readAllBytes(validatorsConfigFile.toPath()));
+            validatorsConfig = ACMEValidatorsConfig.fromJSON(content);
+
+        } else {
+            logger.info("Loading default ACME validators config");
+            validatorsConfig = new ACMEValidatorsConfig();
+        }
+
+        logger.info("Validators:\n" + validatorsConfig);
+    }
+
+    public void initValidators() throws Exception {
+
+        logger.info("Initializing ACME validators");
+
+        for (String name : validatorsConfig.keySet()) {
+
+            logger.info("Initializing " + name + " validator");
+
+            ACMEValidatorConfig validatorConfig = validatorsConfig.get(name);
+
+            String className = validatorConfig.getClassName();
+            Class<ACMEValidator> validatorClass = (Class<ACMEValidator>) Class.forName(className);
+
+            ACMEValidator validator = validatorClass.newInstance();
+            validator.setConfig(validatorConfig);
+            validator.init();
+
+            addValidator(name, validator);
+        }
+    }
+
+    public void shutdownValidators() throws Exception {
+
+        for (ACMEValidator validator : validators.values()) {
+            validator.close();
+        }
+    }
+
     public void loadBackendConfig(String filename) throws Exception {
 
         File backendConfigFile = new File(filename);
@@ -219,6 +285,9 @@ public class ACMEEngine implements ServletContextListener {
             loadDatabaseConfig(acmeConfDir + File.separator + "database.json");
             initDatabase();
 
+            loadValidatorsConfig(acmeConfDir + File.separator + "validators.json");
+            initValidators();
+
             loadBackendConfig(acmeConfDir + File.separator + "backend.json");
             initBackend();
 
@@ -234,6 +303,7 @@ public class ACMEEngine implements ServletContextListener {
 
         try {
             shutdownBackend();
+            shutdownValidators();
             shutdownDatabase();
 
         } catch (Exception e) {

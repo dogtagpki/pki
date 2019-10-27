@@ -1,0 +1,8 @@
+{
+    "dns-01": {
+        "class": "org.dogtagpki.acme.validator.DNS01Validator"
+    },
+    "http-01": {
+        "class": "org.dogtagpki.acme.validator.HTTP01Validator"
+    }
+}

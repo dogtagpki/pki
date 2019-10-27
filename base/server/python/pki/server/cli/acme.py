@@ -112,6 +112,11 @@ class ACMECreateCLI(pki.cli.CLI):
         logging.info('Creating %s', database_conf)
         instance.copy(database_template, database_conf, force=force)
 
+        validators_template = os.path.join(acme_share_dir, 'conf', 'validators.json')
+        validators_conf = os.path.join(acme_conf_dir, 'validators.json')
+        logging.info('Creating %s', validators_conf)
+        instance.copy(validators_template, validators_conf, force=force)
+
         backend_template = os.path.join(acme_share_dir, 'conf', 'backend.json')
         backend_conf = os.path.join(acme_conf_dir, 'backend.json')
         logging.info('Creating %s', backend_conf)
