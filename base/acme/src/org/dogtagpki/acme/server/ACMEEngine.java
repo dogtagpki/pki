@@ -7,6 +7,7 @@ package org.dogtagpki.acme.server;
 
 import java.io.File;
 import java.math.BigInteger;
+import java.net.URI;
 import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
@@ -482,6 +483,12 @@ public class ACMEEngine implements ServletContextListener {
         return authorization;
     }
 
+    public ACMEAuthorization getAuthorizationByChallenge(ACMEAccount account, URI challengeURL) throws Exception {
+        ACMEAuthorization authorization = database.getAuthorizationByChallenge(challengeURL);
+        validateAuthorization(account, authorization);
+        return authorization;
+    }
+
     public void updateAuthorization(ACMEAccount account, ACMEAuthorization authorization) throws Exception {
         validateAuthorization(account, authorization);
         database.updateAuthorization(authorization);
@@ -500,5 +507,36 @@ public class ACMEEngine implements ServletContextListener {
         order.setExpirationTime(expirationTime);
 
         database.addOrder(order);
+    }
+
+    public void validateOrder(ACMEAccount account, ACMEOrder order) throws Exception {
+
+        String orderID = order.getID();
+
+        if (!order.getAccountID().equals(account.getID())) {
+            // TODO: generate proper exception
+            throw new Exception("Unable to access order " + orderID);
+        }
+
+        long currentTime = System.currentTimeMillis();
+        long expirationTime = order.getExpirationTime().getTime();
+
+        if (expirationTime <= currentTime) {
+            // TODO: generate proper exception
+            throw new Exception("Expired order: " + orderID);
+        }
+
+        logger.info("Valid order: " + orderID);
+    }
+
+    public ACMEOrder getOrderByAuthorization(ACMEAccount account, URI authzURL) throws Exception {
+        ACMEOrder order = database.getOrderByAuthorization(authzURL);
+        validateOrder(account, order);
+        return order;
+    }
+
+    public void updateOrder(ACMEAccount account, ACMEOrder order) throws Exception {
+        validateOrder(account, order);
+        database.updateOrder(order);
     }
 }
