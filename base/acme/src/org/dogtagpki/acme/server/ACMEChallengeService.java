@@ -86,10 +86,34 @@ public class ACMEChallengeService {
             throw new Exception("Unsupported challenge type: " + type);
         }
 
-        validator.validateChallenge(authorization, challenge);
+        String challengeStatus = challenge.getStatus();
+        if (challengeStatus.equals("pending")) {
+            challenge.setStatus("processing");
+            engine.updateAuthorization(account, authorization);
 
+        } else if (challengeStatus.equals("processing")) {
+            // retrying the challenge, ignore
+
+        } else {
+            // TODO: generate proper exception
+            throw new Exception("Challenge is already " + challengeStatus);
+        }
+
+        try {
+            validator.validateChallenge(authorization, challenge);
+
+        } catch (Exception e) {
+            logger.info("Challenge " + challengeID + " is invalid");
+            challenge.setStatus("invalid");
+            engine.updateAuthorization(account, authorization);
+            throw e;
+        }
+
+        logger.info("Challenge " + challengeID + " is valid");
         challenge.setStatus("valid");
         challenge.setValidationTime(new Date());
+
+        logger.info("Authorization " + authzID + " is valid");
         authorization.setStatus("valid");
 
         engine.updateAuthorization(account, authorization);

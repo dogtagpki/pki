@@ -17,8 +17,11 @@ import java.security.Signature;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -28,9 +31,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEError;
+import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMEMetadata;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
@@ -43,6 +48,21 @@ import org.dogtagpki.acme.database.ACMEDatabaseConfig;
 import org.dogtagpki.acme.validator.ACMEValidator;
 import org.dogtagpki.acme.validator.ACMEValidatorConfig;
 import org.dogtagpki.acme.validator.ACMEValidatorsConfig;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertAttrSet;
+import org.mozilla.jss.netscape.security.x509.DNSName;
+import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author Endi S. Dewata
@@ -529,6 +549,12 @@ public class ACMEEngine implements ServletContextListener {
         logger.info("Valid order: " + orderID);
     }
 
+    public ACMEOrder getOrder(ACMEAccount account, String orderID) throws Exception {
+        ACMEOrder order = database.getOrder(orderID);
+        validateOrder(account, order);
+        return order;
+    }
+
     public ACMEOrder getOrderByAuthorization(ACMEAccount account, URI authzURL) throws Exception {
         ACMEOrder order = database.getOrderByAuthorization(authzURL);
         validateOrder(account, order);
@@ -538,5 +564,136 @@ public class ACMEEngine implements ServletContextListener {
     public void updateOrder(ACMEAccount account, ACMEOrder order) throws Exception {
         validateOrder(account, order);
         database.updateOrder(order);
+    }
+
+    public void validateCSR(ACMEAccount account, ACMEOrder order, String csr) throws Exception {
+
+        logger.info("Getting authorized identifiers");
+        URI[] authorizations = order.getAuthorizations();
+        Set<String> authorizedDNSNames = new HashSet<>();
+
+        for (URI authzURL : authorizations) {
+
+            String authzPath = authzURL.getPath();
+            String authzID = authzPath.substring(authzPath.lastIndexOf('/') + 1);
+            ACMEAuthorization authz = database.getAuthorization(authzID);
+
+            // authz is guaranteed to be valid at this point
+
+            ACMEIdentifier identifier = authz.getIdentifier();
+            String type = identifier.getType();
+            String value = identifier.getValue();
+
+            // TODO: support other identifier types
+
+            if ("dns".equals(type)) {
+                // store normalized authorized DNS names
+                authorizedDNSNames.add(value.toLowerCase());
+            }
+        }
+
+        logger.info("Authorized DNS names:");
+        for (String dnsName : authorizedDNSNames) {
+            logger.info("- " + dnsName);
+        }
+
+        logger.info("Parsing CSR");
+        Set<String> dnsNames = new HashSet<>();
+        parseCSR(csr, dnsNames);
+
+        logger.info("Validating DNS names in CSR");
+        for (String dnsName : dnsNames) {
+            logger.info("- " + dnsName);
+        }
+
+        Set<String> unauthorizedDNSNames = new HashSet<>(dnsNames);
+        unauthorizedDNSNames.removeAll(authorizedDNSNames);
+
+        if (!unauthorizedDNSNames.isEmpty()) {
+            // TODO: generate proper exception
+            throw new Exception("Unauthorized DNS names: " + StringUtils.join(unauthorizedDNSNames, ", "));
+        }
+
+        // TODO: validate other things in CSR
+
+        logger.info("CSR is valid");
+    }
+
+    public void parseCSR(String csr, Set<String> dnsNames) throws Exception {
+
+        String strCSR = CryptoUtil.normalizeCertAndReq(csr);
+        byte[] binCSR = Utils.base64decode(strCSR);
+        PKCS10 pkcs10 = new PKCS10(binCSR);
+
+        X500Name subjectDN = pkcs10.getSubjectName();
+        logger.info("Parsing subject DN: " + subjectDN);
+
+        String cn;
+        try {
+            cn = subjectDN.getCommonName();
+
+        } catch (NullPointerException e) {
+            // X500Name.getCommonName() throws NPE if subject DN is blank
+            // TODO: fix X500Name.getCommonName() to return null
+            cn = null;
+        }
+
+        if (cn != null) {
+            dnsNames.add(cn.toLowerCase());
+        }
+
+        logger.info("Parsing CSR Attributes:");
+        PKCS10Attributes attributes = pkcs10.getAttributes();
+        for (PKCS10Attribute attribute : attributes) {
+
+            ObjectIdentifier attrID = attribute.getAttributeId();
+            CertAttrSet attrValues = attribute.getAttributeValue();
+            String attrName = attrValues.getName();
+            logger.info("- " + attrID + ": " + attrName);
+
+            // TODO: support other attributes
+
+            if (attrValues instanceof Extensions) {
+                Extensions extensions = (Extensions) attrValues;
+                parseCSRExtensions(extensions, dnsNames);
+            }
+        }
+    }
+
+    public void parseCSRExtensions(Extensions extensions, Set<String> dnsNames) throws Exception {
+
+        Enumeration<String> extNames = extensions.getAttributeNames();
+        while (extNames.hasMoreElements()) {
+
+            String name = extNames.nextElement();
+            Object value = extensions.get(name);
+            logger.info("  - " + name);
+
+            // TODO: support other extensions
+
+            if (value instanceof SubjectAlternativeNameExtension) {
+                SubjectAlternativeNameExtension sanExt = (SubjectAlternativeNameExtension) value;
+                parseCSRSAN(sanExt, dnsNames);
+            }
+        }
+    }
+
+    public void parseCSRSAN(SubjectAlternativeNameExtension sanExt, Set<String> dnsNames) throws Exception {
+
+        GeneralNames generalNames = sanExt.getGeneralNames();
+        for (GeneralNameInterface generalName : generalNames) {
+            logger.info("    - " + generalName);
+
+            if (generalName instanceof GeneralName) {
+                generalName = ((GeneralName) generalName).unwrap();
+            }
+
+            // TODO: support other GeneralName types
+
+            if (generalName instanceof DNSName) {
+                String dnsName = ((DNSName) generalName).getValue();
+                dnsNames.add(dnsName.toLowerCase());
+            }
+        }
     }
 }

@@ -5,10 +5,7 @@
 //
 package org.dogtagpki.acme.backend;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.dogtagpki.acme.JWS;
+import org.dogtagpki.acme.ACMERevocation;
 
 /**
  * @author Endi S. Dewata
@@ -31,19 +28,14 @@ public class ACMEBackend {
     public void close() throws Exception {
     }
 
-    public String generateCertificate(String csr) throws Exception {
+    public String issueCertificate(String csr) throws Exception {
         return null;
     }
 
-    public Response getCertificateChain(
-            UriInfo uriInfo,
-            String certID) throws Exception {
+    public String getCertificateChain(String certID) throws Exception {
         return null;
     }
 
-    public Response revokeCert(
-            UriInfo uriInfo,
-            JWS jws) throws Exception {
-        return null;
+    public void revokeCert(ACMERevocation revocation) throws Exception {
     }
 }
