@@ -204,6 +204,7 @@ class NSSDatabase(object):
             self.password_file = password_file
 
         else:
+            # no password or password file provided
             self.password_file = None
 
         if internal_password:

@@ -115,7 +115,7 @@ class NSSCreateCLI(pki.cli.CLI):
         instance.load()
 
         if no_password:
-            pass
+            password = ''
 
         elif password is not None:
             pass
@@ -127,9 +127,7 @@ class NSSCreateCLI(pki.cli.CLI):
         else:
             password = getpass.getpass(prompt='Enter password for NSS database: ')
 
-        if password is not None:
-            instance.passwords['internal'] = password
-
+        instance.passwords['internal'] = password
         instance.store_passwords()
 
         instance.create_nssdb(force=force)

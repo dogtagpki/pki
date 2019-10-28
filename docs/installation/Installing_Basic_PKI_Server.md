@@ -156,12 +156,10 @@ See also [NSS Database](https://www.dogtagpki.org/wiki/NSS_Database).
 To create a self-signed SSL certificate:
 
 ```
-$ echo "Secret.123" > password.txt
 $ openssl rand -out noise.bin 2048
 $ certutil -S \
   -x \
   -d /var/lib/tomcats/pki/alias \
-  -f password.txt \
   -z noise.bin \
   -n sslserver \
   -s "CN=$HOSTNAME" \
@@ -204,13 +202,19 @@ See also [PKI Server HTTP Connector Cert CLI](https://www.dogtagpki.org/wiki/PKI
 
 ## Starting Tomcat Instance
 
-To start Tomcat instance:
+To start Tomcat instance in the foreground:
+
+```
+$ pki-server run tomcat@pki
+```
+
+To start Tomcat instance as a systemd service:
 
 ```
 $ systemctl start tomcat@pki
 ```
 
-To view Tomcat logs:
+To view Tomcat instance's systemd journal:
 
 ```
 $ journalctl -u tomcat@pki

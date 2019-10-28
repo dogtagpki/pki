@@ -485,13 +485,22 @@ class PKIServer(object):
 
         logger.info('Creating NSS database: %s', self.nssdb_dir)
 
+        if force and os.path.exists(self.nssdb_dir):
+            logger.warning('NSS database already exists: %s', self.nssdb_dir)
+            return
+
         self.makedirs(self.nssdb_dir, force=force)
+
+        password = self.passwords.get(pki.nssdb.INTERNAL_TOKEN_NAME)
 
         nssdb = pki.nssdb.NSSDatabase(
             directory=self.nssdb_dir,
-            password=self.get_token_password())
+            password=password)
 
-        nssdb.create()
+        try:
+            nssdb.create()
+        finally:
+            nssdb.close()
 
         pki.util.chown(self.nssdb_dir, self.uid, self.gid)
 
