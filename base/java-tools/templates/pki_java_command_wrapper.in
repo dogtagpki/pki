@@ -116,7 +116,7 @@ fi
 ###############################################################################
 
 ${JAVA} ${JAVA_OPTIONS} \
-  -Djava.ext.dirs=${PKI_LIB} \
+  -cp "${PKI_LIB}/*" \
   -Djava.util.logging.config.file=${PKI_LOGGING_CONFIG} \
   com.netscape.cmstools.${COMMAND} "$@"
 
