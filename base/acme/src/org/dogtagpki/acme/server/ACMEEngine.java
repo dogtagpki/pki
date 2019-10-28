@@ -7,12 +7,16 @@ package org.dogtagpki.acme.server;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.security.SecureRandom;
+import java.util.Date;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.acme.ACMEMetadata;
+import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.backend.ACMEBackend;
 import org.dogtagpki.acme.backend.ACMEBackendConfig;
 import org.dogtagpki.acme.database.ACMEDatabase;
@@ -221,5 +225,55 @@ public class ACMEEngine implements ServletContextListener {
             logger.error("Unable to initialize ACME engine: " + e.getMessage(), e);
             throw new RuntimeException("Unable to shutdown ACME engine: " + e.getMessage(), e);
         }
+    }
+
+    public ACMENonce createNonce() throws Exception {
+
+        ACMENonce nonce = new ACMENonce();
+
+        // generate 128-bit nonce with JSS
+        // TODO: make it configurable
+
+        byte[] bytes = new byte[16];
+        SecureRandom random = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
+        random.nextBytes(bytes);
+        String value = Base64.encodeBase64URLSafeString(bytes);
+
+        nonce.setValue(value);
+
+        // set nonce to expire in 30 minutes
+        // TODO: make it configurable
+
+        long currentTime = System.currentTimeMillis();
+        long expirationTime = currentTime + 30 * 60 * 1000;
+
+        nonce.setExpirationTime(new Date(expirationTime));
+
+        database.addNonce(nonce);
+        logger.info("Nonce: " + nonce);
+
+        return nonce;
+    }
+
+    public void validateNonce(String value) throws Exception {
+
+        ACMENonce nonce = database.removeNonce(value);
+
+        if (nonce == null) {
+            throw new Exception("Invalid nonce: " + value);
+        }
+
+        long currentTime = System.currentTimeMillis();
+        long expirationTime = nonce.getExpirationTime().getTime();
+
+        if (expirationTime <= currentTime) {
+            throw new Exception("Expired nonce: " + value);
+        }
+
+        logger.info("Valid nonce: " + value);
+    }
+
+    public void purgeNonces() throws Exception {
+        database.removeExpiredNonces(new Date());
     }
 }

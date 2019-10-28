@@ -6,10 +6,13 @@
 package org.dogtagpki.acme.database;
 
 import java.net.URI;
+import java.util.Collection;
+import java.util.Date;
 
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEChallenge;
+import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 
 /**
@@ -31,6 +34,24 @@ public class ACMEDatabase {
     }
 
     public void close() throws Exception {
+    }
+
+    public Collection<ACMENonce> getNonces() throws Exception {
+        return null;
+    }
+
+    public ACMENonce getNonce(String value) throws Exception {
+        return null;
+    }
+
+    public void addNonce(ACMENonce nonce) throws Exception {
+    }
+
+    public ACMENonce removeNonce(String value) throws Exception {
+        return null;
+    }
+
+    public void removeExpiredNonces(Date currentTime) throws Exception {
     }
 
     public ACMEAccount getAccount(String accountID) throws Exception {
