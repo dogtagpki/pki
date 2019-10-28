@@ -27,6 +27,7 @@ public class ACMEApplication extends Application {
         logger.info("Initializing ACMEApplication");
 
         classes.add(ACMEDirectoryService.class);
+        classes.add(ACMENewNonceService.class);
     }
 
     public Set<Class<?>> getClasses() {

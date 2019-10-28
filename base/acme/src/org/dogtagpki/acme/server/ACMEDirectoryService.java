@@ -5,6 +5,8 @@
 //
 package org.dogtagpki.acme.server;
 
+import java.net.URI;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -37,6 +39,9 @@ public class ACMEDirectoryService {
 
         ACMEEngine engine = ACMEEngine.getInstance();
         directory.setMetadata(engine.getMetadata());
+
+        URI newNonceURL = uriInfo.getBaseUriBuilder().path("new-nonce").build();
+        directory.setNewNonce(newNonceURL);
 
         logger.info("Directory:\n" + directory);
 
