@@ -43,6 +43,9 @@ public class ACMEDirectoryService {
         URI newNonceURL = uriInfo.getBaseUriBuilder().path("new-nonce").build();
         directory.setNewNonce(newNonceURL);
 
+        URI newAccountURL = uriInfo.getBaseUriBuilder().path("new-account").build();
+        directory.setNewAccount(newAccountURL);
+
         logger.info("Directory:\n" + directory);
 
         ResponseBuilder builder = Response.ok();

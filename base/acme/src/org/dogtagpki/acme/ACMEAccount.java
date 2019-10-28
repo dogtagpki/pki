@@ -29,6 +29,9 @@ public class ACMEAccount {
     private Boolean onlyReturnExisting;
     private URI orders;
 
+    @JsonIgnore
+    private JWK jwk;
+
     public String getID() {
         return id;
     }
@@ -75,6 +78,14 @@ public class ACMEAccount {
 
     public void setOrders(URI orders) {
         this.orders = orders;
+    }
+
+    public JWK getJWK() {
+        return jwk;
+    }
+
+    public void setJWK(JWK jwk) {
+        this.jwk = jwk;
     }
 
     public String toJSON() throws Exception {

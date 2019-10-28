@@ -6,17 +6,30 @@
 package org.dogtagpki.acme.server;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.nio.file.Files;
+import java.security.KeyFactory;
+import java.security.MessageDigest;
+import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.Signature;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.Date;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.codec.binary.Base64;
+import org.dogtagpki.acme.ACMEAccount;
+import org.dogtagpki.acme.ACMEError;
 import org.dogtagpki.acme.ACMEMetadata;
 import org.dogtagpki.acme.ACMENonce;
+import org.dogtagpki.acme.JWK;
+import org.dogtagpki.acme.JWS;
 import org.dogtagpki.acme.backend.ACMEBackend;
 import org.dogtagpki.acme.backend.ACMEBackendConfig;
 import org.dogtagpki.acme.database.ACMEDatabase;
@@ -275,5 +288,82 @@ public class ACMEEngine implements ServletContextListener {
 
     public void purgeNonces() throws Exception {
         database.removeExpiredNonces(new Date());
+    }
+
+    public void validateJWS(JWS jws, String alg, JWK jwk) throws Exception {
+
+        logger.info("Validating " + alg + " JWS");
+
+        String message = jws.getProtectedHeader() + "." + jws.getPayload();
+        byte[] signature = Base64.decodeBase64(jws.getSignature());
+
+        // JWS validation
+        // https://tools.ietf.org/html/rfc7515
+        // TODO: support other algorithms
+
+        if ("RS256".equals(alg)) {
+
+            String kty = jwk.getKty();
+            KeyFactory keyFactory = KeyFactory.getInstance(kty, "Mozilla-JSS");
+
+            String n = jwk.getN();
+            BigInteger modulus = new BigInteger(1, Base64.decodeBase64(n));
+
+            String e = jwk.getE();
+            BigInteger publicExponent = new BigInteger(1, Base64.decodeBase64(e));
+
+            RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, publicExponent);
+            PublicKey publicKey = keyFactory.generatePublic(keySpec);
+
+            Signature signer = Signature.getInstance("SHA256withRSA", "Mozilla-JSS");
+            signer.initVerify(publicKey);
+            signer.update(message.getBytes());
+
+            if (!signer.verify(signature)) {
+                throw new Exception("Invalid " + alg + " JWS");
+            }
+
+        } else {
+            throw new Exception("Unsupported JWS algorithm: " + alg);
+        }
+    }
+
+    public String generateThumbprint(JWK jwk) throws Exception {
+
+        // JWK thumbprint
+        // https://tools.ietf.org/html/rfc7638
+        // TODO: make it configurable
+
+        String data = jwk.toJSON();
+        MessageDigest digest = MessageDigest.getInstance("SHA-256", "Mozilla-JSS");
+        byte[] hash = digest.digest(data.getBytes("UTF-8"));
+        return Base64.encodeBase64URLSafeString(hash);
+    }
+
+    public void createAccount(ACMEAccount account) throws Exception {
+        database.addAccount(account);
+    }
+
+    public ACMEAccount validateAccount(String accountID) throws Exception {
+
+        ACMEAccount account = database.getAccount(accountID);
+
+        if (account != null) {
+            return account;
+        }
+
+        logger.info("Account does not exist: " + accountID);
+
+        ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
+        builder.type("application/problem+json");
+
+        ACMEError error = new ACMEError();
+        error.setType("urn:ietf:params:acme:error:accountDoesNotExist");
+        error.setDetail("Account does not exist on the server: " + accountID + "\n" +
+                "Remove the local account with the following command:\n" +
+                "$ rm -rf /etc/letsencrypt/accounts/<ACME server>");
+        builder.entity(error);
+
+        throw new WebApplicationException(builder.build());
     }
 }
