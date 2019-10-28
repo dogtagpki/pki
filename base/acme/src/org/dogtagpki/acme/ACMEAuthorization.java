@@ -5,6 +5,8 @@
 //
 package org.dogtagpki.acme;
 
+import java.net.URI;
+import java.util.Collection;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -32,7 +34,7 @@ public class ACMEAuthorization {
     private String status;
     private String expires;
     private ACMEIdentifier identifier;
-    private ACMEChallenge[] challenges;
+    private Collection<ACMEChallenge> challenges;
     private Boolean wildcard;
 
     public String getID() {
@@ -84,11 +86,18 @@ public class ACMEAuthorization {
         this.identifier = identifier;
     }
 
-    public ACMEChallenge[] getChallenges() {
+    public Collection<ACMEChallenge> getChallenges() {
         return challenges;
     }
 
-    public void setChallenges(ACMEChallenge[] challenges) {
+    public ACMEChallenge getChallenge(URI challengeURL) {
+        for (ACMEChallenge challenge : challenges) {
+            if (challenge.getURL().equals(challengeURL)) return challenge;
+        }
+        return null;
+    }
+
+    public void setChallenges(Collection<ACMEChallenge> challenges) {
         this.challenges = challenges;
     }
 

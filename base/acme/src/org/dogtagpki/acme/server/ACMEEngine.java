@@ -456,6 +456,37 @@ public class ACMEEngine implements ServletContextListener {
         database.addAuthorization(authorization);
     }
 
+    public void validateAuthorization(ACMEAccount account, ACMEAuthorization authorization) throws Exception {
+
+        String authzID = authorization.getID();
+
+        if (!authorization.getAccountID().equals(account.getID())) {
+            // TODO: generate proper exception
+            throw new Exception("Unable to access authorization " + authzID);
+        }
+
+        long currentTime = System.currentTimeMillis();
+        long expirationTime = authorization.getExpirationTime().getTime();
+
+        if (expirationTime <= currentTime) {
+            // TODO: generate proper exception
+            throw new Exception("Expired authorization: " + authzID);
+        }
+
+        logger.info("Valid authorization: " + authzID);
+    }
+
+    public ACMEAuthorization getAuthorization(ACMEAccount account, String authzID) throws Exception {
+        ACMEAuthorization authorization = database.getAuthorization(authzID);
+        validateAuthorization(account, authorization);
+        return authorization;
+    }
+
+    public void updateAuthorization(ACMEAccount account, ACMEAuthorization authorization) throws Exception {
+        validateAuthorization(account, authorization);
+        database.updateAuthorization(authorization);
+    }
+
     public void addOrder(ACMEAccount account, ACMEOrder order) throws Exception {
 
         order.setAccountID(account.getID());

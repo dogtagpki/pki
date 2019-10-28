@@ -11,7 +11,6 @@ import java.util.Date;
 
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
-import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 
@@ -87,12 +86,5 @@ public class ACMEDatabase {
     }
 
     public void updateAuthorization(ACMEAuthorization authorization) throws Exception {
-    }
-
-    public ACMEChallenge getChallenge(String challengeID) throws Exception {
-        return null;
-    }
-
-    public void addChallenge(ACMEChallenge challenge) throws Exception {
     }
 }
