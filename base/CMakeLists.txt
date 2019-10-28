@@ -388,7 +388,7 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
         add_subdirectory(acme)
 
         list(APPEND PKI_JAVADOC_SOURCEPATH
-            ${CMAKE_SOURCE_DIR}/base/server/cms/src)
+            ${CMAKE_SOURCE_DIR}/base/server/src)
 
         list(APPEND PKI_JAVADOC_SUBPACKAGES
             com.netscape.cms)
