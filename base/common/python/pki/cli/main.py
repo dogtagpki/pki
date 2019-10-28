@@ -102,7 +102,7 @@ class PKICLI(pki.cli.CLI):
 
         cmd = [
             java_home + '/bin/java',
-            '-Djava.ext.dirs=' + pki_lib,
+            '-cp', pki_lib + '/*',
             '-Djava.util.logging.config.file=' + logging_config,
             'com.netscape.cmstools.cli.MainCLI'
         ]
