@@ -32,6 +32,7 @@ public class ACMEApplication extends Application {
         classes.add(ACMENewOrderService.class);
         classes.add(ACMEAuthorizationService.class);
         classes.add(ACMEChallengeService.class);
+        classes.add(ACMEFinalizeOrderService.class);
     }
 
     public Set<Class<?>> getClasses() {
