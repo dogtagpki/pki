@@ -30,6 +30,7 @@ public class ACMEApplication extends Application {
         classes.add(ACMENewNonceService.class);
         classes.add(ACMENewAccountService.class);
         classes.add(ACMENewOrderService.class);
+        classes.add(ACMEAuthorizationService.class);
     }
 
     public Set<Class<?>> getClasses() {
