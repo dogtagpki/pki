@@ -412,6 +412,8 @@ class PKIServer(object):
         with open(self.server_xml, 'wb') as f:
             document.write(f, pretty_print=True, encoding='utf-8')
 
+        pki.util.chown(self.server_xml, self.uid, self.gid)
+
     def remove_lockout_realm(self, document):
 
         server = document.getroot()
