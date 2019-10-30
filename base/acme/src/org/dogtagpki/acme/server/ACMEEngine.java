@@ -25,9 +25,11 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.acme.ACMEAccount;
+import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEError;
 import org.dogtagpki.acme.ACMEMetadata;
 import org.dogtagpki.acme.ACMENonce;
+import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWK;
 import org.dogtagpki.acme.JWS;
 import org.dogtagpki.acme.backend.ACMEBackend;
@@ -263,7 +265,7 @@ public class ACMEEngine implements ServletContextListener {
         nonce.setExpirationTime(new Date(expirationTime));
 
         database.addNonce(nonce);
-        logger.info("Nonce: " + nonce);
+        logger.info("Created nonce: " + nonce);
 
         return nonce;
     }
@@ -273,6 +275,7 @@ public class ACMEEngine implements ServletContextListener {
         ACMENonce nonce = database.removeNonce(value);
 
         if (nonce == null) {
+            // TODO: generate proper exception
             throw new Exception("Invalid nonce: " + value);
         }
 
@@ -280,6 +283,7 @@ public class ACMEEngine implements ServletContextListener {
         long expirationTime = nonce.getExpirationTime().getTime();
 
         if (expirationTime <= currentTime) {
+            // TODO: generate proper exception
             throw new Exception("Expired nonce: " + value);
         }
 
@@ -344,7 +348,7 @@ public class ACMEEngine implements ServletContextListener {
         database.addAccount(account);
     }
 
-    public ACMEAccount validateAccount(String accountID) throws Exception {
+    public ACMEAccount getAccount(String accountID) throws Exception {
 
         ACMEAccount account = database.getAccount(accountID);
 
@@ -365,5 +369,35 @@ public class ACMEEngine implements ServletContextListener {
         builder.entity(error);
 
         throw new WebApplicationException(builder.build());
+    }
+
+    public void addAuthorization(ACMEAccount account, ACMEAuthorization authorization) throws Exception {
+
+        authorization.setAccountID(account.getID());
+
+        // set authorizations to expire in 30 minutes
+        // TODO: make it configurable
+
+        long currentTime = System.currentTimeMillis();
+        Date expirationTime = new Date(currentTime + 30 * 60 * 1000);
+
+        authorization.setExpirationTime(expirationTime);
+
+        database.addAuthorization(authorization);
+    }
+
+    public void addOrder(ACMEAccount account, ACMEOrder order) throws Exception {
+
+        order.setAccountID(account.getID());
+
+        // set order to expire in 30 minutes
+        // TODO: make it configurable
+
+        long currentTime = System.currentTimeMillis();
+        Date expirationTime = new Date(currentTime + 30 * 60 * 1000);
+
+        order.setExpirationTime(expirationTime);
+
+        database.addOrder(order);
     }
 }

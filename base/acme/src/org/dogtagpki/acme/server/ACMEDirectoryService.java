@@ -46,6 +46,9 @@ public class ACMEDirectoryService {
         URI newAccountURL = uriInfo.getBaseUriBuilder().path("new-account").build();
         directory.setNewAccount(newAccountURL);
 
+        URI newOrder = uriInfo.getBaseUriBuilder().path("new-order").build();
+        directory.setNewOrder(newOrder);
+
         logger.info("Directory:\n" + directory);
 
         ResponseBuilder builder = Response.ok();
