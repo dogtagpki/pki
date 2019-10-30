@@ -31,6 +31,7 @@ public class ProxyRealm implements Realm {
     public static Map<String, ProxyRealm> proxies = new HashMap<String, ProxyRealm>();
 
     public Container container;
+    public String name;
     public Realm realm;
 
     public ProxyRealm() {
@@ -46,7 +47,9 @@ public class ProxyRealm implements Realm {
         this.container = container;
         if (container instanceof Context) {
             Context context = (Context)container;
-            proxies.put(context.getBaseName(), this);
+            String contextName = context.getBaseName();
+            name = contextName.toUpperCase();
+            proxies.put(contextName, this);
         }
     }
 
@@ -66,29 +69,34 @@ public class ProxyRealm implements Realm {
         proxy.setRealm(realm);
     }
 
+    public void validateRealm() {
+        if (realm != null) return;
+
+        String message = String.format(
+                "%s subsystem unavailable. Check %s debug log.",
+                name,
+                name);
+
+        logger.error(message);
+        throw new ServiceUnavailableException(message);
+    }
     @Override
     public Principal authenticate(String username) {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         logger.info("Authenticating user " + username + ".");
         return realm.authenticate(username);
     }
 
     @Override
     public Principal authenticate(String username, String password) {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         logger.info("Authenticating user " + username + " with password.");
         return realm.authenticate(username, password);
     }
 
     @Override
     public Principal authenticate(X509Certificate certs[]) {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         logger.info("Authenticating certificate chain:");
         for (X509Certificate cert : certs) {
             logger.info(" - " + cert.getSubjectDN());
@@ -107,18 +115,14 @@ public class ProxyRealm implements Realm {
             String realmName,
             String md5a2
     ) {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         logger.info("Authenticating user " + username + " for realm "+ realmName + ".");
         return realm.authenticate(username, digest, nonce, nc, cnonce, qop, realmName, md5a2);
     }
 
     @Override
     public Principal authenticate(GSSContext gssContext, boolean storeCreds) {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         logger.info("Authenticating GSS context " + gssContext + ".");
         return realm.authenticate(gssContext, storeCreds);
     }
@@ -130,33 +134,25 @@ public class ProxyRealm implements Realm {
             SecurityConstraint[] constraints,
             Context context
     ) throws IOException {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         return realm.hasResourcePermission(request, response, constraints, context);
     }
 
     @Override
     public void backgroundProcess() {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         realm.backgroundProcess();
     }
 
     @Override
     public SecurityConstraint[] findSecurityConstraints(Request request, Context context) {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         return realm.findSecurityConstraints(request, context);
     }
 
     @Override
     public boolean hasRole(Wrapper wrapper, Principal principal, String role) {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         return realm.hasRole(wrapper, principal, role);
     }
 
@@ -166,57 +162,43 @@ public class ProxyRealm implements Realm {
             Response response,
             SecurityConstraint[] constraint
     ) throws IOException {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         return realm.hasUserDataPermission(request,  response, constraint);
     }
 
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         realm.addPropertyChangeListener(listener);
     }
 
     @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         realm.removePropertyChangeListener(listener);
     }
 
     @Override
     public CredentialHandler getCredentialHandler() {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         return realm.getCredentialHandler();
     }
 
     @Override
     public void setCredentialHandler(CredentialHandler handler) {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         realm.setCredentialHandler(handler);
     }
 
     @Override
     public String[] getRoles(Principal principal) {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         return realm.getRoles(principal);
     }
 
     @Override
     public boolean isAvailable() {
-        if (realm == null) {
-            throw new ServiceUnavailableException("Subsystem unavailable");
-        }
+        validateRealm();
         return realm.isAvailable();
     }
 }
