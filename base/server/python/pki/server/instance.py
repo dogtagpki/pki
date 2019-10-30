@@ -193,6 +193,13 @@ class PKIInstance(pki.server.PKIServer):
                     prefix.extend(['sudo', '-u', self.user])
 
             cmd = prefix + ['/usr/sbin/pki-server', 'upgrade', '--validate', self.name]
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.extend(['--debug'])
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.extend(['-v'])
+
             logger.debug('Command: %s', ' '.join(cmd))
 
             subprocess.run(cmd, env=self.config, check=True)
