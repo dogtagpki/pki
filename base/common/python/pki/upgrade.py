@@ -26,7 +26,6 @@ import logging
 import os
 import re
 import shutil
-import traceback
 
 import pki
 import pki.util
@@ -38,7 +37,7 @@ UPGRADE_DIR = pki.SHARE_DIR + '/upgrade'
 BACKUP_DIR = pki.LOG_DIR + '/upgrade'
 SYSTEM_TRACKER = pki.CONF_DIR + '/pki.version'
 
-verbose = False
+logger = logging.getLogger(__name__)
 
 
 class PKIUpgradeTracker(object):
@@ -60,17 +59,14 @@ class PKIUpgradeTracker(object):
 
     def remove(self):
 
-        if verbose:
-            print('Removing ' + self.name + ' tracker.')
+        logger.info('Removing %s tracker', self.name)
 
         self.remove_version()
         self.remove_index()
 
     def set(self, version):
 
-        if verbose:
-            print('Setting ' + self.name + ' tracker to version ' +
-                  str(version) + '.')
+        logger.info('Setting %s tracker to version %s', self.name, version)
 
         self.set_version(version)
         self.remove_index()
@@ -237,21 +233,19 @@ class PKIUpgradeScriptlet(object):
 
         try:
             if not self.can_upgrade():
-                if verbose:
-                    print('Skipping system.')
+                logger.info('Skipping system')
                 return
 
-            if verbose:
-                print('Upgrading system.')
+            logger.info('Upgrading system')
             self.upgrade_system()
             self.update_tracker()
 
         except Exception as e:
 
-            if verbose:
-                traceback.print_exc()
+            if logger.isEnabledFor(logging.INFO):
+                logger.exception(e)
             else:
-                print('ERROR: %s' % e)
+                logger.error(e)
 
             message = 'Failed upgrading system.'
             if self.upgrader.silent:
@@ -285,16 +279,14 @@ class PKIUpgradeScriptlet(object):
                     destpath = '/'
 
                 if not os.path.isdir(destpath):
-                    if verbose:
-                        print('Restoring ' + destpath)
+                    logger.info('Restoring %s', destpath)
                     pki.util.copydirs(sourcepath, destpath, force=True)
 
                 for filename in filenames:
                     sourcefile = os.path.join(sourcepath, filename)
                     targetfile = os.path.join(destpath, filename)
 
-                    if verbose:
-                        print('Restoring ' + targetfile)
+                    logger.info('Restoring %s', targetfile)
                     pki.util.copyfile(sourcefile, targetfile, force=True)
 
         newfiles = backup_dir + '/newfiles'
@@ -313,8 +305,7 @@ class PKIUpgradeScriptlet(object):
 
                 if not os.path.exists(path):
                     continue
-                if verbose:
-                    print('Deleting ' + path)
+                logger.info('Deleting %s', path)
 
                 if os.path.isfile(path):
                     os.remove(path)
@@ -344,8 +335,7 @@ class PKIUpgradeScriptlet(object):
             pki.util.copydirs(sourceparent, destparent, force=True)
 
             if os.path.isfile(path):
-                if verbose:
-                    print('Saving ' + path)
+                logger.info('Saving %s', path)
                 # do not overwrite initial backup
                 pki.util.copyfile(path, dest, force=False)
 
@@ -355,16 +345,14 @@ class PKIUpgradeScriptlet(object):
                     relpath = sourcepath[len(path):]
                     destpath = dest + relpath
 
-                    if verbose:
-                        print('Saving ' + sourcepath)
+                    logger.info('Saving %s', sourcepath)
                     pki.util.copydirs(sourcepath, destpath, force=True)
 
                     for filename in filenames:
                         sourcefile = os.path.join(sourcepath, filename)
                         targetfile = os.path.join(destpath, filename)
 
-                        if verbose:
-                            print('Saving ' + sourcefile)
+                        logger.info('Saving %s', sourcefile)
                         # do not overwrite initial backup
                         pki.util.copyfile(sourcefile, targetfile, force=False)
 
@@ -372,8 +360,7 @@ class PKIUpgradeScriptlet(object):
 
             # otherwise, record the name
 
-            if verbose:
-                print('Recording ' + path)
+            logger.info('Recording %s', path)
             with open(backup_dir + '/newfiles', 'a') as f:
                 f.write(path + '\n')
 
@@ -606,10 +593,10 @@ class PKIUpgrader(object):
 
                 message = 'Upgrade failed: %s' % e
 
-                if verbose:
-                    traceback.print_exc()
+                if logger.isEnabledFor(logging.INFO):
+                    logger.exception(e)
                 else:
-                    print(e)
+                    logger.error(e)
 
                 print()
 
@@ -670,10 +657,10 @@ class PKIUpgrader(object):
 
                 message = 'Revert failed: %s' % e
 
-                if verbose:
-                    traceback.print_exc()
+                if logger.isEnabledFor(logging.INFO):
+                    logger.exception(e)
                 else:
-                    print(e)
+                    logger.error(e)
 
                 print()
 

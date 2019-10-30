@@ -134,7 +134,6 @@ class UpgradeCLI(pki.cli.CLI):
                 tracker_version = pki.util.Version(a)
 
             elif o in ('-v', '--verbose'):
-                pki.upgrade.verbose = True
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--debug':

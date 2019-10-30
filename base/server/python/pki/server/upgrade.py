@@ -22,20 +22,19 @@ from __future__ import absolute_import
 from __future__ import print_function
 import logging
 import os
-import traceback
 
 import pki
 import pki.upgrade
 import pki.util
 import pki.server
 
-from pki.upgrade import verbose
-
 UPGRADE_DIR = pki.SHARE_DIR + '/server/upgrade'
 BACKUP_DIR = pki.LOG_DIR + '/server/upgrade'
 
 INSTANCE_TRACKER = '%s/tomcat.conf'
 SUBSYSTEM_TRACKER = '%s/CS.cfg'
+
+logger = logging.getLogger(__name__)
 
 
 class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
@@ -79,23 +78,21 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                 continue
 
             if not self.can_upgrade_server(instance):
-                if verbose:
-                    print('Skipping ' + str(instance) + ' instance.')
+                logger.info('Skipping %s instance', instance)
                 continue
 
             try:
-                if verbose:
-                    print('Upgrading ' + str(instance) + ' instance.')
+                logger.info('Upgrading %s instance', instance)
 
                 self.upgrade_instance(instance)
                 self.update_server_tracker(instance)
 
             except Exception as e:
 
-                if verbose:
-                    traceback.print_exc()
+                if logger.isEnabledFor(logging.INFO):
+                    logger.exception(e)
                 else:
-                    print('ERROR: %s' % e)
+                    logger.error(e)
 
                 message = 'Failed upgrading ' + str(instance) + ' instance.'
                 if self.upgrader.silent:
@@ -118,22 +115,20 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
             logging.info('Upgrading %s subsystem', subsystem.name)
 
             if not self.can_upgrade_server(instance, subsystem):
-                if verbose:
-                    print('Skipping ' + str(subsystem) + ' subsystem.')
+                logger.info('Skipping %s subsystem', subsystem)
                 continue
 
             try:
-                if verbose:
-                    print('Upgrading ' + str(subsystem) + ' subsystem.')
+                logger.info('Upgrading %s subsystem', subsystem)
                 self.upgrade_subsystem(instance, subsystem)
                 self.update_server_tracker(instance, subsystem)
 
             except Exception as e:
 
-                if verbose:
-                    traceback.print_exc()
+                if logger.isEnabledFor(logging.INFO):
+                    logger.exception(e)
                 else:
-                    print('ERROR: %s' % e)
+                    logger.error(e)
 
                 message = 'Failed upgrading ' + str(subsystem) + ' subsystem.'
                 if self.upgrader.silent:
