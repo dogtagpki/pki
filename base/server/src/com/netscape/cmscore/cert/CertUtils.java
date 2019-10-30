@@ -961,26 +961,25 @@ public class CertUtils {
 
     public static void verifySystemCertValidityByNickname(String nickname) throws Exception {
 
-        String method = "Certutils.verifySystemCertValidityByNickname: ";
+        logger.info("CertUtils: Validating certificate " + nickname);
 
-        logger.debug(method + "(" + nickname + ")");
         try {
             CryptoManager cm = CryptoManager.getInstance();
             org.mozilla.jss.crypto.X509Certificate cert = cm.findCertByNickname(nickname);
 
             X509CertImpl impl = new X509CertImpl(cert.getEncoded());
+            impl.checkValidity();
 
-            boolean valid = isValidCert(impl);
+        } catch (CertificateExpiredException | CertificateNotYetValidException e) {
+            String message = "Invalid certificate " + nickname + ": " + e.getMessage();
+            logger.error(message, e);
+            throw new Exception(message, e);
 
-            if (!valid) {
-                throw new Exception(method + " failed: nickname: " + nickname);
-            }
         } catch (Exception e) {
-            logger.error(method + " failed : " + e.getMessage(), e);
-            throw new Exception(method + " faliled: nickname: "+ nickname + "cause: " + e);
+            String message = "Unable to validate certificate " + nickname + ": " + e.getMessage();
+            logger.error(message, e);
+            throw new Exception(message, e);
         }
-
-        logger.debug(method + "success");
     }
 
     /*
