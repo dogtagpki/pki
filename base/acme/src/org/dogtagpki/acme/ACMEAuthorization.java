@@ -5,6 +5,8 @@
 //
 package org.dogtagpki.acme;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -21,6 +23,12 @@ public class ACMEAuthorization {
     @JsonIgnore
     private String id;
 
+    @JsonIgnore
+    private String accountID;
+
+    @JsonIgnore
+    private Date expirationTime;
+
     private String status;
     private String expires;
     private ACMEIdentifier identifier;
@@ -33,6 +41,23 @@ public class ACMEAuthorization {
 
     public void setID(String id) {
         this.id = id;
+    }
+
+    public String getAccountID() {
+        return accountID;
+    }
+
+    public void setAccountID(String accountID) {
+        this.accountID = accountID;
+    }
+
+    public Date getExpirationTime() {
+        return expirationTime;
+    }
+
+    public void setExpirationTime(Date expirationTime) {
+        this.expirationTime = expirationTime;
+        expires = ACME.DATE_FORMAT.format(expirationTime);
     }
 
     public String getStatus() {

@@ -6,6 +6,7 @@
 package org.dogtagpki.acme;
 
 import java.net.URI;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -22,6 +23,12 @@ public class ACMEOrder {
 
     @JsonIgnore
     private String id;
+
+    @JsonIgnore
+    private String accountID;
+
+    @JsonIgnore
+    private Date expirationTime;
 
     private String status;
     private String expires;
@@ -41,6 +48,23 @@ public class ACMEOrder {
 
     public void setID(String id) {
         this.id = id;
+    }
+
+    public String getAccountID() {
+        return accountID;
+    }
+
+    public void setAccountID(String accountID) {
+        this.accountID = accountID;
+    }
+
+    public Date getExpirationTime() {
+        return expirationTime;
+    }
+
+    public void setExpirationTime(Date expirationTime) {
+        this.expirationTime = expirationTime;
+        expires = ACME.DATE_FORMAT.format(expirationTime);
     }
 
     public String getStatus() {

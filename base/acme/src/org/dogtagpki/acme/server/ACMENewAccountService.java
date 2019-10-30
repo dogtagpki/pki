@@ -80,8 +80,8 @@ public class ACMENewAccountService {
             engine.createAccount(account);
 
         } else {
-            // validate existing account
-            account = engine.validateAccount(accountID);
+            // get existing account
+            account = engine.getAccount(accountID);
         }
 
         URI accountURL = uriInfo.getBaseUriBuilder().path("acct").path(accountID).build();
