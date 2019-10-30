@@ -39,29 +39,33 @@ class RemoveUserDatabase(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         self.upgrade_server_xml(instance)
 
-        logger.info('Removing tomcat-users.xml')
-
         tomcat_users_xml = os.path.join(instance.conf_dir, 'tomcat-users.xml')
+        logger.info('Checking %s', tomcat_users_xml)
 
         if os.path.lexists(tomcat_users_xml):
+            logger.info('Removing %s', tomcat_users_xml)
             self.backup(tomcat_users_xml)
             pki.util.remove(tomcat_users_xml)
 
-        logger.info('Removing tomcat-users.xsd')
-
         tomcat_users_xsd = os.path.join(instance.conf_dir, 'tomcat-users.xsd')
+        logger.info('Checking %s', tomcat_users_xsd)
 
         if os.path.lexists(tomcat_users_xsd):
+            logger.info('Removing %s', tomcat_users_xsd)
             self.backup(tomcat_users_xsd)
             pki.util.remove(tomcat_users_xsd)
 
     def upgrade_server_xml(self, instance):
 
+        logger.info('Upgrading %s', instance.server_xml)
         self.backup(instance.server_xml)
 
         document = etree.parse(instance.server_xml, self.parser)
 
+        logger.info('Removing LockOutRealm')
         instance.remove_lockout_realm(document)
+
+        logger.info('Removing UserDatabase')
         instance.remove_default_user_database(document)
 
         with open(instance.server_xml, 'wb') as f:

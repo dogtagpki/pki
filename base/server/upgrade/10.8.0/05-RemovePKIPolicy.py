@@ -18,9 +18,12 @@
 # All rights reserved.
 
 from __future__ import absolute_import
+import logging
 import os
 
 import pki
+
+logger = logging.getLogger(__name__)
 
 
 class RemovePKIPolicy(pki.server.upgrade.PKIServerUpgradeScriptlet):
@@ -32,7 +35,9 @@ class RemovePKIPolicy(pki.server.upgrade.PKIServerUpgradeScriptlet):
     def upgrade_instance(self, instance):
 
         pki_policy = os.path.join(instance.conf_dir, 'pki.policy')
+        logging.info('Checking %s', pki_policy)
 
         if os.path.exists(pki_policy):
+            logging.info('Removing %s', pki_policy)
             self.backup(pki_policy)
             pki.util.remove(pki_policy)

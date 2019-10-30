@@ -16,11 +16,14 @@
 #
 # Copyright (C) 2019 Red Hat, Inc.
 # All rights reserved.
-#
 
 from __future__ import absolute_import
+import logging
 import os
+
 import pki
+
+logger = logging.getLogger(__name__)
 
 
 class FixCommonFolder(pki.server.upgrade.PKIServerUpgradeScriptlet):
@@ -31,16 +34,18 @@ class FixCommonFolder(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def upgrade_instance(self, instance):
 
+        logging.info('Checking %s', instance.common_dir)
         if not os.path.islink(instance.common_dir):
-            # <instance>/common is already a real folder
+            logging.info('%s is already a real folder', instance.common_dir)
             return
 
+        logging.info('Backing up %s', instance.common_dir)
         self.backup(instance.common_dir)
 
-        # replace <instance>/common link with a real folder
+        logging.info('Replacing %s link with a real folder', instance.common_dir)
         pki.util.unlink(instance.common_dir)
         instance.makedirs(instance.common_dir)
 
-        # link <instance>/common/lib to /usr/share/pki/server/common/lib
+        logging.info('Linking %s to /usr/share/pki/server/common/lib', instance.common_dir)
         common_lib_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'server', 'common', 'lib')
         instance.symlink(common_lib_dir, instance.common_lib_dir)

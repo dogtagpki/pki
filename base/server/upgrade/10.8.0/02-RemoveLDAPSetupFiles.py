@@ -16,12 +16,14 @@
 #
 # Copyright (C) 2019 Red Hat, Inc.
 # All rights reserved.
-#
 
 from __future__ import absolute_import
-
+import logging
 import os
+
 import pki
+
+logger = logging.getLogger(__name__)
 
 
 class RemoveLDAPSetupFiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
@@ -33,16 +35,22 @@ class RemoveLDAPSetupFiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
     def upgrade_instance(self, instance):
 
         schema_authority_ldif = os.path.join(instance.conf_dir, 'schema-authority.ldif')
+        logging.info('Checking %s', schema_authority_ldif)
         if os.path.exists(schema_authority_ldif):
+            logging.info('Removing %s', schema_authority_ldif)
             self.backup(schema_authority_ldif)
             pki.util.remove(schema_authority_ldif)
 
         schema_certProfile_ldif = os.path.join(instance.conf_dir, 'schema-certProfile.ldif')
+        logging.info('Checking %s', schema_certProfile_ldif)
         if os.path.exists(schema_certProfile_ldif):
+            logging.info('Removing %s', schema_certProfile_ldif)
             self.backup(schema_certProfile_ldif)
             pki.util.remove(schema_certProfile_ldif)
 
         usn_ldif = os.path.join(instance.conf_dir, 'usn.ldif')
+        logging.info('Checking %s', usn_ldif)
         if os.path.exists(usn_ldif):
+            logging.info('Removing %s', usn_ldif)
             self.backup(usn_ldif)
             pki.util.remove(usn_ldif)

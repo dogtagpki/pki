@@ -16,12 +16,14 @@
 #
 # Copyright (C) 2019 Red Hat, Inc.
 # All rights reserved.
-#
 
 from __future__ import absolute_import
-
+import logging
 import os
+
 import pki
+
+logger = logging.getLogger(__name__)
 
 
 class FixDefaultTomcatFiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
@@ -32,22 +34,28 @@ class FixDefaultTomcatFiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def upgrade_instance(self, instance):
 
+        logging.info('Checking %s', instance.context_xml)
         if not os.path.islink(instance.context_xml):
+
+            context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
+            logging.info('Linking %s to %s', instance.context_xml, context_xml)
 
             self.backup(instance.context_xml)
 
             if os.path.exists(instance.context_xml):
                 pki.util.remove(instance.context_xml)
 
-            context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
             instance.symlink(context_xml, instance.context_xml)
 
+        logging.info('Checking %s', instance.web_xml)
         if not os.path.islink(instance.web_xml):
+
+            web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
+            logging.info('Linking %s to %s', instance.web_xml, web_xml)
 
             self.backup(instance.web_xml)
 
             if os.path.exists(instance.web_xml):
                 pki.util.remove(instance.web_xml)
 
-            web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
             instance.symlink(web_xml, instance.web_xml)
