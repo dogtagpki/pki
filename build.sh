@@ -34,7 +34,7 @@ usage() {
     echo "    --name=<name>          Package name (default: pki)."
     echo "    --work-dir=<path>      Working directory (default: ~/build/pki)."
     echo "    --source-tag=<tag>     Generate RPM sources from a source tag."
-    echo "    --spec=<file>          Use the specified RPM spec as a template."
+    echo "    --spec=<file>          Use the specified RPM spec."
     echo "    --with-timestamp       Append timestamp to release number."
     echo "    --with-commit-id       Append commit ID to release number."
     echo "    --dist=<name>          Distribution name (e.g. fc28)."
@@ -74,8 +74,8 @@ generate_rpm_sources() {
 
         if [ "$SOURCE_TAG" != "HEAD" ] ; then
 
-            TAG_ID=`git -C "$SRC_DIR" rev-parse $SOURCE_TAG`
-            HEAD_ID=`git -C "$SRC_DIR" rev-parse HEAD`
+            TAG_ID="$(git -C "$SRC_DIR" rev-parse $SOURCE_TAG)"
+            HEAD_ID="$(git -C "$SRC_DIR" rev-parse HEAD)"
 
             if [ "$TAG_ID" != "$HEAD_ID" ] ; then
                 generate_patch
@@ -221,7 +221,7 @@ while getopts v-: arg ; do
             NAME="$LONG_OPTARG"
             ;;
         work-dir=?*)
-            WORK_DIR=`readlink -f "$LONG_OPTARG"`
+            WORK_DIR="$(readlink -f "$LONG_OPTARG")"
             ;;
         source-tag=?*)
             SOURCE_TAG="$LONG_OPTARG"
@@ -326,13 +326,13 @@ if [ "$SPEC_TEMPLATE" = "" ] ; then
     SPEC_TEMPLATE="$SRC_DIR/pki.spec"
 fi
 
-VERSION="`rpmspec -P "$SPEC_TEMPLATE" | grep "^Version:" | awk '{print $2;}'`"
+VERSION="$(rpmspec -P "$SPEC_TEMPLATE" | grep "^Version:" | awk '{print $2;}')"
 
 if [ "$DEBUG" = true ] ; then
     echo "VERSION: $VERSION"
 fi
 
-RELEASE="`rpmspec -P "$SPEC_TEMPLATE" --undefine dist | grep "^Release:" | awk '{print $2;}'`"
+RELEASE="$(rpmspec -P "$SPEC_TEMPLATE" --undefine dist | grep "^Release:" | awk '{print $2;}')"
 
 if [ "$DEBUG" = true ] ; then
     echo "RELEASE: $RELEASE"
@@ -349,7 +349,7 @@ if [ "$DEBUG" = true ] ; then
 fi
 
 if [ "$WITH_TIMESTAMP" = true ] ; then
-    TIMESTAMP="`date +"%Y%m%d%H%M%S"`"
+    TIMESTAMP="$(date +"%Y%m%d%H%M%S")"
     _TIMESTAMP=".$TIMESTAMP"
 fi
 
@@ -358,7 +358,7 @@ if [ "$DEBUG" = true ] ; then
 fi
 
 if [ "$WITH_COMMIT_ID" = true ]; then
-    COMMIT_ID="`git -C "$SRC_DIR" rev-parse --short=8 HEAD`"
+    COMMIT_ID="$(git -C "$SRC_DIR" rev-parse --short=8 HEAD)"
     _COMMIT_ID=".$COMMIT_ID"
 fi
 
@@ -376,16 +376,18 @@ if [ "$VERBOSE" = true ] ; then
     echo "Initializing $WORK_DIR"
 fi
 
-mkdir -p $WORK_DIR
-cd $WORK_DIR
+mkdir -p "$WORK_DIR"
+cd "$WORK_DIR"
 
 rm -rf BUILD
+rm -rf BUILDROOT
 rm -rf RPMS
 rm -rf SOURCES
 rm -rf SPECS
 rm -rf SRPMS
 
 mkdir BUILD
+mkdir BUILDROOT
 mkdir RPMS
 mkdir SOURCES
 mkdir SPECS
@@ -480,7 +482,7 @@ if [ $rc != 0 ]; then
     exit 1
 fi
 
-SRPM=`find "$WORK_DIR/SRPMS" -type f`
+SRPM="$(find "$WORK_DIR/SRPMS" -type f)"
 
 echo "SRPM package:"
 echo " $SRPM"
