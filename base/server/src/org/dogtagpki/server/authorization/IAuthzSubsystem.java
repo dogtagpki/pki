@@ -21,7 +21,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authorization.AuthzManagerProxy;
 import com.netscape.certsrv.authorization.AuthzMgrPlugin;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;

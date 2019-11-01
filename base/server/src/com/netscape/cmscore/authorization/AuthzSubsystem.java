@@ -23,10 +23,10 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
+import org.dogtagpki.server.authorization.AuthzManagerProxy;
 import org.dogtagpki.server.authorization.IAuthzSubsystem;
 
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authorization.AuthzManagerProxy;
 import com.netscape.certsrv.authorization.AuthzMgrPlugin;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;

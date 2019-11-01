@@ -15,7 +15,9 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.authorization;
+package org.dogtagpki.server.authorization;
+
+import com.netscape.certsrv.authorization.IAuthzManager;
 
 /**
  * A class represents an authorization manager. It contains an
