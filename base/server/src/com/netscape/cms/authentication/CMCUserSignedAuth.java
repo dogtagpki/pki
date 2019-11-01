@@ -39,6 +39,7 @@ import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authentication.IAuthManager;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
@@ -86,7 +87,6 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
-import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;

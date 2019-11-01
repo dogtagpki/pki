@@ -20,13 +20,13 @@ package com.netscape.cmscore.authentication;
 import java.security.cert.X509Certificate;
 
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authentication.IAuthManager;
 import org.dogtagpki.server.authentication.ICertUserDBAuthentication;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
-import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;

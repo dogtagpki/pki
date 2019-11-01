@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.authentication;
 
-import com.netscape.certsrv.authentication.IAuthManager;
-
 /**
  * A class represents an authentication manager. It contains an
  * authentication manager instance and its state (enable or not).

@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.authentication;
 
-import com.netscape.certsrv.authentication.IAuthManager;
-
 /**
  * @author lhsiao
  * @author cfu

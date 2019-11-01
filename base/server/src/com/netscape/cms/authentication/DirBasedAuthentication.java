@@ -27,6 +27,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authentication.IAuthManager;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -39,7 +40,6 @@ import com.netscape.certsrv.authentication.EFormSubjectDN;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
-import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;

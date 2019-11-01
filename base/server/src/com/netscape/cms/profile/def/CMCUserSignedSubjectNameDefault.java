@@ -20,11 +20,11 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
+import org.dogtagpki.server.authentication.IAuthManager;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;

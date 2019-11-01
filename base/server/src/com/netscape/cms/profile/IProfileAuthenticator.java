@@ -20,7 +20,8 @@ package com.netscape.cms.profile;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import com.netscape.certsrv.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.IAuthManager;
+
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
