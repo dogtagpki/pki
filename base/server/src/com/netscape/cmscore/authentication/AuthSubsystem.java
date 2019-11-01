@@ -35,6 +35,8 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cms.authentication.AuthManagerConfig;
+import com.netscape.cms.authentication.AuthManagersConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cms.authentication.CMCAuth;
 import com.netscape.cmscore.apps.CMS;
@@ -189,14 +191,15 @@ public class AuthSubsystem implements IAuthSubsystem {
             logger.debug("loaded sslClientCert auth manager");
 
             // get auth manager instances.
-            c = mConfig.getSubStore(PROP_INSTANCE);
-            Enumeration<String> instances = c.getSubStoreNames();
+            AuthManagersConfig instancesConfig = mConfig.getAuthManagersConfig();
+            Enumeration<String> instances = instancesConfig.getSubStoreNames();
 
             while (instances.hasMoreElements()) {
                 String insName = instances.nextElement();
                 logger.debug("AuthSubsystem: initializing authentication manager " + insName);
 
-                String implName = c.getString(insName + "." + PROP_PLUGIN);
+                AuthManagerConfig authMgrConfig = instancesConfig.getAuthManagerConfig(insName);
+                String implName = authMgrConfig.getString(PROP_PLUGIN);
                 AuthMgrPlugin plugin =
                         mAuthMgrPlugins.get(implName);
 
@@ -214,7 +217,6 @@ public class AuthSubsystem implements IAuthSubsystem {
                 try {
                     authMgrInst = (IAuthManager)
                             Class.forName(className).newInstance();
-                    IConfigStore authMgrConfig = c.getSubStore(insName);
 
                     authMgrInst.init(insName, implName, authMgrConfig);
                     isEnable = true;

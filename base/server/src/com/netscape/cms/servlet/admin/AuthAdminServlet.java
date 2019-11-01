@@ -42,6 +42,7 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.authentication.AuthManagerConfig;
 import com.netscape.cms.authentication.AuthManagersConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
@@ -727,7 +728,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             AuthenticationConfig destStore = mConfig.getAuthenticationConfig();
             AuthManagersConfig instancesConfig = destStore.getAuthManagersConfig();
-            IConfigStore substore = instancesConfig.makeSubStore(id);
+            AuthManagerConfig substore = instancesConfig.createAuthManagerConfig(id);
 
             if (configParams != null) {
                 for (int i = 0; i < configParams.length; i++) {
@@ -1514,7 +1515,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             String[] configParams = mAuths.getConfigParams(implname);
 
-            IConfigStore substore = instancesConfig.makeSubStore(id);
+            AuthManagerConfig substore = instancesConfig.createAuthManagerConfig(id);
 
             substore.put(IAuthSubsystem.PROP_PLUGIN, implname);
             if (configParams != null) {

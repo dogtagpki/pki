@@ -36,6 +36,7 @@ import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.cms.authentication.AuthManagerConfig;
 import com.netscape.cms.authentication.AuthManagersConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -487,7 +488,7 @@ public class RemoteAuthConfig extends CMSServlet {
         }
 
         AuthManagersConfig c0 = mAuthConfig.getAuthManagersConfig();
-        IConfigStore c1 = c0.makeSubStore(instance);
+        AuthManagerConfig c1 = c0.createAuthManagerConfig(instance);
 
         c1.putString("dnpattern", dnPattern);
         c1.putString("ldapByteAttributes", "");
