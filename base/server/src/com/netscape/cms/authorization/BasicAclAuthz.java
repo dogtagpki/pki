@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authorization;
 
+import org.dogtagpki.server.authorization.AuthzManagerConfig;
 import org.dogtagpki.server.authorization.IAuthzManager;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 
 /**
@@ -54,7 +54,7 @@ public class BasicAclAuthz extends AAclAuthz
     /**
      *
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthzManagerConfig config)
             throws EBaseException {
         super.init(name, implName, config);
 

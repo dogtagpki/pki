@@ -22,6 +22,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.server.authorization.AuthzManagerConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.authorization.IAuthzManager;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -32,7 +33,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.usrgrp.IGroup;
@@ -53,7 +53,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
     private String implName;
 
     /* configuration store */
-    private IConfigStore config;
+    private AuthzManagerConfig config;
 
     /* group that is allowed to access resources */
     private String groupName;
@@ -129,7 +129,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
     }
 
     @Override
-    public void init(String name, String implName, IConfigStore config) throws EBaseException {
+    public void init(String name, String implName, AuthzManagerConfig config) throws EBaseException {
         this.name = name;
         this.implName = implName;
         this.config = config;
@@ -148,7 +148,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public AuthzManagerConfig getConfigStore() {
         return config;
     }
 

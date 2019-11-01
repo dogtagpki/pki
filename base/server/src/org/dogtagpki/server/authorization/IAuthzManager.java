@@ -104,7 +104,7 @@ public interface IAuthzManager {
      * @param config The configuration store for this authorization manager.
      * @exception EBaseException If an initialization error occurred.
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthzManagerConfig config)
             throws EBaseException;
 
     /**

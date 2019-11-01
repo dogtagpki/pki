@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.dogtagpki.server.authorization.AuthorizationConfig;
+import org.dogtagpki.server.authorization.AuthzManagerConfig;
 import org.dogtagpki.server.authorization.AuthzManagerProxy;
 import org.dogtagpki.server.authorization.AuthzManagersConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
@@ -115,7 +116,9 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
             while (instances.hasMoreElements()) {
                 String insName = instances.nextElement();
-                String implName = instancesConfig.getString(insName + "." + PROP_PLUGIN);
+
+                AuthzManagerConfig authzMgrConfig = instancesConfig.getAuthzManagerConfig(insName);
+                String implName = authzMgrConfig.getString(PROP_PLUGIN);
                 AuthzMgrPlugin plugin =
                         mAuthzMgrPlugins.get(implName);
 
@@ -136,7 +139,6 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                 try {
                     authzMgrInst = (IAuthzManager)
                             Class.forName(className).newInstance();
-                    IConfigStore authzMgrConfig = instancesConfig.getSubStore(insName);
 
                     authzMgrInst.init(insName, implName, authzMgrConfig);
                     isEnable = true;

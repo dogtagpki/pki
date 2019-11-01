@@ -19,6 +19,7 @@ package com.netscape.cms.authorization;
 
 import java.util.Enumeration;
 
+import org.dogtagpki.server.authorization.AuthzManagerConfig;
 import org.dogtagpki.server.authorization.IAuthzManager;
 
 import com.netscape.certsrv.acls.EACLsException;
@@ -108,7 +109,7 @@ public class DirAclAuthz extends AAclAuthz
                 };
     }
 
-    public void init(String name, String implName, IConfigStore config) throws EBaseException {
+    public void init(String name, String implName, AuthzManagerConfig config) throws EBaseException {
 
         super.init(name, implName, config);
 

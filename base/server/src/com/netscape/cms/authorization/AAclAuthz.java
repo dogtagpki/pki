@@ -24,6 +24,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.dogtagpki.server.authorization.AuthorizationConfig;
+import org.dogtagpki.server.authorization.AuthzManagerConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.authorization.IAuthzManager;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -84,7 +85,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     /* name of the authorization manager plugin */
     private String mImplName = null;
 
-    private IConfigStore mConfig = null;
+    private AuthzManagerConfig mConfig;
 
     private Hashtable<String, IACL> mACLs = new Hashtable<>();
     private Hashtable<String, IAccessEvaluator> mEvaluators = new Hashtable<String, IAccessEvaluator>();
@@ -107,7 +108,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     /**
      * Initializes
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthzManagerConfig config)
             throws EBaseException {
         mName = name;
         mImplName = implName;
@@ -220,7 +221,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     /**
      * Returns the configuration store used by this Authz mgr
      */
-    public IConfigStore getConfigStore() {
+    public AuthzManagerConfig getConfigStore() {
         return mConfig;
     }
 
