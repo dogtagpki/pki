@@ -23,8 +23,8 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.server.authentication.IAuthSubsystem;
 
-import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;

@@ -19,8 +19,9 @@ package org.dogtagpki.server.tps.authentication;
 
 import java.util.HashMap;
 
+import org.dogtagpki.server.authentication.IAuthSubsystem;
+
 import com.netscape.certsrv.authentication.IAuthManager;
-import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;

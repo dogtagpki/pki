@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
@@ -94,7 +95,6 @@ import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;

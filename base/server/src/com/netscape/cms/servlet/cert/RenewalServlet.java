@@ -30,6 +30,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
@@ -38,7 +39,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authentication.AuthToken;
-import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;

@@ -20,6 +20,7 @@ package com.netscape.cms.servlet.processors;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 
+import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
@@ -36,7 +37,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.authentication.AuthToken;
-import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;

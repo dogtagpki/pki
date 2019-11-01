@@ -26,9 +26,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.connector.IRemoteRequest;
 
-import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;

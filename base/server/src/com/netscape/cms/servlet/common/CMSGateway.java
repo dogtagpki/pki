@@ -31,10 +31,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.IAuthSubsystem;
+
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthManager;
-import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
