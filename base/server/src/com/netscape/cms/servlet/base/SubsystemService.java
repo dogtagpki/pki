@@ -26,7 +26,8 @@ import java.util.ResourceBundle;
 
 import javax.ws.rs.core.HttpHeaders;
 
-import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import org.dogtagpki.server.authorization.IAuthzSubsystem;
+
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;

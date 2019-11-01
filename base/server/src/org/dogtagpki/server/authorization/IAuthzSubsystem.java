@@ -15,12 +15,17 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.authorization;
+package org.dogtagpki.server.authorization;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.AuthzManagerProxy;
+import com.netscape.certsrv.authorization.AuthzMgrPlugin;
+import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
+import com.netscape.certsrv.authorization.IAuthzManager;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 

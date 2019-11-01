@@ -22,7 +22,8 @@ import java.util.StringTokenizer;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import org.dogtagpki.server.authorization.IAuthzSubsystem;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.authorization.AuthorizationConfig;
 import com.netscape.cmscore.apps.CMS;
