@@ -15,8 +15,9 @@
 // (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.authentication;
+package org.dogtagpki.server.authentication;
 
+import com.netscape.certsrv.authentication.IAuthManager;
 
 /**
  * @author lhsiao

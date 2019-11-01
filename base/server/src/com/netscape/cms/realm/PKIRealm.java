@@ -9,11 +9,11 @@ import java.util.List;
 import org.apache.catalina.realm.RealmBase;
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
+import org.dogtagpki.server.authentication.ICertUserDBAuthentication;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authentication.ICertUserDBAuthentication;
 import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
