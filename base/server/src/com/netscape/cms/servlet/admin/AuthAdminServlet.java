@@ -26,9 +26,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.AuthManagerProxy;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
 
-import com.netscape.certsrv.authentication.AuthManagerProxy;
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EAuthMgrNotFound;

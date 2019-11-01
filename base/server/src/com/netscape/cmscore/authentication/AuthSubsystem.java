@@ -21,9 +21,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthManagerProxy;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
 
-import com.netscape.certsrv.authentication.AuthManagerProxy;
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EAuthMgrNotFound;
