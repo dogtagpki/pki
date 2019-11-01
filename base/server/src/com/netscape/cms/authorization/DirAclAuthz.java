@@ -19,9 +19,10 @@ package com.netscape.cms.authorization;
 
 import java.util.Enumeration;
 
+import org.dogtagpki.server.authorization.IAuthzManager;
+
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
-import com.netscape.certsrv.authorization.IAuthzManager;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;

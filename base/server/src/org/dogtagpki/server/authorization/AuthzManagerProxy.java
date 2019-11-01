@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.authorization;
 
-import com.netscape.certsrv.authorization.IAuthzManager;
-
 /**
  * A class represents an authorization manager. It contains an
  * authorization manager instance and its state (enable or not).

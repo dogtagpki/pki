@@ -24,17 +24,17 @@ import java.util.List;
 import java.util.Vector;
 
 import org.dogtagpki.server.authorization.AuthzManagerProxy;
+import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.authorization.IAuthzManager;
 import org.dogtagpki.server.authorization.IAuthzSubsystem;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzMgrPlugin;
-import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.authorization.EAuthzMgrNotFound;
 import com.netscape.certsrv.authorization.EAuthzMgrPluginNotFound;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
-import com.netscape.certsrv.authorization.IAuthzManager;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;

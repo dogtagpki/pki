@@ -17,7 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authorization;
 
-import com.netscape.certsrv.authorization.IAuthzManager;
+import org.dogtagpki.server.authorization.IAuthzManager;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
