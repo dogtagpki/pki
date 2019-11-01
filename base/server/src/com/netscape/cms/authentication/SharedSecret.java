@@ -21,6 +21,7 @@ import java.math.BigInteger;
 // ldap java sdk
 import java.util.Enumeration;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -33,7 +34,6 @@ import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.pkix.cmc.PKIData;
 
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;

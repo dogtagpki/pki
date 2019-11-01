@@ -22,9 +22,9 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
@@ -129,7 +129,7 @@ public class AgentCertAuthentication implements IAuthManager,
      *                authentication manager is missing.
      * @exception EInvalidCredentials If credentials cannot be authenticated.
      * @exception EBaseException If an internal error occurred.
-     * @see com.netscape.certsrv.authentication.AuthToken
+     * @see org.dogtagpki.server.authentication.AuthToken
      * @see com.netscape.certsrv.usrgrp.Certificates
      */
     public IAuthToken authenticate(IAuthCredentials authCred)

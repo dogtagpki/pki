@@ -26,6 +26,7 @@ import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.kra.ProofOfArchival;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
@@ -48,7 +49,6 @@ import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.pkix.primitive.AVA;
 
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;

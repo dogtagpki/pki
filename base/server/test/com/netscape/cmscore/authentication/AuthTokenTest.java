@@ -6,6 +6,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.junit.Assert;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
@@ -13,7 +14,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 

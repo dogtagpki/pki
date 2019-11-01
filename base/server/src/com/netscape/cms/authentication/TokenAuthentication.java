@@ -25,7 +25,8 @@ import java.util.Vector;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
-import com.netscape.certsrv.authentication.AuthToken;
+import org.dogtagpki.server.authentication.AuthToken;
+
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
@@ -117,7 +118,7 @@ public class TokenAuthentication implements IAuthManager,
      *                authentication manager is missing.
      * @exception EInvalidCredentials If credentials cannot be authenticated.
      * @exception EBaseException If an internal error occurred.
-     * @see com.netscape.certsrv.authentication.AuthToken
+     * @see org.dogtagpki.server.authentication.AuthToken
      * @see com.netscape.certsrv.usrgrp.Certificates
      */
     public IAuthToken authenticate(IAuthCredentials authCred)

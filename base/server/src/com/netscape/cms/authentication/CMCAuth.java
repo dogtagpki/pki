@@ -37,6 +37,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
@@ -76,7 +77,6 @@ import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
@@ -251,7 +251,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
      *                If credentials failed authentication.
      * @exception com.netscape.certsrv.base.EBaseException
      *                If an internal error occurred.
-     * @see com.netscape.certsrv.authentication.AuthToken
+     * @see org.dogtagpki.server.authentication.AuthToken
      */
     public IAuthToken authenticate(IAuthCredentials authCred) throws EMissingCredential, EInvalidCredentials,
             EBaseException {

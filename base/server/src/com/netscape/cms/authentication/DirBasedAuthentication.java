@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -33,7 +34,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EFormSubjectDN;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -412,7 +412,7 @@ public abstract class DirBasedAuthentication
      *                If credentials failed authentication.
      * @exception com.netscape.certsrv.base.EBaseException
      *                If an internal error occurred.
-     * @see com.netscape.certsrv.authentication.AuthToken
+     * @see org.dogtagpki.server.authentication.AuthToken
      */
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {

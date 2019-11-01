@@ -7,6 +7,7 @@ import java.security.cert.CertificateException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.junit.Assert;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -17,7 +18,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
