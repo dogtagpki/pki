@@ -22,10 +22,10 @@ import java.util.StringTokenizer;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
+import org.dogtagpki.server.authorization.AuthorizationConfig;
 import org.dogtagpki.server.authorization.IAuthzSubsystem;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cms.authorization.AuthorizationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;

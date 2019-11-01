@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.IAuthManager;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
+import org.dogtagpki.server.authorization.AuthorizationConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.authorization.IAuthzSubsystem;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -58,7 +59,6 @@ import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.authorization.AuthorizationConfig;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.UserInfo;

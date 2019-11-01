@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-package com.netscape.cms.authorization;
+package org.dogtagpki.server.authorization;
 
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;

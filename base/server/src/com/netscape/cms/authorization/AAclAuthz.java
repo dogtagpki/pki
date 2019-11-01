@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.dogtagpki.server.authorization.AuthorizationConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.authorization.IAuthzManager;
 import org.mozilla.jss.netscape.security.util.Utils;
