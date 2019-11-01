@@ -20,6 +20,7 @@ package com.netscape.cms.profile;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.IAuthManager;
 
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -28,7 +29,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.authentication.AuthManagerConfig;
 
 /**
  * This interface represents an authenticator for profile.

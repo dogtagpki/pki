@@ -57,11 +57,6 @@ public interface IAuthSubsystem extends ISubsystem {
      */
     public static final String PROP_PLUGIN = "pluginName";
 
-    /**
-     * Constant for instance.
-     */
-    public static final String PROP_INSTANCE = "instance";
-
     /* XXX should not be here */
 
     /**

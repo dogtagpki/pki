@@ -21,6 +21,7 @@ import java.math.BigInteger;
 // ldap java sdk
 import java.util.Enumeration;
 
+import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.crypto.CryptoToken;

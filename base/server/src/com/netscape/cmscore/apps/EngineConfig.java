@@ -5,10 +5,10 @@
 //
 package com.netscape.cmscore.apps;
 
+import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.authorization.AuthorizationConfig;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;

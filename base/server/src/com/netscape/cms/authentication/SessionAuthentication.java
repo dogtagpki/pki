@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import org.dogtagpki.server.authentication.AuthManagerConfig;
+
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;

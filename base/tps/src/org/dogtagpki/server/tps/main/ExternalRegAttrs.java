@@ -2,11 +2,11 @@ package org.dogtagpki.server.tps.main;
 
 import java.util.ArrayList;
 
+import org.dogtagpki.server.authentication.AuthManagersConfig;
+import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cms.authentication.AuthManagersConfig;
-import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;

@@ -22,7 +22,10 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import org.dogtagpki.server.authentication.AuthManagerConfig;
+import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.authentication.IAuthManager;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 

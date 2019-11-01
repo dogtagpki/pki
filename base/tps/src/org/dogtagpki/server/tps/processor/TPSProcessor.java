@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.dogtagpki.server.authentication.AuthManagersConfig;
+import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.authentication.IAuthManager;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
@@ -102,8 +104,6 @@ import com.netscape.certsrv.logging.event.TokenAuthEvent;
 import com.netscape.certsrv.logging.event.TokenFormatEvent;
 import com.netscape.certsrv.logging.event.TokenKeyChangeoverEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
-import com.netscape.cms.authentication.AuthManagersConfig;
-import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;

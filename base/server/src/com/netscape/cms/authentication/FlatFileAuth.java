@@ -31,6 +31,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.authentication.EInvalidCredentials;

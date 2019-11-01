@@ -22,7 +22,6 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cms.authentication.AuthManagerConfig;
 
 /**
  * Authentication Manager interface.
