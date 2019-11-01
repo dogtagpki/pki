@@ -42,6 +42,7 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.authentication.AuthManagersConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -286,7 +287,7 @@ public class AuthAdminServlet extends AdminServlet {
                         addAuthMgrPlugin(req, resp, scope);
                         return;
                     } else if (scope.equals(ScopeDef.SC_AUTH_MGR_INSTANCE)) {
-                        addAuthMgrInst(req, resp, scope);
+                        addAuthMgrInst(req, resp);
                         return;
                     } else {
                         sendResponse(ERROR,
@@ -306,7 +307,7 @@ public class AuthAdminServlet extends AdminServlet {
                         delAuthMgrPlugin(req, resp, scope);
                         return;
                     } else if (scope.equals(ScopeDef.SC_AUTH_MGR_INSTANCE)) {
-                        delAuthMgrInst(req, resp, scope);
+                        delAuthMgrInst(req, resp);
                         return;
                     } else {
                         sendResponse(ERROR,
@@ -323,7 +324,7 @@ public class AuthAdminServlet extends AdminServlet {
                         return;
                     }
                     if (scope.equals(ScopeDef.SC_AUTH_MGR_INSTANCE)) {
-                        modAuthMgrInst(req, resp, scope);
+                        modAuthMgrInst(req, resp);
                         return;
                     }
                 } else {
@@ -620,14 +621,12 @@ public class AuthAdminServlet extends AdminServlet {
      *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
-     * @param scope string used to obtain the contents of this authentication
-     *            manager's substore
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
     private synchronized void addAuthMgrInst(HttpServletRequest req,
-            HttpServletResponse resp, String scope)
+            HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
         String auditMessage = null;
@@ -727,8 +726,7 @@ public class AuthAdminServlet extends AdminServlet {
             String[] configParams = mAuths.getConfigParams(implname);
 
             AuthenticationConfig destStore = mConfig.getAuthenticationConfig();
-            IConfigStore instancesConfig =
-                    destStore.getSubStore(scope);
+            AuthManagersConfig instancesConfig = destStore.getAuthManagersConfig();
             IConfigStore substore = instancesConfig.makeSubStore(id);
 
             if (configParams != null) {
@@ -1136,14 +1134,12 @@ public class AuthAdminServlet extends AdminServlet {
      *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
-     * @param scope string used to obtain the contents of this authentication
-     *            manager's substore
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
     private synchronized void delAuthMgrInst(HttpServletRequest req,
-            HttpServletResponse resp, String scope) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         String auditMessage = null;
@@ -1205,8 +1201,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // remove the configuration.
             AuthenticationConfig destStore = mConfig.getAuthenticationConfig();
-            IConfigStore instancesConfig =
-                    destStore.getSubStore(scope);
+            AuthManagersConfig instancesConfig = destStore.getAuthManagersConfig();
 
             instancesConfig.removeSubStore(id);
             // commiting
@@ -1385,14 +1380,12 @@ public class AuthAdminServlet extends AdminServlet {
      *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
-     * @param scope string used to obtain the contents of this authentication
-     *            manager's substore
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
     private synchronized void modAuthMgrInst(HttpServletRequest req,
-            HttpServletResponse resp, String scope)
+            HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
         // expensive operation.
@@ -1513,8 +1506,7 @@ public class AuthAdminServlet extends AdminServlet {
             // remove old substore.
 
             AuthenticationConfig destStore = mConfig.getAuthenticationConfig();
-            IConfigStore instancesConfig =
-                    destStore.getSubStore(scope);
+            AuthManagersConfig instancesConfig = destStore.getAuthManagersConfig();
 
             instancesConfig.removeSubStore(id);
 

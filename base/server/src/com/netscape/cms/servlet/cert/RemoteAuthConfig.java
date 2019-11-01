@@ -36,6 +36,7 @@ import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.cms.authentication.AuthManagersConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -485,7 +486,7 @@ public class RemoteAuthConfig extends CMSServlet {
             return "Missing port number.";
         }
 
-        IConfigStore c0 = mAuthConfig.getSubStore("instance");
+        AuthManagersConfig c0 = mAuthConfig.getAuthManagersConfig();
         IConfigStore c1 = c0.makeSubStore(instance);
 
         c1.putString("dnpattern", dnPattern);
@@ -538,7 +539,7 @@ public class RemoteAuthConfig extends CMSServlet {
     }
 
     private String deleteInstance(String instance) {
-        IConfigStore c = mAuthConfig.getSubStore("instance");
+        AuthManagersConfig c = mAuthConfig.getAuthManagersConfig();
 
         c.removeSubStore(instance);
 

@@ -102,6 +102,7 @@ import com.netscape.certsrv.logging.event.TokenAuthEvent;
 import com.netscape.certsrv.logging.event.TokenFormatEvent;
 import com.netscape.certsrv.logging.event.TokenKeyChangeoverEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cms.authentication.AuthManagersConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -1225,26 +1226,27 @@ public class TPSProcessor {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig configStore = engine.getConfig();
         AuthenticationConfig authConfig = configStore.getAuthenticationConfig();
+        AuthManagersConfig instancesConfig = authConfig.getAuthManagersConfig();
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TPSAuthenticator authInst =
                 subsystem.getAuthenticationManager().getAuthInstance(authId);
 
-        String authCredNameConf = "instance." + authId + ".authCredName";
-        logger.debug("TPSProcessor.getAuthentication: getting config: auths." + authCredNameConf);
-        String authCredName = authConfig.getString(authCredNameConf);
+        String authCredNameConf = authId + ".authCredName";
+        logger.debug("TPSProcessor.getAuthentication: getting config: auths.instance." + authCredNameConf);
+        String authCredName = instancesConfig.getString(authCredNameConf);
 
         if (authCredName == null) {
-            logMsg = "TPSProcessor.getAuthentication: config param not found: auths." + authCredNameConf;
+            logMsg = "TPSProcessor.getAuthentication: config param not found: auths.instance." + authCredNameConf;
             logger.error(logMsg);
             throw new EBaseException(logMsg);
         }
         authInst.setAuthCredName(authCredName);
 
         // set ldapStringAttrs for later processing
-        String authLdapStringAttrs = "instance." + authId + ".ldapStringAttributes";
-        logger.debug("TPSProcessor.getAuthentication: getting config: auths." + authLdapStringAttrs);
-        String authLdapStringAttributes = authConfig.getString(authLdapStringAttrs, "");
+        String authLdapStringAttrs = authId + ".ldapStringAttributes";
+        logger.debug("TPSProcessor.getAuthentication: getting config: auths.instance." + authLdapStringAttrs);
+        String authLdapStringAttributes = instancesConfig.getString(authLdapStringAttrs, "");
 
         if (authLdapStringAttributes != null && !authLdapStringAttributes.equals("")) {
             logMsg = "TPSProcessor.getAuthentication: got ldapStringAttributes... setting up";

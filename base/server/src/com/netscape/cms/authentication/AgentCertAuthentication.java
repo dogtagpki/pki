@@ -141,6 +141,7 @@ public class AgentCertAuthentication implements IAuthManager,
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig sconfig = engine.getConfig();
         AuthenticationConfig authsConfig = sconfig.getAuthenticationConfig();
+        AuthManagersConfig instancesConfig = authsConfig.getAuthManagersConfig();
 
         // force SSL handshake
         SessionContext context = SessionContext.getExistingContext();
@@ -213,7 +214,7 @@ public class AgentCertAuthentication implements IAuthManager,
         // get group name from configuration file
         String groupname = "";
         try {
-            groupname = authsConfig.getString("instance." + getName() + ".agentGroup", "");
+            groupname = instancesConfig.getString(getName() + ".agentGroup", "");
         } catch (EBaseException ee) {
         }
 

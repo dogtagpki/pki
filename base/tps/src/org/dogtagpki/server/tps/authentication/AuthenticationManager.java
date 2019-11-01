@@ -23,6 +23,7 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cms.authentication.AuthManagersConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -85,7 +86,7 @@ public class AuthenticationManager
         EngineConfig conf = engine.getConfig();
         AuthenticationConfig authConfig = conf.getAuthenticationConfig();
 
-        IConfigStore authInstSubstore = authConfig.getSubStore("instance");
+        AuthManagersConfig authInstSubstore = authConfig.getAuthManagersConfig();
         Enumeration<String> auth_enu = authInstSubstore.getSubStoreNames();
         authInstances = new Hashtable<String, TPSAuthenticator>();
         while (auth_enu.hasMoreElements()) {

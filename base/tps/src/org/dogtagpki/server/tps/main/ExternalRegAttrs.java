@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cms.authentication.AuthManagersConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -34,29 +35,30 @@ public class ExternalRegAttrs {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig configStore = engine.getConfig();
         AuthenticationConfig authConfig = configStore.getAuthenticationConfig();
+        AuthManagersConfig instancesConfig = authConfig.getAuthManagersConfig();
 
         String configName = null;
 
         try {
-            configName = "instance." + authId + ".externalReg.tokenTypeAttributeName";
-            logger.debug(method + ": getting config: auths." + configName);
-            ldapAttrNameTokenType = authConfig.getString(configName, "tokenType");
+            configName = authId + ".externalReg.tokenTypeAttributeName";
+            logger.debug(method + ": getting config: auths.instance." + configName);
+            ldapAttrNameTokenType = instancesConfig.getString(configName, "tokenType");
 
-            configName = "instance." + authId + ".externalReg.cuidAttributeName";
-            logger.debug(method + ": getting config: auths." + configName);
-            ldapAttrNameTokenCUID = authConfig.getString(configName, "tokenCUID");
+            configName = authId + ".externalReg.cuidAttributeName";
+            logger.debug(method + ": getting config: auths.instance." + configName);
+            ldapAttrNameTokenCUID = instancesConfig.getString(configName, "tokenCUID");
 
-            configName = "instance." + authId + ".externalReg.certs.recoverAttributeName";
-            logger.debug(method + ": getting config: auths." + configName);
-            ldapAttrNameCertsToRecover = authConfig.getString(configName, "certsToRecover");
+            configName = authId + ".externalReg.certs.recoverAttributeName";
+            logger.debug(method + ": getting config: auths.instance." + configName);
+            ldapAttrNameCertsToRecover = instancesConfig.getString(configName, "certsToRecover");
 
             String RH_Delegation_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." +
                     TPSEngine.CFG_ER_DELEGATION + ".enable";
             isDelegation = configStore.getBoolean(RH_Delegation_Cfg, false);
 
-            configName = "auths.instance." + authId + ".externalReg.registrationTypeAttributeName";
-            logger.debug(method + ": getting config: " + configName);
-            ldapAttrNameRegistrationType = configStore.getString(configName, "registrationtype");
+            configName = authId + ".externalReg.registrationTypeAttributeName";
+            logger.debug(method + ": getting config: auths.instance." + configName);
+            ldapAttrNameRegistrationType = instancesConfig.getString(configName, "registrationtype");
         } catch (EBaseException e) {
             logger.warn("ExternalRegAttrs: unable to obtain certain config values. Default to be used: " + e.getMessage(), e);
         }
