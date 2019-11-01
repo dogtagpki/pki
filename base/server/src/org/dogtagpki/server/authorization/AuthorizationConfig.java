@@ -18,4 +18,17 @@ public class AuthorizationConfig extends PropConfigStore {
     public AuthorizationConfig(String name, SimpleProperties source) {
         super(name, source);
     }
+
+    public AuthzManagersConfig getAuthzManagersConfig() {
+
+        String fullname = getFullName("instance");
+        String reference = mSource.get(fullname);
+
+        if (reference == null) {
+            return new AuthzManagersConfig(fullname, mSource);
+
+        } else {
+            return new AuthzManagersConfig(reference, mSource);
+        }
+    }
 }

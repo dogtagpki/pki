@@ -23,7 +23,9 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
+import org.dogtagpki.server.authorization.AuthorizationConfig;
 import org.dogtagpki.server.authorization.AuthzManagerProxy;
+import org.dogtagpki.server.authorization.AuthzManagersConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.authorization.IAuthzManager;
 import org.dogtagpki.server.authorization.IAuthzSubsystem;
@@ -40,6 +42,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * Default authorization subsystem
@@ -57,7 +60,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     public Hashtable<String, AuthzMgrPlugin> mAuthzMgrPlugins = new Hashtable<String, AuthzMgrPlugin>();
     public Hashtable<String, AuthzManagerProxy> mAuthzMgrInsts = new Hashtable<String, AuthzManagerProxy>();
     private String mId = "authz";
-    private IConfigStore mConfig = null;
+    private AuthorizationConfig mConfig;
 
     // singleton enforcement
 
@@ -82,13 +85,16 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig engineConfig = engine.getConfig();
+
         try {
-            mConfig = config;
+            mConfig = engineConfig.getAuthorizationConfig();
 
             // get authz manager plugins.
 
-            IConfigStore c = config.getSubStore(PROP_IMPL);
+            IConfigStore c = mConfig.getSubStore(PROP_IMPL);
             Enumeration<String> mImpls = c.getSubStoreNames();
 
             while (mImpls.hasMoreElements()) {
@@ -104,12 +110,12 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
             // get authz manager instances.
 
-            c = config.getSubStore(PROP_INSTANCE);
-            Enumeration<String> instances = c.getSubStoreNames();
+            AuthzManagersConfig instancesConfig = mConfig.getAuthzManagersConfig();
+            Enumeration<String> instances = instancesConfig.getSubStoreNames();
 
             while (instances.hasMoreElements()) {
                 String insName = instances.nextElement();
-                String implName = c.getString(insName + "." + PROP_PLUGIN);
+                String implName = instancesConfig.getString(insName + "." + PROP_PLUGIN);
                 AuthzMgrPlugin plugin =
                         mAuthzMgrPlugins.get(implName);
 
@@ -130,7 +136,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                 try {
                     authzMgrInst = (IAuthzManager)
                             Class.forName(className).newInstance();
-                    IConfigStore authzMgrConfig = c.getSubStore(insName);
+                    IConfigStore authzMgrConfig = instancesConfig.getSubStore(insName);
 
                     authzMgrInst.init(insName, implName, authzMgrConfig);
                     isEnable = true;

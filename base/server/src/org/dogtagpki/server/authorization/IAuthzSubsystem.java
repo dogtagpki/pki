@@ -55,11 +55,6 @@ public interface IAuthzSubsystem extends ISubsystem {
     public static final String PROP_PLUGIN = "pluginName";
 
     /**
-     * Constant for instance.
-     */
-    public static final String PROP_INSTANCE = "instance";
-
-    /**
      * Constant for realm
      */
     public static final String PROP_REALM = "realm";
