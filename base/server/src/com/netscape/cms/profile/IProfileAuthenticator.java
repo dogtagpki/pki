@@ -28,6 +28,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.authentication.AuthManagerConfig;
 
 /**
  * This interface represents an authenticator for profile.
@@ -57,7 +58,7 @@ public interface IProfileAuthenticator extends IAuthManager {
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore();
+    public AuthManagerConfig getConfigStore();
 
     /**
      * Populates authentication specific information into the

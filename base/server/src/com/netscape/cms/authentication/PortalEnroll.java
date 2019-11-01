@@ -135,7 +135,7 @@ public class PortalEnroll extends DirBasedAuthentication {
      * @param config - The configuration store for this instance.
      * @exception EBaseException If an error occurs during initialization.
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         super.init(name, implName, config);
 
@@ -143,8 +143,8 @@ public class PortalEnroll extends DirBasedAuthentication {
         EngineConfig cs = engine.getConfig();
 
         /* Get Bind DN for directory server */
-        mConfig = mLdapConfig.getSubStore(PROP_LDAPAUTH);
-        mBindDN = mConfig.getString(PROP_BINDDN);
+        IConfigStore authConfig = mLdapConfig.getSubStore(PROP_LDAPAUTH);
+        mBindDN = authConfig.getString(PROP_BINDDN);
         if ((mBindDN == null) || (mBindDN.length() == 0) || (mBindDN == ""))
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "binddn"));
 

@@ -73,7 +73,7 @@ public class SSLclientCertAuthentication implements IAuthManager,
 
     private String mName = null;
     private String mImplName = null;
-    private IConfigStore mConfig = null;
+    private AuthManagerConfig mConfig;
 
     public SSLclientCertAuthentication() {
     }
@@ -87,7 +87,7 @@ public class SSLclientCertAuthentication implements IAuthManager,
      * @param implName The name of the authentication manager plugin.
      * @param config The configuration store for this authentication manager.
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
         mImplName = implName;
@@ -302,7 +302,7 @@ public class SSLclientCertAuthentication implements IAuthManager,
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
 

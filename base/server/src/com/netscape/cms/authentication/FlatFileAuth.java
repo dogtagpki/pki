@@ -105,7 +105,7 @@ public class FlatFileAuth
     protected String mImplName = null;
 
     /** configuration store */
-    protected IConfigStore mConfig = null;
+    protected AuthManagerConfig mConfig;
 
     /**
      * This array is created as to include all the requested attributes
@@ -168,7 +168,7 @@ public class FlatFileAuth
         return p;
     }
 
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
         mImplName = implName;
@@ -617,7 +617,7 @@ public class FlatFileAuth
     /**
      * Returns the configuration store used by this authentication manager
      */
-    public IConfigStore getConfigStore() {
+    public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
 

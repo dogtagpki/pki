@@ -102,7 +102,7 @@ public abstract class DirBasedAuthentication
     protected String mImplName = null;
 
     /* configuration store */
-    protected IConfigStore mConfig;
+    protected AuthManagerConfig mConfig;
 
     /* ldap configuration sub-store */
     protected IConfigStore mLdapConfig;
@@ -254,12 +254,12 @@ public abstract class DirBasedAuthentication
      * @param config - The configuration store for this instance.
      * @exception EBaseException If an error occurs during initialization.
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         init(name, implName, config, true);
     }
 
-    public void init(String name, String implName, IConfigStore config, boolean needBaseDN)
+    public void init(String name, String implName, AuthManagerConfig config, boolean needBaseDN)
             throws EBaseException {
 
         logger.info("DirBasedAuthentication: Initializing " + name);
@@ -554,7 +554,7 @@ public abstract class DirBasedAuthentication
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
 

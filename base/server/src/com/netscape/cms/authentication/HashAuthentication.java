@@ -35,7 +35,6 @@ import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.cmscore.apps.CMS;
 
@@ -60,7 +59,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
 
     private MessageDigest mSHADigest = null;
     private Hashtable<String, IAuthToken> mData = null;
-    private IConfigStore mConfig;
+    private AuthManagerConfig mConfig;
     private String mName = null;
     private String mImplName = null;
     private static Vector<String> mExtendedPluginInfo = null;
@@ -85,7 +84,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     public HashAuthentication() {
     }
 
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
         mImplName = implName;
@@ -239,7 +238,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
 

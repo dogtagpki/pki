@@ -25,7 +25,7 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cms.authentication.AuthManagerConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 
@@ -47,7 +47,7 @@ public class NullAuthentication implements IAuthManager {
     private String mName = null;
     private String mImplName = null;
     private AuthenticationConfig authenticationConfig;
-    private IConfigStore mConfig = null;
+    private AuthManagerConfig mConfig;
 
     public NullAuthentication() {
     }
@@ -70,7 +70,7 @@ public class NullAuthentication implements IAuthManager {
      * @param config - The configuration store used by the
      *            authentication subsystem.
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
         mImplName = implName;
@@ -153,7 +153,7 @@ public class NullAuthentication implements IAuthManager {
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
 }

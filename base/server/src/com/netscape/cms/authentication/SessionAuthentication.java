@@ -46,12 +46,12 @@ public class SessionAuthentication
 
     private String instName = null;
     private String implName = null;
-    private IConfigStore config = null;
+    private AuthManagerConfig config;
 
     public SessionAuthentication() {
     }
 
-    public void init(String instName, String implName, IConfigStore config)
+    public void init(String instName, String implName, AuthManagerConfig config)
             throws EBaseException {
         this.instName = instName;
         this.implName = implName;
@@ -119,7 +119,7 @@ public class SessionAuthentication
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public AuthManagerConfig getConfigStore() {
         return config;
     }
 

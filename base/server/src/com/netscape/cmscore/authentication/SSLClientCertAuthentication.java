@@ -35,13 +35,13 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.authentication.AuthManagerConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -68,7 +68,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
     private String mName = null;
     private String mImplName = null;
     private AuthenticationConfig authenticationConfig;
-    private IConfigStore mConfig = null;
+    private AuthManagerConfig mConfig;
 
     /* Holds configuration parameters accepted by this implementation.
      * This list is passed to the configuration console so configuration
@@ -93,7 +93,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
         this.authenticationConfig = authenticationConfig;
     }
 
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
         mImplName = implName;
@@ -268,7 +268,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
 

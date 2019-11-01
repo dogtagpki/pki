@@ -150,7 +150,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         super();
     }
 
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         super.init(name, implName, config);
 

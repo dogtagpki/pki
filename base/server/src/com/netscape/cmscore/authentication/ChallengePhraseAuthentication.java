@@ -33,13 +33,13 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.authentication.AuthManagerConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -75,7 +75,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     private String mName = null;
     private String mImplName = null;
     private AuthenticationConfig authenticationConfig;
-    private IConfigStore mConfig = null;
+    private AuthManagerConfig mConfig;
 
     private MessageDigest mSHADigest = null;
 
@@ -105,7 +105,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
      * @param implName The name of the authentication manager plugin.
      * @param config The configuration store for this authentication manager.
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
         mImplName = implName;
@@ -366,7 +366,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
 

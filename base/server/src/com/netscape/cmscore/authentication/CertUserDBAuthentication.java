@@ -33,6 +33,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.cms.authentication.AuthManagerConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -62,7 +63,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
     private String mName = null;
     private String mImplName = null;
     private AuthenticationConfig authenticationConfig;
-    private IConfigStore mConfig = null;
+    private AuthManagerConfig mConfig;
 
     private ICertUserLocator mCULocator = null;
 
@@ -90,7 +91,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
      * @param config - The configuration store used by the
      *            authentication subsystem
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
         mImplName = implName;
@@ -251,7 +252,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
 }

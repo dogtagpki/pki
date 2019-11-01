@@ -116,7 +116,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
      * @param config - The configuration store for this instance.
      * @exception EBaseException If an error occurs during initialization.
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         super.init(name, implName, config);
 

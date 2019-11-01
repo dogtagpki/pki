@@ -26,9 +26,9 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.authentication.AuthManagerConfig;
 import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -64,7 +64,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
     private String mName = null;
     private String mImplName = null;
     private AuthenticationConfig authenticationConfig;
-    private IConfigStore mConfig;
+    private AuthManagerConfig mConfig;
     private LdapAnonConnFactory mAnonConnFactory = null;
 
     public PasswdUserDBAuthentication() {
@@ -88,7 +88,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
      * @param config - The configuration store used by the
      *            authentication subsystem.
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
         mImplName = implName;
@@ -248,7 +248,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
 }

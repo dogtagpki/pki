@@ -22,7 +22,7 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cms.authentication.AuthManagerConfig;
 
 /**
  * Authentication Manager interface.
@@ -83,7 +83,7 @@ public interface IAuthManager {
      * @param config The configuration store for this authentication manager.
      * @exception EBaseException If an initialization error occurred.
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException;
 
     /**
@@ -116,5 +116,5 @@ public interface IAuthManager {
      *
      * @return The configuration store of this authentication manager.
      */
-    public IConfigStore getConfigStore();
+    public AuthManagerConfig getConfigStore();
 }

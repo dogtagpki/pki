@@ -148,7 +148,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
     /////////////////////////////
 
     /* authentication plug-in configuration store */
-    private IConfigStore mConfig;
+    private AuthManagerConfig mConfig;
     private static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     private static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
     public static final String TOKEN_CERT_SERIAL = "certSerialToRevoke";
@@ -227,7 +227,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
      * @param config - The configuration store for this instance.
      * @exception EBaseException If an error occurs during initialization.
      */
-    public void init(String name, String implName, IConfigStore config)
+    public void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         mName = name;
         mImplName = implName;
@@ -881,7 +881,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public AuthManagerConfig getConfigStore() {
         return mConfig;
     }
 
