@@ -127,6 +127,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
     /////////////////////////////
 
     /* authentication plug-in configuration store */
+    private AuthenticationConfig authenticationConfig;
     private IConfigStore mConfig;
     private boolean mBypassClientAuth = false;
     private static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
@@ -195,6 +196,14 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
      * Default constructor, initialization must follow.
      */
     public CMCAuth() {
+    }
+
+    public AuthenticationConfig getAuthenticationConfig() {
+        return authenticationConfig;
+    }
+
+    public void setAuthenticationConfig(AuthenticationConfig authenticationConfig) {
+        this.authenticationConfig = authenticationConfig;
     }
 
     //////////////////////////

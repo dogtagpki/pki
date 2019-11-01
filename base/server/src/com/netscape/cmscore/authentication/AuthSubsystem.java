@@ -35,8 +35,11 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cms.authentication.AuthenticationConfig;
+import com.netscape.cms.authentication.CMCAuth;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * Default authentication subsystem
@@ -55,7 +58,7 @@ public class AuthSubsystem implements IAuthSubsystem {
     public Hashtable<String, AuthMgrPlugin> mAuthMgrPlugins = new Hashtable<String, AuthMgrPlugin>();
     public Hashtable<String, AuthManagerProxy> mAuthMgrInsts = new Hashtable<String, AuthManagerProxy>();
     private String mId = "auths";
-    private IConfigStore mConfig = null;
+    private AuthenticationConfig mConfig;
 
     // singleton enforcement
 
@@ -80,9 +83,12 @@ public class AuthSubsystem implements IAuthSubsystem {
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig engineConfig = engine.getConfig();
+
         try {
-            mConfig = config;
+            mConfig = engineConfig.getAuthenticationConfig();
 
             // hardcode admin and agent plugins required for the server to be
             // functional.
@@ -121,7 +127,7 @@ public class AuthSubsystem implements IAuthSubsystem {
 
             // get auth manager plugins.
 
-            IConfigStore c = config.getSubStore(PROP_IMPL);
+            IConfigStore c = mConfig.getSubStore(PROP_IMPL);
             Enumeration<String> mImpls = c.getSubStoreNames();
 
             while (mImpls.hasMoreElements()) {
@@ -138,52 +144,52 @@ public class AuthSubsystem implements IAuthSubsystem {
             // hardcode admin and agent auth manager instances for the server
             // to be functional
 
-            IAuthManager passwdUserDBAuth = new PasswdUserDBAuthentication();
-
+            PasswdUserDBAuthentication passwdUserDBAuth = new PasswdUserDBAuthentication();
+            passwdUserDBAuth.setAuthenticationConfig(mConfig);
             passwdUserDBAuth.init(PASSWDUSERDB_AUTHMGR_ID, PASSWDUSERDB_PLUGIN_ID, null);
             mAuthMgrInsts.put(PASSWDUSERDB_AUTHMGR_ID, new
                     AuthManagerProxy(true, passwdUserDBAuth));
 
             logger.debug("loaded password based auth manager");
 
-            IAuthManager certUserDBAuth = new CertUserDBAuthentication();
-
-            certUserDBAuth.init(CERTUSERDB_AUTHMGR_ID, CERTUSERDB_PLUGIN_ID, config);
+            CertUserDBAuthentication certUserDBAuth = new CertUserDBAuthentication();
+            certUserDBAuth.setAuthenticationConfig(mConfig);
+            certUserDBAuth.init(CERTUSERDB_AUTHMGR_ID, CERTUSERDB_PLUGIN_ID, null);
             mAuthMgrInsts.put(CERTUSERDB_AUTHMGR_ID, new AuthManagerProxy(true, certUserDBAuth));
 
             logger.debug("loaded certificate based auth manager");
 
-            IAuthManager challengeAuth = new ChallengePhraseAuthentication();
-
-            challengeAuth.init(CHALLENGE_AUTHMGR_ID, CHALLENGE_PLUGIN_ID, config);
+            ChallengePhraseAuthentication challengeAuth = new ChallengePhraseAuthentication();
+            challengeAuth.setAuthenticationConfig(mConfig);
+            challengeAuth.init(CHALLENGE_AUTHMGR_ID, CHALLENGE_PLUGIN_ID, null);
             mAuthMgrInsts.put(CHALLENGE_AUTHMGR_ID, new AuthManagerProxy(true, challengeAuth));
 
             logger.debug("loaded challenge phrase auth manager");
 
-            IAuthManager cmcAuth = new com.netscape.cms.authentication.CMCAuth();
-
-            cmcAuth.init(CMCAUTH_AUTHMGR_ID, CMCAUTH_PLUGIN_ID, config);
+            CMCAuth cmcAuth = new CMCAuth();
+            cmcAuth.setAuthenticationConfig(mConfig);
+            cmcAuth.init(CMCAUTH_AUTHMGR_ID, CMCAUTH_PLUGIN_ID, null);
             mAuthMgrInsts.put(CMCAUTH_AUTHMGR_ID, new AuthManagerProxy(true, cmcAuth));
 
             logger.debug("loaded cmc auth manager");
 
             // #56659
-            // IAuthManager nullAuth = new NullAuthentication();
-
-            // nullAuth.init(NULL_AUTHMGR_ID, NULL_PLUGIN_ID, config);
+            // NullAuthentication nullAuth = new NullAuthentication();
+            // nullAuth.setAuthenticationConfig(mConfig);
+            // nullAuth.init(NULL_AUTHMGR_ID, NULL_PLUGIN_ID, null);
             // mAuthMgrInsts.put(NULL_AUTHMGR_ID, new AuthManagerProxy(true, nullAuth));
             //
             // logger.debug("loaded null auth manager");
 
-            IAuthManager sslClientCertAuth = new SSLClientCertAuthentication();
-
-            sslClientCertAuth.init(SSLCLIENTCERT_AUTHMGR_ID, SSLCLIENTCERT_PLUGIN_ID, config);
+            SSLClientCertAuthentication sslClientCertAuth = new SSLClientCertAuthentication();
+            sslClientCertAuth.setAuthenticationConfig(mConfig);
+            sslClientCertAuth.init(SSLCLIENTCERT_AUTHMGR_ID, SSLCLIENTCERT_PLUGIN_ID, null);
             mAuthMgrInsts.put(SSLCLIENTCERT_AUTHMGR_ID, new AuthManagerProxy(true, sslClientCertAuth));
 
             logger.debug("loaded sslClientCert auth manager");
 
             // get auth manager instances.
-            c = config.getSubStore(PROP_INSTANCE);
+            c = mConfig.getSubStore(PROP_INSTANCE);
             Enumeration<String> instances = c.getSubStoreNames();
 
             while (instances.hasMoreElements()) {
@@ -491,7 +497,7 @@ public class AuthSubsystem implements IAuthSubsystem {
      *
      * @return configuration store of this subsystem
      */
-    public IConfigStore getConfigStore() {
+    public AuthenticationConfig getConfigStore() {
         return mConfig;
     }
 

@@ -42,6 +42,7 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -66,6 +67,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
     private ICertificateRepository mCertDB = null;
     private String mName = null;
     private String mImplName = null;
+    private AuthenticationConfig authenticationConfig;
     private IConfigStore mConfig = null;
 
     /* Holds configuration parameters accepted by this implementation.
@@ -81,6 +83,14 @@ public class SSLClientCertAuthentication implements IAuthManager {
      */
     public SSLClientCertAuthentication() {
         super();
+    }
+
+    public AuthenticationConfig getAuthenticationConfig() {
+        return authenticationConfig;
+    }
+
+    public void setAuthenticationConfig(AuthenticationConfig authenticationConfig) {
+        this.authenticationConfig = authenticationConfig;
     }
 
     public void init(String name, String implName, IConfigStore config)

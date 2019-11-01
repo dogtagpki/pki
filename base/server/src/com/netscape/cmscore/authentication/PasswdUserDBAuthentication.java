@@ -28,6 +28,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -61,10 +62,19 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
 
     private String mName = null;
     private String mImplName = null;
+    private AuthenticationConfig authenticationConfig;
     private IConfigStore mConfig;
     private LdapAnonConnFactory mAnonConnFactory = null;
 
     public PasswdUserDBAuthentication() {
+    }
+
+    public AuthenticationConfig getAuthenticationConfig() {
+        return authenticationConfig;
+    }
+
+    public void setAuthenticationConfig(AuthenticationConfig authenticationConfig) {
+        this.authenticationConfig = authenticationConfig;
     }
 
     /**

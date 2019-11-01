@@ -25,6 +25,7 @@ import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -44,9 +45,18 @@ public class NullAuthentication implements IAuthManager {
     protected static String[] mRequiredCred = {};
     private String mName = null;
     private String mImplName = null;
+    private AuthenticationConfig authenticationConfig;
     private IConfigStore mConfig = null;
 
     public NullAuthentication() {
+    }
+
+    public AuthenticationConfig getAuthenticationConfig() {
+        return authenticationConfig;
+    }
+
+    public void setAuthenticationConfig(AuthenticationConfig authenticationConfig) {
+        this.authenticationConfig = authenticationConfig;
     }
 
     /**

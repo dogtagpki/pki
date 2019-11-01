@@ -40,6 +40,7 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -73,6 +74,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
 
     private String mName = null;
     private String mImplName = null;
+    private AuthenticationConfig authenticationConfig;
     private IConfigStore mConfig = null;
 
     private MessageDigest mSHADigest = null;
@@ -84,6 +86,14 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     public static final String SERIALNOARRAY = "serialNoArray";
 
     public ChallengePhraseAuthentication() {
+    }
+
+    public AuthenticationConfig getAuthenticationConfig() {
+        return authenticationConfig;
+    }
+
+    public void setAuthenticationConfig(AuthenticationConfig authenticationConfig) {
+        this.authenticationConfig = authenticationConfig;
     }
 
     /**

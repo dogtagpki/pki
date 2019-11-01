@@ -33,6 +33,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
@@ -60,6 +61,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
 
     private String mName = null;
     private String mImplName = null;
+    private AuthenticationConfig authenticationConfig;
     private IConfigStore mConfig = null;
 
     private ICertUserLocator mCULocator = null;
@@ -68,6 +70,14 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
     private IConfigStore mRevocationChecking = null;
 
     public CertUserDBAuthentication() {
+    }
+
+    public AuthenticationConfig getAuthenticationConfig() {
+        return authenticationConfig;
+    }
+
+    public void setAuthenticationConfig(AuthenticationConfig authenticationConfig) {
+        this.authenticationConfig = authenticationConfig;
     }
 
     /**
@@ -87,8 +97,8 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         CMSEngine engine = CMS.getCMSEngine();
         mConfig = config;
 
-        if (mConfig != null) {
-            mRevocationChecking = mConfig.getSubStore("revocationChecking");
+        if (authenticationConfig != null) {
+            mRevocationChecking = authenticationConfig.getSubStore("revocationChecking");
         }
         if (mRevocationChecking != null) {
             mRevocationCheckingEnabled = mRevocationChecking.getBoolean("enabled", false);
