@@ -62,6 +62,10 @@ public class NSSDatabase {
     }
 
     public void create(String password) throws Exception {
+        create(password, false);
+    }
+
+    public void create(String password, boolean enableTrustPolicy) throws Exception {
 
         logger.info("Creating NSS database in " + directory);
 
@@ -104,13 +108,12 @@ public class NSSDatabase {
             if (passwordFile.exists()) passwordFile.delete();
         }
 
-        // Install p11-kit-trust module if it doesn't exist
-        if (!isModuleInstalled("p11-kit-trust")) {
+        if (enableTrustPolicy && !moduleExists("p11-kit-trust")) {
             addModule("p11-kit-trust", "/usr/share/pki/lib/p11-kit-trust.so");
         }
     }
 
-    public boolean isModuleInstalled(String name) throws Exception {
+    public boolean moduleExists(String name) throws Exception {
 
         logger.info("Checking module " + name);
 

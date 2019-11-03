@@ -222,7 +222,7 @@ class NSSDatabase(object):
 
         self.passwords = passwords
 
-    def create(self):
+    def create(self, enable_trust_policy=False):
 
         cmd = [
             'certutil',
@@ -238,7 +238,7 @@ class NSSDatabase(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-        if not self.module_exists('p11-kit-trust'):
+        if enable_trust_policy and not self.module_exists('p11-kit-trust'):
             self.add_module('p11-kit-trust', '/usr/share/pki/lib/p11-kit-trust.so')
 
     def exists(self):

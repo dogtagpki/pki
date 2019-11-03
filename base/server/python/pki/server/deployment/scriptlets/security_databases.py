@@ -69,9 +69,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not os.path.isdir(deployer.mdict['pki_server_database_path']):
             instance.makedirs(deployer.mdict['pki_server_database_path'], force=True)
 
-        deployer.certutil.create_security_databases(
-            deployer.mdict['pki_server_database_path'],
+        nssdb = pki.nssdb.NSSDatabase(
+            directory=deployer.mdict['pki_server_database_path'],
             password_file=deployer.mdict['pki_shared_pfile'])
+
+        try:
+            if not nssdb.exists():
+                nssdb.create()
+        finally:
+            nssdb.close()
 
         if not os.path.islink(deployer.mdict['pki_instance_database_link']):
             instance.symlink(
@@ -327,9 +333,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         pki.util.makedirs(deployer.mdict['pki_client_database_dir'], force=True)
 
-        deployer.certutil.create_security_databases(
-            deployer.mdict['pki_client_database_dir'],
+        nssdb = pki.nssdb.NSSDatabase(
+            directory=deployer.mdict['pki_client_database_dir'],
             password_file=deployer.mdict['pki_client_password_conf'])
+
+        try:
+            if not nssdb.exists():
+                nssdb.create()
+        finally:
+            nssdb.close()
 
     def update_external_certs_conf(self, external_path, deployer):
         external_certs = pki.server.instance.PKIInstance.read_external_certs(
