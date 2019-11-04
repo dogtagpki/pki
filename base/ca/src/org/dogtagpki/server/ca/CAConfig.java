@@ -7,14 +7,15 @@ package org.dogtagpki.server.ca;
 
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.base.SimpleProperties;
 
-public class CAEngineConfig extends EngineConfig {
+public class CAConfig extends EngineConfig {
 
-    public CAEngineConfig(ConfigStorage storage) {
+    public CAConfig(ConfigStorage storage) {
         super(storage);
     }
 
-    public CAConfig getCAConfig() {
-        return getSubStore("ca", CAConfig.class);
+    public CAConfig(String name, SimpleProperties source) {
+        super(name, source);
     }
 }

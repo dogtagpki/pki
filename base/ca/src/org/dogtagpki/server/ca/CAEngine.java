@@ -33,6 +33,7 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -43,6 +44,10 @@ public class CAEngine extends CMSEngine {
 
     public CAEngine() throws Exception {
         super("CA");
+    }
+
+    public static CAEngine getInstance() {
+        return (CAEngine) CMS.getCMSEngine();
     }
 
     public EngineConfig createConfig(ConfigStorage storage) throws Exception {

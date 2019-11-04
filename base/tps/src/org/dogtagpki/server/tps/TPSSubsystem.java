@@ -37,8 +37,8 @@ import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.mapping.MappingResolverManager;
-import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.TPSConnection;
+import org.dogtagpki.tps.main.TPSException;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -49,9 +49,12 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.IDBSubsystem;
+// cfu??
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -59,10 +62,6 @@ import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
-// cfu??
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
@@ -79,7 +78,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public String id;
     public String nickname;
     public ISubsystem owner;
-    public IConfigStore config;
+    public TPSConfig config;
 
     public ActivityDatabase activityDatabase;
     public AuthenticatorDatabase authenticatorDatabase;
@@ -114,12 +113,13 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
         logger.info("Initializing TPS subsystem");
 
-        this.owner = owner;
-        this.config = config;
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngineConfig cs = engine.getConfig();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        this.owner = owner;
+        this.config = cs.getTPSConfig();
+
         IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
-        IConfigStore cs = engine.getConfigStore();
 
         String activityDatabaseDN = cs.getString("tokendb.activityBaseDN");
         activityDatabase = new ActivityDatabase(dbSubsystem, activityDatabaseDN);
@@ -322,7 +322,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     }
 
     @Override
-    public IConfigStore getConfigStore() {
+    public TPSConfig getConfigStore() {
         return config;
     }
 

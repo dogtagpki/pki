@@ -19,6 +19,7 @@
 package org.dogtagpki.server.ocsp;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -29,6 +30,10 @@ public class OCSPEngine extends CMSEngine {
 
     public OCSPEngine() throws Exception {
         super("OCSP");
+    }
+
+    public static OCSPEngine getInstance() {
+        return (OCSPEngine) CMS.getCMSEngine();
     }
 
     public EngineConfig createConfig(ConfigStorage storage) throws Exception {

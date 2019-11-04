@@ -7,14 +7,15 @@ package org.dogtagpki.server.kra;
 
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.base.SimpleProperties;
 
-public class KRAEngineConfig extends EngineConfig {
+public class KRAConfig extends EngineConfig {
 
-    public KRAEngineConfig(ConfigStorage storage) {
+    public KRAConfig(ConfigStorage storage) {
         super(storage);
     }
 
-    public KRAConfig getKRAConfig() {
-        return getSubStore("kra", KRAConfig.class);
+    public KRAConfig(String name, SimpleProperties source) {
+        super(name, source);
     }
 }

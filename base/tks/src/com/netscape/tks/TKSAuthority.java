@@ -17,6 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.tks;
 
+import org.dogtagpki.server.tks.TKSConfig;
+import org.dogtagpki.server.tks.TKSEngine;
+import org.dogtagpki.server.tks.TKSEngineConfig;
+
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -33,7 +37,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
     private String mNickname = null;
     @SuppressWarnings("unused")
     private ISubsystem mOwner;
-    private IConfigStore mConfig = null;
+    private TKSConfig mConfig;
     protected String mId = null;
     public static final String PROP_NICKNAME = "nickName";
 
@@ -91,9 +95,13 @@ public class TKSAuthority implements IAuthority, ISubsystem {
      */
     public void init(ISubsystem owner, IConfigStore config) throws
             EBaseException {
-        mOwner = owner;
 
-        mConfig = config;
+        TKSEngine engine = TKSEngine.getInstance();
+        TKSEngineConfig engineConfig = engine.getConfig();
+
+        mOwner = owner;
+        mConfig = engineConfig.getTKSConfig();
+
         //mNickname = mConfig.getString(PROP_NICKNAME);
         logger.debug("TKS Authority (" + getId() + "): " + "Initialized Request Processor.");
 
@@ -127,7 +135,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
      *
      * @return configuration store of this subsystem
      */
-    public IConfigStore getConfigStore() {
+    public TKSConfig getConfigStore() {
         return mConfig;
     }
 

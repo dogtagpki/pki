@@ -19,6 +19,7 @@
 package org.dogtagpki.server.tks;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -29,6 +30,10 @@ public class TKSEngine extends CMSEngine {
 
     public TKSEngine() throws Exception {
         super("TKS");
+    }
+
+    public static TKSEngine getInstance() {
+        return (TKSEngine) CMS.getCMSEngine();
     }
 
     public EngineConfig createConfig(ConfigStorage storage) throws Exception {

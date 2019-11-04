@@ -7,14 +7,15 @@ package org.dogtagpki.server.ocsp;
 
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.base.SimpleProperties;
 
-public class OCSPEngineConfig extends EngineConfig {
+public class OCSPConfig extends EngineConfig {
 
-    public OCSPEngineConfig(ConfigStorage storage) {
+    public OCSPConfig(ConfigStorage storage) {
         super(storage);
     }
 
-    public OCSPConfig getOCSPConfig() {
-        return getSubStore("ocsp", OCSPConfig.class);
+    public OCSPConfig(String name, SimpleProperties source) {
+        super(name, source);
     }
 }

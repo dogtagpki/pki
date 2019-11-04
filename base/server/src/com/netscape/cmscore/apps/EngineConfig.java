@@ -11,12 +11,17 @@ import org.dogtagpki.server.authorization.AuthorizationConfig;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 
 public class EngineConfig extends PropConfigStore {
 
     public EngineConfig(ConfigStorage storage) {
         super(storage);
+    }
+
+    public EngineConfig(String name, SimpleProperties source) {
+        super(name, source);
     }
 
     public String getHostname() throws EBaseException {

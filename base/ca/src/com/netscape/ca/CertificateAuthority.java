@@ -54,6 +54,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.server.ca.CAConfig;
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
@@ -151,7 +154,6 @@ import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -238,7 +240,7 @@ public class CertificateAuthority
     ECAException signingUnitException = null;
 
     protected ISubsystem mOwner = null;
-    protected IConfigStore mConfig = null;
+    protected CAConfig mConfig;
 
     protected Hashtable<String, ICRLIssuingPoint> mCRLIssuePoints = new Hashtable<String, ICRLIssuingPoint>();
     protected CRLIssuingPoint mMasterCRLIssuePoint = null; // the complete crl.
@@ -503,14 +505,14 @@ public class CertificateAuthority
 
         logger.info("CertificateAuthority: initialization");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         LDAPConfig dbCfg = cs.getInternalDatabase();
         IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
 
         mOwner = owner;
-        mConfig = config;
+        mConfig = cs.getCAConfig();
 
         if (isHostAuthority()) {
             dbFactory.init(cs, dbCfg, engine.getPasswordStore());
@@ -619,7 +621,7 @@ public class CertificateAuthority
                 mRequestQueue.getRequestRepository(),
                 mConfig.getInteger("serialNumberUpdateInterval", 10 * 60));
 
-            mService.init(config.getSubStore("connector"));
+            mService.init(mConfig.getSubStore("connector"));
 
             initMiscellaneousListeners();
         }
@@ -1059,7 +1061,7 @@ public class CertificateAuthority
      * Retrieves the configuration store of this subsystem.
      * <P>
      */
-    public IConfigStore getConfigStore() {
+    public CAConfig getConfigStore() {
         return mConfig;
     }
 

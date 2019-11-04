@@ -7,14 +7,15 @@ package org.dogtagpki.server.tps;
 
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.base.SimpleProperties;
 
-public class TPSEngineConfig extends EngineConfig {
+public class TPSConfig extends EngineConfig {
 
-    public TPSEngineConfig(ConfigStorage storage) {
+    public TPSConfig(ConfigStorage storage) {
         super(storage);
     }
 
-    public TPSConfig getTPSConfig() {
-        return getSubStore("tps", TPSConfig.class);
+    public TPSConfig(String name, SimpleProperties source) {
+        super(name, source);
     }
 }

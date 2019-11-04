@@ -20,6 +20,7 @@ package org.dogtagpki.server.kra;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -30,6 +31,10 @@ public class KRAEngine extends CMSEngine {
 
     public KRAEngine() throws Exception {
         super("KRA");
+    }
+
+    public static KRAEngine getInstance() {
+        return (KRAEngine) CMS.getCMSEngine();
     }
 
     public EngineConfig createConfig(ConfigStorage storage) throws Exception {

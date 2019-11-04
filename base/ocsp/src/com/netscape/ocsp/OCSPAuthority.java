@@ -28,6 +28,9 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.dogtagpki.server.ocsp.OCSPConfig;
+import org.dogtagpki.server.ocsp.OCSPEngine;
+import org.dogtagpki.server.ocsp.OCSPEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -89,7 +92,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
 
     private Hashtable<String, IOCSPStore> mStores = new Hashtable<String, IOCSPStore>();
     private String mId = "ocsp";
-    private IConfigStore mConfig = null;
+    private OCSPConfig mConfig;
     private SigningUnit mSigningUnit;
     private CertificateChain mCertChain = null;
     private X509CertImpl mCert = null;
@@ -129,8 +132,12 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+
+        OCSPEngine engine = OCSPEngine.getInstance();
+        OCSPEngineConfig engineConfig = engine.getConfig();
+
         try {
-            mConfig = config;
+            mConfig = engineConfig.getOCSPConfig();
 
             initSigUnit();
 
@@ -372,7 +379,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      *
      * @return configuration store of this subsystem
      */
-    public IConfigStore getConfigStore() {
+    public OCSPConfig getConfigStore() {
         return mConfig;
     }
 

@@ -34,6 +34,9 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.kra.KRAPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.server.kra.KRAConfig;
+import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
@@ -122,7 +125,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     private static final String PROP_REPLICAID_DN = "dbs.replicadn";
 
     protected boolean mInitialized = false;
-    protected IConfigStore mConfig = null;
+    protected KRAConfig mConfig;
     protected KRAPolicy mPolicy = null;
     protected X500Name mName = null;
     protected boolean mQueueRequests = false;
@@ -257,13 +260,17 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+
         logger.debug("KeyRecoveryAuthority init() begins");
+
         if (mInitialized)
             return;
 
-        CMSEngine engine = CMS.getCMSEngine();
-        mConfig = config;
+        KRAEngine engine = KRAEngine.getInstance();
+        KRAEngineConfig engineConfig = engine.getConfig();
+
         mOwner = owner;
+        mConfig = engineConfig.getKRAConfig();
 
         // initialize policy processor
         mPolicy = new KRAPolicy();
@@ -470,7 +477,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public KRAConfig getConfigStore() {
         return mConfig;
     }
 
