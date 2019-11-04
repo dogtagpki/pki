@@ -1211,40 +1211,34 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         // Any configuration parameters required could be read from
         // <subsystemId>.Policy.default.RuleName.
         for (int i = 0; i < mSystemDefaults.length; i++) {
-            // Load the class and make an instance.
-            // Verify if the class is a valid implementation of
-            // IPolicyRule
-            String ruleName = null;
+
+            String className = mSystemDefaults[i];
+            logger.info("GenericPolicyProcessor: Creating system policy " + className);
 
             try {
-                Object o = Class.forName(mSystemDefaults[i]).newInstance();
+                Class<?> clazz = Class.forName(mSystemDefaults[i]);
+                Object o = clazz.newInstance();
 
-                if (!(o instanceof IEnrollmentPolicy) &&
-                        !(o instanceof IRenewalPolicy) &&
-                        !(o instanceof IRevocationPolicy) &&
-                        !(o instanceof IKeyRecoveryPolicy) &&
-                        !(o instanceof IKeyArchivalPolicy))
-                    throw new EPolicyException(
-                            CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_IMPL",
-                                    mSystemDefaults[i]));
+                if (!(o instanceof IPolicyRule)) {
+                    throw new EPolicyException(className + " does not implement IPolicyRule");
+                }
 
                 IPolicyRule rule = (IPolicyRule) o;
 
-                // Initialize the rule.
-                ruleName = mSystemDefaults[i].substring(
-                            mSystemDefaults[i].lastIndexOf('.') + 1);
-                IConfigStore ruleConfig = mConfig.getSubStore(
-                        PROP_DEF_POLICIES + "." + ruleName);
+                String ruleName = className.substring(className.lastIndexOf('.') + 1);
+                IConfigStore ruleConfig = mConfig.getSubStore(PROP_DEF_POLICIES + "." + ruleName);
 
+                logger.info("GenericPolicyProcessor: Initializing system policy " + ruleName);
                 rule.init(this, ruleConfig);
 
-                // Add the rule to the appropriate PolicySet.
                 addRule(ruleName, rule);
+
             } catch (EBaseException e) {
                 throw e;
+
             } catch (Exception e) {
-                String message = CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL", ruleName);
-                logger.error(message + ": " + e.getMessage(), e);
+                String message = "Unable to create system policy " + className + ": " + e.getMessage();
+                logger.error(message, e);
                 throw new EPolicyException(message, e);
             }
         }
