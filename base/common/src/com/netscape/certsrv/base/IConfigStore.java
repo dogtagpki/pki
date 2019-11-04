@@ -319,6 +319,7 @@ public interface IConfigStore {
      * @return The sub-store
      */
     public IConfigStore getSubStore(String name);
+    public <T extends IConfigStore> T getSubStore(String name, Class<T> clazz);
 
     /**
      * Removes sub-store with the given name.

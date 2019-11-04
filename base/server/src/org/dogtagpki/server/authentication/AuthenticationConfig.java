@@ -20,15 +20,6 @@ public class AuthenticationConfig extends PropConfigStore {
     }
 
     public AuthManagersConfig getAuthManagersConfig() {
-
-        String fullname = getFullName("instance");
-        String reference = mSource.get(fullname);
-
-        if (reference == null) {
-            return new AuthManagersConfig(fullname, mSource);
-
-        } else {
-            return new AuthManagersConfig(reference, mSource);
-        }
+        return getSubStore("instance", AuthManagersConfig.class);
     }
 }

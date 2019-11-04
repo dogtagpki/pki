@@ -60,67 +60,22 @@ public class EngineConfig extends PropConfigStore {
     }
 
     public LDAPConfig getInternalDatabase() {
-
-        String fullname = getFullName("internaldb");
-        String reference = mSource.get(fullname);
-
-        if (reference == null) {
-            return new LDAPConfig(fullname, mSource);
-
-        } else {
-            return new LDAPConfig(reference, mSource);
-        }
+        return getSubStore("internaldb", LDAPConfig.class);
     }
 
     public SubsystemsConfig getSubsystemsConfig() {
-
-        String fullname = getFullName("subsystem");
-        String reference = mSource.get(fullname);
-
-        if (reference == null) {
-            return new SubsystemsConfig(fullname, mSource);
-
-        } else {
-            return new SubsystemsConfig(reference, mSource);
-        }
+        return getSubStore("subsystem", SubsystemsConfig.class);
     }
 
     public AuthenticationConfig getAuthenticationConfig() {
-
-        String fullname = getFullName("auths");
-        String reference = mSource.get(fullname);
-
-        if (reference == null) {
-            return new AuthenticationConfig(fullname, mSource);
-
-        } else {
-            return new AuthenticationConfig(reference, mSource);
-        }
+        return getSubStore("auths", AuthenticationConfig.class);
     }
 
     public AuthorizationConfig getAuthorizationConfig() {
-
-        String fullname = getFullName("authz");
-        String reference = mSource.get(fullname);
-
-        if (reference == null) {
-            return new AuthorizationConfig(fullname, mSource);
-
-        } else {
-            return new AuthorizationConfig(reference, mSource);
-        }
+        return getSubStore("authz", AuthorizationConfig.class);
     }
 
     public DatabaseConfig getDatabaseConfig() {
-
-        String fullname = getFullName("dbs");
-        String reference = mSource.get(fullname);
-
-        if (reference == null) {
-            return new DatabaseConfig(fullname, mSource);
-
-        } else {
-            return new DatabaseConfig(reference, mSource);
-        }
+        return getSubStore("dbs", DatabaseConfig.class);
     }
 }

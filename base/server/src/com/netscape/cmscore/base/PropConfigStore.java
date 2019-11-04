@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -663,17 +665,27 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @return substore
      */
     public IConfigStore getSubStore(String name) {
+        return getSubStore(name, PropConfigStore.class);
+    }
+
+    public <T extends IConfigStore> T getSubStore(String name, Class<T> clazz) {
+
         String fullname = getFullName(name);
         String reference = mSource.get(fullname);
 
-        if (reference == null) {
-            PropConfigStore ps = new PropConfigStore(fullname, mSource);
+        try {
+            Constructor<T> constructor = clazz.getDeclaredConstructor(String.class, SimpleProperties.class);
 
-            return ps;
-        } else {
-            PropConfigStore ps = new PropConfigStore(reference, mSource);
+            if (reference == null) {
+                return constructor.newInstance(fullname, mSource);
 
-            return ps;
+            } else {
+                return constructor.newInstance(reference, mSource);
+            }
+
+        } catch (NoSuchMethodException | InvocationTargetException
+                | IllegalAccessException | InstantiationException | IllegalArgumentException e) {
+            throw new RuntimeException(e);
         }
     }
 
