@@ -77,12 +77,12 @@ public class LDAPProfileSubsystem
 
     /* Map of profileId -> entryUSN for the most recent view
      * of the profile entry that this instance has seen */
-    private TreeMap<String,BigInteger> entryUSNs;
+    private TreeMap<String,BigInteger> entryUSNs = new TreeMap<>();
 
-    private TreeMap<String,String> nsUniqueIds;
+    private TreeMap<String,String> nsUniqueIds = new TreeMap<>();
 
     /* Set of nsUniqueIds of deleted entries */
-    private TreeSet<String> deletedNsUniqueIds;
+    private TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
     private AsyncLoader loader = new AsyncLoader(10 /*10s timeout*/);
 
@@ -99,11 +99,6 @@ public class LDAPProfileSubsystem
             throws EBaseException {
 
         logger.debug("LDAPProfileSubsystem: start init");
-
-        // (re)init member collections
-        entryUSNs = new TreeMap<>();
-        nsUniqueIds = new TreeMap<>();
-        deletedNsUniqueIds = new TreeSet<>();
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
