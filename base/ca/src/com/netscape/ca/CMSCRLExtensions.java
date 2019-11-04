@@ -69,7 +69,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     private ICRLIssuingPoint mCRLIssuingPoint = null;
 
     @SuppressWarnings("unused")
-    private IConfigStore mConfig;
+    private CRLIssuingPointConfig mConfig;
     private IConfigStore mCRLExtConfig = null;
 
     private Vector<String> mCRLExtensionNames = new Vector<String>();
@@ -191,7 +191,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     /**
      * Constructs a CRL extensions for CRL issuing point.
      */
-    public CMSCRLExtensions(ICRLIssuingPoint crlIssuingPoint, IConfigStore config) {
+    public CMSCRLExtensions(ICRLIssuingPoint crlIssuingPoint, CRLIssuingPointConfig config) {
         boolean modifiedConfig = false;
 
         CMSEngine engine = CMS.getCMSEngine();

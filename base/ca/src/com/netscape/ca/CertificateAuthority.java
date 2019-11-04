@@ -1189,32 +1189,32 @@ public class CertificateAuthority
     public boolean addCRLIssuingPoint(IConfigStore crlSubStore, String id,
                                       boolean enable, String description) {
         crlSubStore.makeSubStore(id);
-        IConfigStore c = crlSubStore.getSubStore(id);
+        CRLIssuingPointConfig c = crlSubStore.getSubStore(id, CRLIssuingPointConfig.class);
 
         if (c != null) {
-            c.putString("allowExtensions", "true");
-            c.putString("alwaysUpdate", "false");
-            c.putString("autoUpdateInterval", "240");
-            c.putString("caCertsOnly", "false");
-            c.putString("cacheUpdateInterval", "15");
-            c.putString("class", "com.netscape.ca.CRLIssuingPoint");
-            c.putString("dailyUpdates", "3:45");
-            c.putString("description", description);
-            c.putBoolean("enable", enable);
-            c.putString("enableCRLCache", "true");
-            c.putString("enableCRLUpdates", "true");
-            c.putString("enableCacheTesting", "false");
-            c.putString("enableCacheRecovery", "true");
-            c.putString("enableDailyUpdates", "false");
-            c.putString("enableUpdateInterval", "true");
-            c.putString("extendedNextUpdate", "true");
-            c.putString("includeExpiredCerts", "false");
-            c.putString("minUpdateInterval", "0");
-            c.putString("nextUpdateGracePeriod", "0");
-            c.putString("publishOnStart", "false");
-            c.putString("saveMemory", "false");
-            c.putString("signingAlgorithm", "SHA256withRSA");
-            c.putString("updateSchema", "1");
+            c.setAllowExtensions(true);
+            c.setAlwaysUpdate(false);
+            c.setAutoUpdateInterval(240);
+            c.setCACertsOnly(false);
+            c.setCacheUpdateInterval(15);
+            c.setClassName("com.netscape.ca.CRLIssuingPoint");
+            c.setDailyUpdates("3:45");
+            c.setDescription(description);
+            c.setEnable(enable);
+            c.setEnableCRLCache(true);
+            c.setEnableCRLUpdates(true);
+            c.setEnableCacheTesting(false);
+            c.setEnableCacheRecovery(true);
+            c.setEnableDailyUpdates(false);
+            c.setEnableUpdateInterval(true);
+            c.setExtendedNextUpdate(true);
+            c.setIncludeExpiredCerts(false);
+            c.setMinUpdateInterval(0);
+            c.setNextUpdateGracePeriod(0);
+            c.setPublishOnStart(false);
+            c.setSaveMemory(false);
+            c.setSigningAlgorithm("SHA256withRSA");
+            c.setUpdateSchema(1);
 
             // crl extensions
             // AuthorityInformationAccess
@@ -1312,7 +1312,7 @@ public class CertificateAuthority
             CRLIssuingPoint issuingPoint = null;
 
             try {
-                issuingPointClassName = c.getString(PROP_CLASS);
+                issuingPointClassName = c.getClassName();
                 issuingPointClass = (Class<CRLIssuingPoint>) Class.forName(issuingPointClassName);
                 issuingPoint = issuingPointClass.newInstance();
                 issuingPoint.init(this, id, c);
@@ -2294,14 +2294,14 @@ public class CertificateAuthority
             String issuePointId = issuePointIdEnum.nextElement();
 
             logger.debug("initializing crl issue point " + issuePointId);
-            IConfigStore issuePointConfig = null;
+            CRLIssuingPointConfig issuePointConfig = null;
             String issuePointClassName = null;
             Class<CRLIssuingPoint> issuePointClass = null;
             CRLIssuingPoint issuePoint = null;
 
             try {
-                issuePointConfig = crlConfig.getSubStore(issuePointId);
-                issuePointClassName = issuePointConfig.getString(PROP_CLASS);
+                issuePointConfig = crlConfig.getSubStore(issuePointId, CRLIssuingPointConfig.class);
+                issuePointClassName = issuePointConfig.getClassName();
                 issuePointClass = (Class<CRLIssuingPoint>) Class.forName(issuePointClassName);
                 issuePoint = issuePointClass.newInstance();
                 issuePoint.init(this, issuePointId, issuePointConfig);

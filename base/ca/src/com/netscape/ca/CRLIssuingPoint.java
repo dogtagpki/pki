@@ -125,7 +125,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     public IPublisherProcessor mPublisherProcessor = null;
 
-    private IConfigStore mConfigStore;
+    private CRLIssuingPointConfig mConfigStore;
 
     private int mCountMod = 0;
     private int mCount = 0;
@@ -478,13 +478,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mCrlPublishError = IRequest.CRL_PUBLISH_ERROR + "_" + mId;
         }
 
-        mConfigStore = config;
+        mConfigStore = (CRLIssuingPointConfig) config;
 
         IConfigStore crlSubStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
         mPageSize = crlSubStore.getInteger(ICertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
         logger.debug("CRL Page Size: " + mPageSize);
 
-        mCountMod = config.getInteger("countMod", 0);
+        mCountMod = mConfigStore.getCountMod();
         mCRLRepository = mCA.getCRLRepository();
         mCertRepository = mCA.getCertificateRepository();
         ((CertificateRepository) mCertRepository).addCRLIssuingPoint(mId, this);
@@ -494,7 +494,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         ((CAService) mCA.getCAService()).addCRLIssuingPoint(mId, this);
 
         // read in config parameters.
-        initConfig(config);
+        initConfig(mConfigStore);
 
         // create request listener.
         String lname = RevocationRequestListener.class.getName();
@@ -695,31 +695,30 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * get CRL config store info
      */
-    protected void initConfig(IConfigStore config)
-            throws EBaseException {
+    protected void initConfig(CRLIssuingPointConfig config) throws EBaseException {
 
-        mEnable = config.getBoolean(Constants.PR_ENABLE, true);
-        mDescription = config.getString(Constants.PR_DESCRIPTION);
+        mEnable = config.getEnable();
+        mDescription = config.getDescription();
 
         // Get CRL cache config.
-        mEnableCRLCache = config.getBoolean(Constants.PR_ENABLE_CACHE, true);
-        mCacheUpdateInterval = MINUTE * config.getInteger(Constants.PR_CACHE_FREQ, 0);
-        mEnableCacheRecovery = config.getBoolean(Constants.PR_CACHE_RECOVERY, false);
-        mEnableCacheTesting = config.getBoolean(Constants.PR_CACHE_TESTING, false);
+        mEnableCRLCache = config.getEnableCRLCache();
+        mCacheUpdateInterval = MINUTE * config.getCacheUpdateInterval();
+        mEnableCacheRecovery = config.getEnableCacheRecovery();
+        mEnableCacheTesting = config.getEnableCacheTesting();
 
         // check if CRL generation is enabled
-        mEnableCRLUpdates = config.getBoolean(Constants.PR_ENABLE_CRL, true);
+        mEnableCRLUpdates = config.getEnableCRLUpdates();
 
         // get update schema
-        mUpdateSchema = config.getInteger(Constants.PR_UPDATE_SCHEMA, 1);
+        mUpdateSchema = config.getUpdateSchema();
         mSchemaCounter = 0;
 
         // Get always update even if updated perdically.
-        mAlwaysUpdate = config.getBoolean(Constants.PR_UPDATE_ALWAYS, false);
+        mAlwaysUpdate = config.getAlwaysUpdate();
 
         // Get list of daily updates.
-        mEnableDailyUpdates = config.getBoolean(Constants.PR_ENABLE_DAILY, false);
-        String daily = config.getString(Constants.PR_DAILY_UPDATES, null);
+        mEnableDailyUpdates = config.getEnableDailyUpdates();
+        String daily = config.getDailyUpdates();
         mDailyUpdates = getTimeList(daily);
         mExtendedTimeList = isTimeListExtended(daily);
         mTimeListSize = getTimeListSize(mDailyUpdates);
@@ -729,41 +728,41 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
 
         // Get auto update interval in minutes.
-        mEnableUpdateFreq = config.getBoolean(Constants.PR_ENABLE_FREQ, true);
-        mAutoUpdateInterval = MINUTE * config.getInteger(Constants.PR_UPDATE_FREQ, 0);
-        mMinUpdateInterval = MINUTE * config.getInteger(PROP_MIN_UPDATE_INTERVAL, 0);
+        mEnableUpdateFreq = config.getEnableUpdateInterval();
+        mAutoUpdateInterval = MINUTE * config.getAutoUpdateInterval();
+        mMinUpdateInterval = MINUTE * config.getMinUpdateInterval();
         if (mEnableUpdateFreq && mAutoUpdateInterval > 0 &&
                 mAutoUpdateInterval < mMinUpdateInterval)
             mAutoUpdateInterval = mMinUpdateInterval;
 
         // get next update grace period
-        mNextUpdateGracePeriod = MINUTE * config.getInteger(Constants.PR_GRACE_PERIOD, 0);
+        mNextUpdateGracePeriod = MINUTE * config.getNextUpdateGracePeriod();
         // get unexpected exception wait time; default to 30 minutes
-        mUnexpectedExceptionWaitTime = MINUTE * config.getInteger("unexpectedExceptionWaitTime", 30);
+        mUnexpectedExceptionWaitTime = MINUTE * config.getUnexpectedExceptionWaitTime();
         logger.debug("CRLIssuingPoint:initConfig: mUnexpectedExceptionWaitTime set to " + mUnexpectedExceptionWaitTime);
         // get unexpected exception loop max; default to 10 times
-        mUnexpectedExceptionLoopMax = config.getInteger("unexpectedExceptionLoopMax", 10);
+        mUnexpectedExceptionLoopMax = config.getUnexpectedExceptionLoopMax();
         logger.debug("CRLIssuingPoint:initConfig: mUnexpectedExceptionLoopMax set to " + mUnexpectedExceptionLoopMax);
 
         // get next update as this update extension
-        mNextAsThisUpdateExtension = MINUTE * config.getInteger(Constants.PR_NEXT_AS_THIS_EXTENSION, 0);
+        mNextAsThisUpdateExtension = MINUTE * config.getNextAsThisUpdateExtension();
 
         // Get V2 or V1 CRL
-        mAllowExtensions = config.getBoolean(Constants.PR_EXTENSIONS, false);
+        mAllowExtensions = config.getAllowExtensions();
 
-        mIncludeExpiredCerts = config.getBoolean(Constants.PR_INCLUDE_EXPIREDCERTS, false);
-        mIncludeExpiredCertsOneExtraTime = config.getBoolean(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, false);
-        mCACertsOnly = config.getBoolean(Constants.PR_CA_CERTS_ONLY, false);
-        mProfileCertsOnly = config.getBoolean(Constants.PR_PROFILE_CERTS_ONLY, false);
+        mIncludeExpiredCerts = config.getIncludeExpiredCerts();
+        mIncludeExpiredCertsOneExtraTime = config.getIncludeExpiredCertsOneExtraTime();
+        mCACertsOnly = config.getCACertsOnly();
+        mProfileCertsOnly = config.getProfileCertsOnly();
         if (mProfileCertsOnly) {
-            String profiles = config.getString(Constants.PR_PROFILE_LIST, null);
+            String profiles = config.getProfileList();
             mProfileList = getProfileList(profiles);
         }
 
         // Get default signing algorithm.
         // check if algorithm is supported.
         mSigningAlgorithm = mCA.getCRLSigningUnit().getDefaultAlgorithm();
-        String algorithm = config.getString(Constants.PR_SIGNING_ALGORITHM, null);
+        String algorithm = config.getSigningAlgorithm();
 
         if (algorithm != null) {
             // make sure this algorithm is acceptable to CA.
@@ -771,28 +770,28 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mSigningAlgorithm = algorithm;
         }
 
-        mPublishOnStart = config.getBoolean(PROP_PUBLISH_ON_START, false);
+        mPublishOnStart = config.getPublishOnStart();
         // if publish dn is null then certificate will be published to
         // CA's entry in the directory.
-        mPublishDN = config.getString(PROP_PUBLISH_DN, null);
+        mPublishDN = config.getPublishDN();
 
-        mSaveMemory = config.getBoolean("saveMemory", false);
+        mSaveMemory = config.getSaveMemory();
 
         mCMSCRLExtensions = new CMSCRLExtensions(this, config);
 
         mExtendedNextUpdate =
                 ((mUpdateSchema > 1 || (mEnableDailyUpdates && mExtendedTimeList)) && isDeltaCRLEnabled()) ?
-                                config.getBoolean(Constants.PR_EXTENDED_NEXT_UPDATE, true) :
+                                config.getExtendedNextUpdate() :
                                 false;
 
         // Get serial number ranges if any.
-        mBeginSerial = config.getBigInteger(PROP_BEGIN_SERIAL, null);
+        mBeginSerial = config.getCRLBeginSerialNo();
         if (mBeginSerial != null && mBeginSerial.compareTo(BigInteger.ZERO) < 0) {
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1",
                             PROP_BEGIN_SERIAL, "BigInteger", "positive number"));
         }
-        mEndSerial = config.getBigInteger(PROP_END_SERIAL, null);
+        mEndSerial = config.getCRLEndSerialNo();
         if (mEndSerial != null && mEndSerial.compareTo(BigInteger.ZERO) < 0) {
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1",
@@ -2740,7 +2739,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mSplits[2] -= System.currentTimeMillis();
 
             // #56123 - dont generate CRL if no revoked certificates
-            if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
+            if (mConfigStore.getNoCRLIfNoRevokedCert()) {
                 if (deltaCRLCerts.size() == 0) {
                     logger.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No Delta CRL Generated");
                     mDeltaCRLSize = -1;
@@ -2853,7 +2852,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mSplits[7] -= System.currentTimeMillis();
 
             // #56123 - dont generate CRL if no revoked certificates
-            if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
+            if (mConfigStore.getNoCRLIfNoRevokedCert()) {
                 if (mCRLCerts.size() == 0) {
                     logger.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No CRL Generated");
                     signedAuditLogger.log(FullCRLGenerationEvent.createSuccessEvent(
