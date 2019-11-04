@@ -45,6 +45,7 @@ import com.netscape.certsrv.usrgrp.IUsrGrp;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -144,7 +145,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
 
         // initialize LDAP connection factory
         try {
-            IConfigStore ldapConfig = config.getSubStore("ldap");
+            LDAPConfig ldapConfig = config.getSubStore("ldap", LDAPConfig.class);
 
             mBaseDN = ldapConfig.getString(PROP_BASEDN, null);
 

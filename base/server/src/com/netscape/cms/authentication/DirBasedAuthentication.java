@@ -44,13 +44,13 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
@@ -79,7 +79,6 @@ public abstract class DirBasedAuthentication
     protected static final String USER_DN = "userDN";
 
     /* configuration parameter keys */
-    protected static final String PROP_LDAP = "ldap";
     protected static final String PROP_BASEDN = "basedn";
     protected static final String PROP_GROUPS_ENABLE = "groupsEnable";
     protected static final String PROP_GROUPS_BASEDN = "groupsBasedn";
@@ -106,7 +105,7 @@ public abstract class DirBasedAuthentication
     protected AuthManagerConfig mConfig;
 
     /* ldap configuration sub-store */
-    protected IConfigStore mLdapConfig;
+    protected LDAPConfig mLdapConfig;
 
     /* ldap base dn */
     protected String mBaseDN = null;
@@ -274,7 +273,7 @@ public abstract class DirBasedAuthentication
         EngineConfig cs = engine.getConfig();
 
         /* initialize ldap server configuration */
-        mLdapConfig = mConfig.getSubStore(PROP_LDAP);
+        mLdapConfig = mConfig.getLDAPConfig();
 
         if (needBaseDN) {
             mBaseDN = mLdapConfig.getString(PROP_BASEDN);

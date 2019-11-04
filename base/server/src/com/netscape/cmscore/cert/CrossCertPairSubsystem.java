@@ -37,6 +37,7 @@ import com.netscape.certsrv.publish.IXcertPublisherProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -115,7 +116,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             }
 
             // initialize LDAP connection factory
-            IConfigStore ldapConfig = mConfig.getSubStore(PROP_LDAP);
+            LDAPConfig ldapConfig = mConfig.getSubStore(PROP_LDAP, LDAPConfig.class);
 
             if (ldapConfig == null) {
                 logger.warn(CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR", PROP_LDAP));

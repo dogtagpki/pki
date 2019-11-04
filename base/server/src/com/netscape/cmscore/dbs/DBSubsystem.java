@@ -39,6 +39,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -72,7 +73,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     public static String ID = IDBSubsystem.SUB_ID;
 
-    private IConfigStore mConfig = null;
+    private LDAPConfig mConfig;
     private IConfigStore mDBConfig = null;
     private LdapBoundConnFactory mLdapConnFactory = null;
     private DBRegistry mRegistry = null;
@@ -537,7 +538,7 @@ public class DBSubsystem implements IDBSubsystem {
         mDBConfig = config;
         mRepos = new Hashtable[IDBSubsystem.NUM_REPOS];
 
-        mConfig = config.getSubStore(PROP_LDAP);
+        mConfig = config.getSubStore(PROP_LDAP, LDAPConfig.class);
         IConfigStore tmpConfig = null;
         try {
             mBaseDN = mConfig.getString(PROP_BASEDN, "o=NetscapeCertificateServer");
@@ -869,7 +870,7 @@ public class DBSubsystem implements IDBSubsystem {
     /**
      * Retrieves internal DB configuration store.
      */
-    public IConfigStore getConfigStore() {
+    public LDAPConfig getConfigStore() {
         return mConfig;
     }
 

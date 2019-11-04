@@ -45,8 +45,6 @@ public class LdapConnModule implements ILdapConnModule {
      * instantiate connection factory.
      */
 
-    public static final String PROP_LDAP = "ldap";
-
     public LdapConnModule() {
     }
 

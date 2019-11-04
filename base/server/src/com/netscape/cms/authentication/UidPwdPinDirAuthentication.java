@@ -45,6 +45,7 @@ import com.netscape.cms.profile.IProfileAuthenticator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -141,8 +142,8 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
     protected MessageDigest mSHA256Digest = null;
 
     private LdapBoundConnFactory removePinLdapFactory;
-    private LDAPConnection removePinLdapConnection = null;
-    private IConfigStore removePinLdapConfigStore = null;
+    private LDAPConnection removePinLdapConnection;
+    private LDAPConfig removePinLdapConfigStore;
 
     /**
      * Default constructor, initialization must follow.
@@ -167,7 +168,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         }
 
         if (mRemovePin) {
-            removePinLdapConfigStore = config.getSubStore("ldap");
+            removePinLdapConfigStore = config.getLDAPConfig();
             removePinLdapFactory = new LdapBoundConnFactory("UidPwdPinDirAuthentication");
             removePinLdapFactory.init(cs, removePinLdapConfigStore, engine.getPasswordStore());
 

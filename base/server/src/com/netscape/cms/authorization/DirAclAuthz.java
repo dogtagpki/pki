@@ -25,12 +25,12 @@ import org.dogtagpki.server.authorization.IAuthzManager;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -118,7 +118,7 @@ public class DirAclAuthz extends AAclAuthz
 
         searchBase = config.getString(PROP_SEARCHBASE, null);
 
-        IConfigStore ldapConfig = config.getSubStore("ldap");
+        LDAPConfig ldapConfig = config.getLDAPConfig();
 
         if (ldapConfig == null) {
             logger.warn("DirAclAuthz: failed to get config ldap info");
