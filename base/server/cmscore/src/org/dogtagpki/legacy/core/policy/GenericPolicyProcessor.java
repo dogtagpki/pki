@@ -72,8 +72,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     protected IAuthority mAuthority = null;
 
     // Default System Policies
-    public final static String[] DEF_POLICIES =
-        { "com.netscape.cms.policy.constraints.ManualAuthentication" };
+    public final static String[] DEF_POLICIES = {
+            org.dogtagpki.legacy.server.policy.constraints.ManualAuthentication.class.getName()
+    };
 
     // Policies that can't be deleted nor disabled.
     public final static Hashtable<String, IExpression> DEF_UNDELETABLE_POLICIES =
