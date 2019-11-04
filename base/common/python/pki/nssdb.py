@@ -238,6 +238,9 @@ class NSSDatabase(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
+        if not self.module_exists('p11-kit-trust'):
+            self.add_module('p11-kit-trust', '/usr/share/pki/lib/p11-kit-trust.so')
+
     def close(self):
         shutil.rmtree(self.tmpdir)
 
@@ -373,6 +376,64 @@ class NSSDatabase(object):
             os.rename(oldname, oldname + '.migrated')
 
         logger.info("Migration successful")
+
+    def module_exists(self, name):
+
+        logger.info('Checking module %s', name)
+
+        cmd = [
+            'modutil',
+            '-dbdir', self.directory,
+            '-rawlist'
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
+        output = result.stdout.decode('utf-8')
+
+        pattern = re.compile(r' name="%s" ' % name)
+
+        for line in output.splitlines():
+
+            logger.info('Output: %s', line)
+
+            if pattern.search(line):
+                logger.info('Module %s found', name)
+                return True
+
+        logger.info('Module %s not found', name)
+        return False
+
+    def add_module(self, name, library):
+
+        logger.info('Adding module %s (%s)', name, library)
+
+        cmd = [
+            'modutil',
+            '-dbdir', self.directory,
+            '-add', name,
+            '-libfile', library,
+            '-force'
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+
+        # modutil will generate the following question:
+
+        # WARNING: Manually adding a module while p11-kit is enabled could cause
+        # duplicate module registration in your security database. It is suggested
+        # to configure the module through p11-kit configuration file instead.
+        #
+        # Type 'q <enter>' to abort, or <enter> to continue:
+
+        # respond with <enter>
+
+        subprocess.run(
+            cmd,
+            input='\n'.encode('utf-8'),
+            stdout=subprocess.DEVNULL,
+            check=True)
 
     def add_cert(self, nickname, cert_file, token=None, trust_attributes=None):
 
