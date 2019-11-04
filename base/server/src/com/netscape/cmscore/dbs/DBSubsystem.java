@@ -37,6 +37,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
@@ -73,7 +74,7 @@ public class DBSubsystem implements IDBSubsystem {
     public static String ID = IDBSubsystem.SUB_ID;
 
     private LDAPConfig mConfig;
-    private IConfigStore mDBConfig = null;
+    private DatabaseConfig mDBConfig;
     private LdapBoundConnFactory mLdapConnFactory = null;
     private DBRegistry mRegistry = null;
     private String mBaseDN = null;
@@ -84,48 +85,48 @@ public class DBSubsystem implements IDBSubsystem {
     private BigInteger mNextSerialConfig = null;
     private boolean mEnableSerialMgmt = false;
 
-    private static final String PROP_ENABLE_SERIAL_NUMBER_RECOVERY =
+    public static final String PROP_ENABLE_SERIAL_NUMBER_RECOVERY =
             "enableSerialNumberRecovery";
     // This value is only equal to the next Serial number that the CA's
     // going to issue when cms just start up or it's just set from console.
     // It doesn't record the next serial number at other time when cms's
     // runing not to increase overhead when issuing certs.
-    private static final String PROP_NEXT_SERIAL_NUMBER =
+    public static final String PROP_NEXT_SERIAL_NUMBER =
             "nextSerialNumber";
-    private static final String PROP_MIN_SERIAL_NUMBER = "beginSerialNumber";
-    private static final String PROP_MAX_SERIAL_NUMBER = "endSerialNumber";
-    private static final String PROP_NEXT_MIN_SERIAL_NUMBER = "nextBeginSerialNumber";
-    private static final String PROP_NEXT_MAX_SERIAL_NUMBER = "nextEndSerialNumber";
-    private static final String PROP_SERIAL_LOW_WATER_MARK = "serialLowWaterMark";
-    private static final String PROP_SERIAL_INCREMENT = "serialIncrement";
-    private static final String PROP_SERIAL_BASEDN = "serialDN";
-    private static final String PROP_SERIAL_RANGE_DN = "serialRangeDN";
+    public static final String PROP_MIN_SERIAL_NUMBER = "beginSerialNumber";
+    public static final String PROP_MAX_SERIAL_NUMBER = "endSerialNumber";
+    public static final String PROP_NEXT_MIN_SERIAL_NUMBER = "nextBeginSerialNumber";
+    public static final String PROP_NEXT_MAX_SERIAL_NUMBER = "nextEndSerialNumber";
+    public static final String PROP_SERIAL_LOW_WATER_MARK = "serialLowWaterMark";
+    public static final String PROP_SERIAL_INCREMENT = "serialIncrement";
+    public static final String PROP_SERIAL_BASEDN = "serialDN";
+    public static final String PROP_SERIAL_RANGE_DN = "serialRangeDN";
 
-    private static final String PROP_MIN_REQUEST_NUMBER = "beginRequestNumber";
-    private static final String PROP_MAX_REQUEST_NUMBER = "endRequestNumber";
-    private static final String PROP_NEXT_MIN_REQUEST_NUMBER = "nextBeginRequestNumber";
-    private static final String PROP_NEXT_MAX_REQUEST_NUMBER = "nextEndRequestNumber";
-    private static final String PROP_REQUEST_LOW_WATER_MARK = "requestLowWaterMark";
-    private static final String PROP_REQUEST_INCREMENT = "requestIncrement";
-    private static final String PROP_REQUEST_BASEDN = "requestDN";
-    private static final String PROP_REQUEST_RANGE_DN = "requestRangeDN";
+    public static final String PROP_MIN_REQUEST_NUMBER = "beginRequestNumber";
+    public static final String PROP_MAX_REQUEST_NUMBER = "endRequestNumber";
+    public static final String PROP_NEXT_MIN_REQUEST_NUMBER = "nextBeginRequestNumber";
+    public static final String PROP_NEXT_MAX_REQUEST_NUMBER = "nextEndRequestNumber";
+    public static final String PROP_REQUEST_LOW_WATER_MARK = "requestLowWaterMark";
+    public static final String PROP_REQUEST_INCREMENT = "requestIncrement";
+    public static final String PROP_REQUEST_BASEDN = "requestDN";
+    public static final String PROP_REQUEST_RANGE_DN = "requestRangeDN";
 
-    private static final String PROP_MIN_REPLICA_NUMBER = "beginReplicaNumber";
-    private static final String PROP_MAX_REPLICA_NUMBER = "endReplicaNumber";
-    private static final String PROP_NEXT_MIN_REPLICA_NUMBER = "nextBeginReplicaNumber";
-    private static final String PROP_NEXT_MAX_REPLICA_NUMBER = "nextEndReplicaNumber";
-    private static final String PROP_REPLICA_LOW_WATER_MARK = "replicaLowWaterMark";
-    private static final String PROP_REPLICA_INCREMENT = "replicaIncrement";
-    private static final String PROP_REPLICA_BASEDN = "replicaDN";
-    private static final String PROP_REPLICA_RANGE_DN = "replicaRangeDN";
+    public static final String PROP_MIN_REPLICA_NUMBER = "beginReplicaNumber";
+    public static final String PROP_MAX_REPLICA_NUMBER = "endReplicaNumber";
+    public static final String PROP_NEXT_MIN_REPLICA_NUMBER = "nextBeginReplicaNumber";
+    public static final String PROP_NEXT_MAX_REPLICA_NUMBER = "nextEndReplicaNumber";
+    public static final String PROP_REPLICA_LOW_WATER_MARK = "replicaLowWaterMark";
+    public static final String PROP_REPLICA_INCREMENT = "replicaIncrement";
+    public static final String PROP_REPLICA_BASEDN = "replicaDN";
+    public static final String PROP_REPLICA_RANGE_DN = "replicaRangeDN";
 
-    private static final String PROP_INFINITE_SERIAL_NUMBER = "1000000000";
-    private static final String PROP_INFINITE_REQUEST_NUMBER = "1000000000";
-    private static final String PROP_INFINITE_REPLICA_NUMBER = "1000";
+    public static final String PROP_INFINITE_SERIAL_NUMBER = "1000000000";
+    public static final String PROP_INFINITE_REQUEST_NUMBER = "1000000000";
+    public static final String PROP_INFINITE_REPLICA_NUMBER = "1000";
     private static final String PROP_BASEDN = "basedn";
     private static final String PROP_LDAP = "ldap";
     private static final String PROP_NEXT_RANGE = "nextRange";
-    private static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";
+    public static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";
 
     // hash keys
     private static final String NAME = "name";
@@ -185,8 +186,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     public boolean enableSerialNumberRecovery() {
         try {
-            return mDBConfig.getBoolean(
-                    PROP_ENABLE_SERIAL_NUMBER_RECOVERY, true);
+            return mDBConfig.getEnableSerialNumberRecovery();
         } catch (EBaseException e) {
             // by default
             return true;
@@ -205,7 +205,7 @@ public class DBSubsystem implements IDBSubsystem {
             logger.debug("DBSubsystem: Disabling Serial Number Management");
         }
 
-        mDBConfig.putBoolean(PROP_ENABLE_SERIAL_MGMT, v);
+        mDBConfig.setEnableSerialManagement(v);
         IConfigStore rootStore = getOwner().getConfigStore();
         rootStore.commit(false);
         mEnableSerialMgmt = v;
@@ -218,8 +218,7 @@ public class DBSubsystem implements IDBSubsystem {
     public void setNextSerialConfig(BigInteger serial)
             throws EBaseException {
         logger.info("DBSubsystem: Setting next serial number: 0x" + serial.toString(16));
-        mDBConfig.putString(PROP_NEXT_SERIAL_NUMBER,
-                serial.toString(16));
+        mDBConfig.setNextSerialNumber(serial.toString(16));
     }
 
     /**
@@ -534,7 +533,7 @@ public class DBSubsystem implements IDBSubsystem {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        mDBConfig = config;
+        mDBConfig = cs.getDatabaseConfig();
         mRepos = new Hashtable[IDBSubsystem.NUM_REPOS];
 
         mConfig = config.getSubStore(PROP_LDAP, LDAPConfig.class);
@@ -543,105 +542,86 @@ public class DBSubsystem implements IDBSubsystem {
 
             mOwner = owner;
 
-            mNextSerialConfig = new BigInteger(mDBConfig.getString(
-                    PROP_NEXT_SERIAL_NUMBER, "0"), 16);
+            mNextSerialConfig = new BigInteger(mDBConfig.getNextSerialNumber(), 16);
 
-            mEnableSerialMgmt = mDBConfig.getBoolean(PROP_ENABLE_SERIAL_MGMT, false);
+            mEnableSerialMgmt = mDBConfig.getEnableSerialManagement();
             logger.debug("DBSubsystem: init()  mEnableSerialMgmt="+mEnableSerialMgmt);
 
             // populate the certs hash entry
             Hashtable<String, String> certs = new Hashtable<String, String>();
             certs.put(NAME, "certs");
-            certs.put(PROP_BASEDN, mDBConfig.getString(PROP_SERIAL_BASEDN, ""));
-            certs.put(PROP_RANGE_DN, mDBConfig.getString(PROP_SERIAL_RANGE_DN, ""));
+            certs.put(PROP_BASEDN, mDBConfig.getSerialDN());
+            certs.put(PROP_RANGE_DN, mDBConfig.getSerialRangeDN());
 
             certs.put(PROP_MIN_NAME, PROP_MIN_SERIAL_NUMBER);
-            certs.put(PROP_MIN, mDBConfig.getString(
-                    PROP_MIN_SERIAL_NUMBER, "0"));
+            certs.put(PROP_MIN, mDBConfig.getBeginSerialNumber());
 
             certs.put(PROP_MAX_NAME, PROP_MAX_SERIAL_NUMBER);
-            certs.put(PROP_MAX, mDBConfig.getString(
-                    PROP_MAX_SERIAL_NUMBER, PROP_INFINITE_SERIAL_NUMBER));
+            certs.put(PROP_MAX, mDBConfig.getEndSerialNumber());
 
             certs.put(PROP_NEXT_MIN_NAME, PROP_NEXT_MIN_SERIAL_NUMBER);
-            certs.put(PROP_NEXT_MIN, mDBConfig.getString(
-                    PROP_NEXT_MIN_SERIAL_NUMBER, "-1"));
+            certs.put(PROP_NEXT_MIN, mDBConfig.getNextBeginSerialNumber());
 
             certs.put(PROP_NEXT_MAX_NAME, PROP_NEXT_MAX_SERIAL_NUMBER);
-            certs.put(PROP_NEXT_MAX, mDBConfig.getString(
-                    PROP_NEXT_MAX_SERIAL_NUMBER, "-1"));
+            certs.put(PROP_NEXT_MAX, mDBConfig.getNextEndSerialNumber());
 
             certs.put(PROP_LOW_WATER_MARK_NAME, PROP_SERIAL_LOW_WATER_MARK);
-            certs.put(PROP_LOW_WATER_MARK, mDBConfig.getString(
-                    PROP_SERIAL_LOW_WATER_MARK, "5000"));
+            certs.put(PROP_LOW_WATER_MARK, mDBConfig.getSerialLowWaterMark());
 
             certs.put(PROP_INCREMENT_NAME, PROP_SERIAL_INCREMENT);
-            certs.put(PROP_INCREMENT, mDBConfig.getString(
-                    PROP_SERIAL_INCREMENT, PROP_INFINITE_SERIAL_NUMBER));
+            certs.put(PROP_INCREMENT, mDBConfig.getSerialIncrement());
 
             mRepos[CERTS] = certs;
 
             // populate the requests hash entry
             Hashtable<String, String> requests = new Hashtable<String, String>();
             requests.put(NAME, "requests");
-            requests.put(PROP_BASEDN, mDBConfig.getString(PROP_REQUEST_BASEDN, ""));
-            requests.put(PROP_RANGE_DN, mDBConfig.getString(PROP_REQUEST_RANGE_DN, ""));
+            requests.put(PROP_BASEDN, mDBConfig.getRequestDN());
+            requests.put(PROP_RANGE_DN, mDBConfig.getRequestRangeDN());
 
             requests.put(PROP_MIN_NAME, PROP_MIN_REQUEST_NUMBER);
-            requests.put(PROP_MIN, mDBConfig.getString(
-                    PROP_MIN_REQUEST_NUMBER, "0"));
+            requests.put(PROP_MIN, mDBConfig.getBeginRequestNumber());
 
             requests.put(PROP_MAX_NAME, PROP_MAX_REQUEST_NUMBER);
-            requests.put(PROP_MAX, mDBConfig.getString(
-                    PROP_MAX_REQUEST_NUMBER, PROP_INFINITE_REQUEST_NUMBER));
+            requests.put(PROP_MAX, mDBConfig.getEndRequestNumber());
 
             requests.put(PROP_NEXT_MIN_NAME, PROP_NEXT_MIN_REQUEST_NUMBER);
-            requests.put(PROP_NEXT_MIN, mDBConfig.getString(
-                    PROP_NEXT_MIN_REQUEST_NUMBER, "-1"));
+            requests.put(PROP_NEXT_MIN, mDBConfig.getNextBeginRequestNumber());
 
             requests.put(PROP_NEXT_MAX_NAME, PROP_NEXT_MAX_REQUEST_NUMBER);
-            requests.put(PROP_NEXT_MAX, mDBConfig.getString(
-                    PROP_NEXT_MAX_REQUEST_NUMBER, "-1"));
+            requests.put(PROP_NEXT_MAX, mDBConfig.getNextEndRequestNumber());
 
             requests.put(PROP_LOW_WATER_MARK_NAME, PROP_REQUEST_LOW_WATER_MARK);
-            requests.put(PROP_LOW_WATER_MARK, mDBConfig.getString(
-                    PROP_REQUEST_LOW_WATER_MARK, "5000"));
+            requests.put(PROP_LOW_WATER_MARK, mDBConfig.getRequestLowWaterMark());
 
             requests.put(PROP_INCREMENT_NAME, PROP_REQUEST_INCREMENT);
-            requests.put(PROP_INCREMENT, mDBConfig.getString(
-                    PROP_REQUEST_INCREMENT, PROP_INFINITE_REQUEST_NUMBER));
+            requests.put(PROP_INCREMENT, mDBConfig.getRequestIncrement());
 
             mRepos[REQUESTS] = requests;
 
             // populate replica ID hash entry
             Hashtable<String, String> replicaID = new Hashtable<String, String>();
             replicaID.put(NAME, "requests");
-            replicaID.put(PROP_BASEDN, mDBConfig.getString(PROP_REPLICA_BASEDN, ""));
-            replicaID.put(PROP_RANGE_DN, mDBConfig.getString(PROP_REPLICA_RANGE_DN, ""));
+            replicaID.put(PROP_BASEDN, mDBConfig.getReplicaDN());
+            replicaID.put(PROP_RANGE_DN, mDBConfig.getReplicaRangeDN());
 
             replicaID.put(PROP_MIN_NAME, PROP_MIN_REPLICA_NUMBER);
-            replicaID.put(PROP_MIN, mDBConfig.getString(
-                    PROP_MIN_REPLICA_NUMBER, "1"));
+            replicaID.put(PROP_MIN, mDBConfig.getBeginReplicaNumber());
 
             replicaID.put(PROP_MAX_NAME, PROP_MAX_REPLICA_NUMBER);
-            replicaID.put(PROP_MAX, mDBConfig.getString(
-                    PROP_MAX_REPLICA_NUMBER, PROP_INFINITE_REPLICA_NUMBER));
+            replicaID.put(PROP_MAX, mDBConfig.getEndReplicaNumber());
 
             replicaID.put(PROP_NEXT_MIN_NAME, PROP_NEXT_MIN_REPLICA_NUMBER);
-            replicaID.put(PROP_NEXT_MIN, mDBConfig.getString(
-                    PROP_NEXT_MIN_REPLICA_NUMBER, "-1"));
+            replicaID.put(PROP_NEXT_MIN, mDBConfig.getNextBeginReplicaNumber());
 
             replicaID.put(PROP_NEXT_MAX_NAME, PROP_NEXT_MAX_REPLICA_NUMBER);
-            replicaID.put(PROP_NEXT_MAX, mDBConfig.getString(
-                    PROP_NEXT_MAX_REPLICA_NUMBER, "-1"));
+            replicaID.put(PROP_NEXT_MAX, mDBConfig.getNextEndReplicaNumber());
 
             replicaID.put(PROP_LOW_WATER_MARK_NAME, PROP_REPLICA_LOW_WATER_MARK);
-            replicaID.put(PROP_LOW_WATER_MARK, mDBConfig.getString(
-                    PROP_REPLICA_LOW_WATER_MARK, "10"));
+            replicaID.put(PROP_LOW_WATER_MARK, mDBConfig.getReplicaLowWaterMark());
 
             replicaID.put(PROP_INCREMENT_NAME, PROP_REPLICA_INCREMENT);
-            replicaID.put(PROP_INCREMENT, mDBConfig.getString(
-                    PROP_REPLICA_INCREMENT, PROP_INFINITE_REPLICA_NUMBER));
+            replicaID.put(PROP_INCREMENT, mDBConfig.getReplicaIncrement());
 
             mRepos[REPLICA_ID] = replicaID;
 
@@ -874,7 +854,7 @@ public class DBSubsystem implements IDBSubsystem {
     /**
      * Retrieves DB subsystem configuration store.
      */
-    public IConfigStore getDBConfigStore() {
+    public DatabaseConfig getDBConfigStore() {
         return mDBConfig;
     }
 
@@ -938,7 +918,7 @@ public class DBSubsystem implements IDBSubsystem {
         try {
             conn = mLdapConnFactory.getConn();
 
-            String schemaAdded = mDBConfig.getString("newSchemaEntryAdded", "");
+            String schemaAdded = mDBConfig.getNewSchemaEntryAdded();
 
             if (schemaAdded.equals("")) {
                 LDAPSchema dirSchema = new LDAPSchema();
@@ -965,7 +945,7 @@ public class DBSubsystem implements IDBSubsystem {
                                 "top", "CMS User", requiredAttrs, optionalAttrs);
                     newObjClass.add(conn);
                 }
-                mDBConfig.putString("newSchemaEntryAdded", "true");
+                mDBConfig.setNewSchemaEntryAdded("true");
                 IConfigStore rootStore = getOwner().getConfigStore();
 
                 rootStore.commit(false);
