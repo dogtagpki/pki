@@ -48,7 +48,7 @@ public class CADBUpgradeCLI extends SubsystemDBUpgradeCLI {
 
         logger.info("Searching certificates records with missing issuerName");
 
-        String baseDN = ldapConfig.getString("basedn");
+        String baseDN = ldapConfig.getBaseDN();
         String certRepoDN = "ou=certificateRepository,ou=ca," + baseDN;
 
         LDAPSearchResults results = conn.search(

@@ -38,7 +38,6 @@ import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -539,9 +538,8 @@ public class DBSubsystem implements IDBSubsystem {
         mRepos = new Hashtable[IDBSubsystem.NUM_REPOS];
 
         mConfig = config.getSubStore(PROP_LDAP, LDAPConfig.class);
-        IConfigStore tmpConfig = null;
         try {
-            mBaseDN = mConfig.getString(PROP_BASEDN, "o=NetscapeCertificateServer");
+            mBaseDN = mConfig.getBaseDN("o=NetscapeCertificateServer");
 
             mOwner = owner;
 
@@ -654,9 +652,6 @@ public class DBSubsystem implements IDBSubsystem {
             // initialize LDAP connection factory
             // by default return error if server is down at startup time.
             mLdapConnFactory = new LdapBoundConnFactory("DBSubsystem", true);
-            tmpConfig = (IConfigStore) (((PropConfigStore) mConfig).clone());
-
-            tmpConfig.putString(PROP_BASEDN, mBaseDN);
 
         } catch (EBaseException e) {
             logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
@@ -664,6 +659,8 @@ public class DBSubsystem implements IDBSubsystem {
         }
 
         try {
+            LDAPConfig tmpConfig = (LDAPConfig) mConfig.clone();
+            tmpConfig.setBaseDN(mBaseDN);
             mLdapConnFactory.init(cs, tmpConfig, engine.getPasswordStore());
 
         } catch (EPropertyNotDefined e) {

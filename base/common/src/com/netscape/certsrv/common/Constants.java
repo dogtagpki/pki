@@ -134,7 +134,6 @@ public interface Constants {
     public final static String PR_AUTH_IMPL_NAME = "implName";
     public final static String PR_AUTH_HOST = "ldapconn.host";
     public final static String PR_AUTH_PORT = "ldapconn.port";
-    public final static String PR_AUTH_BASEDN = "basedn";
     public final static String PR_AUTH_ADMIN_DN = "ldapauth.bindDN";
     public final static String PR_AUTH_ADMIN_PWD = "ldapauth.bindPassword";
 

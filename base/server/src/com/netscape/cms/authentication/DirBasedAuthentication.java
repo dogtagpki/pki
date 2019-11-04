@@ -79,7 +79,6 @@ public abstract class DirBasedAuthentication
     protected static final String USER_DN = "userDN";
 
     /* configuration parameter keys */
-    protected static final String PROP_BASEDN = "basedn";
     protected static final String PROP_GROUPS_ENABLE = "groupsEnable";
     protected static final String PROP_GROUPS_BASEDN = "groupsBasedn";
     protected static final String PROP_GROUPS = "groups";
@@ -276,7 +275,7 @@ public abstract class DirBasedAuthentication
         mLdapConfig = mConfig.getLDAPConfig();
 
         if (needBaseDN) {
-            mBaseDN = mLdapConfig.getString(PROP_BASEDN);
+            mBaseDN = mLdapConfig.getBaseDN();
             if (mBaseDN == null || mBaseDN.trim().equals(""))
                 throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "basedn"));
 

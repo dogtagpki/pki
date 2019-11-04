@@ -133,7 +133,7 @@ public class CAConfigurator extends Configurator {
             throws EBaseException {
 
         LDAPConfig ldapConfig = cs.getInternalDatabase();
-        String basedn = ldapConfig.getString("basedn", "");
+        String basedn = ldapConfig.getBaseDN();
 
         String dn = "cn=" + profileId + ",ou=certificateProfiles,ou=ca," + basedn;
 
@@ -289,7 +289,7 @@ public class CAConfigurator extends Configurator {
 
             conn = dbFactory.getConn();
 
-            String basedn = dbCfg.getString("basedn", "");
+            String basedn = dbCfg.getBaseDN();
             String dn = "cn=" + serialNumber + ",ou=certificateRepository,ou=ca," + basedn;
 
             conn.delete(dn);

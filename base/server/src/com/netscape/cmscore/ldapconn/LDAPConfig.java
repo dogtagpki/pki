@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldapconn;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
@@ -29,5 +30,17 @@ public class LDAPConfig extends PropConfigStore {
 
     public LDAPConfig(String name, SimpleProperties source) {
         super(name, source);
+    }
+
+    public String getBaseDN() throws EBaseException {
+        return getString("basedn");
+    }
+
+    public String getBaseDN(String defaultBaseDN) throws EBaseException {
+        return getString("basedn", defaultBaseDN);
+    }
+
+    public void setBaseDN(String baseDN) {
+        putString("basedn", baseDN);
     }
 }

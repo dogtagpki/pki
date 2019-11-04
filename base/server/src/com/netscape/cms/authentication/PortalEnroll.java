@@ -150,7 +150,7 @@ public class PortalEnroll extends DirBasedAuthentication {
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "binddn"));
 
         /* Get Bind DN for directory server */
-        mBaseDN = mLdapConfig.getString(PROP_BASEDN);
+        mBaseDN = mLdapConfig.getBaseDN();
         if ((mBaseDN == null) || (mBaseDN.length() == 0) || (mBaseDN == ""))
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "basedn"));
 

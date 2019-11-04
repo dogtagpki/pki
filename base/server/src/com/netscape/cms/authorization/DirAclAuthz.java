@@ -53,7 +53,6 @@ public class DirAclAuthz extends AAclAuthz
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DirAclAuthz.class);
 
-    protected static final String PROP_BASEDN = "basedn";
     protected static final String PROP_SEARCHBASE = "searchBase";
 
     private LdapBoundConnFactory mLdapConnFactory;
@@ -125,7 +124,7 @@ public class DirAclAuthz extends AAclAuthz
             return;
         }
 
-        mBaseDN = ldapConfig.getString(PROP_BASEDN, null);
+        mBaseDN = ldapConfig.getBaseDN();
 
         try {
             @SuppressWarnings("unused")

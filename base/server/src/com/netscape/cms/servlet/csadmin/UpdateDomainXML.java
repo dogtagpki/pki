@@ -187,7 +187,7 @@ public class UpdateDomainXML extends CMSServlet {
         LDAPConfig ldapConfig = cs.getInternalDatabase();
 
         try {
-            basedn = ldapConfig.getString("basedn");
+            basedn = ldapConfig.getBaseDN();
             secstore = cs.getString("securitydomain.store");
         } catch (Exception e) {
             logger.warn("Unable to determine security domain name or basedn. Please run the domaininfo migration script: " + e.getMessage(), e);

@@ -89,8 +89,6 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
     protected static final String LDAP_ATTR_USER_CERT = "userCertificate";
     protected static final String LDAP_ATTR_PROFILE_ID = "profileID";
 
-    protected static final String PROP_BASEDN = "basedn";
-
     protected transient LdapBoundConnFactory mLdapConnFactory = null;
     protected String mBaseDN = null;
     protected static UGSubsystem mUG = null;
@@ -147,7 +145,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
         try {
             LDAPConfig ldapConfig = config.getSubStore("ldap", LDAPConfig.class);
 
-            mBaseDN = ldapConfig.getString(PROP_BASEDN, null);
+            mBaseDN = ldapConfig.getBaseDN();
 
             mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
             mLdapConnFactory.init(cs, ldapConfig, engine.getPasswordStore());

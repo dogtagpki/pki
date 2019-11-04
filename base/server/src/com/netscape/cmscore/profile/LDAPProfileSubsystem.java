@@ -123,7 +123,7 @@ public class LDAPProfileSubsystem
         // *.profile2.config=config/profiles/profile2.cfg
 
         // read profile id, implementation, and its configuration files
-        String basedn = dbCfg.getString("basedn");
+        String basedn = dbCfg.getBaseDN();
         profileContainerDNString = "ou=certificateProfiles,ou=ca," + basedn;
         profileContainerDN = new DN(profileContainerDNString);
 

@@ -72,7 +72,7 @@ public class LDAPSecurityDomainSessionTable
         LDAPConnection conn = null;
         int status = FAILURE;
 
-        String basedn = ldapConfig.getString("basedn");
+        String basedn = ldapConfig.getBaseDN();
         String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
 
         try {
@@ -136,7 +136,7 @@ public class LDAPSecurityDomainSessionTable
         LDAPConnection conn = null;
         int status = FAILURE;
         try {
-            String basedn = ldapConfig.getString("basedn");
+            String basedn = ldapConfig.getBaseDN();
             String dn = "cn=" + sessionId + ",ou=sessions,ou=Security Domain," + basedn;
             conn = mLdapConnFactory.getConn();
             conn.delete(dn);
@@ -171,7 +171,7 @@ public class LDAPSecurityDomainSessionTable
         boolean ret = false;
 
         try {
-            String basedn = ldapConfig.getString("basedn");
+            String basedn = ldapConfig.getBaseDN();
             String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
             String filter = "(cn=" + sessionId + ")";
             String[] attrs = { "cn" };
@@ -204,7 +204,7 @@ public class LDAPSecurityDomainSessionTable
         Vector<String> ret = new Vector<String>();
 
         try {
-            String basedn = ldapConfig.getString("basedn");
+            String basedn = ldapConfig.getBaseDN();
             String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
             String filter = "(objectclass=securityDomainSessionEntry)";
             String[] attrs = { "cn" };
@@ -253,7 +253,7 @@ public class LDAPSecurityDomainSessionTable
         LDAPConnection conn = null;
         String ret = null;
         try {
-            String basedn = ldapConfig.getString("basedn");
+            String basedn = ldapConfig.getBaseDN();
             String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
             String filter = "(cn=" + sessionId + ")";
             String[] attrs = { attr };
@@ -314,7 +314,7 @@ public class LDAPSecurityDomainSessionTable
         int ret = 0;
 
         try {
-            String basedn = ldapConfig.getString("basedn");
+            String basedn = ldapConfig.getBaseDN();
             String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
             String filter = "(objectclass=securityDomainSessionEntry)";
             String[] attrs = { "cn" };

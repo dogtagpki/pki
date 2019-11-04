@@ -172,7 +172,7 @@ public class SecurityDomainProcessor extends CAProcessor {
             String[] attrs = null;
 
             LDAPConfig ldapConfig = cs.getInternalDatabase();
-            String basedn = ldapConfig.getString("basedn");
+            String basedn = ldapConfig.getBaseDN();
             String dn = "ou=Security Domain," + basedn;
             String filter = "objectclass=pkiSecurityGroup";
 
@@ -398,7 +398,7 @@ public class SecurityDomainProcessor extends CAProcessor {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LDAPConfig ldapConfig = cs.getInternalDatabase();
-        String baseDN = ldapConfig.getString("basedn");
+        String baseDN = ldapConfig.getBaseDN();
 
         String status = removeEntry(dn);
 

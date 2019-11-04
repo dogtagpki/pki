@@ -894,7 +894,7 @@ public class Configurator {
 
                     if (name.equals("internaldb.basedn")) {
                         LDAPConfig ldapConfig = cs.getInternalDatabase();
-                        ldapConfig.putString("basedn", v);
+                        ldapConfig.setBaseDN(v);
                         cs.putString("preop.internaldb.master.basedn", v);
 
                     } else if (name.startsWith("internaldb")) {
@@ -1461,7 +1461,7 @@ public class Configurator {
         LDAPConfig ldapConfig = cs.getInternalDatabase();
         boolean secureConn = ldapConfig.getBoolean("ldapconn.secureConn");
         String dsPort = ldapConfig.getString("ldapconn.port");
-        String baseDN = ldapConfig.getString("basedn");
+        String baseDN = ldapConfig.getBaseDN();
         boolean setupReplication = cs.getBoolean("preop.database.setupReplication", true);
 
         if (request.isClone() && setupReplication) {
@@ -1590,7 +1590,7 @@ public class Configurator {
         CMSEngine engine = CMS.getCMSEngine();
 
         LDAPConfig dbCfg = cs.getInternalDatabase();
-        String baseDN = dbCfg.getString("basedn");
+        String baseDN = dbCfg.getBaseDN();
         String database = dbCfg.getString("database", "");
         String select = cs.getString("preop.subsystem.select", "");
         boolean remove = cs.getBoolean("preop.database.removeData", false);
@@ -1942,7 +1942,7 @@ public class Configurator {
         String v = cs.getString(param);
 
         LDAPConfig ldapConfig = cs.getInternalDatabase();
-        String baseDN = ldapConfig.getString("basedn");
+        String baseDN = ldapConfig.getBaseDN();
         String database = ldapConfig.getString("database");
         String instancePath = cs.getInstanceDir();
         String instanceId = cs.getInstanceID();
@@ -3361,7 +3361,7 @@ public class Configurator {
         LDAPAttributeSet attrs = null;
 
         // Create security domain ldap entry
-        String basedn = dbCfg.getString("basedn");
+        String basedn = dbCfg.getBaseDN();
         String secdomain = cs.getString("securitydomain.name");
 
         String dn = "ou=Security Domain," + basedn;
@@ -3754,7 +3754,7 @@ public class Configurator {
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
         LDAPConfig dbCfg = cs.getInternalDatabase();
-        String userbasedn = "ou=people, " + dbCfg.getString("basedn");
+        String userbasedn = "ou=people, " + dbCfg.getBaseDN();
 
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
@@ -3810,7 +3810,7 @@ public class Configurator {
         String endSerialNumStr = dbConfig.getString("endSerialNumber", "");
 
         LDAPConfig ldapCfg = cs.getInternalDatabase();
-        String basedn = ldapCfg.getString("basedn");
+        String basedn = ldapCfg.getBaseDN();
 
         BigInteger endRequestNum = new BigInteger(endRequestNumStr);
         BigInteger endSerialNum = new BigInteger(endSerialNumStr);

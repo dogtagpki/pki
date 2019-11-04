@@ -76,7 +76,6 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     public static final String LDAP_ATTR_CA_CERT = "caCertificate;binary";
     public static final String LDAP_ATTR_XCERT_PAIR = "crossCertificatePair;binary";
     protected static final String PROP_LDAP = "ldap";
-    protected static final String PROP_BASEDN = "basedn";
 
     protected IConfigStore mConfig = null;
     protected LdapBoundConnFactory mLdapConnFactory = null;
@@ -123,7 +122,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                 return;
             }
 
-            mBaseDN = ldapConfig.getString(PROP_BASEDN, null);
+            mBaseDN = ldapConfig.getBaseDN();
 
             mLdapConnFactory = new LdapBoundConnFactory("CrossCertPairSubsystem");
 

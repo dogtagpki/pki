@@ -72,8 +72,8 @@ public class ReplicationUtil {
         String replica_hostname = replicaCfg.getString("ldapconn.host", "");
         String replica_replicationpwd = cs.getString("preop.internaldb.replicationpwd", "");
 
-        String basedn = replicaCfg.getString("basedn");
-        String suffix = replicaCfg.getString("basedn", "");
+        String basedn = replicaCfg.getBaseDN();
+        String suffix = replicaCfg.getBaseDN();
 
         String masterAgreementName = "masterAgreement1-" + machinename + "-" + instanceId;
         replicaCfg.putString("replication.master", masterAgreementName);
