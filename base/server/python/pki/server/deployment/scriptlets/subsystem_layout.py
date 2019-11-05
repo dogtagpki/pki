@@ -121,9 +121,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # establish instance-based subsystem convenience symbolic links
         deployer.symlink.create(
-            deployer.mdict['pki_instance_database_link'],
-            deployer.mdict['pki_subsystem_database_link'])
-        deployer.symlink.create(
             deployer.mdict['pki_subsystem_configuration_path'],
             deployer.mdict['pki_subsystem_conf_link'])
         deployer.symlink.create(
