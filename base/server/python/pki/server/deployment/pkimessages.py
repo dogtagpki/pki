@@ -233,8 +233,6 @@ PKIHELPER_IS_A_DIRECTORY_1 = "'%s' is a directory"
 PKIHELPER_IS_A_FILE_1 = "'%s' is a file"
 PKIHELPER_IS_A_SYMLINK_1 = "'%s' is a symlink"
 PKIHELPER_JAR_XF_C_2 = "jar -xf %s -C %s"
-PKIHELPER_KRACONNECTOR_UPDATE_CONTACT = \
-    "contacting the CA to update the KRA connector"
 PKIHELPER_KRACONNECTOR_UPDATE_FAILURE = "Failed to update KRA connector on CA"
 PKIHELPER_KRACONNECTOR_UPDATE_FAILURE_2 = \
     "Failed to update KRA connector for %s:%s"
@@ -317,8 +315,6 @@ PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2 = \
 PKIHELPER_TOMCAT_INSTANCES_2 = \
     "PKI Tomcat registry '%s' contains '%d' Tomcat PKI instances"
 PKIHELPER_TOUCH_1 = "touch %s"
-PKIHELPER_TPSCONNECTOR_UPDATE_CONTACT = \
-    "contacting the TKS to update the TPS connector"
 PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE = "Failed to update TPS connector on TKS"
 PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE_2 = \
     "Failed to update TPS connector for %s:%s"

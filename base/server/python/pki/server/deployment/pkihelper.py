@@ -2272,18 +2272,21 @@ class KRAConnector:
             if self.mdict['pki_subsystem_type'] != "kra":
                 return
 
-            logger.info(log.PKIHELPER_KRACONNECTOR_UPDATE_CONTACT)
+            logger.info('Removing KRA connector from CA subsystem')
 
             cs_cfg = PKIConfigParser.read_simple_configuration_file(
                 self.mdict['pki_target_cs_cfg'])
+
             krahost = cs_cfg.get('service.machineName')
             kraport = cs_cfg.get('pkicreate.secure_port')
             proxy_secure_port = cs_cfg.get('proxy.securePort', '')
+
             if proxy_secure_port != '':
                 kraport = proxy_secure_port
 
             # retrieve subsystem nickname
             subsystemnick = cs_cfg.get('kra.cert.subsystem.nickname')
+
             if subsystemnick is None:
                 logger.warning(log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE)
                 logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
@@ -2328,6 +2331,7 @@ class KRAConnector:
             # pylint: disable=W0703
             sechost = cs_cfg.get('securitydomain.host')
             secport = cs_cfg.get('securitydomain.httpsadminport')
+
             try:
                 ca_list = self.get_ca_list_from_security_domain(
                     sechost, secport)
@@ -2447,7 +2451,7 @@ class TPSConnector:
             if self.mdict['pki_subsystem_type'] != "tps":
                 return
 
-            logger.info(log.PKIHELPER_TPSCONNECTOR_UPDATE_CONTACT)
+            logger.info('Removing TPS connector from TKS subsystem')
 
             cs_cfg = PKIConfigParser.read_simple_configuration_file(
                 self.mdict['pki_target_cs_cfg'])

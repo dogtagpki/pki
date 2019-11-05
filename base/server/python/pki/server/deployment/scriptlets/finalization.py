@@ -84,8 +84,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # If this is the last remaining PKI instance, ALWAYS remove the
         # link to start configured PKI instances upon system reboot
-        if deployer.mdict['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
-           deployer.instance.pki_instance_subsystems() == 0:
+        if deployer.instance.pki_instance_subsystems() == 0:
             instance.disable()
 
         # Start this Tomcat PKI Process back if there are any subsystems still existing

@@ -109,22 +109,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
+        # if this is not the last subsystem, skip
+        if deployer.instance.pki_instance_subsystems() > 0:
+            return
+
         logger.info('Cleaning up infrastructure')
 
-        # remove top-level infrastructure base
-        if deployer.mdict['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
-           deployer.instance.pki_instance_subsystems() == 0:
+        if deployer.mdict['pki_path'] != "/var/lib/pki":
+            # remove relocated top-level infrastructure base
+            deployer.directory.delete(deployer.mdict['pki_path'])
 
-            if deployer.mdict['pki_path'] != "/var/lib/pki":
-                # remove relocated top-level infrastructure base
-                deployer.directory.delete(deployer.mdict['pki_path'])
-            # do NOT remove top-level infrastructure logs
-            # since it now stores 'pkispawn'/'pkidestroy' logs
-            # deployer.directory.delete(deployer.mdict['pki_log_path'])
-            # remove top-level infrastructure configuration
-            if deployer.directory.is_empty(
-                    deployer.mdict['pki_configuration_path']) and \
-                deployer.mdict['pki_configuration_path'] != \
-                    config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
-                deployer.directory.delete(
-                    deployer.mdict['pki_configuration_path'])
+        # do NOT remove top-level infrastructure logs
+        # since it now stores 'pkispawn'/'pkidestroy' logs
+        # deployer.directory.delete(deployer.mdict['pki_log_path'])
+        # remove top-level infrastructure configuration
+
+        if deployer.directory.is_empty(
+                deployer.mdict['pki_configuration_path']) and \
+            deployer.mdict['pki_configuration_path'] != \
+                config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
+
+            deployer.directory.delete(
+                deployer.mdict['pki_configuration_path'])

@@ -203,11 +203,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
-        logger.info('Removing %s instance', deployer.mdict['pki_instance_name'])
-
         # if this is not the last subsystem, skip
-        if len(deployer.instance.tomcat_instance_subsystems()) != 0:
+        if len(deployer.instance.tomcat_instance_subsystems()) > 0:
             return
+
+        logger.info('Removing %s instance', deployer.mdict['pki_instance_name'])
 
         # remove Tomcat instance systemd service link
         deployer.symlink.delete(deployer.systemd.systemd_link)

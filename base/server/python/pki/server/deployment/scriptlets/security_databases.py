@@ -349,17 +349,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
-        logger.info('Removing NSS database')
+        # if this is not the last subsystem, skip
+        if len(deployer.instance.tomcat_instance_subsystems()) > 0:
+            return
 
-        # Remove NSS DB when uninstalling the last subsystem
-        #
-        # NOTE: We check for 0 subsystems to exist at this point as
-        # /var/lib/pki/<instance>/<subsystem> dir should
-        # be removed as part of subsystem_layout scriptlet
-        if len(deployer.instance.tomcat_instance_subsystems()) == 0:
+        if deployer.directory.exists(deployer.mdict['pki_client_dir']):
+            logger.info('Removing %s', deployer.mdict['pki_client_dir'])
+            pki.util.rmtree(deployer.mdict['pki_client_dir'])
 
-            if deployer.directory.exists(deployer.mdict['pki_client_dir']):
-                deployer.directory.delete(deployer.mdict['pki_client_dir'])
+        logger.info('Removing %s', deployer.mdict['pki_server_database_path'])
+        pki.util.rmtree(deployer.mdict['pki_server_database_path'])
 
-            deployer.directory.delete(deployer.mdict['pki_server_database_path'])
-            deployer.file.delete(deployer.mdict['pki_shared_password_conf'])
+        logger.info('Removing %s', deployer.mdict['pki_shared_password_conf'])
+        pki.util.remove(deployer.mdict['pki_shared_password_conf'])

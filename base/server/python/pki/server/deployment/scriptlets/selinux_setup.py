@@ -156,12 +156,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('SELinux disabled')
             return
 
-        logger.info('Removing SELinux contexts')
-
         # check first if any transactions are required
         if (len(ports) == 0 and deployer.mdict['pki_instance_name'] ==
                 config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME):
             return
+
+        logger.info('Removing SELinux contexts')
 
         # A maximum of 10 tries to delete the SELinux contexts
         max_tries = 10
