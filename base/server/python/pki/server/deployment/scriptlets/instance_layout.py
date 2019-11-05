@@ -27,7 +27,6 @@ import pki
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
-from .. import pkimessages as log
 from .. import pkiscriptlet
 
 logger = logging.getLogger('instance')
@@ -55,14 +54,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # establish instance logs
         deployer.directory.create(deployer.mdict['pki_instance_log_path'])
 
-        logger.info('Creating %s', deployer.mdict['pki_instance_configuration_path'])
-        # copy /usr/share/pki/server/conf tree into
-        # /var/lib/pki/<instance>/conf
-        # except common ldif files and theme deployment descriptor
-        deployer.directory.copy(
-            deployer.mdict['pki_source_server_path'],
-            deployer.mdict['pki_instance_configuration_path'],
-            ignore_cb=file_ignore_callback_src_server)
+        shared_conf_path = deployer.mdict['pki_source_server_path']
+        instance_conf_path = deployer.mdict['pki_instance_configuration_path']
+
+        logger.info('Creating %s', instance_conf_path)
+        instance.makedirs(instance_conf_path, force=True)
+
+        # Copy /usr/share/pki/server/conf/tomcat.conf to
+        # /var/lib/pki/<instance>/conf/tomcat.conf.
+        deployer.file.copy_with_slot_substitution(
+            os.path.join(shared_conf_path, 'tomcat.conf'),
+            os.path.join(instance_conf_path, 'tomcat.conf'))
 
         logger.info('Creating %s', deployer.mdict['pki_target_server_xml'])
         # Copy /usr/share/pki/server/conf/server.xml
@@ -74,32 +76,29 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /etc/pki/<instance>/catalina.properties
         # to /usr/share/pki/server/conf/catalina.properties.
-        deployer.symlink.create(
-            os.path.join(deployer.mdict['pki_source_server_path'],
-                         "catalina.properties"),
-            os.path.join(deployer.mdict['pki_instance_configuration_path'],
-                         "catalina.properties"))
+        instance.symlink(
+            os.path.join(shared_conf_path, 'catalina.properties'),
+            os.path.join(instance_conf_path, 'catalina.properties'),
+            force=True)
 
         # Link /etc/pki/<instance>/ciphers.info
         # to /usr/share/pki/server/conf/ciphers.info.
-        deployer.symlink.create(
-            os.path.join(deployer.mdict['pki_source_server_path'],
-                         "ciphers.info"),
-            os.path.join(deployer.mdict['pki_instance_configuration_path'],
-                         "ciphers.info"))
+        instance.symlink(
+            os.path.join(shared_conf_path, 'ciphers.info'),
+            os.path.join(instance_conf_path, 'ciphers.info'),
+            force=True)
 
         # Link /etc/pki/<instance>/context.xml
         # to /usr/share/tomcat/conf/context.xml.
         context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
-        instance.symlink(context_xml, instance.context_xml)
+        instance.symlink(context_xml, instance.context_xml, force=True)
 
         # Link /etc/pki/<instance>/logging.properties
         # to /usr/share/pki/server/conf/logging.properties.
-        deployer.symlink.create(
-            os.path.join(deployer.mdict['pki_source_server_path'],
-                         "logging.properties"),
-            os.path.join(deployer.mdict['pki_instance_configuration_path'],
-                         "logging.properties"))
+        instance.symlink(
+            os.path.join(shared_conf_path, 'logging.properties'),
+            os.path.join(instance_conf_path, 'logging.properties'),
+            force=True)
 
         logger.info('Creating %s', deployer.mdict['pki_target_tomcat_conf_instance_id'])
         # create /etc/sysconfig/<instance>
@@ -118,13 +117,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Link /etc/pki/<instance>/web.xml
         # to /usr/share/tomcat/conf/web.xml.
         web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
-        instance.symlink(web_xml, instance.web_xml)
+        instance.symlink(web_xml, instance.web_xml, force=True)
+
+        catalina_dir = os.path.join(instance_conf_path, 'Catalina')
+        logger.info('Creating %s', catalina_dir)
+        instance.makedirs(catalina_dir, force=True)
+
+        localhost_dir = os.path.join(catalina_dir, 'localhost')
+        logger.info('Creating %s', localhost_dir)
+        instance.makedirs(localhost_dir, force=True)
 
         logger.info('Deploying ROOT web application')
         instance.deploy_webapp(
             "ROOT",
             os.path.join(
-                deployer.mdict['pki_source_server_path'],
+                shared_conf_path,
                 "Catalina",
                 "localhost",
                 "ROOT.xml"))
@@ -135,13 +142,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.deploy_webapp(
             "pki",
             os.path.join(
-                deployer.mdict['pki_source_server_path'],
+                shared_conf_path,
                 "Catalina",
                 "localhost",
                 "pki.xml"))
 
         instance.with_maven_deps = deployer.with_maven_deps
-        instance.create_libs()
+        instance.create_libs(force=True)
 
         deployer.directory.create(deployer.mdict['pki_tomcat_tmpdir_path'])
 
@@ -178,7 +185,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.systemd.daemon_reload()
 
         deployer.symlink.create(
-            deployer.mdict['pki_instance_configuration_path'],
+            instance_conf_path,
             deployer.mdict['pki_instance_conf_link'])
         deployer.symlink.create(
             deployer.mdict['pki_instance_log_path'],
@@ -229,29 +236,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # remove Tomcat instance registry
         deployer.directory.delete(
             deployer.mdict['pki_instance_registry_path'])
-
-
-# Callback only when the /usr/share/pki/server/conf directory
-# Is getting copied to the etc tree.
-# Don't copy the shared ldif files:
-# schema.ldif, manager.ldif, database.ldif
-def file_ignore_callback_src_server(src, names):
-    logger.debug(log.FILE_EXCLUDE_CALLBACK_2, src, names)
-
-    return {
-        'catalina.policy',
-        'catalina.properties',
-        'ciphers.info',
-        'custom.policy',
-        'database.ldif',
-        'logging.properties',
-        'manager.ldif',
-        'pki.policy',
-        'pki.xml',
-        'schema-authority.ldif',
-        'schema-certProfile.ldif',
-        'schema.ldif',
-        'serverCertNick.conf',
-        'tomcat-users.xml',
-        'usn.ldif'
-    }

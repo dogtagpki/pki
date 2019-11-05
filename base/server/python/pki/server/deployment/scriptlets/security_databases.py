@@ -82,20 +82,22 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.file.modify(deployer.mdict['pki_shared_password_conf'])
 
         if not os.path.isdir(deployer.mdict['pki_server_database_path']):
-
-            instance.makedirs(deployer.mdict['pki_server_database_path'])
-
-            instance.symlink(
-                deployer.mdict['pki_server_database_path'],
-                deployer.mdict['pki_instance_database_link'])
+            instance.makedirs(deployer.mdict['pki_server_database_path'], force=True)
 
         deployer.certutil.create_security_databases(
             deployer.mdict['pki_server_database_path'],
             password_file=deployer.mdict['pki_shared_pfile'])
 
+        if not os.path.islink(deployer.mdict['pki_instance_database_link']):
+            instance.symlink(
+                deployer.mdict['pki_server_database_path'],
+                deployer.mdict['pki_instance_database_link'],
+                force=True)
+
         instance.symlink(
             deployer.mdict['pki_instance_database_link'],
-            deployer.mdict['pki_subsystem_database_link'])
+            deployer.mdict['pki_subsystem_database_link'],
+            force=True)
 
         if config.str2bool(deployer.mdict['pki_hsm_enable']):
             deployer.modutil.register_security_module(
@@ -338,8 +340,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.file.modify(deployer.mdict['pki_client_pkcs12_password_conf'])
 
-        if not os.path.isdir(deployer.mdict['pki_client_database_dir']):
-            pki.util.makedirs(deployer.mdict['pki_client_database_dir'])
+        pki.util.makedirs(deployer.mdict['pki_client_database_dir'], force=True)
 
         deployer.certutil.create_security_databases(
             deployer.mdict['pki_client_database_dir'],
