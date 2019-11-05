@@ -46,8 +46,14 @@ Set SELinux permissions
 After copying the ca-certs.p12 to the clone machine, ensure that appropriate SELinux rules are added:
 
 ````
-semanage fcontext -a -t pki_tomcat_cert_t ca-certs.p12
-restorecon -R -v ca-certs.p12
+$ semanage fcontext -a -t pki_tomcat_cert_t ca-certs.p12
+$ restorecon -R -v ca-certs.p12
+````
+
+Also, make sure the `ca-certs.p12` file is owned by the `pkiuser`
+
+````
+$ chown pkiuser:pkiuser ca-certs.p12
 ````
 
 CA Subsystem Installation
