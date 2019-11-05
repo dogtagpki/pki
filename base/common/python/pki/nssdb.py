@@ -241,6 +241,16 @@ class NSSDatabase(object):
         if not self.module_exists('p11-kit-trust'):
             self.add_module('p11-kit-trust', '/usr/share/pki/lib/p11-kit-trust.so')
 
+    def exists(self):
+
+        if os.path.exists(os.path.join(self.directory, 'cert9.db')):
+            return True
+
+        if os.path.exists(os.path.join(self.directory, 'cert8.db')):
+            return True
+
+        return False
+
     def close(self):
         shutil.rmtree(self.tmpdir)
 
