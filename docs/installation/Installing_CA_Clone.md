@@ -41,6 +41,21 @@ $ pki -d /etc/pki/pki-tomcat/alias -f /etc/pki/pki-tomcat/password.conf \
     pkcs12-cert-import <nickname> --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 --append
 ```
 
+Set SELinux permissions
+-----------------------
+After copying the ca-certs.p12 to the clone machine, ensure that appropriate SELinux rules are added:
+
+````
+$ semanage fcontext -a -t pki_tomcat_cert_t ca-certs.p12
+$ restorecon -R -v ca-certs.p12
+````
+
+Also, make sure the `ca-certs.p12` file is owned by the `pkiuser`
+
+````
+$ chown pkiuser:pkiuser ca-certs.p12
+````
+
 CA Subsystem Installation
 -------------------------
 
