@@ -110,7 +110,7 @@ fi
 ######################################################################
 
     rlPhaseStartSetup "create-role-user-startup: Create temp directory and import CA agent cert into a nss certificate db and trust CA root cert"
-	rlRun "source /opt/rhqa_pki/env.sh"
+	rlRun ". /opt/rhqa_pki/env.sh"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
 	rlRun "export TmpDir"
         rlRun "pushd $TmpDir"
