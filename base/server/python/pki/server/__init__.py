@@ -641,6 +641,8 @@ class PKIServer(object):
 
     def remove_nssdb(self, force=False):
 
+        logger.info('Removing NSS database: %s', self.nssdb_dir)
+
         pki.util.rmtree(self.nssdb_dir, force=force)
 
     def load(self):
