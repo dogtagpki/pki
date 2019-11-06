@@ -79,7 +79,7 @@ run_ca-ee-ocsp_tests()
         local valid_crmf_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local valid_decimal_crmf_serialNumber=$(cat $cert_info| grep decimal_valid_serialNumber | cut -d- -f2)
 	rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
-	rlRun "source /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
+	rlRun ". /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
 	rlLog "Executing java -cp"
 	rlLog "java -cp $CLASSPATH ca_ee_ocspRequest ca_ee_ocspRequest -ca_hostname $tmp_ca_host -ca_ee_port $target_unsecure_port -client_certdb_dir $CERTDB_DIR -client_certdb_pwd $CERTDB_DIR_PASSWORD -ca_cert_nickname $(eval echo \$${CA_INST}_SIGNING_NICKNAME) -serial_number $valid_decimal_crmf_serialNumber -debug true > $test_out 2>&1"
 	rlRun "java -cp $CLASSPATH ca_ee_ocspRequest -ca_hostname $tmp_ca_host -ca_ee_port $target_unsecure_port -client_certdb_dir $CERTDB_DIR -client_certdb_pwd $CERTDB_DIR_PASSWORD -ca_cert_nickname $(eval echo \$${CA_INST}_SIGNING_NICKNAME) -serial_number $valid_decimal_crmf_serialNumber -debug true > $test_out 2>&1"
@@ -109,7 +109,7 @@ run_ca-ee-ocsp_tests()
                            -p $target_unsecure_port \
                             cert-revoke $valid_crmf_serialNumber --force"
         rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
-        rlRun "source /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
+        rlRun ". /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
         rlLog "Executing java -cp"
         rlLog "java -cp $CLASSPATH ca_ee_ocspRequest -ca_hostname $tmp_ca_host -ca_ee_port $target_unsecure_port -client_certdb_dir $CERTDB_DIR -client_certdb_pwd $CERTDB_DIR_PASSWORD -ca_cert_nickname $(eval echo \$${CA_INST}_SIGNING_NICKNAME) -serial_number $valid_decimal_crmf_serialNumber -debug true > $test_out 2>&1"
         rlRun "java -cp $CLASSPATH ca_ee_ocspRequest -ca_hostname $tmp_ca_host -ca_ee_port $target_unsecure_port -client_certdb_dir $CERTDB_DIR -client_certdb_pwd $CERTDB_DIR_PASSWORD -ca_cert_nickname $(eval echo \$${CA_INST}_SIGNING_NICKNAME) -serial_number $valid_decimal_crmf_serialNumber -debug true > $test_out 2>&1"
@@ -126,7 +126,7 @@ run_ca-ee-ocsp_tests()
         rlLog "Verify ocsp status of unknown certificate"
         rlRun "export SSL_DIR=$CERTDB_DIR"
         rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
-        rlRun "source /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
+        rlRun ". /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
 	while true
 	do
 		invalid_serial_number=75

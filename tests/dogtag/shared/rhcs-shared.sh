@@ -173,7 +173,7 @@ runJava(){
 		rlRun "/usr/bin/java $command > /tmp/java_output.out"
 	else
 		rlRun "set_javapath"
-		rlRun "source /opt/rhqa_pki/env.sh"
+		rlRun ". /opt/rhqa_pki/env.sh"
 		rlRun "/usr/bin/java -cp \"$CLASSPATH\" $command > /tmp/java_output.out"
 	fi
         cat /tmp/java_output.out

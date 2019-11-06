@@ -143,7 +143,7 @@ local prefix="${18}"
 	fi
 	if [ "$request_type" == "crmf" ] && [ "$profilename" != "caDualCert" ];then
 		rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
-		rlRun "source /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
+		rlRun ". /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
 		rlLog "Executing java -cp"
 		rlLog "java -cp $CLASSPATH generateCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $dir/$cert_request_file 1> $dir/crmf.out"
 		rlRun "java -cp $CLASSPATH generateCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $dir/$cert_request_file 1> $dir/crmf.out" 0 "Execute generateCRMFRequest to generate CRMF Request"
@@ -320,7 +320,7 @@ create_new_cert_request()
 	fi
 	if [ "$request_type" == "crmf" ] && [ "$archive" != "true" ];then
 		rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
-		rlRun "source /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
+		rlRun ". /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
 		rlLog "Execute generateCRMFRequest to generate CRMF Request"
 		rlRun "java -cp $CLASSPATH generateCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $cert_request_file 1> $dir/crmf.out" 0 "Execute generateCRMFRequest to generata CRMF Request"
 	fi
@@ -352,7 +352,7 @@ create_new_cert_request()
                 rlLog "Get Transport Cert"
                 rlRun "cat $CA_SERVER_ROOT/conf/CS.cfg | grep ca.connector.KRA.transportCert | awk -F \"=\" '{print \$2}' > transport.txt"
                 rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
-                rlRun "source /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
+                rlRun ". /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
                 rlLog "Executing  generateDualCRMFRequest"
                 rlLog "java -cp $CLASSPATH generateDualCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $cert_request_file -transport_cert_file transport.txt 1> $dir/crmf.out"
                 rlRun "java -cp $CLASSPATH generateDualCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $cert_request_file -transport_cert_file transport.txt 1> $dir/crmf.out"
