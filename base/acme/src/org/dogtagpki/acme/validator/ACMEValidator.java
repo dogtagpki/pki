@@ -82,6 +82,7 @@ public abstract class ACMEValidator {
         challenge.setType(type);
         challenge.setURL(challengeURI);
         challenge.setToken(token);
+        challenge.setStatus("pending");
 
         return challenge;
     }

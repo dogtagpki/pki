@@ -30,6 +30,12 @@ public class ACMEOrder {
     @JsonIgnore
     private Date expirationTime;
 
+    @JsonIgnore
+    private Date notBeforeTime;
+
+    @JsonIgnore
+    private Date notAfterTime;
+
     private String status;
     private String expires;
     private ACMEIdentifier[] identifiers;
@@ -64,7 +70,25 @@ public class ACMEOrder {
 
     public void setExpirationTime(Date expirationTime) {
         this.expirationTime = expirationTime;
-        expires = ACME.DATE_FORMAT.format(expirationTime);
+        expires = expirationTime == null ? null : ACME.DATE_FORMAT.format(expirationTime);
+    }
+
+    public Date getNotBeforeTime() {
+        return notBeforeTime;
+    }
+
+    public void setNotBeforeTime(Date notBeforeTime) {
+        this.notBeforeTime = notBeforeTime;
+        notBefore = notBeforeTime == null ? null : ACME.DATE_FORMAT.format(notBeforeTime);
+    }
+
+    public Date getNotAfterTime() {
+        return notAfterTime;
+    }
+
+    public void setNotAfterTime(Date notAfterTime) {
+        this.notAfterTime = notAfterTime;
+        notAfter = notAfterTime == null ? null : ACME.DATE_FORMAT.format(notAfterTime);
     }
 
     public String getStatus() {

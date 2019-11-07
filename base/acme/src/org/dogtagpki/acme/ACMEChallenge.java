@@ -116,7 +116,7 @@ public class ACMEChallenge {
 
     public void setValidationTime(Date validationTime) {
         this.validationTime = validationTime;
-        validated = ACME.DATE_FORMAT.format(validationTime);
+        validated = validationTime == null ? null : ACME.DATE_FORMAT.format(validationTime);
     }
 
     public String toJSON() throws Exception {

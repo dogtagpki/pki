@@ -59,7 +59,7 @@ public class ACMEAuthorization {
 
     public void setExpirationTime(Date expirationTime) {
         this.expirationTime = expirationTime;
-        expires = ACME.DATE_FORMAT.format(expirationTime);
+        expires = expirationTime == null ? null : ACME.DATE_FORMAT.format(expirationTime);
     }
 
     public String getStatus() {

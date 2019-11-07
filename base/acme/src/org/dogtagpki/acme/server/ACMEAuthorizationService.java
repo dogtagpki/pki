@@ -65,7 +65,8 @@ public class ACMEAuthorizationService {
         logger.info("Payload: " + payload);
 
         ACMEAuthorization authorization = engine.getAuthorization(account, authzID);
-        logger.info("Authorization status: " + authorization.getStatus());
+        String authorizationStatus = authorization.getStatus();
+        logger.info("Authorization status: " + authorizationStatus);
 
         // generate 128-bit token with JSS
         // TODO: make it configurable
@@ -76,17 +77,26 @@ public class ACMEAuthorizationService {
         String token = Base64.encodeBase64URLSafeString(bytes);
         logger.info("Token: " + token);
 
-        logger.info("Creating challenges");
-        Collection<ACMEChallenge> challenges = new ArrayList<>();
+        Collection<ACMEChallenge> challenges = authorization.getChallenges();
 
-        for (ACMEValidator validator : engine.getValidators()) {
-            ACMEChallenge challenge = validator.createChallenge(uriInfo, authzID, token);
-            challenges.add(challenge);
+        if (challenges == null) {
+            logger.info("Creating new challenges");
+            challenges = new ArrayList<>();
+
+            for (ACMEValidator validator : engine.getValidators()) {
+                ACMEChallenge challenge = validator.createChallenge(uriInfo, authzID, token);
+                challenges.add(challenge);
+            }
+
+            authorization.setChallenges(challenges);
+            engine.updateAuthorization(account, authorization);
+
+        } else {
+            logger.info("Challenges:");
+            for (ACMEChallenge challenge : challenges) {
+                logger.info("- " + challenge.getType() + ": " + challenge.getStatus());
+            }
         }
-
-        authorization.setChallenges(challenges);
-
-        engine.updateAuthorization(account, authorization);
 
         ResponseBuilder builder = Response.ok();
 
