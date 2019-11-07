@@ -1,0 +1,8 @@
+{
+    "class": "org.dogtagpki.acme.database.PostgreSQLDatabase",
+    "parameters": {
+        "url": "jdbc:postgresql://localhost:5432/acme",
+        "user": "acme",
+        "password": "Secret.123"
+    }
+}
