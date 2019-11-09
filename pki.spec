@@ -1392,8 +1392,9 @@ fi
 ################################################################################
 
 %doc base/native-tools/LICENSE base/native-tools/doc/README
-%{_bindir}/pki
 %{_bindir}/p7tool
+%{_bindir}/pistool
+%{_bindir}/pki
 %{_bindir}/revoker
 %{_bindir}/setpin
 %{_bindir}/sslget
