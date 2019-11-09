@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.dbs;
+package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
 
@@ -23,6 +23,9 @@ import netscape.ldap.LDAPConnection;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBRegistry;
+import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.base.IConfigStore;
 
 /**

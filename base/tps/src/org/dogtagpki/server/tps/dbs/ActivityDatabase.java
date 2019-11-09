@@ -25,7 +25,7 @@ import java.util.Map;
 import org.dogtagpki.tps.main.Util;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.cmscore.dbs.IDBSubsystem;
 import com.netscape.cmscore.dbs.LDAPDatabase;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
