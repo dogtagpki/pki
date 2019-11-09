@@ -171,7 +171,7 @@ public class SecurityDomainProcessor extends CAProcessor {
             LDAPSearchConstraints cons = null;
             String[] attrs = null;
 
-            LDAPConfig ldapConfig = cs.getInternalDatabase();
+            LDAPConfig ldapConfig = cs.getInternalDBConfig();
             String basedn = ldapConfig.getBaseDN();
             String dn = "ou=Security Domain," + basedn;
             String filter = "objectclass=pkiSecurityGroup";
@@ -397,7 +397,7 @@ public class SecurityDomainProcessor extends CAProcessor {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
         String baseDN = ldapConfig.getBaseDN();
 
         String status = removeEntry(dn);
@@ -475,7 +475,7 @@ public class SecurityDomainProcessor extends CAProcessor {
         EngineConfig cs = engine.getConfig();
 
         try {
-            LDAPConfig ldapConfig = cs.getInternalDatabase();
+            LDAPConfig ldapConfig = cs.getInternalDBConfig();
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
             connFactory.init(cs, ldapConfig, engine.getPasswordStore());
 
@@ -529,7 +529,7 @@ public class SecurityDomainProcessor extends CAProcessor {
         EngineConfig cs = engine.getConfig();
 
         try {
-            LDAPConfig ldapConfig = cs.getInternalDatabase();
+            LDAPConfig ldapConfig = cs.getInternalDBConfig();
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
             connFactory.init(cs, ldapConfig, engine.getPasswordStore());
 
@@ -573,7 +573,7 @@ public class SecurityDomainProcessor extends CAProcessor {
         EngineConfig cs = engine.getConfig();
 
         try {
-            LDAPConfig ldapConfig = cs.getInternalDatabase();
+            LDAPConfig ldapConfig = cs.getInternalDBConfig();
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
             connFactory.init(cs, ldapConfig, engine.getPasswordStore());
 

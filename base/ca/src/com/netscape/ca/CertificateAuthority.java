@@ -508,7 +508,7 @@ public class CertificateAuthority
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
-        LDAPConfig dbCfg = cs.getInternalDatabase();
+        LDAPConfig dbCfg = cs.getInternalDBConfig();
         IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
 
         mOwner = owner;

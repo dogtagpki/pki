@@ -64,7 +64,7 @@ public class EngineConfig extends PropConfigStore {
         putInteger("cs.state", state);
     }
 
-    public LDAPConfig getInternalDatabase() {
+    public LDAPConfig getInternalDBConfig() {
         return getSubStore("internaldb", LDAPConfig.class);
     }
 

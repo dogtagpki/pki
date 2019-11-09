@@ -243,7 +243,7 @@ public class CMSEngine implements ISubsystem {
         boolean skipPublishingCheck = config.getBoolean("cms.password.ignore.publishing.failure", true);
         String pwList = config.getString("cms.passwordlist", "internaldb,replicationdb");
         String tags[] = StringUtils.split(pwList, ",");
-        LDAPConfig ldapConfig = config.getInternalDatabase();
+        LDAPConfig ldapConfig = config.getInternalDBConfig();
 
         for (String tag : tags) {
 

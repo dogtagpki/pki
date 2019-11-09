@@ -86,7 +86,7 @@ public class SubsystemDBInfoCLI extends CommandCLI {
         ConfigStorage storage = new FileConfigStore(configFile);
         EngineConfig cs = new EngineConfig(storage);
         cs.load();
-        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         String instanceId = cs.getInstanceID();
         String pwdClass = cs.getString("passwordClass");

@@ -893,7 +893,7 @@ public class Configurator {
                     }
 
                     if (name.equals("internaldb.basedn")) {
-                        LDAPConfig ldapConfig = cs.getInternalDatabase();
+                        LDAPConfig ldapConfig = cs.getInternalDBConfig();
                         ldapConfig.setBaseDN(v);
                         cs.putString("preop.internaldb.master.basedn", v);
 
@@ -1458,7 +1458,7 @@ public class Configurator {
         CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
         boolean secureConn = ldapConfig.getBoolean("ldapconn.secureConn");
         String dsPort = ldapConfig.getString("ldapconn.port");
         String baseDN = ldapConfig.getBaseDN();
@@ -1570,7 +1570,7 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        LDAPConfig dbCfg = cs.getInternalDatabase();
+        LDAPConfig dbCfg = cs.getInternalDBConfig();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -1589,7 +1589,7 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        LDAPConfig dbCfg = cs.getInternalDatabase();
+        LDAPConfig dbCfg = cs.getInternalDBConfig();
         String baseDN = dbCfg.getBaseDN();
         String database = dbCfg.getString("database", "");
         String select = cs.getString("preop.subsystem.select", "");
@@ -1941,7 +1941,7 @@ public class Configurator {
         logger.debug("importLDIFS: param=" + param);
         String v = cs.getString(param);
 
-        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
         String baseDN = ldapConfig.getBaseDN();
         String database = ldapConfig.getString("database");
         String instancePath = cs.getInstanceDir();
@@ -2086,7 +2086,7 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        LDAPConfig dbCfg = cs.getInternalDatabase();
+        LDAPConfig dbCfg = cs.getInternalDBConfig();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -2107,7 +2107,7 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        LDAPConfig dbCfg = cs.getInternalDatabase();
+        LDAPConfig dbCfg = cs.getInternalDBConfig();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -3352,7 +3352,7 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        LDAPConfig dbCfg = cs.getInternalDatabase();
+        LDAPConfig dbCfg = cs.getInternalDBConfig();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -3753,7 +3753,7 @@ public class Configurator {
 
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
-        LDAPConfig dbCfg = cs.getInternalDatabase();
+        LDAPConfig dbCfg = cs.getInternalDBConfig();
         String userbasedn = "ou=people, " + dbCfg.getBaseDN();
 
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
@@ -3809,7 +3809,7 @@ public class Configurator {
         String endRequestNumStr = dbConfig.getString("endRequestNumber", "");
         String endSerialNumStr = dbConfig.getString("endSerialNumber", "");
 
-        LDAPConfig ldapCfg = cs.getInternalDatabase();
+        LDAPConfig ldapCfg = cs.getInternalDBConfig();
         String basedn = ldapCfg.getBaseDN();
 
         BigInteger endRequestNum = new BigInteger(endRequestNumStr);

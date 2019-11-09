@@ -55,7 +55,7 @@ public class ReplicationUtil {
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
 
         IConfigStore masterCfg = cs.getSubStore("preop.internaldb.master");
-        LDAPConfig replicaCfg = cs.getInternalDatabase();
+        LDAPConfig replicaCfg = cs.getInternalDBConfig();
 
         String machinename = cs.getHostname();
         String instanceId = cs.getInstanceID();

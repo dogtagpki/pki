@@ -94,7 +94,7 @@ public class CAConfigurator extends Configurator {
         String profileIds = profileCfg.getString("list", "");
         StringTokenizer st = new StringTokenizer(profileIds, ",");
 
-        LDAPConfig dbCfg = cs.getInternalDatabase();
+        LDAPConfig dbCfg = cs.getInternalDBConfig();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAConfigurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -132,7 +132,7 @@ public class CAConfigurator extends Configurator {
             String profileId, String profilePath)
             throws EBaseException {
 
-        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
         String basedn = ldapConfig.getBaseDN();
 
         String dn = "cn=" + profileId + ",ou=certificateProfiles,ou=ca," + basedn;
@@ -283,7 +283,7 @@ public class CAConfigurator extends Configurator {
 
         LDAPConnection conn = null;
         try {
-            LDAPConfig dbCfg = cs.getInternalDatabase();
+            LDAPConfig dbCfg = cs.getInternalDBConfig();
             LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAConfigurator");
             dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 

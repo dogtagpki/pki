@@ -103,7 +103,7 @@ public class LDAPProfileSubsystem
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        LDAPConfig dbCfg = cs.getInternalDatabase();
+        LDAPConfig dbCfg = cs.getInternalDBConfig();
         dbFactory = new LdapBoundConnFactory("LDAPProfileSubsystem");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 

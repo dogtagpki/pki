@@ -184,7 +184,7 @@ public class UpdateDomainXML extends CMSServlet {
         String basedn = null;
         String secstore = null;
 
-        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         try {
             basedn = ldapConfig.getBaseDN();

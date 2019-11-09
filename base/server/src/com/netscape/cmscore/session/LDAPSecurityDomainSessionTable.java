@@ -57,7 +57,7 @@ public class LDAPSecurityDomainSessionTable
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        LDAPConfig internaldb = cs.getInternalDatabase();
+        LDAPConfig internaldb = cs.getInternalDBConfig();
         mLdapConnFactory = new LdapBoundConnFactory("LDAPSecurityDomainSessionTable");
         mLdapConnFactory.init(cs, internaldb, engine.getPasswordStore());
     }
@@ -67,7 +67,7 @@ public class LDAPSecurityDomainSessionTable
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         LDAPConnection conn = null;
         int status = FAILURE;
@@ -131,7 +131,7 @@ public class LDAPSecurityDomainSessionTable
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         LDAPConnection conn = null;
         int status = FAILURE;
@@ -165,7 +165,7 @@ public class LDAPSecurityDomainSessionTable
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         LDAPConnection conn = null;
         boolean ret = false;
@@ -198,7 +198,7 @@ public class LDAPSecurityDomainSessionTable
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         LDAPConnection conn = null;
         Vector<String> ret = new Vector<String>();
@@ -248,7 +248,7 @@ public class LDAPSecurityDomainSessionTable
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         LDAPConnection conn = null;
         String ret = null;
@@ -308,7 +308,7 @@ public class LDAPSecurityDomainSessionTable
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         LDAPConnection conn = null;
         int ret = 0;

@@ -832,7 +832,7 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        LDAPConfig dbConfig = mConfig.getInternalDatabase();
+        LDAPConfig dbConfig = mConfig.getInternalDBConfig();
         Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {
