@@ -12,7 +12,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.dogtagpki.acme.ACME;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMEError;
@@ -69,9 +69,7 @@ public abstract class ACMEValidator {
             String authzID,
             String token) throws Exception {
 
-        // TODO: find better way to generate challenge ID
-
-        String challengeID = RandomStringUtils.randomAlphanumeric(10);
+        String challengeID = ACME.randomAlphanumeric(10);
         logger.info("Creating " + name + " challenge: " + challengeID);
 
         URI challengeURI = uriInfo.getBaseUriBuilder().path("chall").path(challengeID).build();
