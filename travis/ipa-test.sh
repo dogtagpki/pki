@@ -21,15 +21,33 @@
 #
 set -eE
 
+TEST_LOG=/tmp/ipa-test.txt
+LOGS_TAR_NAME="var_log.tar"
+
 exit_handler() {
 
-    # Save systemd journal
+    if [ $? -eq 0 ]
+    then
+        # test succeeded, do not upload test logs
+        return
+    fi
+
+    echo "Test failed"
+
+    # display the last 1000 lines for troubleshooting
+    tail -n 1000 systemd_journal.txt
+
+    echo "Uploading test log"
+    curl -k -w "\n" --upload ${TEST_LOG} https://transfer.sh/ipa-test.txt >> ${BUILDDIR}/pki/logs.txt || true
+
+    echo "Saving systemd journal"
     journalctl -b --no-pager > systemd_journal.txt
+
+    echo "Uploading systemd_journal.txt"
     curl -k -w "\n" --upload systemd_journal.txt https://transfer.sh/systemd_journal.txt >> ${BUILDDIR}/pki/logs.txt || true
 
-    # Save other logs
-    LOGS_TAR_NAME="var_log.tar"
-    journalctl -b --no-pager > systemd_journal.txt
+    echo "Saving other logs"
+
     tar --ignore-failed-read -cvf /tmp/${LOGS_TAR_NAME} \
         /var/log/dirsrv \
         /var/log/httpd \
@@ -38,9 +56,10 @@ exit_handler() {
         /var/log/pki
 
     chown ${BUILDUSER_UID}:${BUILDUSER_GID} /tmp/${LOGS_TAR_NAME}
+
+    echo "Uploading ${LOGS_TAR_NAME}"
     curl -k -w "\n" --upload /tmp/${LOGS_TAR_NAME} https://transfer.sh/${LOGS_TAR_NAME} >> ${BUILDDIR}/pki/logs.txt || true
 }
-
 
 # Print the version of installed components
 rpm -qa tomcat* pki-* freeipa-* nss* 389-ds* jss*| sort
@@ -79,16 +98,19 @@ done
 echo "Following IPA tests are scheduled to run: "
 echo ${cert_test_file_loc}
 
-# Run ipa-tests
+trap "exit_handler" EXIT
+
+echo "Running IPA tests"
+
 ipa-run-tests \
 --ignore test_integration \
 --ignore test_webui \
 --ignore test_ipapython/test_keyring.py \
 -k-test_dns_soa \
 --verbose \
-${cert_test_file_loc}
+${cert_test_file_loc} 2>&1 | tee $TEST_LOG
+
+echo "Test complete"
 
 # Uninstall ipa-server
 ipa-server-install --uninstall -U
-
-trap "exit_handler" EXIT
