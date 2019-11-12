@@ -77,6 +77,7 @@ import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.jobs.JobsScheduler;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -246,6 +247,7 @@ public class CMSEngine implements ISubsystem {
         String tags[] = StringUtils.split(pwList, ",");
         LDAPConfig ldapConfig = config.getInternalDBConfig();
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
+        LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
 
         for (String tag : tags) {
 
@@ -257,7 +259,7 @@ public class CMSEngine implements ISubsystem {
 
             if (tag.equals("internaldb")) {
 
-                authType = ldapConfig.getString("ldapauth.authtype", "BasicAuth");
+                authType = authConfig.getString("authtype", "BasicAuth");
                 if (!authType.equals("BasicAuth"))
                     continue;
 
@@ -266,11 +268,11 @@ public class CMSEngine implements ISubsystem {
                         connConfig.getInteger("port"),
                         connConfig.getBoolean("secureConn"));
 
-                binddn = ldapConfig.getString("ldapauth.bindDN");
+                binddn = authConfig.getString("bindDN");
 
             } else if (tag.equals("replicationdb")) {
 
-                authType = ldapConfig.getString("ldapauth.authtype", "BasicAuth");
+                authType = authConfig.getString("authtype", "BasicAuth");
                 if (!authType.equals("BasicAuth"))
                     continue;
 
@@ -285,8 +287,9 @@ public class CMSEngine implements ISubsystem {
             } else if (tags.equals("CA LDAP Publishing")) {
 
                 LDAPConfig publishConfig = config.getSubStore("ca.publish.ldappublish.ldap", LDAPConfig.class);
+                LDAPAuthenticationConfig publishAuthConfig = publishConfig.getAuthenticationConfig();
 
-                authType = config.getString("ca.publish.ldappublish.ldap.ldapauth.authtype", "BasicAuth");
+                authType = publishAuthConfig.getString("authtype", "BasicAuth");
                 if (!authType.equals("BasicAuth"))
                     continue;
 
@@ -297,7 +300,7 @@ public class CMSEngine implements ISubsystem {
                         publishConnConfig.getInteger("port"),
                         publishConnConfig.getBoolean("secureConn"));
 
-                binddn = config.getString("ca.publish.ldappublish.ldap.ldapauth.bindDN");
+                binddn = publishAuthConfig.getString("bindDN");
 
             } else {
                 /*
@@ -324,8 +327,9 @@ public class CMSEngine implements ISubsystem {
                 logger.debug("CMSEngine.initializePasswordStore(): authPrefix=" + authPrefix);
 
                 LDAPConfig prefixConfig = config.getSubStore(authPrefix + ".ldap", LDAPConfig.class);
+                LDAPAuthenticationConfig prefixAuthConfig = prefixConfig.getAuthenticationConfig();
 
-                authType = config.getString(authPrefix +".ldap.ldapauth.authtype", "BasicAuth");
+                authType = prefixAuthConfig.getString("authtype", "BasicAuth");
                 logger.debug("CMSEngine.initializePasswordStore(): authType " + authType);
                 if (!authType.equals("BasicAuth"))
                     continue;
@@ -337,7 +341,7 @@ public class CMSEngine implements ISubsystem {
                         prefixConnConfig.getInteger("port"),
                         prefixConnConfig.getBoolean("secureConn"));
 
-                binddn = config.getString(authPrefix + ".ldap.ldapauth.bindDN", null);
+                binddn = prefixAuthConfig.getString("bindDN", null);
                 if (binddn == null) {
                     logger.debug("CMSEngine.initializePasswordStore(): binddn not found...skipping");
                     continue;

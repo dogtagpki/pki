@@ -63,6 +63,7 @@ import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -634,6 +635,7 @@ public class PublisherAdminServlet extends AdminServlet {
         IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
         IConfigStore ldapcfg = publishcfg.getSubStore(IPublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
         LDAPConfig ldap = ldapcfg.getSubStore(IPublisherProcessor.PROP_LDAP, LDAPConfig.class);
+        LDAPAuthenticationConfig authConfig = ldap.getAuthenticationConfig();
 
         //set enable flag
         publishcfg.putString(IPublisherProcessor.PROP_ENABLE,
@@ -710,8 +712,7 @@ public class PublisherAdminServlet extends AdminServlet {
             int port = connInfo.getPort();
             boolean secure = connInfo.getSecure();
             //int authType = authInfo.getAuthType();
-            String authType = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO).
-                    getString(ILdapAuthInfo.PROP_LDAPAUTHTYPE);
+            String authType = authConfig.getString(ILdapAuthInfo.PROP_LDAPAUTHTYPE);
             int version = connInfo.getVersion();
             String bindAs = null;
             String certNickName = null;
@@ -719,10 +720,7 @@ public class PublisherAdminServlet extends AdminServlet {
             if (authType.equals(ILdapAuthInfo.LDAP_SSLCLIENTAUTH_STR)) {
                 try {
                     //certNickName = authInfo.getParms()[0];
-                    certNickName =
-                            ldap.getSubStore(
-                                    LdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(
-                                    ILdapAuthInfo.PROP_CLIENTCERTNICKNAME);
+                    certNickName = authConfig.getString(ILdapAuthInfo.PROP_CLIENTCERTNICKNAME);
 
                     PKISocketFactory socketFactory = new PKISocketFactory(certNickName);
                     socketFactory.init(cs);
@@ -845,8 +843,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
                 try {
                     //bindAs = authInfo.getParms()[0];
-                    bindAs = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO).
-                            getString(ILdapAuthInfo.PROP_BINDDN);
+                    bindAs = authConfig.getString(ILdapAuthInfo.PROP_BINDDN);
                     conn.authenticate(version, bindAs, pwd);
                     params.put(Constants.PR_AUTH_OK,
                             "Authentication: Basic authentication" +

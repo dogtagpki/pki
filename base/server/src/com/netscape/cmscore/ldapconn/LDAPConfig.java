@@ -47,4 +47,8 @@ public class LDAPConfig extends PropConfigStore {
     public LDAPConnectionConfig getConnectionConfig() {
         return getSubStore("ldapconn", LDAPConnectionConfig.class);
     }
+
+    public LDAPAuthenticationConfig getAuthenticationConfig() {
+        return getSubStore("ldapauth", LDAPAuthenticationConfig.class);
+    }
 }

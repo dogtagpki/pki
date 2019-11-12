@@ -149,6 +149,7 @@ import com.netscape.cmscore.apps.SubsystemConfig;
 import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -850,6 +851,8 @@ public class Configurator {
             throws Exception {
         logger.debug("updateConfigEntries start");
         CMSEngine engine = CMS.getCMSEngine();
+        LDAPConfig masterConfig = cs.getSubStore("preop.internaldb.master", LDAPConfig.class);
+
         String c = post(hostname, port, https, servlet, content, null, null);
 
         if (c != null) {
@@ -896,7 +899,7 @@ public class Configurator {
                     if (name.equals("internaldb.basedn")) {
                         LDAPConfig ldapConfig = cs.getInternalDBConfig();
                         ldapConfig.setBaseDN(v);
-                        cs.putString("preop.internaldb.master.basedn", v);
+                        masterConfig.putString("basedn", v);
 
                     } else if (name.startsWith("internaldb")) {
                         cs.putString(name.replaceFirst("internaldb", "preop.internaldb.master"), v);
@@ -963,9 +966,10 @@ public class Configurator {
                 // set master ldap password (if it exists) temporarily in password store
                 // in case it is needed for replication.  Not stored in password.conf.
 
-                String master_pwd = cs.getString("preop.internaldb.master.ldapauth.password", "");
+                LDAPAuthenticationConfig masterAuthConfig = masterConfig.getAuthenticationConfig();
+                String master_pwd = masterAuthConfig.getString("password", "");
                 if (!master_pwd.equals("")) {
-                    cs.putString("preop.internaldb.master.ldapauth.bindPWPrompt", "master_internaldb");
+                    masterAuthConfig.putString("bindPWPrompt", "master_internaldb");
                     IPasswordStore psStore = engine.getPasswordStore();
                     psStore.putPassword("master_internaldb", master_pwd);
                     psStore.commit();

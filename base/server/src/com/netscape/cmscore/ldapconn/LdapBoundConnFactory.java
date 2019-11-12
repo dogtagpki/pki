@@ -207,7 +207,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         LDAPConnectionConfig connConfig = dbConfig.getConnectionConfig();
         this.mConnInfo = new LdapConnInfo(connConfig);
 
-        IConfigStore authConfig = dbConfig.getSubStore(PROP_LDAPAUTHINFO);
+        LDAPAuthenticationConfig authConfig = dbConfig.getAuthenticationConfig();
         this.mAuthInfo = new LdapAuthInfo();
         this.mAuthInfo.setPasswordStore(passwordStore);
 

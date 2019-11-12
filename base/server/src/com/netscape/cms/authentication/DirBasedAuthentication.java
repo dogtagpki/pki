@@ -50,6 +50,7 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -90,7 +91,6 @@ public abstract class DirBasedAuthentication
     protected static final String PROP_LDAPSTRINGATTRS = "ldapStringAttributes";
     protected static final String PROP_LDAPBYTEATTRS = "ldapByteAttributes";
     protected static final String PROP_LDAP_BOUND_CONN = "ldapBoundConn";
-    protected static final String PROP_LDAP_BOUND_TAG = "ldapauth.bindPWPrompt";
 
     // members
 
@@ -305,7 +305,8 @@ public abstract class DirBasedAuthentication
         logger.info("DirBasedAuthentication: Bound connection enable: " + mBoundConnEnable);
 
         if (mBoundConnEnable) {
-            mTag = mLdapConfig.getString(PROP_LDAP_BOUND_TAG);
+            LDAPAuthenticationConfig authConfig = mLdapConfig.getAuthenticationConfig();
+            mTag = mLdapConfig.getString("bindPWPrompt");
             logger.info("DirBasedAuthentication: Bind password prompt: " + mTag);
 
             LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
@@ -431,7 +432,8 @@ public abstract class DirBasedAuthentication
                 logger.debug(method + " mConnFactory null, getting conn factory");
 
                 if (mBoundConnEnable) {
-                    mTag = mLdapConfig.getString(PROP_LDAP_BOUND_TAG);
+                    LDAPAuthenticationConfig authConfig = mLdapConfig.getAuthenticationConfig();
+                    mTag = authConfig.getString("bindPWPrompt");
                     logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
 
                     LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);

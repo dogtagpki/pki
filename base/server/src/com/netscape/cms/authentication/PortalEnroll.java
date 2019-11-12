@@ -33,12 +33,12 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -62,7 +62,6 @@ public class PortalEnroll extends DirBasedAuthentication {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PortalEnroll.class);
 
     /* configuration parameter keys */
-    protected static final String PROP_LDAPAUTH = "ldapauth";
     protected static final String PROP_AUTHTYPE = "authtype";
     protected static final String PROP_BINDDN = "bindDN";
     protected static final String PROP_BINDPW = "bindPW";
@@ -143,7 +142,7 @@ public class PortalEnroll extends DirBasedAuthentication {
         EngineConfig cs = engine.getConfig();
 
         /* Get Bind DN for directory server */
-        IConfigStore authConfig = mLdapConfig.getSubStore(PROP_LDAPAUTH);
+        LDAPAuthenticationConfig authConfig = mLdapConfig.getAuthenticationConfig();
         mBindDN = authConfig.getString(PROP_BINDDN);
         if ((mBindDN == null) || (mBindDN.length() == 0) || (mBindDN == ""))
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "binddn"));

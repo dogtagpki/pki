@@ -29,11 +29,11 @@ import org.dogtagpki.cli.CommandCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
@@ -99,7 +99,7 @@ public class SubsystemDBInfoCLI extends CommandCLI {
         passwordStore.setId(instanceId);
 
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
-        IConfigStore authConfig = ldapConfig.getSubStore("ldapauth");
+        LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
 
         LdapConnInfo connInfo = new LdapConnInfo(connConfig);
 

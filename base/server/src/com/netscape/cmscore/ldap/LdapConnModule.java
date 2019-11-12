@@ -26,6 +26,7 @@ import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
@@ -86,7 +87,7 @@ public class LdapConnModule implements ILdapConnModule {
         LDAPConnectionConfig connConfig = ldap.getConnectionConfig();
         LdapConnInfo connInfo = new LdapConnInfo(connConfig);
 
-        IConfigStore authConfig = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO);
+        LDAPAuthenticationConfig authConfig = ldap.getAuthenticationConfig();
 
         LdapAuthInfo authInfo = new LdapAuthInfo();
         authInfo.setPasswordStore(passwordStore);
