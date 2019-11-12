@@ -27,19 +27,19 @@ import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 import org.dogtagpki.server.tps.mapping.BaseMappingResolver;
 import org.dogtagpki.server.tps.mapping.FilterMappingParams;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.BeginOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
-import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.event.TokenPinResetEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.EngineConfig;
 
 public class TPSPinResetProcessor extends TPSProcessor {
 
@@ -125,7 +125,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
             logger.debug(method + " isExternalReg: ON");
 
             // Get authId for external reg attributes (e.g. "ldap1")
-            IConfigStore configStore = engine.getConfigStore();
+            EngineConfig configStore = engine.getConfig();
             String configName = "externalReg.authId";
             String authId;
             try {
@@ -222,7 +222,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
                 tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
-    
+
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
 	} else {

@@ -29,7 +29,6 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -48,6 +47,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -115,7 +115,7 @@ public class SymKeyGenService implements IService {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore configStore = engine.getConfigStore();
+        EngineConfig configStore = engine.getConfig();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 
         CryptoToken token = mStorageUnit.getToken();

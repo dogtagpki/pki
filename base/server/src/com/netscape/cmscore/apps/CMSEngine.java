@@ -1115,7 +1115,7 @@ public class CMSEngine implements ISubsystem {
         String name = null;
         try {
             logger.debug(method + "getting :" + configName);
-            name = getConfigStore().getString(configName);
+            name = mConfig.getString(configName);
             logger.debug(method + "Shared Secret plugin class name retrieved:" +
                     name);
         } catch (Exception e) {

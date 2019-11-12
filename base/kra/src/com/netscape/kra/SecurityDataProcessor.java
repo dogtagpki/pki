@@ -35,7 +35,6 @@ import org.mozilla.jss.pkix.primitive.PBEParameter;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -52,6 +51,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.IEnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -108,10 +108,10 @@ public class SecurityDataProcessor {
         CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        IConfigStore config = null;
+        EngineConfig config = null;
 
         try {
-            config = engine.getConfigStore();
+            config = engine.getConfig();
             allowEncDecrypt_archival = config.getBoolean("kra.allowEncDecrypt.archival", false);
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
@@ -376,10 +376,10 @@ public class SecurityDataProcessor {
         CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        IConfigStore config = null;
+        EngineConfig config = null;
 
         try {
-            config = engine.getConfigStore();
+            config = engine.getConfig();
             allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));

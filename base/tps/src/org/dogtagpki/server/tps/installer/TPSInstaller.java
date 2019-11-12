@@ -23,10 +23,10 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.ConnectorDatabase;
 import org.dogtagpki.server.tps.config.ConnectorRecord;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * Utility class for TPS installation to be used both by the RESTful installer
@@ -48,7 +48,7 @@ public class TPSInstaller {
         CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         // TODO: see if this is only needed by wizard-based installation
         cs.putString("preop.cainfo.select", uri.toString());
@@ -67,7 +67,7 @@ public class TPSInstaller {
         CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         // TODO: see if this is only needed by wizard-based installation
         cs.putString("preop.tksinfo.select", uri.toString());
@@ -86,7 +86,7 @@ public class TPSInstaller {
         CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         if (keygen) {
             // TODO: see if this is only needed by wizard-based installation

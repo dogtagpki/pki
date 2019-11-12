@@ -660,7 +660,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private Vector<String> getProfileList(String list) {
         Enumeration<String> e = null;
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore pc = engine.getConfigStore().getSubStore("profile");
+        IConfigStore pc = engine.getConfig().getSubStore("profile");
         if (pc != null)
             e = pc.getSubStoreNames();
         if (list == null)

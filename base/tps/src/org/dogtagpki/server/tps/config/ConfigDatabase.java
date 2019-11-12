@@ -29,10 +29,10 @@ import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.Database;
 
 /**
@@ -46,7 +46,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigDatabase.class);
 
     CMSEngine engine = CMS.getCMSEngine();
-    IConfigStore configStore = engine.getConfigStore();
+    EngineConfig configStore = engine.getConfig();
 
     public ConfigDatabase() throws EBaseException {
         super("Configuration");

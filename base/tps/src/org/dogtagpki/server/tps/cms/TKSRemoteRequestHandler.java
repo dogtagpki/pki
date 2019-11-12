@@ -27,9 +27,9 @@ import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
 
@@ -114,7 +114,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore conf = engine.getConfigStore();
+        EngineConfig conf = engine.getConfig();
 
         boolean serverKeygen = false;
 
@@ -266,7 +266,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore conf = engine.getConfigStore();
+        EngineConfig conf = engine.getConfig();
 
         boolean serverKeygen =
                 conf.getBoolean("op.enroll." +
@@ -438,7 +438,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore conf = engine.getConfigStore();
+        EngineConfig conf = engine.getConfig();
 
         boolean serverKeygen =
                 conf.getBoolean("op.enroll." +
@@ -567,7 +567,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore conf = engine.getConfigStore();
+        EngineConfig conf = engine.getConfig();
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
@@ -739,7 +739,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore conf = engine.getConfigStore();
+        EngineConfig conf = engine.getConfig();
 
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");

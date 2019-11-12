@@ -85,6 +85,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.IDBSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
@@ -1765,7 +1766,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
               extractable == true
         */
         KeyPairGenerator kpGen = token.getKeyPairGenerator(kpAlg);
-        IConfigStore config = engine.getConfigStore();
+        EngineConfig config = engine.getConfig();
         IConfigStore kgConfig = config.getSubStore("kra.keygen");
         boolean tp = false;
         boolean sp = false;

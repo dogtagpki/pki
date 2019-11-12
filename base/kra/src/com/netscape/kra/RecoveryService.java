@@ -56,7 +56,6 @@ import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.EKRAException;
@@ -69,6 +68,7 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -133,7 +133,7 @@ public class RecoveryService implements IService {
     public boolean serviceRequest(IRequest request) throws EBaseException {
 
         CryptoManager cm = null;
-        IConfigStore config = null;
+        EngineConfig config = null;
         String tokName = "";
         CryptoToken ct = null;
         Boolean allowEncDecrypt_recovery = false;
@@ -143,7 +143,7 @@ public class RecoveryService implements IService {
 
         try {
             cm = CryptoManager.getInstance();
-            config = engine.getConfigStore();
+            config = engine.getConfig();
             tokName = config.getString("kra.storageUnit.hardware", CryptoUtil.INTERNAL_TOKEN_NAME);
             logger.debug("RecoveryService: serviceRequest: token: " + tokName);
             ct = CryptoUtil.getCryptoToken(tokName);
@@ -282,7 +282,7 @@ public class RecoveryService implements IService {
             }
         } else {
 
-            if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
+            if (engine.getConfig().getBoolean("kra.keySplitting")) {
                 Credential creds[] = (Credential[])
                         params.get(ATTR_AGENT_CREDENTIALS);
                 mKRA.getStorageKeyUnit().login(creds);
@@ -305,7 +305,7 @@ public class RecoveryService implements IService {
                 statsSub.endTiming("unwrap_key");
             }
 
-            if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
+            if (engine.getConfig().getBoolean("kra.keySplitting")) {
                 mKRA.getStorageKeyUnit().logout();
             }
         }
@@ -405,7 +405,7 @@ public class RecoveryService implements IService {
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
-            if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
+            if (engine.getConfig().getBoolean("kra.keySplitting")) {
                 Credential creds[] = (Credential[])
                         request.get(ATTR_AGENT_CREDENTIALS);
 
@@ -496,7 +496,7 @@ public class RecoveryService implements IService {
             PasswordConverter passConverter = new
                     PasswordConverter();
 
-            boolean legacyP12 = engine.getConfigStore().getBoolean("kra.legacyPKCS12", true);
+            boolean legacyP12 = engine.getConfig().getBoolean("kra.legacyPKCS12", true);
 
             ASN1Value key;
             if (legacyP12) {
@@ -600,7 +600,7 @@ public class RecoveryService implements IService {
     public synchronized byte[] recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord)
             throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
+        if (engine.getConfig().getBoolean("kra.keySplitting")) {
             Credential creds[] = (Credential[])
                     request.get(ATTR_AGENT_CREDENTIALS);
 
@@ -614,7 +614,7 @@ public class RecoveryService implements IService {
                      keyRecord.getPrivateKeyData(),
                      keyRecord.getWrappingParams(mKRA.getStorageKeyUnit().getOldWrappingParams()));
 
-             if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
+             if (engine.getConfig().getBoolean("kra.keySplitting")) {
                  mStorageUnit.logout();
              }
 
@@ -681,7 +681,7 @@ public class RecoveryService implements IService {
                             priData);
             EncryptedPrivateKeyInfo epki = null;
 
-            boolean legacyP12 = engine.getConfigStore().getBoolean("kra.legacyPKCS12", true);
+            boolean legacyP12 = engine.getConfig().getBoolean("kra.legacyPKCS12", true);
 
             if (legacyP12) {
                 /* legacy mode may be required e.g. when token/HSM

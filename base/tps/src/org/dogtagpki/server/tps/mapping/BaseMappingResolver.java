@@ -2,9 +2,9 @@ package org.dogtagpki.server.tps.mapping;
 
 import org.dogtagpki.tps.main.TPSException;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * This class implements the base TPS mapping filter Resolver instance
@@ -12,7 +12,7 @@ import com.netscape.cmscore.apps.CMSEngine;
  * @author cfu
  */
 public abstract class BaseMappingResolver {
-    protected IConfigStore configStore = null;
+    protected EngineConfig configStore;
     protected String instanceName = "";
     protected String prefix = "";
 
@@ -24,7 +24,7 @@ public abstract class BaseMappingResolver {
         prefix = MappingResolverManager.MAPPING_RESOLVER_CFG +
                 "." + instanceName;
         CMSEngine engine = CMS.getCMSEngine();
-        configStore = engine.getConfigStore();
+        configStore = engine.getConfig();
     }
 
     public String getName() {

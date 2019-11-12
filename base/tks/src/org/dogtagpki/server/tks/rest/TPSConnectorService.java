@@ -28,7 +28,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
@@ -41,6 +40,7 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -51,7 +51,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     private static final String TPS_LIST = "tps.list";
 
     CMSEngine engine = CMS.getCMSEngine();
-    IConfigStore cs = engine.getConfigStore();
+    EngineConfig cs = engine.getConfig();
 
     public UGSubsystem userGroupManager = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 

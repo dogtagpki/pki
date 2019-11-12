@@ -94,13 +94,13 @@ public class KeyRetrieverRunner implements Runnable {
         String className = null;
 
         try {
-            className = engine.getConfigStore().getString(KR_CLASS_KEY);
+            className = engine.getConfig().getString(KR_CLASS_KEY);
         } catch (EBaseException e) {
             logger.warn("Unable to read key retriever class from CS.cfg: " + e.getMessage(), e);
             return false;
         }
 
-        IConfigStore krConfig = engine.getConfigStore().getSubStore(KR_CONFIG_KEY);
+        IConfigStore krConfig = engine.getConfig().getSubStore(KR_CONFIG_KEY);
 
         KeyRetriever kr = null;
         try {

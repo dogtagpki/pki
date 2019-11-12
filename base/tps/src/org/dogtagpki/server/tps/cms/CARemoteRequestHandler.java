@@ -38,9 +38,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -106,7 +106,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             tokenType = "";
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore conf = engine.getConfigStore();
+        EngineConfig conf = engine.getConfig();
         String profileId =
                 conf.getString(TPSEngine.OP_ENROLL_PREFIX + "." +
                         tokenType + ".keyGen." +
@@ -417,7 +417,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore conf = engine.getConfigStore();
+        EngineConfig conf = engine.getConfig();
 
         String profileId =
                 conf.getString(TPSEngine.OP_ENROLL_PREFIX + "." +
@@ -790,7 +790,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore conf = engine.getConfigStore();
+        EngineConfig conf = engine.getConfig();
 
         /*
          * first, see if ca Subject Key Identifier (SKI) is in

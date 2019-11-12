@@ -631,7 +631,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         if (attr != null) {
             boolean verifyAllow = false; //disable RA by default
             try {
-                verifyAllow = engine.getConfigStore().getBoolean("cmc.lraPopWitness.verify.allow", false);
+                verifyAllow = engine.getConfig().getBoolean("cmc.lraPopWitness.verify.allow", false);
             } catch (EBaseException ee) {
             }
             logger.debug("ProfileSubmitCMCServlet: cmc.lraPopWitness.verify.allow is " + verifyAllow);

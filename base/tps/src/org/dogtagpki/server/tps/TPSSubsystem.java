@@ -56,6 +56,7 @@ import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
@@ -411,7 +412,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
             ObjectNotFoundException, TokenException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
         String nickname = cs.getString("tps.subsystem.nickname", "");
         String tokenname = cs.getString("tps.subsystem.tokenname", "");
         if (!CryptoUtil.isInternalToken(tokenname))

@@ -54,9 +54,9 @@ import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.pkcs11.PKCS11Constants;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 public class SecureChannel {
 
@@ -329,7 +329,7 @@ public class SecureChannel {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore configStore = engine.getConfigStore();
+        EngineConfig configStore = engine.getConfig();
 
         final String keyCapabilities = "keyCapabilities";
 

@@ -43,7 +43,6 @@ import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.util.Base64OutputStream;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
@@ -67,6 +66,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -172,7 +172,7 @@ public class NetkeyKeygenService implements IService {
 
         IVParameterSpec algParam = new IVParameterSpec(iv);
 
-        IConfigStore configStore = engine.getConfigStore();
+        EngineConfig configStore = engine.getConfig();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 
         wrapped_des_key = null;

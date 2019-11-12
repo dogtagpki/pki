@@ -53,6 +53,7 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 public class CMSCRLExtensions implements ICMSCRLExtensions {
 
@@ -199,7 +200,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         mCRLExtConfig = config.getSubStore(PROP_EXTENSION);
         mCRLIssuingPoint = crlIssuingPoint;
 
-        IConfigStore mFileConfig = engine.getConfigStore();
+        EngineConfig mFileConfig = engine.getConfig();
 
         IConfigStore crlExtConfig = mFileConfig;
         StringTokenizer st = new StringTokenizer(mCRLExtConfig.getName(), ".");

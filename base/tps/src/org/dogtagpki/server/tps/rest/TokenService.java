@@ -40,7 +40,6 @@ import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBVirtualList;
@@ -55,6 +54,7 @@ import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 import netscape.ldap.LDAPException;
 
@@ -74,7 +74,7 @@ public class TokenService extends SubsystemService implements TokenResource {
                     throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.getConfigStore();
+        EngineConfig config = engine.getConfig();
 
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 

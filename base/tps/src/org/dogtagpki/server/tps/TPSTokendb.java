@@ -34,16 +34,15 @@ import org.dogtagpki.server.tps.dbs.TokenCertStatus;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
 import org.dogtagpki.tps.main.TPSException;
-import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /*
  * TPSTokendb class offers a collection of tokendb management convenience routines
@@ -569,7 +568,7 @@ public class TPSTokendb {
         CMSEngine engine = CMS.getCMSEngine();
         try {
 
-            IConfigStore configStore = engine.getConfigStore();
+            EngineConfig configStore = engine.getConfig();
 
             // get conn ID
             String config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() + ".ca.conn";
@@ -634,7 +633,7 @@ public class TPSTokendb {
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
-            IConfigStore configStore = engine.getConfigStore();
+            EngineConfig configStore = engine.getConfig();
 
             // get conn ID
             String config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() + ".ca.conn";
@@ -688,7 +687,7 @@ public class TPSTokendb {
         String method = "TPSTokendb.checkShouldRevoke:";
         String msg = "";
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore configStore = engine.getConfigStore();
+        EngineConfig configStore = engine.getConfig();
 
         if (cert == null) {
             throw new TPSException("Missing token certificate");

@@ -19,9 +19,9 @@ import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 public class KRAApplication extends Application {
 
@@ -43,7 +43,7 @@ public class KRAApplication extends Application {
 
         // security domain
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
         try {
             boolean standalone = cs.getBoolean("kra.standalone", false);
             if (standalone) {

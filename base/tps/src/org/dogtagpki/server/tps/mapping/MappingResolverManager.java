@@ -26,6 +26,7 @@ import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * mappingResolverManager is a class for mapping resolver plugin
@@ -80,7 +81,7 @@ public class MappingResolverManager
         String method = "mappingResolverManager.initMappingResolverInstance:";
         logger.debug(method + " begins");
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore conf = engine.getConfigStore();
+        EngineConfig conf = engine.getConfig();
         registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
         if (registry == null) {
             logger.warn(method + " registry null");

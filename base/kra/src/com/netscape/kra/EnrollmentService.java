@@ -50,7 +50,6 @@ import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.pkix.primitive.AVA;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
@@ -73,6 +72,7 @@ import com.netscape.cms.profile.common.IEnrollProfile;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.KeyRecord;
@@ -148,11 +148,11 @@ public class EnrollmentService implements IService {
         CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        IConfigStore config = null;
+        EngineConfig config = null;
         Boolean allowEncDecrypt_archival = false;
 
         try {
-            config = engine.getConfigStore();
+            config = engine.getConfig();
             allowEncDecrypt_archival = config.getBoolean("kra.allowEncDecrypt.archival", false);
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));

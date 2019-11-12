@@ -24,7 +24,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
@@ -42,6 +41,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.ldap.IRequestMod;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.IDBSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -255,7 +255,7 @@ public class RequestQueue
         String filter = null;
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.getConfigStore();
+        EngineConfig config = engine.getConfig();
         String csType = null;
 
         try {

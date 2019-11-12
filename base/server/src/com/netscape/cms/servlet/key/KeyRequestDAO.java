@@ -517,7 +517,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
                 }
             } else if (algName.equalsIgnoreCase(KeyRequestResource.DSA_ALGORITHM)) {
                 // Without the PQGParams, JSS can create DSA keys of size 512, 768, 1024 only.
-                String[] sizes = engine.getConfigStore().getString("keys.dsa.list", "512,768,1024").split(",");
+                String[] sizes = engine.getConfig().getString("keys.dsa.list", "512,768,1024").split(",");
                 if (!Arrays.asList(sizes).contains(String.valueOf(keySize))) {
                     throw new BadRequestException("Invalid key size specified.");
                 }

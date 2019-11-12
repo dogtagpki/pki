@@ -18,9 +18,9 @@ import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 public class OCSPApplication extends Application {
 
@@ -42,7 +42,7 @@ public class OCSPApplication extends Application {
 
         // security domain
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
         try {
             boolean standalone = cs.getBoolean("ocsp.standalone", false);
             if (standalone) {
