@@ -35,7 +35,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.IProfilePolicy;
@@ -46,6 +45,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cms.profile.input.EnrollInput;
 import com.netscape.cms.profile.updater.IProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -222,16 +222,15 @@ public abstract class BasicProfile implements IProfile {
                     inputClassId);
             String inputClass = inputInfo.getClassName();
 
-            IProfileInput input = null;
-
+            EnrollInput input = null;
             try {
-                input = (IProfileInput)
-                        Class.forName(inputClass).newInstance();
+                input = (EnrollInput) Class.forName(inputClass).newInstance();
             } catch (Exception e) {
                 // throw Exception
                 logger.error("BasicProfile: input plugin Class.forName " + inputClass + " " + e.getMessage(), e);
                 throw new EBaseException(e.toString());
             }
+
             IConfigStore inputConfig = inputStore.getSubStore(input_id);
             input.init(this, inputConfig);
             mInputs.put(input_id, input);
@@ -672,18 +671,18 @@ public abstract class BasicProfile implements IProfile {
             logger.error("Cannot find " + inputId);
             throw new EProfileException("Cannot find " + inputId);
         }
+
         String inputClass = inputInfo.getClassName();
-
         logger.debug("BasicProfile: loading input class " + inputClass);
-        IProfileInput input = null;
 
+        EnrollInput input = null;
         try {
-            input = (IProfileInput)
-                    Class.forName(inputClass).newInstance();
+            input = (EnrollInput) Class.forName(inputClass).newInstance();
         } catch (Exception e) {
             // throw Exception
             logger.warn(e.getMessage(), e);
         }
+
         if (input == null) {
             logger.warn("BasicProfile: failed to create " + inputClass);
         } else {

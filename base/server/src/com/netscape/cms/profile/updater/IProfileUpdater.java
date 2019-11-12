@@ -21,10 +21,10 @@ import java.util.Locale;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.profile.common.IProfile;
 
 /**
  * This interface represents an updater that will be

@@ -30,10 +30,10 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cmscore.apps.CMS;
 
 /**

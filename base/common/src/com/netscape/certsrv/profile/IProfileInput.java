@@ -37,16 +37,6 @@ import com.netscape.certsrv.request.IRequest;
 public interface IProfileInput extends IConfigTemplate {
 
     /**
-     * Initializes this default policy.
-     *
-     * @param profile owner of this input
-     * @param config configuration store
-     * @exception EProfileException failed to initialize
-     */
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException;
-
-    /**
      * Returns configuration store.
      *
      * @return configuration store

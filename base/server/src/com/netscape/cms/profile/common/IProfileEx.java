@@ -18,7 +18,6 @@
 package com.netscape.cms.profile.common;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.profile.IProfile;
 
 /**
  * This interface represents the extension version of

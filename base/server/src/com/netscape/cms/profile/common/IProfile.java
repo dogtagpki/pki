@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.profile;
+package com.netscape.cms.profile.common;
 
 import java.util.Enumeration;
 import java.util.Locale;
@@ -26,6 +26,12 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.profile.EDeferException;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.profile.IProfileInput;
+import com.netscape.certsrv.profile.IProfileOutput;
+import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 

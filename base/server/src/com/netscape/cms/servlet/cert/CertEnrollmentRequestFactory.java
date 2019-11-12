@@ -25,9 +25,9 @@ import javax.servlet.http.HttpServletRequest;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileInputFactory;
 
