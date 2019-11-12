@@ -63,6 +63,7 @@ import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
@@ -632,7 +633,7 @@ public class PublisherAdminServlet extends AdminServlet {
         IConfigStore config = mAuth.getConfigStore();
         IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
         IConfigStore ldapcfg = publishcfg.getSubStore(IPublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
-        IConfigStore ldap = ldapcfg.getSubStore(IPublisherProcessor.PROP_LDAP);
+        LDAPConfig ldap = ldapcfg.getSubStore(IPublisherProcessor.PROP_LDAP, LDAPConfig.class);
 
         //set enable flag
         publishcfg.putString(IPublisherProcessor.PROP_ENABLE,
@@ -702,8 +703,7 @@ public class PublisherAdminServlet extends AdminServlet {
                             " to a LDAP directory. The connection status is" +
                             " as follows:\n \n");
             LDAPConnection conn = null;
-            LdapConnInfo connInfo = new LdapConnInfo(
-                    ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPCONNINFO));
+            LdapConnInfo connInfo = new LdapConnInfo(ldap.getConnectionConfig());
             //LdapAuthInfo authInfo =
             //new LdapAuthInfo(ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO));
             String host = connInfo.getHost();

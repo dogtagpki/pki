@@ -150,6 +150,7 @@ import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -1459,8 +1460,10 @@ public class Configurator {
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
-        boolean secureConn = ldapConfig.getBoolean("ldapconn.secureConn");
-        String dsPort = ldapConfig.getString("ldapconn.port");
+        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
+
+        boolean secureConn = connConfig.getBoolean("secureConn");
+        String dsPort = connConfig.getString("port");
         String baseDN = ldapConfig.getBaseDN();
         boolean setupReplication = cs.getBoolean("preop.database.setupReplication", true);
 
@@ -1470,9 +1473,11 @@ public class Configurator {
             String masterbasedn = "";
             String realhostname = "";
             try {
-                masterhost = cs.getString("preop.internaldb.master.ldapconn.host", "");
-                masterport = cs.getString("preop.internaldb.master.ldapconn.port", "");
-                masterbasedn = cs.getString("preop.internaldb.master.basedn", "");
+                LDAPConfig masterConfig = cs.getSubStore("preop.internaldb.master", LDAPConfig.class);
+                LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
+                masterhost = masterConnConfig.getString("host", "");
+                masterport = masterConnConfig.getString("port", "");
+                masterbasedn = masterConfig.getString("basedn", "");
                 realhostname = cs.getHostname();
             } catch (Exception e) {
             }
@@ -1487,16 +1492,16 @@ public class Configurator {
 
             String masterReplicationPort = request.getMasterReplicationPort();
             if ((masterReplicationPort != null) && (!masterReplicationPort.equals(""))) {
-                ldapConfig.putString("ldapconn.masterReplicationPort", masterReplicationPort);
+                connConfig.putString("masterReplicationPort", masterReplicationPort);
             } else {
-                ldapConfig.putString("ldapconn.masterReplicationPort", masterport);
+                connConfig.putString("masterReplicationPort", masterport);
             }
 
             String cloneReplicationPort = request.getCloneReplicationPort();
             if ((cloneReplicationPort == null) || (cloneReplicationPort.length() == 0)) {
                 cloneReplicationPort = dsPort;
             }
-            ldapConfig.putString("ldapconn.cloneReplicationPort", cloneReplicationPort);
+            connConfig.putString("cloneReplicationPort", cloneReplicationPort);
 
             String replicationSecurity = request.getReplicationSecurity();
             if (cloneReplicationPort == dsPort && secureConn) {
@@ -1504,7 +1509,7 @@ public class Configurator {
             } else if (replicationSecurity == null) {
                 replicationSecurity = "None";
             }
-            ldapConfig.putString("ldapconn.replicationSecurity", replicationSecurity);
+            connConfig.putString("replicationSecurity", replicationSecurity);
 
             cs.putString("preop.internaldb.replicateSchema", request.getReplicateSchema());
         }

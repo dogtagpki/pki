@@ -66,7 +66,6 @@ public class PortalEnroll extends DirBasedAuthentication {
     protected static final String PROP_AUTHTYPE = "authtype";
     protected static final String PROP_BINDDN = "bindDN";
     protected static final String PROP_BINDPW = "bindPW";
-    protected static final String PROP_LDAPCONN = "ldapconn";
     protected static final String PROP_HOST = "host";
     protected static final String PROP_PORT = "port";
     protected static final String PROP_SECURECONN = "secureConn";

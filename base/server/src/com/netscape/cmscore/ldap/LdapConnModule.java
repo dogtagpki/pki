@@ -26,6 +26,8 @@ import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -79,9 +81,9 @@ public class LdapConnModule implements ILdapConnModule {
         */
 
         // support publishing dirsrv with different pwd than internaldb
-        IConfigStore ldap = mConfig.getSubStore("ldap");
+        LDAPConfig ldap = mConfig.getSubStore("ldap", LDAPConfig.class);
 
-        IConfigStore connConfig = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPCONNINFO);
+        LDAPConnectionConfig connConfig = ldap.getConnectionConfig();
         LdapConnInfo connInfo = new LdapConnInfo(connConfig);
 
         IConfigStore authConfig = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO);

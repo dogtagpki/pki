@@ -30,6 +30,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -55,21 +56,24 @@ public class ReplicationUtil {
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
 
         LDAPConfig masterCfg = cs.getSubStore("preop.internaldb.master", LDAPConfig.class);
+        LDAPConnectionConfig masterConnCfg = masterCfg.getConnectionConfig();
+
         LDAPConfig replicaCfg = cs.getInternalDBConfig();
+        LDAPConnectionConfig replicaConnCfg = replicaCfg.getConnectionConfig();
 
         String machinename = cs.getHostname();
         String instanceId = cs.getInstanceID();
 
-        String secure = replicaCfg.getString("ldapconn.secureConn");
-        String replicationSecurity = replicaCfg.getString("ldapconn.replicationSecurity");
+        String secure = replicaConnCfg.getString("secureConn");
+        String replicationSecurity = replicaConnCfg.getString("replicationSecurity");
 
-        int masterReplicationPort = replicaCfg.getInteger("ldapconn.masterReplicationPort");
-        int cloneReplicationPort = replicaCfg.getInteger("ldapconn.cloneReplicationPort");
+        int masterReplicationPort = replicaConnCfg.getInteger("masterReplicationPort");
+        int cloneReplicationPort = replicaConnCfg.getInteger("cloneReplicationPort");
 
-        String master_hostname = cs.getString("preop.internaldb.master.ldapconn.host", "");
+        String master_hostname = masterConnCfg.getString("host", "");
         String master_replicationpwd = cs.getString("preop.internaldb.master.replication.password", "");
 
-        String replica_hostname = replicaCfg.getString("ldapconn.host", "");
+        String replica_hostname = replicaConnCfg.getString("host", "");
         String replica_replicationpwd = cs.getString("preop.internaldb.replicationpwd", "");
 
         String basedn = replicaCfg.getBaseDN();

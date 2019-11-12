@@ -31,6 +31,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -125,10 +126,11 @@ public class DirAclAuthz extends AAclAuthz
         }
 
         mBaseDN = ldapConfig.getBaseDN();
+        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
 
         try {
             @SuppressWarnings("unused")
-            String hostname = ldapConfig.getString("ldapconn.host"); // check for errors
+            String hostname = connConfig.getString("host"); // check for errors
         } catch (EBaseException e) {
             logger.warn("DirAclAuthz: " + e.getMessage(), e);
             if (engine.isPreOpMode()) {

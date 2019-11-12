@@ -78,6 +78,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.LogSubsystem;
@@ -244,6 +245,7 @@ public class CMSEngine implements ISubsystem {
         String pwList = config.getString("cms.passwordlist", "internaldb,replicationdb");
         String tags[] = StringUtils.split(pwList, ",");
         LDAPConfig ldapConfig = config.getInternalDBConfig();
+        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
 
         for (String tag : tags) {
 
@@ -260,9 +262,9 @@ public class CMSEngine implements ISubsystem {
                     continue;
 
                 connInfo = new LdapConnInfo(
-                        ldapConfig.getString("ldapconn.host"),
-                        ldapConfig.getInteger("ldapconn.port"),
-                        ldapConfig.getBoolean("ldapconn.secureConn"));
+                        connConfig.getString("host"),
+                        connConfig.getInteger("port"),
+                        connConfig.getBoolean("secureConn"));
 
                 binddn = ldapConfig.getString("ldapauth.bindDN");
 
@@ -273,23 +275,27 @@ public class CMSEngine implements ISubsystem {
                     continue;
 
                 connInfo = new LdapConnInfo(
-                        ldapConfig.getString("ldapconn.host"),
-                        ldapConfig.getInteger("ldapconn.port"),
-                        ldapConfig.getBoolean("ldapconn.secureConn"));
+                        connConfig.getString("host"),
+                        connConfig.getInteger("port"),
+                        connConfig.getBoolean("secureConn"));
 
                 binddn = "cn=Replication Manager masterAgreement1-" + mConfig.getHostname() + "-" +
                         mConfig.getInstanceID() + ",cn=config";
 
             } else if (tags.equals("CA LDAP Publishing")) {
 
+                LDAPConfig publishConfig = config.getSubStore("ca.publish.ldappublish.ldap", LDAPConfig.class);
+
                 authType = config.getString("ca.publish.ldappublish.ldap.ldapauth.authtype", "BasicAuth");
                 if (!authType.equals("BasicAuth"))
                     continue;
 
+                LDAPConnectionConfig publishConnConfig = publishConfig.getConnectionConfig();
+
                 connInfo = new LdapConnInfo(
-                        config.getString("ca.publish.ldappublish.ldap.ldapconn.host"),
-                        config.getInteger("ca.publish.ldappublish.ldap.ldapconn.port"),
-                        config.getBoolean("ca.publish.ldappublish.ldap.ldapconn.secureConn"));
+                        publishConnConfig.getString("host"),
+                        publishConnConfig.getInteger("port"),
+                        publishConnConfig.getBoolean("secureConn"));
 
                 binddn = config.getString("ca.publish.ldappublish.ldap.ldapauth.bindDN");
 
@@ -317,15 +323,19 @@ public class CMSEngine implements ISubsystem {
                 }
                 logger.debug("CMSEngine.initializePasswordStore(): authPrefix=" + authPrefix);
 
+                LDAPConfig prefixConfig = config.getSubStore(authPrefix + ".ldap", LDAPConfig.class);
+
                 authType = config.getString(authPrefix +".ldap.ldapauth.authtype", "BasicAuth");
                 logger.debug("CMSEngine.initializePasswordStore(): authType " + authType);
                 if (!authType.equals("BasicAuth"))
                     continue;
 
+                LDAPConnectionConfig prefixConnConfig = prefixConfig.getConnectionConfig();
+
                 connInfo = new LdapConnInfo(
-                        config.getString(authPrefix + ".ldap.ldapconn.host"),
-                        config.getInteger(authPrefix + ".ldap.ldapconn.port"),
-                        config.getBoolean(authPrefix + ".ldap.ldapconn.secureConn"));
+                        prefixConnConfig.getString("host"),
+                        prefixConnConfig.getInteger("port"),
+                        prefixConnConfig.getBoolean("secureConn"));
 
                 binddn = config.getString(authPrefix + ".ldap.ldapauth.bindDN", null);
                 if (binddn == null) {

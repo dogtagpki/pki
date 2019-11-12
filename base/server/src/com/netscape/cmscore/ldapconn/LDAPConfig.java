@@ -43,4 +43,8 @@ public class LDAPConfig extends PropConfigStore {
     public void setBaseDN(String baseDN) {
         putString("basedn", baseDN);
     }
+
+    public LDAPConnectionConfig getConnectionConfig() {
+        return getSubStore("ldapconn", LDAPConnectionConfig.class);
+    }
 }

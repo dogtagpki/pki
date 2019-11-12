@@ -49,7 +49,6 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
     public static final String PROP_MINCONNS = "minConns";
     public static final String PROP_MAXCONNS = "maxConns";
     public static final String PROP_MAXRESULTS = "maxResults";
-    public static final String PROP_LDAPCONNINFO = "ldapconn";
 
     public static final String PROP_ERROR_IF_DOWN = "errorIfDown";
 
@@ -162,7 +161,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         this.mMaxConns = dbConfig.getInteger(PROP_MAXCONNS, mMaxConns);
         this.mMaxResults = dbConfig.getInteger(PROP_MAXRESULTS, mMaxResults);
 
-        this.mConnInfo = new LdapConnInfo(dbConfig.getSubStore(PROP_LDAPCONNINFO));
+        this.mConnInfo = new LdapConnInfo(dbConfig.getConnectionConfig());
 
         mErrorIfDown = dbConfig.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
 

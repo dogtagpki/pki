@@ -204,7 +204,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         this.mMaxConns = dbConfig.getInteger(PROP_MAXCONNS, mMaxConns);
         this.mMaxResults = dbConfig.getInteger(PROP_MAXRESULTS, mMaxResults);
 
-        IConfigStore connConfig = dbConfig.getSubStore(PROP_LDAPCONNINFO);
+        LDAPConnectionConfig connConfig = dbConfig.getConnectionConfig();
         this.mConnInfo = new LdapConnInfo(connConfig);
 
         IConfigStore authConfig = dbConfig.getSubStore(PROP_LDAPAUTHINFO);

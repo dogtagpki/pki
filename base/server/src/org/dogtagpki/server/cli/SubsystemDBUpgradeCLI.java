@@ -33,6 +33,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -82,7 +83,7 @@ public class SubsystemDBUpgradeCLI extends CommandCLI {
         passwordStore.init(pwdPath);
         passwordStore.setId(instanceId);
 
-        IConfigStore connConfig = ldapConfig.getSubStore("ldapconn");
+        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
         IConfigStore authConfig = ldapConfig.getSubStore("ldapauth");
 
         LdapConnInfo connInfo = new LdapConnInfo(connConfig);
