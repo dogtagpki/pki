@@ -34,6 +34,7 @@ import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -66,7 +67,7 @@ public class AttributePresentConstraints extends APolicyRule
     protected String mImplName = null;
 
     private IConfigStore mConfig = null;
-    private IConfigStore mLdapConfig = null;
+    private LDAPConfig mLdapConfig;
     private LdapBoundConnFactory mConnFactory;
     private LDAPConnection mCheckAttrLdapConnection = null;
 
@@ -261,7 +262,7 @@ public class AttributePresentConstraints extends APolicyRule
         getStringConfigParam(mConfig, PROP_ATTR);
         getStringConfigParam(mConfig, PROP_VALUE);
 
-        mLdapConfig = mConfig.getSubStore(PROP_LDAP);
+        mLdapConfig = mConfig.getSubStore(PROP_LDAP, LDAPConfig.class);
 
         mConnFactory = new LdapBoundConnFactory("AttributePresentConstraints");
         mConnFactory.init(cs, mLdapConfig, engine.getPasswordStore());

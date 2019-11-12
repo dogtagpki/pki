@@ -40,7 +40,6 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
@@ -48,6 +47,7 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -145,7 +145,7 @@ public class SharedSecret extends DirBasedAuthentication
     //protected boolean mRemoveShrTok = DEF_REMOVE_SharedToken;
     protected String mShrTokAttr = DEF_SharedToken_ATTR;
     private LdapBoundConnFactory shrTokLdapFactory;
-    private IConfigStore shrTokLdapConfigStore = null;
+    private LDAPConfig shrTokLdapConfigStore;
 
     private PrivateKey issuanceProtPrivKey = null;
     protected CryptoToken token = null;
@@ -220,7 +220,7 @@ public class SharedSecret extends DirBasedAuthentication
      * initLadapConn initializes ldap connection for shared token based
      * CMC enrollment.
      */
-    public void initLdapConn(IConfigStore config)
+    public void initLdapConn(AuthManagerConfig config)
            throws EBaseException {
         String method = "SharedSecret.initLdapConn";
         String msg = "";
@@ -228,7 +228,7 @@ public class SharedSecret extends DirBasedAuthentication
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        shrTokLdapConfigStore = config.getSubStore("ldap");
+        shrTokLdapConfigStore = config.getLDAPConfig();
         if (shrTokLdapConfigStore == null) {
             msg = method + "config substore ldap null";
             logger.error(msg);

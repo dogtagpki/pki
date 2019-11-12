@@ -51,6 +51,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPConnection;
@@ -126,7 +127,7 @@ public class LdapPublishModule implements ILdapPublishModule {
         mPubProcessor = p;
         mConfig = config;
 
-        IConfigStore ldapCfg = mConfig.getSubStore("ldap");
+        LDAPConfig ldapCfg = mConfig.getSubStore("ldap", LDAPConfig.class);
         mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
         mLdapConnFactory.init(cs, ldapCfg, engine.getPasswordStore());
 
@@ -147,7 +148,7 @@ public class LdapPublishModule implements ILdapPublishModule {
         mAuthority = authority;
         mConfig = config;
 
-        IConfigStore ldapCfg = mConfig.getSubStore("ldap");
+        LDAPConfig ldapCfg = mConfig.getSubStore("ldap", LDAPConfig.class);
         mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
         mLdapConnFactory.init(cs, ldapCfg, engine.getPasswordStore());
 

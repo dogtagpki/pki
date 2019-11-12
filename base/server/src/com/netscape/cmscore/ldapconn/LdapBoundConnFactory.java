@@ -185,7 +185,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
 
     public void init(
             IConfigStore config,
-            IConfigStore dbConfig,
+            LDAPConfig dbConfig,
             IPasswordStore passwordStore
             ) throws EBaseException, ELdapException {
 
@@ -194,7 +194,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         init(config, dbConfig);
     }
 
-    public void init(IConfigStore config, IConfigStore dbConfig) throws EBaseException, ELdapException {
+    public void init(IConfigStore config, LDAPConfig dbConfig) throws EBaseException, ELdapException {
 
         logger.debug("LdapBoundConnFactory: initialization");
 

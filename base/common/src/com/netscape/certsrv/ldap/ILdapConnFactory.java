@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-
 import netscape.ldap.LDAPConnection;
 
 /**
@@ -30,16 +27,6 @@ import netscape.ldap.LDAPConnection;
  * @version $Revision$, $Date$
  */
 public interface ILdapConnFactory {
-
-    /**
-     * Initialize the poll from the config store.
-     *
-     * @param config The configuration substore.
-     * @exception EBaseException On configuration error.
-     * @exception ELdapException On all other errors.
-     */
-    public void init(IConfigStore config, IConfigStore dbConfig)
-            throws EBaseException, ELdapException;
 
     /**
      *
