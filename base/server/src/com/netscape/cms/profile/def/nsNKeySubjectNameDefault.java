@@ -35,6 +35,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -78,7 +79,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
     /* ldap configuration sub-store */
     boolean mInitialized = false;
     protected IConfigStore mInstConfig;
-    protected IConfigStore mLdapConfig;
+    protected LDAPConfig mLdapConfig;
     protected IConfigStore mParamsConfig;
 
     /* ldap base dn */
@@ -267,7 +268,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
             // cfu - XXX do more error handling here later
             /* initialize ldap server configuration */
             mParamsConfig = mInstConfig.getSubStore(PROP_PARAMS);
-            mLdapConfig = mParamsConfig.getSubStore(PROP_LDAP);
+            mLdapConfig = mParamsConfig.getSubStore(PROP_LDAP, LDAPConfig.class);
             mBaseDN = mParamsConfig.getString(CONFIG_LDAP_BASEDN, null);
 
             mConnFactory = new LdapAnonConnFactory("nsNKeySubjectNameDefault");

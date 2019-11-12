@@ -152,7 +152,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         init();
     }
 
-    public void init(IConfigStore config, IConfigStore dbConfig) throws EBaseException, ELdapException {
+    public void init(IConfigStore config, LDAPConfig dbConfig) throws EBaseException, ELdapException {
 
         logger.debug("LdapAnonConnFactory: initialization");
 
