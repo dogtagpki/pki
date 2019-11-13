@@ -167,7 +167,6 @@ import netscape.ldap.LDAPDN;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
 
 /**
@@ -1651,26 +1650,22 @@ public class Configurator {
                 ldapConfigurator.checkForConflictingMappings(database, baseDN);
             }
 
+            if (mappingEntry != null && createNewDB) {
+                logger.debug("Configurator: Deleting mapping entry " + mappingDN);
+                ldapConfigurator.deleteEntry(mappingDN);
+            }
+
+            if (databaseEntry != null && createNewDB) {
+                logger.debug("Configurator: Deleting database entry " + databaseDN);
+                ldapConfigurator.deleteEntry(databaseDN);
+            }
+
+            if (baseEntry != null && (createNewDB || !select.equals("clone") || setupReplication)) {
+                logger.debug("Configurator: Deleting subtree " + baseDN);
+                ldapConfigurator.deleteEntry(baseDN);
+            }
+
             if (createNewDB) {
-
-                // delete mapping entry
-                if (mappingEntry != null) {
-                    logger.debug("populateDB: Deleting mapping " + mappingDN);
-                    deleteSubtree(conn, mappingDN);
-                }
-
-                // delete the database including the subtree data
-                if (databaseEntry != null) {
-                    logger.debug("populateDB: Deleting database " + database);
-                    deleteSubtree(conn, databaseDN);
-                }
-
-                // delete subtree data in case it's stored by another database
-                if (baseEntry != null) {
-                    logger.debug("populateDB: Deleting subtree " + baseDN);
-                    deleteSubtree(conn, baseDN);
-                }
-
                 createDatabaseEntry(baseDN, database, conn, databaseDN);
                 createDatabaseMappingEntry(baseDN, database, conn, mappingDN);
                 createBaseEntry(baseDN, conn);
@@ -1680,12 +1675,6 @@ public class Configurator {
                     // and not setting up replication agreements.  The assumption then is
                     // that the data is already replicated.  No need to set up the base DN
                 } else {
-                    // delete subtree data in case it's stored by another database
-                    if (baseEntry != null) {
-                        logger.debug("populateDB: Deleting subtree " + baseDN);
-                        deleteSubtree(conn, baseDN);
-                    }
-
                     checkParentExists(baseDN, conn);
                     createBaseEntry(baseDN, conn);
                 }
@@ -1951,50 +1940,6 @@ public class Configurator {
                 }
             }
         }
-    }
-
-    public void deleteSubtree(LDAPConnection conn, String dn) throws EBaseException {
-        String[] excludedDNs = {};
-        try {
-            LDAPSearchResults res = conn.search(
-                    dn, LDAPConnection.SCOPE_BASE, "objectclass=*",
-                    null, true, (LDAPSearchConstraints) null);
-            deleteEntries(res, conn, excludedDNs);
-
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                logger.debug("deleteSubtree: subtree " + dn + " does not exist, ignore");
-            } else {
-                logger.error("deleteSubtree: Unable to delete subtree " + dn + ": " + e);
-                throw new EBaseException("Unable to delete subtree " + dn, e);
-            }
-        }
-    }
-
-    public void deleteEntries(LDAPSearchResults res, LDAPConnection conn, String[] excludedDNs)
-            throws LDAPException {
-        while (res.hasMoreElements()) {
-            LDAPEntry entry = res.next();
-            String dn = entry.getDN();
-
-            LDAPSearchResults res1 = conn.search(
-                    dn, 1, "objectclass=*",
-                    null, true, (LDAPSearchConstraints) null);
-            deleteEntries(res1, conn, excludedDNs);
-            deleteEntry(conn, dn, excludedDNs);
-        }
-    }
-
-    public void deleteEntry(LDAPConnection conn, String dn, String[] excludedDNs) throws LDAPException {
-        for (String excludedDN : excludedDNs) {
-            if (!LDAPDN.equals(dn, excludedDN))
-                continue;
-
-            logger.debug("deleteEntry: entry with this dn " + dn + " is not deleted.");
-            return;
-        }
-
-        conn.delete(dn);
     }
 
     public boolean deleteDir(File dir) {

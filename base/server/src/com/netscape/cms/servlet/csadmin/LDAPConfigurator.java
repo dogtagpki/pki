@@ -87,4 +87,36 @@ public class LDAPConfigurator {
             throw new Exception(message);
         }
     }
+
+    public void deleteEntry(String dn) throws Exception {
+
+        try {
+            LDAPSearchResults results = connection.search(
+                    dn,
+                    LDAPConnection.SCOPE_ONE,
+                    "(objectClass=*)",
+                    null,
+                    true,
+                    (LDAPSearchConstraints) null);
+
+            while (results.hasMoreElements()) {
+                LDAPEntry entry = results.next();
+                deleteEntry(entry.getDN());
+            }
+
+            logger.info("LDAPConfigurator: Deleting LDAP entry " + dn);
+            connection.delete(dn);
+
+        } catch (LDAPException e) {
+
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                logger.warn("LDAPConfigurator: LDAP entry not found: " + dn);
+
+            } else {
+                String message = "Unable to delete " + dn + ": " + e;
+                logger.error(message);
+                throw new Exception(message, e);
+            }
+        }
+    }
 }
