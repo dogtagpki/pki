@@ -1666,7 +1666,11 @@ public class Configurator {
             }
 
             if (createNewDB) {
-                createDatabaseEntry(baseDN, database, conn, databaseDN);
+                logger.debug("Configurator: Creating database entry " + databaseDN);
+                ldapConfigurator.createDatabaseEntry(databaseDN, database, baseDN);
+            }
+
+            if (createNewDB) {
                 createDatabaseMappingEntry(baseDN, database, conn, mappingDN);
                 createBaseEntry(baseDN, conn);
             } else {
@@ -1777,22 +1781,6 @@ public class Configurator {
         } catch (LDAPException e) {
             logger.error("createDatabaseMapping: Unable to add " + mappingDN + ": " + e);
             throw new EBaseException("Failed to create subtree: " + e, e);
-        }
-    }
-
-    private void createDatabaseEntry(String baseDN, String database, LDAPConnection conn, String databaseDN)
-            throws EBaseException {
-        try {
-            LDAPAttributeSet attrs = new LDAPAttributeSet();
-            String oc[] = { "top", "extensibleObject", "nsBackendInstance" };
-            attrs.add(new LDAPAttribute("objectClass", oc));
-            attrs.add(new LDAPAttribute("cn", database));
-            attrs.add(new LDAPAttribute("nsslapd-suffix", baseDN));
-            LDAPEntry entry = new LDAPEntry(databaseDN, attrs);
-            conn.add(entry);
-        } catch (LDAPException e) {
-            logger.error("createDatabase: Unable to add " + databaseDN + ": " + e);
-            throw new EBaseException("Failed to create the database: " + e, e);
         }
     }
 

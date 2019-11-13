@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPDN;
 import netscape.ldap.LDAPEntry;
@@ -164,5 +165,20 @@ public class LDAPConfigurator {
         }
 
         logger.info("LDAPConfigurator: Task " + dn + " complete");
+    }
+
+    public void createDatabaseEntry(String databaseDN, String database, String baseDN) throws Exception {
+
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        attrs.add(new LDAPAttribute("objectClass", new String[] {
+                "top",
+                "extensibleObject",
+                "nsBackendInstance"
+        }));
+        attrs.add(new LDAPAttribute("cn", database));
+        attrs.add(new LDAPAttribute("nsslapd-suffix", baseDN));
+
+        LDAPEntry entry = new LDAPEntry(databaseDN, attrs);
+        connection.add(entry);
     }
 }
