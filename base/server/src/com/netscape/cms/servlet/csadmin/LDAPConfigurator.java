@@ -17,9 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -196,5 +199,26 @@ public class LDAPConfigurator {
 
         LDAPEntry entry = new LDAPEntry(mappingDN, attrs);
         connection.add(entry);
+    }
+
+    public void checkParentExists(String baseDN) throws Exception {
+
+        String[] rdns = LDAPDN.explodeDN(baseDN, false);
+
+        if (rdns.length == 1) {
+            String message = "Base entry has no parent: " + baseDN;
+            logger.error(message);
+            throw new EBaseException(message);
+        }
+
+        String parentDN = Arrays.toString(Arrays.copyOfRange(rdns, 1, rdns.length));
+        parentDN = parentDN.substring(1, parentDN.length() - 1);
+
+        logger.debug("LDAPConfigurator: Checking parent entry " + parentDN);
+        LDAPEntry parentEntry = getEntry(parentDN);
+
+        if (parentEntry == null) {
+            throw new Exception("Parent entry " + parentDN + " does not exist");
+        }
     }
 }

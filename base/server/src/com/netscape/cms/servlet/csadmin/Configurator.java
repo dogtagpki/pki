@@ -41,7 +41,6 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -1675,6 +1674,11 @@ public class Configurator {
                 ldapConfigurator.createMappingEntry(mappingDN, database, baseDN);
             }
 
+            if (!createNewDB && (!select.equals("clone") || setupReplication)) {
+                logger.debug("Configurator: Checking parent entry");
+                ldapConfigurator.checkParentExists(baseDN);
+            }
+
             if (createNewDB) {
                 createBaseEntry(baseDN, conn);
             } else {
@@ -1683,7 +1687,6 @@ public class Configurator {
                     // and not setting up replication agreements.  The assumption then is
                     // that the data is already replicated.  No need to set up the base DN
                 } else {
-                    checkParentExists(baseDN, conn);
                     createBaseEntry(baseDN, conn);
                 }
             }
@@ -1768,28 +1771,6 @@ public class Configurator {
         } catch (LDAPException e) {
             logger.error("createBaseDN: Unable to add " + baseDN + ": " + e);
             throw new EBaseException("Failed to create root entry: " + e, e);
-        }
-    }
-
-    private void checkParentExists(String baseDN, LDAPConnection conn) throws EBaseException {
-        String[] dns = LDAPDN.explodeDN(baseDN, false);
-        if (dns.length == 1) {
-            logger.error("checkParentExists: no parent in baseDN: " + baseDN);
-            throw new EBaseException("Invalid BaseDN. No parent DN in " + baseDN);
-        }
-        String parentDN = Arrays.toString(Arrays.copyOfRange(dns, 1, dns.length));
-        parentDN = parentDN.substring(1, parentDN.length() - 1);
-        try {
-            logger.debug("checkParentExists: Checking parent " + parentDN + ".");
-            conn.read(parentDN);
-            logger.debug("checkParentExists: Parent entry " + parentDN + " exists.");
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                throw new EBaseException("Parent entry " + parentDN + " does not exist", e);
-            } else {
-                logger.error("checkParentExists: " + e);
-                throw new EBaseException("Failed to determine if base DN exists: " + e, e);
-            }
         }
     }
 
