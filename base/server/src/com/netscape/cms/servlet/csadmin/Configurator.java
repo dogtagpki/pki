@@ -1647,9 +1647,11 @@ public class Configurator {
             }
 
             if (createNewDB) {
+                logger.info("Configurator: Checking for conflicting mappings");
+                ldapConfigurator.checkForConflictingMappings(database, baseDN);
+            }
 
-                // check if database is used by another subtree
-                confirmNoConflictingMappingsForDB(baseDN, database, conn);
+            if (createNewDB) {
 
                 // delete mapping entry
                 if (mappingEntry != null) {
@@ -1831,36 +1833,6 @@ public class Configurator {
         } catch (LDAPException e) {
             logger.error("createDatabase: Unable to add " + databaseDN + ": " + e);
             throw new EBaseException("Failed to create the database: " + e, e);
-        }
-    }
-
-    private void confirmNoConflictingMappingsForDB(String baseDN, String database, LDAPConnection conn)
-            throws EBaseException {
-        try {
-            logger.debug("confirmMappings: Checking other subtrees using database " + database + ".");
-            LDAPSearchResults res = conn.search(
-                    "cn=mapping tree, cn=config", LDAPConnection.SCOPE_ONE,
-                    "nsslapd-backend=" + LDAPUtil.escapeFilter(database),
-                    null, false, (LDAPSearchConstraints) null);
-
-            while (res.hasMoreElements()) {
-                LDAPEntry entry = res.next();
-
-                LDAPAttribute cn = entry.getAttribute("cn");
-                String dn = cn.getStringValueArray()[0];
-                if (LDAPDN.equals(baseDN, dn))
-                    continue;
-
-                logger.error("confirmMappings: Database " + database + " is used by " + dn + ".");
-                throw new EBaseException("The database (" + database + ") is used by another base DN. " +
-                        "Please use a different database name.");
-            }
-
-            logger.debug("confirmMappings: Database " + database + " is not used by another subtree.");
-
-        } catch (LDAPException e) {
-            logger.error("populateDB: " + e);
-            throw new EBaseException("Failed to check database mapping: " + e, e);
         }
     }
 

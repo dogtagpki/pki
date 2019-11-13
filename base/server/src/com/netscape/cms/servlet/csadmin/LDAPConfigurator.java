@@ -20,9 +20,15 @@ package com.netscape.cms.servlet.csadmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.cmsutil.ldap.LDAPUtil;
+
+import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
 
 public class LDAPConfigurator {
 
@@ -52,6 +58,33 @@ public class LDAPConfigurator {
                 logger.error(message);
                 throw new Exception(message, e);
             }
+        }
+    }
+
+    public void checkForConflictingMappings(String database, String baseDN) throws Exception {
+
+        logger.info("LDAPConfigurator: Searching for mappings using database " + database);
+
+        LDAPSearchResults res = connection.search(
+                "cn=mapping tree, cn=config",
+                LDAPConnection.SCOPE_ONE,
+                "(nsslapd-backend=" + LDAPUtil.escapeFilter(database) + ")",
+                null,
+                false,
+                (LDAPSearchConstraints) null);
+
+        while (res.hasMoreElements()) {
+            LDAPEntry entry = res.next();
+            LDAPAttribute cn = entry.getAttribute("cn");
+            String dn = cn.getStringValueArray()[0];
+
+            if (LDAPDN.equals(dn, baseDN)) {
+                continue;
+            }
+
+            String message = "Database " + database + " is used by " + dn;
+            logger.error(message);
+            throw new Exception(message);
         }
     }
 }
