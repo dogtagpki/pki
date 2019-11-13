@@ -1624,11 +1624,18 @@ public class Configurator {
                 }
             }
 
-            if (createNewDB) {
+            String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
+            LDAPEntry mappingEntry = null;
 
-                // check if mapping entry already exists
-                String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
-                LDAPEntry mappingEntry = getMappingEntry(baseDN, remove, conn, mappingDN);
+            if (createNewDB) {
+                logger.info("Configurator: Checking mapping entry " + mappingDN);
+                mappingEntry = ldapConfigurator.getEntry(mappingDN);
+                if (mappingEntry != null && !remove) {
+                    throw new Exception(mappingDN + " already exists");
+                }
+            }
+
+            if (createNewDB) {
 
                 // check if the database already exists
                 String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) +
@@ -1873,30 +1880,6 @@ public class Configurator {
             }
         }
         return databaseEntry;
-    }
-
-    private LDAPEntry getMappingEntry(String baseDN, boolean remove, LDAPConnection conn, String mappingDN)
-            throws EBaseException {
-        LDAPEntry mappingEntry = null;
-        try {
-            logger.debug("getMappingDNEntry: Checking subtree " + baseDN + " mapping.");
-            mappingEntry = conn.read(mappingDN);
-            logger.debug("getMapppingDNEntry: Mapping for subtree " + baseDN + " already exists.");
-
-            if (!remove) {
-                throw new EBaseException("The base DN (" + baseDN + ") has already been used. " +
-                        "Please confirm to remove and reuse this base DN.");
-            }
-
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                logger.warn("getMappingDNEntry: Mapping for subtree " + baseDN + " does not exist.");
-            } else {
-                logger.error("getMappingDNEntry: " + e);
-                throw new EBaseException("Failed to determine if mapping entry exists: " + e, e);
-            }
-        }
-        return mappingEntry;
     }
 
     private void checkParentExists(String baseDN, LDAPConnection conn) throws EBaseException {
