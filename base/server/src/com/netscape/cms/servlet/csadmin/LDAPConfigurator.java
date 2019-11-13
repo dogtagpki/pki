@@ -40,6 +40,10 @@ public class LDAPConfigurator {
         this.connection = connection;
     }
 
+    public LDAPConnection getConnection() {
+        return connection;
+    }
+
     public LDAPEntry getEntry(String dn) throws Exception {
 
         logger.info("LDAPConfigurator: Getting LDAP entry " + dn);
@@ -118,5 +122,47 @@ public class LDAPConfigurator {
                 throw new Exception(message, e);
             }
         }
+    }
+
+    public void waitForTask(String dn) throws Exception {
+
+        String returnCode = null;
+        int count = 0;
+        int maxCount = 0; // TODO: make it configurable
+
+        while (maxCount <= 0 || count < maxCount) {
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // restore the interrupted status
+                Thread.currentThread().interrupt();
+            }
+
+            count++;
+            logger.info("LDAPConfigurator: Waiting for task " + dn + " (" + count + "s)");
+
+            try {
+                LDAPEntry task = getEntry(dn);
+                if (task == null) continue;
+
+                LDAPAttribute attr = task.getAttribute("nsTaskExitCode");
+                if (attr == null) continue;
+
+                returnCode = attr.getStringValues().nextElement();
+                break;
+
+            } catch (Exception e) {
+                logger.warn("LDAPConfigurator: Unable to read task " + dn + ": " + e);
+            }
+        }
+
+        if (returnCode == null || !"0".equals(returnCode)) {
+            String message = "Task " + dn + " failed: nsTaskExitCode=" + returnCode;
+            logger.error(message);
+            throw new Exception(message);
+        }
+
+        logger.info("LDAPConfigurator: Task " + dn + " complete");
     }
 }

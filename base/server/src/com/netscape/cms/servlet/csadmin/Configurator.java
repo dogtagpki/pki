@@ -1701,11 +1701,6 @@ public class Configurator {
                     // add the index before replication, add VLV indexes afterwards
                     importLDIFS("preop.internaldb.index_ldif", conn);
 
-                    if (!setupReplication && reindexData) {
-                        // data has already been replicated but not yet indexed -
-                        // re-index here
-                        populateIndexes(conn);
-                    }
                 } else {
                     // this is the normal non-clone case
                     // import schema, database, initial data and indexes
@@ -1714,57 +1709,33 @@ public class Configurator {
                     importLDIFS("preop.internaldb.data_ldif", conn);
                     importLDIFS("preop.internaldb.index_ldif", conn);
                 }
+
             } catch (Exception e) {
                 logger.error("Failed to import ldif files: " + e);
                 throw new EBaseException("Failed to import ldif files: " + e, e);
             }
+
+            if (select.equals("clone") && !setupReplication && reindexData) {
+                // data has already been replicated but not yet indexed -
+                // re-index here
+                populateIndexes(ldapConfigurator);
+            }
+
         } finally {
             releaseConnection(conn);
         }
     }
 
-    private void populateIndexes(LDAPConnection conn) throws EPropertyNotFound, IOException, EBaseException {
-        logger.debug("populateIndexes(): start");
+    private void populateIndexes(LDAPConfigurator ldapConfigurator) throws Exception {
 
-        importLDIFS("preop.internaldb.index_task_ldif", conn, false);
+        logger.info("Configurator: Generating indexes");
+        importLDIFS("preop.internaldb.index_task_ldif", ldapConfigurator.getConnection(), false);
 
-        /* For populating indexes, we need to check if the task has completed.
-           Presence of nsTaskExitCode means task is complete
-         */
+        logger.info("Configurator: Waiting for indexing to complete");
         String wait_dn = cs.getString("preop.internaldb.index_wait_dn", "");
         if (!StringUtils.isEmpty(wait_dn)) {
-            wait_for_task(conn, wait_dn);
+            ldapConfigurator.waitForTask(wait_dn);
         }
-    }
-
-    private void wait_for_task(LDAPConnection conn, String wait_dn) {
-        LDAPEntry task = null;
-        boolean taskComplete = false;
-        logger.debug("Checking wait_dn " + wait_dn);
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // restore the interrupted status
-                Thread.currentThread().interrupt();
-            }
-
-            try {
-                task = conn.read(wait_dn, (String[]) null);
-                if (task != null) {
-                    LDAPAttribute attr = task.getAttribute("nsTaskExitCode");
-                    if (attr != null) {
-                        taskComplete = true;
-                        String val = attr.getStringValues().nextElement();
-                        if (val.compareTo("0") != 0) {
-                            logger.debug("Error in populating indexes: nsTaskExitCode=" + val);
-                        }
-                    }
-                }
-            } catch (Exception le) {
-                logger.info("Still checking wait_dn '" + wait_dn + "' (" + le + ")");
-            }
-        } while (!taskComplete);
     }
 
     private void createBaseEntry(String baseDN, LDAPConnection conn) throws EBaseException {
@@ -1977,7 +1948,6 @@ public class Configurator {
     }
 
     public void populateVLVIndexes() throws Exception {
-        logger.debug("populateVLVIndexes(): start");
 
         CMSEngine engine = CMS.getCMSEngine();
 
@@ -1986,20 +1956,18 @@ public class Configurator {
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn);
 
         try {
+            logger.info("Configurator: Generating VLV indexes");
             importLDIFS("preop.internaldb.post_ldif", conn);
 
-            /* For vlvtask, we need to check if the task has
-               been completed or not.  Presence of nsTaskExitCode means task is complete
-             */
+            logger.info("Configurator: Waiting for VLV indexing to complete");
             String wait_dn = cs.getString("preop.internaldb.wait_dn", "");
             if (!wait_dn.equals("")) {
-                wait_for_task(conn, wait_dn);
+                ldapConfigurator.waitForTask(wait_dn);
             }
-        } catch (Exception e) {
-            logger.error("populateVLVIndexes(): Exception thrown: " + e);
-            throw e;
+
         } finally {
             releaseConnection(conn);
         }
