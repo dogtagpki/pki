@@ -1635,12 +1635,18 @@ public class Configurator {
                 }
             }
 
-            if (createNewDB) {
+            String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
+            LDAPEntry databaseEntry = null;
 
-                // check if the database already exists
-                String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) +
-                        ",cn=ldbm database, cn=plugins, cn=config";
-                LDAPEntry databaseEntry = getDatabaseEntry(database, remove, conn, databaseDN);
+            if (createNewDB) {
+                logger.info("Configurator: Checking database entry " + databaseDN);
+                databaseEntry = ldapConfigurator.getEntry(databaseDN);
+                if (databaseEntry != null && !remove) {
+                    throw new Exception(databaseDN + " already exists");
+                }
+            }
+
+            if (createNewDB) {
 
                 // check if database is used by another subtree
                 confirmNoConflictingMappingsForDB(baseDN, database, conn);
@@ -1856,30 +1862,6 @@ public class Configurator {
             logger.error("populateDB: " + e);
             throw new EBaseException("Failed to check database mapping: " + e, e);
         }
-    }
-
-    private LDAPEntry getDatabaseEntry(String database, boolean remove, LDAPConnection conn, String databaseDN)
-            throws EBaseException {
-        LDAPEntry databaseEntry = null;
-        try {
-            logger.debug("getDatabaseEntry: Checking database " + database + ".");
-            databaseEntry = conn.read(databaseDN);
-            logger.debug("getDatabaseEntry: Database " + database + " already exists.");
-
-            if (!remove) {
-                throw new EBaseException("The database (" + database + ") already exists. " +
-                        "Please confirm to remove and reuse this database.");
-            }
-
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                logger.warn("getDatabaseEntry: Database " + database + " does not exist.");
-            } else {
-                logger.error("getDatabaseEntry: " + e);
-                throw new EBaseException("Failed to determine if database exists: " + e, e);
-            }
-        }
-        return databaseEntry;
     }
 
     private void checkParentExists(String baseDN, LDAPConnection conn) throws EBaseException {
