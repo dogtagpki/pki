@@ -1671,7 +1671,11 @@ public class Configurator {
             }
 
             if (createNewDB) {
-                createDatabaseMappingEntry(baseDN, database, conn, mappingDN);
+                logger.debug("Configurator: Creating mapping entry " + mappingDN);
+                ldapConfigurator.createMappingEntry(mappingDN, database, baseDN);
+            }
+
+            if (createNewDB) {
                 createBaseEntry(baseDN, conn);
             } else {
                 if (select.equals("clone") && !setupReplication) {
@@ -1764,23 +1768,6 @@ public class Configurator {
         } catch (LDAPException e) {
             logger.error("createBaseDN: Unable to add " + baseDN + ": " + e);
             throw new EBaseException("Failed to create root entry: " + e, e);
-        }
-    }
-
-    private void createDatabaseMappingEntry(String baseDN, String database, LDAPConnection conn, String mappingDN)
-            throws EBaseException {
-        try {
-            LDAPAttributeSet attrs = new LDAPAttributeSet();
-            String oc2[] = { "top", "extensibleObject", "nsMappingTree" };
-            attrs.add(new LDAPAttribute("objectClass", oc2));
-            attrs.add(new LDAPAttribute("cn", baseDN));
-            attrs.add(new LDAPAttribute("nsslapd-backend", database));
-            attrs.add(new LDAPAttribute("nsslapd-state", "Backend"));
-            LDAPEntry entry = new LDAPEntry(mappingDN, attrs);
-            conn.add(entry);
-        } catch (LDAPException e) {
-            logger.error("createDatabaseMapping: Unable to add " + mappingDN + ": " + e);
-            throw new EBaseException("Failed to create subtree: " + e, e);
         }
     }
 

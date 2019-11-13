@@ -181,4 +181,20 @@ public class LDAPConfigurator {
         LDAPEntry entry = new LDAPEntry(databaseDN, attrs);
         connection.add(entry);
     }
+
+    public void createMappingEntry(String mappingDN, String database, String baseDN) throws Exception {
+
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        attrs.add(new LDAPAttribute("objectClass", new String[] {
+                "top",
+                "extensibleObject",
+                "nsMappingTree"
+        }));
+        attrs.add(new LDAPAttribute("cn", baseDN));
+        attrs.add(new LDAPAttribute("nsslapd-backend", database));
+        attrs.add(new LDAPAttribute("nsslapd-state", "Backend"));
+
+        LDAPEntry entry = new LDAPEntry(mappingDN, attrs);
+        connection.add(entry);
+    }
 }
