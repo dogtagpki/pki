@@ -1594,7 +1594,7 @@ public class Configurator {
         }
     }
 
-    public void populateDB() throws IOException, EBaseException {
+    public void populateDB() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
 
@@ -1611,11 +1611,20 @@ public class Configurator {
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn);
 
         try {
+            LDAPEntry baseEntry = null;
+
+            if (createNewDB || !select.equals("clone") || setupReplication) {
+                logger.info("Configurator: Checking subtree " + baseDN);
+                baseEntry = ldapConfigurator.getEntry(baseDN);
+                if (baseEntry != null && !remove) {
+                    throw new Exception(baseDN + " already exists");
+                }
+            }
+
             if (createNewDB) {
-                // check if base entry already exists
-                LDAPEntry baseEntry = getBaseEntry(baseDN, remove, conn);
 
                 // check if mapping entry already exists
                 String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
@@ -1656,9 +1665,6 @@ public class Configurator {
                     // and not setting up replication agreements.  The assumption then is
                     // that the data is already replicated.  No need to set up the base DN
                 } else {
-                    // check if base entry already exists
-                    LDAPEntry baseEntry = getBaseEntry(baseDN, remove, conn);
-
                     // delete subtree data in case it's stored by another database
                     if (baseEntry != null) {
                         logger.debug("populateDB: Deleting subtree " + baseDN);
@@ -1891,29 +1897,6 @@ public class Configurator {
             }
         }
         return mappingEntry;
-    }
-
-    private LDAPEntry getBaseEntry(String baseDN, boolean remove, LDAPConnection conn) throws EBaseException {
-        LDAPEntry baseEntry = null;
-        try {
-            logger.debug("getBaseDNEntry: Checking subtree " + baseDN + ".");
-            baseEntry = conn.read(baseDN);
-            logger.debug("getBaseDNEntry: Subtree " + baseDN + " already exists.");
-
-            if (!remove) {
-                throw new EBaseException("The base DN (" + baseDN + ") has already been used. " +
-                        "Please confirm to remove and reuse this base DN.");
-            }
-
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                logger.warn("getBaseDNEntry: Subtree " + baseDN + " does not exist.");
-            } else {
-                logger.error("getBaseDNEntry: " + e);
-                throw new EBaseException("Failed to determine if base DN exists: " + e, e);
-            }
-        }
-        return baseEntry;
     }
 
     private void checkParentExists(String baseDN, LDAPConnection conn) throws EBaseException {
