@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.util.Arrays;
+import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -220,5 +221,27 @@ public class LDAPConfigurator {
         if (parentEntry == null) {
             throw new Exception("Parent entry " + parentDN + " does not exist");
         }
+    }
+
+    public void createBaseEntry(String baseDN) throws Exception {
+
+        String[] rdns = LDAPDN.explodeDN(baseDN, false);
+
+        StringTokenizer st = new StringTokenizer(rdns[0], "=");
+        String name = st.nextToken();
+        String value = st.nextToken();
+
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        String[] oc = { "top", "domain" };
+        if (name.equals("o")) {
+            oc[1] = "organization";
+        } else if (name.equals("ou")) {
+            oc[1] = "organizationalUnit";
+        }
+        attrs.add(new LDAPAttribute("objectClass", oc));
+        attrs.add(new LDAPAttribute(name, value));
+
+        LDAPEntry entry = new LDAPEntry(baseDN, attrs);
+        connection.add(entry);
     }
 }

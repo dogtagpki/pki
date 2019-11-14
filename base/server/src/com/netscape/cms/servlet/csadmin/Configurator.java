@@ -1650,45 +1650,43 @@ public class Configurator {
             }
 
             if (mappingEntry != null && createNewDB) {
-                logger.debug("Configurator: Deleting mapping entry " + mappingDN);
+                logger.info("Configurator: Deleting mapping entry " + mappingDN);
                 ldapConfigurator.deleteEntry(mappingDN);
             }
 
             if (databaseEntry != null && createNewDB) {
-                logger.debug("Configurator: Deleting database entry " + databaseDN);
+                logger.info("Configurator: Deleting database entry " + databaseDN);
                 ldapConfigurator.deleteEntry(databaseDN);
             }
 
             if (baseEntry != null && (createNewDB || !select.equals("clone") || setupReplication)) {
-                logger.debug("Configurator: Deleting subtree " + baseDN);
+                logger.info("Configurator: Deleting subtree " + baseDN);
                 ldapConfigurator.deleteEntry(baseDN);
             }
 
             if (createNewDB) {
-                logger.debug("Configurator: Creating database entry " + databaseDN);
+                logger.info("Configurator: Creating database entry " + databaseDN);
                 ldapConfigurator.createDatabaseEntry(databaseDN, database, baseDN);
             }
 
             if (createNewDB) {
-                logger.debug("Configurator: Creating mapping entry " + mappingDN);
+                logger.info("Configurator: Creating mapping entry " + mappingDN);
                 ldapConfigurator.createMappingEntry(mappingDN, database, baseDN);
             }
 
             if (!createNewDB && (!select.equals("clone") || setupReplication)) {
-                logger.debug("Configurator: Checking parent entry");
+                logger.info("Configurator: Checking parent entry");
                 ldapConfigurator.checkParentExists(baseDN);
             }
 
-            if (createNewDB) {
-                createBaseEntry(baseDN, conn);
+            if (createNewDB || !select.equals("clone") || setupReplication) {
+                logger.info("Configurator: Creating base entry " + baseDN);
+                ldapConfigurator.createBaseEntry(baseDN);
+
             } else {
-                if (select.equals("clone") && !setupReplication) {
-                    // cloning a system where the database is a subtree of an existing tree
-                    // and not setting up replication agreements.  The assumption then is
-                    // that the data is already replicated.  No need to set up the base DN
-                } else {
-                    createBaseEntry(baseDN, conn);
-                }
+                // cloning a system where the database is a subtree of an existing tree
+                // and not setting up replication agreements. The assumption then is
+                // that the data is already replicated. No need to set up the base DN
             }
 
             try {
@@ -1746,31 +1744,6 @@ public class Configurator {
         String wait_dn = cs.getString("preop.internaldb.index_wait_dn", "");
         if (!StringUtils.isEmpty(wait_dn)) {
             ldapConfigurator.waitForTask(wait_dn);
-        }
-    }
-
-    private void createBaseEntry(String baseDN, LDAPConnection conn) throws EBaseException {
-        try {
-            logger.debug("Creating base DN: " + baseDN);
-            String dns3[] = LDAPDN.explodeDN(baseDN, false);
-            StringTokenizer st = new StringTokenizer(dns3[0], "=");
-            String n = st.nextToken();
-            String v = st.nextToken();
-            LDAPAttributeSet attrs = new LDAPAttributeSet();
-            String oc3[] = { "top", "domain" };
-            if (n.equals("o")) {
-                oc3[1] = "organization";
-            } else if (n.equals("ou")) {
-                oc3[1] = "organizationalUnit";
-            }
-            attrs.add(new LDAPAttribute("objectClass", oc3));
-            attrs.add(new LDAPAttribute(n, v));
-
-            LDAPEntry entry = new LDAPEntry(baseDN, attrs);
-            conn.add(entry);
-        } catch (LDAPException e) {
-            logger.error("createBaseDN: Unable to add " + baseDN + ": " + e);
-            throw new EBaseException("Failed to create root entry: " + e, e);
         }
     }
 
