@@ -49,10 +49,14 @@ public class AccountClient extends Client {
         loggedIn = true;
 
         logger.info("Account:");
-        logger.info(" - User ID: " + info.getID());
-        logger.info(" - Full Name: " + info.getFullName());
-        logger.info(" - Email: " + info.getEmail());
-        logger.info(" - Roles: " + info.getRoles());
+        logger.info("- User ID: " + info.getID());
+        logger.info("- Full Name: " + info.getFullName());
+        logger.info("- Email: " + info.getEmail());
+
+        logger.info("- Roles:");
+        for (String role : info.getRoles()) {
+            logger.info("  - " + role);
+        }
 
         return info;
     }

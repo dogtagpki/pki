@@ -751,7 +751,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
             logger.debug("Adding " + LDAP_ATTR_PROFILE_ID + ":");
             LDAPAttribute attr = new LDAPAttribute(LDAP_ATTR_PROFILE_ID);
             for (String profile : profiles) {
-                logger.debug(" - " + profile);
+                logger.debug("- " + profile);
                 attr.addValue(profile);
             }
             attrs.add(attr);

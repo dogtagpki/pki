@@ -75,10 +75,10 @@ String subjectID = "SYSTEM";
             String reason = SSLAlertDescription.valueOf(description).toString();
 
             logger.debug("SSL alert received:");
-            logger.debug(" - reason: " + reason);
-            logger.debug(" - client: " + clientIP);
-            logger.debug(" - server: " + serverIP);
-            logger.debug(" - subject: " + subjectID);
+            logger.debug("- reason: " + reason);
+            logger.debug("- client: " + clientIP);
+            logger.debug("- server: " + serverIP);
+            logger.debug("- subject: " + subjectID);
 
 
             signedAuditLogger.log(ClientAccessSessionTerminatedEvent.createEvent(
@@ -161,10 +161,10 @@ subjectID = "SYSTEM";
             }
 
             logger.debug("SSL alert sent:");
-            logger.debug(" - reason: " + reason);
-            logger.debug(" - client: " + clientIP);
-            logger.debug(" - server: " + serverIP);
-            logger.debug(" - subject: " + subjectID);
+            logger.debug("- reason: " + reason);
+            logger.debug("- client: " + clientIP);
+            logger.debug("- server: " + serverIP);
+            logger.debug("- subject: " + subjectID);
 
             signedAuditLogger.log(auditEvent);
 
@@ -198,9 +198,9 @@ subjectID = "SYSTEM";
 String subjectID = "SYSTEM";
 
             logger.debug("Handshake completed:");
-            logger.debug(" - client: " + clientIP);
-            logger.debug(" - server: " + serverIP);
-            logger.debug(" - subject: " + subjectID);
+            logger.debug("- client: " + clientIP);
+            logger.debug("- server: " + serverIP);
+            logger.debug("- subject: " + subjectID);
 
             // store socket info in socketInfos map
             Map<String,Object> info = new HashMap<>();

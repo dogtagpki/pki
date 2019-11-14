@@ -60,7 +60,7 @@ public class Nonces extends LinkedHashMap<Object,Long> {
 
         System.out.println("Nonces:");
         for (Object id : nonces.keySet()) {
-            System.out.println(" - "+id+": "+nonces.get(id));
+            System.out.println("- " + id + ": " + nonces.get(id));
         }
 
         System.out.println("Adding 2 more entries.");
@@ -69,7 +69,7 @@ public class Nonces extends LinkedHashMap<Object,Long> {
 
         System.out.println("Nonces:");
         for (Object id : nonces.keySet()) {
-            System.out.println(" - "+id+": "+nonces.get(id));
+            System.out.println("- " + id + ": " + nonces.get(id));
         }
     }
 }

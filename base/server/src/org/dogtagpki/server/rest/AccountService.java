@@ -48,7 +48,7 @@ public class AccountService extends PKIService implements AccountResource {
 
         AccountInfo accountInfo = new AccountInfo();
         String name = principal.getName();
-        logger.info(" - ID: " + name);
+        logger.info("- ID: " + name);
         accountInfo.setID(name);
 
         if (principal instanceof PKIPrincipal) {
@@ -56,19 +56,19 @@ public class AccountService extends PKIService implements AccountResource {
             IUser user = pkiPrincipal.getUser();
 
             String fullName = user.getFullName();
-            logger.info(" - Full Name: " + fullName);
+            logger.info("- Full Name: " + fullName);
             if (!StringUtils.isEmpty(fullName)) accountInfo.setFullName(fullName);
 
             String email = user.getEmail();
-            logger.info(" - Email: " + email);
+            logger.info("- Email: " + email);
             if (!StringUtils.isEmpty(email)) accountInfo.setEmail(email);
         }
 
         if (principal instanceof GenericPrincipal) {
             String[] roles = ((GenericPrincipal) principal).getRoles();
-            logger.info(" - Roles:");
+            logger.info("- Roles:");
             for (String role : roles) {
-                logger.info("   - " + role);
+                logger.info("  - " + role);
             }
             accountInfo.setRoles(Arrays.asList(roles));
         }

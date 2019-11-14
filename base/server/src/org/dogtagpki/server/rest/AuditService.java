@@ -368,7 +368,7 @@ public class AuditService extends SubsystemService implements AuditResource {
         logger.debug("Audit files:");
         for (File file : files) {
             String name = file.getName();
-            logger.debug(" - " + name);
+            logger.debug("- " + name);
 
             AuditFile auditFile = new AuditFile();
             auditFile.setName(name);

@@ -1787,7 +1787,7 @@ public class CertificateAuthority
 
                     // cert file name must be full path
                     String certFileName = chainStore.getString(subtreeName, null);
-                    logger.debug(" - file: " + certFileName);
+                    logger.debug("- file: " + certFileName);
 
                     if ((certFileName == null) || certFileName.equals("")) {
                         logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", "cert file config error"));

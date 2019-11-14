@@ -134,7 +134,14 @@ public class PKIConnection {
 
                 logger.info("HTTP request: " + request.getRequestLine());
                 for (Header header : request.getAllHeaders()) {
-                    logger.info("  " + header.getName() + ": " + header.getValue());
+                    String name = header.getName();
+                    String value = header.getValue();
+
+                    if ("Authorization".equalsIgnoreCase(name)) {
+                        value = "********";
+                    }
+
+                    logger.info("  " + name + ": " + value);
                 }
 
                 if (output != null) {

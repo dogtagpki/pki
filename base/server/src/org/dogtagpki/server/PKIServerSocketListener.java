@@ -71,10 +71,10 @@ public class PKIServerSocketListener implements SSLSocketListener {
             String reason = SSLAlertDescription.valueOf(description).toString();
 
             logger.debug("SSL alert received:");
-            logger.debug(" - reason: " + reason);
-            logger.debug(" - client: " + clientIP);
-            logger.debug(" - server: " + serverIP);
-            logger.debug(" - subject: " + subjectID);
+            logger.debug("- reason: " + reason);
+            logger.debug("- client: " + clientIP);
+            logger.debug("- server: " + serverIP);
+            logger.debug("- subject: " + subjectID);
 
             signedAuditLogger.log(AccessSessionTerminatedEvent.createEvent(
                     clientIP,
@@ -135,10 +135,10 @@ public class PKIServerSocketListener implements SSLSocketListener {
             }
 
             logger.debug("SSL alert sent:");
-            logger.debug(" - reason: " + reason);
-            logger.debug(" - client: " + clientIP);
-            logger.debug(" - server: " + serverIP);
-            logger.debug(" - subject: " + subjectID);
+            logger.debug("- reason: " + reason);
+            logger.debug("- client: " + clientIP);
+            logger.debug("- server: " + serverIP);
+            logger.debug("- subject: " + subjectID);
 
             signedAuditLogger.log(auditEvent);
 
@@ -163,9 +163,9 @@ public class PKIServerSocketListener implements SSLSocketListener {
             String subjectID = subjectDN == null ? "" : subjectDN.toString();
 
             logger.debug("Handshake completed:");
-            logger.debug(" - client: " + clientIP);
-            logger.debug(" - server: " + serverIP);
-            logger.debug(" - subject: " + subjectID);
+            logger.debug("- client: " + clientIP);
+            logger.debug("- server: " + serverIP);
+            logger.debug("- subject: " + subjectID);
 
             // store socket info in socketInfos map
             Map<String,Object> info = new HashMap<>();

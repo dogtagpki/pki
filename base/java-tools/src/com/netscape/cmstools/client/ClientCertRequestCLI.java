@@ -345,14 +345,14 @@ public class ClientCertRequestCLI extends CommandCLI {
 
                 } else {
                     // unknown attribute, ignore
-                    logger.info(" - " + name);
+                    logger.info("- " + name);
                     continue;
                 }
 
                 if (value == null)
                     continue;
 
-                logger.info(" - " + name + ": " + value);
+                logger.info("- " + name + ": " + value);
                 attribute.setValue(value);
             }
         }

@@ -70,8 +70,8 @@ public class ConfigCertApprovalCallback
             SSLCertificateApprovalCallback.ValidityStatus status) {
 
         logger.debug("Server certificate:");
-        logger.debug(" - subject: " + cert.getSubjectDN());
-        logger.debug(" - issuer: " + cert.getIssuerDN());
+        logger.debug("- subject: " + cert.getSubjectDN());
+        logger.debug("- issuer: " + cert.getIssuerDN());
 
         Enumeration<?> errors = status.getReasons();
         boolean result = true;

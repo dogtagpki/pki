@@ -82,7 +82,7 @@ public class CAClientExample {
         System.out.println("Roles:");
 
         for (String role : accountInfo.getRoles()) {
-            System.out.println(" - " + role);
+            System.out.println("- " + role);
         }
 
         caClient.logout();

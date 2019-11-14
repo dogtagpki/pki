@@ -880,7 +880,7 @@ public class Configurator {
                     Node n = list.item(i);
                     NodeList nn = n.getChildNodes();
                     String name = nn.item(0).getNodeValue();
-                    logger.debug(" - " + name);
+                    logger.debug("- " + name);
 
                     Node parent = n.getParentNode();
                     nn = parent.getChildNodes();
@@ -1440,7 +1440,7 @@ public class Configurator {
             name = "preop.cert." + s + ".dn";
             String dn = cs.getString(name);
             list.add(dn);
-            logger.debug(" - " + name + ": " + dn);
+            logger.debug("- " + name + ": " + dn);
         }
 
         return list;

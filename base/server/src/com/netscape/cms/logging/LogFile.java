@@ -315,7 +315,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
             // get event filter
             String strFilter = filterStore.get(eventType);
-            logger.debug(" - " + eventType + ": " + strFilter);
+            logger.debug("- " + eventType + ": " + strFilter);
 
             // parse filter
             JDAPFilter filter = JDAPFilter.getFilter(strFilter);

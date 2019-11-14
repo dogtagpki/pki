@@ -101,7 +101,7 @@ public class PKIRealm extends RealmBase {
             X509CertImpl certImpls[] = new X509CertImpl[certs.length];
             for (int i=0; i<certs.length; i++) {
                 X509Certificate cert = certs[i];
-                logger.info(" - " + cert.getSubjectDN());
+                logger.info("- " + cert.getSubjectDN());
 
                 // Convert sun.security.x509.X509CertImpl to org.mozilla.jss.netscape.security.x509.X509CertImpl
                 certImpls[i] = new X509CertImpl(cert.getEncoded());
@@ -187,7 +187,7 @@ public class PKIRealm extends RealmBase {
             IGroup group = groups.nextElement();
 
             String name = group.getName();
-            logger.info(" - " + name);
+            logger.info("- " + name);
             roles.add(name);
         }
 

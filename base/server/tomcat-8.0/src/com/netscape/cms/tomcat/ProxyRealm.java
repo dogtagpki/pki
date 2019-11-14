@@ -91,7 +91,7 @@ public class ProxyRealm implements Realm {
         }
         logger.info("Authenticating certificate chain:");
         for (X509Certificate cert : certs) {
-            logger.info(" - " + cert.getSubjectDN());
+            logger.info("- " + cert.getSubjectDN());
         }
         return realm.authenticate(certs);
     }
