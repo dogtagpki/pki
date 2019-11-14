@@ -23,9 +23,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
@@ -42,6 +44,8 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -1747,98 +1751,105 @@ public class Configurator {
         }
     }
 
-    public void importLDIFS(String param, LDAPConnection conn) throws EPropertyNotFound, IOException,
-            EBaseException {
+    public void importLDIFS(String param, LDAPConnection conn) throws Exception {
         importLDIFS(param, conn, true);
     }
 
-    public void importLDIFS(String param, LDAPConnection conn, boolean suppressErrors) throws IOException,
-            EPropertyNotFound,
-            EBaseException {
+    public void importLDIFS(String param, LDAPConnection conn, boolean suppressErrors) throws Exception {
 
-        logger.debug("importLDIFS: param=" + param);
-        String v = cs.getString(param);
+        logger.info("Configurator: Importing " + param);
+
+        String filenames = cs.getString(param);
+        StringTokenizer tokenizer = new StringTokenizer(filenames, ",");
+
+        while (tokenizer.hasMoreTokens()) {
+            String filename = tokenizer.nextToken().trim();
+            importLDIF(filename, conn, suppressErrors);
+        }
+    }
+
+    public void importLDIF(String filename, LDAPConnection conn, boolean suppressErrors) throws Exception {
+
+        logger.info("Configurator: Importing " + filename);
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
         String baseDN = ldapConfig.getBaseDN();
         String database = ldapConfig.getString("database");
-        String instancePath = cs.getInstanceDir();
         String instanceId = cs.getInstanceID();
-        String cstype = cs.getType();
-        String dbuser = cs.getString("preop.internaldb.dbuser",
+        String dbuser = cs.getString(
+                "preop.internaldb.dbuser",
                 "uid=" + DBUSER + ",ou=people," + baseDN);
 
-        String configDir = instancePath + File.separator + cstype.toLowerCase() + File.separator + "conf";
+        Map<String, String> map = new HashMap<>();
+        map.put("rootSuffix", baseDN);
+        map.put("database", database);
+        map.put("instanceId", instanceId);
+        map.put("dbuser", dbuser);
 
-        StringTokenizer tokenizer = new StringTokenizer(v, ",");
-        while (tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken().trim();
-            int index = token.lastIndexOf("/");
-            String name = token;
+        File tmpFile = File.createTempFile("pki-" + cs.getType().toLowerCase() + "-", ".ldif");
+        logger.info("Configurator: Creating " + tmpFile);
 
-            if (index != -1) {
-                name = token.substring(index + 1);
-            }
+        try {
+            try (BufferedReader in = new BufferedReader(new FileReader(filename));
+                    PrintWriter out = new PrintWriter(new FileWriter(tmpFile))) {
 
-            logger.debug("importLDIFS(): ldif file = " + token);
-            String filename = configDir + File.separator + name;
+                String line;
 
-            logger.debug("importLDIFS(): ldif file copy to " + filename);
-            PrintStream ps = null;
-            BufferedReader in = null;
+                while ((line = in.readLine()) != null) {
 
-            in = new BufferedReader(new InputStreamReader(new FileInputStream(token), "UTF-8"));
-            ps = new PrintStream(filename, "UTF-8");
-            while (in.ready()) {
-                String s = in.readLine();
-                int n = s.indexOf("{");
+                    int start = line.indexOf("{");
 
-                if (n == -1) {
-                    ps.println(s);
-                } else {
-                    boolean endOfline = false;
+                    if (start == -1) {
+                        out.println(line);
+                        continue;
+                    }
 
-                    while (n != -1) {
-                        ps.print(s.substring(0, n));
-                        int n1 = s.indexOf("}");
-                        String tok = s.substring(n + 1, n1);
+                    boolean eol = false;
 
-                        if (tok.equals("instanceId")) {
-                            ps.print(instanceId);
-                        } else if (tok.equals("rootSuffix")) {
-                            ps.print(baseDN);
-                        } else if (tok.equals("database")) {
-                            ps.print(database);
-                        } else if (tok.equals("dbuser")) {
-                            ps.print(dbuser);
-                        }
-                        if ((s.length() + 1) == n1) {
-                            endOfline = true;
+                    while (start != -1) {
+
+                        out.print(line.substring(0, start));
+
+                        int end = line.indexOf("}");
+                        String name = line.substring(start + 1, end);
+                        String value = map.get(name);
+                        out.print(value);
+
+                        if ((line.length() + 1) == end) {
+                            eol = true;
                             break;
                         }
-                        s = s.substring(n1 + 1);
-                        n = s.indexOf("{");
+
+                        line = line.substring(end + 1);
+                        start = line.indexOf("{");
                     }
 
-                    if (!endOfline) {
-                        ps.println(s);
+                    if (!eol) {
+                        out.println(line);
                     }
                 }
             }
-            in.close();
-            ps.close();
+
+            logger.info("Configurator: Importing " + tmpFile);
 
             ArrayList<String> errors = new ArrayList<String>();
-            LDAPUtil.importLDIF(conn, filename, errors);
-            if (!errors.isEmpty()) {
-                logger.error("importLDIFS(): LDAP Errors in importing " + filename);
-                for (String error : errors) {
-                    logger.error(error);
-                }
-                if (!suppressErrors) {
-                    throw new EBaseException("LDAP Errors in importing " + filename);
-                }
+            LDAPUtil.importLDIF(conn, tmpFile.getAbsolutePath(), errors);
+
+            if (errors.isEmpty()) {
+                return;
             }
+
+            logger.error("Configurator: Errors while importing " + filename);
+            for (String error : errors) {
+                logger.error(error);
+            }
+
+            if (!suppressErrors) {
+                throw new EBaseException("Errors while importing " + filename);
+            }
+
+        } finally {
+            tmpFile.delete();
         }
     }
 
