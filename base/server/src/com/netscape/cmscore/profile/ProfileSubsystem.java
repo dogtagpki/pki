@@ -119,8 +119,6 @@ public class ProfileSubsystem
 
         logger.info("ProfileSubsystem: Creating " + id + " profile");
 
-        IProfile profile = null;
-
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
@@ -128,27 +126,34 @@ public class ProfileSubsystem
             if (configPath == null) {
                 configPath = cs.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
             }
+
         } catch (EBaseException e) {
-            throw new EProfileException("CMS_PROFILE_DELETE_ERROR", e);
+            String message = "Unable to create profile: " + e.getMessage();
+            logger.error(message, e);
+            throw new EProfileException(message, e);
         }
 
         try {
             logger.info("ProfileSubsystem: Loading " + configPath);
             IConfigStore subStoreConfig = engine.createFileConfigStore(configPath);
-            profile = (IProfile) Class.forName(className).newInstance();
 
-            logger.debug("ProfileSubsystem: initializing " + className);
+            logger.debug("ProfileSubsystem: Initializing " + className);
+            IProfile profile = (IProfile) Class.forName(className).newInstance();
             profile.setId(id);
             profile.init(this, subStoreConfig);
+
             mProfiles.put(id, profile);
             mProfileClassIds.put(id, classid);
-            if (isNew)
+
+            if (isNew) {
                 createProfileConfig(id, classid);
+            }
+
             return profile;
 
         } catch (Exception e) {
             // throw exceptions
-            logger.warn("Unable to create profile: " + id + ": " + e.getMessage(), e);
+            logger.warn("Unable to create profile: " + e.getMessage(), e);
         }
 
         return null;
