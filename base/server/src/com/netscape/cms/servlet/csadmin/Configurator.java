@@ -147,6 +147,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmscore.apps.SubsystemConfig;
 import com.netscape.cmscore.apps.SubsystemsConfig;
@@ -192,7 +193,6 @@ public class Configurator {
     public static final String ECC_INTERNAL_ADMIN_CERT_PROFILE = "caECAdminCert";
     public static final String RSA_INTERNAL_ADMIN_CERT_PROFILE = "caAdminCert";
 
-    private static final String PCERT_PREFIX = "preop.cert.";
     public static String SUCCESS = "0";
     public static String FAILURE = "1";
     public static String AUTH_FAILURE = "2";
@@ -256,6 +256,8 @@ public class Configurator {
 
     public DomainInfo configureSecurityDomain(ConfigurationRequest request) throws Exception {
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String securityDomainType = request.getSecurityDomainType();
 
         if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
@@ -269,9 +271,9 @@ public class Configurator {
         } else {
             logger.info("Joining existing security domain");
 
-            String keyType = cs.getString("preop.cert.subsystem.keytype");
+            String keyType = preopConfig.getString("cert.subsystem.keytype");
             String profileID = getSystemCertProfileID(keyType, "subsystem", "caInternalAuthSubsystemCert");
-            cs.putString("preop.cert.subsystem.profile", profileID);
+            preopConfig.putString("cert.subsystem.profile", profileID);
         }
 
         String securityDomainURL = request.getSecurityDomainUri();
@@ -325,6 +327,7 @@ public class Configurator {
             return;
         }
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
         String csType = cs.getType();
         String url = data.getIssuingCA();
 
@@ -332,12 +335,12 @@ public class Configurator {
 
             logger.debug("external CA selected");
 
-            cs.putString("preop.ca.type", "otherca");
-            cs.putString("preop.ca.pkcs7", "");
-            cs.putInteger("preop.ca.certchain.size", 0);
+            preopConfig.putString("ca.type", "otherca");
+            preopConfig.putString("ca.pkcs7", "");
+            preopConfig.putInteger("ca.certchain.size", 0);
 
             if (csType.equals("CA")) {
-                cs.putString("preop.cert.signing.type", "remote");
+                preopConfig.putString("cert.signing.type", "remote");
             }
 
             return;
@@ -346,7 +349,7 @@ public class Configurator {
         logger.debug("local CA selected");
 
         url = url.substring(url.indexOf("https"));
-        cs.putString("preop.ca.url", url);
+        preopConfig.putString("ca.url", url);
 
         URL urlx = new URL(url);
         String host = urlx.getHost();
@@ -355,10 +358,10 @@ public class Configurator {
         int admin_port = getPortFromSecurityDomain(domainInfo,
                 host, port, "CA", "SecurePort", "SecureAdminPort");
 
-        cs.putString("preop.ca.type", "sdca");
-        cs.putString("preop.ca.hostname", host);
-        cs.putInteger("preop.ca.httpsport", port);
-        cs.putInteger("preop.ca.httpsadminport", admin_port);
+        preopConfig.putString("ca.type", "sdca");
+        preopConfig.putString("ca.hostname", host);
+        preopConfig.putInteger("ca.httpsport", port);
+        preopConfig.putInteger("ca.httpsadminport", admin_port);
 
         if (!data.isClone() && !data.getSystemCertsImported()) {
             String certchain = getCertChain(host, admin_port, "/ca/admin/ca/getCertChain");
@@ -366,8 +369,8 @@ public class Configurator {
         }
 
         if (csType.equals("CA")) {
-            cs.putString("preop.cert.signing.type", "remote");
-            cs.putString("preop.cert.signing.profile","caInstallCACert");
+            preopConfig.putString("cert.signing.type", "remote");
+            preopConfig.putString("cert.signing.profile","caInstallCACert");
         }
     }
 
@@ -411,9 +414,10 @@ public class Configurator {
             throw new IOException("Missing cert chain");
         }
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
         certchain = CryptoUtil.normalizeCertStr(certchain);
 
-        cs.putString("preop." + tag + ".pkcs7", certchain);
+        preopConfig.putString(tag + ".pkcs7", certchain);
 
         // separate individual certs in chain for display
         byte[] decoded = CryptoUtil.base64Decode(certchain);
@@ -435,10 +439,10 @@ public class Configurator {
             size = b_certchain.length;
         }
 
-        cs.putInteger("preop." + tag + ".certchain.size", size);
+        preopConfig.putInteger(tag + ".certchain.size", size);
         for (int i = 0; i < size; i++) {
             byte[] bb = b_certchain[i].getEncoded();
-            cs.putString("preop." + tag + ".certchain." + i,
+            preopConfig.putString(tag + ".certchain." + i,
                     CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(bb)));
         }
 
@@ -606,6 +610,7 @@ public class Configurator {
 
         String csType = cs.getType();
         SecurityDomainSubsystem subsystem = domainInfo.getSubsystem(csType);
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         for (SecurityDomainHost host : subsystem.getHosts()) {
 
@@ -614,9 +619,9 @@ public class Configurator {
             String secureAdminPort = host.getSecureAdminPort();
 
             if (hostname.equals(cloneHost) && securePort.equals(clonePort + "")) {
-                cs.putString("preop.master.hostname", hostname);
-                cs.putString("preop.master.httpsport", securePort);
-                cs.putString("preop.master.httpsadminport", secureAdminPort);
+                preopConfig.putString("master.hostname", hostname);
+                preopConfig.putString("master.httpsport", securePort);
+                preopConfig.putString("master.httpsadminport", secureAdminPort);
                 return true;
             }
         }
@@ -633,14 +638,15 @@ public class Configurator {
 
     private void configureClone(ConfigurationRequest data, DomainInfo domainInfo) throws Exception {
 
-        String value = cs.getString("preop.cert.list");
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        String value = preopConfig.getString("cert.list");
         String[] certList = value.split(",");
 
         for (String tag : certList) {
             if (tag.equals("sslserver")) {
-                cs.putBoolean("preop.cert." + tag + ".enable", true);
+                preopConfig.putBoolean("cert." + tag + ".enable", true);
             } else {
-                cs.putBoolean("preop.cert." + tag + ".enable", false);
+                preopConfig.putBoolean("cert." + tag + ".enable", false);
             }
         }
 
@@ -671,7 +677,7 @@ public class Configurator {
         logger.debug("SystemConfigService: get configuration entries from master");
         getConfigEntriesFromMaster();
 
-        String token = cs.getString("preop.module.token", null);
+        String token = preopConfig.getString("module.token", null);
 
         if (!CryptoUtil.isInternalToken(token)) {
             logger.debug("SystemConfigService: import certificates from HSM and set permission");
@@ -686,14 +692,15 @@ public class Configurator {
             throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
         String cstype = cs.getType();
 
         cstype = cstype.toLowerCase();
 
         String session_id = engine.getConfigSDSessionId();
-        String master_hostname = cs.getString("preop.master.hostname", "");
-        int master_port = cs.getInteger("preop.master.httpsadminport", -1);
-        int master_ee_port = cs.getInteger("preop.master.httpsport", -1);
+        String master_hostname = preopConfig.getString("master.hostname", "");
+        int master_port = preopConfig.getInteger("master.httpsadminport", -1);
+        int master_ee_port = preopConfig.getInteger("master.httpsport", -1);
 
         if (cstype.equals("ca") || cstype.equals("kra")) {
             MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
@@ -717,7 +724,7 @@ public class Configurator {
 
         String list = "";
 
-        list = cs.getString("preop.cert.list", "");
+        list = preopConfig.getString("cert.list", "");
 
         StringBuffer c1 = new StringBuffer();
         StringBuffer s1 = new StringBuffer();
@@ -766,10 +773,10 @@ public class Configurator {
         if (!success) {
             throw new IOException("Failed to get configuration entries from the master");
         }
-        cs.putString("preop.clone.configuration", "true");
+
+        preopConfig.putString("clone.configuration", "true");
 
         cs.commit(false);
-
     }
 
     public void updateNumberRange(String hostname, int eePort, int adminPort, boolean https,
@@ -851,9 +858,13 @@ public class Configurator {
     public boolean updateConfigEntries(String hostname, int port, boolean https,
             String servlet, MultivaluedMap<String, String> content)
             throws Exception {
+
         logger.debug("updateConfigEntries start");
+
         CMSEngine engine = CMS.getCMSEngine();
-        LDAPConfig masterConfig = cs.getSubStore("preop.internaldb.master", LDAPConfig.class);
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
 
         String c = post(hostname, port, https, servlet, content, null, null);
 
@@ -907,33 +918,33 @@ public class Configurator {
                         cs.putString(name.replaceFirst("internaldb", "preop.internaldb.master"), v);
 
                     } else if (name.equals("instanceId")) {
-                        cs.putString("preop.master.instanceId", v);
+                        preopConfig.putString("master.instanceId", v);
 
                     } else if (name.equals("cloning.signing.nickname")) {
-                        cs.putString("preop.master.signing.nickname", v);
-                        cs.putString("preop.cert.signing.nickname", v);
+                        preopConfig.putString("master.signing.nickname", v);
+                        preopConfig.putString("cert.signing.nickname", v);
 
                     } else if (name.equals("cloning.ocsp_signing.nickname")) {
-                        cs.putString("preop.master.ocsp_signing.nickname", v);
-                        cs.putString("preop.cert.ocsp_signing.nickname", v);
+                        preopConfig.putString("master.ocsp_signing.nickname", v);
+                        preopConfig.putString("cert.ocsp_signing.nickname", v);
 
                     } else if (name.equals("cloning.subsystem.nickname")) {
-                        cs.putString("preop.master.subsystem.nickname", v);
-                        cs.putString("preop.cert.subsystem.nickname", v);
+                        preopConfig.putString("master.subsystem.nickname", v);
+                        preopConfig.putString("cert.subsystem.nickname", v);
 
                     } else if (name.equals("cloning.transport.nickname")) {
-                        cs.putString("preop.master.transport.nickname", v);
+                        preopConfig.putString("master.transport.nickname", v);
                         cs.putString("kra.transportUnit.nickName", v);
-                        cs.putString("preop.cert.transport.nickname", v);
+                        preopConfig.putString("cert.transport.nickname", v);
 
                     } else if (name.equals("cloning.storage.nickname")) {
-                        cs.putString("preop.master.storage.nickname", v);
+                        preopConfig.putString("master.storage.nickname", v);
                         cs.putString("kra.storageUnit.nickName", v);
-                        cs.putString("preop.cert.storage.nickname", v);
+                        preopConfig.putString("cert.storage.nickname", v);
 
                     } else if (name.equals("cloning.audit_signing.nickname")) {
-                        cs.putString("preop.master.audit_signing.nickname", v);
-                        cs.putString("preop.cert.audit_signing.nickname", v);
+                        preopConfig.putString("master.audit_signing.nickname", v);
+                        preopConfig.putString("cert.audit_signing.nickname", v);
                         cs.putString(name, v);
 
                     } else if (name.startsWith("cloning.ca")) {
@@ -1126,7 +1137,9 @@ public class Configurator {
     public void verifySystemCertificates() throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
-        String certList = cs.getString("preop.cert.list");
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String certList = preopConfig.getString("cert.list");
         String cstype = cs.getType().toLowerCase();
         StringTokenizer st = new StringTokenizer(certList, ",");
 
@@ -1135,11 +1148,10 @@ public class Configurator {
             if (tag.equals("sslserver"))
                 continue;
 
-            String tokenname = cs.getString("preop.module.token", "");
+            String tokenname = preopConfig.getString("module.token", "");
             CryptoUtil.getKeyStorageToken(tokenname); // throw exception if token doesn't exist
 
-            String name1 = "preop.master." + tag + ".nickname";
-            String nickname = cs.getString(name1, "");
+            String nickname = preopConfig.getString("master." + tag + ".nickname", "");
             if (!CryptoUtil.isInternalToken(tokenname))
                 nickname = tokenname + ":" + nickname;
 
@@ -1290,9 +1302,10 @@ public class Configurator {
             NoSuchItemOnTokenException, TokenException {
 
         CryptoManager cm = CryptoManager.getInstance();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         // nickname has no token prepended to it, so no need to strip
-        String nickname = cs.getString("preop.master.audit_signing.nickname");
+        String nickname = preopConfig.getString("master.audit_signing.nickname");
         String cstype = cs.getType();
         cstype = cstype.toLowerCase();
 
@@ -1309,7 +1322,7 @@ public class Configurator {
         // ca signing cert
         if (cstype.equals("ca")) {
             // nickname has no token prepended to it, so no need to strip
-            nickname = cs.getString("preop.master.signing.nickname");
+            nickname = preopConfig.getString("master.signing.nickname");
             certStr = cs.getString(cstype + ".signing.cert");
             cert = CryptoUtil.base64Decode(certStr);
             xcert = cm.importUserCACertPackage(cert, nickname);
@@ -1362,8 +1375,10 @@ public class Configurator {
 
     public boolean isCASigningCert(String name) throws EBaseException {
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         try {
-            String nickname = cs.getString("preop.master.signing.nickname");
+            String nickname = preopConfig.getString("master.signing.nickname");
             logger.debug("Property preop.master.signing.nickname: " + nickname);
             if (nickname.equals(name)) return true;
 
@@ -1378,7 +1393,9 @@ public class Configurator {
 
     public boolean isAuditSigningCert(String name) throws EPropertyNotFound, EBaseException {
 
-        String nickname = cs.getString("preop.master.audit_signing.nickname");
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        String nickname = preopConfig.getString("master.audit_signing.nickname");
+
         if (nickname.equals(name))
             return true;
 
@@ -1389,11 +1406,13 @@ public class Configurator {
 
         logger.debug("Deleting existing certificates:");
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken ct = cm.getInternalKeyStorageToken();
         CryptoStore store = ct.getCryptoStore();
 
-        String list = cs.getString("preop.cert.list", "");
+        String list = preopConfig.getString("cert.list", "");
         StringTokenizer st = new StringTokenizer(list, ",");
 
         while (st.hasMoreTokens()) {
@@ -1402,8 +1421,7 @@ public class Configurator {
             if (s.equals("sslserver"))
                 continue;
 
-            String name = "preop.master." + s + ".nickname";
-            String nickname = cs.getString(name, "");
+            String nickname = preopConfig.getString("master." + s + ".nickname", "");
             logger.debug("- Certificate " + nickname);
 
             X509Certificate cert;
@@ -1423,24 +1441,27 @@ public class Configurator {
     }
 
     public ArrayList<String> getMasterCertKeyList() throws EBaseException {
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
         ArrayList<String> list = new ArrayList<String>();
 
-        String certList = cs.getString("preop.cert.list", "");
+        String certList = preopConfig.getString("cert.list", "");
         StringTokenizer st = new StringTokenizer(certList, ",");
 
         logger.debug("Master certs:");
         while (st.hasMoreTokens()) {
             String s = st.nextToken();
+
             if (s.equals("sslserver"))
                 continue;
-            String name = "preop.master." + s + ".nickname";
-            String nickname = cs.getString(name);
+
+            String nickname = preopConfig.getString("master." + s + ".nickname");
             list.add(nickname);
 
-            name = "preop.cert." + s + ".dn";
-            String dn = cs.getString(name);
+            String dn = preopConfig.getString("cert." + s + ".dn");
             list.add(dn);
-            logger.debug("- " + name + ": " + dn);
+
+            logger.debug("- " + s + ": " + dn);
         }
 
         return list;
@@ -1463,6 +1484,7 @@ public class Configurator {
     public void initializeDatabase(DatabaseSetupRequest request) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
@@ -1471,7 +1493,7 @@ public class Configurator {
         boolean secureConn = connConfig.getBoolean("secureConn");
         String dsPort = connConfig.getString("port");
         String baseDN = ldapConfig.getBaseDN();
-        boolean setupReplication = cs.getBoolean("preop.database.setupReplication", true);
+        boolean setupReplication = preopConfig.getBoolean("database.setupReplication", true);
 
         if (request.isClone() && setupReplication) {
             String masterhost = "";
@@ -1479,7 +1501,7 @@ public class Configurator {
             String masterbasedn = "";
             String realhostname = "";
             try {
-                LDAPConfig masterConfig = cs.getSubStore("preop.internaldb.master", LDAPConfig.class);
+                LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
                 LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
                 masterhost = masterConnConfig.getString("host", "");
                 masterport = masterConnConfig.getString("port", "");
@@ -1517,7 +1539,7 @@ public class Configurator {
             }
             connConfig.putString("replicationSecurity", replicationSecurity);
 
-            cs.putString("preop.internaldb.replicateSchema", request.getReplicateSchema());
+            preopConfig.putString("internaldb.replicateSchema", request.getReplicateSchema());
         }
 
         try {
@@ -1540,7 +1562,7 @@ public class Configurator {
             enableUSNPlugin();
             populateDB();
 
-            cs.putString("preop.internaldb.replicationpwd", replicationPassword);
+            preopConfig.putString("internaldb.replicationpwd", replicationPassword);
             cs.commit(false);
 
             if (request.isClone() && setupReplication) {
@@ -1599,15 +1621,17 @@ public class Configurator {
     public void populateDB() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
         String baseDN = dbCfg.getBaseDN();
         String database = dbCfg.getString("database", "");
-        String select = cs.getString("preop.subsystem.select", "");
-        boolean remove = cs.getBoolean("preop.database.removeData", false);
-        boolean createNewDB = cs.getBoolean("preop.database.createNewDB", true);
-        boolean setupReplication = cs.getBoolean("preop.database.setupReplication", true);
-        boolean reindexData = cs.getBoolean("preop.database.reindexData", false);
+
+        String select = preopConfig.getString("subsystem.select", "");
+        boolean remove = preopConfig.getBoolean("database.removeData", false);
+        boolean createNewDB = preopConfig.getBoolean("database.createNewDB", true);
+        boolean setupReplication = preopConfig.getBoolean("database.setupReplication", true);
+        boolean reindexData = preopConfig.getBoolean("database.reindexData", false);
 
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
@@ -1705,7 +1729,7 @@ public class Configurator {
 
                     // Also, data will be replicated from master to clone
                     // so clone does not need the data
-                    boolean replicateSchema = cs.getBoolean("preop.internaldb.replicateSchema", true);
+                    boolean replicateSchema = preopConfig.getBoolean("internaldb.replicateSchema", true);
                     if (!replicateSchema || !setupReplication) {
                         importLDIFS("preop.internaldb.schema.ldif", conn);
                     }
@@ -1741,11 +1765,14 @@ public class Configurator {
 
     private void populateIndexes(LDAPConfigurator ldapConfigurator) throws Exception {
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         logger.info("Configurator: Generating indexes");
         importLDIFS("preop.internaldb.index_task_ldif", ldapConfigurator.getConnection(), false);
 
         logger.info("Configurator: Waiting for indexing to complete");
-        String wait_dn = cs.getString("preop.internaldb.index_wait_dn", "");
+        String wait_dn = preopConfig.getString("internaldb.index_wait_dn", "");
+
         if (!StringUtils.isEmpty(wait_dn)) {
             ldapConfigurator.waitForTask(wait_dn);
         }
@@ -1772,12 +1799,14 @@ public class Configurator {
 
         logger.info("Configurator: Importing " + filename);
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
         String baseDN = ldapConfig.getBaseDN();
         String database = ldapConfig.getString("database");
         String instanceId = cs.getInstanceID();
-        String dbuser = cs.getString(
-                "preop.internaldb.dbuser",
+        String dbuser = preopConfig.getString(
+                "internaldb.dbuser",
                 "uid=" + DBUSER + ",ou=people," + baseDN);
 
         Map<String, String> map = new HashMap<>();
@@ -1890,6 +1919,7 @@ public class Configurator {
     public void populateVLVIndexes() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
@@ -1903,7 +1933,8 @@ public class Configurator {
             importLDIFS("preop.internaldb.post_ldif", conn);
 
             logger.info("Configurator: Waiting for VLV indexing to complete");
-            String wait_dn = cs.getString("preop.internaldb.wait_dn", "");
+            String wait_dn = preopConfig.getString("internaldb.wait_dn", "");
+
             if (!wait_dn.equals("")) {
                 ldapConfigurator.waitForTask(wait_dn);
             }
@@ -1940,6 +1971,7 @@ public class Configurator {
 
         logger.debug("Configurator: storeKeyPair(" + tag + ")");
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
         PublicKey publicKey = pair.getPublic();
 
         if (publicKey instanceof RSAPublicKey) {
@@ -1947,26 +1979,26 @@ public class Configurator {
             RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
 
             byte modulus[] = rsaPublicKey.getModulus().toByteArray();
-            cs.putString(PCERT_PREFIX + tag + ".pubkey.modulus",
+            preopConfig.putString("cert." + tag + ".pubkey.modulus",
                     CryptoUtil.byte2string(modulus));
 
             byte exponent[] = rsaPublicKey.getPublicExponent().toByteArray();
-            cs.putString(PCERT_PREFIX + tag + ".pubkey.exponent",
+            preopConfig.putString("cert." + tag + ".pubkey.exponent",
                     CryptoUtil.byte2string(exponent));
 
         } else { // ECC
 
             logger.debug("Configurator: Public key class: " + publicKey.getClass().getName());
             byte encoded[] = publicKey.getEncoded();
-            cs.putString(PCERT_PREFIX + tag + ".pubkey.encoded", CryptoUtil.byte2string(encoded));
+            preopConfig.putString("cert." + tag + ".pubkey.encoded", CryptoUtil.byte2string(encoded));
         }
 
         PrivateKey privateKey = (PrivateKey) pair.getPrivate();
         byte id[] = privateKey.getUniqueID();
         String kid = CryptoUtil.encodeKeyID(id);
-        cs.putString(PCERT_PREFIX + tag + ".privkey.id", kid);
+        preopConfig.putString("cert." + tag + ".privkey.id", kid);
 
-        String keyAlgo = cs.getString(PCERT_PREFIX + tag + ".signingalgorithm");
+        String keyAlgo = preopConfig.getString("cert." + tag + ".signingalgorithm");
         setSigningAlgorithm(tag, keyAlgo);
     }
 
@@ -1975,6 +2007,8 @@ public class Configurator {
             NotInitializedException, EPropertyNotFound, EBaseException {
 
         logger.debug("Configurator.createECCKeyPair(" + token + ", " + curveName + ")");
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         KeyPair pair = null;
         /*
@@ -1991,7 +2025,7 @@ public class Configurator {
          */
         String sslType = "ECDHE";
         try {
-            sslType = cs.getString(PCERT_PREFIX + ct + "ec.type", "ECDHE");
+            sslType = preopConfig.getString("cert." + ct + "ec.type", "ECDHE");
         } catch (Exception e) {
         }
 
@@ -2083,12 +2117,14 @@ public class Configurator {
 
     public void configCert(Cert certObj) throws Exception {
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String caType = certObj.getType();
         logger.debug("configCert: caType is " + caType);
         X509CertImpl cert = null;
         String certTag = certObj.getCertTag();
 
-        String selection = cs.getString("preop.subsystem.select");
+        String selection = preopConfig.getString("subsystem.select");
         String csType = cs.getType();
         String preop_ca_type = null;
         String preop_cert_signing_type = null;
@@ -2100,21 +2136,21 @@ public class Configurator {
 
         if (selection.equals("clone") && csType.equals("CA") && certTag.equals("sslserver")) {
             // retrieve and store original 'CS.cfg' entries
-            preop_ca_type = cs.getString("preop.ca.type", "");
-            preop_cert_signing_type = cs.getString("preop.cert.signing.type", "");
-            preop_cert_signing_profile = cs.getString("preop.cert.signing.profile", "");
-            preop_cert_sslserver_type = cs.getString("preop.cert.sslserver.type", "");
-            preop_cert_sslserver_profile = cs.getString("preop.cert.sslserver.profile", "");
+            preop_ca_type = preopConfig.getString("ca.type", "");
+            preop_cert_signing_type = preopConfig.getString("cert.signing.type", "");
+            preop_cert_signing_profile = preopConfig.getString("cert.signing.profile", "");
+            preop_cert_sslserver_type = preopConfig.getString("cert.sslserver.type", "");
+            preop_cert_sslserver_profile = preopConfig.getString("cert.sslserver.profile", "");
 
             // add/modify 'CS.cfg' entries
-            cs.putString("preop.ca.type", "sdca");
-            cs.putString("preop.cert.signing.type", "remote");
-            cs.putString("preop.cert.signing.profile", "caInstallCACert");
-            cs.putString("preop.cert.sslserver.type", "remote");
+            preopConfig.putString("ca.type", "sdca");
+            preopConfig.putString("cert.signing.type", "remote");
+            preopConfig.putString("cert.signing.profile", "caInstallCACert");
+            preopConfig.putString("cert.sslserver.type", "remote");
 
-            String keyType = cs.getString("preop.cert.sslserver.keytype");
+            String keyType = preopConfig.getString("cert.sslserver.keytype");
             String profileID = getSystemCertProfileID(keyType, "sslserver", "caInternalAuthServerCert");
-            cs.putString("preop.cert.sslserver.profile", profileID);
+            preopConfig.putString("cert.sslserver.profile", profileID);
 
             // store original caType
             original_caType = caType;
@@ -2142,11 +2178,11 @@ public class Configurator {
 
             if (sign_clone_sslserver_cert_using_master) {
                 // restore original 'CS.cfg' entries
-                cs.putString("preop.ca.type", preop_ca_type);
-                cs.putString("preop.cert.signing.type", preop_cert_signing_type);
-                cs.putString("preop.cert.signing.profile", preop_cert_signing_profile);
-                cs.putString("preop.cert.sslserver.type", preop_cert_sslserver_type);
-                cs.putString("preop.cert.sslserver.profile", preop_cert_sslserver_profile);
+                preopConfig.putString("ca.type", preop_ca_type);
+                preopConfig.putString("cert.signing.type", preop_cert_signing_type);
+                preopConfig.putString("cert.signing.profile", preop_cert_signing_profile);
+                preopConfig.putString("cert.sslserver.type", preop_cert_sslserver_type);
+                preopConfig.putString("cert.sslserver.profile", preop_cert_sslserver_profile);
             }
 
         } else { // not remote CA, ie, self-signed or local
@@ -2167,8 +2203,7 @@ public class Configurator {
             String certs = CryptoUtil.base64Encode(certb);
 
             certObj.setCert(certb);
-            String subsystem = cs.getString(
-                    PCERT_PREFIX + certTag + ".subsystem");
+            String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
             cs.putString(subsystem + "." + certTag + ".cert", certs);
         }
         cs.commit(false);
@@ -2182,19 +2217,21 @@ public class Configurator {
             throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        String caType = cs.getString("preop.ca.type", "");
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String caType = preopConfig.getString("ca.type", "");
 
         logger.debug("configCert: remote CA");
         logger.debug("confgCert: tag: " + certTag);
-        PKCS10 pkcs10 = CertUtil.getPKCS10(cs, PCERT_PREFIX, certObj);
+        PKCS10 pkcs10 = CertUtil.getPKCS10(cs, certObj);
         byte[] binRequest = pkcs10.toByteArray();
         String b64Request = CryptoUtil.base64Encode(binRequest);
         certObj.setRequest(binRequest);
 
-        String subsystem = cs.getString(PCERT_PREFIX + certTag + ".subsystem");
+        String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
         cs.putString(subsystem + "." + certTag + ".certreq", b64Request);
 
-        String profileId = cs.getString(PCERT_PREFIX + certTag + ".profile");
+        String profileId = preopConfig.getString("cert." + certTag + ".profile");
         String session_id = engine.getConfigSDSessionId();
         String sysType = cs.getType();
         String machineName = cs.getHostname();
@@ -2209,7 +2246,7 @@ public class Configurator {
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
 
             logger.debug("configRemoteCert: subsystemCert: setting profileId to: " + profileId);
-            String keyType = cs.getString("preop.cert." + certTag + ".keytype");
+            String keyType = preopConfig.getString("cert." + certTag + ".keytype");
             String actualProfileId = getSystemCertProfileID(keyType, certTag, profileId);
             logger.debug("configRemoteCert: subsystemCert: calculated profileId: " + actualProfileId);
 
@@ -2236,13 +2273,13 @@ public class Configurator {
                     logger.debug("Configurator: For this Cloned CA, always use its Master CA to generate " +
                             "the 'sslserver' certificate to avoid any changes which may have been " +
                             "made to the X500Name directory string encoding order.");
-                    ca_hostname = cs.getString("preop.master.hostname", "");
-                    ca_port = cs.getInteger("preop.master.httpsport", -1);
+                    ca_hostname = preopConfig.getString("master.hostname", "");
+                    ca_port = preopConfig.getInteger("master.httpsport", -1);
 
                 } else {
 
-                    ca_hostname = cs.getString("preop.ca.hostname", "");
-                    ca_port = cs.getInteger("preop.ca.httpsport", -1);
+                    ca_hostname = preopConfig.getString("ca.hostname", "");
+                    ca_port = preopConfig.getInteger("ca.httpsport", -1);
                 }
 
             } catch (Exception ee) {
@@ -2253,7 +2290,7 @@ public class Configurator {
 
             //Get the correct profile id to send in case it's sslserver type:
             logger.debug("configRemoteCert: tag: " + certTag + " : setting profileId to: " + profileId);
-            String keyType = cs.getString("preop.cert." + certTag + ".keytype");
+            String keyType = preopConfig.getString("cert." + certTag + ".keytype");
             String actualProfileId = getSystemCertProfileID(keyType, certTag, profileId);
             logger.debug("configRemoteCert: tag: " + certTag + " calculated profileId: " + actualProfileId);
 
@@ -2294,34 +2331,35 @@ public class Configurator {
             throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
         ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
 
         if (ca == null) {
-            String s = PCERT_PREFIX + certTag + ".type";
+            String s = "preop.cert." + certTag + ".type";
             logger.error("The value for " + s + " should be remote, nothing else.");
             throw new IOException("The value for " + s + " should be remote");
         }
 
-        String pubKeyType = cs.getString(PCERT_PREFIX + certTag + ".keytype");
+        String pubKeyType = preopConfig.getString("cert." + certTag + ".keytype");
 
         if (pubKeyType.equals("rsa")) {
 
-            String pubKeyModulus = cs.getString(PCERT_PREFIX + certTag + ".pubkey.modulus");
-            String pubKeyPublicExponent = cs.getString(PCERT_PREFIX + certTag + ".pubkey.exponent");
+            String pubKeyModulus = preopConfig.getString("cert." + certTag + ".pubkey.modulus");
+            String pubKeyPublicExponent = preopConfig.getString("cert." + certTag + ".pubkey.exponent");
 
             X509Key x509key = CryptoUtil.getPublicX509Key(
                     CryptoUtil.string2byte(pubKeyModulus),
                     CryptoUtil.string2byte(pubKeyPublicExponent));
 
-            cert = CertUtil.createLocalCert(cs, x509key, PCERT_PREFIX, certTag, caType);
+            cert = CertUtil.createLocalCert(cs, x509key, certTag, caType);
 
         } else if (pubKeyType.equals("ecc")) {
 
-            String pubKeyEncoded = cs.getString(PCERT_PREFIX + certTag + ".pubkey.encoded");
+            String pubKeyEncoded = preopConfig.getString("cert." + certTag + ".pubkey.encoded");
 
             X509Key x509key = CryptoUtil.getPublicX509ECCKey(
                     CryptoUtil.string2byte(pubKeyEncoded));
-            cert = CertUtil.createLocalCert(cs, x509key, PCERT_PREFIX, certTag, caType);
+            cert = CertUtil.createLocalCert(cs, x509key, certTag, caType);
 
         } else {
             // invalid key type
@@ -2334,11 +2372,13 @@ public class Configurator {
     public void updateConfig(Cert cert)
             throws EBaseException, IOException {
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String certTag = cert.getCertTag();
         String token = cert.getTokenname();
         String nickname = cert.getNickname();
 
-        String subsystem = cs.getString(PCERT_PREFIX + certTag + ".subsystem");
+        String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
 
         logger.debug("Configurator: updateConfig() for certTag " + certTag);
         if (certTag.equals("signing") || certTag.equals("ocsp_signing")) {
@@ -2393,14 +2433,12 @@ public class Configurator {
     }
 
     public String getNickname(String certTag) throws EBaseException {
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
         String instanceID = cs.getInstanceID();
 
         String nickname = certTag + "Cert cert-" + instanceID;
-        String preferredNickname = null;
-        try {
-            preferredNickname = cs.getString(PCERT_PREFIX + certTag + ".nickname", null);
-        } catch (EBaseException e) {
-        }
+        String preferredNickname = preopConfig.getString("cert." + certTag + ".nickname", null);
 
         if (preferredNickname != null) {
             return preferredNickname;
@@ -2451,8 +2489,10 @@ public class Configurator {
 
         logger.debug("generateCertRequest: getting public key for certificate " + certTag);
 
-        String pubKeyType = cs.getString(PCERT_PREFIX + certTag + ".keytype");
-        String algorithm = cs.getString(PCERT_PREFIX + certTag + ".keyalgorithm");
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String pubKeyType = preopConfig.getString("cert." + certTag + ".keytype");
+        String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
 
         X509Key pubk;
         if (pubKeyType.equals("rsa")) {
@@ -2469,7 +2509,7 @@ public class Configurator {
         // public key cannot be null here
 
         logger.debug("generateCertRequest: getting private key for certificate " + certTag);
-        String privKeyID = cs.getString(PCERT_PREFIX + certTag + ".privkey.id");
+        String privKeyID = preopConfig.getString("cert." + certTag + ".privkey.id");
 
         logger.debug("generateCertRequest: private key ID: " + privKeyID);
         byte[] keyIDb = CryptoUtil.decodeKeyID(privKeyID);
@@ -2481,7 +2521,7 @@ public class Configurator {
         }
 
         // construct cert request
-        String caDN = cs.getString(PCERT_PREFIX + certTag + ".dn");
+        String caDN = preopConfig.getString("cert." + certTag + ".dn");
 
         cert.setDN(caDN);
 
@@ -2501,7 +2541,7 @@ public class Configurator {
         byte[] certReqb = certReq.toByteArray();
         String certReqs = CryptoUtil.base64Encode(certReqb);
 
-        String subsystem = cs.getString(PCERT_PREFIX + certTag + ".subsystem");
+        String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
         cs.putString(subsystem + "." + certTag + ".certreq", certReqs);
         cs.commit(false);
 
@@ -2544,15 +2584,19 @@ public class Configurator {
     }
 
     private void createGenericExtensions(String tag, Extensions exts) throws Exception {
+
         logger.debug("Configurator: createGenericExtensions: begins");
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         // if specified, add a generic extension
         try {
-            String oidString = cs.getString(PCERT_PREFIX + tag + ".ext.oid");
-            String dataString = cs.getString(PCERT_PREFIX + tag + ".ext.data");
+            String oidString = preopConfig.getString("cert." + tag + ".ext.oid");
+            String dataString = preopConfig.getString("cert." + tag + ".ext.data");
 
             if (oidString != null && dataString != null) {
                 logger.debug("Configurator: createGenericExtensions: adding generic extension for " + tag);
-                boolean critical = cs.getBoolean(PCERT_PREFIX + tag + ".ext.critical");
+                boolean critical = preopConfig.getBoolean("cert." + tag + ".ext.critical");
                 ObjectIdentifier oid = new ObjectIdentifier(oidString);
 
                 byte data[] = CryptoUtil.hexString2Bytes(dataString);
@@ -2577,21 +2621,26 @@ public class Configurator {
 
     public X509Key getECCX509Key(String certTag) throws EPropertyNotFound, EBaseException,
             InvalidKeyException {
-        X509Key pubk = null;
-        String pubKeyEncoded = cs.getString(PCERT_PREFIX + certTag + ".pubkey.encoded");
-        pubk = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String pubKeyEncoded = preopConfig.getString("cert." + certTag + ".pubkey.encoded");
+        X509Key pubk = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
+
         return pubk;
     }
 
     public X509Key getRSAX509Key(String certTag) throws EPropertyNotFound, EBaseException,
             InvalidKeyException {
-        X509Key pubk = null;
 
-        String pubKeyModulus = cs.getString(PCERT_PREFIX + certTag + ".pubkey.modulus");
-        String pubKeyPublicExponent = cs.getString(PCERT_PREFIX + certTag + ".pubkey.exponent");
-        pubk = CryptoUtil.getPublicX509Key(
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String pubKeyModulus = preopConfig.getString("cert." + certTag + ".pubkey.modulus");
+        String pubKeyPublicExponent = preopConfig.getString("cert." + certTag + ".pubkey.exponent");
+        X509Key pubk = CryptoUtil.getPublicX509Key(
                 CryptoUtil.string2byte(pubKeyModulus),
                 CryptoUtil.string2byte(pubKeyPublicExponent));
+
         return pubk;
     }
 
@@ -2601,6 +2650,7 @@ public class Configurator {
         logger.debug("Configurator.createCertRecord(" + tag + ")");
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         // parsing cert data
         X509CertImpl x509CertImpl = new X509CertImpl(cert.getCert());
@@ -2613,7 +2663,7 @@ public class Configurator {
         X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
 
         // loading cert profile
-        String profileName = cs.getString(Configurator.PCERT_PREFIX + tag + ".profile");
+        String profileName = preopConfig.getString("cert." + tag + ".profile");
         logger.debug("Configurator: profile: " + profileName);
 
         String instanceRoot = cs.getInstanceDir();
@@ -2642,7 +2692,7 @@ public class Configurator {
         RequestId reqId = req.getRequestId();
         logger.debug("Configurator: request: " + reqId);
 
-        cs.putString("preop.cert." + tag + ".reqId", reqId.toString());
+        preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
 
         BigInteger serialNo = x509CertImpl.getSerialNumber();
 
@@ -2659,16 +2709,18 @@ public class Configurator {
         String certTag = cert.getCertTag();
         logger.debug("Configurator.handleCert(" + certTag + ")");
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String subsystem = cert.getSubsystem();
         String nickname = cert.getNickname();
 
-        boolean enable = cs.getBoolean(PCERT_PREFIX + certTag + ".enable", true);
+        boolean enable = preopConfig.getBoolean("cert." + certTag + ".enable", true);
         if (!enable)
             return;
 
         logger.debug("Configurator: cert type: " + cert.getType());
 
-        String tokenname = cs.getString("preop.module.token", "");
+        String tokenname = preopConfig.getString("module.token", "");
 
         byte[] certb = cert.getCert();
         X509CertImpl impl = new X509CertImpl(certb);
@@ -2736,8 +2788,10 @@ public class Configurator {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String adminSubjectDN = request.getAdminSubjectDN();
-        cs.putString("preop.cert.admin.dn", adminSubjectDN);
+        preopConfig.putString("cert.admin.dn", adminSubjectDN);
 
         String csType = cs.getType();
 
@@ -2748,7 +2802,7 @@ public class Configurator {
             createAdminCertificate(request.getAdminCertRequest(),
                     request.getAdminCertRequestType(), adminSubjectDN);
 
-            String serialno = cs.getString("preop.admincert.serialno.0");
+            String serialno = preopConfig.getString("admincert.serialno.0");
             ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ICertificateRepository repo = ca.getCertificateRepository();
 
@@ -2757,13 +2811,13 @@ public class Configurator {
 
         logger.info("Configurator: Requesting admin cert from CA");
 
-        String type = cs.getString("preop.ca.type", "");
+        String type = preopConfig.getString("ca.type", "");
         String ca_hostname = "";
         int ca_port = -1;
 
         if (type.equals("sdca")) {
-            ca_hostname = cs.getString("preop.ca.hostname");
-            ca_port = cs.getInteger("preop.ca.httpsport");
+            ca_hostname = preopConfig.getString("ca.hostname");
+            ca_port = preopConfig.getInteger("ca.httpsport");
         } else {
             ca_hostname = cs.getString("securitydomain.host", "");
             ca_port = cs.getInteger("securitydomain.httpseeport");
@@ -2805,7 +2859,8 @@ public class Configurator {
 
         logger.debug("backupKeys(): start");
 
-        String certlist = cs.getString("preop.cert.list");
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        String certlist = preopConfig.getString("cert.list");
 
         StringTokenizer st = new StringTokenizer(certlist, ",");
         CryptoManager cm = CryptoManager.getInstance();
@@ -2823,8 +2878,8 @@ public class Configurator {
                 if (t.equals("sslserver"))
                     continue;
 
-                String nickname = cs.getString("preop.cert." + t + ".nickname");
-                String modname = cs.getString("preop.module.token");
+                String nickname = preopConfig.getString("cert." + t + ".nickname");
+                String modname = preopConfig.getString("module.token");
 
                 if (!CryptoUtil.isInternalToken(modname))
                     nickname = modname + ":" + nickname;
@@ -2843,7 +2898,7 @@ public class Configurator {
             pfx.encode(bos);
             byte[] output = bos.toByteArray();
 
-            cs.putString("preop.pkcs12", CryptoUtil.byte2string(output));
+            preopConfig.putString("pkcs12", CryptoUtil.byte2string(output));
             cs.commit(false);
 
             if (fname != null) {
@@ -2873,6 +2928,7 @@ public class Configurator {
             throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         byte[] binRequest = Utils.base64decode(certRequest);
         X509Key x509key;
@@ -2895,9 +2951,9 @@ public class Configurator {
             throw new IOException("x509key is null");
         }
 
-        cs.putString(PCERT_PREFIX + "admin.dn", subject);
-        String caType = cs.getString(PCERT_PREFIX + "admin.type", "local");
-        X509CertImpl impl = CertUtil.createLocalCert(cs, x509key, PCERT_PREFIX, "admin", caType);
+        preopConfig.putString("cert.admin.dn", subject);
+        String caType = preopConfig.getString("cert.admin.type", "local");
+        X509CertImpl impl = CertUtil.createLocalCert(cs, x509key, "admin", caType);
 
         // update the locally created request for renewal
         CertUtil.updateLocalRequest(cs, "admin", binRequest, certRequestType, subject);
@@ -2906,12 +2962,14 @@ public class Configurator {
         if (ca != null) {
             createPKCS7(impl);
         }
-        cs.putString("preop.admincert.serialno.0", impl.getSerialNumber().toString(16));
+
+        preopConfig.putString("admincert.serialno.0", impl.getSerialNumber().toString(16));
     }
 
     public void createPKCS7(X509CertImpl cert) throws IOException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         CertificateChain cachain = ca.getCACertChain();
@@ -2931,7 +2989,8 @@ public class Configurator {
         p7.encodeSignedData(bos);
         byte[] p7Bytes = bos.toByteArray();
         String p7Str = Utils.base64encode(p7Bytes, true);
-        cs.putString("preop.admincert.pkcs7", CryptoUtil.normalizeCertStr(p7Str));
+
+        preopConfig.putString("admincert.pkcs7", CryptoUtil.normalizeCertStr(p7Str));
     }
 
     public void setupAdmin(AdminSetupRequest request, AdminSetupResponse response) throws Exception {
@@ -2956,9 +3015,10 @@ public class Configurator {
         String pwd = request.getAdminPassword();
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
-        String groupNames = cs.getString("preop.admin.group", "Certificate Manager Agents,Administrators");
+        String groupNames = preopConfig.getString("admin.group", "Certificate Manager Agents,Administrators");
 
         IUser user = null;
 
@@ -3055,9 +3115,10 @@ public class Configurator {
         logger.debug("Configurator: submitAdminCertRequest()");
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         if (profileId == null) {
-            profileId = cs.getString("preop.admincert.profile", "caAdminCert");
+            profileId = preopConfig.getString("admincert.profile", "caAdminCert");
         }
 
         String session_id = engine.getConfigSDSessionId();
@@ -3090,16 +3151,16 @@ public class Configurator {
 
             String id = parser.getValue("Id");
 
-            cs.putString("preop.admincert.requestId.0", id);
+            preopConfig.putString("admincert.requestId.0", id);
             String serial = parser.getValue("serialno");
 
-            cs.putString("preop.admincert.serialno.0", serial);
+            preopConfig.putString("admincert.serialno.0", serial);
             String b64 = parser.getValue("b64");
 
             // save in a file for access by ImportAdminCertPanel
             String instanceRoot = cs.getInstanceDir();
             String dir = instanceRoot + File.separator + "conf" + File.separator + "admin.b64";
-            cs.putString("preop.admincert.b64", dir);
+            preopConfig.putString("admincert.b64", dir);
 
             PrintStream ps = new PrintStream(dir, "UTF-8");
             ps.println(b64);
@@ -3133,6 +3194,7 @@ public class Configurator {
     public void createSecurityDomain() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
@@ -3170,7 +3232,8 @@ public class Configurator {
         // Add this host
         String cn = engine.getEESSLHost() + ":" + engine.getAdminPort();
         dn = "cn=" + LDAPUtil.escapeRDNValue(cn) + ",cn=CAList,ou=Security Domain," + basedn;
-        String subsystemName = cs.getString("preop.subsystem.name");
+        String subsystemName = preopConfig.getString("subsystem.name");
+
         attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", "top"));
         attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
@@ -3200,13 +3263,14 @@ public class Configurator {
     public void updateSecurityDomain() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         int sd_agent_port = cs.getInteger("securitydomain.httpsagentport");
         int sd_admin_port = cs.getInteger("securitydomain.httpsadminport");
-        String select = cs.getString("preop.subsystem.select");
+        String select = preopConfig.getString("subsystem.select");
         String type = cs.getType();
         String sd_host = cs.getString("securitydomain.host");
-        String subsystemName = cs.getString("preop.subsystem.name");
+        String subsystemName = preopConfig.getString("subsystem.name");
 
         boolean cloneMaster = false;
 
@@ -3285,10 +3349,12 @@ public class Configurator {
 
         logger.debug("Configurator: updateDomainXML start hostname=" + hostname + " port=" + port);
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String c = null;
         if (useClientAuth) {
-            String nickname = cs.getString("preop.cert.subsystem.nickname", "");
-            String tokenname = cs.getString("preop.module.token", "");
+            String nickname = preopConfig.getString("cert.subsystem.nickname", "");
+            String tokenname = preopConfig.getString("module.token", "");
 
             if (!CryptoUtil.isInternalToken(tokenname)) {
                 nickname = tokenname + ":" + nickname;
@@ -3333,10 +3399,12 @@ public class Configurator {
     }
 
     public void setupClientAuthUser() throws Exception {
-        CMSEngine engine = CMS.getCMSEngine();
 
-        String host = cs.getString("preop.ca.hostname", "");
-        int port = cs.getInteger("preop.ca.httpsadminport", -1);
+        CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String host = preopConfig.getString("ca.hostname", "");
+        int port = preopConfig.getInteger("ca.httpsadminport", -1);
 
         // retrieve CA subsystem certificate from the CA
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
@@ -3344,11 +3412,12 @@ public class Configurator {
 
         String b64 = getSubsystemCert(host, port, true);
         if (b64 != null) {
-            int num = cs.getInteger("preop.subsystem.count", 0);
+            int num = preopConfig.getInteger("subsystem.count", 0);
             id = "CA-" + host + "-" + port;
             num++;
-            cs.putInteger("preop.subsystem.count", num);
+            preopConfig.putInteger("subsystem.count", num);
             cs.putInteger("subsystem.count", num);
+
             IUser user = system.createUser(id);
             user.setFullName(id);
             user.setEmail("");
@@ -3477,13 +3546,15 @@ public class Configurator {
     }
 
     public void registerUser(URI secdomainURI, URI targetURI, String targetType) throws Exception {
+
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String csType = cs.getType();
         String uid = csType.toUpperCase() + "-" + cs.getHostname()
                 + "-" + cs.getString("service.securePort", "");
         String sessionId = engine.getConfigSDSessionId();
-        String subsystemName = cs.getString("preop.subsystem.name");
+        String subsystemName = preopConfig.getString("subsystem.name");
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("uid", uid);
@@ -3560,7 +3631,9 @@ public class Configurator {
     public String getSubsystemCert() throws EBaseException, NotInitializedException, ObjectNotFoundException,
             TokenException, CertificateEncodingException, IOException {
 
-        String subsystem = cs.getString(PCERT_PREFIX + "subsystem.subsystem");
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String subsystem = preopConfig.getString("cert.subsystem.subsystem");
 
         String nickname = cs.getString(subsystem + ".subsystem.nickname");
         String tokenname = cs.getString(subsystem + ".subsystem.tokenname");
@@ -3631,8 +3704,10 @@ public class Configurator {
      */
     public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String type = cs.getType();
-        String list = cs.getString("preop.cert.list", "");
+        String list = preopConfig.getString("cert.list", "");
         StringTokenizer st = new StringTokenizer(list, ",");
 
         while (st.hasMoreTokens()) {
@@ -3642,32 +3717,32 @@ public class Configurator {
                 continue;
             }
 
-            String nickname = cs.getString("preop.cert." + ss + ".nickname", "");
+            String nickname = preopConfig.getString("cert." + ss + ".nickname", "");
             cs.putString("cloning." + ss + ".nickname", nickname);
 
-            String dn = cs.getString("preop.cert." + ss + ".dn", "");
+            String dn = preopConfig.getString("cert." + ss + ".dn", "");
             cs.putString("cloning." + ss + ".dn", dn);
 
-            String keyType = cs.getString("preop.cert." + ss + ".keytype", "");
+            String keyType = preopConfig.getString("cert." + ss + ".keytype", "");
             cs.putString("cloning." + ss + ".keytype", keyType);
 
-            String keyAlgorithm = cs.getString("preop.cert." + ss + ".keyalgorithm", "");
+            String keyAlgorithm = preopConfig.getString("cert." + ss + ".keyalgorithm", "");
             cs.putString("cloning." + ss + ".keyalgorithm", keyAlgorithm);
 
-            String privateKeyID = cs.getString("preop.cert." + ss + ".privkey.id", "");
+            String privateKeyID = preopConfig.getString("cert." + ss + ".privkey.id", "");
             cs.putString("cloning." + ss + ".privkey.id", privateKeyID);
 
-            String publicKeyExponent = cs.getString("preop.cert." + ss + ".pubkey.exponent", "");
+            String publicKeyExponent = preopConfig.getString("cert." + ss + ".pubkey.exponent", "");
             cs.putString("cloning." + ss + ".pubkey.exponent", publicKeyExponent);
 
-            String publicKeyModulus = cs.getString("preop.cert." + ss + ".pubkey.modulus", "");
+            String publicKeyModulus = preopConfig.getString("cert." + ss + ".pubkey.modulus", "");
             cs.putString("cloning." + ss + ".pubkey.modulus", publicKeyModulus);
 
-            String publicKeyEncoded = cs.getString("preop.cert." + ss + ".pubkey.encoded", "");
+            String publicKeyEncoded = preopConfig.getString("cert." + ss + ".pubkey.encoded", "");
             cs.putString("cloning." + ss + ".pubkey.encoded", publicKeyEncoded);
         }
 
-        String tokens = cs.getString("preop.module.token", "");
+        String tokens = preopConfig.getString("module.token", "");
         cs.putString("cloning.module.token", tokens);
         cs.putString("cloning.list", list);
 
@@ -3675,39 +3750,39 @@ public class Configurator {
 
         if (!type.equals("CA")) {
 
-            String val = cs.getString("preop.ca.hostname", "");
+            String val = preopConfig.getString("ca.hostname", "");
             if (val.length() > 0) {
                 cs.putString("cloning.ca.hostname", val);
             }
 
-            val = cs.getString("preop.ca.httpport", "");
+            val = preopConfig.getString("ca.httpport", "");
             if (val.length() != 0) {
                 cs.putString("cloning.ca.httpport", val);
             }
 
-            val = cs.getString("preop.ca.httpsport", "");
+            val = preopConfig.getString("ca.httpsport", "");
             if (val.length() != 0) {
                 cs.putString("cloning.ca.httpsport", val);
             }
 
-            val = cs.getString("preop.ca.list", "");
+            val = preopConfig.getString("ca.list", "");
             if (val.length() != 0) {
                 cs.putString("cloning.ca.list", val);
             }
 
-            val = cs.getString("preop.ca.pkcs7", "");
+            val = preopConfig.getString("ca.pkcs7", "");
             if (val.length() != 0) {
                 cs.putString("cloning.ca.pkcs7", val);
             }
 
-            val = cs.getString("preop.ca.type", "");
+            val = preopConfig.getString("ca.type", "");
             if (val.length() != 0) {
                 cs.putString("cloning.ca.type", val);
             }
         }
 
         // save EC type for sslserver cert (if present)
-        String ecType = cs.getString("preop.cert.sslserver.ec.type", "ECDHE");
+        String ecType = preopConfig.getString("cert.sslserver.ec.type", "ECDHE");
         cs.putString("jss.ssl.sslserver.ectype", ecType);
 
         cs.removeSubStore("preop");

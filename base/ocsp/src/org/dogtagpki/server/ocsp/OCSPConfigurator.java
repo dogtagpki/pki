@@ -36,6 +36,7 @@ import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 import com.netscape.ocsp.OCSPAuthority;
@@ -69,7 +70,8 @@ public class OCSPConfigurator extends Configurator {
     public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
 
         try {
-            String ca_host = cs.getString("preop.ca.hostname", "");
+            PreOpConfig preopConfig = cs.getPreOpConfig();
+            String ca_host = preopConfig.getString("ca.hostname", "");
 
             // import the CA certificate into the OCSP
             // configure the CRL Publishing to OCSP in CA
@@ -112,9 +114,10 @@ public class OCSPConfigurator extends Configurator {
     public void importCACert() throws IOException, EBaseException, CertificateEncodingException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         // get certificate chain from CA
-        String b64 = cs.getString("preop.ca.pkcs7", "");
+        String b64 = preopConfig.getString("ca.pkcs7", "");
         if (b64.equals("")) {
             throw new IOException("Failed to get certificate chain");
         }
@@ -152,9 +155,10 @@ public class OCSPConfigurator extends Configurator {
     public void updateOCSPConfiguration() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        String caHost = cs.getString("preop.ca.hostname", "");
-        int caPort = cs.getInteger("preop.ca.httpsport", -1);
+        String caHost = preopConfig.getString("ca.hostname", "");
+        int caPort = preopConfig.getInteger("ca.httpsport", -1);
 
         logger.debug("OCSPConfigurator: "
                 + "Updating OCSP configuration in CA at https://" + caHost + ":" + caPort);

@@ -67,6 +67,7 @@ import com.netscape.cms.profile.common.IEnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -120,24 +121,25 @@ public class CertUtil {
     }
 
     public static PKCS10 getPKCS10(
-            IConfigStore config,
-            String prefix,
+            EngineConfig config,
             Cert certObj) throws Exception {
+
+        PreOpConfig preopConfig = config.getPreOpConfig();
 
         String certTag = certObj.getCertTag();
         logger.info("CertUtil: Generating CSR for " + certTag);
 
-        String dn = config.getString(prefix + certTag + ".dn");
+        String dn = preopConfig.getString("cert." + certTag + ".dn");
         logger.debug("CertUtil: subject: " + dn);
 
-        String keyType = config.getString(prefix + certTag + ".keytype");
+        String keyType = preopConfig.getString("cert." + certTag + ".keytype");
 
         X509Key publicKey;
 
         if (keyType.equals("rsa")) {
 
-            String pubKeyModulus = config.getString(prefix + certTag + ".pubkey.modulus");
-            String pubKeyPublicExponent = config.getString(prefix + certTag + ".pubkey.exponent");
+            String pubKeyModulus = preopConfig.getString("cert." + certTag + ".pubkey.modulus");
+            String pubKeyPublicExponent = preopConfig.getString("cert." + certTag + ".pubkey.exponent");
 
             publicKey = CryptoUtil.getPublicX509Key(
                     CryptoUtil.string2byte(pubKeyModulus),
@@ -145,7 +147,7 @@ public class CertUtil {
 
         } else if (keyType.equals("ecc")) {
 
-            String pubKeyEncoded = config.getString(prefix + certTag + ".pubkey.encoded");
+            String pubKeyEncoded = preopConfig.getString("cert." + certTag + ".pubkey.encoded");
 
             publicKey = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
 
@@ -161,7 +163,7 @@ public class CertUtil {
 
         logger.debug("CertUtil: public key: " + publicKey.getAlgorithm());
 
-        String privateKeyID = config.getString(prefix + certTag + ".privkey.id");
+        String privateKeyID = preopConfig.getString("cert." + certTag + ".privkey.id");
         byte[] keyID = CryptoUtil.decodeKeyID(privateKeyID);
 
         PrivateKey privateKey = CryptoUtil.findPrivateKeyFromID(keyID);
@@ -173,7 +175,7 @@ public class CertUtil {
 
         logger.debug("CertUtil: private key: " + privateKey.getAlgorithm());
 
-        String algorithm = config.getString(prefix + certTag + ".keyalgorithm");
+        String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
 
         return CryptoUtil.createCertificationRequest(
                 dn,
@@ -341,7 +343,7 @@ public class CertUtil {
      * @throws EPropertyNotFound
      */
     public static void updateLocalRequest(
-            IConfigStore config,
+            EngineConfig config,
             String certTag,
             byte[] certReq,
             String reqType,
@@ -350,7 +352,8 @@ public class CertUtil {
 
         logger.debug("CertUtil: updateLocalRequest(" + certTag + ")");
 
-        String reqId = config.getString("preop.cert." + certTag + ".reqId", null);
+        PreOpConfig preopConfig = config.getPreOpConfig();
+        String reqId = preopConfig.getString("cert." + certTag + ".reqId", null);
         if (reqId == null) {
             logger.warn("CertUtil: cert has no request record");
             return;
@@ -397,9 +400,9 @@ public class CertUtil {
      * @throws FileNotFoundException
      */
 
-    public static String getAdminProfileAlgorithm(IConfigStore config) throws EBaseException, FileNotFoundException,
-            IOException {
-        String caSigningKeyType = config.getString("preop.cert.signing.keytype", "rsa");
+    public static String getAdminProfileAlgorithm(EngineConfig config) throws Exception {
+        PreOpConfig preopConfig = config.getPreOpConfig();
+        String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
         String pfile = config.getString("profile.caAdminCert.config");
         Properties props = new Properties();
         props.load(new FileInputStream(pfile));
@@ -464,20 +467,21 @@ public class CertUtil {
     public static X509CertImpl createLocalCert(
             EngineConfig config,
             X509Key x509key,
-            String prefix,
             String certTag,
             String type) throws Exception {
 
         logger.debug("CertUtil: createLocalCert(" + certTag + ")");
 
-        String dn = config.getString(prefix + certTag + ".dn");
+        PreOpConfig preopConfig = config.getPreOpConfig();
+
+        String dn = preopConfig.getString("cert." + certTag + ".dn");
         String keyAlgorithm = null;
         Date date = new Date();
 
         if (certTag.equals("admin")) {
             keyAlgorithm = getAdminProfileAlgorithm(config);
         } else {
-            keyAlgorithm = config.getString(prefix + certTag + ".keyalgorithm");
+            keyAlgorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
         }
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -496,7 +500,7 @@ public class CertUtil {
 
         } else {
 
-            String issuerdn = config.getString("preop.cert.signing.dn", "");
+            String issuerdn = preopConfig.getString("cert.signing.dn", "");
             logger.debug("Creating local certificate... issuer DN: " + issuerdn);
             logger.debug("Creating local certificate... DN: " + dn);
 
@@ -519,7 +523,7 @@ public class CertUtil {
         String instanceRoot = config.getInstanceDir();
         String configurationRoot = config.getString("configurationRoot");
 
-        String profileName = config.getString(prefix + certTag + ".profile");
+        String profileName = preopConfig.getString("cert." + certTag + ".profile");
         logger.debug("CertUtil: profile: " + profileName);
 
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
@@ -536,7 +540,7 @@ public class CertUtil {
                 x509key);
 
         RequestId reqId = req.getRequestId();
-        config.putString("preop.cert." + certTag + ".reqId", reqId.toString());
+        preopConfig.putString("cert." + certTag + ".reqId", reqId.toString());
 
         profile.populate(req, info);
 
@@ -547,7 +551,7 @@ public class CertUtil {
         }
         PrivateKey caPrik = (PrivateKey) pk;
         */
-        String caPriKeyID = config.getString(prefix + "signing" + ".privkey.id");
+        String caPriKeyID = preopConfig.getString("cert.signing" + ".privkey.id");
         byte[] keyIDb = CryptoUtil.decodeKeyID(caPriKeyID);
         PrivateKey caPrik = CryptoUtil.findPrivateKeyFromID(keyIDb);
 
@@ -560,14 +564,14 @@ public class CertUtil {
         String keyAlgo = x509key.getAlgorithm();
         logger.debug("key algorithm is " + keyAlgo);
 
-        String caSigningKeyType = config.getString("preop.cert.signing.keytype", "rsa");
+        String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
         logger.debug("CA Signing Key type " + caSigningKeyType);
 
         String caSigningKeyAlgo;
         if (type.equals("selfsign")) {
-            caSigningKeyAlgo = config.getString("preop.cert.signing.keyalgorithm", "SHA256withRSA");
+            caSigningKeyAlgo = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
         } else {
-            caSigningKeyAlgo = config.getString("preop.cert.signing.signingalgorithm", "SHA256withRSA");
+            caSigningKeyAlgo = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
         }
         logger.debug("CA Signing Key algorithm " + caSigningKeyAlgo);
 
@@ -626,9 +630,10 @@ public class CertUtil {
     public static void addUserCertificate(X509CertImpl cert) {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
         int num = 0;
         try {
-            num = cs.getInteger("preop.subsystem.count", 0);
+            num = preopConfig.getInteger("subsystem.count", 0);
         } catch (Exception e) {
             logger.warn("Unable to retrieve server configuration: " + e, e);
         }
@@ -646,7 +651,7 @@ public class CertUtil {
         }
 
         num++;
-        cs.putInteger("preop.subsystem.count", num);
+        preopConfig.putInteger("subsystem.count", num);
         cs.putInteger("subsystem.count", num);
 
         try {
@@ -731,10 +736,11 @@ public class CertUtil {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String givenid = "";
         try {
-            givenid = cs.getString("preop.cert." + certTag + ".privkey.id");
+            givenid = preopConfig.getString("cert." + certTag + ".privkey.id");
         } catch (Exception e) {
             logger.warn("CertUtil privateKeyExistsOnToken: we did not generate private key yet: " + e, e);
             return false;

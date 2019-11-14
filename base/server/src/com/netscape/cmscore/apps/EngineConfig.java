@@ -83,4 +83,8 @@ public class EngineConfig extends PropConfigStore {
     public DatabaseConfig getDatabaseConfig() {
         return getSubStore("dbs", DatabaseConfig.class);
     }
+
+    public PreOpConfig getPreOpConfig() {
+        return getSubStore("preop", PreOpConfig.class);
+    }
 }

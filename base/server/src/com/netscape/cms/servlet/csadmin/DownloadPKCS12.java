@@ -33,6 +33,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class DownloadPKCS12 extends CMSServlet {
@@ -68,6 +69,7 @@ public class DownloadPKCS12 extends CMSServlet {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         mRenderResult = false;
 
@@ -82,7 +84,7 @@ public class DownloadPKCS12 extends CMSServlet {
 
         String cspin = "";
         try {
-            cspin = cs.getString("preop.pin");
+            cspin = preopConfig.getString("pin");
         } catch (Exception e) {
         }
 
@@ -95,7 +97,7 @@ public class DownloadPKCS12 extends CMSServlet {
 
         byte[] pkcs12 = null;
         try {
-            String str = cs.getString("preop.pkcs12");
+            String str = preopConfig.getString("pkcs12");
             pkcs12 = CryptoUtil.string2byte(str);
         } catch (Exception e) {
         }

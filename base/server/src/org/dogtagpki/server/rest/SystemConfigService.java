@@ -54,6 +54,7 @@ import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -175,7 +176,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            boolean enable = cs.getBoolean("preop.cert." + tag + ".enable", true);
+            PreOpConfig preopConfig = cs.getPreOpConfig();
+
+            boolean enable = preopConfig.getBoolean("cert." + tag + ".enable", true);
             if (!enable) {
                 logger.info("SystemConfigService: " + tag + " certificate is disabled");
                 return null;
@@ -376,17 +379,19 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         String tag = certData.getTag();
         logger.debug("SystemConfigService.processKeyPair(" + tag + ")");
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String tokenName = certData.getToken();
         if (StringUtils.isEmpty(tokenName)) {
-            tokenName = cs.getString("preop.module.token", null);
+            tokenName = preopConfig.getString("module.token", null);
         }
 
         logger.debug("SystemConfigService: token: " + tokenName);
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
-        String keytype = cs.getString("preop.cert." + tag + ".keytype");
-        String keyalgorithm = cs.getString("preop.cert." + tag + ".keyalgorithm");
-        String signingalgorithm = cs.getString("preop.cert." + tag + ".signingalgorithm");
+        String keytype = preopConfig.getString("cert." + tag + ".keytype");
+        String keyalgorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
+        String signingalgorithm = preopConfig.getString("cert." + tag + ".signingalgorithm");
 
         // support injecting SAN into server cert
         if (tag.equals("sslserver") && certData.getServerCertSAN() != null) {
@@ -418,13 +423,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             if (keytype.equals("ecc")) {
                 String curvename = certData.getKeySize() != null ?
                         certData.getKeySize() : cs.getString("keys.ecc.curve.default");
-                cs.putString("preop.cert." + tag + ".curvename.name", curvename);
+                preopConfig.putString("cert." + tag + ".curvename.name", curvename);
                 pair = configurator.createECCKeyPair(token, curvename, tag);
 
             } else {
                 String keysize = certData.getKeySize() != null ? certData.getKeySize() : cs
                         .getString("keys.rsa.keysize.default");
-                cs.putString("preop.cert." + tag + ".keysize.size", keysize);
+                preopConfig.putString("cert." + tag + ".keysize.size", keysize);
                 pair = configurator.createRSAKeyPair(token, Integer.parseInt(keysize), tag);
             }
 
@@ -437,22 +442,24 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             CertificateSetupRequest request,
             SystemCertData certData) throws Exception {
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String tag = certData.getTag();
         String tokenName = certData.getToken();
         if (StringUtils.isEmpty(tokenName)) {
-            tokenName = cs.getString("preop.module.token", null);
+            tokenName = preopConfig.getString("module.token", null);
         }
 
         logger.debug("SystemConfigService.processCert(" + tag + ")");
 
-        String nickname = cs.getString("preop.cert." + tag + ".nickname");
-        String dn = cs.getString("preop.cert." + tag + ".dn");
-        String subsystem = cs.getString("preop.cert." + tag + ".subsystem");
+        String nickname = preopConfig.getString("cert." + tag + ".nickname");
+        String dn = preopConfig.getString("cert." + tag + ".dn");
+        String subsystem = preopConfig.getString("cert." + tag + ".subsystem");
 
         Cert cert = new Cert(tokenName, nickname, tag);
         cert.setDN(dn);
         cert.setSubsystem(subsystem);
-        cert.setType(cs.getString("preop.cert." + tag + ".type"));
+        cert.setType(preopConfig.getString("cert." + tag + ".type"));
 
         String fullName;
         if (!CryptoUtil.isInternalToken(tokenName)) {
@@ -551,9 +558,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             SystemCertData cdata,
             String tag) throws Exception {
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String tokenName = cdata.getToken();
         if (StringUtils.isEmpty(tokenName)) {
-            tokenName = cs.getString("preop.module.token", null);
+            tokenName = preopConfig.getString("module.token", null);
         }
 
         // TODO - some of these parameters may only be valid for RSA
@@ -568,7 +577,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         boolean isECC = false;
-        String keyType = cs.getString("preop.cert." + tag + ".keytype");
+        String keyType = preopConfig.getString("cert." + tag + ".keytype");
 
         logger.debug("SystemConfigService:updateCloneConfiguration: keyType: " + keyType);
         if("ecc".equalsIgnoreCase(keyType)) {
@@ -588,14 +597,16 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         PrivateKey privk = cryptoManager.findPrivKeyByCert(cert);
 
-        cs.putString("preop.cert." + tag + ".privkey.id", CryptoUtil.encodeKeyID(privk.getUniqueID()));
+        preopConfig.putString("cert." + tag + ".privkey.id", CryptoUtil.encodeKeyID(privk.getUniqueID()));
     }
 
     private void updateConfiguration(SystemCertData cdata, String tag) throws Exception {
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String tokenName = cdata.getToken();
         if (StringUtils.isEmpty(tokenName)) {
-            tokenName = cs.getString("preop.module.token", null);
+            tokenName = preopConfig.getString("module.token", null);
         }
 
         if (CryptoUtil.isInternalToken(tokenName)) {
@@ -649,7 +660,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new BadRequestException("Missing configuration PIN");
         }
 
-        String preopPin = cs.getString("preop.pin");
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String preopPin = preopConfig.getString("pin");
         if (!preopPin.equals(pin)) {
             throw new BadRequestException("Invalid configuration PIN");
         }

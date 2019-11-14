@@ -29,6 +29,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -53,9 +54,10 @@ public class ReplicationUtil {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
 
-        LDAPConfig masterCfg = cs.getSubStore("preop.internaldb.master", LDAPConfig.class);
+        LDAPConfig masterCfg = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
         LDAPConnectionConfig masterConnCfg = masterCfg.getConnectionConfig();
 
         LDAPConfig replicaCfg = cs.getInternalDBConfig();
@@ -71,10 +73,10 @@ public class ReplicationUtil {
         int cloneReplicationPort = replicaConnCfg.getInteger("cloneReplicationPort");
 
         String master_hostname = masterConnCfg.getString("host", "");
-        String master_replicationpwd = cs.getString("preop.internaldb.master.replication.password", "");
+        String master_replicationpwd = preopConfig.getString("internaldb.master.replication.password", "");
 
         String replica_hostname = replicaConnCfg.getString("host", "");
-        String replica_replicationpwd = cs.getString("preop.internaldb.replicationpwd", "");
+        String replica_replicationpwd = preopConfig.getString("internaldb.replicationpwd", "");
 
         String basedn = replicaCfg.getBaseDN();
         String suffix = replicaCfg.getBaseDN();

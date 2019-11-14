@@ -27,6 +27,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.apps.PreOpConfig;
 
 /**
  * Utility class for TPS installation to be used both by the RESTful installer
@@ -49,9 +50,10 @@ public class TPSInstaller {
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
         EngineConfig cs = engine.getConfig();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         // TODO: see if this is only needed by wizard-based installation
-        cs.putString("preop.cainfo.select", uri.toString());
+        preopConfig.putString("cainfo.select", uri.toString());
 
         try {
             database.addCAConnector(uri.getHost(), uri.getPort(), nickname);
@@ -68,9 +70,10 @@ public class TPSInstaller {
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
         EngineConfig cs = engine.getConfig();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         // TODO: see if this is only needed by wizard-based installation
-        cs.putString("preop.tksinfo.select", uri.toString());
+        preopConfig.putString("tksinfo.select", uri.toString());
 
         try {
             database.addTKSConnector(uri.getHost(), uri.getPort(), nickname, false);
@@ -87,10 +90,11 @@ public class TPSInstaller {
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
         EngineConfig cs = engine.getConfig();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         if (keygen) {
             // TODO: see if this is only needed by wizard-based installation
-            cs.putString("preop.krainfo.select", uri.toString());
+            preopConfig.putString("krainfo.select", uri.toString());
 
             // TODO: see if there are other profiles need to be configured
             cs.putString("op.enroll.userKey.keyGen.encryption.serverKeygen.enable", "true");

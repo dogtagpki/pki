@@ -32,6 +32,7 @@ import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 import com.netscape.kra.KeyRecoveryAuthority;
@@ -64,7 +65,8 @@ public class KRAConfigurator extends Configurator {
     public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
 
         try {
-            String ca_host = cs.getString("preop.ca.hostname", "");
+            PreOpConfig preopConfig = cs.getPreOpConfig();
+            String ca_host = preopConfig.getString("ca.hostname", "");
 
             // need to push connector information to the CA
             if (!request.getStandAlone() && !ca_host.equals("")) {
@@ -93,15 +95,16 @@ public class KRAConfigurator extends Configurator {
     public void configureKRAConnector() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        String url = cs.getString("preop.ca.url", "");
+        String url = preopConfig.getString("ca.url", "");
         if (url.equals("")) {
             logger.debug("KRAConfigurator: preop.ca.url is not defined. External CA selected. No transport certificate setup is required");
             return;
         }
 
-        String caHost = cs.getString("preop.ca.hostname", "");
-        int caPort = cs.getInteger("preop.ca.httpsadminport", -1);
+        String caHost = preopConfig.getString("ca.hostname", "");
+        int caPort = preopConfig.getInteger("ca.httpsadminport", -1);
 
         logger.debug("KRAConfigurator: "
                 + "Configuring KRA connector in CA at https://" + caHost + ":" + caPort);
