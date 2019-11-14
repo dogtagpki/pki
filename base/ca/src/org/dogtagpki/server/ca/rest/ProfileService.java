@@ -510,36 +510,49 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     @Override
     public Response createProfileRaw(byte[] data) {
+
         if (data == null) {
-            logger.error("createProfileRaw: profile data is null");
-            throw new BadRequestException("Unable to create profile: Invalid profile data.");
+            String message = "Unable to create profile: Missing profile data";
+            logger.error(message);
+            throw new BadRequestException(message);
         }
 
         if (ps == null) {
-            logger.error("createProfile: ps is null");
-            throw new PKIException("Error creating profile.  Profile Service not available");
+            String message = "Unable to create profile: Profile service not available";
+            logger.error(message);
+            throw new PKIException(message);
         }
 
+        logger.info("ProfileService: Creating profile from raw data");
+
         Map<String, String> auditParams = new LinkedHashMap<String, String>();
-        String profileId = null;
-        String classId = null;
+        String profileId;
+        String classId;
+
         SimpleProperties properties = new SimpleProperties();
         try {
             // load data and read profileId and classId
             properties.load(new ByteArrayInputStream(data));
-            profileId = properties.getProperty("profileId");
-            classId = properties.getProperty("classId");
+            profileId = properties.remove("profileId");
+            classId = properties.remove("classId");
+
         } catch (IOException e) {
-            throw new BadRequestException("Could not parse raw profile data.");
+            String message = "Unable to create profile: " + e.getMessage();
+            logger.error(message, e);
+            throw new BadRequestException(message, e);
         }
+
         if (profileId == null) {
-            throw new BadRequestException("Profile data did not contain profileId attribute.");
+            String message = "Unable to create profile: Missing profile ID";
+            logger.error(message);
+            throw new BadRequestException(message);
         }
+
         if (classId == null) {
-            throw new BadRequestException("Profile data did not contain classId attribute.");
+            String message = "Unable to create profile: Missing class ID";
+            logger.error(message);
+            throw new BadRequestException(message);
         }
-        properties.remove("profileId");
-        properties.remove("classId");
 
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -548,7 +561,9 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
             IProfile profile = ps.getProfile(profileId);
             if (profile != null) {
-                throw new ConflictingOperationException("Profile already exists");
+                String message = "Unable to create profile: Profile already exists";
+                logger.error(message);
+                throw new ConflictingOperationException(message);
             }
 
             auditParams.put("class_id", classId);
@@ -561,16 +576,22 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             try {
                 tempProfile = (IProfile) Class.forName(className).newInstance();
             } catch (Exception e) {
-                throw new PKIException(
-                    "Error instantiating profile class: " + className);
+                String message = "Unable to create profile: " + e.getMessage();
+                logger.error(message, e);
+                throw new PKIException(message, e);
             }
+
             tempProfile.setId(profileId);
+
             try {
                 PropConfigStore tempConfig = new PropConfigStore();
                 tempConfig.load(new ByteArrayInputStream(data));
                 tempProfile.init(ps, tempConfig);
+
             } catch (Exception e) {
-                throw new BadRequestException("Invalid profile data", e);
+                String message = "Unable to create profile: " + e.getMessage();
+                logger.error(message, e);
+                throw new BadRequestException(message, e);
             }
 
             // no error thrown, proceed with profile creation
@@ -587,8 +608,11 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                     auditParams);
 
             return createCreatedResponse(data, uriInfo.getAbsolutePath());
+
         } catch (EBaseException | IOException e) {
-            logger.error("createProfile: error in creating profile: " + e.getMessage(), e);
+
+            String message = "Unable to create profile: " + e.getMessage();
+            logger.error(message, e);
 
             auditProfileChange(
                     ScopeDef.SC_PROFILE_RULES,
@@ -597,7 +621,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                     ILogger.FAILURE,
                     auditParams);
 
-            throw new PKIException("Error in creating profile", e);
+            throw new PKIException(message, e);
         }
     }
 
