@@ -32,8 +32,14 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPDN;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.util.LDIF;
+import netscape.ldap.util.LDIFAttributeContent;
+import netscape.ldap.util.LDIFContent;
+import netscape.ldap.util.LDIFModifyContent;
+import netscape.ldap.util.LDIFRecord;
 
 public class LDAPConfigurator {
 
@@ -243,5 +249,105 @@ public class LDAPConfigurator {
 
         LDAPEntry entry = new LDAPEntry(baseDN, attrs);
         connection.add(entry);
+    }
+
+    public void importLDIFFile(String filename, boolean ignoreErrors) throws Exception {
+
+        logger.info("LDAPConfigurator: Importing " + filename);
+
+        LDIF ldif = new LDIF(filename);
+
+        while (true) {
+
+            LDIFRecord record = ldif.nextRecord();
+            if (record == null) break;
+
+            importLDIFRecord(record, ignoreErrors);
+        }
+    }
+
+    public void importLDIFRecord(LDIFRecord record, boolean ignoreErrors) throws Exception {
+
+        String dn = record.getDN();
+        LDIFContent content = record.getContent();
+        int type = content.getType();
+
+        if (type == LDIFContent.ATTRIBUTE_CONTENT) {
+
+            logger.info("LDAPConfigurator: Adding " + dn);
+
+            LDIFAttributeContent c = (LDIFAttributeContent) content;
+            LDAPAttributeSet attrs = new LDAPAttributeSet();
+
+            for (LDAPAttribute attr : c.getAttributes()) {
+                attrs.add(attr);
+            }
+
+            LDAPEntry entry = new LDAPEntry(dn, attrs);
+
+            try {
+                connection.add(entry);
+
+            } catch (LDAPException e) {
+
+                String message = "Unable to add " + dn + ": " + e;
+
+                if (ignoreErrors) {
+                    logger.warn(message);
+
+                } else {
+                    logger.error(message);
+                    throw new Exception(message, e);
+                }
+            }
+
+        } else if (type == LDIFContent.MODIFICATION_CONTENT) {
+
+            logger.info("LDAPConfigurator: Modifying " + dn);
+
+            LDIFModifyContent c = (LDIFModifyContent) content;
+            LDAPModification[] mods = c.getModifications();
+
+            for (LDAPModification mod : mods) {
+                int operation = mod.getOp();
+                LDAPAttribute attr = mod.getAttribute();
+                String name = attr.getName();
+
+                switch (operation) {
+                    case LDAPModification.ADD:
+                        logger.info("- add: " + name);
+                        break;
+                    case LDAPModification.REPLACE:
+                        logger.info("- replace: " + name);
+                        break;
+                    case LDAPModification.DELETE:
+                        logger.info("- delete: " + name);
+                        break;
+                }
+
+                String[] values = attr.getStringValueArray();
+                if (values != null) {
+                    for (String value : values) {
+                        logger.info("  " + name + ": " + value);
+                    }
+                }
+            }
+
+            try {
+                connection.modify(dn, mods);
+
+            } catch (LDAPException e) {
+
+                String message = "Unable to modify " + dn + ": " + e;
+
+                if (ignoreErrors) {
+                    logger.warn(message);
+
+                } else {
+                    logger.error(message);
+                    throw new Exception(message, e);
+                }
+            }
+        }
     }
 }

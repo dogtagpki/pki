@@ -1599,7 +1599,7 @@ public class Configurator {
         }
     }
 
-    public void enableUSNPlugin() throws IOException, EBaseException {
+    public void enableUSNPlugin() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
 
@@ -1608,11 +1608,11 @@ public class Configurator {
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn);
+
         try {
-            importLDIFS("preop.internaldb.usn.ldif", conn);
-        } catch (Exception e) {
-            logger.error("Failed to enable USNPlugin: " + e);
-            throw new EBaseException("Failed to enable USN plugin: " + e, e);
+            importLDIFS(ldapConfigurator, "preop.internaldb.usn.ldif");
+
         } finally {
             releaseConnection(conn);
         }
@@ -1731,20 +1731,20 @@ public class Configurator {
                     // so clone does not need the data
                     boolean replicateSchema = preopConfig.getBoolean("internaldb.replicateSchema", true);
                     if (!replicateSchema || !setupReplication) {
-                        importLDIFS("preop.internaldb.schema.ldif", conn);
+                        importLDIFS(ldapConfigurator, "preop.internaldb.schema.ldif");
                     }
-                    importLDIFS("preop.internaldb.ldif", conn);
+                    importLDIFS(ldapConfigurator, "preop.internaldb.ldif");
 
                     // add the index before replication, add VLV indexes afterwards
-                    importLDIFS("preop.internaldb.index_ldif", conn);
+                    importLDIFS(ldapConfigurator, "preop.internaldb.index_ldif");
 
                 } else {
                     // this is the normal non-clone case
                     // import schema, database, initial data and indexes
-                    importLDIFS("preop.internaldb.schema.ldif", conn);
-                    importLDIFS("preop.internaldb.ldif", conn);
-                    importLDIFS("preop.internaldb.data_ldif", conn);
-                    importLDIFS("preop.internaldb.index_ldif", conn);
+                    importLDIFS(ldapConfigurator, "preop.internaldb.schema.ldif");
+                    importLDIFS(ldapConfigurator, "preop.internaldb.ldif");
+                    importLDIFS(ldapConfigurator, "preop.internaldb.data_ldif");
+                    importLDIFS(ldapConfigurator, "preop.internaldb.index_ldif");
                 }
 
             } catch (Exception e) {
@@ -1768,7 +1768,7 @@ public class Configurator {
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         logger.info("Configurator: Generating indexes");
-        importLDIFS("preop.internaldb.index_task_ldif", ldapConfigurator.getConnection(), false);
+        importLDIFS(ldapConfigurator, "preop.internaldb.index_task_ldif", false);
 
         logger.info("Configurator: Waiting for indexing to complete");
         String wait_dn = preopConfig.getString("internaldb.index_wait_dn", "");
@@ -1778,11 +1778,11 @@ public class Configurator {
         }
     }
 
-    public void importLDIFS(String param, LDAPConnection conn) throws Exception {
-        importLDIFS(param, conn, true);
+    public void importLDIFS(LDAPConfigurator ldapConfigurator, String param) throws Exception {
+        importLDIFS(ldapConfigurator, param, true);
     }
 
-    public void importLDIFS(String param, LDAPConnection conn, boolean suppressErrors) throws Exception {
+    public void importLDIFS(LDAPConfigurator ldapConfigurator, String param, boolean ignoreErrors) throws Exception {
 
         logger.info("Configurator: Importing " + param);
 
@@ -1791,11 +1791,11 @@ public class Configurator {
 
         while (tokenizer.hasMoreTokens()) {
             String filename = tokenizer.nextToken().trim();
-            importLDIF(filename, conn, suppressErrors);
+            importLDIF(ldapConfigurator, filename, ignoreErrors);
         }
     }
 
-    public void importLDIF(String filename, LDAPConnection conn, boolean suppressErrors) throws Exception {
+    public void importLDIF(LDAPConfigurator ldapConfigurator, String filename, boolean ignoreErrors) throws Exception {
 
         logger.info("Configurator: Importing " + filename);
 
@@ -1860,22 +1860,7 @@ public class Configurator {
             }
 
             logger.info("Configurator: Importing " + tmpFile);
-
-            ArrayList<String> errors = new ArrayList<String>();
-            LDAPUtil.importLDIF(conn, tmpFile.getAbsolutePath(), errors);
-
-            if (errors.isEmpty()) {
-                return;
-            }
-
-            logger.error("Configurator: Errors while importing " + filename);
-            for (String error : errors) {
-                logger.error(error);
-            }
-
-            if (!suppressErrors) {
-                throw new EBaseException("Errors while importing " + filename);
-            }
+            ldapConfigurator.importLDIFFile(tmpFile.getAbsolutePath(), ignoreErrors);
 
         } finally {
             tmpFile.delete();
@@ -1905,12 +1890,11 @@ public class Configurator {
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn);
 
         try {
-            importLDIFS("preop.internaldb.manager_ldif", conn);
-        } catch (Exception e) {
-            logger.error("populateDBManager(): Exception thrown: " + e);
-            throw e;
+            importLDIFS(ldapConfigurator, "preop.internaldb.manager_ldif");
+
         } finally {
             releaseConnection(conn);
         }
@@ -1930,7 +1914,7 @@ public class Configurator {
 
         try {
             logger.info("Configurator: Generating VLV indexes");
-            importLDIFS("preop.internaldb.post_ldif", conn);
+            importLDIFS(ldapConfigurator, "preop.internaldb.post_ldif");
 
             logger.info("Configurator: Waiting for VLV indexing to complete");
             String wait_dn = preopConfig.getString("internaldb.wait_dn", "");
