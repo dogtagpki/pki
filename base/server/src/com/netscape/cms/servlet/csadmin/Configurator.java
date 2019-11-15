@@ -1642,20 +1642,6 @@ public class Configurator {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn);
 
         try {
-            if (remove) {
-                if (createNewDB) {
-                    logger.info("Configurator: Removing database for subtree " + baseDN);
-                    ldapConfigurator.deleteDatabase(database, baseDN);
-
-                } else if (!select.equals("clone") || setupReplication) {
-                    logger.info("Configurator: Removing subtree " + baseDN);
-                    ldapConfigurator.deleteEntry(baseDN);
-
-                } else {
-                    logger.info("Configurator: Reusing replicated subtree " + baseDN);
-                }
-            }
-
             LDAPEntry baseEntry = null;
 
             if (createNewDB || !select.equals("clone") || setupReplication) {

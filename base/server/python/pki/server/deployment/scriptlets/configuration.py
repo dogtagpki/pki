@@ -663,6 +663,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         create_temp_sslserver_cert = self.create_temp_sslserver_cert(deployer, instance)
 
+        if config.str2bool(deployer.mdict['pki_ds_remove_data']):
+
+            if config.str2bool(deployer.mdict['pki_ds_create_new_db']):
+                logger.info('Removing existing database')
+                subsystem.remove_database(force=True)
+
+            elif not config.str2bool(deployer.mdict['pki_clone']) or \
+                    config.str2bool(deployer.mdict['pki_clone_setup_replication']):
+                logger.info('Emptying existing database')
+                subsystem.empty_database(force=True)
+
+            else:
+                logger.info('Reusing replicated database')
+
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger
         # (e. g. - 'eclipse'):
