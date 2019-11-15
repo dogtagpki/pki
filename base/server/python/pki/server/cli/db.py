@@ -232,6 +232,7 @@ class SubsystemDBCLI(pki.cli.CLI):
         self.parent = parent
         self.add_module(SubsystemDBConfigCLI(self))
         self.add_module(SubsystemDBInfoCLI(self))
+        self.add_module(SubsystemDBEmptyCLI(self))
         self.add_module(SubsystemDBRemoveCLI(self))
         self.add_module(SubsystemDBUpgradeCLI(self))
 
@@ -627,6 +628,87 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem.run(cmd, as_current_user=as_current_user)
+
+
+class SubsystemDBEmptyCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super(SubsystemDBEmptyCLI, self).__init__(
+            'empty',
+            'Empty %s database' % parent.parent.name.upper())
+
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-db-empty [OPTIONS]' % self.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --force                        Force database removal.')
+        print('      --as-current-user              Run as current user.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'force', 'as-current-user',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.name
+        force = False
+        as_current_user = False
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--force':
+                force = True
+
+            elif o == '--as-current-user':
+                as_current_user = True
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIInstance(instance_name)
+        if not instance.is_valid():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        subsystem.empty_database(
+            force=force,
+            as_current_user=as_current_user)
 
 
 class SubsystemDBRemoveCLI(pki.cli.CLI):

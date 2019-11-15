@@ -29,6 +29,7 @@ public class CADBCLI extends CLI {
         super("db", "CA database management commands", parent);
 
         addModule(new SubsystemDBInfoCLI(this));
+        addModule(new SubsystemDBEmptyCLI(this));
         addModule(new SubsystemDBRemoveCLI(this));
         addModule(new CADBUpgradeCLI(this));
     }

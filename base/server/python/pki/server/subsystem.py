@@ -859,6 +859,21 @@ class PKISubsystem(object):
         """
         self.config.update(new_config)
 
+    def empty_database(self, force=False, as_current_user=False):
+
+        cmd = [self.name + '-db-empty']
+
+        if force:
+            cmd.append('--force')
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def remove_database(self, force=False, as_current_user=False):
 
         cmd = [self.name + '-db-remove']
