@@ -57,7 +57,7 @@ public class LDAPConfigurator {
 
     public LDAPEntry getEntry(String dn) throws Exception {
 
-        logger.info("LDAPConfigurator: Getting LDAP entry " + dn);
+        logger.info("LDAPConfigurator: Getting " + dn);
 
         try {
             return connection.read(dn);
@@ -65,20 +65,20 @@ public class LDAPConfigurator {
         } catch (LDAPException e) {
 
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                logger.warn("LDAP entry not found: " + dn);
+                logger.info("Entry not found: " + dn);
                 return null;
 
             } else {
-                String message = "Unable to get LDAP entry " + dn + ": " + e;
+                String message = "Unable to get " + dn + ": " + e;
                 logger.error(message);
                 throw new Exception(message, e);
             }
         }
     }
 
-    public void checkForConflictingMappings(String database, String baseDN) throws Exception {
+    public void validateDatabaseOwnership(String database, String baseDN) throws Exception {
 
-        logger.info("LDAPConfigurator: Searching for mappings using database " + database);
+        logger.info("LDAPConfigurator: Validating database " + database + " is owned by " + baseDN);
 
         LDAPSearchResults res = connection.search(
                 "cn=mapping tree, cn=config",
@@ -97,7 +97,7 @@ public class LDAPConfigurator {
                 continue;
             }
 
-            String message = "Database " + database + " is used by " + dn;
+            String message = "Database " + database + " is owned by " + dn;
             logger.error(message);
             throw new Exception(message);
         }
@@ -119,13 +119,13 @@ public class LDAPConfigurator {
                 deleteEntry(entry.getDN());
             }
 
-            logger.info("LDAPConfigurator: Deleting LDAP entry " + dn);
+            logger.info("LDAPConfigurator: Deleting " + dn);
             connection.delete(dn);
 
         } catch (LDAPException e) {
 
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                logger.warn("LDAPConfigurator: LDAP entry not found: " + dn);
+                logger.info("LDAPConfigurator: Entry not found: " + dn);
 
             } else {
                 String message = "Unable to delete " + dn + ": " + e;
@@ -179,6 +179,8 @@ public class LDAPConfigurator {
 
     public void createDatabaseEntry(String databaseDN, String database, String baseDN) throws Exception {
 
+        logger.debug("LDAPConfigurator: Adding " + databaseDN);
+
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectClass", new String[] {
                 "top",
@@ -193,6 +195,8 @@ public class LDAPConfigurator {
     }
 
     public void createMappingEntry(String mappingDN, String database, String baseDN) throws Exception {
+
+        logger.debug("LDAPConfigurator: Adding " + mappingDN);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectClass", new String[] {
@@ -230,6 +234,8 @@ public class LDAPConfigurator {
     }
 
     public void createBaseEntry(String baseDN) throws Exception {
+
+        logger.debug("LDAPConfigurator: Adding " + baseDN);
 
         String[] rdns = LDAPDN.explodeDN(baseDN, false);
 
@@ -349,5 +355,20 @@ public class LDAPConfigurator {
                 }
             }
         }
+    }
+
+    public void deleteDatabase(String database, String baseDN) throws Exception {
+
+        String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
+        String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
+
+        logger.info("LDAPConfigurator: Validating database ownership");
+        validateDatabaseOwnership(database, baseDN);
+
+        logger.info("LDAPConfigurator: Deleting mapping entry " + mappingDN);
+        deleteEntry(mappingDN);
+
+        logger.info("LDAPConfigurator: Deleting database entry " + databaseDN);
+        deleteEntry(databaseDN);
     }
 }

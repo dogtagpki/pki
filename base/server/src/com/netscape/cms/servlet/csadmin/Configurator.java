@@ -1624,8 +1624,10 @@ public class Configurator {
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
-        String baseDN = dbCfg.getBaseDN();
         String database = dbCfg.getString("database", "");
+        String baseDN = dbCfg.getBaseDN();
+        String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
+        String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
 
         String select = preopConfig.getString("subsystem.select", "");
         boolean remove = preopConfig.getBoolean("database.removeData", false);
@@ -1640,6 +1642,20 @@ public class Configurator {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn);
 
         try {
+            if (remove) {
+                if (createNewDB) {
+                    logger.info("Configurator: Removing database for subtree " + baseDN);
+                    ldapConfigurator.deleteDatabase(database, baseDN);
+
+                } else if (!select.equals("clone") || setupReplication) {
+                    logger.info("Configurator: Removing subtree " + baseDN);
+                    ldapConfigurator.deleteEntry(baseDN);
+
+                } else {
+                    logger.info("Configurator: Reusing replicated subtree " + baseDN);
+                }
+            }
+
             LDAPEntry baseEntry = null;
 
             if (createNewDB || !select.equals("clone") || setupReplication) {
@@ -1650,7 +1666,6 @@ public class Configurator {
                 }
             }
 
-            String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
             LDAPEntry mappingEntry = null;
 
             if (createNewDB) {
@@ -1661,7 +1676,6 @@ public class Configurator {
                 }
             }
 
-            String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
             LDAPEntry databaseEntry = null;
 
             if (createNewDB) {
@@ -1670,26 +1684,6 @@ public class Configurator {
                 if (databaseEntry != null && !remove) {
                     throw new Exception(databaseDN + " already exists");
                 }
-            }
-
-            if (createNewDB) {
-                logger.info("Configurator: Checking for conflicting mappings");
-                ldapConfigurator.checkForConflictingMappings(database, baseDN);
-            }
-
-            if (mappingEntry != null && createNewDB) {
-                logger.info("Configurator: Deleting mapping entry " + mappingDN);
-                ldapConfigurator.deleteEntry(mappingDN);
-            }
-
-            if (databaseEntry != null && createNewDB) {
-                logger.info("Configurator: Deleting database entry " + databaseDN);
-                ldapConfigurator.deleteEntry(databaseDN);
-            }
-
-            if (baseEntry != null && (createNewDB || !select.equals("clone") || setupReplication)) {
-                logger.info("Configurator: Deleting subtree " + baseDN);
-                ldapConfigurator.deleteEntry(baseDN);
             }
 
             if (createNewDB) {
