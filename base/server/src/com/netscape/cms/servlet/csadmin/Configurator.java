@@ -36,7 +36,6 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
@@ -1543,25 +1542,10 @@ public class Configurator {
         }
 
         try {
-            /* BZ 430745 create password for replication manager */
-            // use user-provided password if specified
-            String replicationPassword = request.getReplicationPassword();
-
-            if (StringUtils.isEmpty(replicationPassword)) {
-                // generate random password
-                SecureRandom random = jssSubsystem.getRandomNumberGenerator();
-                replicationPassword = Integer.toString(random.nextInt());
-            }
-
-            IPasswordStore psStore = engine.getPasswordStore();
-            if (StringUtils.isEmpty(psStore.getPassword("replicationdb", 0))) {
-                psStore.putPassword("replicationdb", replicationPassword);
-            }
-            psStore.commit();
-
             enableUSNPlugin();
             populateDB();
 
+            String replicationPassword = request.getReplicationPassword();
             preopConfig.putString("internaldb.replicationpwd", replicationPassword);
             cs.commit(false);
 

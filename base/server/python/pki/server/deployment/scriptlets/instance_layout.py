@@ -41,24 +41,88 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Skipping instance creation')
             return
 
+        logger.info('Preparing %s instance', deployer.mdict['pki_instance_name'])
+
+        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance.load()
+
+        instance_conf_path = deployer.mdict['pki_instance_configuration_path']
+
+        logger.info('Creating %s', instance_conf_path)
+        instance.makedirs(instance_conf_path, force=True)
+
+        logger.info('Creating password config %s', deployer.mdict['pki_shared_password_conf'])
+
+        # Configuring internal token password
+
+        internal_token = deployer.mdict['pki_self_signed_token']
+        if not pki.nssdb.normalize_token(internal_token):
+            internal_token = pki.nssdb.INTERNAL_TOKEN_NAME
+
+        # If instance already exists and has password, reuse the password
+        if internal_token in instance.passwords:
+            logger.info('Reusing server NSS database password')
+            deployer.mdict['pki_server_database_password'] = instance.passwords.get(internal_token)
+
+        # Otherwise, use user-provided password if specified
+        elif deployer.mdict['pki_server_database_password']:
+            logger.info('Using specified server NSS database password')
+
+        # Otherwise, use user-provided pin if specified
+        elif deployer.mdict['pki_pin']:
+            logger.info('Using specified PIN as server NSS database password')
+            deployer.mdict['pki_server_database_password'] = deployer.mdict['pki_pin']
+
+        # Otherwise, generate a random password
+        else:
+            logger.info('Generating random server NSS database password')
+            deployer.mdict['pki_server_database_password'] = pki.generate_password()
+
+        instance.passwords[internal_token] = deployer.mdict['pki_server_database_password']
+
+        # Configuring HSM password
+
+        if config.str2bool(deployer.mdict['pki_hsm_enable']):
+            hsm_token = deployer.mdict['pki_token_name']
+            instance.passwords['hardware-%s' % hsm_token] = deployer.mdict['pki_token_password']
+
+        # Configuring internal database password
+
+        if 'internaldb' in instance.passwords:
+            logger.info('Reusing internal database password')
+            deployer.mdict['pki_ds_password'] = instance.passwords.get('internaldb')
+
+        else:
+            logger.info('Using specified internal database password')
+
+        instance.passwords['internaldb'] = deployer.mdict['pki_ds_password']
+
+        # Configuring replication manager password
+        # Bug #430745 Create separate password for replication manager
+        # Use user-provided password if specified
+
+        if 'replicationdb' in instance.passwords:
+            logger.info('Reusing replication manager password')
+
+        elif deployer.mdict['pki_replication_password']:
+            logger.info('Using specified replication manager password')
+            instance.passwords['replicationdb'] = deployer.mdict['pki_replication_password']
+
+        else:
+            logger.info('Generating random replication manager password')
+            instance.passwords['replicationdb'] = pki.generate_password()
+
+        instance.store_passwords()
+
         # if this is not the first subsystem, skip
         if len(deployer.instance.tomcat_instance_subsystems()) != 1:
             logger.info('Installing %s instance', deployer.mdict['pki_instance_name'])
             return
 
-        logger.info('Creating new %s instance', deployer.mdict['pki_instance_name'])
-
-        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
-        instance.load()
-
         # establish instance logs
         deployer.directory.create(deployer.mdict['pki_instance_log_path'])
 
         shared_conf_path = deployer.mdict['pki_source_server_path']
-        instance_conf_path = deployer.mdict['pki_instance_configuration_path']
-
-        logger.info('Creating %s', instance_conf_path)
-        instance.makedirs(instance_conf_path, force=True)
 
         # Copy /usr/share/pki/server/conf/tomcat.conf to
         # /var/lib/pki/<instance>/conf/tomcat.conf.

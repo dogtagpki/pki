@@ -88,8 +88,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.mdict['pki_path'] != "/var/lib/pki":
             # create relocated top-level infrastructure base
             deployer.directory.create(deployer.mdict['pki_path'])
+
+        logger.info('Creating instance directory %s', deployer.mdict['pki_instance_path'])
         deployer.directory.create(deployer.mdict['pki_instance_path'])
+
+        logger.info('Creating subsystem directory %s', deployer.mdict['pki_subsystem_path'])
         deployer.directory.create(deployer.mdict['pki_subsystem_path'])
+
+        logger.info('Creating registry link %s', deployer.mdict['pki_subsystem_registry_link'])
         deployer.symlink.create(
             deployer.mdict['pki_instance_registry_path'],
             deployer.mdict['pki_subsystem_registry_link'])
