@@ -2937,7 +2937,6 @@ class ConfigClient:
             request.replicateSchema = "false"
 
         request.replicationSecurity = self.mdict['pki_clone_replication_security']
-        request.replicationPassword = self.mdict['pki_replication_password']
 
         return request
 

@@ -34,6 +34,7 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -76,7 +77,8 @@ public class ReplicationUtil {
         String master_replicationpwd = preopConfig.getString("internaldb.master.replication.password", "");
 
         String replica_hostname = replicaConnCfg.getString("host", "");
-        String replica_replicationpwd = preopConfig.getString("internaldb.replicationpwd", "");
+        IPasswordStore passwordStore = engine.getPasswordStore();
+        String replica_replicationpwd = passwordStore.getPassword("replicationdb", 0);
 
         String basedn = replicaCfg.getBaseDN();
         String suffix = replicaCfg.getBaseDN();

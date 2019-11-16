@@ -48,9 +48,6 @@ public class DatabaseSetupRequest {
     @XmlElement
     protected String replicationSecurity;
 
-    @XmlElement
-    protected String replicationPassword;
-
     public DatabaseSetupRequest() {
         // required for JAXB
     }
@@ -111,14 +108,6 @@ public class DatabaseSetupRequest {
      */
     public void setReplicationSecurity(String replicationSecurity) {
         this.replicationSecurity = replicationSecurity;
-    }
-
-    public String getReplicationPassword() {
-        return replicationPassword;
-    }
-
-    public void setReplicationPassword(String replicationPassword) {
-        this.replicationPassword = replicationPassword;
     }
 
     public String getReplicateSchema() {

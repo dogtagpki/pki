@@ -1545,10 +1545,6 @@ public class Configurator {
             enableUSNPlugin();
             populateDB();
 
-            String replicationPassword = request.getReplicationPassword();
-            preopConfig.putString("internaldb.replicationpwd", replicationPassword);
-            cs.commit(false);
-
             if (request.isClone() && setupReplication) {
                 ReplicationUtil.setupReplication();
             }
