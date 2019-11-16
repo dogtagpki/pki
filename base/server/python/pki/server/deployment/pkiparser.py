@@ -542,11 +542,6 @@ class PKIConfigParser:
         self.ds_connection = ldap.initialize(
             protocol + '://' + hostname + ':' + port)
 
-    def ds_bind(self):
-        self.ds_connection.simple_bind_s(
-            self.mdict['pki_ds_bind_dn'],
-            self.mdict['pki_ds_password'])
-
     def ds_search(self, key=None):
         if key is None:
             key = ''
@@ -554,33 +549,6 @@ class PKIConfigParser:
 
     def ds_close(self):
         self.ds_connection.unbind_s()
-
-    def ds_verify_configuration(self):
-
-        try:
-            self.ds_connect()
-            self.ds_bind()
-            self.ds_search()
-        finally:
-            self.ds_close()
-
-    def ds_base_dn_exists(self):
-        base_dn_exists = True
-        try:
-            self.ds_connect()
-            self.ds_bind()
-            self.ds_search()
-            try:
-                results = self.ds_search(self.mdict['pki_ds_base_dn'])
-
-                if results is None or len(results) == 0:
-                    base_dn_exists = False
-
-            except ldap.NO_SUCH_OBJECT:
-                base_dn_exists = False
-        finally:
-            self.ds_close()
-        return base_dn_exists
 
     def sd_connect(self):
         self.sd_connection = pki.client.PKIConnection(

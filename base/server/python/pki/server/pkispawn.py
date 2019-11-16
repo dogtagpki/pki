@@ -64,6 +64,42 @@ def interrupt_handler(event, frame):
     sys.exit(1)
 
 
+def ds_bind(parser):
+    parser.ds_connection.simple_bind_s(
+        parser.mdict['pki_ds_bind_dn'],
+        parser.mdict['pki_ds_password'])
+
+
+def verify_ds_configuration(parser):
+    try:
+        parser.ds_connect()
+        ds_bind(parser)
+        parser.ds_search()
+    finally:
+        parser.ds_close()
+
+
+def base_dn_exists(parser):
+    try:
+        parser.ds_connect()
+        ds_bind(parser)
+        parser.ds_search()
+
+        try:
+            results = parser.ds_search(parser.mdict['pki_ds_base_dn'])
+
+            if results is None or len(results) == 0:
+                return False
+
+        except ldap.NO_SUCH_OBJECT:
+            return False
+
+    finally:
+        parser.ds_close()
+
+    return True
+
+
 # PKI Deployment Functions
 def main(argv):
     """main entry point"""
@@ -321,7 +357,7 @@ def main(argv):
                                      'pki_ds_password')
 
                 try:
-                    parser.ds_verify_configuration()
+                    verify_ds_configuration(parser)
 
                 except ldap.LDAPError as e:
                     parser.print_text('ERROR: ' + e.args[0]['desc'])
@@ -331,7 +367,7 @@ def main(argv):
                                  deployer.subsystem_name,
                                  'pki_ds_base_dn')
                 try:
-                    if not parser.ds_base_dn_exists():
+                    if not base_dn_exists(parser):
                         break
 
                 except ldap.LDAPError as e:
@@ -740,9 +776,9 @@ def check_ds(parser):
             sys.exit(1)
 
         if not config.str2bool(parser.mdict['pki_skip_ds_verify']):
-            parser.ds_verify_configuration()
+            verify_ds_configuration(parser)
 
-            if parser.ds_base_dn_exists() and not \
+            if base_dn_exists(parser) and not \
                     config.str2bool(parser.mdict['pki_ds_remove_data']):
                 print('ERROR:  Base DN already exists.')
                 sys.exit(1)
