@@ -46,6 +46,8 @@ installation-sanity:
   <<: *job_definition
   script:
   - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
+  only:
+  - LDAPS_master 
 
 installation-sanity-ecc:
   stage: tier1
