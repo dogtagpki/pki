@@ -36,6 +36,9 @@ public class SecurityDomainSetupRequest {
     @XmlElement
     protected String securityDomainType;
 
+    @XmlElement(defaultValue="false")
+    protected String clone;
+
     public SecurityDomainSetupRequest() {
         // required for JAXB
     }
@@ -56,10 +59,19 @@ public class SecurityDomainSetupRequest {
         this.securityDomainType = securityDomainType;
     }
 
+    public boolean isClone() {
+        return "true".equalsIgnoreCase(clone);
+    }
+
+    public void setClone(String isClone) {
+        this.clone = isClone;
+    }
+
     @Override
     public String toString() {
         return "SecurityDomainSetupRequest [pin=XXXX" +
                ", securityDomainType=" + securityDomainType +
+               ", clone=" + clone +
                "]";
     }
 }

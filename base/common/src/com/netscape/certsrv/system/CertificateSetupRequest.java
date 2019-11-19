@@ -53,6 +53,9 @@ public class CertificateSetupRequest {
     @XmlElement(defaultValue="true")
     protected String generateSubsystemCert;
 
+    @XmlElement(defaultValue="false")
+    protected String clone;
+
     public CertificateSetupRequest() {
         // required for JAXB
     }
@@ -130,6 +133,14 @@ public class CertificateSetupRequest {
         this.generateSubsystemCert = generateSubsystemCert;
     }
 
+    public boolean isClone() {
+        return "true".equalsIgnoreCase(clone);
+    }
+
+    public void setClone(String isClone) {
+        this.clone = isClone;
+    }
+
     @Override
     public String toString() {
         return "CertificateSetupRequest [pin=XXXX" +
@@ -139,6 +150,7 @@ public class CertificateSetupRequest {
                ", external=" + external +
                ", standAlone=" + standAlone +
                ", generateSubsystemCert=" + generateSubsystemCert +
+               ", clone=" + clone +
                "]";
     }
 }

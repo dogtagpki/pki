@@ -235,6 +235,7 @@ class DatabaseSetupRequest(object):
 class CertificateSetupRequest(object):
     def __init__(self):
         self.generateServerCert = "true"
+        self.clone = 'false'
 
 
 class CertificateSetupResponse(object):
@@ -259,7 +260,7 @@ class KeyBackupRequest(object):
 
 class SecurityDomainSetupRequest(object):
     def __init__(self):
-        pass
+        self.clone = 'false'
 
 
 class DatabaseUserSetupRequest(object):

@@ -185,10 +185,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # configure cloning
         if config.str2bool(deployer.mdict['pki_clone']):
-            subsystem.config['preop.subsystem.select'] = 'clone'
             subsystem.config['subsystem.select'] = 'Clone'
         else:
-            subsystem.config['preop.subsystem.select'] = 'new'
             subsystem.config['subsystem.select'] = 'New'
 
         # configure CA hierarchy

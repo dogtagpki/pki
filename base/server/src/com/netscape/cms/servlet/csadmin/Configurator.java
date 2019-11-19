@@ -124,6 +124,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
+import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
@@ -131,6 +132,7 @@ import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
+import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.usrgrp.IGroup;
@@ -1537,7 +1539,7 @@ public class Configurator {
 
         try {
             enableUSNPlugin();
-            populateDB();
+            populateDB(request);
 
             if (request.isClone() && setupReplication) {
                 ReplicationUtil.setupReplication();
@@ -1592,7 +1594,7 @@ public class Configurator {
         }
     }
 
-    public void populateDB() throws Exception {
+    public void populateDB(DatabaseSetupRequest request) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -1603,7 +1605,6 @@ public class Configurator {
         String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
         String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
 
-        String select = preopConfig.getString("subsystem.select", "");
         boolean remove = preopConfig.getBoolean("database.removeData", false);
         boolean createNewDB = preopConfig.getBoolean("database.createNewDB", true);
         boolean setupReplication = preopConfig.getBoolean("database.setupReplication", true);
@@ -1618,7 +1619,7 @@ public class Configurator {
         try {
             LDAPEntry baseEntry = null;
 
-            if (createNewDB || !select.equals("clone") || setupReplication) {
+            if (createNewDB || !request.isClone() || setupReplication) {
                 logger.info("Configurator: Checking subtree " + baseDN);
                 baseEntry = ldapConfigurator.getEntry(baseDN);
                 if (baseEntry != null && !remove) {
@@ -1656,12 +1657,12 @@ public class Configurator {
                 ldapConfigurator.createMappingEntry(mappingDN, database, baseDN);
             }
 
-            if (!createNewDB && (!select.equals("clone") || setupReplication)) {
+            if (!createNewDB && (!request.isClone() || setupReplication)) {
                 logger.info("Configurator: Checking parent entry");
                 ldapConfigurator.checkParentExists(baseDN);
             }
 
-            if (createNewDB || !select.equals("clone") || setupReplication) {
+            if (createNewDB || !request.isClone() || setupReplication) {
                 logger.info("Configurator: Creating base entry " + baseDN);
                 ldapConfigurator.createBaseEntry(baseDN);
 
@@ -1672,7 +1673,7 @@ public class Configurator {
             }
 
             try {
-                if (select.equals("clone")) {
+                if (request.isClone()) {
                     // in most cases, we want to replicate the schema and therefore
                     // NOT add it here.  We provide this option though in case the
                     // clone already has schema and we want to replicate back to the
@@ -1706,7 +1707,7 @@ public class Configurator {
                 throw new EBaseException("Failed to import ldif files: " + e, e);
             }
 
-            if (select.equals("clone") && !setupReplication && reindexData) {
+            if (request.isClone() && !setupReplication && reindexData) {
                 // data has already been replicated but not yet indexed -
                 // re-index here
                 populateIndexes(ldapConfigurator);
@@ -1981,7 +1982,7 @@ public class Configurator {
         }
     }
 
-    public void configCert(Cert certObj) throws Exception {
+    public void configCert(CertificateSetupRequest request, Cert certObj) throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -1990,7 +1991,6 @@ public class Configurator {
         X509CertImpl cert = null;
         String certTag = certObj.getCertTag();
 
-        String selection = preopConfig.getString("subsystem.select");
         String csType = cs.getType();
         String preop_ca_type = null;
         String preop_cert_signing_type = null;
@@ -2000,7 +2000,7 @@ public class Configurator {
         String original_caType = null;
         boolean sign_clone_sslserver_cert_using_master = false;
 
-        if (selection.equals("clone") && csType.equals("CA") && certTag.equals("sslserver")) {
+        if (request.isClone() && csType.equals("CA") && certTag.equals("sslserver")) {
             // retrieve and store original 'CS.cfg' entries
             preop_ca_type = preopConfig.getString("ca.type", "");
             preop_cert_signing_type = preopConfig.getString("cert.signing.type", "");
@@ -3039,7 +3039,9 @@ public class Configurator {
         }
     }
 
-    public void setupSecurityDomain(String type) throws Exception {
+    public void setupSecurityDomain(SecurityDomainSetupRequest request) throws Exception {
+
+        String type = request.getSecurityDomainType();
 
         if (type.equals(ConfigurationRequest.NEW_DOMAIN)) {
             logger.info("Creating new security domain");
@@ -3051,7 +3053,7 @@ public class Configurator {
 
         } else {
             logger.info("Updating existing security domain");
-            updateSecurityDomain();
+            updateSecurityDomain(request);
         }
 
         cs.commit(false);
@@ -3126,21 +3128,20 @@ public class Configurator {
         // getDomainInfo(engine.getEESSLHost(), Integer.parseInt(engine.getAdminPort()));
     }
 
-    public void updateSecurityDomain() throws Exception {
+    public void updateSecurityDomain(SecurityDomainSetupRequest request) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         int sd_agent_port = cs.getInteger("securitydomain.httpsagentport");
         int sd_admin_port = cs.getInteger("securitydomain.httpsadminport");
-        String select = preopConfig.getString("subsystem.select");
         String type = cs.getType();
         String sd_host = cs.getString("securitydomain.host");
         String subsystemName = preopConfig.getString("subsystem.name");
 
         boolean cloneMaster = false;
 
-        if (select.equals("clone") && type.equalsIgnoreCase("CA") && isSDHostDomainMaster()) {
+        if (request.isClone() && type.equalsIgnoreCase("CA") && isSDHostDomainMaster()) {
             cloneMaster = true;
             logger.debug("Cloning a domain master");
         }
@@ -3154,7 +3155,7 @@ public class Configurator {
         content.putSingle("name", subsystemName);
         content.putSingle("sport", engine.getEESSLPort());
         content.putSingle("dm", cloneMaster ? "true" : "false");
-        content.putSingle("clone", select.equals("clone") ? "true" : "false");
+        content.putSingle("clone", request.isClone() ? "true" : "false");
         content.putSingle("agentsport", engine.getAgentPort());
         content.putSingle("adminsport", engine.getAdminPort());
 

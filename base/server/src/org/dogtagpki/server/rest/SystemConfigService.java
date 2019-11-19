@@ -314,7 +314,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            configurator.setupSecurityDomain(request.getSecurityDomainType());
+            configurator.setupSecurityDomain(request);
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
@@ -541,7 +541,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // generate and configure other system certificate
         logger.info("SystemConfigService: generating new " + tag + " certificate");
-        configurator.configCert(cert);
+        configurator.configCert(request, cert);
 
         String certStr = cs.getString(subsystem + "." + tag + ".cert" );
         cert.setCert(CryptoUtil.base64Decode(certStr));

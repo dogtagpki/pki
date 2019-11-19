@@ -2954,6 +2954,11 @@ class ConfigClient:
         # Create system certs
         self.set_system_certs(request)
 
+        if self.clone:
+            request.clone = 'true'
+        else:
+            request.clone = 'false'
+
         return request
 
     def create_admin_setup_request(self):
@@ -2997,6 +3002,11 @@ class ConfigClient:
         else:
             # PKI CA, External CA, or Stand-alone PKI
             request.securityDomainType = 'newdomain'
+
+        if self.clone:
+            request.clone = 'true'
+        else:
+            request.clone = 'false'
 
         return request
 
