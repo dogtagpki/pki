@@ -1587,7 +1587,7 @@ public class Configurator {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
 
         try {
-            importLDIFS(ldapConfigurator, "preop.internaldb.usn.ldif");
+            ldapConfigurator.enableUSN();
 
         } finally {
             releaseConnection(conn);

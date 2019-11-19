@@ -90,6 +90,11 @@ public class LDAPConfigurator {
         return params.get(name);
     }
 
+    public void enableUSN() throws Exception {
+        logger.info("LDAPConfigurator: Enabling USN");
+        importFile("/usr/share/pki/server/conf/usn.ldif", true);
+    }
+
     public LDAPEntry getEntry(String dn) throws Exception {
 
         logger.info("LDAPConfigurator: Getting " + dn);
