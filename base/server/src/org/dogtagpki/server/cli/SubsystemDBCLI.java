@@ -29,6 +29,7 @@ public class SubsystemDBCLI extends CLI {
         super("db", parent.name.toUpperCase() + " database management commands", parent);
 
         addModule(new SubsystemDBInfoCLI(this));
+        addModule(new SubsystemDBInitCLI(this));
         addModule(new SubsystemDBEmptyCLI(this));
         addModule(new SubsystemDBRemoveCLI(this));
         addModule(new SubsystemDBUpgradeCLI(this));

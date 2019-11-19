@@ -1479,49 +1479,6 @@ public class Configurator {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, instanceId, ldapConfig);
 
         try {
-
-            ldapConfigurator.configureDirectory();
-            ldapConfigurator.enableUSN();
-
-            if (!request.isClone() || !request.getSetupReplication() || !request.getReplicateSchema()) {
-                // in most cases, we want to replicate the schema and therefore
-                // NOT add it here.  We provide this option though in case the
-                // clone already has schema and we want to replicate back to the
-                // master.
-                // On the other hand, if we are not setting up replication, then we
-                // are assuming that replication is already taken care of, and schema
-                // has already been replicated.  No need to add.
-                ldapConfigurator.setupSchema();
-            }
-
-            if (request.getCreateDatabase()) {
-                ldapConfigurator.createDatabaseEntry(databaseDN, database, baseDN);
-                ldapConfigurator.createMappingEntry(mappingDN, database, baseDN);
-            }
-
-            if (request.getCreateDatabase() || !request.isClone() || request.getSetupReplication()) {
-                ldapConfigurator.createBaseEntry(baseDN);
-
-            } else {
-                // cloning a system where the database is a subtree of an existing tree
-                // and not setting up replication agreements. The assumption then is
-                // that the data is already replicated. No need to set up the base DN
-            }
-
-            if (!request.isClone()) {
-                ldapConfigurator.createContainers(subsystem);
-                ldapConfigurator.setupACL(subsystem);
-            }
-
-            // add indexes before replication
-            ldapConfigurator.createIndexes(subsystem);
-
-            if (request.isClone() && !request.getSetupReplication() && request.getReindexDatabase()) {
-                // data has already been replicated but not yet indexed -
-                // re-index here
-                ldapConfigurator.rebuildIndexes(subsystem);
-            }
-
             if (request.isClone() && request.getSetupReplication()) {
 
                 LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
@@ -1576,13 +1533,12 @@ public class Configurator {
                     psStore.remove("master_internaldb");
                     psStore.commit(false);
                 }
+
+                ldapConfigurator.setupDatabaseManager();
+
+                ldapConfigurator.createVLVIndexes(subsystem);
+                ldapConfigurator.rebuildVLVIndexes(subsystem);
             }
-
-            ldapConfigurator.setupDatabaseManager();
-
-            // add VLV indexes after replication
-            ldapConfigurator.createVLVIndexes(subsystem);
-            ldapConfigurator.rebuildVLVIndexes(subsystem);
 
         } finally {
             releaseConnection(conn);

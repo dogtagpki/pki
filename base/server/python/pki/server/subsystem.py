@@ -859,6 +859,48 @@ class PKISubsystem(object):
         """
         self.config.update(new_config)
 
+    def init_database(
+            self,
+            setup_schema=False,
+            create_database=False,
+            create_base=False,
+            create_containers=False,
+            rebuild_indexes=False,
+            setup_db_manager=False,
+            setup_vlv_indexes=False,
+            as_current_user=False):
+
+        cmd = [self.name + '-db-init']
+
+        if setup_schema:
+            cmd.append('--setup-schema')
+
+        if create_database:
+            cmd.append('--create-database')
+
+        if create_base:
+            cmd.append('--create-base')
+
+        if create_containers:
+            cmd.append('--create-containers')
+
+        if rebuild_indexes:
+            cmd.append('--rebuild-indexes')
+
+        if setup_db_manager:
+            cmd.append('--setup-db-manager')
+
+        if setup_vlv_indexes:
+            cmd.append('--setup-vlv-indexes')
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def empty_database(self, force=False, as_current_user=False):
 
         cmd = [self.name + '-db-empty']

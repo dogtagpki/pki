@@ -662,6 +662,55 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             else:
                 logger.info('Reusing replicated database')
 
+        logger.info('Initializing database')
+
+        # In most cases, we want to replicate the schema and therefore not add it here.
+        # We provide this option though in case the clone already has schema
+        # and we want to replicate back to the master.
+
+        # On the other hand, if we are not setting up replication,
+        # then we are assuming that replication is already taken care of,
+        # and schema has already been replicated.
+
+        setup_schema = not config.str2bool(deployer.mdict['pki_clone']) or \
+            not config.str2bool(deployer.mdict['pki_clone_setup_replication']) or \
+            not config.str2bool(deployer.mdict['pki_clone_replicate_schema'])
+
+        create_database = config.str2bool(deployer.mdict['pki_ds_create_new_db'])
+
+        # When cloning a subsystem without setting up the replication agreements,
+        # the database is a subtree of an existing tree and is already replicated,
+        # so there is no need to set up the base entry.
+
+        create_base = config.str2bool(deployer.mdict['pki_ds_create_new_db']) or \
+            not config.str2bool(deployer.mdict['pki_clone']) or \
+            config.str2bool(deployer.mdict['pki_clone_setup_replication'])
+
+        create_containers = not config.str2bool(deployer.mdict['pki_clone'])
+
+        # If the database is already replicated but not yet indexed, rebuild the indexes.
+
+        rebuild_indexes = config.str2bool(deployer.mdict['pki_clone']) and \
+            not config.str2bool(deployer.mdict['pki_clone_setup_replication']) and \
+            config.str2bool(deployer.mdict['pki_clone_reindex_data'])
+
+        setup_db_manager = not config.str2bool(deployer.mdict['pki_clone']) or \
+            not config.str2bool(deployer.mdict['pki_clone_setup_replication'])
+
+        # If setting up replication, set up VLV indexes after replication.
+
+        setup_vlv_indexes = not config.str2bool(deployer.mdict['pki_clone']) or \
+            not config.str2bool(deployer.mdict['pki_clone_setup_replication'])
+
+        subsystem.init_database(
+            setup_schema=setup_schema,
+            create_database=create_database,
+            create_base=create_base,
+            create_containers=create_containers,
+            rebuild_indexes=rebuild_indexes,
+            setup_db_manager=setup_db_manager,
+            setup_vlv_indexes=setup_vlv_indexes)
+
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger
         # (e. g. - 'eclipse'):
