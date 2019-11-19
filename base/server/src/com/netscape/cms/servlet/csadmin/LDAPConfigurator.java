@@ -95,6 +95,30 @@ public class LDAPConfigurator {
         importFile("/usr/share/pki/server/conf/usn.ldif", true);
     }
 
+    public void reindexDatabase(String subsystem) throws Exception {
+
+        logger.info("LDAPConfigurator: Reindexing database");
+
+        File file = new File("/usr/share/pki/" + subsystem + "/conf/indextasks.ldif");
+        File tmpFile = File.createTempFile("pki-" + subsystem + "-reindex-", ".ldif");
+
+        try {
+            customizeFile(file, tmpFile);
+
+            LDIF ldif = new LDIF(tmpFile.getAbsolutePath());
+            LDIFRecord record = ldif.nextRecord();
+            importLDIFRecord(record, false);
+
+            logger.info("LDAPConfigurator: Waiting for indexing to complete");
+
+            String dn = record.getDN();
+            waitForTask(dn);
+
+        } finally {
+            tmpFile.delete();
+        }
+    }
+
     public LDAPEntry getEntry(String dn) throws Exception {
 
         logger.info("LDAPConfigurator: Getting " + dn);

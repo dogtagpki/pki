@@ -1597,6 +1597,7 @@ public class Configurator {
     public void populateDB(DatabaseSetupRequest request) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        String subsystem = cs.getType().toLowerCase();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
@@ -1710,26 +1711,11 @@ public class Configurator {
             if (request.isClone() && !setupReplication && reindexData) {
                 // data has already been replicated but not yet indexed -
                 // re-index here
-                populateIndexes(ldapConfigurator);
+                ldapConfigurator.reindexDatabase(subsystem);
             }
 
         } finally {
             releaseConnection(conn);
-        }
-    }
-
-    private void populateIndexes(LDAPConfigurator ldapConfigurator) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        logger.info("Configurator: Generating indexes");
-        importLDIFS(ldapConfigurator, "preop.internaldb.index_task_ldif", false);
-
-        logger.info("Configurator: Waiting for indexing to complete");
-        String wait_dn = preopConfig.getString("internaldb.index_wait_dn", "");
-
-        if (!StringUtils.isEmpty(wait_dn)) {
-            ldapConfigurator.waitForTask(wait_dn);
         }
     }
 
