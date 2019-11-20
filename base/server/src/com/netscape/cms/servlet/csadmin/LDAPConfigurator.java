@@ -95,6 +95,11 @@ public class LDAPConfigurator {
         importFile("/usr/share/pki/server/conf/usn.ldif", true);
     }
 
+    public void createIndexes(String subsystem) throws Exception {
+        logger.info("LDAPConfigurator: Creating indexes");
+        importFile("/usr/share/pki/" + subsystem + "/conf/index.ldif", true);
+    }
+
     public void reindexDatabase(String subsystem) throws Exception {
 
         logger.info("LDAPConfigurator: Reindexing database");
