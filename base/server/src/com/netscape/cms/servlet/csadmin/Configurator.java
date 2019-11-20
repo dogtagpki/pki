@@ -1696,12 +1696,16 @@ public class Configurator {
                     // import schema, database, initial data and indexes
                     importLDIFS(ldapConfigurator, "preop.internaldb.schema.ldif");
                     importLDIFS(ldapConfigurator, "preop.internaldb.ldif");
-                    importLDIFS(ldapConfigurator, "preop.internaldb.data_ldif");
                 }
 
             } catch (Exception e) {
                 logger.error("Failed to import ldif files: " + e);
                 throw new EBaseException("Failed to import ldif files: " + e, e);
+            }
+
+            if (!request.isClone()) {
+                ldapConfigurator.createContainers(subsystem);
+                ldapConfigurator.setupACL(subsystem);
             }
 
             // add the index before replication, add VLV indexes afterwards
