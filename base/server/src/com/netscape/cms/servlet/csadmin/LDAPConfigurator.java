@@ -18,6 +18,8 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
@@ -25,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.apps.PreOpConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -49,13 +53,36 @@ public class LDAPConfigurator {
     EngineConfig engineConfig;
     LDAPConnection connection;
 
+    Map<String, String> params = new HashMap<>();
+
     public LDAPConfigurator(EngineConfig engineConfig, LDAPConnection connection) throws Exception {
         this.engineConfig = engineConfig;
         this.connection = connection;
+
+        PreOpConfig preopConfig = engineConfig.getPreOpConfig();
+        LDAPConfig ldapConfig = engineConfig.getInternalDBConfig();
+
+        String baseDN = ldapConfig.getBaseDN();
+        params.put("rootSuffix", baseDN);
+
+        String database = ldapConfig.getString("database");
+        params.put("database", database);
+
+        String instanceId = engineConfig.getInstanceID();
+        params.put("instanceId", instanceId);
+
+        String dbuser = preopConfig.getString(
+                "internaldb.dbuser",
+                "uid=pkidbuser,ou=people," + baseDN);
+        params.put("dbuser", dbuser);
     }
 
     public LDAPConnection getConnection() {
         return connection;
+    }
+
+    public String getParam(String name) {
+        return params.get(name);
     }
 
     public LDAPEntry getEntry(String dn) throws Exception {

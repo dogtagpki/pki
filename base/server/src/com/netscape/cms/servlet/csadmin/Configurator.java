@@ -43,8 +43,6 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -1759,22 +1757,6 @@ public class Configurator {
 
         logger.info("Configurator: Importing " + filename);
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        LDAPConfig ldapConfig = cs.getInternalDBConfig();
-        String baseDN = ldapConfig.getBaseDN();
-        String database = ldapConfig.getString("database");
-        String instanceId = cs.getInstanceID();
-        String dbuser = preopConfig.getString(
-                "internaldb.dbuser",
-                "uid=" + DBUSER + ",ou=people," + baseDN);
-
-        Map<String, String> map = new HashMap<>();
-        map.put("rootSuffix", baseDN);
-        map.put("database", database);
-        map.put("instanceId", instanceId);
-        map.put("dbuser", dbuser);
-
         File tmpFile = File.createTempFile("pki-" + cs.getType().toLowerCase() + "-", ".ldif");
         logger.info("Configurator: Creating " + tmpFile);
 
@@ -1801,7 +1783,7 @@ public class Configurator {
 
                         int end = line.indexOf("}");
                         String name = line.substring(start + 1, end);
-                        String value = map.get(name);
+                        String value = ldapConfigurator.getParam(name);
                         out.print(value);
 
                         if ((line.length() + 1) == end) {
