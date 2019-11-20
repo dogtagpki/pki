@@ -17,6 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -285,6 +290,51 @@ public class LDAPConfigurator {
 
         LDAPEntry entry = new LDAPEntry(baseDN, attrs);
         connection.add(entry);
+    }
+
+    public void customizeFile(File file, File tmpFile) throws Exception {
+
+        logger.info("LDAPConfigurator: Creating " + tmpFile);
+
+        try (BufferedReader in = new BufferedReader(new FileReader(file));
+                PrintWriter out = new PrintWriter(new FileWriter(tmpFile))) {
+
+            String line;
+
+            while ((line = in.readLine()) != null) {
+
+                int start = line.indexOf("{");
+
+                if (start == -1) {
+                    out.println(line);
+                    continue;
+                }
+
+                boolean eol = false;
+
+                while (start != -1) {
+
+                    out.print(line.substring(0, start));
+
+                    int end = line.indexOf("}");
+                    String name = line.substring(start + 1, end);
+                    String value = params.get(name);
+                    out.print(value);
+
+                    if ((line.length() + 1) == end) {
+                        eol = true;
+                        break;
+                    }
+
+                    line = line.substring(end + 1);
+                    start = line.indexOf("{");
+                }
+
+                if (!eol) {
+                    out.println(line);
+                }
+            }
+        }
     }
 
     public void importLDIFFile(String filename, boolean ignoreErrors) throws Exception {

@@ -17,17 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
@@ -1757,51 +1753,11 @@ public class Configurator {
 
         logger.info("Configurator: Importing " + filename);
 
+        File file = new File(filename);
         File tmpFile = File.createTempFile("pki-" + cs.getType().toLowerCase() + "-", ".ldif");
-        logger.info("Configurator: Creating " + tmpFile);
 
         try {
-            try (BufferedReader in = new BufferedReader(new FileReader(filename));
-                    PrintWriter out = new PrintWriter(new FileWriter(tmpFile))) {
-
-                String line;
-
-                while ((line = in.readLine()) != null) {
-
-                    int start = line.indexOf("{");
-
-                    if (start == -1) {
-                        out.println(line);
-                        continue;
-                    }
-
-                    boolean eol = false;
-
-                    while (start != -1) {
-
-                        out.print(line.substring(0, start));
-
-                        int end = line.indexOf("}");
-                        String name = line.substring(start + 1, end);
-                        String value = ldapConfigurator.getParam(name);
-                        out.print(value);
-
-                        if ((line.length() + 1) == end) {
-                            eol = true;
-                            break;
-                        }
-
-                        line = line.substring(end + 1);
-                        start = line.indexOf("{");
-                    }
-
-                    if (!eol) {
-                        out.println(line);
-                    }
-                }
-            }
-
-            logger.info("Configurator: Importing " + tmpFile);
+            ldapConfigurator.customizeFile(file, tmpFile);
             ldapConfigurator.importLDIFFile(tmpFile.getAbsolutePath(), ignoreErrors);
 
         } finally {
