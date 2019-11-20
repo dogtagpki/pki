@@ -1588,7 +1588,7 @@ public class Configurator {
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn);
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
 
         try {
             importLDIFS(ldapConfigurator, "preop.internaldb.usn.ldif");
@@ -1619,7 +1619,7 @@ public class Configurator {
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn);
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
 
         try {
             LDAPEntry baseEntry = null;
@@ -1850,7 +1850,7 @@ public class Configurator {
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn);
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
 
         try {
             importLDIFS(ldapConfigurator, "preop.internaldb.manager_ldif");
@@ -1870,7 +1870,7 @@ public class Configurator {
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn);
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
 
         try {
             logger.info("Configurator: Generating VLV indexes");

@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -45,9 +46,11 @@ public class LDAPConfigurator {
 
     public final static Logger logger = LoggerFactory.getLogger(LDAPConfigurator.class);
 
+    EngineConfig engineConfig;
     LDAPConnection connection;
 
-    public LDAPConfigurator(LDAPConnection connection) {
+    public LDAPConfigurator(EngineConfig engineConfig, LDAPConnection connection) throws Exception {
+        this.engineConfig = engineConfig;
         this.connection = connection;
     }
 

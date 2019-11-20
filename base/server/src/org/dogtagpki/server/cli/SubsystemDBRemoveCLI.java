@@ -126,7 +126,7 @@ public class SubsystemDBRemoveCLI extends CommandCLI {
         socketFactory.init(cs);
 
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn);
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
 
         try {
             ldapConfigurator.deleteDatabase(database, baseDN);
