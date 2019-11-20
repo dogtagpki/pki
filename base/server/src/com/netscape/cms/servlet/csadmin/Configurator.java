@@ -1745,23 +1745,7 @@ public class Configurator {
 
         while (tokenizer.hasMoreTokens()) {
             String filename = tokenizer.nextToken().trim();
-            importLDIF(ldapConfigurator, filename, ignoreErrors);
-        }
-    }
-
-    public void importLDIF(LDAPConfigurator ldapConfigurator, String filename, boolean ignoreErrors) throws Exception {
-
-        logger.info("Configurator: Importing " + filename);
-
-        File file = new File(filename);
-        File tmpFile = File.createTempFile("pki-" + cs.getType().toLowerCase() + "-", ".ldif");
-
-        try {
-            ldapConfigurator.customizeFile(file, tmpFile);
-            ldapConfigurator.importLDIFFile(tmpFile.getAbsolutePath(), ignoreErrors);
-
-        } finally {
-            tmpFile.delete();
+            ldapConfigurator.importFile(filename, ignoreErrors);
         }
     }
 

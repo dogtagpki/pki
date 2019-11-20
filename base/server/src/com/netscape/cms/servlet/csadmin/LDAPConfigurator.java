@@ -337,18 +337,28 @@ public class LDAPConfigurator {
         }
     }
 
-    public void importLDIFFile(String filename, boolean ignoreErrors) throws Exception {
+    public void importFile(String filename, boolean ignoreErrors) throws Exception {
 
         logger.info("LDAPConfigurator: Importing " + filename);
 
-        LDIF ldif = new LDIF(filename);
+        File file = new File(filename);
+        File tmpFile = File.createTempFile("pki-import-", ".ldif");
 
-        while (true) {
+        try {
+            customizeFile(file, tmpFile);
 
-            LDIFRecord record = ldif.nextRecord();
-            if (record == null) break;
+            LDIF ldif = new LDIF(tmpFile.getAbsolutePath());
 
-            importLDIFRecord(record, ignoreErrors);
+            while (true) {
+
+                LDIFRecord record = ldif.nextRecord();
+                if (record == null) break;
+
+                importLDIFRecord(record, ignoreErrors);
+            }
+
+        } finally {
+            tmpFile.delete();
         }
     }
 
