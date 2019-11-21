@@ -91,28 +91,28 @@ public class LDAPConfigurator {
     }
 
     public void enableUSN() throws Exception {
-        logger.info("LDAPConfigurator: Enabling USN");
+        logger.info("Enabling USN");
         importFile("/usr/share/pki/server/conf/usn.ldif", true);
     }
 
     public void createContainers(String subsystem) throws Exception {
-        logger.info("LDAPConfigurator: Creating container entries");
+        logger.info("Creating container entries");
         importFile("/usr/share/pki/" + subsystem + "/conf/db.ldif", true);
     }
 
     public void setupACL(String subsystem) throws Exception {
-        logger.info("LDAPConfigurator: Setting up ACL");
+        logger.info("Setting up ACL");
         importFile("/usr/share/pki/" + subsystem + "/conf/acl.ldif", true);
     }
 
     public void createIndexes(String subsystem) throws Exception {
-        logger.info("LDAPConfigurator: Creating indexes");
+        logger.info("Creating indexes");
         importFile("/usr/share/pki/" + subsystem + "/conf/index.ldif", true);
     }
 
     public void reindexDatabase(String subsystem) throws Exception {
 
-        logger.info("LDAPConfigurator: Reindexing database");
+        logger.info("Reindexing database");
 
         File file = new File("/usr/share/pki/" + subsystem + "/conf/indextasks.ldif");
         File tmpFile = File.createTempFile("pki-" + subsystem + "-reindex-", ".ldif");
@@ -124,7 +124,7 @@ public class LDAPConfigurator {
             LDIFRecord record = ldif.nextRecord();
             importLDIFRecord(record, false);
 
-            logger.info("LDAPConfigurator: Waiting for indexing to complete");
+            logger.info("Waiting for indexing to complete");
 
             String dn = record.getDN();
             waitForTask(dn);
@@ -136,7 +136,7 @@ public class LDAPConfigurator {
 
     public LDAPEntry getEntry(String dn) throws Exception {
 
-        logger.info("LDAPConfigurator: Getting " + dn);
+        logger.info("Getting " + dn);
 
         try {
             return connection.read(dn);
@@ -157,7 +157,7 @@ public class LDAPConfigurator {
 
     public void validateDatabaseOwnership(String database, String baseDN) throws Exception {
 
-        logger.info("LDAPConfigurator: Validating database " + database + " is owned by " + baseDN);
+        logger.info("Validating database " + database + " is owned by " + baseDN);
 
         LDAPSearchResults res = connection.search(
                 "cn=mapping tree, cn=config",
@@ -198,13 +198,13 @@ public class LDAPConfigurator {
                 deleteEntry(entry.getDN());
             }
 
-            logger.info("LDAPConfigurator: Deleting " + dn);
+            logger.info("Deleting " + dn);
             connection.delete(dn);
 
         } catch (LDAPException e) {
 
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                logger.info("LDAPConfigurator: Entry not found: " + dn);
+                logger.info("Entry not found: " + dn);
 
             } else {
                 String message = "Unable to delete " + dn + ": " + e;
@@ -230,7 +230,7 @@ public class LDAPConfigurator {
             }
 
             count++;
-            logger.info("LDAPConfigurator: Waiting for task " + dn + " (" + count + "s)");
+            logger.info("Waiting for task " + dn + " (" + count + "s)");
 
             try {
                 LDAPEntry task = getEntry(dn);
@@ -243,7 +243,7 @@ public class LDAPConfigurator {
                 break;
 
             } catch (Exception e) {
-                logger.warn("LDAPConfigurator: Unable to read task " + dn + ": " + e);
+                logger.warn("Unable to read task " + dn + ": " + e);
             }
         }
 
@@ -253,12 +253,12 @@ public class LDAPConfigurator {
             throw new Exception(message);
         }
 
-        logger.info("LDAPConfigurator: Task " + dn + " complete");
+        logger.info("Task " + dn + " complete");
     }
 
     public void createDatabaseEntry(String databaseDN, String database, String baseDN) throws Exception {
 
-        logger.debug("LDAPConfigurator: Adding " + databaseDN);
+        logger.info("Adding " + databaseDN);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectClass", new String[] {
@@ -275,7 +275,7 @@ public class LDAPConfigurator {
 
     public void createMappingEntry(String mappingDN, String database, String baseDN) throws Exception {
 
-        logger.debug("LDAPConfigurator: Adding " + mappingDN);
+        logger.info("Adding " + mappingDN);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectClass", new String[] {
@@ -304,7 +304,7 @@ public class LDAPConfigurator {
         String parentDN = Arrays.toString(Arrays.copyOfRange(rdns, 1, rdns.length));
         parentDN = parentDN.substring(1, parentDN.length() - 1);
 
-        logger.debug("LDAPConfigurator: Checking parent entry " + parentDN);
+        logger.debug("Checking parent entry " + parentDN);
         LDAPEntry parentEntry = getEntry(parentDN);
 
         if (parentEntry == null) {
@@ -314,7 +314,7 @@ public class LDAPConfigurator {
 
     public void createBaseEntry(String baseDN) throws Exception {
 
-        logger.debug("LDAPConfigurator: Adding " + baseDN);
+        logger.info("Adding " + baseDN);
 
         String[] rdns = LDAPDN.explodeDN(baseDN, false);
 
@@ -338,7 +338,7 @@ public class LDAPConfigurator {
 
     public void customizeFile(File file, File tmpFile) throws Exception {
 
-        logger.info("LDAPConfigurator: Creating " + tmpFile);
+        logger.info("Creating " + tmpFile);
 
         try (BufferedReader in = new BufferedReader(new FileReader(file));
                 PrintWriter out = new PrintWriter(new FileWriter(tmpFile))) {
@@ -383,7 +383,7 @@ public class LDAPConfigurator {
 
     public void importFile(String filename, boolean ignoreErrors) throws Exception {
 
-        logger.info("LDAPConfigurator: Importing " + filename);
+        logger.info("Importing " + filename);
 
         File file = new File(filename);
         File tmpFile = File.createTempFile("pki-import-", ".ldif");
@@ -414,7 +414,7 @@ public class LDAPConfigurator {
 
         if (type == LDIFContent.ATTRIBUTE_CONTENT) {
 
-            logger.info("LDAPConfigurator: Adding " + dn);
+            logger.info("Adding " + dn);
 
             LDIFAttributeContent c = (LDIFAttributeContent) content;
             LDAPAttributeSet attrs = new LDAPAttributeSet();
@@ -443,7 +443,7 @@ public class LDAPConfigurator {
 
         } else if (type == LDIFContent.MODIFICATION_CONTENT) {
 
-            logger.info("LDAPConfigurator: Modifying " + dn);
+            logger.info("Modifying " + dn);
 
             LDIFModifyContent c = (LDIFModifyContent) content;
             LDAPModification[] mods = c.getModifications();
@@ -496,13 +496,13 @@ public class LDAPConfigurator {
         String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
         String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
 
-        logger.info("LDAPConfigurator: Validating database ownership");
+        logger.info("Validating database ownership");
         validateDatabaseOwnership(database, baseDN);
 
-        logger.info("LDAPConfigurator: Deleting mapping entry " + mappingDN);
+        logger.info("Deleting mapping entry " + mappingDN);
         deleteEntry(mappingDN);
 
-        logger.info("LDAPConfigurator: Deleting database entry " + databaseDN);
+        logger.info("Deleting database entry " + databaseDN);
         deleteEntry(databaseDN);
     }
 }

@@ -576,7 +576,7 @@ def main(argv):
     pki_subsystem_scriptlets = parser.mdict['spawn_scriplets'].split()
     deployer.init(parser)
 
-    logger.info('Installing Maven dependencies: %s', args.with_maven_deps)
+    logger.debug('Installing Maven dependencies: %s', args.with_maven_deps)
     deployer.with_maven_deps = args.with_maven_deps
 
     try:
@@ -720,7 +720,6 @@ def start_logging():
     pkilogging.enable_pki_logger(config.pki_log_dir,
                                  config.pki_log_name,
                                  config.pki_log_level,
-                                 config.pki_console_log_level,
                                  "pkispawn")
 
 

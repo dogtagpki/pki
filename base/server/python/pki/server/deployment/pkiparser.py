@@ -204,15 +204,12 @@ class PKIConfigParser:
         # Process 'Optional' command-line options
         #    '-v'
         if args.pki_verbosity == 1:
-            config.pki_console_log_level = logging.INFO
+            config.pki_log_level = logging.INFO
         elif args.pki_verbosity >= 2:
-            config.pki_console_log_level = logging.DEBUG
+            config.pki_log_level = logging.DEBUG
         else:
             # Set default log levels
-            config.pki_console_log_level = logging.WARNING
-
-        # Debug log is always at DEBUG level
-        config.pki_log_level = logging.DEBUG
+            config.pki_log_level = logging.WARNING
 
         return args
 

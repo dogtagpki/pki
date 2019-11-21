@@ -932,7 +932,7 @@ class PKISubsystem(object):
 
         cmd.extend(args)
 
-        logger.info('Command: %s', ' '.join(cmd))
+        logger.debug('Command: %s', ' '.join(cmd))
 
         try:
             subprocess.check_call(cmd)
