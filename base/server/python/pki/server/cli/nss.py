@@ -143,7 +143,7 @@ class NSSRemoveCLI(pki.cli.CLI):
         print('Usage: pki-server nss-remove [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --force                        Force creation.')
+        print('      --force                        Force removal.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
