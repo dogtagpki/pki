@@ -124,11 +124,11 @@ public class SubjectAltNameExtInput extends EnrollInput {
      * parameter by name.
      */
     public IDescriptor getValueDescriptor(Locale locale, String name) {
-       if (name.equals(VAL_SAN_REQ_TYPE)) {
+       if (name.startsWith(VAL_SAN_REQ_TYPE)) {
             return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_REQ_SAN_TYPE"));
-        } else if (name.equals(VAL_SAN_REQ_PATTERN)) {
+        } else if (name.startsWith(VAL_SAN_REQ_PATTERN)) {
             return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_REQ_SAN_PATTERN"));
