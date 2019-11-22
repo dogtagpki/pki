@@ -224,8 +224,8 @@ public class CRMFPopClient {
         System.out.println("                               - POP_SUCCESS: with valid POP");
         System.out.println("                               - POP_FAIL: with invalid POP (for testing)");
         System.out.println("  -w <keywrap algorithm>       Algorithm to use for key wrapping");
-        System.out.println("                               - default: \"AES KeyWrap/Padding\"");
-        System.out.println("                               - \"AES/CBC/PKCS5Padding\"");
+        System.out.println("                               - default: \"AES/CBC/PKCS5Padding\"");
+        System.out.println("                               - \"AES KeyWrap/Padding\"");
         System.out.println("                               - \"DES3/CBC/Pad\"");
         System.out.println("  -b <transport cert>          PEM transport certificate (default: transport.txt)");
         System.out.println("  -v, --verbose                Run in verbose mode.");
@@ -324,7 +324,7 @@ public class CRMFPopClient {
 
         // get the keywrap algorithm
         KeyWrapAlgorithm keyWrapAlgorithm = null;
-        String kwAlg = KeyWrapAlgorithm.AES_KEY_WRAP_PAD.toString();
+        String kwAlg = KeyWrapAlgorithm.AES_CBC_PAD.toString();
         if (cmd.hasOption("w")) {
             kwAlg = cmd.getOptionValue("w");
         } else {
