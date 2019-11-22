@@ -142,8 +142,11 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
 %define _unpackaged_files_terminate_build 0
 
-# pkiuser and group. The uid and gid are preallocated
-# see /usr/share/doc/setup/uidgid
+# The PKI UID and GID are preallocated, see:
+# https://bugzilla.redhat.com/show_bug.cgi?id=476316
+# https://bugzilla.redhat.com/show_bug.cgi?id=476782
+# https://pagure.io/setup/blob/master/f/uidgid
+# /usr/share/doc/setup/uidgid
 %define pki_username pkiuser
 %define pki_uid 17
 %define pki_groupname pkiuser
@@ -1227,11 +1230,7 @@ fi
 %pre -n pki-server
 getent group %{pki_groupname} >/dev/null || groupadd -f -g %{pki_gid} -r %{pki_groupname}
 if ! getent passwd %{pki_username} >/dev/null ; then
-    if ! getent passwd %{pki_uid} >/dev/null ; then
-      useradd -r -u %{pki_uid} -g %{pki_groupname} -d %{pki_homedir} -s /sbin/nologin -c "Certificate System" %{pki_username}
-    else
-      useradd -r -g %{pki_groupname} -d %{pki_homedir} -s /sbin/nologin -c "Certificate System" %{pki_username}
-    fi
+    useradd -r -u %{pki_uid} -g %{pki_groupname} -d %{pki_homedir} -s /sbin/nologin -c "Certificate System" %{pki_username}
 fi
 exit 0
 
