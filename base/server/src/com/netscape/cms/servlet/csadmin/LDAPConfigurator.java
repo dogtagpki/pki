@@ -120,9 +120,9 @@ public class LDAPConfigurator {
         importFile("/usr/share/pki/" + subsystem + "/conf/index.ldif", true);
     }
 
-    public void reindexDatabase(String subsystem) throws Exception {
+    public void rebuildIndexes(String subsystem) throws Exception {
 
-        logger.info("Reindexing database");
+        logger.info("Rebuilding indexes");
 
         File file = new File("/usr/share/pki/" + subsystem + "/conf/indextasks.ldif");
         File tmpFile = File.createTempFile("pki-" + subsystem + "-reindex-", ".ldif");
@@ -132,9 +132,9 @@ public class LDAPConfigurator {
 
             LDIF ldif = new LDIF(tmpFile.getAbsolutePath());
             LDIFRecord record = ldif.nextRecord();
-            importLDIFRecord(record, false);
+            if (record == null) return;
 
-            logger.info("Waiting for indexing to complete");
+            importLDIFRecord(record, false);
 
             String dn = record.getDN();
             waitForTask(dn);
@@ -152,6 +152,30 @@ public class LDAPConfigurator {
     public void createVLVIndexes(String subsystem) throws Exception {
         logger.info("Creating VLV indexes");
         importFile("/usr/share/pki/" + subsystem + "/conf/vlv.ldif", true);
+    }
+
+    public void rebuildVLVIndexes(String subsystem) throws Exception {
+
+        logger.info("Rebuilding VLV indexes");
+
+        File file = new File("/usr/share/pki/" + subsystem + "/conf/vlvtasks.ldif");
+        File tmpFile = File.createTempFile("pki-" + subsystem + "-reindex-", ".ldif");
+
+        try {
+            customizeFile(file, tmpFile);
+
+            LDIF ldif = new LDIF(tmpFile.getAbsolutePath());
+            LDIFRecord record = ldif.nextRecord();
+            if (record == null) return;
+
+            importLDIFRecord(record, false);
+
+            String dn = record.getDN();
+            waitForTask(dn);
+
+        } finally {
+            tmpFile.delete();
+        }
     }
 
     public LDAPEntry getEntry(String dn) throws Exception {

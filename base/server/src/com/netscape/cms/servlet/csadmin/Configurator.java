@@ -1692,7 +1692,7 @@ public class Configurator {
             if (request.isClone() && !request.getSetupReplication() && reindexData) {
                 // data has already been replicated but not yet indexed -
                 // re-index here
-                ldapConfigurator.reindexDatabase(subsystem);
+                ldapConfigurator.rebuildIndexes(subsystem);
             }
 
         } finally {
@@ -1754,7 +1754,6 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
         String subsystem = cs.getType().toLowerCase();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
@@ -1768,14 +1767,7 @@ public class Configurator {
             ldapConfigurator.createVLVIndexes(subsystem);
 
             logger.info("Configurator: Rebuilding VLV indexes");
-            importLDIFS(ldapConfigurator, "preop.internaldb.post_ldif");
-
-            logger.info("Configurator: Waiting for rebuilding VLV indexes to complete");
-            String wait_dn = preopConfig.getString("internaldb.wait_dn", "");
-
-            if (!wait_dn.equals("")) {
-                ldapConfigurator.waitForTask(wait_dn);
-            }
+            ldapConfigurator.rebuildVLVIndexes(subsystem);
 
         } finally {
             releaseConnection(conn);
