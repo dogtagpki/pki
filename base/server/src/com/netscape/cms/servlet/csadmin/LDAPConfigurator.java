@@ -100,6 +100,11 @@ public class LDAPConfigurator {
         importFile("/usr/share/pki/server/conf/usn.ldif", true);
     }
 
+    public void setupSchema() throws Exception {
+        logger.info("Setting up schema");
+        importFile("/usr/share/pki/server/conf/schema.ldif", true);
+    }
+
     public void createContainers(String subsystem) throws Exception {
         logger.info("Creating container entries");
         importFile("/usr/share/pki/" + subsystem + "/conf/db.ldif", true);

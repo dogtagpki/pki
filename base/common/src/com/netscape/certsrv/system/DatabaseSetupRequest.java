@@ -110,8 +110,8 @@ public class DatabaseSetupRequest {
         this.replicationSecurity = replicationSecurity;
     }
 
-    public String getReplicateSchema() {
-        return replicateSchema;
+    public boolean getReplicateSchema() {
+        return replicateSchema != null && replicateSchema.equalsIgnoreCase("true");
     }
 
     public void setReplicateSchema(String replicateSchema) {

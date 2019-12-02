@@ -1533,13 +1533,11 @@ public class Configurator {
                 replicationSecurity = "None";
             }
             connConfig.putString("replicationSecurity", replicationSecurity);
-
-            preopConfig.putString("internaldb.replicateSchema", request.getReplicateSchema());
         }
 
         try {
-            enableUSNPlugin();
-            populateDB(request);
+            setupDirectory(request);
+            setupDatabase(request);
 
             if (request.isClone() && setupReplication) {
                 ReplicationUtil.setupReplication();
@@ -1575,9 +1573,11 @@ public class Configurator {
         }
     }
 
-    public void enableUSNPlugin() throws Exception {
+    public void setupDirectory(DatabaseSetupRequest request) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        boolean setupReplication = preopConfig.getBoolean("database.setupReplication", true);
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
@@ -1590,12 +1590,23 @@ public class Configurator {
             ldapConfigurator.configureDirectory();
             ldapConfigurator.enableUSN();
 
+            if (!request.isClone() || !setupReplication || !request.getReplicateSchema()) {
+                // in most cases, we want to replicate the schema and therefore
+                // NOT add it here.  We provide this option though in case the
+                // clone already has schema and we want to replicate back to the
+                // master.
+                // On the other hand, if we are not setting up replication, then we
+                // are assuming that replication is already taken care of, and schema
+                // has already been replicated.  No need to add.
+                ldapConfigurator.setupSchema();
+            }
+
         } finally {
             releaseConnection(conn);
         }
     }
 
-    public void populateDB(DatabaseSetupRequest request) throws Exception {
+    public void setupDatabase(DatabaseSetupRequest request) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         String subsystem = cs.getType().toLowerCase();
@@ -1672,34 +1683,6 @@ public class Configurator {
                 // cloning a system where the database is a subtree of an existing tree
                 // and not setting up replication agreements. The assumption then is
                 // that the data is already replicated. No need to set up the base DN
-            }
-
-            try {
-                if (request.isClone()) {
-                    // in most cases, we want to replicate the schema and therefore
-                    // NOT add it here.  We provide this option though in case the
-                    // clone already has schema and we want to replicate back to the
-                    // master.
-                    // On the other hand, if we are not setting up replication, then we
-                    // are assuming that replication is already taken care of, and schema
-                    // has already been replicated.  No need to add.
-
-                    // Also, data will be replicated from master to clone
-                    // so clone does not need the data
-                    boolean replicateSchema = preopConfig.getBoolean("internaldb.replicateSchema", true);
-                    if (!replicateSchema || !setupReplication) {
-                        importLDIFS(ldapConfigurator, "preop.internaldb.schema.ldif");
-                    }
-
-                } else {
-                    // this is the normal non-clone case
-                    // import schema, database, initial data and indexes
-                    importLDIFS(ldapConfigurator, "preop.internaldb.schema.ldif");
-                }
-
-            } catch (Exception e) {
-                logger.error("Failed to import ldif files: " + e);
-                throw new EBaseException("Failed to import ldif files: " + e, e);
             }
 
             if (!request.isClone()) {
