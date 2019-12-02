@@ -2931,6 +2931,11 @@ class ConfigClient:
         request.masterReplicationPort = self.mdict['pki_clone_replication_master_port']
         request.cloneReplicationPort = self.mdict['pki_clone_replication_clone_port']
 
+        if config.str2bool(self.mdict['pki_clone_setup_replication']):
+            request.setupReplication = 'true'
+        else:
+            request.setupReplication = 'false'
+
         if config.str2bool(self.mdict['pki_clone_replicate_schema']):
             request.replicateSchema = "true"
         else:

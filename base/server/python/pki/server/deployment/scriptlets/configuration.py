@@ -578,8 +578,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem.config['preop.database.removeData'] = 'false'
 
         # configure cloning
-        subsystem.config['preop.database.setupReplication'] = \
-            deployer.mdict['pki_clone_setup_replication']
         subsystem.config['preop.database.reindexData'] = deployer.mdict['pki_clone_reindex_data']
 
         ocsp_uri = deployer.mdict.get('pki_default_ocsp_uri')

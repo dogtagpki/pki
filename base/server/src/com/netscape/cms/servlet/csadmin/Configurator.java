@@ -1488,9 +1488,8 @@ public class Configurator {
         boolean secureConn = connConfig.getBoolean("secureConn");
         String dsPort = connConfig.getString("port");
         String baseDN = ldapConfig.getBaseDN();
-        boolean setupReplication = preopConfig.getBoolean("database.setupReplication", true);
 
-        if (request.isClone() && setupReplication) {
+        if (request.isClone() && request.getSetupReplication()) {
             String masterhost = "";
             String masterport = "";
             String masterbasedn = "";
@@ -1539,7 +1538,7 @@ public class Configurator {
             setupDirectory(request);
             setupDatabase(request);
 
-            if (request.isClone() && setupReplication) {
+            if (request.isClone() && request.getSetupReplication()) {
                 ReplicationUtil.setupReplication();
             }
 
@@ -1576,8 +1575,6 @@ public class Configurator {
     public void setupDirectory(DatabaseSetupRequest request) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        boolean setupReplication = preopConfig.getBoolean("database.setupReplication", true);
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
@@ -1590,7 +1587,7 @@ public class Configurator {
             ldapConfigurator.configureDirectory();
             ldapConfigurator.enableUSN();
 
-            if (!request.isClone() || !setupReplication || !request.getReplicateSchema()) {
+            if (!request.isClone() || !request.getSetupReplication() || !request.getReplicateSchema()) {
                 // in most cases, we want to replicate the schema and therefore
                 // NOT add it here.  We provide this option though in case the
                 // clone already has schema and we want to replicate back to the
@@ -1620,7 +1617,6 @@ public class Configurator {
 
         boolean remove = preopConfig.getBoolean("database.removeData", false);
         boolean createNewDB = preopConfig.getBoolean("database.createNewDB", true);
-        boolean setupReplication = preopConfig.getBoolean("database.setupReplication", true);
         boolean reindexData = preopConfig.getBoolean("database.reindexData", false);
 
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
@@ -1632,7 +1628,7 @@ public class Configurator {
         try {
             LDAPEntry baseEntry = null;
 
-            if (createNewDB || !request.isClone() || setupReplication) {
+            if (createNewDB || !request.isClone() || request.getSetupReplication()) {
                 logger.info("Configurator: Checking subtree " + baseDN);
                 baseEntry = ldapConfigurator.getEntry(baseDN);
                 if (baseEntry != null && !remove) {
@@ -1670,12 +1666,12 @@ public class Configurator {
                 ldapConfigurator.createMappingEntry(mappingDN, database, baseDN);
             }
 
-            if (!createNewDB && (!request.isClone() || setupReplication)) {
+            if (!createNewDB && (!request.isClone() || request.getSetupReplication())) {
                 logger.info("Configurator: Checking parent entry");
                 ldapConfigurator.checkParentExists(baseDN);
             }
 
-            if (createNewDB || !request.isClone() || setupReplication) {
+            if (createNewDB || !request.isClone() || request.getSetupReplication()) {
                 logger.info("Configurator: Creating base entry " + baseDN);
                 ldapConfigurator.createBaseEntry(baseDN);
 
@@ -1693,7 +1689,7 @@ public class Configurator {
             // add the index before replication, add VLV indexes afterwards
             ldapConfigurator.createIndexes(subsystem);
 
-            if (request.isClone() && !setupReplication && reindexData) {
+            if (request.isClone() && !request.getSetupReplication() && reindexData) {
                 // data has already been replicated but not yet indexed -
                 // re-index here
                 ldapConfigurator.reindexDatabase(subsystem);

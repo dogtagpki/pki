@@ -43,6 +43,9 @@ public class DatabaseSetupRequest {
     protected String cloneReplicationPort;
 
     @XmlElement
+    protected String setupReplication;
+
+    @XmlElement
     protected String replicateSchema;
 
     @XmlElement
@@ -96,6 +99,14 @@ public class DatabaseSetupRequest {
         this.cloneReplicationPort = cloneReplicationPort;
     }
 
+    public boolean getSetupReplication() {
+        return setupReplication != null && setupReplication.equalsIgnoreCase("true");
+    }
+
+    public void setSetupReplication(String setupReplication) {
+        this.setupReplication = setupReplication;
+    }
+
     /**
      * @return the replicationSecurity
      */
@@ -122,10 +133,11 @@ public class DatabaseSetupRequest {
     public String toString() {
         return "DatabaseSetupRequest [pin=XXXX" +
                ", isClone=" + isClone +
-               ", replicateSchema=" + replicateSchema +
                ", masterReplicationPort=" + masterReplicationPort +
                ", cloneReplicationPort=" + cloneReplicationPort +
+               ", setupReplication=" + setupReplication +
                ", replicationSecurity=" + replicationSecurity +
+               ", replicateSchema=" + replicateSchema +
                "]";
     }
 }
