@@ -1587,6 +1587,7 @@ public class Configurator {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
 
         try {
+            ldapConfigurator.configureDirectory();
             ldapConfigurator.enableUSN();
 
         } finally {
@@ -1689,13 +1690,11 @@ public class Configurator {
                     if (!replicateSchema || !setupReplication) {
                         importLDIFS(ldapConfigurator, "preop.internaldb.schema.ldif");
                     }
-                    importLDIFS(ldapConfigurator, "preop.internaldb.ldif");
 
                 } else {
                     // this is the normal non-clone case
                     // import schema, database, initial data and indexes
                     importLDIFS(ldapConfigurator, "preop.internaldb.schema.ldif");
-                    importLDIFS(ldapConfigurator, "preop.internaldb.ldif");
                 }
 
             } catch (Exception e) {

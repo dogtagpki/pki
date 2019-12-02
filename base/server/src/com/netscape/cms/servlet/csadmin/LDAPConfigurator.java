@@ -90,6 +90,11 @@ public class LDAPConfigurator {
         return params.get(name);
     }
 
+    public void configureDirectory() throws Exception {
+        logger.info("Configuring directory");
+        importFile("/usr/share/pki/server/conf/database.ldif", true);
+    }
+
     public void enableUSN() throws Exception {
         logger.info("Enabling USN");
         importFile("/usr/share/pki/server/conf/usn.ldif", true);
