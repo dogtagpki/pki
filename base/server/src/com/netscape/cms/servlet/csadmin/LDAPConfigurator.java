@@ -149,6 +149,11 @@ public class LDAPConfigurator {
         importFile("/usr/share/pki/server/conf/manager.ldif", true);
     }
 
+    public void createVLVIndexes(String subsystem) throws Exception {
+        logger.info("Creating VLV indexes");
+        importFile("/usr/share/pki/" + subsystem + "/conf/vlv.ldif", true);
+    }
+
     public LDAPEntry getEntry(String dn) throws Exception {
 
         logger.info("Getting " + dn);

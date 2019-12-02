@@ -1753,6 +1753,7 @@ public class Configurator {
     public void populateVLVIndexes() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        String subsystem = cs.getType().toLowerCase();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
@@ -1763,10 +1764,13 @@ public class Configurator {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
 
         try {
-            logger.info("Configurator: Generating VLV indexes");
+            logger.info("Configurator: Creating VLV indexes");
+            ldapConfigurator.createVLVIndexes(subsystem);
+
+            logger.info("Configurator: Rebuilding VLV indexes");
             importLDIFS(ldapConfigurator, "preop.internaldb.post_ldif");
 
-            logger.info("Configurator: Waiting for VLV indexing to complete");
+            logger.info("Configurator: Waiting for rebuilding VLV indexes to complete");
             String wait_dn = preopConfig.getString("internaldb.wait_dn", "");
 
             if (!wait_dn.equals("")) {
