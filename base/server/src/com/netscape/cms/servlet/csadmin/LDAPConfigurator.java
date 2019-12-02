@@ -144,6 +144,11 @@ public class LDAPConfigurator {
         }
     }
 
+    public void setupDatabaseManager() throws Exception {
+        logger.info("Setting up database manager");
+        importFile("/usr/share/pki/server/conf/manager.ldif", true);
+    }
+
     public LDAPEntry getEntry(String dn) throws Exception {
 
         logger.info("Getting " + dn);

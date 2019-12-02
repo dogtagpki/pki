@@ -1743,7 +1743,7 @@ public class Configurator {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
 
         try {
-            importLDIFS(ldapConfigurator, "preop.internaldb.manager_ldif");
+            ldapConfigurator.setupDatabaseManager();
 
         } finally {
             releaseConnection(conn);
