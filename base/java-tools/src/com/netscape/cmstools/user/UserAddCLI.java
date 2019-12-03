@@ -47,7 +47,6 @@ public class UserAddCLI extends CommandCLI {
     public void createOptions() {
         Option option = new Option(null, "fullName", true, "Full name");
         option.setArgName("fullName");
-        option.setRequired(true);
         options.addOption(option);
 
         option = new Option(null, "email", true, "Email");
@@ -80,10 +79,15 @@ public class UserAddCLI extends CommandCLI {
         }
 
         String userID = cmdArgs[0];
+        String fullName = cmd.getOptionValue("fullName");
+
+        if (fullName == null) {
+            throw new Exception("Missing full name");
+        }
 
         UserData userData = new UserData();
         userData.setUserID(userID);
-        userData.setFullName(cmd.getOptionValue("fullName"));
+        userData.setFullName(fullName);
         userData.setEmail(cmd.getOptionValue("email"));
         userData.setPassword(cmd.getOptionValue("password"));
         userData.setPhone(cmd.getOptionValue("phone"));
