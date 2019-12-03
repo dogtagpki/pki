@@ -567,11 +567,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_share_db']):
             subsystem.config['preop.internaldb.dbuser'] = deployer.mdict['pki_share_dbuser_dn']
 
-        if config.str2bool(deployer.mdict['pki_ds_create_new_db']):
-            subsystem.config['preop.database.createNewDB'] = 'true'
-        else:
-            subsystem.config['preop.database.createNewDB'] = 'false'
-
         # configure cloning
         subsystem.config['preop.database.reindexData'] = deployer.mdict['pki_clone_reindex_data']
 

@@ -1615,7 +1615,6 @@ public class Configurator {
         String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
         String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
 
-        boolean createNewDB = preopConfig.getBoolean("database.createNewDB", true);
         boolean reindexData = preopConfig.getBoolean("database.reindexData", false);
 
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
@@ -1625,17 +1624,17 @@ public class Configurator {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
 
         try {
-            if (createNewDB) {
+            if (request.getCreateDatabase()) {
                 logger.info("Configurator: Creating database entry " + databaseDN);
                 ldapConfigurator.createDatabaseEntry(databaseDN, database, baseDN);
             }
 
-            if (createNewDB) {
+            if (request.getCreateDatabase()) {
                 logger.info("Configurator: Creating mapping entry " + mappingDN);
                 ldapConfigurator.createMappingEntry(mappingDN, database, baseDN);
             }
 
-            if (createNewDB || !request.isClone() || request.getSetupReplication()) {
+            if (request.getCreateDatabase() || !request.isClone() || request.getSetupReplication()) {
                 logger.info("Configurator: Creating base entry " + baseDN);
                 ldapConfigurator.createBaseEntry(baseDN);
 

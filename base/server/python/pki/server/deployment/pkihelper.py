@@ -2923,6 +2923,11 @@ class ConfigClient:
 
         request.pin = self.mdict['pki_one_time_pin']
 
+        if config.str2bool(self.mdict['pki_ds_create_new_db']):
+            request.createDatabase = 'true'
+        else:
+            request.createDatabase = 'false'
+
         if self.clone:
             request.isClone = "true"
         else:

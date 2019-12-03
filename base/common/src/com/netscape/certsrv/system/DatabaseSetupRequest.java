@@ -33,6 +33,9 @@ public class DatabaseSetupRequest {
     @XmlElement
     protected String pin;
 
+    @XmlElement
+    protected String createDatabase;
+
     @XmlElement(defaultValue="false")
     protected String isClone;
 
@@ -61,6 +64,14 @@ public class DatabaseSetupRequest {
 
     public void setPin(String pin) {
         this.pin = pin;
+    }
+
+    public boolean getCreateDatabase() {
+        return createDatabase != null && createDatabase.equalsIgnoreCase("true");
+    }
+
+    public void setCreateDatabase(String createDatabase) {
+        this.createDatabase = createDatabase;
     }
 
     public boolean isClone() {
@@ -132,6 +143,7 @@ public class DatabaseSetupRequest {
     @Override
     public String toString() {
         return "DatabaseSetupRequest [pin=XXXX" +
+               ", createDatabase=" + createDatabase +
                ", isClone=" + isClone +
                ", masterReplicationPort=" + masterReplicationPort +
                ", cloneReplicationPort=" + cloneReplicationPort +
