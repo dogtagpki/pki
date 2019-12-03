@@ -1666,11 +1666,6 @@ public class Configurator {
                 ldapConfigurator.createMappingEntry(mappingDN, database, baseDN);
             }
 
-            if (!createNewDB && (!request.isClone() || request.getSetupReplication())) {
-                logger.info("Configurator: Checking parent entry");
-                ldapConfigurator.checkParentExists(baseDN);
-            }
-
             if (createNewDB || !request.isClone() || request.getSetupReplication()) {
                 logger.info("Configurator: Creating base entry " + baseDN);
                 ldapConfigurator.createBaseEntry(baseDN);

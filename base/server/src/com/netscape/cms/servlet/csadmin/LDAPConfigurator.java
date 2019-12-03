@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -30,7 +29,6 @@ import java.util.StringTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -333,27 +331,6 @@ public class LDAPConfigurator {
 
         LDAPEntry entry = new LDAPEntry(mappingDN, attrs);
         connection.add(entry);
-    }
-
-    public void checkParentExists(String baseDN) throws Exception {
-
-        String[] rdns = LDAPDN.explodeDN(baseDN, false);
-
-        if (rdns.length == 1) {
-            String message = "Base entry has no parent: " + baseDN;
-            logger.error(message);
-            throw new EBaseException(message);
-        }
-
-        String parentDN = Arrays.toString(Arrays.copyOfRange(rdns, 1, rdns.length));
-        parentDN = parentDN.substring(1, parentDN.length() - 1);
-
-        logger.debug("Checking parent entry " + parentDN);
-        LDAPEntry parentEntry = getEntry(parentDN);
-
-        if (parentEntry == null) {
-            throw new Exception("Parent entry " + parentDN + " does not exist");
-        }
     }
 
     public void createBaseEntry(String baseDN) throws Exception {
