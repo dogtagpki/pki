@@ -44,6 +44,14 @@ public class LDAPConfig extends PropConfigStore {
         putString("basedn", baseDN);
     }
 
+    public String getDatabase() throws EBaseException {
+        return getString("database");
+    }
+
+    public void setDatabase(String database) {
+        putString("database", database);
+    }
+
     public LDAPConnectionConfig getConnectionConfig() {
         return getSubStore("ldapconn", LDAPConnectionConfig.class);
     }

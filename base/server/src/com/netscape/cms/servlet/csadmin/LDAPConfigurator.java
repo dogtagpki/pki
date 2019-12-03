@@ -68,7 +68,7 @@ public class LDAPConfigurator {
         String baseDN = ldapConfig.getBaseDN();
         params.put("rootSuffix", baseDN);
 
-        String database = ldapConfig.getString("database");
+        String database = ldapConfig.getDatabase();
         params.put("database", database);
 
         String instanceId = engineConfig.getInstanceID();

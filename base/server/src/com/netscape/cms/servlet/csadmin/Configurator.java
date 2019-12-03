@@ -1609,7 +1609,7 @@ public class Configurator {
         String subsystem = cs.getType().toLowerCase();
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
-        String database = dbCfg.getString("database", "");
+        String database = dbCfg.getDatabase();
         String baseDN = dbCfg.getBaseDN();
         String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
         String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";

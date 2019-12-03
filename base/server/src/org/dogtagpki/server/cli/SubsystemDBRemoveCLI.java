@@ -75,9 +75,9 @@ public class SubsystemDBRemoveCLI extends CommandCLI {
         ConfigStorage storage = new FileConfigStore(configFile);
         EngineConfig cs = new EngineConfig(storage);
         cs.load();
-        LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
-        String database = ldapConfig.getString("database", "");
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
+        String database = ldapConfig.getDatabase();
         String baseDN = ldapConfig.getBaseDN();
 
         logger.info("Removing database " + database);
