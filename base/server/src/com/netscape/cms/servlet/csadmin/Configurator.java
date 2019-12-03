@@ -1615,7 +1615,6 @@ public class Configurator {
         String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
         String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
 
-        boolean remove = preopConfig.getBoolean("database.removeData", false);
         boolean createNewDB = preopConfig.getBoolean("database.createNewDB", true);
         boolean reindexData = preopConfig.getBoolean("database.reindexData", false);
 
@@ -1626,36 +1625,6 @@ public class Configurator {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
 
         try {
-            LDAPEntry baseEntry = null;
-
-            if (createNewDB || !request.isClone() || request.getSetupReplication()) {
-                logger.info("Configurator: Checking subtree " + baseDN);
-                baseEntry = ldapConfigurator.getEntry(baseDN);
-                if (baseEntry != null && !remove) {
-                    throw new Exception(baseDN + " already exists");
-                }
-            }
-
-            LDAPEntry mappingEntry = null;
-
-            if (createNewDB) {
-                logger.info("Configurator: Checking mapping entry " + mappingDN);
-                mappingEntry = ldapConfigurator.getEntry(mappingDN);
-                if (mappingEntry != null && !remove) {
-                    throw new Exception(mappingDN + " already exists");
-                }
-            }
-
-            LDAPEntry databaseEntry = null;
-
-            if (createNewDB) {
-                logger.info("Configurator: Checking database entry " + databaseDN);
-                databaseEntry = ldapConfigurator.getEntry(databaseDN);
-                if (databaseEntry != null && !remove) {
-                    throw new Exception(databaseDN + " already exists");
-                }
-            }
-
             if (createNewDB) {
                 logger.info("Configurator: Creating database entry " + databaseDN);
                 ldapConfigurator.createDatabaseEntry(databaseDN, database, baseDN);

@@ -572,11 +572,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         else:
             subsystem.config['preop.database.createNewDB'] = 'false'
 
-        if config.str2bool(deployer.mdict['pki_ds_remove_data']):
-            subsystem.config['preop.database.removeData'] = 'true'
-        else:
-            subsystem.config['preop.database.removeData'] = 'false'
-
         # configure cloning
         subsystem.config['preop.database.reindexData'] = deployer.mdict['pki_clone_reindex_data']
 
