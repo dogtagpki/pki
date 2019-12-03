@@ -46,7 +46,6 @@ public class TPSConnectorShowCLI extends CommandCLI {
     public void createOptions() {
         Option option = new Option(null, "host", true, "TPS host");
         option.setArgName("host");
-        option.setRequired(true);
         options.addOption(option);
 
         option = new Option(null, "port", true, "TPS port");
@@ -64,6 +63,10 @@ public class TPSConnectorShowCLI extends CommandCLI {
 
         String tpsHost = cmd.getOptionValue("host");
         String tpsPort = cmd.getOptionValue("port", "443");
+
+        if (tpsHost == null) {
+            throw new Exception("Missing TPS hostname");
+        }
 
         TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
         TPSConnectorData data = tpsConnectorClient.getConnector(tpsHost, tpsPort);

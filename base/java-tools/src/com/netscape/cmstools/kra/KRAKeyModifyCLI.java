@@ -44,7 +44,6 @@ public class KRAKeyModifyCLI extends CommandCLI {
 
     public void createOptions() {
         Option option = new Option(null, "status", true, "Status of the key.\nValid values: active, inactive");
-        option.setRequired(true);
         option.setArgName("status");
         options.addOption(option);
     }
@@ -58,6 +57,10 @@ public class KRAKeyModifyCLI extends CommandCLI {
         }
 
         String status = cmd.getOptionValue("status");
+
+        if (status == null) {
+            throw new Exception("Missing key status");
+        }
 
         KeyId keyId = new KeyId(cmdArgs[0]);
 

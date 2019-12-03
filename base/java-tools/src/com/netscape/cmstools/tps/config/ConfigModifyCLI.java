@@ -53,7 +53,6 @@ public class ConfigModifyCLI extends CommandCLI {
     public void createOptions() {
         Option option = new Option(null, "input", true, "Input file containing general properties.");
         option.setArgName("file");
-        option.setRequired(true);
         options.addOption(option);
 
         option = new Option(null, "output", true, "Output file to store general properties.");
@@ -71,6 +70,10 @@ public class ConfigModifyCLI extends CommandCLI {
 
         String input = cmd.getOptionValue("input");
         String output = cmd.getOptionValue("output");
+
+        if (input == null) {
+            throw new Exception("Missing input file");
+        }
 
         ConfigData configData;
 

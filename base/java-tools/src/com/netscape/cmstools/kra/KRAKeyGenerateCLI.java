@@ -31,7 +31,6 @@ public class KRAKeyGenerateCLI extends CommandCLI {
         Option option = new Option(null, "key-algorithm", true,
                 "Algorithm to be used to create a key.\nValid values: AES, DES, DES3, RC2, RC4, DESede, RSA, DSA");
         option.setArgName("algorithm");
-        option.setRequired(true);
         options.addOption(option);
 
         option = new Option(
@@ -72,6 +71,10 @@ public class KRAKeyGenerateCLI extends CommandCLI {
         String keySize = cmd.getOptionValue("key-size");
         String realm = cmd.getOptionValue("realm");
 
+        if (keyAlgorithm == null) {
+            throw new Exception("Missing key algorithm");
+        }
+
         if (keySize == null) {
             switch (keyAlgorithm) {
             case KeyRequestResource.DES3_ALGORITHM:
@@ -98,6 +101,7 @@ public class KRAKeyGenerateCLI extends CommandCLI {
         } catch (NumberFormatException e) {
             throw new Exception("Key size must be an integer.", e);
         }
+
         List<String> usages = null;
         String givenUsages = cmd.getOptionValue("usages");
         if (givenUsages != null) {
@@ -128,6 +132,7 @@ public class KRAKeyGenerateCLI extends CommandCLI {
         default:
             throw new Exception("Algorithm not supported.");
         }
+
         MainCLI.printMessage("Key generation request info");
         KRAKeyCLI.printKeyRequestInfo(response.getRequestInfo());
     }

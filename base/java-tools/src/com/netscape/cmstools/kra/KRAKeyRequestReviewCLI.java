@@ -28,7 +28,6 @@ public class KRAKeyRequestReviewCLI extends CommandCLI {
         Option option = new Option(null, "action", true,
                 "Action to be performed on the request.\nValid values: approve, reject, cancel.");
         option.setArgName("Action to perform");
-        option.setRequired(true);
         options.addOption(option);
     }
 
@@ -48,6 +47,11 @@ public class KRAKeyRequestReviewCLI extends CommandCLI {
         KeyClient keyClient = keyCLI.getKeyClient();
 
         String action = cmd.getOptionValue("action");
+
+        if (action == null) {
+            throw new Exception("Missing action");
+        }
+
         switch (action.toLowerCase()) {
         case "approve":
             keyClient.approveRequest(reqId);

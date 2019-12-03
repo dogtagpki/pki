@@ -52,7 +52,6 @@ public class ProfileAddCLI extends CommandCLI {
     public void createOptions() {
         Option option = new Option(null, "input", true, "Input file containing profile properties.");
         option.setArgName("file");
-        option.setRequired(true);
         options.addOption(option);
     }
 
@@ -65,6 +64,10 @@ public class ProfileAddCLI extends CommandCLI {
         }
 
         String input = cmd.getOptionValue("input");
+
+        if (input == null) {
+            throw new Exception("Missing input file");
+        }
 
         ProfileData profileData;
 
