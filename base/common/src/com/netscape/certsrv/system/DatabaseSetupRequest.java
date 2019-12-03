@@ -36,6 +36,9 @@ public class DatabaseSetupRequest {
     @XmlElement
     protected String createDatabase;
 
+    @XmlElement
+    protected String reindexDatabase;
+
     @XmlElement(defaultValue="false")
     protected String isClone;
 
@@ -72,6 +75,14 @@ public class DatabaseSetupRequest {
 
     public void setCreateDatabase(String createDatabase) {
         this.createDatabase = createDatabase;
+    }
+
+    public boolean getReindexDatabase() {
+        return reindexDatabase != null && reindexDatabase.equalsIgnoreCase("true");
+    }
+
+    public void setReindexDatabase(String reindexDatabase) {
+        this.reindexDatabase = reindexDatabase;
     }
 
     public boolean isClone() {

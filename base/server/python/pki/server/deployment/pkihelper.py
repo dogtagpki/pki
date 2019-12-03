@@ -2928,6 +2928,11 @@ class ConfigClient:
         else:
             request.createDatabase = 'false'
 
+        if config.str2bool(self.mdict['pki_clone_reindex_data']):
+            request.reindexDatabase = 'true'
+        else:
+            request.reindexDatabase = 'false'
+
         if self.clone:
             request.isClone = "true"
         else:

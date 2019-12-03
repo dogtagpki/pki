@@ -567,9 +567,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_share_db']):
             subsystem.config['preop.internaldb.dbuser'] = deployer.mdict['pki_share_dbuser_dn']
 
-        # configure cloning
-        subsystem.config['preop.database.reindexData'] = deployer.mdict['pki_clone_reindex_data']
-
         ocsp_uri = deployer.mdict.get('pki_default_ocsp_uri')
         if ocsp_uri:
             subsystem.config['ca.defaultOcspUri'] = ocsp_uri

@@ -1607,15 +1607,12 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
         String subsystem = cs.getType().toLowerCase();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
         String database = dbCfg.getString("database", "");
         String baseDN = dbCfg.getBaseDN();
         String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
         String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
-
-        boolean reindexData = preopConfig.getBoolean("database.reindexData", false);
 
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
@@ -1652,7 +1649,7 @@ public class Configurator {
             // add the index before replication, add VLV indexes afterwards
             ldapConfigurator.createIndexes(subsystem);
 
-            if (request.isClone() && !request.getSetupReplication() && reindexData) {
+            if (request.isClone() && !request.getSetupReplication() && request.getReindexDatabase()) {
                 // data has already been replicated but not yet indexed -
                 // re-index here
                 ldapConfigurator.rebuildIndexes(subsystem);
