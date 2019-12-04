@@ -16,7 +16,7 @@ import org.dogtagpki.acme.ACMEOrder;
 /**
  * @author Endi S. Dewata
  */
-public class ACMEDatabase {
+public abstract class ACMEDatabase {
 
     protected ACMEDatabaseConfig config;
 
@@ -34,48 +34,20 @@ public class ACMEDatabase {
     public void close() throws Exception {
     }
 
-    public void addNonce(ACMENonce nonce) throws Exception {
-    }
+    public abstract void addNonce(ACMENonce nonce) throws Exception;
+    public abstract ACMENonce removeNonce(String value) throws Exception;
+    public abstract void removeExpiredNonces(Date currentTime) throws Exception;
 
-    public ACMENonce removeNonce(String value) throws Exception {
-        return null;
-    }
+    public abstract ACMEAccount getAccount(String accountID) throws Exception;
+    public abstract void addAccount(ACMEAccount account) throws Exception;
 
-    public void removeExpiredNonces(Date currentTime) throws Exception {
-    }
+    public abstract ACMEOrder getOrder(String orderID) throws Exception;
+    public abstract ACMEOrder getOrderByAuthorization(URI authzURI) throws Exception;
+    public abstract void addOrder(ACMEOrder order) throws Exception;
+    public abstract void updateOrder(ACMEOrder order) throws Exception;
 
-    public ACMEAccount getAccount(String accountID) throws Exception {
-        return null;
-    }
-
-    public void addAccount(ACMEAccount account) throws Exception {
-    }
-
-    public ACMEOrder getOrder(String orderID) throws Exception {
-        return null;
-    }
-
-    public ACMEOrder getOrderByAuthorization(URI authzURI) throws Exception {
-        return null;
-    }
-
-    public void addOrder(ACMEOrder order) throws Exception {
-    }
-
-    public void updateOrder(ACMEOrder order) throws Exception {
-    }
-
-    public ACMEAuthorization getAuthorization(String authzID) throws Exception {
-        return null;
-    }
-
-    public ACMEAuthorization getAuthorizationByChallenge(URI challengeURI) throws Exception {
-        return null;
-    }
-
-    public void addAuthorization(ACMEAuthorization authorization) throws Exception {
-    }
-
-    public void updateAuthorization(ACMEAuthorization authorization) throws Exception {
-    }
+    public abstract ACMEAuthorization getAuthorization(String authzID) throws Exception;
+    public abstract ACMEAuthorization getAuthorizationByChallenge(URI challengeURI) throws Exception;
+    public abstract void addAuthorization(ACMEAuthorization authorization) throws Exception;
+    public abstract void updateAuthorization(ACMEAuthorization authorization) throws Exception;
 }
