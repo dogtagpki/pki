@@ -20,6 +20,14 @@ public class ACMEIdentifier {
     private String type;
     private String value;
 
+    public ACMEIdentifier() {
+    }
+
+    public ACMEIdentifier(String type, String value) {
+        this.type = type;
+        this.value = value;
+    }
+
     public String getType() {
         return type;
     }
