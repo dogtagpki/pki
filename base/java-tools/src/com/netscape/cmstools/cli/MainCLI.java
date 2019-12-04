@@ -662,24 +662,24 @@ public class MainCLI extends CLI {
     public static void handleException(Throwable t) {
 
         if (logger.isInfoEnabled()) {
-            logger.error(t.getMessage(), t);
+            t.printStackTrace(System.err);
 
         } else if (t.getClass() == Exception.class) {
             // display a generic error
-            logger.error(t.getMessage());
+            System.err.println("ERROR: " + t.getMessage());
 
         } else if (t instanceof UnrecognizedOptionException) {
             // display only the error message
-            logger.error(t.getMessage());
+            System.err.println(t.getMessage());
 
         } else if (t instanceof ProcessingException) {
             // display the cause of the exception
             t = t.getCause();
-            logger.error(t.getClass().getSimpleName() + ": " + t.getMessage());
+            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
 
         } else {
             // display the actual Exception
-            logger.error(t.getClass().getSimpleName() + ": " + t.getMessage());
+            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
         }
     }
 
@@ -691,7 +691,7 @@ public class MainCLI extends CLI {
         } catch (CLIException e) {
             String message = e.getMessage();
             if (message != null) {
-                logger.error(message);
+                System.err.println("ERROR: " + message);
             }
             System.exit(e.getCode());
 
