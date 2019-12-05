@@ -1595,7 +1595,8 @@ public class Configurator {
             ldapConfigurator.setupDatabaseManager();
 
             // add VLV indexes after replication
-            populateVLVIndexes();
+            ldapConfigurator.createVLVIndexes(subsystem);
+            ldapConfigurator.rebuildVLVIndexes(subsystem);
 
         } finally {
             releaseConnection(conn);
@@ -1651,30 +1652,6 @@ public class Configurator {
             }
         }
         return dir.delete();
-    }
-
-    public void populateVLVIndexes() throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        String subsystem = cs.getType().toLowerCase();
-
-        LDAPConfig dbCfg = cs.getInternalDBConfig();
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
-        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
-
-        LDAPConnection conn = dbFactory.getConn();
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
-
-        try {
-            logger.info("Configurator: Creating VLV indexes");
-            ldapConfigurator.createVLVIndexes(subsystem);
-
-            logger.info("Configurator: Rebuilding VLV indexes");
-            ldapConfigurator.rebuildVLVIndexes(subsystem);
-
-        } finally {
-            releaseConnection(conn);
-        }
     }
 
     public KeyPair loadKeyPair(String nickname, String token) throws Exception {
