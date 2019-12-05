@@ -1592,7 +1592,7 @@ public class Configurator {
                 ReplicationUtil.setupReplication();
             }
 
-            populateDBManager();
+            ldapConfigurator.setupDatabaseManager();
 
             // add VLV indexes after replication
             populateVLVIndexes();
@@ -1651,26 +1651,6 @@ public class Configurator {
             }
         }
         return dir.delete();
-    }
-
-    public void populateDBManager() throws Exception {
-        logger.debug("populateDBManager(): start");
-
-        CMSEngine engine = CMS.getCMSEngine();
-
-        LDAPConfig dbCfg = cs.getInternalDBConfig();
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
-        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
-
-        LDAPConnection conn = dbFactory.getConn();
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
-
-        try {
-            ldapConfigurator.setupDatabaseManager();
-
-        } finally {
-            releaseConnection(conn);
-        }
     }
 
     public void populateVLVIndexes() throws Exception {
