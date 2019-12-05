@@ -152,7 +152,6 @@ import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -1479,17 +1478,22 @@ public class Configurator {
     public void initializeDatabase(DatabaseSetupRequest request) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+
+        String subsystem = cs.getType().toLowerCase();
         PreOpConfig preopConfig = cs.getPreOpConfig();
-        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
-        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
-
-        boolean secureConn = connConfig.getBoolean("secureConn");
-        String dsPort = connConfig.getString("port");
+        String database = ldapConfig.getDatabase();
         String baseDN = ldapConfig.getBaseDN();
+        String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
+        String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
 
         if (request.isClone() && request.getSetupReplication()) {
+
+            LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
+            boolean secureConn = connConfig.getBoolean("secureConn");
+            String dsPort = connConfig.getString("port");
+
             String masterhost = "";
             String masterport = "";
             String masterbasedn = "";
@@ -1556,13 +1560,41 @@ public class Configurator {
                 ldapConfigurator.setupSchema();
             }
 
-            setupDatabase(request);
+            if (request.getCreateDatabase()) {
+                ldapConfigurator.createDatabaseEntry(databaseDN, database, baseDN);
+                ldapConfigurator.createMappingEntry(mappingDN, database, baseDN);
+            }
+
+            if (request.getCreateDatabase() || !request.isClone() || request.getSetupReplication()) {
+                ldapConfigurator.createBaseEntry(baseDN);
+
+            } else {
+                // cloning a system where the database is a subtree of an existing tree
+                // and not setting up replication agreements. The assumption then is
+                // that the data is already replicated. No need to set up the base DN
+            }
+
+            if (!request.isClone()) {
+                ldapConfigurator.createContainers(subsystem);
+                ldapConfigurator.setupACL(subsystem);
+            }
+
+            // add indexes before replication
+            ldapConfigurator.createIndexes(subsystem);
+
+            if (request.isClone() && !request.getSetupReplication() && request.getReindexDatabase()) {
+                // data has already been replicated but not yet indexed -
+                // re-index here
+                ldapConfigurator.rebuildIndexes(subsystem);
+            }
 
             if (request.isClone() && request.getSetupReplication()) {
                 ReplicationUtil.setupReplication();
             }
 
             populateDBManager();
+
+            // add VLV indexes after replication
             populateVLVIndexes();
 
         } finally {
@@ -1588,63 +1620,6 @@ public class Configurator {
                 conn.disconnect();
         } catch (LDAPException e) {
             logger.warn("releaseConnection: " + e, e);
-        }
-    }
-
-    public void setupDatabase(DatabaseSetupRequest request) throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        String subsystem = cs.getType().toLowerCase();
-
-        LDAPConfig dbCfg = cs.getInternalDBConfig();
-        String database = dbCfg.getDatabase();
-        String baseDN = dbCfg.getBaseDN();
-        String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
-        String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
-
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
-        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
-
-        LDAPConnection conn = dbFactory.getConn();
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
-
-        try {
-            if (request.getCreateDatabase()) {
-                logger.info("Configurator: Creating database entry " + databaseDN);
-                ldapConfigurator.createDatabaseEntry(databaseDN, database, baseDN);
-            }
-
-            if (request.getCreateDatabase()) {
-                logger.info("Configurator: Creating mapping entry " + mappingDN);
-                ldapConfigurator.createMappingEntry(mappingDN, database, baseDN);
-            }
-
-            if (request.getCreateDatabase() || !request.isClone() || request.getSetupReplication()) {
-                logger.info("Configurator: Creating base entry " + baseDN);
-                ldapConfigurator.createBaseEntry(baseDN);
-
-            } else {
-                // cloning a system where the database is a subtree of an existing tree
-                // and not setting up replication agreements. The assumption then is
-                // that the data is already replicated. No need to set up the base DN
-            }
-
-            if (!request.isClone()) {
-                ldapConfigurator.createContainers(subsystem);
-                ldapConfigurator.setupACL(subsystem);
-            }
-
-            // add the index before replication, add VLV indexes afterwards
-            ldapConfigurator.createIndexes(subsystem);
-
-            if (request.isClone() && !request.getSetupReplication() && request.getReindexDatabase()) {
-                // data has already been replicated but not yet indexed -
-                // re-index here
-                ldapConfigurator.rebuildIndexes(subsystem);
-            }
-
-        } finally {
-            releaseConnection(conn);
         }
     }
 
