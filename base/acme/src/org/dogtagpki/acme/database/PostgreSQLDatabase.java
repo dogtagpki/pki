@@ -245,7 +245,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                     contacts.add(contact);
                 }
 
-                if (contacts.isEmpty()) {
+                if (!contacts.isEmpty()) {
                     account.setContact(contacts.toArray(new String[contacts.size()]));
                 }
             }
