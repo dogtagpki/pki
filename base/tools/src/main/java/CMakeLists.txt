@@ -51,7 +51,7 @@ add_custom_target(pki-DRMTool-cfg-link ALL
 
 add_custom_command(
     TARGET pki-DRMTool-cfg-link
-    COMMAND ln -sf ${SHARE_INSTALL_PREFIX}/pki/java-tools/KRATool.cfg ${CMAKE_CURRENT_BINARY_DIR}/DRMTool.cfg
+    COMMAND ln -sf ${SHARE_INSTALL_PREFIX}/pki/tools/KRATool.cfg ${CMAKE_CURRENT_BINARY_DIR}/DRMTool.cfg
 )
 
 install(
@@ -59,7 +59,7 @@ install(
         com/netscape/cmstools/KRATool.cfg
         ${CMAKE_CURRENT_BINARY_DIR}/DRMTool.cfg
     DESTINATION
-        ${SHARE_INSTALL_PREFIX}/pki/java-tools
+        ${SHARE_INSTALL_PREFIX}/pki/tools
 )
 
 set(PKI_TOOLS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tools.jar CACHE INTERNAL "pki-tools jar file")

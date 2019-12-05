@@ -60,7 +60,7 @@ javadoc(pki-javadoc
     SOURCEPATH
         ${CMAKE_SOURCE_DIR}/base/util/src
         ${CMAKE_SOURCE_DIR}/base/common/src
-        ${CMAKE_SOURCE_DIR}/base/java-tools/src
+        ${CMAKE_SOURCE_DIR}/base/tools/src/main/java
         ${PKI_JAVADOC_SOURCEPATH}
     DEST
         ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-${APPLICATION_VERSION}

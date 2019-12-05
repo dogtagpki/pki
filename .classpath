@@ -8,7 +8,7 @@
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/util/test"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/common/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/common/functional/src"/>
-	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/java-tools/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/tools/src/main/java"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/test"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/ca/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/ca/functional/src"/>

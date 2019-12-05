@@ -1,4 +1,4 @@
-project(java-tools NONE)
+project(tools NONE)
 
 add_custom_target(pki-tools-man ALL
     COMMENT "Creating PKI tools manuals")
@@ -81,5 +81,5 @@ install(
         WORLD_EXECUTE WORLD_READ
 )
 
-add_subdirectory(src)
+add_subdirectory(src/main/java)
 add_subdirectory(templates)

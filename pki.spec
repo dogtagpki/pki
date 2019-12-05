@@ -1424,7 +1424,7 @@ fi
 %{_bindir}/PrettyPrintCrl
 %{_bindir}/TokenInfo
 %{_javadir}/pki/pki-tools.jar
-%{_datadir}/pki/java-tools/
+%{_datadir}/pki/tools/
 %{_datadir}/pki/lib/p11-kit-trust.so
 %{_mandir}/man1/AtoB.1.gz
 %{_mandir}/man1/AuditVerify.1.gz
