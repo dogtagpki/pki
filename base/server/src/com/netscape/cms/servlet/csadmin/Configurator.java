@@ -1476,7 +1476,7 @@ public class Configurator {
         return null;
     }
 
-    public void initializeDatabase(DatabaseSetupRequest request) throws EBaseException {
+    public void initializeDatabase(DatabaseSetupRequest request) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -1534,8 +1534,28 @@ public class Configurator {
             connConfig.putString("replicationSecurity", replicationSecurity);
         }
 
+        LdapBoundConnFactory ldapFactory = new LdapBoundConnFactory("LDAPConfigurator");
+        ldapFactory.init(cs, ldapConfig, engine.getPasswordStore());
+
+        LDAPConnection conn = ldapFactory.getConn();
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
+
         try {
-            setupDirectory(request);
+
+            ldapConfigurator.configureDirectory();
+            ldapConfigurator.enableUSN();
+
+            if (!request.isClone() || !request.getSetupReplication() || !request.getReplicateSchema()) {
+                // in most cases, we want to replicate the schema and therefore
+                // NOT add it here.  We provide this option though in case the
+                // clone already has schema and we want to replicate back to the
+                // master.
+                // On the other hand, if we are not setting up replication, then we
+                // are assuming that replication is already taken care of, and schema
+                // has already been replicated.  No need to add.
+                ldapConfigurator.setupSchema();
+            }
+
             setupDatabase(request);
 
             if (request.isClone() && request.getSetupReplication()) {
@@ -1545,9 +1565,8 @@ public class Configurator {
             populateDBManager();
             populateVLVIndexes();
 
-        } catch (Exception e) {
-            logger.error("Unable to populate database: " + e.getMessage(), e);
-            throw new PKIException("Unable to populate database: " + e.getMessage(), e);
+        } finally {
+            releaseConnection(conn);
         }
     }
 
@@ -1569,37 +1588,6 @@ public class Configurator {
                 conn.disconnect();
         } catch (LDAPException e) {
             logger.warn("releaseConnection: " + e, e);
-        }
-    }
-
-    public void setupDirectory(DatabaseSetupRequest request) throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
-
-        LDAPConfig dbCfg = cs.getInternalDBConfig();
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
-        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
-
-        LDAPConnection conn = dbFactory.getConn();
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
-
-        try {
-            ldapConfigurator.configureDirectory();
-            ldapConfigurator.enableUSN();
-
-            if (!request.isClone() || !request.getSetupReplication() || !request.getReplicateSchema()) {
-                // in most cases, we want to replicate the schema and therefore
-                // NOT add it here.  We provide this option though in case the
-                // clone already has schema and we want to replicate back to the
-                // master.
-                // On the other hand, if we are not setting up replication, then we
-                // are assuming that replication is already taken care of, and schema
-                // has already been replicated.  No need to add.
-                ldapConfigurator.setupSchema();
-            }
-
-        } finally {
-            releaseConnection(conn);
         }
     }
 

@@ -25,7 +25,6 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.authentication.EAuthException;
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
@@ -44,7 +43,7 @@ public class KRAConfigurator extends Configurator {
     }
 
     @Override
-    public void initializeDatabase(DatabaseSetupRequest request) throws EBaseException {
+    public void initializeDatabase(DatabaseSetupRequest request) throws Exception {
 
         super.initializeDatabase(request);
 

@@ -50,7 +50,7 @@ public class OCSPConfigurator extends Configurator {
     private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
 
     @Override
-    public void initializeDatabase(DatabaseSetupRequest request) throws EBaseException {
+    public void initializeDatabase(DatabaseSetupRequest request) throws Exception {
 
         super.initializeDatabase(request);
 

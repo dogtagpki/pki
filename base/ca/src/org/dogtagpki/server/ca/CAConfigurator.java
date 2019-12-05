@@ -59,7 +59,7 @@ public class CAConfigurator extends Configurator {
     }
 
     @Override
-    public void initializeDatabase(DatabaseSetupRequest request) throws EBaseException {
+    public void initializeDatabase(DatabaseSetupRequest request) throws Exception {
 
         super.initializeDatabase(request);
 

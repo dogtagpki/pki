@@ -32,7 +32,6 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.authentication.EAuthException;
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
@@ -83,7 +82,7 @@ public class TPSConfigurator extends Configurator {
     }
 
     @Override
-    public void initializeDatabase(DatabaseSetupRequest request) throws EBaseException {
+    public void initializeDatabase(DatabaseSetupRequest request) throws Exception {
 
         super.initializeDatabase(request);
 
