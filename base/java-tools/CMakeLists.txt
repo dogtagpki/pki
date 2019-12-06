@@ -83,3 +83,4 @@ install(
 
 add_subdirectory(src)
 add_subdirectory(templates)
+add_subdirectory(pki-healthcheck)

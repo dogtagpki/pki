@@ -771,6 +771,10 @@ else
     app_server=tomcat-$tomcat_version
 fi
 
+# Replace 'src' with CMake source dir since the build might not occur
+# relative to the original path
+sed -i 's/src/${CMAKE_CURRENT_SOURCE_DIR}\/src/g' base/java-tools/pki-healthcheck/setup.py
+
 %{__mkdir_p} build
 cd build
 %cmake \
