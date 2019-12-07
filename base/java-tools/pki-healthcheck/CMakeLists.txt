@@ -9,7 +9,7 @@ set(PYTHON "python3")
 
 set(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py")
 set(SETUP_PY    "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
-set(SRC_DEST    "src/pkihealthcheck")
+set(SRC_DEST    "pkihealthcheck")
 set(INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/install")
 
 configure_file(${SETUP_PY_IN} ${SETUP_PY})

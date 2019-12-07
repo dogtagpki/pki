@@ -5,8 +5,6 @@ setup(
     name='pkihealthcheck',
     version='0.1',
     namespace_packages=['pkihealthcheck'],
-    package_dir={'': 'src'},
-    # packages=find_packages(where='src'),
     packages=[
         'pkihealthcheck.core',
         'pkihealthcheck.pki',
