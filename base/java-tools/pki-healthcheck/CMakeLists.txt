@@ -1,9 +1,11 @@
 project(pki-healthcheck)
 
 # Execute build for pki-healthcheck
-find_program(PYTHON "python")
 
 set(target "pki-healthcheck")
+
+# healthcheck is NOT supported in python2
+set(PYTHON "python3")
 
 set(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py")
 set(SETUP_PY    "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
