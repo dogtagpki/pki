@@ -13,5 +13,5 @@ logger = logging.getLogger()
 
 def main():
     checks = RunChecks(['pkihealthcheck.registry'],
-                       '/etc/pki/healthcheck.conf')
+                       '/etc/pki/pki-healthcheck.conf')
     sys.exit(checks.run_healthcheck())

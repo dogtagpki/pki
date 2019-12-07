@@ -13,6 +13,7 @@ set(SRC_DIR    "pkihealthcheck")
 set(INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/install")
 
 configure_file(${SETUP_PY_IN} ${SETUP_PY})
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pki-healthcheck.conf ${CMAKE_CURRENT_BINARY_DIR}/pki-healthcheck.conf @ONLY)
 
 add_custom_target(${target} ALL
     DEPENDS ${SETUP_PY}
@@ -48,4 +49,11 @@ install(
         ${INSTALL_DIR}${PYTHON3_SITE_PACKAGES}/
     DESTINATION
         ${PYTHON3_SITE_PACKAGES}
+)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-healthcheck.conf
+    DESTINATION
+        ${SYSCONF_INSTALL_DIR}/pki/
 )

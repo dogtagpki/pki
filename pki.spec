@@ -1057,6 +1057,7 @@ fi
 %{python3_sitelib}/pkihealthcheck/
 %{python3_sitelib}/pkihealthcheck-*.egg-info/
 %{python3_sitelib}/pkihealthcheck-*-nspkg.pth
+%config(noreplace) %{_sysconfdir}/pki/pki-healthcheck.conf
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/java-tools/
 %{_datadir}/pki/lib/p11-kit-trust.so
