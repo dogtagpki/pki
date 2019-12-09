@@ -638,4 +638,32 @@ public class LDAPConfigurator {
 
         return "";
     }
+
+    public void createChangeLog(String dir) throws Exception {
+
+        String dn = "cn=changelog5,cn=config";
+        logger.info("Adding " + dn);
+
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        attrs.add(new LDAPAttribute("objectClass", "top"));
+        attrs.add(new LDAPAttribute("objectClass", "extensibleObject"));
+        attrs.add(new LDAPAttribute("cn", "changelog5"));
+        attrs.add(new LDAPAttribute("nsslapd-changelogdir", dir));
+
+        LDAPEntry entry = new LDAPEntry(dn, attrs);
+
+        try {
+            connection.add(entry);
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
+                logger.warn("Changelog already exists: " + dn);
+                // leave it, don't delete it because it will cause an operation error
+
+            } else {
+                logger.error("Unable to add " + dn + ": " + e.getMessage(), e);
+                throw e;
+            }
+        }
+    }
 }

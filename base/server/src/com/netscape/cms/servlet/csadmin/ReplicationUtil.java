@@ -95,7 +95,7 @@ public class ReplicationUtil {
 
             String masterChangelog = masterConfigurator.getInstanceDir() + "/changelogs";
             logger.debug("ReplicationUtil: creating master changelog dir: " + masterChangelog);
-            createChangeLog(masterConn, masterChangelog);
+            masterConfigurator.createChangeLog(masterChangelog);
 
             String cloneBindUser = "Replication Manager " + cloneAgreementName;
             logger.debug("ReplicationUtil: creating replication manager on replica");
@@ -104,7 +104,7 @@ public class ReplicationUtil {
 
             String replicaChangelog = replicaConfigurator.getInstanceDir() + "/changelogs";
             logger.debug("ReplicationUtil: creating replica changelog dir: " + masterChangelog);
-            createChangeLog(replicaConn, replicaChangelog);
+            replicaConfigurator.createChangeLog(replicaChangelog);
 
             int replicaId = dbConfig.getInteger("beginReplicaNumber", 1);
 
@@ -151,35 +151,6 @@ public class ReplicationUtil {
         } catch (Exception e) {
             logger.error("ReplicationUtil: Unable to setup replication: " + e.getMessage(), e);
             throw new IOException("Unable to setup replication: " + e.getMessage(), e);
-        }
-    }
-
-    public static void createChangeLog(LDAPConnection conn, String dir)
-            throws LDAPException {
-
-        LDAPEntry entry = null;
-
-        String dn = "cn=changelog5,cn=config";
-        logger.debug("ReplicationUtil: creating " + dn);
-
-        try {
-            LDAPAttributeSet attrs = new LDAPAttributeSet();
-            attrs.add(new LDAPAttribute("objectClass", "top"));
-            attrs.add(new LDAPAttribute("objectClass", "extensibleObject"));
-            attrs.add(new LDAPAttribute("cn", "changelog5"));
-            attrs.add(new LDAPAttribute("nsslapd-changelogdir", dir));
-            entry = new LDAPEntry(dn, attrs);
-            conn.add(entry);
-
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                logger.warn("ReplicationUtil: Changelog entry has already used");
-                /* leave it, dont delete it because it will have operation error */
-
-            } else {
-                logger.error("ReplicationUtil: Failed to create changelog entry. Exception: " + e);
-                throw e;
-            }
         }
     }
 
