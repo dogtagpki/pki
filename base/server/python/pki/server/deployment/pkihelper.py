@@ -2915,9 +2915,12 @@ class ConfigClient:
 
         return data
 
-    def create_database_setup_request(self):
+    def create_database_setup_request(self, subsystem):
 
         logger.info('Creating database setup request')
+
+        dsPort = subsystem.config['internaldb.ldapconn.port']
+        secureConn = subsystem.config['internaldb.ldapconn.secureConn']
 
         request = pki.system.DatabaseSetupRequest()
 
@@ -2940,6 +2943,9 @@ class ConfigClient:
 
         request.masterReplicationPort = self.mdict['pki_clone_replication_master_port']
         request.cloneReplicationPort = self.mdict['pki_clone_replication_clone_port']
+
+        if not request.cloneReplicationPort:
+            request.cloneReplicationPort = dsPort
 
         if config.str2bool(self.mdict['pki_clone_setup_replication']):
             request.setupReplication = 'true'

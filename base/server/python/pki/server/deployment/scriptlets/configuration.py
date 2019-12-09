@@ -715,7 +715,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Setting up database')
 
-        database_setup_request = deployer.config_client.create_database_setup_request()
+        database_setup_request = deployer.config_client.create_database_setup_request(subsystem)
         client.setupDatabase(database_setup_request)
 
         sslserver = subsystem.get_subsystem_cert('sslserver')

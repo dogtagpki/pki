@@ -1496,10 +1496,6 @@ public class Configurator {
             String dsPort = connConfig.getString("port");
 
             String cloneReplicationPort = request.getCloneReplicationPort();
-            if ((cloneReplicationPort == null) || (cloneReplicationPort.length() == 0)) {
-                cloneReplicationPort = dsPort;
-            }
-            connConfig.putString("cloneReplicationPort", cloneReplicationPort);
 
             String replicationSecurity = request.getReplicationSecurity();
             if (cloneReplicationPort == dsPort && secureConn) {
@@ -1595,7 +1591,8 @@ public class Configurator {
                             masterConn,
                             conn,
                             replica_replicationpwd,
-                            Integer.parseInt(masterReplicationPort));
+                            Integer.parseInt(masterReplicationPort),
+                            Integer.parseInt(request.getCloneReplicationPort()));
 
                 } finally {
                     releaseConnection(masterConn);
