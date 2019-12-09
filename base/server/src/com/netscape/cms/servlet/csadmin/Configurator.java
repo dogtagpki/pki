@@ -1489,6 +1489,7 @@ public class Configurator {
     public void initializeDatabase(DatabaseSetupRequest request) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        IPasswordStore passwordStore = engine.getPasswordStore();
 
         String subsystem = cs.getType().toLowerCase();
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -1532,7 +1533,7 @@ public class Configurator {
         }
 
         LdapBoundConnFactory ldapFactory = new LdapBoundConnFactory("LDAPConfigurator");
-        ldapFactory.init(cs, ldapConfig, engine.getPasswordStore());
+        ldapFactory.init(cs, ldapConfig, passwordStore);
 
         LDAPConnection conn = ldapFactory.getConn();
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
@@ -1582,7 +1583,20 @@ public class Configurator {
             }
 
             if (request.isClone() && request.getSetupReplication()) {
-                ReplicationUtil.setupReplication();
+
+                LDAPConfig masterCfg = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
+
+                LdapBoundConnFactory masterFactory = new LdapBoundConnFactory("MasterLDAPConfigurator");
+                masterFactory.init(cs, masterCfg, passwordStore);
+
+                LDAPConnection masterConn = masterFactory.getConn();
+
+                try {
+                    ReplicationUtil.setupReplication(masterConn, conn);
+
+                } finally {
+                    releaseConnection(masterConn);
+                }
             }
 
             ldapConfigurator.setupDatabaseManager();

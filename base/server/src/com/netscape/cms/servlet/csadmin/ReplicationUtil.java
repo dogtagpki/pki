@@ -32,7 +32,6 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
-import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
 
@@ -49,7 +48,7 @@ public class ReplicationUtil {
 
     public final static Logger logger = LoggerFactory.getLogger(ReplicationUtil.class);
 
-    public static void setupReplication() throws EBaseException, IOException, LDAPException {
+    public static void setupReplication(LDAPConnection masterConn, LDAPConnection replicaConn) throws EBaseException, IOException, LDAPException {
 
         logger.info("ReplicationUtil: setting up replication");
 
@@ -91,20 +90,7 @@ public class ReplicationUtil {
 
         cs.commit(false);
 
-        LDAPConnection masterConn = null;
-        LDAPConnection replicaConn = null;
-
         try {
-            logger.info("ReplicationUtil: connecting to master");
-            LdapBoundConnFactory masterFactory = new LdapBoundConnFactory("ReplicationUtil");
-            masterFactory.init(cs, masterCfg, engine.getPasswordStore());
-            masterConn = masterFactory.getConn();
-
-            logger.info("ReplicationUtil: connecting to replica");
-            LdapBoundConnFactory replicaFactory = new LdapBoundConnFactory("ReplicationUtil");
-            replicaFactory.init(cs, replicaCfg, engine.getPasswordStore());
-            replicaConn = replicaFactory.getConn();
-
             String replicadn = "cn=replica,cn=\"" + suffix + "\",cn=mapping tree,cn=config";
             logger.debug("ReplicationUtil: replica DN: " + replicadn);
 
@@ -175,14 +161,6 @@ public class ReplicationUtil {
         } catch (Exception e) {
             logger.error("ReplicationUtil: Unable to setup replication: " + e.getMessage(), e);
             throw new IOException("Unable to setup replication: " + e.getMessage(), e);
-
-        } finally {
-            if (masterConn != null) {
-                masterConn.disconnect();
-            }
-            if (replicaConn != null) {
-                replicaConn.disconnect();
-            }
         }
     }
 
