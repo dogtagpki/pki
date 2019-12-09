@@ -39,7 +39,6 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv3;
 
 public class ReplicationUtil {
 
@@ -94,18 +93,18 @@ public class ReplicationUtil {
             masterConfigurator.createSystemContainer();
             masterConfigurator.createReplicationManager(masterBindUser, master_replicationpwd);
 
+            String masterChangelog = masterConfigurator.getInstanceDir() + "/changelogs";
+            logger.debug("ReplicationUtil: creating master changelog dir: " + masterChangelog);
+            createChangeLog(masterConn, masterChangelog);
+
             String cloneBindUser = "Replication Manager " + cloneAgreementName;
             logger.debug("ReplicationUtil: creating replication manager on replica");
             replicaConfigurator.createSystemContainer();
             replicaConfigurator.createReplicationManager(cloneBindUser, replica_replicationpwd);
 
-            String dir1 = getInstanceDir(masterConn) + "/changelogs";
-            logger.debug("ReplicationUtil: creating master changelog dir: " + dir1);
-            createChangeLog(masterConn, dir1);
-
-            String dir2 = getInstanceDir(replicaConn) + "/changelogs";
-            logger.debug("ReplicationUtil: creating replica changelog dir: " + dir1);
-            createChangeLog(replicaConn, dir2);
+            String replicaChangelog = replicaConfigurator.getInstanceDir() + "/changelogs";
+            logger.debug("ReplicationUtil: creating replica changelog dir: " + masterChangelog);
+            createChangeLog(replicaConn, replicaChangelog);
 
             int replicaId = dbConfig.getInteger("beginReplicaNumber", 1);
 
@@ -153,46 +152,6 @@ public class ReplicationUtil {
             logger.error("ReplicationUtil: Unable to setup replication: " + e.getMessage(), e);
             throw new IOException("Unable to setup replication: " + e.getMessage(), e);
         }
-    }
-
-    public static String getInstanceDir(LDAPConnection conn) throws LDAPException {
-        String instancedir = "";
-
-        String baseDN = "cn=config,cn=ldbm database,cn=plugins,cn=config";
-        logger.debug("ReplicationUtil: searching for nsslapd-directory in " + baseDN);
-
-        String filter = "(objectclass=*)";
-        String[] attrs = { "nsslapd-directory" };
-        LDAPSearchResults results = conn.search(baseDN,
-                LDAPv3.SCOPE_SUB, filter, attrs, false);
-
-        while (results.hasMoreElements()) {
-            LDAPEntry entry = results.next();
-            String dn = entry.getDN();
-            logger.debug("ReplicationUtil: checking " + dn);
-            LDAPAttributeSet entryAttrs = entry.getAttributeSet();
-
-            @SuppressWarnings("unchecked")
-            Enumeration<LDAPAttribute> attrsInSet = entryAttrs.getAttributes();
-            while (attrsInSet.hasMoreElements()) {
-                LDAPAttribute nextAttr = attrsInSet.nextElement();
-                String attrName = nextAttr.getName();
-                logger.debug("ReplicationUtil: attribute name: " + attrName);
-
-                @SuppressWarnings("unchecked")
-                Enumeration<String> valsInAttr = nextAttr.getStringValues();
-                while (valsInAttr.hasMoreElements()) {
-                    String nextValue = valsInAttr.nextElement();
-
-                    if (attrName.equalsIgnoreCase("nsslapd-directory")) {
-                        logger.debug("ReplicationUtil: instanceDir: " + nextValue);
-                        return nextValue.substring(0, nextValue.lastIndexOf("/db"));
-                    }
-                }
-            }
-        }
-
-        return instancedir;
     }
 
     public static void createChangeLog(LDAPConnection conn, String dir)

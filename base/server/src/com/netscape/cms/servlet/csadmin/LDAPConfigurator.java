@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -43,6 +44,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv3;
 import netscape.ldap.util.LDIF;
 import netscape.ldap.util.LDIFAttributeContent;
 import netscape.ldap.util.LDIFContent;
@@ -593,5 +595,47 @@ public class LDAPConfigurator {
                 throw e;
             }
         }
+    }
+
+    public String getInstanceDir() throws Exception {
+
+        String baseDN = "cn=config,cn=ldbm database,cn=plugins,cn=config";
+        logger.info("Searching for nsslapd-directory in " + baseDN);
+
+        String filter = "(objectclass=*)";
+        String[] attrNames = { "nsslapd-directory" };
+
+        LDAPSearchResults results = connection.search(
+                baseDN,
+                LDAPv3.SCOPE_SUB,
+                filter,
+                attrNames,
+                false);
+
+        while (results.hasMoreElements()) {
+            LDAPEntry entry = results.next();
+            String dn = entry.getDN();
+            logger.debug("Checking " + dn);
+
+            LDAPAttributeSet attrSet = entry.getAttributeSet();
+            Enumeration<LDAPAttribute> attrs = attrSet.getAttributes();
+
+            while (attrs.hasMoreElements()) {
+                LDAPAttribute attr = attrs.nextElement();
+                String name = attr.getName();
+
+                Enumeration<String> values = attr.getStringValues();
+                while (values.hasMoreElements()) {
+                    String value = values.nextElement();
+                    logger.debug("- " + name + ": " + value);
+
+                    if (name.equalsIgnoreCase("nsslapd-directory")) {
+                        return value.substring(0, value.lastIndexOf("/db"));
+                    }
+                }
+            }
+        }
+
+        return "";
     }
 }
