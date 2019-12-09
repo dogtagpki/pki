@@ -762,11 +762,8 @@ public class Configurator {
         content.putSingle("xmlOutput", "true");
         content.putSingle("sessionID", session_id);
 
-        boolean success = updateConfigEntries(master_hostname, master_port, true,
+        updateConfigEntries(master_hostname, master_port, true,
                 "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content);
-        if (!success) {
-            throw new IOException("Failed to get configuration entries from the master");
-        }
 
         preopConfig.putString("clone.configuration", "true");
 
@@ -849,7 +846,7 @@ public class Configurator {
         }
     }
 
-    public boolean updateConfigEntries(String hostname, int port, boolean https,
+    public void updateConfigEntries(String hostname, int port, boolean https,
             String servlet, MultivaluedMap<String, String> content)
             throws Exception {
 
@@ -862,7 +859,9 @@ public class Configurator {
 
         String c = post(hostname, port, https, servlet, content, null, null);
 
-        if (c != null) {
+        if (c == null) {
+            throw new IOException("Unable to get master configuration entries");
+        }
 
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
             XMLObject parser = null;
@@ -982,16 +981,12 @@ public class Configurator {
                     psStore.commit();
                 }
 
-                return true;
             } else if (status.equals(AUTH_FAILURE)) {
                 throw new EAuthException(AUTH_FAILURE);
             } else {
                 String error = parser.getValue("Error");
                 throw new IOException(error);
             }
-        }
-
-        return false;
     }
 
     public void restoreCertsFromP12(String p12File, String p12Pass) throws Exception {
