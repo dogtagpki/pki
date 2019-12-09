@@ -1493,7 +1493,7 @@ public class Configurator {
         ldapFactory.init(cs, ldapConfig, passwordStore);
 
         LDAPConnection conn = ldapFactory.getConn();
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(cs, conn);
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, cs);
 
         try {
 
@@ -1568,11 +1568,12 @@ public class Configurator {
                 masterFactory.init(cs, masterConfig, passwordStore);
 
                 LDAPConnection masterConn = masterFactory.getConn();
+                LDAPConfigurator masterConfigurator = new LDAPConfigurator(conn, cs);
 
                 try {
                     ReplicationUtil.setupReplication(
-                            masterConn,
-                            conn,
+                            masterConfigurator,
+                            ldapConfigurator,
                             replica_replicationpwd,
                             Integer.parseInt(masterReplicationPort),
                             Integer.parseInt(request.getCloneReplicationPort()),

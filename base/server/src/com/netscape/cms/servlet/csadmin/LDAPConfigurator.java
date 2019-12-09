@@ -53,13 +53,15 @@ public class LDAPConfigurator {
 
     public final static Logger logger = LoggerFactory.getLogger(LDAPConfigurator.class);
 
-    EngineConfig engineConfig;
     LDAPConnection connection;
 
     Map<String, String> params = new HashMap<>();
 
-    public LDAPConfigurator(EngineConfig engineConfig, LDAPConnection connection) throws Exception {
-        this.engineConfig = engineConfig;
+    public LDAPConfigurator(LDAPConnection connection) throws Exception {
+        this.connection = connection;
+    }
+
+    public LDAPConfigurator(LDAPConnection connection, EngineConfig engineConfig) throws Exception {
         this.connection = connection;
 
         PreOpConfig preopConfig = engineConfig.getPreOpConfig();
@@ -525,5 +527,71 @@ public class LDAPConfigurator {
 
         logger.info("Deleting database entry " + databaseDN);
         deleteEntry(databaseDN);
+    }
+
+    public void createSystemContainer() throws Exception {
+
+        // for older subsystems, the container ou=csusers, cn=config may not yet exist
+        String dn = "ou=csusers, cn=config";
+        logger.info("Adding " + dn);
+
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        attrs.add(new LDAPAttribute("objectclass", "top"));
+        attrs.add(new LDAPAttribute("objectclass", "organizationalUnit"));
+        attrs.add(new LDAPAttribute("ou", "csusers"));
+
+        LDAPEntry entry = new LDAPEntry(dn, attrs);
+
+        try {
+            connection.add(entry);
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
+                logger.warn("Entry already exists: " + dn);
+
+            } else {
+                logger.error("Unable to add " + dn + ": " + e.getMessage(), e);
+                throw e;
+            }
+        }
+    }
+
+    public void createReplicationManager(String bindUser, String pwd) throws Exception {
+
+        String dn = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
+        logger.info("Adding " + dn);
+
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        attrs.add(new LDAPAttribute("objectclass", "top"));
+        attrs.add(new LDAPAttribute("objectclass", "person"));
+        attrs.add(new LDAPAttribute("userpassword", pwd));
+        attrs.add(new LDAPAttribute("cn", bindUser));
+        attrs.add(new LDAPAttribute("sn", "manager"));
+
+        LDAPEntry entry = new LDAPEntry(dn, attrs);
+
+        try {
+            connection.add(entry);
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
+                logger.warn("Entry already exists: " + dn);
+
+                try {
+                    logger.info("Deleting " + dn);
+                    connection.delete(dn);
+
+                    logger.info("Re-adding " + dn);
+                    connection.add(entry);
+
+                } catch (LDAPException ee) {
+                    logger.warn("Unable to recreate " + dn + ": " + ee.getMessage());
+                }
+
+            } else {
+                logger.error("Unable to add " + dn + ": " + e.getMessage(), e);
+                throw e;
+            }
+        }
     }
 }

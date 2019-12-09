@@ -46,8 +46,8 @@ public class ReplicationUtil {
     public final static Logger logger = LoggerFactory.getLogger(ReplicationUtil.class);
 
     public static void setupReplication(
-            LDAPConnection masterConn,
-            LDAPConnection replicaConn,
+            LDAPConfigurator masterConfigurator,
+            LDAPConfigurator replicaConfigurator,
             String replica_replicationpwd,
             int masterReplicationPort,
             int cloneReplicationPort,
@@ -82,17 +82,22 @@ public class ReplicationUtil {
         String masterAgreementName = "masterAgreement1-" + machinename + "-" + instanceId;
         String cloneAgreementName = "cloneAgreement1-" + machinename + "-" + instanceId;
 
+        LDAPConnection masterConn = masterConfigurator.getConnection();
+        LDAPConnection replicaConn = replicaConfigurator.getConnection();
+
         try {
             String replicadn = "cn=replica,cn=\"" + suffix + "\",cn=mapping tree,cn=config";
             logger.debug("ReplicationUtil: replica DN: " + replicadn);
 
             String masterBindUser = "Replication Manager " + masterAgreementName;
             logger.debug("ReplicationUtil: creating replication manager on master");
-            createReplicationManager(masterConn, masterBindUser, master_replicationpwd);
+            masterConfigurator.createSystemContainer();
+            masterConfigurator.createReplicationManager(masterBindUser, master_replicationpwd);
 
             String cloneBindUser = "Replication Manager " + cloneAgreementName;
             logger.debug("ReplicationUtil: creating replication manager on replica");
-            createReplicationManager(replicaConn, cloneBindUser, replica_replicationpwd);
+            replicaConfigurator.createSystemContainer();
+            replicaConfigurator.createReplicationManager(cloneBindUser, replica_replicationpwd);
 
             String dir1 = getInstanceDir(masterConn) + "/changelogs";
             logger.debug("ReplicationUtil: creating master changelog dir: " + dir1);
@@ -188,62 +193,6 @@ public class ReplicationUtil {
         }
 
         return instancedir;
-    }
-
-    public static void createReplicationManager(LDAPConnection conn, String bindUser, String pwd)
-            throws LDAPException {
-
-        LDAPEntry entry = null;
-
-        // for older subsystems, the container ou=csusers, cn=config may not yet exist
-        String dn = "ou=csusers, cn=config";
-        logger.debug("ReplicationUtil: creating " + dn);
-
-        try {
-            LDAPAttributeSet attrs = new LDAPAttributeSet();
-            attrs.add(new LDAPAttribute("objectclass", "top"));
-            attrs.add(new LDAPAttribute("objectclass", "organizationalUnit"));
-            attrs.add(new LDAPAttribute("ou", "csusers"));
-            entry = new LDAPEntry(dn, attrs);
-            conn.add(entry);
-
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                logger.warn("ReplicationUtil: Containing ou already exists");
-            } else {
-                logger.error("ReplicationUtil: Failed to create containing ou: " + e.getMessage(), e);
-                throw e;
-            }
-        }
-
-        dn = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
-        logger.debug("ReplicationUtil: creating " + dn);
-
-        try {
-            LDAPAttributeSet attrs = new LDAPAttributeSet();
-            attrs.add(new LDAPAttribute("objectclass", "top"));
-            attrs.add(new LDAPAttribute("objectclass", "person"));
-            attrs.add(new LDAPAttribute("userpassword", pwd));
-            attrs.add(new LDAPAttribute("cn", bindUser));
-            attrs.add(new LDAPAttribute("sn", "manager"));
-            entry = new LDAPEntry(dn, attrs);
-            conn.add(entry);
-
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                logger.warn("ReplicationUtil: Replication Manager has already used");
-                try {
-                    conn.delete(dn);
-                    conn.add(entry);
-                } catch (LDAPException ee) {
-                    logger.warn("ReplicationUtil: " + ee.getMessage());
-                }
-
-            } else {
-                logger.error("ReplicationUtil: Unable to create replication manager: " + e.getMessage(), e);
-                throw e;
-            }
-        }
     }
 
     public static void createChangeLog(LDAPConnection conn, String dir)
