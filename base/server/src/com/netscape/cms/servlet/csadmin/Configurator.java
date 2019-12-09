@@ -850,7 +850,7 @@ public class Configurator {
             String servlet, MultivaluedMap<String, String> content)
             throws Exception {
 
-        logger.debug("updateConfigEntries start");
+        logger.debug("Configurator: updating config entries");
 
         CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -863,18 +863,22 @@ public class Configurator {
             throw new IOException("Unable to get master configuration entries");
         }
 
-            ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-            XMLObject parser = null;
+        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        XMLObject parser = new XMLObject(bis);
 
-            parser = new XMLObject(bis);
+        String status = parser.getValue("Status");
+        logger.debug("Configurator: status: " + status);
 
-            String status = parser.getValue("Status");
-            logger.debug("updateConfigEntries: status=" + status);
+        if (status.equals(AUTH_FAILURE)) {
+            throw new EAuthException(AUTH_FAILURE);
+        }
 
-            if (status.equals(SUCCESS)) {
-                String cstype = "";
+        if (!status.equals(SUCCESS)) {
+            String error = parser.getValue("Error");
+            throw new IOException(error);
+        }
 
-                cstype = cs.getType();
+                String cstype = cs.getType();
 
                 logger.debug("Master's configuration:");
                 Document doc = parser.getDocument();
@@ -980,13 +984,6 @@ public class Configurator {
                     psStore.putPassword("master_internaldb", master_pwd);
                     psStore.commit();
                 }
-
-            } else if (status.equals(AUTH_FAILURE)) {
-                throw new EAuthException(AUTH_FAILURE);
-            } else {
-                String error = parser.getValue("Error");
-                throw new IOException(error);
-            }
     }
 
     public void restoreCertsFromP12(String p12File, String p12Pass) throws Exception {
