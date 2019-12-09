@@ -984,6 +984,25 @@ public class Configurator {
                     psStore.putPassword("master_internaldb", master_pwd);
                     psStore.commit();
                 }
+
+        LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
+        String masterHostname = masterConnConfig.getString("host", "");
+        String masterPort = masterConnConfig.getString("port", "");
+        String masterBaseDN = masterConfig.getBaseDN();
+
+        LDAPConfig replicaConfig = cs.getInternalDBConfig();
+        LDAPConnectionConfig replicaConnConfig = replicaConfig.getConnectionConfig();
+        String replicaHostname = cs.getHostname();
+        String replicaPort = replicaConnConfig.getString("port");
+        String replicaBaseDN = replicaConfig.getBaseDN();
+
+        if (masterHostname.equals(replicaHostname) && masterPort.equals(replicaPort)) {
+            throw new BadRequestException("Master and clone must not share the same LDAP database");
+        }
+
+        if (!masterBaseDN.equals(replicaBaseDN)) {
+            throw new BadRequestException("Master and clone must have the same base DN");
+        }
     }
 
     public void restoreCertsFromP12(String p12File, String p12Pass) throws Exception {
@@ -1486,27 +1505,9 @@ public class Configurator {
             boolean secureConn = connConfig.getBoolean("secureConn");
             String dsPort = connConfig.getString("port");
 
-            String masterhost = "";
-            String masterport = "";
-            String masterbasedn = "";
-            String realhostname = "";
-            try {
-                LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
-                LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
-                masterhost = masterConnConfig.getString("host", "");
-                masterport = masterConnConfig.getString("port", "");
-                masterbasedn = masterConfig.getString("basedn", "");
-                realhostname = cs.getHostname();
-            } catch (Exception e) {
-            }
-
-            if (masterhost.equals(realhostname) && masterport.equals(dsPort)) {
-                throw new BadRequestException("Master and clone must not share the same internal database");
-            }
-
-            if (!masterbasedn.equals(baseDN)) {
-                throw new BadRequestException("Master and clone should have the same base DN");
-            }
+            LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
+            LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
+            String masterport = masterConnConfig.getString("port", "");
 
             String masterReplicationPort = request.getMasterReplicationPort();
             if ((masterReplicationPort != null) && (!masterReplicationPort.equals(""))) {
