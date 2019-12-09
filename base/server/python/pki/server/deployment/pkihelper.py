@@ -2959,6 +2959,12 @@ class ConfigClient:
 
         request.replicationSecurity = self.mdict['pki_clone_replication_security']
 
+        if request.cloneReplicationPort == dsPort and secureConn == 'true':
+            request.replicationSecurity = 'SSL'
+
+        elif not request.replicationSecurity:
+            request.replicationSecurity = 'None'
+
         return request
 
     def create_certificate_setup_request(self):

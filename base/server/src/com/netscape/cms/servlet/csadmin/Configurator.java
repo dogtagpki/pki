@@ -1489,23 +1489,6 @@ public class Configurator {
         String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
         String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
 
-        if (request.isClone() && request.getSetupReplication()) {
-
-            LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
-            boolean secureConn = connConfig.getBoolean("secureConn");
-            String dsPort = connConfig.getString("port");
-
-            String cloneReplicationPort = request.getCloneReplicationPort();
-
-            String replicationSecurity = request.getReplicationSecurity();
-            if (cloneReplicationPort == dsPort && secureConn) {
-                replicationSecurity = "SSL";
-            } else if (replicationSecurity == null) {
-                replicationSecurity = "None";
-            }
-            connConfig.putString("replicationSecurity", replicationSecurity);
-        }
-
         LdapBoundConnFactory ldapFactory = new LdapBoundConnFactory("LDAPConfigurator");
         ldapFactory.init(cs, ldapConfig, passwordStore);
 
@@ -1592,7 +1575,8 @@ public class Configurator {
                             conn,
                             replica_replicationpwd,
                             Integer.parseInt(masterReplicationPort),
-                            Integer.parseInt(request.getCloneReplicationPort()));
+                            Integer.parseInt(request.getCloneReplicationPort()),
+                            request.getReplicationSecurity());
 
                 } finally {
                     releaseConnection(masterConn);
