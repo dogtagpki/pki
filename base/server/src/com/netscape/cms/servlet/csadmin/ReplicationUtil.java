@@ -80,12 +80,7 @@ public class ReplicationUtil {
         String suffix = replicaCfg.getBaseDN();
 
         String masterAgreementName = "masterAgreement1-" + machinename + "-" + instanceId;
-        replicaCfg.putString("replication.master", masterAgreementName);
-
         String cloneAgreementName = "cloneAgreement1-" + machinename + "-" + instanceId;
-        replicaCfg.putString("replication.consumer", cloneAgreementName);
-
-        cs.commit(false);
 
         try {
             String replicadn = "cn=replica,cn=\"" + suffix + "\",cn=mapping tree,cn=config";
