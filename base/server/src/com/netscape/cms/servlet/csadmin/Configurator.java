@@ -1495,17 +1495,6 @@ public class Configurator {
             boolean secureConn = connConfig.getBoolean("secureConn");
             String dsPort = connConfig.getString("port");
 
-            LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
-            LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
-            String masterport = masterConnConfig.getString("port", "");
-
-            String masterReplicationPort = request.getMasterReplicationPort();
-            if ((masterReplicationPort != null) && (!masterReplicationPort.equals(""))) {
-                connConfig.putString("masterReplicationPort", masterReplicationPort);
-            } else {
-                connConfig.putString("masterReplicationPort", masterport);
-            }
-
             String cloneReplicationPort = request.getCloneReplicationPort();
             if ((cloneReplicationPort == null) || (cloneReplicationPort.length() == 0)) {
                 cloneReplicationPort = dsPort;
@@ -1574,6 +1563,13 @@ public class Configurator {
             if (request.isClone() && request.getSetupReplication()) {
 
                 LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
+                LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
+                String masterPort = masterConnConfig.getString("port", "");
+
+                String masterReplicationPort = request.getMasterReplicationPort();
+                if (masterReplicationPort == null || masterReplicationPort.equals("")) {
+                    masterReplicationPort = masterPort;
+                }
 
                 String replica_replicationpwd = passwordStore.getPassword("replicationdb", 0);
 
@@ -1598,7 +1594,8 @@ public class Configurator {
                     ReplicationUtil.setupReplication(
                             masterConn,
                             conn,
-                            replica_replicationpwd);
+                            replica_replicationpwd,
+                            Integer.parseInt(masterReplicationPort));
 
                 } finally {
                     releaseConnection(masterConn);

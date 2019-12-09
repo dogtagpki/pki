@@ -48,7 +48,8 @@ public class ReplicationUtil {
     public static void setupReplication(
             LDAPConnection masterConn,
             LDAPConnection replicaConn,
-            String replica_replicationpwd) throws Exception {
+            String replica_replicationpwd,
+            int masterReplicationPort) throws Exception {
 
         logger.info("ReplicationUtil: setting up replication");
 
@@ -69,7 +70,6 @@ public class ReplicationUtil {
         String secure = replicaConnCfg.getString("secureConn");
         String replicationSecurity = replicaConnCfg.getString("replicationSecurity");
 
-        int masterReplicationPort = replicaConnCfg.getInteger("masterReplicationPort");
         int cloneReplicationPort = replicaConnCfg.getInteger("cloneReplicationPort");
 
         String master_hostname = masterConnCfg.getString("host", "");
