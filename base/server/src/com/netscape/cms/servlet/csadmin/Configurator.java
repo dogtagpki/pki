@@ -110,6 +110,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.PKIException;
@@ -973,18 +974,6 @@ public class Configurator {
                     }
                 }
 
-                // set master ldap password (if it exists) temporarily in password store
-                // in case it is needed for replication.  Not stored in password.conf.
-
-                LDAPAuthenticationConfig masterAuthConfig = masterConfig.getAuthenticationConfig();
-                String master_pwd = masterAuthConfig.getString("password", "");
-                if (!master_pwd.equals("")) {
-                    masterAuthConfig.putString("bindPWPrompt", "master_internaldb");
-                    IPasswordStore psStore = engine.getPasswordStore();
-                    psStore.putPassword("master_internaldb", master_pwd);
-                    psStore.commit();
-                }
-
         LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
         String masterHostname = masterConnConfig.getString("host", "");
         String masterPort = masterConnConfig.getString("port", "");
@@ -1584,18 +1573,44 @@ public class Configurator {
 
             if (request.isClone() && request.getSetupReplication()) {
 
-                LDAPConfig masterCfg = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
+                LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
+
+                String replica_replicationpwd = passwordStore.getPassword("replicationdb", 0);
+
+                // set master ldap password (if it exists) temporarily in password store
+                // in case it is needed for replication.  Not stored in password.conf.
+
+                LDAPAuthenticationConfig masterAuthConfig = masterConfig.getAuthenticationConfig();
+                String masterPassword = masterAuthConfig.getString("password", "");
+
+                if (!masterPassword.equals("")) {
+                    masterAuthConfig.putString("bindPWPrompt", "master_internaldb");
+                    passwordStore.putPassword("master_internaldb", masterPassword);
+                    passwordStore.commit();
+                }
 
                 LdapBoundConnFactory masterFactory = new LdapBoundConnFactory("MasterLDAPConfigurator");
-                masterFactory.init(cs, masterCfg, passwordStore);
+                masterFactory.init(cs, masterConfig, passwordStore);
 
                 LDAPConnection masterConn = masterFactory.getConn();
 
                 try {
-                    ReplicationUtil.setupReplication(masterConn, conn);
+                    ReplicationUtil.setupReplication(
+                            masterConn,
+                            conn,
+                            replica_replicationpwd);
 
                 } finally {
                     releaseConnection(masterConn);
+                }
+
+                // remove master ldap password from password.conf (if present)
+
+                if (!masterPassword.equals("")) {
+                    String passwordFile = cs.getString("passwordFile");
+                    IConfigStore psStore = engine.createFileConfigStore(passwordFile);
+                    psStore.remove("master_internaldb");
+                    psStore.commit(false);
                 }
             }
 

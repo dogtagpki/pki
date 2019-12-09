@@ -23,8 +23,6 @@ import java.util.Enumeration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
@@ -33,7 +31,6 @@ import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -48,7 +45,10 @@ public class ReplicationUtil {
 
     public final static Logger logger = LoggerFactory.getLogger(ReplicationUtil.class);
 
-    public static void setupReplication(LDAPConnection masterConn, LDAPConnection replicaConn) throws EBaseException, IOException, LDAPException {
+    public static void setupReplication(
+            LDAPConnection masterConn,
+            LDAPConnection replicaConn,
+            String replica_replicationpwd) throws Exception {
 
         logger.info("ReplicationUtil: setting up replication");
 
@@ -76,8 +76,6 @@ public class ReplicationUtil {
         String master_replicationpwd = preopConfig.getString("internaldb.master.replication.password", "");
 
         String replica_hostname = replicaConnCfg.getString("host", "");
-        IPasswordStore passwordStore = engine.getPasswordStore();
-        String replica_replicationpwd = passwordStore.getPassword("replicationdb", 0);
 
         String basedn = replicaCfg.getBaseDN();
         String suffix = replicaCfg.getBaseDN();
@@ -149,12 +147,6 @@ public class ReplicationUtil {
                 logger.error(message);
                 throw new IOException(message);
             }
-
-            // remove master ldap password from password.conf (if present)
-            String passwordFile = cs.getString("passwordFile");
-            IConfigStore psStore = engine.createFileConfigStore(passwordFile);
-            psStore.remove("master_internaldb");
-            psStore.commit(false);
 
             logger.debug("ReplicationUtil: replication setup complete");
 
