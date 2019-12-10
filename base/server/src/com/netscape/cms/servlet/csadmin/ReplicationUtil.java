@@ -109,10 +109,10 @@ public class ReplicationUtil {
             int replicaId = dbConfig.getInteger("beginReplicaNumber", 1);
 
             logger.debug("ReplicationUtil: enabling replication on master");
-            replicaId = enableReplication(replicadn, masterConn, masterBindUser, basedn, replicaId);
+            replicaId = masterConfigurator.enableReplication(replicadn, masterBindUser, basedn, replicaId);
 
             logger.debug("ReplicationUtil: enabling replication on replica");
-            replicaId = enableReplication(replicadn, replicaConn, cloneBindUser, basedn, replicaId);
+            replicaId = replicaConfigurator.enableReplication(replicadn, cloneBindUser, basedn, replicaId);
 
             logger.debug("ReplicationUtil: replica ID: " + replicaId);
             dbConfig.putString("beginReplicaNumber", Integer.toString(replicaId));
@@ -152,61 +152,6 @@ public class ReplicationUtil {
             logger.error("ReplicationUtil: Unable to setup replication: " + e.getMessage(), e);
             throw new IOException("Unable to setup replication: " + e.getMessage(), e);
         }
-    }
-
-    public static int enableReplication(String replicadn, LDAPConnection conn, String bindUser, String basedn, int id)
-            throws LDAPException {
-
-        LDAPEntry entry = null;
-
-        String bindDN = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
-
-        logger.debug("ReplicationUtil: creating " + replicadn);
-        logger.debug("ReplicationUtil: nsDS5ReplicaRoot: " + basedn);
-        logger.debug("ReplicationUtil: nsDS5ReplicaBindDN: " + bindDN);
-        logger.debug("ReplicationUtil: nsDS5ReplicaId: " + id);
-
-        try {
-            LDAPAttributeSet attrs = new LDAPAttributeSet();
-            attrs.add(new LDAPAttribute("objectclass", "top"));
-            attrs.add(new LDAPAttribute("objectclass", "nsDS5Replica"));
-            attrs.add(new LDAPAttribute("objectclass", "extensibleobject"));
-            attrs.add(new LDAPAttribute("cn", "replica"));
-            attrs.add(new LDAPAttribute("nsDS5ReplicaRoot", basedn));
-            attrs.add(new LDAPAttribute("nsDS5ReplicaType", "3"));
-            attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN", bindDN));
-            attrs.add(new LDAPAttribute("nsDS5ReplicaId", Integer.toString(id)));
-            attrs.add(new LDAPAttribute("nsds5flags", "1"));
-            entry = new LDAPEntry(replicadn, attrs);
-            conn.add(entry);
-
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                /* BZ 470918 -we cant just add the new dn.  We need to do a replace instead
-                 * until the DS code is fixed */
-                logger.warn("ReplicationUtil: " + replicadn + " has already been used");
-
-                try {
-                    entry = conn.read(replicadn);
-                    LDAPAttribute attr = entry.getAttribute("nsDS5ReplicaBindDN");
-                    attr.addValue("cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config");
-                    LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
-                    conn.modify(replicadn, mod);
-
-
-                } catch (LDAPException ee) {
-                    logger.warn("ReplicationUtil: Unable to modify replica entry: " + ee.getMessage(), ee);
-                }
-                return id;
-
-            } else {
-                logger.warn("ReplicationUtil: Unable to create replica entry: " + e.getMessage(), e);
-                return id;
-            }
-        }
-
-        logger.info("ReplicationUtil: Successfully created " + replicadn + " entry.");
-        return id + 1;
     }
 
     public static void createReplicationAgreement(String replicadn, LDAPConnection conn, String name,

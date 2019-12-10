@@ -666,4 +666,59 @@ public class LDAPConfigurator {
             }
         }
     }
+
+    public int enableReplication(String replicaDN, String bindUser, String baseDN, int id) throws Exception {
+
+        String bindDN = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
+
+        logger.info("Adding " + replicaDN);
+        logger.debug("- nsDS5ReplicaRoot: " + baseDN);
+        logger.debug("- nsDS5ReplicaBindDN: " + bindDN);
+        logger.debug("- nsDS5ReplicaId: " + id);
+
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        attrs.add(new LDAPAttribute("objectclass", "top"));
+        attrs.add(new LDAPAttribute("objectclass", "nsDS5Replica"));
+        attrs.add(new LDAPAttribute("objectclass", "extensibleobject"));
+        attrs.add(new LDAPAttribute("cn", "replica"));
+        attrs.add(new LDAPAttribute("nsDS5ReplicaRoot", baseDN));
+        attrs.add(new LDAPAttribute("nsDS5ReplicaType", "3"));
+        attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN", bindDN));
+        attrs.add(new LDAPAttribute("nsDS5ReplicaId", Integer.toString(id)));
+        attrs.add(new LDAPAttribute("nsds5flags", "1"));
+
+        LDAPEntry entry = new LDAPEntry(replicaDN, attrs);
+
+        try {
+            connection.add(entry);
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
+                // BZ 470918: We can't just add the new dn.
+                // We need to do a replace until the bug is fixed.
+                logger.warn("Entry already exists: " + replicaDN);
+
+                entry = connection.read(replicaDN);
+                LDAPAttribute attr = entry.getAttribute("nsDS5ReplicaBindDN");
+                attr.addValue("cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config");
+
+                LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
+
+                try {
+                    connection.modify(replicaDN, mod);
+
+                } catch (LDAPException ee) {
+                    logger.warn("Unable to modify " + replicaDN + ": " + ee.getMessage(), ee);
+                }
+
+                return id;
+
+            } else {
+                logger.warn("Unable to add " + replicaDN + ": " + e.getMessage(), e);
+                return id;
+            }
+        }
+
+        return id + 1;
+    }
 }
