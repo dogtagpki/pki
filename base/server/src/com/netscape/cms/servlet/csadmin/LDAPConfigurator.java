@@ -803,6 +803,14 @@ public class LDAPConfigurator {
         while (!isReplicationDone(replicaDN, agreementName)) {
             Thread.sleep(1000);
         }
+
+        String status = getReplicationStatus(replicaDN, agreementName);
+        if (!status.startsWith("Error (0) ") && !status.startsWith("0 ")) {
+            String message = "Replication consumer initialization failed " +
+                "(against " + connection.getHost() + ":" + connection.getPort() + "): " + status;
+            logger.error(message);
+            throw new Exception(message);
+        }
     }
 
     public boolean isReplicationDone(String replicaDN, String agreementName) throws Exception {
@@ -838,5 +846,45 @@ public class LDAPConfigurator {
         }
 
         return true;
+    }
+
+    public String getReplicationStatus(String replicaDN, String agreementName) throws Exception {
+
+        String dn = "cn=" + LDAPUtil.escapeRDNValue(agreementName) + "," + replicaDN;
+        logger.info("Checking " + dn);
+
+        String filter = "(objectclass=*)";
+        String[] attrNames = { "nsds5replicalastinitstatus" };
+
+        LDAPSearchResults results = connection.search(
+                dn,
+                LDAPConnection.SCOPE_BASE,
+                filter,
+                attrNames,
+                false);
+
+        int count = results.getCount();
+
+        if (count < 1) {
+            throw new Exception("Entry not found: " + dn);
+        }
+
+        LDAPEntry entry = results.next();
+        LDAPAttribute attr = entry.getAttribute("nsds5replicalastinitstatus");
+
+        if (attr == null) {
+            throw new Exception("Attribute not found: nsDS5ReplicaLastInitStatus");
+        }
+
+        Enumeration<String> attrs = attr.getStringValues();
+
+        if (!attrs.hasMoreElements()) {
+            throw new Exception("Attribute value not found: nsds5replicalastinitstatus");
+        }
+
+        String status = attrs.nextElement();
+        logger.debug("- nsds5replicalastinitstatus: " + status);
+
+        return status;
     }
 }

@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.io.IOException;
-import java.util.Enumeration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +29,8 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
-import com.netscape.cmsutil.ldap.LDAPUtil;
 
-import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSearchResults;
 
 public class ReplicationUtil {
 
@@ -138,59 +132,9 @@ public class ReplicationUtil {
             logger.debug("ReplicationUtil: initializing replication consumer");
             masterConfigurator.initializeConsumer(replicadn, masterAgreementName);
 
-            String status = replicationStatus(replicadn, masterConn, masterAgreementName);
-            if (!(status.startsWith("Error (0) ") || status.startsWith("0 "))) {
-                String message = "ReplicationUtil: replication consumer initialization failed " +
-                    "(against " + masterConn.getHost() + ":" + masterConn.getPort() + "): " + status;
-                logger.error(message);
-                throw new IOException(message);
-            }
-
-            logger.debug("ReplicationUtil: replication setup complete");
-
         } catch (Exception e) {
             logger.error("ReplicationUtil: Unable to setup replication: " + e.getMessage(), e);
             throw new IOException("Unable to setup replication: " + e.getMessage(), e);
         }
-    }
-
-    public static String replicationStatus(String replicadn, LDAPConnection conn, String name)
-            throws IOException, LDAPException {
-
-        String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicadn;
-        logger.debug("ReplicationUtil: checking " + dn);
-
-        String filter = "(objectclass=*)";
-        String[] attrs = { "nsds5replicalastinitstatus" };
-
-        LDAPSearchResults results = conn.search(dn, LDAPConnection.SCOPE_BASE, filter, attrs, false);
-
-        int count = results.getCount();
-
-        if (count < 1) {
-            logger.error("ReplicationUtil: Missing replication entry: " + dn);
-            throw new IOException("Missing replication entry: " + dn);
-        }
-
-        LDAPEntry entry = results.next();
-        LDAPAttribute attr = entry.getAttribute("nsds5replicalastinitstatus");
-
-        if (attr == null) {
-            logger.error("ReplicationUtil: Missing attribute: nsds5replicalastinitstatus");
-            throw new IOException("Missing attribute: nsDS5ReplicaLastInitStatus");
-        }
-
-        @SuppressWarnings("unchecked")
-        Enumeration<String> valsInAttr = attr.getStringValues();
-
-        if (!valsInAttr.hasMoreElements()) {
-            logger.error("ReplicationUtil: Missing attribute: nsds5replicalastinitstatus");
-            throw new IOException("Missing attribute value: nsds5replicalastinitstatus");
-        }
-
-        String status = valsInAttr.nextElement();
-        logger.debug("ReplicationUtil: nsds5replicalastinitstatus: " + status);
-
-        return status;
     }
 }
