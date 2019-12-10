@@ -790,4 +790,14 @@ public class LDAPConfigurator {
             }
         }
     }
+
+    public void initializeConsumer(String replicaDN, String agreementName) throws Exception {
+
+        String dn = "cn=" + LDAPUtil.escapeRDNValue(agreementName) + "," + replicaDN;
+        logger.info("Initializing consumer " + dn);
+
+        LDAPAttribute attr = new LDAPAttribute("nsds5beginreplicarefresh", "start");
+        LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
+        connection.modify(dn, mod);
+    }
 }

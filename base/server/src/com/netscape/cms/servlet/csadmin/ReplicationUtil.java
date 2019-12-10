@@ -36,7 +36,6 @@ import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchResults;
 
 public class ReplicationUtil {
@@ -137,7 +136,7 @@ public class ReplicationUtil {
                     replicationSecurity);
 
             logger.debug("ReplicationUtil: initializing replication consumer");
-            initializeConsumer(replicadn, masterConn, masterAgreementName);
+            masterConfigurator.initializeConsumer(replicadn, masterAgreementName);
 
             while (!replicationDone(replicadn, masterConn, masterAgreementName)) {
                 try {
@@ -161,16 +160,6 @@ public class ReplicationUtil {
             logger.error("ReplicationUtil: Unable to setup replication: " + e.getMessage(), e);
             throw new IOException("Unable to setup replication: " + e.getMessage(), e);
         }
-    }
-
-    public static void initializeConsumer(String replicadn, LDAPConnection conn, String name) throws LDAPException {
-
-        String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicadn;
-        logger.debug("ReplicationUtil: initializing consumer " + dn);
-
-        LDAPAttribute attr = new LDAPAttribute("nsds5beginreplicarefresh", "start");
-        LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
-        conn.modify(dn, mod);
     }
 
     public static boolean replicationDone(String replicadn, LDAPConnection conn, String name)
