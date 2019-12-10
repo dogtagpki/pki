@@ -1053,11 +1053,6 @@ fi
 %{_bindir}/PrettyPrintCert
 %{_bindir}/PrettyPrintCrl
 %{_bindir}/TokenInfo
-%{_bindir}/pki-healthcheck
-%{python3_sitelib}/pkihealthcheck/
-%{python3_sitelib}/pkihealthcheck-*.egg-info/
-%{python3_sitelib}/pkihealthcheck-*-nspkg.pth
-%config(noreplace) %{_sysconfdir}/pki/pki-healthcheck.conf
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/java-tools/
 %{_datadir}/pki/lib/p11-kit-trust.so
@@ -1110,6 +1105,12 @@ fi
 %{_sbindir}/pki-server
 %{_sbindir}/pki-server-upgrade
 %{python3_sitelib}/pki/server/
+%{_sbindir}/pki-healthcheck
+%{python3_sitelib}/pkihealthcheck/
+%{python3_sitelib}/pkihealthcheck-*.egg-info/
+%{python3_sitelib}/pkihealthcheck-*-nspkg.pth
+%config(noreplace) %{_sysconfdir}/pki/pki-healthcheck.conf
+
 %{_datadir}/pki/etc/tomcat.conf
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/

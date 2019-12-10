@@ -1,5 +1,10 @@
+# Authors:
+#     Rob Crittenden <rcrit@redhat.com>
+#     Dinesh Prasanth M K <dmoluguw@redhat.com>
 #
-# Copyright (C) 2019 FreeIPA Contributors see COPYING for license
+# Copyright Red Hat, Inc.
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 
 import logging
