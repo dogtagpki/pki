@@ -33,7 +33,6 @@ import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
@@ -67,8 +66,6 @@ public class ReplicationUtil {
 
         String machinename = cs.getHostname();
         String instanceId = cs.getInstanceID();
-
-        String secure = replicaConnCfg.getString("secureConn");
 
         String master_hostname = masterConnCfg.getString("host", "");
         String master_replicationpwd = preopConfig.getString("internaldb.master.replication.password", "");
@@ -118,14 +115,26 @@ public class ReplicationUtil {
             dbConfig.putString("beginReplicaNumber", Integer.toString(replicaId));
 
             logger.debug("ReplicationUtil: creating master replication agreement");
-            createReplicationAgreement(replicadn, masterConn, masterAgreementName,
-                    replica_hostname, cloneReplicationPort, replica_replicationpwd, basedn,
-                    cloneBindUser, secure, replicationSecurity);
+            masterConfigurator.createReplicationAgreement(
+                    replicadn,
+                    masterAgreementName,
+                    replica_hostname,
+                    cloneReplicationPort,
+                    replica_replicationpwd,
+                    basedn,
+                    cloneBindUser,
+                    replicationSecurity);
 
             logger.debug("ReplicationUtil: creating replica replication agreement");
-            createReplicationAgreement(replicadn, replicaConn, cloneAgreementName,
-                    master_hostname, masterReplicationPort, master_replicationpwd, basedn,
-                    masterBindUser, secure, replicationSecurity);
+            replicaConfigurator.createReplicationAgreement(
+                    replicadn,
+                    cloneAgreementName,
+                    master_hostname,
+                    masterReplicationPort,
+                    master_replicationpwd,
+                    basedn,
+                    masterBindUser,
+                    replicationSecurity);
 
             logger.debug("ReplicationUtil: initializing replication consumer");
             initializeConsumer(replicadn, masterConn, masterAgreementName);
@@ -152,72 +161,6 @@ public class ReplicationUtil {
             logger.error("ReplicationUtil: Unable to setup replication: " + e.getMessage(), e);
             throw new IOException("Unable to setup replication: " + e.getMessage(), e);
         }
-    }
-
-    public static void createReplicationAgreement(String replicadn, LDAPConnection conn, String name,
-            String replicahost, int replicaport, String replicapwd, String basedn, String bindUser,
-            String secure, String replicationSecurity) throws LDAPException {
-
-        LDAPEntry entry = null;
-
-        String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicadn;
-        String bindDN = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
-
-        logger.debug("ReplicationUtil: creating " + dn);
-        logger.debug("ReplicationUtil: nsDS5ReplicaRoot: " + basedn);
-        logger.debug("ReplicationUtil: nsDS5ReplicaHost: " + replicahost);
-        logger.debug("ReplicationUtil: nsDS5ReplicaPort: " + replicaport);
-        logger.debug("ReplicationUtil: nsDS5ReplicaBindDN: " + bindDN);
-        logger.debug("ReplicationUtil: nsDS5ReplicaTransportInfo: " + replicationSecurity);
-        logger.debug("ReplicationUtil: description: " + name);
-
-        try {
-            LDAPAttributeSet attrs = new LDAPAttributeSet();
-            attrs.add(new LDAPAttribute("objectclass", "top"));
-            attrs.add(new LDAPAttribute("objectclass", "nsds5replicationagreement"));
-            attrs.add(new LDAPAttribute("cn", name));
-            attrs.add(new LDAPAttribute("nsDS5ReplicaRoot", basedn));
-            attrs.add(new LDAPAttribute("nsDS5ReplicaHost", replicahost));
-
-            attrs.add(new LDAPAttribute("nsDS5ReplicaPort", "" + replicaport));
-            attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN", bindDN));
-            attrs.add(new LDAPAttribute("nsDS5ReplicaBindMethod", "Simple"));
-            attrs.add(new LDAPAttribute("nsds5replicacredentials", replicapwd));
-
-            if (replicationSecurity.equals("SSL")) {
-                attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "SSL"));
-            } else if (replicationSecurity.equals("TLS")) {
-                attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "TLS"));
-            }
-
-            attrs.add(new LDAPAttribute("description", name));
-
-            entry = new LDAPEntry(dn, attrs);
-            conn.add(entry);
-
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                logger.warn("ReplicationUtil: " + dn + " has already used");
-                try {
-                    conn.delete(dn);
-                } catch (LDAPException ee) {
-                    logger.error("ReplicationUtil: " + ee);
-                    throw ee;
-                }
-
-                try {
-                    conn.add(entry);
-                } catch (LDAPException ee) {
-                    logger.error("ReplicationUtil: " + ee);
-                    throw ee;
-                }
-            } else {
-                logger.error("ReplicationUtil: Unable to create replication agreement: " + e.getMessage(), e);
-                throw e;
-            }
-        }
-
-        logger.info("ReplicationUtil: Successfully created replication agreement " + name);
     }
 
     public static void initializeConsumer(String replicadn, LDAPConnection conn, String name) throws LDAPException {

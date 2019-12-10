@@ -721,4 +721,73 @@ public class LDAPConfigurator {
 
         return id + 1;
     }
+
+    public void createReplicationAgreement(
+            String replicaDN,
+            String name,
+            String replicaHostname,
+            int replicaPort,
+            String replicaPassword,
+            String baseDN,
+            String bindUser,
+            String replicationSecurity) throws Exception {
+
+        String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicaDN;
+        String bindDN = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
+
+        logger.info("Adding " + dn);
+        logger.debug("- description: " + name);
+        logger.debug("- nsDS5ReplicaRoot: " + baseDN);
+        logger.debug("- nsDS5ReplicaHost: " + replicaHostname);
+        logger.debug("- nsDS5ReplicaPort: " + replicaPort);
+        logger.debug("- nsDS5ReplicaBindDN: " + bindDN);
+        logger.debug("- nsDS5ReplicaTransportInfo: " + replicationSecurity);
+
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        attrs.add(new LDAPAttribute("objectclass", "top"));
+        attrs.add(new LDAPAttribute("objectclass", "nsds5replicationagreement"));
+        attrs.add(new LDAPAttribute("cn", name));
+        attrs.add(new LDAPAttribute("description", name));
+        attrs.add(new LDAPAttribute("nsDS5ReplicaRoot", baseDN));
+        attrs.add(new LDAPAttribute("nsDS5ReplicaHost", replicaHostname));
+        attrs.add(new LDAPAttribute("nsDS5ReplicaPort", "" + replicaPort));
+        attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN", bindDN));
+        attrs.add(new LDAPAttribute("nsDS5ReplicaBindMethod", "Simple"));
+        attrs.add(new LDAPAttribute("nsds5replicacredentials", replicaPassword));
+
+        if (replicationSecurity.equals("SSL")) {
+            attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "SSL"));
+        } else if (replicationSecurity.equals("TLS")) {
+            attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "TLS"));
+        }
+
+        LDAPEntry entry = new LDAPEntry(dn, attrs);
+
+        try {
+            connection.add(entry);
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
+                logger.warn("Entry already exists: " + dn);
+
+                try {
+                    connection.delete(dn);
+                } catch (LDAPException ee) {
+                    logger.error("Unable to delete " + dn + ": " + ee.getMessage(), ee);
+                    throw ee;
+                }
+
+                try {
+                    connection.add(entry);
+                } catch (LDAPException ee) {
+                    logger.error("Unable to add " + dn + ": " + ee.getMessage(), ee);
+                    throw ee;
+                }
+
+            } else {
+                logger.error("Unable to add " + dn + ": " + e.getMessage(), e);
+                throw e;
+            }
+        }
+    }
 }
