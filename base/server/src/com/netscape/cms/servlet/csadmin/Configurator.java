@@ -1550,7 +1550,8 @@ public class Configurator {
                     masterReplicationPort = masterPort;
                 }
 
-                String replica_replicationpwd = passwordStore.getPassword("replicationdb", 0);
+                String masterReplicationPassword = preopConfig.getString("internaldb.master.replication.password", "");
+                String replicaReplicationPassword = passwordStore.getPassword("replicationdb", 0);
 
                 // set master ldap password (if it exists) temporarily in password store
                 // in case it is needed for replication.  Not stored in password.conf.
@@ -1574,7 +1575,8 @@ public class Configurator {
                     ReplicationUtil.setupReplication(
                             masterConfigurator,
                             ldapConfigurator,
-                            replica_replicationpwd,
+                            masterReplicationPassword,
+                            replicaReplicationPassword,
                             Integer.parseInt(masterReplicationPort),
                             Integer.parseInt(request.getCloneReplicationPort()),
                             request.getReplicationSecurity());

@@ -30,8 +30,6 @@ import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 
-import netscape.ldap.LDAPConnection;
-
 public class ReplicationUtil {
 
     public final static Logger logger = LoggerFactory.getLogger(ReplicationUtil.class);
@@ -39,9 +37,10 @@ public class ReplicationUtil {
     public static void setupReplication(
             LDAPConfigurator masterConfigurator,
             LDAPConfigurator replicaConfigurator,
-            String replica_replicationpwd,
+            String masterReplicationPassword,
+            String replicaReplicationPassword,
             int masterReplicationPort,
-            int cloneReplicationPort,
+            int replicaReplicationPort,
             String replicationSecurity) throws Exception {
 
         logger.info("ReplicationUtil: setting up replication");
@@ -51,86 +50,80 @@ public class ReplicationUtil {
         PreOpConfig preopConfig = cs.getPreOpConfig();
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
 
+        String hostname = cs.getHostname();
+        String instanceID = cs.getInstanceID();
+
         LDAPConfig masterCfg = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
         LDAPConnectionConfig masterConnCfg = masterCfg.getConnectionConfig();
 
-        LDAPConfig replicaCfg = cs.getInternalDBConfig();
-        LDAPConnectionConfig replicaConnCfg = replicaCfg.getConnectionConfig();
+        LDAPConfig replicaConfig = cs.getInternalDBConfig();
+        LDAPConnectionConfig replicaConnCfg = replicaConfig.getConnectionConfig();
 
-        String machinename = cs.getHostname();
-        String instanceId = cs.getInstanceID();
+        String baseDN = replicaConfig.getBaseDN();
 
-        String master_hostname = masterConnCfg.getString("host", "");
-        String master_replicationpwd = preopConfig.getString("internaldb.master.replication.password", "");
+        String masterHostname = masterConnCfg.getString("host", "");
+        String replicaHostname = replicaConnCfg.getString("host", "");
 
-        String replica_hostname = replicaConnCfg.getString("host", "");
-
-        String basedn = replicaCfg.getBaseDN();
-        String suffix = replicaCfg.getBaseDN();
-
-        String masterAgreementName = "masterAgreement1-" + machinename + "-" + instanceId;
-        String cloneAgreementName = "cloneAgreement1-" + machinename + "-" + instanceId;
-
-        LDAPConnection masterConn = masterConfigurator.getConnection();
-        LDAPConnection replicaConn = replicaConfigurator.getConnection();
+        String masterAgreementName = "masterAgreement1-" + hostname + "-" + instanceID;
+        String replicaAgreementName = "cloneAgreement1-" + hostname + "-" + instanceID;
 
         try {
-            String replicadn = "cn=replica,cn=\"" + suffix + "\",cn=mapping tree,cn=config";
-            logger.debug("ReplicationUtil: replica DN: " + replicadn);
+            String replicaDN = "cn=replica,cn=\"" + baseDN + "\",cn=mapping tree,cn=config";
+            logger.debug("ReplicationUtil: replica DN: " + replicaDN);
 
             String masterBindUser = "Replication Manager " + masterAgreementName;
             logger.debug("ReplicationUtil: creating replication manager on master");
             masterConfigurator.createSystemContainer();
-            masterConfigurator.createReplicationManager(masterBindUser, master_replicationpwd);
+            masterConfigurator.createReplicationManager(masterBindUser, masterReplicationPassword);
 
             String masterChangelog = masterConfigurator.getInstanceDir() + "/changelogs";
             logger.debug("ReplicationUtil: creating master changelog dir: " + masterChangelog);
             masterConfigurator.createChangeLog(masterChangelog);
 
-            String cloneBindUser = "Replication Manager " + cloneAgreementName;
+            String replicaBindUser = "Replication Manager " + replicaAgreementName;
             logger.debug("ReplicationUtil: creating replication manager on replica");
             replicaConfigurator.createSystemContainer();
-            replicaConfigurator.createReplicationManager(cloneBindUser, replica_replicationpwd);
+            replicaConfigurator.createReplicationManager(replicaBindUser, replicaReplicationPassword);
 
             String replicaChangelog = replicaConfigurator.getInstanceDir() + "/changelogs";
             logger.debug("ReplicationUtil: creating replica changelog dir: " + masterChangelog);
             replicaConfigurator.createChangeLog(replicaChangelog);
 
-            int replicaId = dbConfig.getInteger("beginReplicaNumber", 1);
+            int replicaID = dbConfig.getInteger("beginReplicaNumber", 1);
 
             logger.debug("ReplicationUtil: enabling replication on master");
-            replicaId = masterConfigurator.enableReplication(replicadn, masterBindUser, basedn, replicaId);
+            replicaID = masterConfigurator.enableReplication(replicaDN, masterBindUser, baseDN, replicaID);
 
             logger.debug("ReplicationUtil: enabling replication on replica");
-            replicaId = replicaConfigurator.enableReplication(replicadn, cloneBindUser, basedn, replicaId);
+            replicaID = replicaConfigurator.enableReplication(replicaDN, replicaBindUser, baseDN, replicaID);
 
-            logger.debug("ReplicationUtil: replica ID: " + replicaId);
-            dbConfig.putString("beginReplicaNumber", Integer.toString(replicaId));
+            logger.debug("ReplicationUtil: replica ID: " + replicaID);
+            dbConfig.putString("beginReplicaNumber", Integer.toString(replicaID));
 
             logger.debug("ReplicationUtil: creating master replication agreement");
             masterConfigurator.createReplicationAgreement(
-                    replicadn,
+                    replicaDN,
                     masterAgreementName,
-                    replica_hostname,
-                    cloneReplicationPort,
-                    replica_replicationpwd,
-                    basedn,
-                    cloneBindUser,
+                    replicaHostname,
+                    replicaReplicationPort,
+                    replicaReplicationPassword,
+                    baseDN,
+                    replicaBindUser,
                     replicationSecurity);
 
             logger.debug("ReplicationUtil: creating replica replication agreement");
             replicaConfigurator.createReplicationAgreement(
-                    replicadn,
-                    cloneAgreementName,
-                    master_hostname,
+                    replicaDN,
+                    replicaAgreementName,
+                    masterHostname,
                     masterReplicationPort,
-                    master_replicationpwd,
-                    basedn,
+                    masterReplicationPassword,
+                    baseDN,
                     masterBindUser,
                     replicationSecurity);
 
             logger.debug("ReplicationUtil: initializing replication consumer");
-            masterConfigurator.initializeConsumer(replicadn, masterAgreementName);
+            masterConfigurator.initializeConsumer(replicaDN, masterAgreementName);
 
         } catch (Exception e) {
             logger.error("ReplicationUtil: Unable to setup replication: " + e.getMessage(), e);
