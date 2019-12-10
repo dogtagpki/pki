@@ -799,5 +799,44 @@ public class LDAPConfigurator {
         LDAPAttribute attr = new LDAPAttribute("nsds5beginreplicarefresh", "start");
         LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
         connection.modify(dn, mod);
+
+        while (!isReplicationDone(replicaDN, agreementName)) {
+            Thread.sleep(1000);
+        }
+    }
+
+    public boolean isReplicationDone(String replicaDN, String agreementName) throws Exception {
+
+        String dn = "cn=" + LDAPUtil.escapeRDNValue(agreementName) + "," + replicaDN;
+        logger.info("Checking " + dn);
+
+        String filter = "(objectclass=*)";
+        String[] attrs = { "nsds5beginreplicarefresh" };
+
+        LDAPSearchResults results = connection.search(
+                dn,
+                LDAPConnection.SCOPE_BASE,
+                filter,
+                attrs,
+                true);
+
+        int count = results.getCount();
+
+        if (count < 1) {
+            throw new Exception("Entry not found: " + dn);
+        }
+
+        LDAPEntry entry = results.next();
+        LDAPAttribute refresh = entry.getAttribute("nsds5beginreplicarefresh");
+
+        if (refresh != null) {
+            String name = refresh.getName();
+            for (String value : refresh.getStringValueArray()) {
+                logger.debug("- " + name + ": " + value);
+            }
+            return false;
+        }
+
+        return true;
     }
 }

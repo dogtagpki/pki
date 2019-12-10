@@ -138,14 +138,6 @@ public class ReplicationUtil {
             logger.debug("ReplicationUtil: initializing replication consumer");
             masterConfigurator.initializeConsumer(replicadn, masterAgreementName);
 
-            while (!replicationDone(replicadn, masterConn, masterAgreementName)) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-
             String status = replicationStatus(replicadn, masterConn, masterAgreementName);
             if (!(status.startsWith("Error (0) ") || status.startsWith("0 "))) {
                 String message = "ReplicationUtil: replication consumer initialization failed " +
@@ -160,32 +152,6 @@ public class ReplicationUtil {
             logger.error("ReplicationUtil: Unable to setup replication: " + e.getMessage(), e);
             throw new IOException("Unable to setup replication: " + e.getMessage(), e);
         }
-    }
-
-    public static boolean replicationDone(String replicadn, LDAPConnection conn, String name)
-            throws LDAPException, IOException {
-
-        String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicadn;
-        logger.debug("ReplicationUtil: checking " + dn);
-
-        String filter = "(objectclass=*)";
-        String[] attrs = { "nsds5beginreplicarefresh" };
-
-        LDAPSearchResults results = conn.search(dn, LDAPConnection.SCOPE_BASE, filter, attrs, true);
-        int count = results.getCount();
-
-        if (count < 1) {
-            throw new IOException("Replication entry not found: " + dn);
-        }
-
-        LDAPEntry entry = results.next();
-        LDAPAttribute refresh = entry.getAttribute("nsds5beginreplicarefresh");
-
-        if (refresh == null) {
-            return true;
-        }
-
-        return false;
     }
 
     public static String replicationStatus(String replicadn, LDAPConnection conn, String name)
