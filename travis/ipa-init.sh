@@ -22,7 +22,12 @@
 set -e
 
 # Enable IPA COPR repo
-dnf copr enable -y @freeipa/freeipa-4-7
+# NOTE: IPA does not build for F30
+. /etc/os-release
+if [[ `echo "$VERSION_ID"` -ge 31 ]]
+then
+    dnf copr enable -y @freeipa/freeipa-master-nightly
+fi
 
 # Install latest IPA from official fedora/updates repository
 dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests --best --allowerasing
