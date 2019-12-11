@@ -1572,7 +1572,7 @@ public class Configurator {
                 LDAPConfigurator masterConfigurator = new LDAPConfigurator(masterConn, cs);
 
                 try {
-                    ReplicationUtil.setupReplication(
+                    setupReplication(
                             masterConfigurator,
                             ldapConfigurator,
                             masterReplicationPassword,
@@ -1604,6 +1604,95 @@ public class Configurator {
         } finally {
             releaseConnection(conn);
         }
+    }
+
+    public void setupReplication(
+            LDAPConfigurator masterConfigurator,
+            LDAPConfigurator replicaConfigurator,
+            String masterReplicationPassword,
+            String replicaReplicationPassword,
+            int masterReplicationPort,
+            int replicaReplicationPort,
+            String replicationSecurity) throws Exception {
+
+        logger.info("Configurator: setting up replication");
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        DatabaseConfig dbConfig = cs.getDatabaseConfig();
+
+        String hostname = cs.getHostname();
+        String instanceID = cs.getInstanceID();
+
+        LDAPConfig masterCfg = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
+        LDAPConnectionConfig masterConnCfg = masterCfg.getConnectionConfig();
+
+        LDAPConfig replicaConfig = cs.getInternalDBConfig();
+        LDAPConnectionConfig replicaConnCfg = replicaConfig.getConnectionConfig();
+
+        String baseDN = replicaConfig.getBaseDN();
+
+        String masterHostname = masterConnCfg.getString("host", "");
+        String replicaHostname = replicaConnCfg.getString("host", "");
+
+        String masterAgreementName = "masterAgreement1-" + hostname + "-" + instanceID;
+        String replicaAgreementName = "cloneAgreement1-" + hostname + "-" + instanceID;
+
+        String replicaDN = "cn=replica,cn=\"" + baseDN + "\",cn=mapping tree,cn=config";
+        logger.debug("Configurator: replica DN: " + replicaDN);
+
+        String masterBindUser = "Replication Manager " + masterAgreementName;
+        logger.debug("Configurator: creating replication manager on master");
+        masterConfigurator.createSystemContainer();
+        masterConfigurator.createReplicationManager(masterBindUser, masterReplicationPassword);
+
+        String masterChangelog = masterConfigurator.getInstanceDir() + "/changelogs";
+        logger.debug("Configurator: creating master changelog dir: " + masterChangelog);
+        masterConfigurator.createChangeLog(masterChangelog);
+
+        String replicaBindUser = "Replication Manager " + replicaAgreementName;
+        logger.debug("Configurator: creating replication manager on replica");
+        replicaConfigurator.createSystemContainer();
+        replicaConfigurator.createReplicationManager(replicaBindUser, replicaReplicationPassword);
+
+        String replicaChangelog = replicaConfigurator.getInstanceDir() + "/changelogs";
+        logger.debug("Configurator: creating replica changelog dir: " + masterChangelog);
+        replicaConfigurator.createChangeLog(replicaChangelog);
+
+        int replicaID = dbConfig.getInteger("beginReplicaNumber", 1);
+
+        logger.debug("Configurator: enabling replication on master");
+        replicaID = masterConfigurator.enableReplication(replicaDN, masterBindUser, baseDN, replicaID);
+
+        logger.debug("Configurator: enabling replication on replica");
+        replicaID = replicaConfigurator.enableReplication(replicaDN, replicaBindUser, baseDN, replicaID);
+
+        logger.debug("Configurator: replica ID: " + replicaID);
+        dbConfig.putString("beginReplicaNumber", Integer.toString(replicaID));
+
+        logger.debug("Configurator: creating master replication agreement");
+        masterConfigurator.createReplicationAgreement(
+                replicaDN,
+                masterAgreementName,
+                replicaHostname,
+                replicaReplicationPort,
+                replicaReplicationPassword,
+                baseDN,
+                replicaBindUser,
+                replicationSecurity);
+
+        logger.debug("Configurator: creating replica replication agreement");
+        replicaConfigurator.createReplicationAgreement(
+                replicaDN,
+                replicaAgreementName,
+                masterHostname,
+                masterReplicationPort,
+                masterReplicationPassword,
+                baseDN,
+                masterBindUser,
+                replicationSecurity);
+
+        logger.debug("Configurator: initializing replication consumer");
+        masterConfigurator.initializeConsumer(replicaDN, masterAgreementName);
     }
 
     public void reinitSubsystems() throws EBaseException {
