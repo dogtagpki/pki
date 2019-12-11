@@ -1480,6 +1480,7 @@ public class Configurator {
         CMSEngine engine = CMS.getCMSEngine();
         IPasswordStore passwordStore = engine.getPasswordStore();
 
+        String instanceId = cs.getInstanceID();
         String subsystem = cs.getType().toLowerCase();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -1493,7 +1494,7 @@ public class Configurator {
         ldapFactory.init(cs, ldapConfig, passwordStore);
 
         LDAPConnection conn = ldapFactory.getConn();
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, cs);
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, instanceId, ldapConfig);
 
         try {
 
@@ -1569,7 +1570,7 @@ public class Configurator {
                 masterFactory.init(cs, masterConfig, passwordStore);
 
                 LDAPConnection masterConn = masterFactory.getConn();
-                LDAPConfigurator masterConfigurator = new LDAPConfigurator(masterConn, cs);
+                LDAPConfigurator masterConfigurator = new LDAPConfigurator(masterConn);
 
                 try {
                     setupReplication(

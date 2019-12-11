@@ -30,8 +30,6 @@ import java.util.StringTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -63,11 +61,10 @@ public class LDAPConfigurator {
         this.connection = connection;
     }
 
-    public LDAPConfigurator(LDAPConnection connection, EngineConfig engineConfig) throws Exception {
+    public LDAPConfigurator(LDAPConnection connection, String instanceId, LDAPConfig ldapConfig) throws Exception {
         this.connection = connection;
 
-        PreOpConfig preopConfig = engineConfig.getPreOpConfig();
-        LDAPConfig ldapConfig = engineConfig.getInternalDBConfig();
+        params.put("instanceId", instanceId);
 
         String baseDN = ldapConfig.getBaseDN();
         params.put("rootSuffix", baseDN);
@@ -75,12 +72,7 @@ public class LDAPConfigurator {
         String database = ldapConfig.getDatabase();
         params.put("database", database);
 
-        String instanceId = engineConfig.getInstanceID();
-        params.put("instanceId", instanceId);
-
-        String dbuser = preopConfig.getString(
-                "internaldb.dbuser",
-                "uid=pkidbuser,ou=people," + baseDN);
+        String dbuser = ldapConfig.getDBUser("uid=pkidbuser,ou=people," + baseDN);
         params.put("dbuser", dbuser);
     }
 

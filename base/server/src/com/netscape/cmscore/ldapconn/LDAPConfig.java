@@ -52,6 +52,18 @@ public class LDAPConfig extends PropConfigStore {
         putString("database", database);
     }
 
+    public String getDBUser() throws EBaseException {
+        return getString("dbuser");
+    }
+
+    public String getDBUser(String defaultDBUser) throws EBaseException {
+        return getString("dbuser", defaultDBUser);
+    }
+
+    public void setDBUser(String dbuser) {
+        putString("dbuser", dbuser);
+    }
+
     public LDAPConnectionConfig getConnectionConfig() {
         return getSubStore("ldapconn", LDAPConnectionConfig.class);
     }

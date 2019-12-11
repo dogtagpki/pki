@@ -126,7 +126,7 @@ public class SubsystemDBEmptyCLI extends CommandCLI {
         socketFactory.init(cs);
 
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, cs);
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, instanceId, ldapConfig);
 
         try {
             ldapConfigurator.deleteEntry(baseDN);
