@@ -600,28 +600,23 @@ public class Configurator {
         }
     }
 
-    public boolean isValidCloneURI(DomainInfo domainInfo, String cloneHost, int clonePort)
-            throws Exception {
+    public SecurityDomainHost getHostInfo(
+            DomainInfo domainInfo,
+            String csType,
+            String hostname,
+            int securePort) throws Exception {
 
-        String csType = cs.getType();
         SecurityDomainSubsystem subsystem = domainInfo.getSubsystem(csType);
-        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         for (SecurityDomainHost host : subsystem.getHosts()) {
 
-            String hostname = host.getHostname();
-            String securePort = host.getSecurePort();
-            String secureAdminPort = host.getSecureAdminPort();
+            if (!host.getHostname().equals(hostname)) continue;
+            if (!host.getSecurePort().equals(securePort + "")) continue;
 
-            if (hostname.equals(cloneHost) && securePort.equals(clonePort + "")) {
-                preopConfig.putString("master.hostname", hostname);
-                preopConfig.putString("master.httpsport", securePort);
-                preopConfig.putString("master.httpsadminport", secureAdminPort);
-                return true;
-            }
+            return host;
         }
 
-        return false;
+        return null;
     }
 
     public void configureSubsystem(ConfigurationRequest request, DomainInfo domainInfo) throws Exception {
@@ -633,6 +628,7 @@ public class Configurator {
 
     private void configureClone(ConfigurationRequest data, DomainInfo domainInfo) throws Exception {
 
+        String csType = cs.getType();
         PreOpConfig preopConfig = cs.getPreOpConfig();
         String value = preopConfig.getString("cert.list");
         String[] certList = value.split(",");
@@ -647,24 +643,25 @@ public class Configurator {
 
         String cloneUri = data.getCloneUri();
         URL url = new URL(cloneUri);
-        String masterHost = url.getHost();
+        String masterHostname = url.getHost();
         int masterPort = url.getPort();
 
-        logger.debug("SystemConfigService: validate clone URI: " + url);
-        boolean validCloneUri = isValidCloneURI(domainInfo, masterHost, masterPort);
+        logger.debug("SystemConfigService: getting " + csType + " master host info: " + url);
+        SecurityDomainHost masterHost = getHostInfo(domainInfo, csType, masterHostname, masterPort);
 
-        if (!validCloneUri) {
-            throw new BadRequestException(
-                    "Clone URI does not match available subsystems: " + url);
+        if (masterHost == null) {
+            throw new BadRequestException("Clone URI does not match available subsystems: " + url);
         }
 
-        String csType = cs.getType();
+        String masterAdminPort = masterHost.getSecureAdminPort();
+
+        preopConfig.putString("master.hostname", masterHostname);
+        preopConfig.putInteger("master.httpsport", masterPort);
+        preopConfig.putString("master.httpsadminport", masterAdminPort);
+
         if (csType.equals("CA") && !data.getSystemCertsImported()) {
             logger.debug("SystemConfigService: import certificate chain from master");
-            int masterAdminPort = getPortFromSecurityDomain(domainInfo,
-                    masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
-
-            String certchain = getCertChain(masterHost, masterAdminPort,
+            String certchain = getCertChain(masterHostname, Integer.parseInt(masterAdminPort),
                     "/ca/admin/ca/getCertChain");
             importCertChain(certchain, "clone");
         }
