@@ -111,6 +111,7 @@ public class ClientCertImportCLI extends CommandCLI {
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
 
         String nickname = null;
 
@@ -171,9 +172,6 @@ public class ClientCertImportCLI extends CommandCLI {
 
             logger.info("Importing CA certificate from " + caCertPath);
 
-            // initialize JSS
-            mainCLI.init();
-
             if (trustAttributes == null)
                 trustAttributes = "CT,C,C";
 
@@ -187,9 +185,6 @@ public class ClientCertImportCLI extends CommandCLI {
         } else if (pkcs7Path != null) {
 
             logger.info("Importing certificates from " + pkcs7Path);
-
-            // initialize JSS
-            mainCLI.init();
 
             importPKCS7(pkcs7Path, nickname, trustAttributes);
 
@@ -226,9 +221,6 @@ public class ClientCertImportCLI extends CommandCLI {
                     pkcs12PasswordPath);
 
         } else if (importFromCAServer) {
-
-            // late initialization
-            mainCLI.init();
 
             PKIClient client = getClient();
             URI serverURI = mainCLI.config.getServerURL().toURI();
