@@ -26,10 +26,10 @@ so it has to be added manually.
 To add the policy, edit /etc/pki/pki-tomcat/ca/registry.cfg as follows:
 
 ```
-defaultPolicy.ids=...,sanToCNDefaultImpl
-defaultPolicy.sanToCNDefaultImpl.class=com.netscape.cms.profile.def.SANToCNDefault
-defaultPolicy.sanToCNDefaultImpl.desc=SAN to CN Default
-defaultPolicy.sanToCNDefaultImpl.name=SAN to CN Default
+defaultPolicy.ids=...,SANToCNDefault
+defaultPolicy.SANToCNDefault.class=com.netscape.cms.profile.def.SANToCNDefault
+defaultPolicy.SANToCNDefault.desc=SAN to CN Default
+defaultPolicy.SANToCNDefault.name=SAN to CN Default
 ```
 
 **Note:** Restart the server to enable the policy.
