@@ -297,7 +297,11 @@ public class Configurator {
         getInstallToken(request, hostname, port);
 
         DomainInfo domainInfo = getDomainInfo(hostname, port);
-        getSecurityDomainPorts(domainInfo, hostname, port);
+        SecurityDomainHost host = getHostInfo(domainInfo, "CA", hostname, port);
+
+        cs.putString("securitydomain.httpport", host.getPort());
+        cs.putString("securitydomain.httpsagentport", host.getSecureAgentPort());
+        cs.putString("securitydomain.httpseeport", host.getSecurePort());
 
         /* Sleep for a bit to allow security domain session to replicate
          * to other clones.  In the future we can use signed tokens
@@ -570,25 +574,6 @@ public class Configurator {
         SecurityDomainClient sdClient = new SecurityDomainClient(client, "ca");
 
         return sdClient.getDomainInfo();
-    }
-
-    public void getSecurityDomainPorts(DomainInfo domainInfo, String hostname, int port) throws Exception {
-
-        SecurityDomainSubsystem subsystem = domainInfo.getSubsystem("CA");
-
-        for (SecurityDomainHost sdh : subsystem.getHosts()) {
-            String ca_hostname = sdh.getHostname();
-            String admin_port = sdh.getSecureAdminPort();
-            logger.debug("hostname: " + ca_hostname);
-            logger.debug("admin port: " + admin_port);
-
-            if (ca_hostname.equals(hostname) && admin_port.equals(port + "")) {
-                cs.putString("securitydomain.httpport", sdh.getPort());
-                cs.putString("securitydomain.httpsagentport", sdh.getSecureAgentPort());
-                cs.putString("securitydomain.httpseeport", sdh.getSecurePort());
-                break;
-            }
-        }
     }
 
     public SecurityDomainHost getHostInfo(
