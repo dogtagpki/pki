@@ -291,7 +291,7 @@ public class Configurator {
 
         if (!request.getSystemCertsImported()) {
             logger.debug("Getting security domain cert chain");
-            String certchain = getCertChain(hostname, port, "/ca/admin/ca/getCertChain");
+            byte[] certchain = getCertChain(hostname, port);
             importCertChain(certchain, "securitydomain");
         }
 
@@ -359,7 +359,7 @@ public class Configurator {
         preopConfig.putInteger("ca.httpsadminport", admin_port);
 
         if (!data.isClone() && !data.getSystemCertsImported()) {
-            String certchain = getCertChain(host, admin_port, "/ca/admin/ca/getCertChain");
+            byte[] certchain = getCertChain(host, admin_port);
             importCertChain(certchain, "ca");
         }
 
@@ -369,11 +369,11 @@ public class Configurator {
         }
     }
 
-    public String getCertChain(String host, int port, String serverPath)
-            throws Exception {
+    public byte[] getCertChain(String host, int port) throws Exception {
 
+        String serverPath = "/ca/admin/ca/getCertChain";
         String url = "https://" + host + ":" + port + serverPath;
-        logger.debug("Configurator: Getting cert chain from " + url);
+        logger.info("Getting certificate chain from " + url);
 
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
         // Ignore untrusted/unknown issuer to get cert chain.
@@ -381,9 +381,10 @@ public class Configurator {
         certApprovalCallback.ignoreError(ValidityStatus.UNKNOWN_ISSUER);
 
         String c = get(host, port, true, serverPath, null, certApprovalCallback);
+        logger.debug("Response: " + c);
 
         if (c == null) {
-            throw new IOException("Unable to get cert chain from " + url);
+            throw new IOException("Unable to get certificate chain from " + url);
         }
 
         ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
@@ -392,59 +393,52 @@ public class Configurator {
         try {
             parser = new XMLObject(bis);
         } catch (SAXException e) {
-            logger.error("Response: " + c);
-            logger.error("Configurator: Unable to parse XML response: " + e, e);
+            logger.error("Unable to parse XML response: " + e, e);
             throw e;
         }
 
-        return parser.getValue("ChainBase64");
-    }
-
-    public void importCertChain(String certchain, String tag)
-            throws Exception {
-
-        logger.debug("Configurator: Importing cert chain for " + tag);
+        String certchain = parser.getValue("ChainBase64");
 
         if (certchain == null || certchain.length() <= 0) {
-            throw new IOException("Missing cert chain");
+            throw new IOException("Missing certificate chain");
         }
+
+        return CryptoUtil.base64Decode(CryptoUtil.normalizeCertStr(certchain));
+    }
+
+    public void importCertChain(byte[] certchain, String tag)
+            throws Exception {
+
+        logger.info("Importing cert chain for " + tag);
+
+        CryptoUtil.importCertificateChain(certchain);
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
-        certchain = CryptoUtil.normalizeCertStr(certchain);
 
-        preopConfig.putString(tag + ".pkcs7", certchain);
+        String b64chain = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(certchain));
+        preopConfig.putString(tag + ".pkcs7", b64chain);
 
-        // separate individual certs in chain for display
-        byte[] decoded = CryptoUtil.base64Decode(certchain);
-        java.security.cert.X509Certificate[] b_certchain = CryptoUtil.getX509CertificateFromPKCS7(decoded);
+        java.security.cert.X509Certificate[] certs = CryptoUtil.getX509CertificateFromPKCS7(certchain);
 
-        int size;
-
-        if (b_certchain == null) {
+        if (certs == null) {
             logger.debug("Configurator: no certificate chain");
-
-            size = 0;
+            preopConfig.putInteger(tag + ".certchain.size", 0);
 
         } else {
+            preopConfig.putInteger(tag + ".certchain.size", certs.length);
+
             logger.debug("Configurator: certificate chain:");
-            for (java.security.cert.X509Certificate cert : b_certchain) {
+            for (int i = 0; i < certs.length; i++) {
+                java.security.cert.X509Certificate cert = certs[i];
                 logger.debug("Configurator: - " + cert.getSubjectDN());
+
+                byte[] certBytes = cert.getEncoded();
+                String b64cert = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(certBytes));
+                preopConfig.putString(tag + ".certchain." + i, b64cert);
             }
-
-            size = b_certchain.length;
-        }
-
-        preopConfig.putInteger(tag + ".certchain.size", size);
-        for (int i = 0; i < size; i++) {
-            byte[] bb = b_certchain[i].getEncoded();
-            preopConfig.putString(tag + ".certchain." + i,
-                    CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(bb)));
         }
 
         cs.commit(false);
-
-        byte[] bytes = CryptoUtil.base64Decode(certchain);
-        CryptoUtil.importCertificateChain(bytes);
     }
 
     private void getInstallToken(ConfigurationRequest request, String host, int port) {
@@ -661,8 +655,7 @@ public class Configurator {
 
         if (csType.equals("CA") && !data.getSystemCertsImported()) {
             logger.debug("SystemConfigService: import certificate chain from master");
-            String certchain = getCertChain(masterHostname, Integer.parseInt(masterAdminPort),
-                    "/ca/admin/ca/getCertChain");
+            byte[] certchain = getCertChain(masterHostname, Integer.parseInt(masterAdminPort));
             importCertChain(certchain, "clone");
         }
 
