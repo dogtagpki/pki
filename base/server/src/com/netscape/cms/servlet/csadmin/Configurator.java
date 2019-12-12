@@ -624,6 +624,7 @@ public class Configurator {
 
         String csType = cs.getType();
         PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String value = preopConfig.getString("cert.list");
         String[] certList = value.split(",");
 
@@ -663,6 +664,7 @@ public class Configurator {
         getConfigEntriesFromMaster();
 
         String token = preopConfig.getString("module.token", null);
+        CryptoUtil.getKeyStorageToken(token); // throw exception if token doesn't exist
 
         if (!CryptoUtil.isInternalToken(token)) {
             logger.debug("SystemConfigService: import certificates from HSM and set permission");
@@ -757,6 +759,26 @@ public class Configurator {
                 "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content);
 
         preopConfig.putString("clone.configuration", "true");
+
+        logger.debug("Configurator: configuring cert nicknames");
+
+        String token = preopConfig.getString("module.token", "");
+        String value = preopConfig.getString("cert.list");
+        String[] certList = value.split(",");
+
+        for (String tag : certList) {
+
+            if (tag.equals("sslserver"))
+                continue;
+
+            String nickname = preopConfig.getString("master." + tag + ".nickname", "");
+            if (!CryptoUtil.isInternalToken(token))
+                nickname = token + ":" + nickname;
+
+            // TODO : remove this when we eliminate the extraneous nicknames
+            // needed for self tests
+            cs.putString(cstype + ".cert." + tag + ".nickname", nickname);
+        }
 
         cs.commit(false);
     }
@@ -1129,21 +1151,12 @@ public class Configurator {
 
         while (st.hasMoreTokens()) {
             String tag = st.nextToken();
+
             if (tag.equals("sslserver"))
                 continue;
 
-            String tokenname = preopConfig.getString("module.token", "");
-            CryptoUtil.getKeyStorageToken(tokenname); // throw exception if token doesn't exist
-
-            String nickname = preopConfig.getString("master." + tag + ".nickname", "");
-            if (!CryptoUtil.isInternalToken(tokenname))
-                nickname = tokenname + ":" + nickname;
-
-            logger.debug("Configurator.verifySystemCertificates(): checking certificate " + nickname);
-
-            // TODO : remove this when we eliminate the extraneous nicknames
-            // needed for self tests
-            cs.putString(cstype + ".cert." + tag + ".nickname", nickname);
+            String nickname = cs.getString(cstype + ".cert." + tag + ".nickname");
+            logger.info("Checking " + tag + " certificate: " + nickname);
 
             try {
                 cm.findCertByNickname(nickname);
