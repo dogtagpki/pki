@@ -139,7 +139,6 @@ import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.profile.common.IEnrollProfile;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -448,7 +447,6 @@ public class Configurator {
         String user = request.getSecurityDomainUser();
         String pass = request.getSecurityDomainPassword();
 
-        CMSEngine engine = CMS.getCMSEngine();
         String installToken;
 
         try {
@@ -509,7 +507,6 @@ public class Configurator {
     }
 
     public String getOldCookie(String sdhost, int sdport, String user, String passwd) throws Exception {
-        CMSEngine engine = CMS.getCMSEngine();
 
         String subca_url = "https://" + engine.getEEHost() + ":"
                 + engine.getAdminPort() + "/ca/admin/console/config/wizard" +
@@ -678,7 +675,6 @@ public class Configurator {
     public void getConfigEntriesFromMaster()
             throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
         String cstype = cs.getType();
 
@@ -865,7 +861,6 @@ public class Configurator {
 
         logger.debug("Configurator: updating config entries");
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
@@ -1480,7 +1475,6 @@ public class Configurator {
 
     public void initializeDatabase(DatabaseSetupRequest request) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         IPasswordStore passwordStore = engine.getPasswordStore();
 
         String instanceId = cs.getInstanceID();
@@ -1702,7 +1696,6 @@ public class Configurator {
     public void reinitSubsystems() throws EBaseException {
 
         // Enable subsystems after database initialization.
-        CMSEngine engine = CMS.getCMSEngine();
 
         engine.setSubsystemEnabled(UGSubsystem.ID, true);
 
@@ -2021,7 +2014,6 @@ public class Configurator {
             boolean sign_clone_sslserver_cert_using_master)
             throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String caType = preopConfig.getString("ca.type", "");
@@ -2135,7 +2127,6 @@ public class Configurator {
             String certTag)
             throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
         ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
 
@@ -2454,7 +2445,6 @@ public class Configurator {
         String tag = cert.getCertTag();
         logger.debug("Configurator.createCertRecord(" + tag + ")");
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         // parsing cert data
@@ -2592,7 +2582,6 @@ public class Configurator {
             return new X509CertImpl(b);
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String adminSubjectDN = request.getAdminSubjectDN();
@@ -2653,7 +2642,6 @@ public class Configurator {
 
         X509CertImpl[] adminCerts = new X509CertImpl[] { adminCert };
 
-        CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         IUser user = ug.getUser(request.getAdminUID());
         user.setX509Certificates(adminCerts);
@@ -2732,7 +2720,6 @@ public class Configurator {
     public void createAdminCertificate(String certRequest, String certRequestType, String subject)
             throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         byte[] binRequest = Utils.base64decode(certRequest);
@@ -2773,7 +2760,6 @@ public class Configurator {
 
     public void createPKCS7(X509CertImpl cert) throws IOException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
@@ -2819,7 +2805,6 @@ public class Configurator {
         String name = request.getAdminName();
         String pwd = request.getAdminPassword();
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
@@ -2919,7 +2904,6 @@ public class Configurator {
 
         logger.debug("Configurator: submitAdminCertRequest()");
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         if (profileId == null) {
@@ -3000,7 +2984,6 @@ public class Configurator {
 
     public void createSecurityDomain() throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
@@ -3069,7 +3052,6 @@ public class Configurator {
 
     public void updateSecurityDomain(SecurityDomainSetupRequest request) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         int sd_agent_port = cs.getInteger("securitydomain.httpsagentport");
@@ -3206,7 +3188,6 @@ public class Configurator {
 
     public void setupClientAuthUser() throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String host = preopConfig.getString("ca.hostname", "");
@@ -3286,7 +3267,6 @@ public class Configurator {
 
     public void setupDatabaseUser() throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
         // checking existing user
@@ -3353,7 +3333,6 @@ public class Configurator {
 
     public void registerUser(URI secdomainURI, URI targetURI, String targetType) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String csType = cs.getType();
@@ -3408,8 +3387,6 @@ public class Configurator {
 
     public void removeOldDBUsers(String subjectDN) throws EBaseException, LDAPException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
@@ -3463,7 +3440,6 @@ public class Configurator {
 
     public void updateNextRanges() throws EBaseException, LDAPException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         String type = cs.getType();
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
