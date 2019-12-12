@@ -350,19 +350,19 @@ public class Configurator {
         preopConfig.putString("ca.url", url);
 
         URL urlx = new URL(url);
-        String host = urlx.getHost();
+        String hostname = urlx.getHost();
         int port = urlx.getPort();
 
-        int admin_port = getPortFromSecurityDomain(domainInfo,
-                host, port, "CA", "SecurePort", "SecureAdminPort");
+        SecurityDomainHost host = getHostInfo(domainInfo, "CA", hostname, port);
+        int adminPort = Integer.parseInt(host.getSecureAdminPort());
 
         preopConfig.putString("ca.type", "sdca");
-        preopConfig.putString("ca.hostname", host);
+        preopConfig.putString("ca.hostname", hostname);
         preopConfig.putInteger("ca.httpsport", port);
-        preopConfig.putInteger("ca.httpsadminport", admin_port);
+        preopConfig.putInteger("ca.httpsadminport", adminPort);
 
         if (!data.isClone() && !data.getSystemCertsImported()) {
-            byte[] certchain = getCertChain(host, admin_port);
+            byte[] certchain = getCertChain(hostname, adminPort);
             importCertChain(certchain, "ca");
         }
 
@@ -2225,36 +2225,6 @@ public class Configurator {
             return preferredNickname;
         }
         return nickname;
-    }
-
-    public int getPortFromSecurityDomain(DomainInfo domainInfo, String hostname, int port, String csType,
-            String givenTag, String wantedTag) throws Exception {
-
-        logger.debug("Configurator: Searching for " + wantedTag + " in " + csType + " hosts");
-
-        SecurityDomainSubsystem subsystem = domainInfo.getSubsystem(csType);
-
-        for (SecurityDomainHost host : subsystem.getHosts()) {
-
-            String v_host = host.getHostname();
-            logger.debug("Configurator: host: " + v_host);
-
-            String v_given_port = (String) host.get(givenTag);
-            logger.debug("Configurator: " + givenTag + " port: " + v_given_port);
-
-            if (!(v_host.equals(hostname) && v_given_port.equals(port + "")))
-                continue;
-
-            // v_host == host || v_given_port != port
-
-            String wanted_port = (String) host.get(wantedTag);
-            logger.debug("Configurator: " + wantedTag + " port found: " + wanted_port);
-
-            return Integer.parseInt(wanted_port);
-        }
-
-        logger.warn("Configurator: " + wantedTag + " port not found");
-        return 0;
     }
 
     public byte[] loadCertRequest(String subsystem, String tag) throws Exception {
