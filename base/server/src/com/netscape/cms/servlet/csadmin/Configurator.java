@@ -3063,26 +3063,13 @@ public class Configurator {
 
         logger.info("Checking whether security domain host is master");
 
-        String dm = "false";
-
         String hostname = cs.getString("securitydomain.host");
         int httpsadminport = cs.getInteger("securitydomain.httpsadminport");
 
         DomainInfo domainInfo = getDomainInfo(hostname, httpsadminport);
+        SecurityDomainHost host = getHostInfo(domainInfo, "CA", hostname, httpsadminport);
 
-        SecurityDomainSubsystem subsystem = domainInfo.getSubsystem("CA");
-
-        for (SecurityDomainHost host : subsystem.getHosts()) {
-            String v_hostname = host.getHostname();
-            String v_https_admin_port = host.getSecureAdminPort();
-            String v_domain_mgr = host.getDomainManager();
-
-            if (v_hostname.equals(hostname) && v_https_admin_port.equals(httpsadminport + "")) {
-                dm = v_domain_mgr;
-                break;
-            }
-        }
-
+        String dm = host.getDomainManager();
         return dm.equalsIgnoreCase("true");
     }
 
