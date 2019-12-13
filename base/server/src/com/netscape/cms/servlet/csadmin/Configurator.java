@@ -1569,7 +1569,7 @@ public class Configurator {
                 masterFactory.init(cs, masterConfig, passwordStore);
 
                 LDAPConnection masterConn = masterFactory.getConn();
-                LDAPConfigurator masterConfigurator = new LDAPConfigurator(conn, cs);
+                LDAPConfigurator masterConfigurator = new LDAPConfigurator(masterConn, cs);
 
                 try {
                     ReplicationUtil.setupReplication(
