@@ -275,7 +275,21 @@ public class Configurator {
         String hostname = url.getHost();
         int port = url.getPort();
 
-        DomainInfo domainInfo = logIntoSecurityDomain(request, hostname, port);
+        if (!request.getSystemCertsImported()) {
+            logger.debug("Getting security domain cert chain");
+            byte[] certchain = getCertChain(hostname, port);
+            importCertChain(certchain, "securitydomain");
+        }
+
+        String installToken = logIntoSecurityDomain(request, hostname, port);
+        engine.setConfigSDSessionId(installToken);
+
+        DomainInfo domainInfo = getDomainInfo(hostname, port);
+        SecurityDomainHost host = getHostInfo(domainInfo, "CA", hostname, port);
+
+        cs.putString("securitydomain.httpport", host.getPort());
+        cs.putString("securitydomain.httpsagentport", host.getSecureAgentPort());
+        cs.putString("securitydomain.httpseeport", host.getSecurePort());
 
         if (securityDomainType.equals(ConfigurationRequest.EXISTING_DOMAIN)) {
             cs.putString("securitydomain.name", domainInfo.getName());
@@ -286,22 +300,26 @@ public class Configurator {
         return domainInfo;
     }
 
-    private DomainInfo logIntoSecurityDomain(ConfigurationRequest request, String hostname, int port) throws Exception {
+    private String logIntoSecurityDomain(ConfigurationRequest request, String hostname, int port) throws Exception {
 
-        if (!request.getSystemCertsImported()) {
-            logger.debug("Getting security domain cert chain");
-            byte[] certchain = getCertChain(hostname, port);
-            importCertChain(certchain, "securitydomain");
+        logger.debug("Getting installation token from security domain");
+
+        String user = request.getSecurityDomainUser();
+        String pass = request.getSecurityDomainPassword();
+
+        String installToken;
+
+        try {
+            installToken = getInstallToken(hostname, port, user, pass);
+        } catch (Exception e) {
+            logger.error("Unable to get installation token: " + e.getMessage(), e);
+            throw new PKIException("Unable to get installation token: " + e.getMessage(), e);
         }
 
-        getInstallToken(request, hostname, port);
-
-        DomainInfo domainInfo = getDomainInfo(hostname, port);
-        SecurityDomainHost host = getHostInfo(domainInfo, "CA", hostname, port);
-
-        cs.putString("securitydomain.httpport", host.getPort());
-        cs.putString("securitydomain.httpsagentport", host.getSecureAgentPort());
-        cs.putString("securitydomain.httpseeport", host.getSecurePort());
+        if (installToken == null) {
+            logger.error("Missing installation token");
+            throw new PKIException("Missing installation token");
+        }
 
         /* Sleep for a bit to allow security domain session to replicate
          * to other clones.  In the future we can use signed tokens
@@ -316,7 +334,7 @@ public class Configurator {
         logger.debug("Logged into security domain; sleeping for " + d + "s");
         Thread.sleep(d * 1000);
 
-        return domainInfo;
+        return installToken;
     }
 
     public void configureCACertChain(ConfigurationRequest data, DomainInfo domainInfo) throws Exception {
@@ -444,30 +462,6 @@ public class Configurator {
         cs.commit(false);
     }
 
-    private void getInstallToken(ConfigurationRequest request, String host, int port) {
-
-        logger.debug("Getting installation token from security domain");
-
-        String user = request.getSecurityDomainUser();
-        String pass = request.getSecurityDomainPassword();
-
-        String installToken;
-
-        try {
-            installToken = getInstallToken(host, port, user, pass);
-        } catch (Exception e) {
-            logger.error("Unable to get installation token: " + e.getMessage(), e);
-            throw new PKIException("Unable to get installation token: " + e.getMessage(), e);
-        }
-
-        if (installToken == null) {
-            logger.error("Missing installation token");
-            throw new PKIException("Missing installation token");
-        }
-
-        engine.setConfigSDSessionId(installToken);
-    }
-
     public String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
 
         String csType = cs.getType();
@@ -493,11 +487,17 @@ public class Configurator {
         SecurityDomainClient sdClient = new SecurityDomainClient(client, "ca");
 
         try {
-            logger.debug("Getting install token");
+            logger.info("Logging into security domain");
             accountClient.login();
+
+            logger.info("Getting install token");
             InstallToken token = sdClient.getInstallToken(sdhost, csType);
+
+            logger.info("Logging out of security domain");
             accountClient.logout();
+
             return token.getToken();
+
         } catch (PKIException e) {
             if (e.getCode() == Response.Status.NOT_FOUND.getStatusCode()) {
                 // try the old servlet
