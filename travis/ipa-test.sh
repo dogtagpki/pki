@@ -102,6 +102,8 @@ trap "exit_handler" EXIT
 
 echo "Running IPA tests"
 
+# Propogate exit code when piped
+set -o pipefail
 ipa-run-tests \
 --ignore test_integration \
 --ignore test_webui \
@@ -109,6 +111,7 @@ ipa-run-tests \
 -k-test_dns_soa \
 --verbose \
 ${cert_test_file_loc} 2>&1 | tee $TEST_LOG
+set +o pipefail
 
 echo "Test complete"
 
