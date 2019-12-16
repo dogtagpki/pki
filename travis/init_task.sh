@@ -21,7 +21,6 @@
 #
 set -e
 
-pyenv global system 3.6
 docker pull ${BASE_IMAGE}
 docker run \
     --detach \
