@@ -422,7 +422,7 @@ public class PKIConnection {
         return builder.build();
     }
 
-    public <T> T getEntity(Response response, Class<T> clazz) {
+    public <T> T getEntity(Response response, Class<T> clazz) throws Exception {
         try {
             Family family = response.getStatusInfo().getFamily();
             if (!family.equals(Family.CLIENT_ERROR) && !family.equals(Family.SERVER_ERROR)) {
@@ -437,7 +437,7 @@ public class PKIConnection {
         }
     }
 
-    public <T> T getEntity(Response response, GenericType<T> clazz) {
+    public <T> T getEntity(Response response, GenericType<T> clazz) throws Exception {
         try {
             Family family = response.getStatusInfo().getFamily();
             if (!family.equals(Family.CLIENT_ERROR) && !family.equals(Family.SERVER_ERROR)) {

@@ -40,27 +40,27 @@ public class SelfTestClient extends Client {
         resource = createProxy(SelfTestResource.class);
     }
 
-    public SelfTestCollection findSelfTests(String filter, Integer start, Integer size) {
+    public SelfTestCollection findSelfTests(String filter, Integer start, Integer size) throws Exception {
         Response response = resource.findSelfTests(filter, start, size);
         return client.getEntity(response, SelfTestCollection.class);
     }
 
-    public void executeSelfTests(String action) {
+    public void executeSelfTests(String action) throws Exception {
         Response response = resource.executeSelfTests(action);
         client.getEntity(response, Void.class);
     }
 
-    public SelfTestResults runSelfTests() {
+    public SelfTestResults runSelfTests() throws Exception {
         Response response = resource.runSelfTests();
         return client.getEntity(response, SelfTestResults.class);
     }
 
-    public SelfTestResult runSelfTest(String selfTestID) {
+    public SelfTestResult runSelfTest(String selfTestID) throws Exception {
         Response response = resource.runSelfTest(selfTestID);
         return client.getEntity(response, SelfTestResult.class);
     }
 
-    public SelfTestData getSelfTest(String selfTestID) {
+    public SelfTestData getSelfTest(String selfTestID) throws Exception {
         Response response = resource.getSelfTest(selfTestID);
         return client.getEntity(response, SelfTestData.class);
     }

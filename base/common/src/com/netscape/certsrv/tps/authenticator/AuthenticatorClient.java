@@ -40,32 +40,32 @@ public class AuthenticatorClient extends Client {
         resource = createProxy(AuthenticatorResource.class);
     }
 
-    public AuthenticatorCollection findAuthenticators(String filter, Integer start, Integer size) {
+    public AuthenticatorCollection findAuthenticators(String filter, Integer start, Integer size) throws Exception {
         Response response = resource.findAuthenticators(filter, start, size);
         return client.getEntity(response, AuthenticatorCollection.class);
     }
 
-    public AuthenticatorData getAuthenticator(String authenticatorID) {
+    public AuthenticatorData getAuthenticator(String authenticatorID) throws Exception {
         Response response = resource.getAuthenticator(authenticatorID);
         return client.getEntity(response, AuthenticatorData.class);
     }
 
-    public AuthenticatorData addAuthenticator(AuthenticatorData authenticatorData) {
+    public AuthenticatorData addAuthenticator(AuthenticatorData authenticatorData) throws Exception {
         Response response = resource.addAuthenticator(authenticatorData);
         return client.getEntity(response, AuthenticatorData.class);
     }
 
-    public AuthenticatorData updateAuthenticator(String authenticatorID, AuthenticatorData authenticatorData) {
+    public AuthenticatorData updateAuthenticator(String authenticatorID, AuthenticatorData authenticatorData) throws Exception {
         Response response = resource.updateAuthenticator(authenticatorID, authenticatorData);
         return client.getEntity(response, AuthenticatorData.class);
     }
 
-    public AuthenticatorData changeAuthenticatorStatus(String authenticatorID, String action) {
+    public AuthenticatorData changeAuthenticatorStatus(String authenticatorID, String action) throws Exception {
         Response response = resource.changeStatus(authenticatorID, action);
         return client.getEntity(response, AuthenticatorData.class);
     }
 
-    public void removeAuthenticator(String authenticatorID) {
+    public void removeAuthenticator(String authenticatorID) throws Exception {
         Response response = resource.removeAuthenticator(authenticatorID);
         client.getEntity(response, Void.class);
     }

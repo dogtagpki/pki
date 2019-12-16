@@ -41,12 +41,12 @@ public class SecurityDomainClient extends Client {
         securityDomainClient = createProxy(SecurityDomainResource.class);
     }
 
-    public InstallToken getInstallToken(String hostname, String subsystem) {
+    public InstallToken getInstallToken(String hostname, String subsystem) throws Exception {
         Response response = securityDomainClient.getInstallToken(hostname, subsystem);
         return client.getEntity(response, InstallToken.class);
     }
 
-    public DomainInfo getDomainInfo() {
+    public DomainInfo getDomainInfo() throws Exception {
         Response response = securityDomainClient.getDomainInfo();
         return client.getEntity(response, DomainInfo.class);
     }

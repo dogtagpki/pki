@@ -41,22 +41,22 @@ public class KRAConnectorClient extends Client {
         kraConnectorClient = createProxy(KRAConnectorResource.class);
     }
 
-    public void addConnector(KRAConnectorInfo info) {
+    public void addConnector(KRAConnectorInfo info) throws Exception {
         Response response = kraConnectorClient.addConnector(info);
         client.getEntity(response, Void.class);
     }
 
-    public void addHost(String host, String port) {
+    public void addHost(String host, String port) throws Exception {
         Response response = kraConnectorClient.addHost(host, port);
         client.getEntity(response, Void.class);
     }
 
-    public void removeConnector(String host, String port) {
+    public void removeConnector(String host, String port) throws Exception {
         Response response = kraConnectorClient.removeConnector(host, port);
         client.getEntity(response, Void.class);
     }
 
-    public KRAConnectorInfo getConnectorInfo() {
+    public KRAConnectorInfo getConnectorInfo() throws Exception {
         Response response = kraConnectorClient.getConnectorInfo();
         return client.getEntity(response, KRAConnectorInfo.class);
     }

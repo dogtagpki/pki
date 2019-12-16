@@ -40,12 +40,12 @@ public class ActivityClient extends Client {
         resource = createProxy(ActivityResource.class);
     }
 
-    public ActivityCollection findActivities(String filter, Integer start, Integer size) {
+    public ActivityCollection findActivities(String filter, Integer start, Integer size) throws Exception {
         Response response = resource.findActivities(filter, start, size);
         return client.getEntity(response, ActivityCollection.class);
     }
 
-    public ActivityData getActivity(String activityID) {
+    public ActivityData getActivity(String activityID) throws Exception {
         Response response = resource.getActivity(activityID);
         return client.getEntity(response, ActivityData.class);
     }

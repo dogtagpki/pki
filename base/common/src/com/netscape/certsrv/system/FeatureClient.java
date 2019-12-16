@@ -38,13 +38,13 @@ public class FeatureClient extends Client {
       featureClient = createProxy(FeatureResource.class);
   }
 
-  public List<Feature> listFeatures() {
+  public List<Feature> listFeatures() throws Exception {
       Response response = featureClient.listFeatures();
       GenericType<List<Feature>> type = new GenericType<List<Feature>>() {};
       return client.getEntity(response, type);
   }
 
-  public Feature getFeature(String featureID) {
+  public Feature getFeature(String featureID) throws Exception {
       Response response = featureClient.getFeature(featureID);
       return client.getEntity(response, Feature.class);
   }

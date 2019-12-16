@@ -59,7 +59,7 @@ public class CATest {
 
     private static String clientCertNickname;
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
         String host = null;
         String port = null;
         String token_pwd = null;
@@ -287,7 +287,7 @@ public class CATest {
 
     }
 
-    private static void enrollAndApproveCertRequest(CACertClient client, CertEnrollmentRequest data) {
+    private static void enrollAndApproveCertRequest(CACertClient client, CertEnrollmentRequest data) throws Exception {
         CertRequestInfos reqInfo = null;
         try {
             reqInfo = client.enrollRequest(data, null, null);

@@ -47,7 +47,7 @@ public class SubsystemClient extends Client {
     /**
      * Log in to the subsystem.
      */
-    public AccountInfo login() {
+    public AccountInfo login() throws Exception {
         return accountClient.login();
     }
 
@@ -86,7 +86,7 @@ public class SubsystemClient extends Client {
     /**
      * Log out from the subsystem.
      */
-    public void logout() {
+    public void logout() throws Exception {
         accountClient.logout();
     }
 }

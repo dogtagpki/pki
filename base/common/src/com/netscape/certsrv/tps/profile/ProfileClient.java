@@ -44,32 +44,32 @@ public class ProfileClient extends Client {
         resource = createProxy(ProfileResource.class);
     }
 
-    public ProfileCollection findProfiles(String filter, Integer start, Integer size) {
+    public ProfileCollection findProfiles(String filter, Integer start, Integer size) throws Exception {
         Response response = resource.findProfiles(filter, start, size);
         return client.getEntity(response, ProfileCollection.class);
     }
 
-    public ProfileData getProfile(String profileID) {
+    public ProfileData getProfile(String profileID) throws Exception {
         Response response = resource.getProfile(profileID);
         return client.getEntity(response, ProfileData.class);
     }
 
-    public ProfileData addProfile(ProfileData profileData) {
+    public ProfileData addProfile(ProfileData profileData) throws Exception {
         Response response = resource.addProfile(profileData);
         return client.getEntity(response, ProfileData.class);
     }
 
-    public ProfileData updateProfile(String profileID, ProfileData profileData) {
+    public ProfileData updateProfile(String profileID, ProfileData profileData) throws Exception {
         Response response = resource.updateProfile(profileID, profileData);
         return client.getEntity(response, ProfileData.class);
     }
 
-    public ProfileData changeProfileStatus(String profileID, String action) {
+    public ProfileData changeProfileStatus(String profileID, String action) throws Exception {
         Response response = resource.changeStatus(profileID, action);
         return client.getEntity(response, ProfileData.class);
     }
 
-    public void removeProfile(String profileID) {
+    public void removeProfile(String profileID) throws Exception {
         Response response = resource.removeProfile(profileID);
         client.getEntity(response, Void.class);
     }

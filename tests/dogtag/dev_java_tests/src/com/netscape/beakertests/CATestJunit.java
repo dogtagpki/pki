@@ -73,7 +73,7 @@ public class CATestJunit extends PKIJUnitTest {
     }
 
     @Test
-    public void listCompleteCertRequests() {
+    public void listCompleteCertRequests() throws Exception {
 
         Collection<CertRequestInfo> list =
                 certClient.listRequests("complete", null, null, null, null, null).getEntries();
@@ -82,7 +82,7 @@ public class CATestJunit extends PKIJUnitTest {
     }
 
     @Test
-    public void getACert() {
+    public void getACert() throws Exception {
         // Get a CertInfo
         int certIdToPrint = 1;
         CertId id = new CertId(certIdToPrint);
@@ -91,7 +91,7 @@ public class CATestJunit extends PKIJUnitTest {
     }
 
     @Test(expected = CertNotFoundException.class)
-    public void getABadCert() {
+    public void getABadCert() throws Exception {
         // Try an invalid Cert to print out
         // Get a CertInfo
         int certIdBadToPrint = 9999999;

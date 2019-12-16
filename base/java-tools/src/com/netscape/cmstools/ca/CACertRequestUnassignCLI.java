@@ -14,7 +14,7 @@ public class CACertRequestUnassignCLI extends CACertRequestActionCLI {
     public void performAction(
             CACertClient certClient,
             RequestId requestId,
-            CertReviewResponse reviewInfo) {
+            CertReviewResponse reviewInfo) throws Exception {
 
         certClient.unassignRequest(requestId, reviewInfo);
         MainCLI.printMessage("Unassigned certificate request " + requestId);

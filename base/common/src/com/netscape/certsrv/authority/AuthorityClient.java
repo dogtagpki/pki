@@ -53,22 +53,22 @@ public class AuthorityClient extends Client {
         return client.getEntity(response, type);
     }
 
-    public AuthorityData getCA(String caIDString) {
+    public AuthorityData getCA(String caIDString) throws Exception {
         Response response = proxy.getCA(caIDString);
         return client.getEntity(response, AuthorityData.class);
     }
 
-    public AuthorityData createCA(AuthorityData data) {
+    public AuthorityData createCA(AuthorityData data) throws Exception {
         Response response = proxy.createCA(data);
         return client.getEntity(response, AuthorityData.class);
     }
 
-    public AuthorityData modifyCA(AuthorityData data) {
+    public AuthorityData modifyCA(AuthorityData data) throws Exception {
         Response response = proxy.modifyCA(data.getID(), data);
         return client.getEntity(response, AuthorityData.class);
     }
 
-    public void deleteCA(String aidString) {
+    public void deleteCA(String aidString) throws Exception {
         Response response = proxy.deleteCA(aidString);
         client.getEntity(response, Void.class);
     }

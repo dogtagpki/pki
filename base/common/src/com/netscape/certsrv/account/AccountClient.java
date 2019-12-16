@@ -43,7 +43,7 @@ public class AccountClient extends Client {
         resource = createProxy(AccountResource.class);
     }
 
-    public AccountInfo login() {
+    public AccountInfo login() throws Exception {
         Response response = resource.login();
         AccountInfo info = client.getEntity(response, AccountInfo.class);
         loggedIn = true;
@@ -61,7 +61,7 @@ public class AccountClient extends Client {
         return info;
     }
 
-    public void logout() {
+    public void logout() throws Exception {
         if (!loggedIn) return;
 
         Response response = resource.logout();

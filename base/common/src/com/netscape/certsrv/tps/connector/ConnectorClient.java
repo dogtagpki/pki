@@ -40,32 +40,32 @@ public class ConnectorClient extends Client {
         resource = createProxy(ConnectorResource.class);
     }
 
-    public ConnectorCollection findConnectors(String filter, Integer start, Integer size) {
+    public ConnectorCollection findConnectors(String filter, Integer start, Integer size) throws Exception {
         Response response = resource.findConnectors(filter, start, size);
         return client.getEntity(response, ConnectorCollection.class);
     }
 
-    public ConnectorData getConnector(String connectorID) {
+    public ConnectorData getConnector(String connectorID) throws Exception {
         Response response = resource.getConnector(connectorID);
         return client.getEntity(response, ConnectorData.class);
     }
 
-    public ConnectorData addConnector(ConnectorData connectorData) {
+    public ConnectorData addConnector(ConnectorData connectorData) throws Exception {
         Response response = resource.addConnector(connectorData);
         return client.getEntity(response, ConnectorData.class);
     }
 
-    public ConnectorData updateConnector(String connectorID, ConnectorData connectorData) {
+    public ConnectorData updateConnector(String connectorID, ConnectorData connectorData) throws Exception {
         Response response = resource.updateConnector(connectorID, connectorData);
         return client.getEntity(response, ConnectorData.class);
     }
 
-    public ConnectorData changeConnectorStatus(String connectorID, String action) {
+    public ConnectorData changeConnectorStatus(String connectorID, String action) throws Exception {
         Response response = resource.changeStatus(connectorID, action);
         return client.getEntity(response, ConnectorData.class);
     }
 
-    public void removeConnector(String connectorID) {
+    public void removeConnector(String connectorID) throws Exception {
         Response response = resource.removeConnector(connectorID);
         client.getEntity(response, Void.class);
     }

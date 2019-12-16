@@ -40,12 +40,12 @@ public class TPSCertClient extends Client {
         resource = createProxy(TPSCertResource.class);
     }
 
-    public TPSCertCollection findCerts(String filter, String tokenID, Integer start, Integer size) {
+    public TPSCertCollection findCerts(String filter, String tokenID, Integer start, Integer size) throws Exception {
         Response response = resource.findCerts(filter, tokenID, start, size);
         return client.getEntity(response, TPSCertCollection.class);
     }
 
-    public TPSCertData getCert(String tokenID) {
+    public TPSCertData getCert(String tokenID) throws Exception {
         Response response = resource.getCert(tokenID);
         return client.getEntity(response, TPSCertData.class);
     }

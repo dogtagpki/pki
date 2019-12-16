@@ -40,27 +40,27 @@ public class GroupClient extends Client {
         groupClient = createProxy(GroupResource.class);
     }
 
-    public GroupCollection findGroups(String groupIDFilter, Integer start, Integer size) {
+    public GroupCollection findGroups(String groupIDFilter, Integer start, Integer size) throws Exception {
         Response response = groupClient.findGroups(groupIDFilter, start, size);
         return client.getEntity(response, GroupCollection.class);
     }
 
-    public GroupData getGroup(String groupID) {
+    public GroupData getGroup(String groupID) throws Exception {
         Response response = groupClient.getGroup(groupID);
         return client.getEntity(response, GroupData.class);
     }
 
-    public GroupData addGroup(GroupData groupData) {
+    public GroupData addGroup(GroupData groupData) throws Exception {
         Response response = groupClient.addGroup(groupData);
         return client.getEntity(response, GroupData.class);
     }
 
-    public GroupData modifyGroup(String groupID, GroupData groupData) {
+    public GroupData modifyGroup(String groupID, GroupData groupData) throws Exception {
         Response response = groupClient.modifyGroup(groupID, groupData);
         return client.getEntity(response, GroupData.class);
     }
 
-    public void removeGroup(String groupID) {
+    public void removeGroup(String groupID) throws Exception {
         Response response = groupClient.removeGroup(groupID);
         client.getEntity(response, Void.class);
     }
@@ -69,24 +69,24 @@ public class GroupClient extends Client {
             String groupID,
             String filter,
             Integer start,
-            Integer size) {
+            Integer size) throws Exception {
         Response response = groupClient.findGroupMembers(groupID, filter, start, size);
         return client.getEntity(response, GroupMemberCollection.class);
     }
 
-    public GroupMemberData getGroupMember(String groupID, String memberID) {
+    public GroupMemberData getGroupMember(String groupID, String memberID) throws Exception {
         Response response = groupClient.getGroupMember(groupID, memberID);
         return client.getEntity(response, GroupMemberData.class);
     }
 
-    public GroupMemberData addGroupMember(String groupID, String memberID) {
+    public GroupMemberData addGroupMember(String groupID, String memberID) throws Exception {
         GroupMemberData data = new GroupMemberData();
         data.setID(memberID);
         Response response = groupClient.addGroupMember(groupID, data);
         return client.getEntity(response, GroupMemberData.class);
     }
 
-    public void removeGroupMember(String groupID, String memberID) {
+    public void removeGroupMember(String groupID, String memberID) throws Exception {
         Response response = groupClient.removeGroupMember(groupID, memberID);
         client.getEntity(response, Void.class);
     }

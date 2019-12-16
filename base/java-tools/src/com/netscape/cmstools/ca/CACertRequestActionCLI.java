@@ -118,6 +118,6 @@ public class CACertRequestActionCLI extends CommandCLI {
     public void performAction(
             CACertClient certClient,
             RequestId requestId,
-            CertReviewResponse reviewInfo) {
+            CertReviewResponse reviewInfo) throws Exception {
     }
 }

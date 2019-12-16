@@ -14,7 +14,7 @@ public class CACertRequestCancelCLI extends CACertRequestActionCLI {
     public void performAction(
             CACertClient certClient,
             RequestId requestId,
-            CertReviewResponse reviewInfo) {
+            CertReviewResponse reviewInfo) throws Exception {
 
         certClient.cancelRequest(requestId, reviewInfo);
         MainCLI.printMessage("Canceled certificate request " + requestId);

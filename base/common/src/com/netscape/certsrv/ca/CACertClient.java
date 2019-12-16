@@ -22,6 +22,8 @@ import java.net.URISyntaxException;
 
 import javax.ws.rs.core.Response;
 
+import org.mozilla.jss.netscape.security.x509.X500Name;
+
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
@@ -38,7 +40,6 @@ import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.certsrv.request.RequestId;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * @author Endi S. Dewata
@@ -62,43 +63,43 @@ public class CACertClient extends Client {
         certRequestClient = createProxy(CertRequestResource.class);
     }
 
-    public CertData getCert(CertId id) {
+    public CertData getCert(CertId id) throws Exception {
         Response response = certClient.getCert(id);
         return client.getEntity(response, CertData.class);
     }
 
-    public CertData reviewCert(CertId id) {
+    public CertData reviewCert(CertId id) throws Exception {
         Response response = certClient.reviewCert(id);
         return client.getEntity(response, CertData.class);
     }
 
-    public CertDataInfos listCerts(String status, Integer maxResults, Integer maxTime, Integer start, Integer size) {
+    public CertDataInfos listCerts(String status, Integer maxResults, Integer maxTime, Integer start, Integer size) throws Exception {
         Response response = certClient.listCerts(status, maxResults, maxTime, start, size);
         return client.getEntity(response, CertDataInfos.class);
     }
 
-    public CertDataInfos findCerts(CertSearchRequest data, Integer start, Integer size) {
+    public CertDataInfos findCerts(CertSearchRequest data, Integer start, Integer size) throws Exception {
         Response response = certClient.searchCerts(data, start, size);
         return client.getEntity(response, CertDataInfos.class);
     }
 
-    public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request) {
+    public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request) throws Exception {
         Response response = certClient.revokeCert(id, request);
         return client.getEntity(response, CertRequestInfo.class);
     }
 
-    public CertRequestInfo revokeCACert(CertId id, CertRevokeRequest request) {
+    public CertRequestInfo revokeCACert(CertId id, CertRevokeRequest request) throws Exception {
         Response response = certClient.revokeCACert(id, request);
         return client.getEntity(response, CertRequestInfo.class);
     }
 
-    public CertRequestInfo unrevokeCert(CertId id) {
+    public CertRequestInfo unrevokeCert(CertId id) throws Exception {
         Response response = certClient.unrevokeCert(id);
         return client.getEntity(response, CertRequestInfo.class);
     }
 
     public CertRequestInfos enrollRequest(
-            CertEnrollmentRequest data, AuthorityID aid, X500Name adn) {
+            CertEnrollmentRequest data, AuthorityID aid, X500Name adn) throws Exception {
         String aidString = aid != null ? aid.toString() : null;
         String adnString = null;
         if (adn != null) {
@@ -111,63 +112,63 @@ public class CACertClient extends Client {
         return client.getEntity(response, CertRequestInfos.class);
     }
 
-    public CertRequestInfo getRequest(RequestId id) {
+    public CertRequestInfo getRequest(RequestId id) throws Exception {
         Response response = certRequestClient.getRequestInfo(id);
         return client.getEntity(response, CertRequestInfo.class);
     }
 
-    public CertReviewResponse reviewRequest(RequestId id) {
+    public CertReviewResponse reviewRequest(RequestId id) throws Exception {
         Response response = certRequestClient.reviewRequest(id);
         return client.getEntity(response, CertReviewResponse.class);
     }
 
-    public void approveRequest(RequestId id, CertReviewResponse data) {
+    public void approveRequest(RequestId id, CertReviewResponse data) throws Exception {
         Response response = certRequestClient.approveRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
-    public void rejectRequest(RequestId id, CertReviewResponse data) {
+    public void rejectRequest(RequestId id, CertReviewResponse data) throws Exception {
         Response response = certRequestClient.rejectRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
-    public void cancelRequest(RequestId id, CertReviewResponse data) {
+    public void cancelRequest(RequestId id, CertReviewResponse data) throws Exception {
         Response response = certRequestClient.cancelRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
-    public void updateRequest(RequestId id, CertReviewResponse data) {
+    public void updateRequest(RequestId id, CertReviewResponse data) throws Exception {
         Response response = certRequestClient.updateRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
-    public void validateRequest(RequestId id, CertReviewResponse data) {
+    public void validateRequest(RequestId id, CertReviewResponse data) throws Exception {
         Response response = certRequestClient.validateRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
-    public void assignRequest(RequestId id, CertReviewResponse data) {
+    public void assignRequest(RequestId id, CertReviewResponse data) throws Exception {
         Response response = certRequestClient.assignRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
-    public void unassignRequest(RequestId id, CertReviewResponse data) {
+    public void unassignRequest(RequestId id, CertReviewResponse data) throws Exception {
         Response response = certRequestClient.unassignRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
     public CertRequestInfos listRequests(String requestState, String requestType, RequestId start, Integer pageSize,
-            Integer maxResults, Integer maxTime) {
+            Integer maxResults, Integer maxTime) throws Exception {
         Response response = certRequestClient.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
         return client.getEntity(response, CertRequestInfos.class);
     }
 
-    public CertEnrollmentRequest getEnrollmentTemplate(String id) {
+    public CertEnrollmentRequest getEnrollmentTemplate(String id) throws Exception {
         Response response = certRequestClient.getEnrollmentTemplate(id);
         return client.getEntity(response, CertEnrollmentRequest.class);
     }
 
-    public ProfileDataInfos listEnrollmentTemplates(Integer start, Integer size) {
+    public ProfileDataInfos listEnrollmentTemplates(Integer start, Integer size) throws Exception {
         Response response = certRequestClient.listEnrollmentTemplates(start, size);
         return client.getEntity(response, ProfileDataInfos.class);
     }

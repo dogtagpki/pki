@@ -40,32 +40,32 @@ public class ProfileMappingClient extends Client {
         resource = createProxy(ProfileMappingResource.class);
     }
 
-    public ProfileMappingCollection findProfileMappings(String filter, Integer start, Integer size) {
+    public ProfileMappingCollection findProfileMappings(String filter, Integer start, Integer size) throws Exception {
         Response response = resource.findProfileMappings(filter, start, size);
         return client.getEntity(response, ProfileMappingCollection.class);
     }
 
-    public ProfileMappingData getProfileMapping(String profileMappingID) {
+    public ProfileMappingData getProfileMapping(String profileMappingID) throws Exception {
         Response response = resource.getProfileMapping(profileMappingID);
         return client.getEntity(response, ProfileMappingData.class);
     }
 
-    public ProfileMappingData addProfileMapping(ProfileMappingData profileMappingData) {
+    public ProfileMappingData addProfileMapping(ProfileMappingData profileMappingData) throws Exception {
         Response response = resource.addProfileMapping(profileMappingData);
         return client.getEntity(response, ProfileMappingData.class);
     }
 
-    public ProfileMappingData updateProfileMapping(String profileMappingID, ProfileMappingData profileMappingData) {
+    public ProfileMappingData updateProfileMapping(String profileMappingID, ProfileMappingData profileMappingData) throws Exception {
         Response response = resource.updateProfileMapping(profileMappingID, profileMappingData);
         return client.getEntity(response, ProfileMappingData.class);
     }
 
-    public ProfileMappingData changeProfileMappingStatus(String profileMappingID, String action) {
+    public ProfileMappingData changeProfileMappingStatus(String profileMappingID, String action) throws Exception {
         Response response = resource.changeStatus(profileMappingID, action);
         return client.getEntity(response, ProfileMappingData.class);
     }
 
-    public void removeProfileMapping(String profileMappingID) {
+    public void removeProfileMapping(String profileMappingID) throws Exception {
         Response response = resource.removeProfileMapping(profileMappingID);
         client.getEntity(response, Void.class);
     }

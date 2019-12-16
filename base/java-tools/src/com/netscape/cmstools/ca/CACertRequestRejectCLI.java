@@ -14,7 +14,7 @@ public class CACertRequestRejectCLI extends CACertRequestActionCLI {
     public void performAction(
             CACertClient certClient,
             RequestId requestId,
-            CertReviewResponse reviewInfo) {
+            CertReviewResponse reviewInfo) throws Exception {
 
         certClient.rejectRequest(requestId, reviewInfo);
         MainCLI.printMessage("Rejected certificate request " + requestId);

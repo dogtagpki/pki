@@ -14,7 +14,7 @@ public class CACertRequestAssignCLI extends CACertRequestActionCLI {
     public void performAction(
             CACertClient certClient,
             RequestId requestId,
-            CertReviewResponse reviewInfo) {
+            CertReviewResponse reviewInfo) throws Exception {
 
         certClient.assignRequest(requestId, reviewInfo);
         MainCLI.printMessage("Assigned certificate request " + requestId);

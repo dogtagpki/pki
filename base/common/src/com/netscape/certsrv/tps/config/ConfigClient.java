@@ -40,12 +40,12 @@ public class ConfigClient extends Client {
         resource = createProxy(ConfigResource.class);
     }
 
-    public ConfigData getConfig() {
+    public ConfigData getConfig() throws Exception {
         Response response = resource.getConfig();
         return client.getEntity(response, ConfigData.class);
     }
 
-    public ConfigData updateConfig(ConfigData configData) {
+    public ConfigData updateConfig(ConfigData configData) throws Exception {
         Response response = resource.updateConfig(configData);
         return client.getEntity(response, ConfigData.class);
     }

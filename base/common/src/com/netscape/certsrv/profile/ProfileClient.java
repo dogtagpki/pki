@@ -40,7 +40,7 @@ public class ProfileClient extends Client {
         profileClient = createProxy(ProfileResource.class);
     }
 
-    public ProfileData retrieveProfile(String id) {
+    public ProfileData retrieveProfile(String id) throws Exception {
         Response response = profileClient.retrieveProfile(id);
         return client.getEntity(response, ProfileData.class);
     }
@@ -50,7 +50,7 @@ public class ProfileClient extends Client {
         return client.getEntity(response, byte[].class);
     }
 
-    public ProfileDataInfos listProfiles(Integer start, Integer size) {
+    public ProfileDataInfos listProfiles(Integer start, Integer size) throws Exception {
         Response response =  profileClient.listProfiles(start, size);
         return client.getEntity(response, ProfileDataInfos.class);
     }
@@ -70,7 +70,7 @@ public class ProfileClient extends Client {
         return client.getEntity(response, ProfileData.class);
     }
 
-    public byte[] createProfileRaw(byte[] properties) {
+    public byte[] createProfileRaw(byte[] properties) throws Exception {
         Response response =
             profileClient.createProfileRaw(properties);
         return client.getEntity(response, byte[].class);
@@ -86,7 +86,7 @@ public class ProfileClient extends Client {
         return client.getEntity(response, byte[].class);
     }
 
-    public void deleteProfile(String id) {
+    public void deleteProfile(String id) throws Exception {
         Response response = profileClient.deleteProfile(id);
         client.getEntity(response, Void.class);
     }

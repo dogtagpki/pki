@@ -41,22 +41,22 @@ public class AuditClient extends Client {
         resource = createProxy(AuditResource.class);
     }
 
-    public AuditConfig getAuditConfig() {
+    public AuditConfig getAuditConfig() throws Exception {
         Response response = resource.getAuditConfig();
         return client.getEntity(response, AuditConfig.class);
     }
 
-    public AuditConfig updateAuditConfig(AuditConfig auditConfig) {
+    public AuditConfig updateAuditConfig(AuditConfig auditConfig) throws Exception {
         Response response = resource.updateAuditConfig(auditConfig);
         return client.getEntity(response, AuditConfig.class);
     }
 
-    public AuditConfig changeAuditStatus(String action) {
+    public AuditConfig changeAuditStatus(String action) throws Exception {
         Response response = resource.changeAuditStatus(action);
         return client.getEntity(response, AuditConfig.class);
     }
 
-    public AuditFileCollection findAuditFiles() {
+    public AuditFileCollection findAuditFiles() throws Exception {
         Response response = resource.findAuditFiles();
         return client.getEntity(response, AuditFileCollection.class);
     }

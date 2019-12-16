@@ -102,11 +102,11 @@ public class PKIClient {
         return config.getSubsystem();
     }
 
-    public <T> T getEntity(Response response, Class<T> clazz) {
+    public <T> T getEntity(Response response, Class<T> clazz) throws Exception {
         return connection.getEntity(response, clazz);
     }
 
-    public <T> T getEntity(Response response, GenericType<T> clazz) {
+    public <T> T getEntity(Response response, GenericType<T> clazz) throws Exception {
         return connection.getEntity(response, clazz);
     }
 

@@ -14,7 +14,7 @@ public class CACertRequestUpdateCLI extends CACertRequestActionCLI {
     public void performAction(
             CACertClient certClient,
             RequestId requestId,
-            CertReviewResponse reviewInfo) {
+            CertReviewResponse reviewInfo) throws Exception  {
 
         certClient.updateRequest(requestId, reviewInfo);
         MainCLI.printMessage("Updated certificate request " + requestId);

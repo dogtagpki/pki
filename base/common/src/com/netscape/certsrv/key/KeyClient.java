@@ -125,14 +125,14 @@ public class KeyClient extends Client {
      * @return a KeyInfoCollection object.
      */
     public KeyInfoCollection listKeys(String clientKeyID, String status, Integer maxSize, Integer maxTime,
-            Integer start, Integer size, String realm) {
+            Integer start, Integer size, String realm) throws Exception {
         Response response = keyClient.listKeys(clientKeyID, status, maxSize, maxTime, start, size, realm);
         return client.getEntity(response, KeyInfoCollection.class);
     }
 
     /* for backward compatibility */
     public KeyInfoCollection listKeys(String clientKeyID, String status, Integer maxSize, Integer maxTime,
-            Integer start, Integer size) {
+            Integer start, Integer size) throws Exception {
         Response response = keyClient.listKeys(clientKeyID, status, maxSize, maxTime, start, size, null);
         return client.getEntity(response, KeyInfoCollection.class);
     }
@@ -145,7 +145,7 @@ public class KeyClient extends Client {
      * @param realm   -- Authz Realm
      * @return a KeyRequestCollection object.
      */
-    public KeyRequestInfoCollection listRequests(String requestState, String requestType, String realm) {
+    public KeyRequestInfoCollection listRequests(String requestState, String requestType, String realm) throws Exception {
         return listRequests(
                 requestState,
                 requestType,
@@ -158,7 +158,7 @@ public class KeyClient extends Client {
     }
 
     /* method for backwards compatibility */
-    public KeyRequestInfoCollection listRequests(String requestState, String requestType) {
+    public KeyRequestInfoCollection listRequests(String requestState, String requestType) throws Exception {
         return listRequests(
                 requestState,
                 requestType,
@@ -191,7 +191,7 @@ public class KeyClient extends Client {
             Integer pageSize,
             Integer maxResults,
             Integer maxTime,
-            String realm) {
+            String realm) throws Exception {
         Response response = keyRequestClient.listRequests(
                 requestState,
                 requestType,
@@ -210,7 +210,7 @@ public class KeyClient extends Client {
      * @param id -- A Request Id object
      * @return the KeyRequestInfo object for a specific request.
      */
-    public KeyRequestInfo getRequestInfo(RequestId id) {
+    public KeyRequestInfo getRequestInfo(RequestId id) throws Exception {
         if (id == null) {
             throw new IllegalArgumentException("Request Id must be specified.");
         }
@@ -224,7 +224,7 @@ public class KeyClient extends Client {
      * @param id -- key id for secret
      * @return the KeyInfo object for a specific request.
      */
-    public KeyInfo getKeyInfo(KeyId id) {
+    public KeyInfo getKeyInfo(KeyId id) throws Exception {
         if (id == null) {
             throw new IllegalArgumentException("Key Id must be specified.");
         }
@@ -237,7 +237,7 @@ public class KeyClient extends Client {
      *
      * @param clientKeyID -- Client Key Identifier
      */
-    public KeyInfo getActiveKeyInfo(String clientKeyID) {
+    public KeyInfo getActiveKeyInfo(String clientKeyID) throws Exception {
         if (clientKeyID == null) {
             throw new IllegalArgumentException("Client Key Id must be specified.");
         }
@@ -251,7 +251,7 @@ public class KeyClient extends Client {
      * @param id -- key id for secret
      * @param status -- Status to be set for the key
      */
-    public void modifyKeyStatus(KeyId id, String status) {
+    public void modifyKeyStatus(KeyId id, String status) throws Exception {
         if (id == null || status == null) {
             throw new IllegalArgumentException("Key Id and status must be specified.");
         }
@@ -268,7 +268,7 @@ public class KeyClient extends Client {
      *
      * @param id -- Id of the request
      */
-    public void approveRequest(RequestId id) {
+    public void approveRequest(RequestId id) throws Exception {
         if (id == null) {
             throw new IllegalArgumentException("Request Id must be specified.");
         }
@@ -281,7 +281,7 @@ public class KeyClient extends Client {
      *
      * @param id -- Id of the request
      */
-    public void rejectRequest(RequestId id) {
+    public void rejectRequest(RequestId id) throws Exception {
         if (id == null) {
             throw new IllegalArgumentException("Request Id must be specified.");
         }
@@ -294,7 +294,7 @@ public class KeyClient extends Client {
      *
      * @param id -- Id of the request
      */
-    public void cancelRequest(RequestId id) {
+    public void cancelRequest(RequestId id) throws Exception {
         if (id == null) {
             throw new IllegalArgumentException("Request Id must be specified.");
         }
@@ -371,7 +371,7 @@ public class KeyClient extends Client {
      *            request and a wrapping mechanism.
      * @return A Key object containing the wrapped secret.
      */
-    public KeyData retrieveKeyData(KeyRecoveryRequest data) {
+    public KeyData retrieveKeyData(KeyRecoveryRequest data) throws Exception {
 
         if (data == null) {
             throw new IllegalArgumentException("A KeyRecoveryRequest object must be specified");
