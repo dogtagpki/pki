@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -452,33 +451,28 @@ public class PKIConnection {
         }
     }
 
-    private void handleErrorResponse(Response response) {
+    private void handleErrorResponse(Response response) throws Exception {
+
         StatusType status = response.getStatusInfo();
         MediaType contentType = response.getMediaType();
 
-        if (!MediaType.APPLICATION_XML_TYPE.equals(contentType)
-                && !MediaType.APPLICATION_JSON_TYPE.equals(contentType))
+        PKIException.Data data;
+        if (MediaType.APPLICATION_XML_TYPE.equals(contentType)) {
+            data = response.readEntity(PKIException.Data.class);
+            logger.debug("XML response:\n" + data.toXML());
+
+        } else if (MediaType.APPLICATION_JSON_TYPE.equals(contentType)) {
+            data = response.readEntity(PKIException.Data.class);
+            logger.debug("JSON response:\n" + data.toJSON());
+
+        } else {
             throw new PKIException(status.getStatusCode(), status.getReasonPhrase());
-
-        PKIException.Data data = response.readEntity(PKIException.Data.class);
-
-        Class<?> exceptionClass;
-        try {
-            exceptionClass = Class.forName(data.getClassName());
-        } catch (ClassNotFoundException e) {
-            throw new PKIException(e.getMessage(), e);
         }
 
-        try {
-            throw (PKIException) exceptionClass.getConstructor(PKIException.Data.class).newInstance(data);
-        } catch (InstantiationException
-                | IllegalAccessException
-                | IllegalArgumentException
-                | InvocationTargetException
-                | NoSuchMethodException
-                | SecurityException e) {
-            throw new PKIException(e.getMessage(), e);
-        }
+        String className = data.getClassName();
+        Class<?> exceptionClass = Class.forName(data.getClassName());
+
+        throw (PKIException) exceptionClass.getConstructor(PKIException.Data.class).newInstance(data);
     }
 
     public Response get(String path) throws Exception {
