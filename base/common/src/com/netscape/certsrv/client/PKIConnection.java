@@ -457,11 +457,11 @@ public class PKIConnection {
         MediaType contentType = response.getMediaType();
 
         PKIException.Data data;
-        if (MediaType.APPLICATION_XML_TYPE.equals(contentType)) {
+        if (MediaType.APPLICATION_XML_TYPE.isCompatible(contentType)) {
             data = response.readEntity(PKIException.Data.class);
             logger.debug("XML response:\n" + data.toXML());
 
-        } else if (MediaType.APPLICATION_JSON_TYPE.equals(contentType)) {
+        } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(contentType)) {
             data = response.readEntity(PKIException.Data.class);
             logger.debug("JSON response:\n" + data.toJSON());
 
