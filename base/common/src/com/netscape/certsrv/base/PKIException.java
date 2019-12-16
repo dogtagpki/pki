@@ -17,11 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PKIException extends RuntimeException {
 
@@ -90,6 +96,31 @@ public class PKIException extends RuntimeException {
 
         @XmlElement(name="Message")
         public String message;
+
+        public String toXML() throws Exception {
+            JAXBContext context = JAXBContext.newInstance(Data.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            StringWriter out = new StringWriter();
+            marshaller.marshal(this, out);
+            return out.toString();
+        }
+
+        public static Data fromXML(String string) throws Exception {
+            JAXBContext context = JAXBContext.newInstance(Data.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            return (Data) unmarshaller.unmarshal(new StringReader(string));
+        }
+
+        public String toJSON() throws Exception {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.writeValueAsString(this);
+        }
+
+        public static Data fromJSON(String json) throws Exception {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(json, Data.class);
+        }
     }
 
     public static void main(String args[]) throws Exception {
