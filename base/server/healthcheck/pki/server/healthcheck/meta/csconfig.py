@@ -10,7 +10,7 @@
 import logging
 from contextlib import contextmanager
 
-from pkihealthcheck.pki.plugin import CSPlugin, registry
+from pki.server.healthcheck.meta.plugin import CSPlugin, registry
 from ipahealthcheck.core.plugin import Result, duration
 from ipahealthcheck.core import constants
 

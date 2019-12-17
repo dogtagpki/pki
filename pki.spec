@@ -1106,10 +1106,9 @@ fi
 %{_sbindir}/pki-server-upgrade
 %{python3_sitelib}/pki/server/
 %{_sbindir}/pki-healthcheck
-%{python3_sitelib}/pkihealthcheck/
+%{python3_sitelib}/pki/server/healthcheck/
 %{python3_sitelib}/pkihealthcheck-*.egg-info/
-%{python3_sitelib}/pkihealthcheck-*-nspkg.pth
-%config(noreplace) %{_sysconfdir}/pki/pki-healthcheck.conf
+%config(noreplace) %{_sysconfdir}/pki/healthcheck.conf
 
 %{_datadir}/pki/etc/tomcat.conf
 %dir %{_datadir}/pki/deployment
