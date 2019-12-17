@@ -96,7 +96,7 @@ public class LDAPConfigurator {
 
     public void setupSchema() throws Exception {
         logger.info("Setting up schema");
-        importFile("/usr/share/pki/server/conf/schema.ldif", true);
+        importSchemaFile("/usr/share/pki/server/conf/schema.ldif");
     }
 
     public void createContainers(String subsystem) throws Exception {
@@ -469,24 +469,28 @@ public class LDAPConfigurator {
                 int operation = mod.getOp();
                 LDAPAttribute attr = mod.getAttribute();
                 String name = attr.getName();
+                String[] values = attr.getStringValueArray();
 
                 switch (operation) {
                     case LDAPModification.ADD:
-                        logger.info("- add: " + name);
+                        for (String value : values) {
+                            logger.info("- adding " + name + ": " + value);
+                        }
                         break;
                     case LDAPModification.REPLACE:
-                        logger.info("- replace: " + name);
+                        for (String value : values) {
+                            logger.info("- replacing " + name + ": " + value);
+                        }
                         break;
                     case LDAPModification.DELETE:
-                        logger.info("- delete: " + name);
+                        if (values == null) {
+                            logger.info("- deleting " + name);
+                        } else {
+                            for (String value : values) {
+                                logger.info("- deleting " + name + ": " + value);
+                            }
+                        }
                         break;
-                }
-
-                String[] values = attr.getStringValueArray();
-                if (values != null) {
-                    for (String value : values) {
-                        logger.info("  " + name + ": " + value);
-                    }
                 }
             }
 
@@ -495,7 +499,7 @@ public class LDAPConfigurator {
 
             } catch (LDAPException e) {
 
-                String message = "Unable to modify " + dn + ": " + e;
+                String message = "Unable to modify " + dn + ": " + e.getMessage();
 
                 if (ignoreErrors) {
                     logger.warn(message);
@@ -505,6 +509,72 @@ public class LDAPConfigurator {
                     throw new Exception(message, e);
                 }
             }
+        }
+    }
+
+    public void importSchemaFile(String filename) throws Exception {
+
+        logger.info("Importing " + filename);
+
+        LDIF ldif = new LDIF(filename);
+
+        while (true) {
+
+            LDIFRecord record = ldif.nextRecord();
+            if (record == null) break;
+
+            importSchemaRecord(record);
+        }
+    }
+
+    public void importSchemaRecord(LDIFRecord record) throws Exception {
+
+        String dn = record.getDN();
+        LDIFContent content = record.getContent();
+
+        if (!(content instanceof LDIFModifyContent)) {
+            throw new Exception("Invalid record type: " + content.getClass().getSimpleName());
+        }
+
+        LDIFModifyContent c = (LDIFModifyContent) content;
+        LDAPModification[] mods = c.getModifications();
+
+        for (LDAPModification mod : mods) {
+            int operation = mod.getOp();
+            LDAPAttribute attr = mod.getAttribute();
+            String name = attr.getName();
+            String[] values = attr.getStringValueArray();
+
+            switch (operation) {
+                case LDAPModification.ADD:
+                    for (String value : values) {
+                        logger.info("Adding " + name + ": " + value);
+                    }
+                    break;
+                case LDAPModification.REPLACE:
+                    for (String value : values) {
+                        logger.info("Replacing " + name + ": " + value);
+                    }
+                    break;
+                case LDAPModification.DELETE:
+                    if (values == null) {
+                        logger.info("Deleting " + name);
+                    } else {
+                        for (String value : values) {
+                            logger.info("Deleting " + name + ": " + value);
+                        }
+                    }
+                    break;
+            }
+        }
+
+        try {
+            connection.modify(dn, mods);
+
+        } catch (LDAPException e) {
+            String message = "Unable to update " + dn + ": " + e.getMessage();
+            logger.error(message);
+            throw new Exception(message, e);
         }
     }
 
