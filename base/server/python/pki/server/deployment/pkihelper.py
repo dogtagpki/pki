@@ -3105,10 +3105,14 @@ class ConfigClient:
         logger.info('Admin request: %s', admin_certreq)
 
     def save_admin_cert(self, input_data, output_file, subsystem_name):
+
         logger.debug(
             log.PKI_CONFIG_ADMIN_CERT_SAVE_2,
             subsystem_name,
             output_file)
+
+        input_data = pki.nssdb.convert_cert(input_data, 'base64', 'pem')
+
         with open(output_file, "w") as f:
             f.write(input_data)
 
