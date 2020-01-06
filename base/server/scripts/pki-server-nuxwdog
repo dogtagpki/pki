@@ -33,6 +33,7 @@ import subprocess
 import sys
 
 import pki.server
+import pki.server.instance
 
 from pki.keyring import Keyring
 

@@ -33,6 +33,7 @@ import pki.server
 import pki.server.cli.audit
 import pki.server.cli.config
 import pki.server.cli.db
+import pki.server.instance
 
 logger = logging.getLogger(__name__)
 

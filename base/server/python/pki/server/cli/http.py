@@ -28,6 +28,7 @@ import pki.cli
 import pki.nssdb
 import pki.server
 import pki.server.cli.nuxwdog
+import pki.server.instance
 
 
 class HTTPCLI(pki.cli.CLI):

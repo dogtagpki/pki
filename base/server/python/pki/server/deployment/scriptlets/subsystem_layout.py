@@ -22,6 +22,7 @@ from __future__ import absolute_import
 import logging
 
 import pki.server
+import pki.server.instance
 
 # PKI Deployment Imports
 from .. import pkiconfig as config

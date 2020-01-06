@@ -26,6 +26,7 @@ import re
 import pki.encoder
 import pki.nssdb
 import pki.server
+import pki.server.instance
 import pki.system
 import pki.util
 

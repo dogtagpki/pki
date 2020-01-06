@@ -26,7 +26,6 @@ import sys
 
 import pki.cli
 import pki.upgrade
-import pki.server.instance
 import pki.server.upgrade
 
 

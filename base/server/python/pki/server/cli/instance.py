@@ -31,6 +31,7 @@ import pki.cli
 import pki.nssdb
 import pki.server
 import pki.server.cli.nuxwdog
+import pki.server.instance
 import pki.util
 
 logger = logging.getLogger(__name__)

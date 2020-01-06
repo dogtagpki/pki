@@ -25,6 +25,7 @@ import logging
 import sys
 
 import pki.cli
+import pki.server.instance
 
 
 class SubsystemConfigCLI(pki.cli.CLI):
