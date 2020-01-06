@@ -50,31 +50,20 @@ def enable_pki_logger(log_dir, log_name, log_level, name):
     if not os.path.isdir(log_dir):
         os.makedirs(log_dir)
 
-    # Configure PKI logger
-    pki_logger = logging.getLogger('pki')
-    pki_logger.setLevel(log_level)
-
-    pki_handler = logging.StreamHandler()
-    pki_logger.addHandler(pki_handler)
-
-    pki_formatter = logging.Formatter('%(levelname)s: %(message)s')
-    pki_handler.setFormatter(pki_formatter)
-
     # Configure console handler
     console = logging.StreamHandler()
-    console.setLevel(log_level)
     console_format = logging.Formatter('%(levelname)s: %(message)s')
     console.setFormatter(console_format)
 
     # Configure file handler
     log_file = logging.FileHandler(log_dir + "/" + log_name, 'w')
-    log_file.setLevel(log_level)
     file_format = logging.Formatter('%(asctime)s %(levelname)s: %(message)s',
                                     '%Y-%m-%d %H:%M:%S')
     log_file.setFormatter(file_format)
 
     # Configure PKI deployment loggers
     modules = [
+        'pki',
         'pkihelper',
         'pkimanifest',
         'pkiparser',

@@ -499,7 +499,7 @@ public class LDAPConfigurator {
 
             } catch (LDAPException e) {
 
-                String message = "Unable to modify " + dn + ": " + e.getMessage();
+                String message = "Unable to modify " + dn + ": " + e;
 
                 if (ignoreErrors) {
                     logger.warn(message);
