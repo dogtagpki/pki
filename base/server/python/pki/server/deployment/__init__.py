@@ -71,7 +71,6 @@ class PKIDeployer:
         self.systemd = None
         self.tps_connector = None
         self.config_client = None
-        self.parser = None
         self.nss_db_type = None
 
         self.with_maven_deps = False
@@ -97,6 +96,7 @@ class PKIDeployer:
         if not len(self.dns_domainname):
             self.dns_domainname = self.hostname
 
+        self.ds_url = None
         self.ds_connection = None
         self.sd_connection = None
 
@@ -116,7 +116,7 @@ class PKIDeployer:
 
         self.user_config.set(section, key, value)
 
-    def init(self, parser):
+    def init(self):
 
         # Utility objects
         self.identity = util.Identity(self)
@@ -137,7 +137,23 @@ class PKIDeployer:
         self.systemd = util.Systemd(self)
         self.tps_connector = util.TPSConnector(self)
         self.config_client = util.ConfigClient(self)
-        self.parser = parser
+
+        ds_hostname = self.mdict['pki_ds_hostname']
+
+        if config.str2bool(self.mdict['pki_ds_secure_connection']):
+            ds_protocol = 'ldaps'
+            ds_port = self.mdict['pki_ds_ldaps_port']
+            # ldap.set_option(ldap.OPT_DEBUG_LEVEL, 255)
+            ldap.set_option(ldap.OPT_X_TLS_DEMAND, True)
+            ldap.set_option(ldap.OPT_X_TLS, ldap.OPT_X_TLS_DEMAND)
+            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,
+                            self.mdict['pki_ds_secure_connection_ca_pem_file'])
+            ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
+        else:
+            ds_protocol = 'ldap'
+            ds_port = self.mdict['pki_ds_ldap_port']
+
+        self.ds_url = ds_protocol + '://' + ds_hostname + ':' + ds_port
 
     def validate(self):
         # Validate environmental settings for the deployer;
@@ -189,23 +205,9 @@ class PKIDeployer:
 
     def ds_connect(self):
 
-        hostname = self.mdict['pki_ds_hostname']
+        logger.info('Connecting to LDAP server at %s', self.ds_url)
 
-        if config.str2bool(self.mdict['pki_ds_secure_connection']):
-            protocol = 'ldaps'
-            port = self.mdict['pki_ds_ldaps_port']
-            # ldap.set_option(ldap.OPT_DEBUG_LEVEL, 255)
-            ldap.set_option(ldap.OPT_X_TLS_DEMAND, True)
-            ldap.set_option(ldap.OPT_X_TLS, ldap.OPT_X_TLS_DEMAND)
-            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,
-                            self.mdict['pki_ds_secure_connection_ca_pem_file'])
-            ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
-        else:
-            protocol = 'ldap'
-            port = self.mdict['pki_ds_ldap_port']
-
-        self.ds_connection = ldap.initialize(
-            protocol + '://' + hostname + ':' + port)
+        self.ds_connection = ldap.initialize(self.ds_url)
 
     def ds_bind(self):
         self.ds_connection.simple_bind_s(

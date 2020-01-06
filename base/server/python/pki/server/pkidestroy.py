@@ -236,6 +236,8 @@ def main(argv):
 
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
+    deployer.init()
+
     parser.mdict['pki_destroy_log'] = \
         config.pki_log_dir + "/" + config.pki_log_name
 
@@ -253,7 +255,6 @@ def main(argv):
 
     # Process the various "scriptlets" to remove the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['destroy_scriplets'].split()
-    deployer.init(parser)
 
     try:
         for scriptlet_name in pki_subsystem_scriptlets:

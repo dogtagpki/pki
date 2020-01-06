@@ -525,11 +525,12 @@ def main(argv):
         deployer.set_property('pki_skip_installation', 'True')
 
     create_master_dictionary(parser)
+    deployer.init()
 
     if not interactive and \
             not config.str2bool(parser.mdict['pki_skip_configuration']):
-        check_ds(parser)
-        check_security_domain(parser)
+        check_ds()
+        check_security_domain()
 
     if args.precheck:
         print('pre-checks completed successfully.')
@@ -540,7 +541,6 @@ def main(argv):
 
     # Process the various "scriptlets" to create the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['spawn_scriplets'].split()
-    deployer.init(parser)
 
     logger.debug('Installing Maven dependencies: %s', args.with_maven_deps)
     deployer.with_maven_deps = args.with_maven_deps
@@ -704,54 +704,54 @@ def create_master_dictionary(parser):
     logger.debug(pkilogging.log_format(parser.mdict))
 
 
-def check_security_domain(parser):
-    if parser.mdict['pki_security_domain_type'] != "new":
+def check_security_domain():
+    if deployer.mdict['pki_security_domain_type'] != "new":
         try:
             # Verify existence of Security Domain Password
-            if 'pki_security_domain_password' not in parser.mdict or \
-                    not len(parser.mdict['pki_security_domain_password']):
+            if 'pki_security_domain_password' not in deployer.mdict or \
+                    not len(deployer.mdict['pki_security_domain_password']):
                 logger.error(
                     log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                     "pki_security_domain_password",
-                    parser.mdict['pki_user_deployment_cfg'])
+                    deployer.mdict['pki_user_deployment_cfg'])
                 sys.exit(1)
 
-            if not config.str2bool(parser.mdict['pki_skip_sd_verify']):
+            if not config.str2bool(deployer.mdict['pki_skip_sd_verify']):
                 deployer.sd_connect()
                 info = deployer.get_domain_info()
                 deployer.set_property('pki_security_domain_name', info.name)
                 deployer.sd_login()
                 deployer.sd_logout()
 
-        except requests.exceptions.RequestException as e:
-            print(('ERROR:  Unable to access security domain: ' + str(e)))
-            sys.exit(1)
+        except requests.exceptions.RequestException:
+            logger.error(
+                'Unable to access security domain: %s',
+                deployer.mdict['pki_security_domain_uri'])
+            raise
 
 
-def check_ds(parser):
+def check_ds():
     try:
         # Verify existence of Directory Server Password
-        if 'pki_ds_password' not in parser.mdict or \
-                not len(parser.mdict['pki_ds_password']):
+        if 'pki_ds_password' not in deployer.mdict or \
+                not len(deployer.mdict['pki_ds_password']):
             logger.error(
                 log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                 "pki_ds_password",
-                parser.mdict['pki_user_deployment_cfg'])
+                deployer.mdict['pki_user_deployment_cfg'])
             sys.exit(1)
 
-        if not config.str2bool(parser.mdict['pki_skip_ds_verify']):
+        if not config.str2bool(deployer.mdict['pki_skip_ds_verify']):
             verify_ds_configuration()
 
             if base_dn_exists() and not \
-                    config.str2bool(parser.mdict['pki_ds_remove_data']):
+                    config.str2bool(deployer.mdict['pki_ds_remove_data']):
                 print('ERROR:  Base DN already exists.')
                 sys.exit(1)
 
-    except ldap.LDAPError as e:
-        server = parser.protocol + '://' + parser.hostname + ':' + parser.port
-        print('ERROR:  Unable to access directory server (' + server + '): ' +
-              e.args[0]['desc'])
-        sys.exit(1)
+    except ldap.LDAPError:
+        logger.error('Unable to access LDAP server: %s', deployer.ds_url)
+        raise
 
 
 def set_port(parser, tag, prompt, existing_data):
