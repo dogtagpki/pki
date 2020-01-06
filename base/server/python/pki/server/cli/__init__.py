@@ -670,7 +670,8 @@ class RunCLI(pki.cli.CLI):
         print('Usage: pki-server run [OPTIONS] [<instance ID>]')
         print()
         print('      --as-current-user         Run as current user.')
-        print('      --jdb                     Run with Java Debugger.')
+        print('      --gdb                     Run under the GNU Debugger.')
+        print('      --jdb                     Run under the Java Debugger.')
         print('  -v, --verbose                 Run in verbose mode.')
         print('      --debug                   Run in debug mode.')
         print('      --help                    Show help message.')
@@ -691,10 +692,14 @@ class RunCLI(pki.cli.CLI):
         instance_name = 'pki-tomcat'
         as_current_user = False
         jdb = False
+        gdb = False
 
         for o, _ in opts:
             if o == '--as-current-user':
                 as_current_user = True
+
+            elif o == '--gdb':
+                gdb = True
 
             elif o == '--jdb':
                 jdb = True
@@ -726,7 +731,7 @@ class RunCLI(pki.cli.CLI):
         instance.load()
 
         try:
-            instance.run(jdb=jdb, as_current_user=as_current_user)
+            instance.run(gdb=gdb, jdb=jdb, as_current_user=as_current_user)
 
         except KeyboardInterrupt:
             logging.debug('Server stopped')

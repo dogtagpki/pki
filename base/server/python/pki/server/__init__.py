@@ -261,11 +261,11 @@ class PKIServer(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def run(self, command='start', jdb=False, as_current_user=False):
-        p = self.execute(command, jdb=jdb, as_current_user=as_current_user)
+    def run(self, command='start', jdb=False, as_current_user=False, gdb=False):
+        p = self.execute(command, jdb=jdb, as_current_user=as_current_user, gdb=gdb)
         p.wait()
 
-    def execute(self, command, jdb=False, as_current_user=False):
+    def execute(self, command, jdb=False, as_current_user=False, gdb=False):
 
         logger.debug('Environment variables:')
         for name in self.config:
@@ -293,6 +293,9 @@ class PKIServer(object):
         ]
 
         cmd = prefix
+        if gdb:
+            cmd.extend(['gdb', '--args'])
+
         if jdb:
             cmd.extend(['jdb'])
         else:
