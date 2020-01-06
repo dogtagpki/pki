@@ -238,14 +238,9 @@ def main(argv):
                 'Password', deployer.subsystem_name, 'pki_admin_password',
                 verifyMessage='Verify password')
 
-            parser.set_property(deployer.subsystem_name, 'pki_backup_password',
-                                admin_password)
-            parser.set_property(deployer.subsystem_name,
-                                'pki_client_database_password',
-                                admin_password)
-            parser.set_property(deployer.subsystem_name,
-                                'pki_client_pkcs12_password',
-                                admin_password)
+            deployer.set_property('pki_backup_password', admin_password)
+            deployer.set_property('pki_client_database_password', admin_password)
+            deployer.set_property('pki_client_pkcs12_password', admin_password)
 
             if parser.mdict['pki_import_admin_cert'] == 'True':
                 import_cert = 'Y'
@@ -258,16 +253,12 @@ def main(argv):
                 sign='?', case_sensitive=False).lower()
 
             if import_cert == 'y' or import_cert == 'yes':
-                parser.set_property(deployer.subsystem_name,
-                                    'pki_import_admin_cert',
-                                    'True')
+                deployer.set_property('pki_import_admin_cert', 'True')
                 parser.read_text('Import certificate from',
                                  deployer.subsystem_name,
                                  'pki_admin_cert_file')
             else:
-                parser.set_property(deployer.subsystem_name,
-                                    'pki_import_admin_cert',
-                                    'False')
+                deployer.set_property('pki_import_admin_cert', 'False')
 
                 parser.read_text('Export certificate to',
                                  deployer.subsystem_name,
@@ -289,21 +280,15 @@ def main(argv):
             #     sys.exit(0)
 
             # TBD:  Interactive HSM installation
-            # parser.set_property(deployer.subsystem_name,
-            #                     'pki_hsm_enable',
-            #                     'True')
+            # deployer.set_property('pki_hsm_enable', 'True')
             # modulename = parser.read_text(
             #     'HSM Module Name (e. g. - nethsm)', allow_empty=False)
-            # parser.set_property(deployer.subsystem_name,
-            #                     'pki_hsm_modulename',
-            #                     modulename)
+            # deployer.set_property('pki_hsm_modulename', modulename)
             # libfile = parser.read_text(
             #     'HSM Lib File ' +
             #     '(e. g. - /opt/nfast/toolkits/pkcs11/libcknfast.so)',
             #     allow_empty=False)
-            # parser.set_property(deployer.subsystem_name,
-            #                     'pki_hsm_libfile',
-            #                     libfile)
+            # deployer.set_property('pki_hsm_libfile', libfile)
             print()
 
             print("Directory Server:")
@@ -329,9 +314,7 @@ def main(argv):
 
                 if secure == 'y' or secure == 'yes':
                     # Set secure DS connection to true
-                    parser.set_property(deployer.subsystem_name,
-                                        'pki_ds_secure_connection',
-                                        'True')
+                    deployer.set_property('pki_ds_secure_connection', 'True')
                     # Prompt for secure 'ldaps' port
                     parser.read_text('Secure LDAPS Port',
                                      deployer.subsystem_name,
@@ -341,9 +324,7 @@ def main(argv):
                     pem_file = parser.read_text(
                         'Directory Server CA certificate pem file',
                         allow_empty=False)
-                    parser.set_property(deployer.subsystem_name,
-                                        'pki_ds_secure_connection_ca_pem_file',
-                                        pem_file)
+                    deployer.set_property('pki_ds_secure_connection_ca_pem_file', pem_file)
                 else:
                     parser.read_text('LDAP Port',
                                      deployer.subsystem_name,
@@ -409,9 +390,7 @@ def main(argv):
                         parser.sd_connect()
                         info = parser.sd_get_info()
                         parser.print_text('Name: ' + info.name)
-                        parser.set_property(deployer.subsystem_name,
-                                            'pki_security_domain_name',
-                                            info.name)
+                        deployer.set_property('pki_security_domain_name', info.name)
                         break
                     except pki.RETRYABLE_EXCEPTIONS as e:
                         parser.print_text('ERROR: ' + str(e))
@@ -466,9 +445,7 @@ def main(argv):
                         sign='?', case_sensitive=False).lower()
 
                     if keygen == 'y' or keygen == 'yes':
-                        parser.set_property(deployer.subsystem_name,
-                                            'pki_enable_server_side_keygen',
-                                            'True')
+                        deployer.set_property('pki_enable_server_side_keygen', 'True')
 
                         parser.read_text('KRA URL',
                                          deployer.subsystem_name,
@@ -482,9 +459,7 @@ def main(argv):
                         except pki.RETRYABLE_EXCEPTIONS as e:
                             parser.print_text('ERROR: ' + str(e))
                     else:
-                        parser.set_property(deployer.subsystem_name,
-                                            'pki_enable_server_side_keygen',
-                                            'False')
+                        deployer.set_property('pki_enable_server_side_keygen', 'False')
                         break
 
                 print()
@@ -499,9 +474,7 @@ def main(argv):
                                      deployer.subsystem_name,
                                      'pki_authdb_port')
                     basedn = parser.read_text('Base DN', allow_empty=False)
-                    parser.set_property(deployer.subsystem_name,
-                                        'pki_authdb_basedn',
-                                        basedn)
+                    deployer.set_property('pki_authdb_basedn', basedn)
 
                     try:
                         parser.authdb_connect()
@@ -550,13 +523,11 @@ def main(argv):
 
     # --skip-configuration
     if args.skip_configuration:
-        parser.set_property(deployer.subsystem_name,
-                            'pki_skip_configuration', 'True')
+        deployer.set_property('pki_skip_configuration', 'True')
 
     # --skip-installation
     if args.skip_installation:
-        parser.set_property(deployer.subsystem_name,
-                            'pki_skip_installation', 'True')
+        deployer.set_property('pki_skip_installation', 'True')
 
     create_master_dictionary(parser)
 
@@ -753,9 +724,7 @@ def check_security_domain(parser):
             if not config.str2bool(parser.mdict['pki_skip_sd_verify']):
                 parser.sd_connect()
                 info = parser.sd_get_info()
-                parser.set_property(deployer.subsystem_name,
-                                    'pki_security_domain_name',
-                                    info.name)
+                deployer.set_property('pki_security_domain_name', info.name)
                 parser.sd_authenticate()
 
         except requests.exceptions.RequestException as e:
@@ -791,7 +760,7 @@ def check_ds(parser):
 
 def set_port(parser, tag, prompt, existing_data):
     if tag in existing_data:
-        parser.set_property(deployer.subsystem_name, tag, existing_data[tag])
+        deployer.set_property(tag, existing_data[tag])
     else:
         parser.read_text(prompt, deployer.subsystem_name, tag)
 

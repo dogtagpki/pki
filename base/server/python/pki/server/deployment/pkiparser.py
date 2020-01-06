@@ -323,17 +323,6 @@ class PKIConfigParser:
                     values[name] = value
         return values
 
-    def set_property(self, section, key, value):
-        if section != "DEFAULT" and not self.deployer.main_config.has_section(section):
-            self.deployer.main_config.add_section(section)
-        self.deployer.main_config.set(section, key, value)
-        self.deployer.flatten_master_dict()
-
-        if section != "DEFAULT" and not self.deployer.user_config.has_section(
-                section):
-            self.deployer.user_config.add_section(section)
-        self.deployer.user_config.set(section, key, value)
-
     def print_text(self, message):
         print(' ' * self.indent + message)
 
@@ -376,7 +365,7 @@ class PKIConfigParser:
 
         value = value.replace("%", "%%")
         if section:
-            self.set_property(section, key, value)
+            self.deployer.set_property(key, value, section=section)
 
         return value
 
@@ -404,7 +393,7 @@ class PKIConfigParser:
 
         password = password.replace("%", "%%")
         if section:
-            self.set_property(section, key, password)
+            self.deployer.set_property(key, password, section=section)
 
         return password
 

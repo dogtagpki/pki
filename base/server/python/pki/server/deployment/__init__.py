@@ -88,6 +88,22 @@ class PKIDeployer:
         if not len(self.dns_domainname):
             self.dns_domainname = self.hostname
 
+    def set_property(self, key, value, section=None):
+
+        if not section:
+            section = self.subsystem_name
+
+        if section != "DEFAULT" and not self.main_config.has_section(section):
+            self.main_config.add_section(section)
+
+        self.main_config.set(section, key, value)
+        self.flatten_master_dict()
+
+        if section != "DEFAULT" and not self.user_config.has_section(section):
+            self.user_config.add_section(section)
+
+        self.user_config.set(section, key, value)
+
     def init(self, parser):
 
         # Utility objects
