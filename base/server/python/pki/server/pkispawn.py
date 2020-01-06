@@ -64,29 +64,23 @@ def interrupt_handler(event, frame):
     sys.exit(1)
 
 
-def ds_bind(parser):
-    parser.ds_connection.simple_bind_s(
-        parser.mdict['pki_ds_bind_dn'],
-        parser.mdict['pki_ds_password'])
-
-
-def verify_ds_configuration(parser):
+def verify_ds_configuration():
     try:
-        parser.ds_connect()
-        ds_bind(parser)
-        parser.ds_search()
+        deployer.ds_connect()
+        deployer.ds_bind()
+        deployer.ds_search()
     finally:
-        parser.ds_close()
+        deployer.ds_close()
 
 
-def base_dn_exists(parser):
+def base_dn_exists():
     try:
-        parser.ds_connect()
-        ds_bind(parser)
-        parser.ds_search()
+        deployer.ds_connect()
+        deployer.ds_bind()
+        deployer.ds_search()
 
         try:
-            results = parser.ds_search(parser.mdict['pki_ds_base_dn'])
+            results = deployer.ds_search(deployer.mdict['pki_ds_base_dn'])
 
             if results is None or len(results) == 0:
                 return False
@@ -95,7 +89,7 @@ def base_dn_exists(parser):
             return False
 
     finally:
-        parser.ds_close()
+        deployer.ds_close()
 
     return True
 
@@ -338,7 +332,7 @@ def main(argv):
                                      'pki_ds_password')
 
                 try:
-                    verify_ds_configuration(parser)
+                    verify_ds_configuration()
 
                 except ldap.LDAPError as e:
                     parser.print_text('ERROR: ' + e.args[0]['desc'])
@@ -348,7 +342,7 @@ def main(argv):
                                  deployer.subsystem_name,
                                  'pki_ds_base_dn')
                 try:
-                    if not base_dn_exists(parser):
+                    if not base_dn_exists():
                         break
 
                 except ldap.LDAPError as e:
@@ -744,9 +738,9 @@ def check_ds(parser):
             sys.exit(1)
 
         if not config.str2bool(parser.mdict['pki_skip_ds_verify']):
-            verify_ds_configuration(parser)
+            verify_ds_configuration()
 
-            if base_dn_exists(parser) and not \
+            if base_dn_exists() and not \
                     config.str2bool(parser.mdict['pki_ds_remove_data']):
                 print('ERROR:  Base DN already exists.')
                 sys.exit(1)

@@ -185,7 +185,6 @@ class PKIConfigParser:
             help='display verbose information (details below)')
 
         self.indent = 0
-        self.ds_connection = None
         self.sd_connection = None
         self.authdb_connection = None
 
@@ -507,34 +506,6 @@ class PKIConfigParser:
                 message = '%s Use \'%s\' instead.' % (message, new_param)
 
             print('WARNING: %s' % message)
-
-    def ds_connect(self):
-
-        hostname = self.mdict['pki_ds_hostname']
-
-        if config.str2bool(self.mdict['pki_ds_secure_connection']):
-            protocol = 'ldaps'
-            port = self.mdict['pki_ds_ldaps_port']
-            # ldap.set_option(ldap.OPT_DEBUG_LEVEL, 255)
-            ldap.set_option(ldap.OPT_X_TLS_DEMAND, True)
-            ldap.set_option(ldap.OPT_X_TLS, ldap.OPT_X_TLS_DEMAND)
-            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,
-                            self.mdict['pki_ds_secure_connection_ca_pem_file'])
-            ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
-        else:
-            protocol = 'ldap'
-            port = self.mdict['pki_ds_ldap_port']
-
-        self.ds_connection = ldap.initialize(
-            protocol + '://' + hostname + ':' + port)
-
-    def ds_search(self, key=None):
-        if key is None:
-            key = ''
-        return self.ds_connection.search_s(key, ldap.SCOPE_BASE)
-
-    def ds_close(self):
-        self.ds_connection.unbind_s()
 
     def sd_connect(self):
         self.sd_connection = pki.client.PKIConnection(

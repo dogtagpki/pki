@@ -19,14 +19,19 @@
 #
 
 from __future__ import absolute_import
+import ldap
+import logging
 import socket
 import struct
 import subprocess
 import time
 from time import strftime as date
 
+from . import pkiconfig as config
 from . import pkihelper as util
 from . import pkimanifest as manifest
+
+logger = logging.getLogger(__name__)
 
 
 class PKIDeployer:
@@ -87,6 +92,8 @@ class PKIDeployer:
 
         if not len(self.dns_domainname):
             self.dns_domainname = self.hostname
+
+        self.ds_connection = None
 
     def set_property(self, key, value, section=None):
 
@@ -174,3 +181,36 @@ class PKIDeployer:
         record.permissions = perms
         record.acls = acls
         self.manifest_db.append(record)
+
+    def ds_connect(self):
+
+        hostname = self.mdict['pki_ds_hostname']
+
+        if config.str2bool(self.mdict['pki_ds_secure_connection']):
+            protocol = 'ldaps'
+            port = self.mdict['pki_ds_ldaps_port']
+            # ldap.set_option(ldap.OPT_DEBUG_LEVEL, 255)
+            ldap.set_option(ldap.OPT_X_TLS_DEMAND, True)
+            ldap.set_option(ldap.OPT_X_TLS, ldap.OPT_X_TLS_DEMAND)
+            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,
+                            self.mdict['pki_ds_secure_connection_ca_pem_file'])
+            ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
+        else:
+            protocol = 'ldap'
+            port = self.mdict['pki_ds_ldap_port']
+
+        self.ds_connection = ldap.initialize(
+            protocol + '://' + hostname + ':' + port)
+
+    def ds_bind(self):
+        self.ds_connection.simple_bind_s(
+            self.mdict['pki_ds_bind_dn'],
+            self.mdict['pki_ds_password'])
+
+    def ds_search(self, key=None):
+        if key is None:
+            key = ''
+        return self.ds_connection.search_s(key, ldap.SCOPE_BASE)
+
+    def ds_close(self):
+        self.ds_connection.unbind_s()
