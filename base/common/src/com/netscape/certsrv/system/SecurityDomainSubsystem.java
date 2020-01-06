@@ -6,6 +6,7 @@ package com.netscape.certsrv.system;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -16,6 +17,10 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 /**
  * @author alee
  */
@@ -24,7 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  public class SecurityDomainSubsystem {
 
     String name;
-    LinkedHashMap<String, SecurityDomainHost> hosts = new LinkedHashMap<String, SecurityDomainHost>();
+    Map<String, SecurityDomainHost> hosts = new LinkedHashMap<String, SecurityDomainHost>();
 
     @XmlAttribute(name="id")
     public String getName() {
@@ -35,18 +40,28 @@ import javax.xml.bind.annotation.XmlRootElement;
         this.name = name;
     }
 
+    public Map<String, SecurityDomainHost> getHosts() {
+        return hosts;
+    }
+
+    public void setHosts(Map<String, SecurityDomainHost> hosts) {
+        this.hosts.clear();
+        this.hosts.putAll(hosts);
+    }
+
     /**
-     * @return the systems
+     * @return the hosts
      */
     @XmlElement(name="Host")
-    public SecurityDomainHost[] getHosts() {
+    @JsonProperty("Host")
+    public SecurityDomainHost[] getHostArray() {
         return hosts.values().toArray(new SecurityDomainHost[hosts.size()]);
     }
 
     /**
-     * @param hosts the systems to set
+     * @param hosts the system to set
      */
-    public void setHosts(SecurityDomainHost[] hosts) {
+    public void setHostArray(SecurityDomainHost[] hosts) {
         this.hosts.clear();
         for (SecurityDomainHost host : hosts) {
             addHost(host);
@@ -61,25 +76,34 @@ import javax.xml.bind.annotation.XmlRootElement;
         hosts.remove(hostId);
     }
 
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            Marshaller marshaller = JAXBContext.newInstance(SecurityDomainSubsystem.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(this, sw);
-            return sw.toString();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+        return mapper.writeValueAsString(this);
     }
 
-    public static SecurityDomainSubsystem valueOf(String string) throws Exception {
+    public static SecurityDomainSubsystem fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, SecurityDomainSubsystem.class);
+    }
+
+    public String toXML() throws Exception {
+        StringWriter sw = new StringWriter();
+        Marshaller marshaller = JAXBContext.newInstance(SecurityDomainSubsystem.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static SecurityDomainSubsystem fromXML(String string) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(SecurityDomainSubsystem.class).createUnmarshaller();
+        return (SecurityDomainSubsystem)unmarshaller.unmarshal(new StringReader(string));
+    }
+
+    public String toString() {
         try {
-            Unmarshaller unmarshaller = JAXBContext.newInstance(SecurityDomainSubsystem.class).createUnmarshaller();
-            return (SecurityDomainSubsystem)unmarshaller.unmarshal(new StringReader(string));
+            return toXML();
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -116,8 +140,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
     public static void main(String args[]) throws Exception {
 
-        SecurityDomainSubsystem before = new SecurityDomainSubsystem();
-        before.setName("CA");
+        SecurityDomainSubsystem subsystem = new SecurityDomainSubsystem();
+        subsystem.setName("CA");
 
         SecurityDomainHost host = new SecurityDomainHost();
         host.setId("CA localhost 8443");
@@ -125,12 +149,18 @@ import javax.xml.bind.annotation.XmlRootElement;
         host.setPort("8080");
         host.setSecurePort("8443");
 
-        before.addHost(host);
+        subsystem.addHost(host);
 
-        String string = before.toString();
-        System.out.println(string);
+        String json = subsystem.toJSON();
+        System.out.println(json);
 
-        SecurityDomainSubsystem after = SecurityDomainSubsystem.valueOf(string);
-        System.out.println(before.equals(after));
+        SecurityDomainSubsystem afterJSON = SecurityDomainSubsystem.fromJSON(json);
+        System.out.println(subsystem.equals(afterJSON));
+
+        String xml = subsystem.toXML();
+        System.out.println(xml);
+
+        SecurityDomainSubsystem afterXML = SecurityDomainSubsystem.fromXML(xml);
+        System.out.println(subsystem.equals(afterXML));
     }
 }

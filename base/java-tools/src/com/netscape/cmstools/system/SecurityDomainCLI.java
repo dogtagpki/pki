@@ -82,9 +82,9 @@ public class SecurityDomainCLI extends CLI {
         System.out.println("  Domain: " + domain.getName());
         System.out.println();
 
-        for (SecurityDomainSubsystem subsystem : domain.getSubsystems()) {
+        for (SecurityDomainSubsystem subsystem : domain.getSubsystemArray()) {
 
-            SecurityDomainHost[] hosts = subsystem.getHosts();
+            SecurityDomainHost[] hosts = subsystem.getHostArray();
             if (hosts.length == 0) continue;
 
             System.out.println("  " + subsystem.getName() + " Subsystem:");

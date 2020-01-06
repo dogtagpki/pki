@@ -584,7 +584,7 @@ public class Configurator {
 
         SecurityDomainSubsystem subsystem = domainInfo.getSubsystem(csType);
 
-        for (SecurityDomainHost host : subsystem.getHosts()) {
+        for (SecurityDomainHost host : subsystem.getHostArray()) {
 
             if (!host.getHostname().equals(hostname)) continue;
             if (!host.getSecurePort().equals(securePort + "")) continue;

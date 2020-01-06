@@ -289,9 +289,9 @@ public class SecurityDomainProcessor extends CAProcessor {
                 counter = 0;
 
             } else {
-                counter = subsystem.getHosts().length;
+                counter = subsystem.getHostArray().length;
 
-                for (SecurityDomainHost host : subsystem.getHosts()) {
+                for (SecurityDomainHost host : subsystem.getHostArray()) {
                     Node node = xmlObject.createContainer(listNode, subType);
 
                     String value = host.getHostname();

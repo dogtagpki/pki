@@ -30,6 +30,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 /**
  * @author alee
  *
@@ -157,25 +160,34 @@ public class SecurityDomainHost {
         return null;
     }
 
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            Marshaller marshaller = JAXBContext.newInstance(SecurityDomainHost.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(this, sw);
-            return sw.toString();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+        return mapper.writeValueAsString(this);
     }
 
-    public static SecurityDomainHost valueOf(String string) throws Exception {
+    public static SecurityDomainHost fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, SecurityDomainHost.class);
+    }
+
+    public String toXML() throws Exception {
+        StringWriter sw = new StringWriter();
+        Marshaller marshaller = JAXBContext.newInstance(SecurityDomainHost.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static SecurityDomainHost fromXML(String string) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(SecurityDomainHost.class).createUnmarshaller();
+        return (SecurityDomainHost)unmarshaller.unmarshal(new StringReader(string));
+    }
+
+    public String toString() {
         try {
-            Unmarshaller unmarshaller = JAXBContext.newInstance(SecurityDomainHost.class).createUnmarshaller();
-            return (SecurityDomainHost)unmarshaller.unmarshal(new StringReader(string));
+            return toXML();
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -258,20 +270,24 @@ public class SecurityDomainHost {
         return true;
     }
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-        SecurityDomainHost before = new SecurityDomainHost();
-        before.setId("CA localhost 8443");
-        before.setHostname("localhost");
-        before.setPort("8080");
-        before.setSecurePort("8443");
+        SecurityDomainHost host = new SecurityDomainHost();
+        host.setId("CA localhost 8443");
+        host.setHostname("localhost");
+        host.setPort("8080");
+        host.setSecurePort("8443");
 
-        String string = before.toString();
-        System.out.println(string);
+        String json = host.toJSON();
+        System.out.println(json);
 
-        SecurityDomainHost after = SecurityDomainHost.valueOf(string);
-        System.out.println(before.equals(after));
-        System.out.println(after.get("id"));
-        System.out.println(after.get("SecurePort"));
+        SecurityDomainHost afterJSON = SecurityDomainHost.fromJSON(json);
+        System.out.println(host.equals(afterJSON));
+
+        String xml = host.toXML();
+        System.out.println(xml);
+
+        SecurityDomainHost afterXML = SecurityDomainHost.fromXML(xml);
+        System.out.println(host.equals(afterXML));
     }
 }

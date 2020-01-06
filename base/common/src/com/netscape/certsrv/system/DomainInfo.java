@@ -31,6 +31,10 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 /**
  * @author alee
  */
@@ -50,12 +54,22 @@ public class DomainInfo {
         this.name = name;
     }
 
+    public Map<String, SecurityDomainSubsystem> getSubsystems() {
+        return subsystems;
+    }
+
+    public void setSubsystems(Map<String, SecurityDomainSubsystem> subsystems) {
+        this.subsystems.clear();
+        this.subsystems.putAll(subsystems);
+    }
+
     @XmlElement(name="Subsystem")
-    public SecurityDomainSubsystem[] getSubsystems() {
+    @JsonProperty("Subsystem")
+    public SecurityDomainSubsystem[] getSubsystemArray() {
         return subsystems.values().toArray(new SecurityDomainSubsystem[subsystems.size()]);
     }
 
-    public void setSubsystems(SecurityDomainSubsystem[] subsystems) {
+    public void setSubsystemArray(SecurityDomainSubsystem[] subsystems) {
         this.subsystems.clear();
         for (SecurityDomainSubsystem subsystem : subsystems) {
             this.subsystems.put(subsystem.name, subsystem);
@@ -89,25 +103,35 @@ public class DomainInfo {
         if (subsystem == null) return;
         subsystem.removeHost(hostId);
     }
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            Marshaller marshaller = JAXBContext.newInstance(DomainInfo.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(this, sw);
-            return sw.toString();
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+        return mapper.writeValueAsString(this);
     }
 
-    public static DomainInfo valueOf(String string) throws Exception {
+    public static DomainInfo fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, DomainInfo.class);
+    }
+
+    public String toXML() throws Exception {
+        StringWriter sw = new StringWriter();
+        Marshaller marshaller = JAXBContext.newInstance(DomainInfo.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static DomainInfo fromXML(String string) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(DomainInfo.class).createUnmarshaller();
+        return (DomainInfo)unmarshaller.unmarshal(new StringReader(string));
+    }
+
+    public String toString() {
         try {
-            Unmarshaller unmarshaller = JAXBContext.newInstance(DomainInfo.class).createUnmarshaller();
-            return (DomainInfo)unmarshaller.unmarshal(new StringReader(string));
+            return toXML();
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -144,8 +168,8 @@ public class DomainInfo {
 
     public static void main(String args[]) throws Exception {
 
-        DomainInfo before = new DomainInfo();
-        before.setName("EXAMPLE");
+        DomainInfo info = new DomainInfo();
+        info.setName("EXAMPLE");
 
         SecurityDomainHost host = new SecurityDomainHost();
         host.setId("CA localhost 8443");
@@ -153,12 +177,18 @@ public class DomainInfo {
         host.setPort("8080");
         host.setSecurePort("8443");
 
-        before.addHost("CA", host);
+        info.addHost("CA", host);
 
-        String string = before.toString();
-        System.out.println(string);
+        String xml = info.toXML();
+        System.out.println(xml);
 
-        DomainInfo after = DomainInfo.valueOf(string);
-        System.out.println(before.equals(after));
+        DomainInfo afterXML = DomainInfo.fromXML(xml);
+        System.out.println(info.equals(afterXML));
+
+        String json = info.toJSON();
+        System.out.println(json);
+
+        DomainInfo afterJSON = DomainInfo.fromJSON(json);
+        System.out.println(info.equals(afterJSON));
     }
 }
