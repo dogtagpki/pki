@@ -381,8 +381,8 @@ def main(argv):
                                      'pki_security_domain_https_port')
 
                     try:
-                        parser.sd_connect()
-                        info = parser.sd_get_info()
+                        deployer.sd_connect()
+                        info = deployer.get_domain_info()
                         parser.print_text('Name: ' + info.name)
                         deployer.set_property('pki_security_domain_name', info.name)
                         break
@@ -398,7 +398,8 @@ def main(argv):
                                          'pki_security_domain_password')
 
                     try:
-                        parser.sd_authenticate()
+                        deployer.sd_login()
+                        deployer.sd_logout()
                         break
                     except requests.exceptions.HTTPError as e:
                         parser.print_text('ERROR: ' + str(e))
@@ -716,10 +717,11 @@ def check_security_domain(parser):
                 sys.exit(1)
 
             if not config.str2bool(parser.mdict['pki_skip_sd_verify']):
-                parser.sd_connect()
-                info = parser.sd_get_info()
+                deployer.sd_connect()
+                info = deployer.get_domain_info()
                 deployer.set_property('pki_security_domain_name', info.name)
-                parser.sd_authenticate()
+                deployer.sd_login()
+                deployer.sd_logout()
 
         except requests.exceptions.RequestException as e:
             print(('ERROR:  Unable to access security domain: ' + str(e)))

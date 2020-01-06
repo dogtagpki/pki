@@ -27,7 +27,6 @@ import ldap
 import logging
 import os
 import random
-import requests.exceptions
 import string
 import xml.etree.ElementTree as ET
 
@@ -185,7 +184,6 @@ class PKIConfigParser:
             help='display verbose information (details below)')
 
         self.indent = 0
-        self.sd_connection = None
         self.authdb_connection = None
 
         # Master and Slot dictionaries
@@ -506,39 +504,6 @@ class PKIConfigParser:
                 message = '%s Use \'%s\' instead.' % (message, new_param)
 
             print('WARNING: %s' % message)
-
-    def sd_connect(self):
-        self.sd_connection = pki.client.PKIConnection(
-            protocol='https',
-            hostname=self.mdict['pki_security_domain_hostname'],
-            port=self.mdict['pki_security_domain_https_port'],
-            trust_env=False)
-
-    def sd_get_info(self):
-        sd = pki.system.SecurityDomainClient(self.sd_connection)
-        try:
-            info = sd.get_security_domain_info()
-        except requests.exceptions.HTTPError as e:
-            logger.warning('Unable to get security domain info: %s', e)
-            logger.info('Trying older interface.')
-            info = sd.get_old_security_domain_info()
-        return info
-
-    def sd_authenticate(self):
-        self.sd_connection.authenticate(
-            self.mdict['pki_security_domain_user'],
-            self.mdict['pki_security_domain_password'])
-
-        account = pki.account.AccountClient(self.sd_connection, subsystem='ca')
-        try:
-            account.login()
-            account.logout()
-        except requests.exceptions.HTTPError as e:
-            code = e.response.status_code
-            if code == 404 or code == 501:
-                logger.warning('Unable to authenticate against security domain: %s', e)
-            else:
-                raise
 
     def authdb_connect(self):
 

@@ -27,6 +27,10 @@ import subprocess
 import time
 from time import strftime as date
 
+import pki.account
+import pki.client
+import pki.system
+
 from . import pkiconfig as config
 from . import pkihelper as util
 from . import pkimanifest as manifest
@@ -94,6 +98,7 @@ class PKIDeployer:
             self.dns_domainname = self.hostname
 
         self.ds_connection = None
+        self.sd_connection = None
 
     def set_property(self, key, value, section=None):
 
@@ -214,3 +219,37 @@ class PKIDeployer:
 
     def ds_close(self):
         self.ds_connection.unbind_s()
+
+    def sd_connect(self):
+
+        sd_url = self.mdict['pki_security_domain_uri']
+        sd_hostname = self.mdict['pki_security_domain_hostname']
+        sd_port = self.mdict['pki_security_domain_https_port']
+
+        logger.info('Connecting to security domain at %s', sd_url)
+
+        self.sd_connection = pki.client.PKIConnection(
+            protocol='https',
+            hostname=sd_hostname,
+            port=sd_port,
+            trust_env=False)
+
+        sd_user = self.mdict['pki_security_domain_user']
+        sd_password = self.mdict['pki_security_domain_password']
+
+        self.sd_connection.authenticate(sd_user, sd_password)
+
+    def get_domain_info(self):
+
+        logger.info('Getting security domain info')
+
+        sd_client = pki.system.SecurityDomainClient(self.sd_connection)
+        return sd_client.get_security_domain_info()
+
+    def sd_login(self):
+        account = pki.account.AccountClient(self.sd_connection, subsystem='ca')
+        account.login()
+
+    def sd_logout(self):
+        account = pki.account.AccountClient(self.sd_connection, subsystem='ca')
+        account.logout()
