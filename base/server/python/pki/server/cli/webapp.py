@@ -26,6 +26,7 @@ import sys
 
 import pki.cli
 import pki.server
+import pki.server.instance
 
 
 class WebappCLI(pki.cli.CLI):

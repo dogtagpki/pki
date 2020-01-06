@@ -40,6 +40,7 @@ import pki.cert
 import pki.cli
 import pki.nssdb
 import pki.server
+import pki.server.instance
 
 logger = logging.getLogger(__name__)
 

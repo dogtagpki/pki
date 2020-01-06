@@ -26,6 +26,7 @@ import logging
 import sys
 
 import pki.cli
+import pki.server.instance
 
 
 class NSSCLI(pki.cli.CLI):

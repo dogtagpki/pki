@@ -833,7 +833,7 @@ class PKIInstance(pki.server.PKIServer):
             return instances
 
         for instance_name in os.listdir(pki.server.PKIServer.BASE_DIR):
-            instance = pki.server.instance.PKIInstance(instance_name)
+            instance = PKIInstance(instance_name)
             instance.load()
             instances.append(instance)
 

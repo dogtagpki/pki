@@ -27,6 +27,7 @@ import pki
 import pki.upgrade
 import pki.util
 import pki.server
+import pki.server.instance
 
 UPGRADE_DIR = pki.SHARE_DIR + '/server/upgrade'
 BACKUP_DIR = pki.LOG_DIR + '/server/upgrade'

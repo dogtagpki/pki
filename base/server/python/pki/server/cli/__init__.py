@@ -50,6 +50,7 @@ import pki.server.cli.tks
 import pki.server.cli.tps
 import pki.server.cli.upgrade
 import pki.server.cli.webapp
+import pki.server.instance
 import pki.util
 
 logger = logging.getLogger(__name__)

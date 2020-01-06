@@ -27,6 +27,7 @@ import sys
 import getpass
 
 import pki.cli
+import pki.server.instance
 
 logger = logging.getLogger(__name__)
 

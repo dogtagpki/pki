@@ -27,6 +27,7 @@ import logging
 
 import pki.cli
 import pki.server
+import pki.server.instance
 
 
 class SelfTestCLI(pki.cli.CLI):
