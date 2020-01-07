@@ -139,7 +139,6 @@ public class CMSEngine implements ISubsystem {
     private ITimeSource mTimeSource = null;
     private IPasswordStore mPasswordStore = null;
     private ISecurityDomainSessionTable mSecurityDomainSessionTable = null;
-    private String mConfigSDSessionId = null;
     private Timer mSDTimer = null;
     private String mServerCertNickname = null;
     private boolean ready;
@@ -1434,14 +1433,6 @@ public class CMSEngine implements ISubsystem {
         }
 
         return pid;
-    }
-
-    public void setConfigSDSessionId(String val) {
-        mConfigSDSessionId = val;
-    }
-
-    public String getConfigSDSessionId() {
-        return mConfigSDSessionId;
     }
 
     public static void upgradeConfig(IConfigStore c)

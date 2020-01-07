@@ -142,7 +142,7 @@ public class TPSConfigurator extends Configurator {
 
         try {
             logger.info("TPSConfigurator: Registering TPS to CA: " + caURI);
-            registerUser(secdomainURI, caURI, "ca");
+            registerUser(request, secdomainURI, caURI, "ca");
 
         } catch (Exception e) {
             String message = "Unable to register TPS to CA: " + e.getMessage();
@@ -152,7 +152,7 @@ public class TPSConfigurator extends Configurator {
 
         try {
             logger.info("TPSConfigurator: Registering TPS to TKS: " + tksURI);
-            registerUser(secdomainURI, tksURI, "tks");
+            registerUser(request, secdomainURI, tksURI, "tks");
 
         } catch (Exception e) {
             String message = "Unable to register TPS to TKS: " + e.getMessage();
@@ -164,7 +164,7 @@ public class TPSConfigurator extends Configurator {
 
             try {
                 logger.info("TPSConfigurator: Registering TPS to KRA: " + kraURI);
-                registerUser(secdomainURI, kraURI, "kra");
+                registerUser(request, secdomainURI, kraURI, "kra");
 
             } catch (Exception e) {
                 String message = "Unable to register TPS to KRA: " + e.getMessage();
@@ -175,7 +175,7 @@ public class TPSConfigurator extends Configurator {
             String transportCert;
             try {
                 logger.info("TPSConfigurator: Retrieving transport cert from KRA");
-                transportCert = getTransportCert(secdomainURI, kraURI);
+                transportCert = getTransportCert(request, secdomainURI, kraURI);
 
             } catch (Exception e) {
                 String message = "Unable to retrieve transport cert from KRA: " + e.getMessage();
@@ -185,7 +185,7 @@ public class TPSConfigurator extends Configurator {
 
             try {
                 logger.info("TPSConfigurator: Importing transport cert into TKS");
-                exportTransportCert(secdomainURI, tksURI, transportCert);
+                exportTransportCert(request, secdomainURI, tksURI, transportCert);
 
             } catch (Exception e) {
                 String message = "Unable to import transport cert into TKS: " + e.getMessage();
@@ -218,12 +218,11 @@ public class TPSConfigurator extends Configurator {
         super.finalizeConfiguration(request);
     }
 
-    public String getTransportCert(URI secdomainURI, URI kraUri) throws Exception {
+    public String getTransportCert(FinalizeConfigRequest request, URI secdomainURI, URI kraUri) throws Exception {
 
         logger.debug("TPSConfigurator: getTransportCert() start");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        String sessionId = engine.getConfigSDSessionId();
+        String sessionId = request.getInstallToken().getToken();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("xmlOutput", "true");
@@ -253,10 +252,13 @@ public class TPSConfigurator extends Configurator {
         return parser.getValue("TransportCert");
     }
 
-    public void exportTransportCert(URI secdomainURI, URI targetURI, String transportCert) throws Exception {
+    public void exportTransportCert(
+            FinalizeConfigRequest request,
+            URI secdomainURI,
+            URI targetURI,
+            String transportCert) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        String sessionId = engine.getConfigSDSessionId();
+        String sessionId = request.getInstallToken().getToken();
 
         String securePort = cs.getString("service.securePort", "");
         String machineName = cs.getHostname();

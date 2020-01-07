@@ -36,6 +36,9 @@ public class CertificateSetupRequest {
     protected String pin;
 
     @XmlElement
+    protected InstallToken installToken;
+
+    @XmlElement
     protected String tag;
 
     @XmlElement
@@ -66,6 +69,14 @@ public class CertificateSetupRequest {
 
     public void setPin(String pin) {
         this.pin = pin;
+    }
+
+    public InstallToken getInstallToken() {
+        return installToken;
+    }
+
+    public void setInstallToken(InstallToken installToken) {
+        this.installToken = installToken;
     }
 
     public String getTag() {

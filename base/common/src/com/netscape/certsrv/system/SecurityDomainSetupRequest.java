@@ -39,6 +39,9 @@ public class SecurityDomainSetupRequest {
     @XmlElement
     protected DomainInfo domainInfo;
 
+    @XmlElement
+    protected InstallToken installToken;
+
     @XmlElement(defaultValue="false")
     protected String clone;
 
@@ -68,6 +71,14 @@ public class SecurityDomainSetupRequest {
 
     public DomainInfo getDomainInfo() {
         return domainInfo;
+    }
+
+    public InstallToken getInstallToken() {
+        return installToken;
+    }
+
+    public void setInstallToken(InstallToken installToken) {
+        this.installToken = installToken;
     }
 
     public boolean isClone() {

@@ -649,9 +649,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         create_temp_sslserver_cert = self.create_temp_sslserver_cert(deployer, instance)
 
         domain_info = None
+        install_token = None
 
         if deployer.mdict['pki_security_domain_type'] != "new":
             domain_info = deployer.get_domain_info()
+            install_token = deployer.get_install_token()
 
         if config.str2bool(deployer.mdict['pki_ds_remove_data']):
 
@@ -766,6 +768,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Configuring %s subsystem', subsystem.type)
         request = deployer.config_client.create_config_request()
         request.domainInfo = domain_info
+        request.installToken = install_token
         client.configure(request)
 
         logger.info('Setting up database')
@@ -775,6 +778,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         sslserver = subsystem.get_subsystem_cert('sslserver')
         cert_setup_request = deployer.config_client.create_certificate_setup_request()
+        cert_setup_request.installToken = install_token
 
         for tag in subsystem.config['preop.cert.list'].split(','):
 
@@ -798,6 +802,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Setting up admin user')
 
             admin_setup_request = deployer.config_client.create_admin_setup_request()
+            admin_setup_request.installToken = install_token
             admin_setup_response = client.setupAdmin(admin_setup_request)
 
             if external or standalone \
@@ -821,6 +826,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Setting up security domain')
         sd_setup_request = deployer.config_client.create_security_domain_setup_request()
         sd_setup_request.domainInfo = domain_info
+        sd_setup_request.installToken = install_token
         client.setupSecurityDomain(sd_setup_request)
 
         if not config.str2bool(deployer.mdict['pki_share_db']):
@@ -831,6 +837,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Finalizing %s configuration', subsystem.type)
         finalize_config_request = deployer.config_client.create_finalize_config_request()
         finalize_config_request.domainInfo = domain_info
+        finalize_config_request.installToken = install_token
         client.finalizeConfiguration(finalize_config_request)
 
         logger.info('%s configuration complete', subsystem.type)

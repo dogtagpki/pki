@@ -201,6 +201,20 @@ class DomainInfo(object):
         return security_domain
 
 
+class InstallToken(object):
+
+    def __init__(self):
+        self.token = None
+
+    @classmethod
+    def from_json(cls, json_value):
+
+        install_token = cls()
+        install_token.token = json_value['token']
+
+        return install_token
+
+
 class SecurityDomainClient(object):
     """
     Client used to get the security domain from a security domain CA.
@@ -214,10 +228,12 @@ class SecurityDomainClient(object):
 
         self.domain_info_url = '/rest/securityDomain/domainInfo'
         self.domain_xml_url = '/admin/ca/getDomainXML'
+        self.install_token_url = '/rest/securityDomain/installToken'
 
         if connection.subsystem is None:
             self.domain_info_url = '/ca' + self.domain_info_url
             self.domain_xml_url = '/ca' + self.domain_xml_url
+            self.install_token_url = '/ca' + self.install_token_url
 
     def get_security_domain_info(self):
         logger.warning(
@@ -257,6 +273,17 @@ class SecurityDomainClient(object):
         info.id = domaininfo.find("Name").text
         return info
 
+    def get_install_token(self, hostname, subsystem):
+        '''
+        :returns: pki.system.InstallToken
+        '''
+        params = {
+            'hostname': hostname,
+            'subsystem': subsystem
+        }
+        response = self.connection.get(self.install_token_url, params=params)
+        return InstallToken.from_json(response.json())
+
 
 class ConfigurationRequest(object):
     """
@@ -270,6 +297,7 @@ class ConfigurationRequest(object):
     def __init__(self):
         self.isClone = "false"
         self.domainInfo = None
+        self.installToken = None
 
 
 class DatabaseSetupRequest(object):
@@ -279,6 +307,7 @@ class DatabaseSetupRequest(object):
 
 class CertificateSetupRequest(object):
     def __init__(self):
+        self.installToken = None
         self.generateServerCert = "true"
         self.clone = 'false'
 
@@ -290,7 +319,7 @@ class CertificateSetupResponse(object):
 
 class AdminSetupRequest(object):
     def __init__(self):
-        pass
+        self.installToken = None
 
 
 class AdminSetupResponse(object):
@@ -305,6 +334,7 @@ class KeyBackupRequest(object):
 
 class SecurityDomainSetupRequest(object):
     def __init__(self):
+        self.installToken = None
         self.clone = 'false'
 
 
@@ -315,7 +345,7 @@ class DatabaseUserSetupRequest(object):
 
 class FinalizeConfigRequest(object):
     def __init__(self):
-        pass
+        self.installToken = None
 
 
 class SystemCertData(object):
@@ -537,6 +567,7 @@ pki.encoder.NOTYPES['ConfigurationRequest'] = ConfigurationRequest
 pki.encoder.NOTYPES['DomainInfo'] = DomainInfo
 pki.encoder.NOTYPES['SecurityDomainSubsystem'] = SecurityDomainSubsystem
 pki.encoder.NOTYPES['SecurityDomainHost'] = SecurityDomainHost
+pki.encoder.NOTYPES['InstallToken'] = InstallToken
 pki.encoder.NOTYPES['DatabaseSetupRequest'] = DatabaseSetupRequest
 pki.encoder.NOTYPES['CertificateSetupRequest'] = CertificateSetupRequest
 pki.encoder.NOTYPES['CertificateSetupResponse'] = CertificateSetupResponse

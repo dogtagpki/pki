@@ -92,7 +92,7 @@ public class OCSPConfigurator extends Configurator {
                     // Next we need to treat the publishing of clones as a group ,
                     // and fail over amongst them.
                     if (!request.isClone()) {
-                        updateOCSPConfiguration();
+                        updateOCSPConfiguration(request);
                     }
 
                     setupClientAuthUser();
@@ -152,7 +152,7 @@ public class OCSPConfigurator extends Configurator {
         logger.debug("OCSPConfigurator: Added CA certificate.");
     }
 
-    public void updateOCSPConfiguration() throws Exception {
+    public void updateOCSPConfiguration(FinalizeConfigRequest request) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -165,7 +165,7 @@ public class OCSPConfigurator extends Configurator {
 
         String ocspHost = engine.getAgentHost();
         int ocspPort = Integer.parseInt(engine.getAgentPort());
-        String sessionId = engine.getConfigSDSessionId();
+        String sessionId = request.getInstallToken().getToken();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("xmlOutput", "true");

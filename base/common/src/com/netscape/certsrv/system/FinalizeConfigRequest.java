@@ -44,6 +44,9 @@ public class FinalizeConfigRequest {
     @XmlElement
     protected DomainInfo domainInfo;
 
+    @XmlElement
+    protected InstallToken installToken;
+
     @XmlElement(defaultValue="false")
     protected String isClone;
 
@@ -106,6 +109,14 @@ public class FinalizeConfigRequest {
 
     public DomainInfo getDomainInfo() {
         return domainInfo;
+    }
+
+    public InstallToken getInstallToken() {
+        return installToken;
+    }
+
+    public void setInstallToken(InstallToken installToken) {
+        this.installToken = installToken;
     }
 
     public boolean isClone() {

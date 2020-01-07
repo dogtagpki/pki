@@ -34,6 +34,9 @@ public class AdminSetupRequest {
     protected String pin;
 
     @XmlElement
+    protected InstallToken installToken;
+
+    @XmlElement
     protected String adminUID;
 
     @XmlElement
@@ -72,6 +75,14 @@ public class AdminSetupRequest {
 
     public void setPin(String pin) {
         this.pin = pin;
+    }
+
+    public InstallToken getInstallToken() {
+        return installToken;
+    }
+
+    public void setInstallToken(InstallToken installToken) {
+        this.installToken = installToken;
     }
 
     public String getAdminUID() {

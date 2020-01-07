@@ -69,7 +69,7 @@ public class KRAConfigurator extends Configurator {
 
             // need to push connector information to the CA
             if (!request.getStandAlone() && !ca_host.equals("")) {
-                configureKRAConnector();
+                configureKRAConnector(request);
                 setupClientAuthUser();
             }
 
@@ -91,7 +91,7 @@ public class KRAConfigurator extends Configurator {
         super.finalizeConfiguration(request);
     }
 
-    public void configureKRAConnector() throws Exception {
+    public void configureKRAConnector(FinalizeConfigRequest request) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -111,7 +111,7 @@ public class KRAConfigurator extends Configurator {
         String kraHost = engine.getAgentHost();
         String kraPort = engine.getAgentPort();
         String transportCert = cs.getString("kra.transport.cert", "");
-        String sessionId = engine.getConfigSDSessionId();
+        String sessionId = request.getInstallToken().getToken();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("ca.connector.KRA.enable", "true");

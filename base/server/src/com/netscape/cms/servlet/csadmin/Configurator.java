@@ -281,9 +281,6 @@ public class Configurator {
             importCertChain(certchain, "securitydomain");
         }
 
-        String installToken = logIntoSecurityDomain(request, hostname, port);
-        engine.setConfigSDSessionId(installToken);
-
         DomainInfo domainInfo = request.getDomainInfo();
         logger.info("Domain: " + domainInfo);
 
@@ -650,7 +647,7 @@ public class Configurator {
         }
 
         logger.debug("SystemConfigService: get configuration entries from master");
-        getConfigEntriesFromMaster();
+        getConfigEntriesFromMaster(request);
 
         String token = preopConfig.getString("module.token", null);
         CryptoUtil.getKeyStorageToken(token); // throw exception if token doesn't exist
@@ -664,7 +661,7 @@ public class Configurator {
         verifySystemCertificates();
     }
 
-    public void getConfigEntriesFromMaster()
+    public void getConfigEntriesFromMaster(ConfigurationRequest request)
             throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -672,7 +669,7 @@ public class Configurator {
 
         cstype = cstype.toLowerCase();
 
-        String session_id = engine.getConfigSDSessionId();
+        String session_id = request.getInstallToken().getToken();
         String master_hostname = preopConfig.getString("master.hostname", "");
         int master_port = preopConfig.getInteger("master.httpsadminport", -1);
         int master_ee_port = preopConfig.getInteger("master.httpsport", -1);
@@ -1917,6 +1914,7 @@ public class Configurator {
         if (caType.equals("remote")) {
 
             cert = configRemoteCert(
+                    request,
                     certObj,
                     cert,
                     certTag,
@@ -1956,6 +1954,7 @@ public class Configurator {
     }
 
     private X509CertImpl configRemoteCert(
+            CertificateSetupRequest request,
             Cert certObj,
             X509CertImpl cert,
             String certTag,
@@ -1977,7 +1976,7 @@ public class Configurator {
         cs.putString(subsystem + "." + certTag + ".certreq", b64Request);
 
         String profileId = preopConfig.getString("cert." + certTag + ".profile");
-        String session_id = engine.getConfigSDSessionId();
+        String session_id = request.getInstallToken().getToken();
         String sysType = cs.getType();
         String machineName = cs.getHostname();
         String securePort = cs.getString("service.securePort", "");
@@ -2546,9 +2545,12 @@ public class Configurator {
 
         logger.debug("Configurator: profile: " + profileID);
 
-        String b64 = submitAdminCertRequest(ca_hostname, ca_port,
-                profileID, request.getAdminCertRequestType(),
-                request.getAdminCertRequest(), adminSubjectDN);
+        String b64 = submitAdminCertRequest(
+                request,
+                ca_hostname,
+                ca_port,
+                profileID,
+                adminSubjectDN);
 
         b64 = CryptoUtil.stripCertBrackets(b64.trim());
         byte[] b = CryptoUtil.base64Decode(b64);
@@ -2817,8 +2819,12 @@ public class Configurator {
         engine.reinit(UGSubsystem.ID);
     }
 
-    public String submitAdminCertRequest(String ca_hostname, int ca_port, String profileId,
-            String certRequestType, String certRequest, String subjectDN) throws Exception {
+    public String submitAdminCertRequest(
+            AdminSetupRequest request,
+            String ca_hostname,
+            int ca_port,
+            String profileId,
+            String subjectDN) throws Exception {
 
         logger.debug("Configurator: submitAdminCertRequest()");
 
@@ -2828,7 +2834,9 @@ public class Configurator {
             profileId = preopConfig.getString("admincert.profile", "caAdminCert");
         }
 
-        String session_id = engine.getConfigSDSessionId();
+        String certRequestType = request.getAdminCertRequestType();
+        String certRequest = request.getAdminCertRequest();
+        String session_id = request.getInstallToken().getToken();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("profileId", profileId);
@@ -3009,7 +3017,7 @@ public class Configurator {
 
         try {
             logger.debug("Update security domain using admin interface");
-            String session_id = engine.getConfigSDSessionId();
+            String session_id = request.getInstallToken().getToken();
             content.putSingle("sessionID", session_id);
             updateDomainXML(sd_host, sd_admin_port, true, url, content, false);
 
@@ -3238,14 +3246,18 @@ public class Configurator {
     public void getDatabaseGroups(Collection<String> groups) throws Exception {
     }
 
-    public void registerUser(URI secdomainURI, URI targetURI, String targetType) throws Exception {
+    public void registerUser(
+            FinalizeConfigRequest request,
+            URI secdomainURI,
+            URI targetURI,
+            String targetType) throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String csType = cs.getType();
         String uid = csType.toUpperCase() + "-" + cs.getHostname()
                 + "-" + cs.getString("service.securePort", "");
-        String sessionId = engine.getConfigSDSessionId();
+        String sessionId = request.getInstallToken().getToken();
         String subsystemName = preopConfig.getString("subsystem.name");
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();

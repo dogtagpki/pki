@@ -255,3 +255,24 @@ class PKIDeployer:
     def sd_logout(self):
         account = pki.account.AccountClient(self.sd_connection, subsystem='ca')
         account.logout()
+
+    def get_install_token(self):
+
+        hostname = self.mdict['pki_hostname']
+        subsystem = self.mdict['pki_subsystem']
+
+        logger.info('Getting installation token for %s on %s', subsystem, hostname)
+
+        sd_client = pki.system.SecurityDomainClient(self.sd_connection)
+        install_token = sd_client.get_install_token(hostname, subsystem)
+
+        # Sleep for a bit to allow the install token to replicate to other clones.
+        # In the future this can be replaced with signed tokens.
+        # https://pagure.io/dogtagpki/issue/2831
+        #
+        # The default sleep time is 5s.
+
+        sd_delay = self.mdict.get('pki_security_domain_post_login_sleep_seconds', '5')
+        time.sleep(int(sd_delay))
+
+        return install_token

@@ -42,6 +42,9 @@ public class ConfigurationRequest {
     protected DomainInfo domainInfo;
 
     @XmlElement
+    protected InstallToken installToken;
+
+    @XmlElement
     protected String securityDomainType;
 
     @XmlElement
@@ -94,6 +97,14 @@ public class ConfigurationRequest {
 
     public DomainInfo getDomainInfo() {
         return domainInfo;
+    }
+
+    public InstallToken getInstallToken() {
+        return installToken;
+    }
+
+    public void setInstallToken(InstallToken installToken) {
+        this.installToken = installToken;
     }
 
     public String getSecurityDomainType() {
@@ -215,6 +226,7 @@ public class ConfigurationRequest {
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
+               ", installToken=XXXX" +
                ", securityDomainType=" + securityDomainType +
                ", securityDomainUri=" + securityDomainUri +
                ", securityDomainUser=" + securityDomainUser +
