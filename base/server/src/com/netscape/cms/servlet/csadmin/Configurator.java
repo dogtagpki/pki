@@ -297,17 +297,20 @@ public class Configurator {
         }
     }
 
-    private String logIntoSecurityDomain(ConfigurationRequest request, String hostname, int port) throws Exception {
+    private String logIntoSecurityDomain(
+            ConfigurationRequest request,
+            String hostname,
+            int port,
+            String username,
+            String password,
+            Long sleep) throws Exception {
 
         logger.debug("Getting installation token from security domain");
-
-        String user = request.getSecurityDomainUser();
-        String pass = request.getSecurityDomainPassword();
 
         String installToken;
 
         try {
-            installToken = getInstallToken(hostname, port, user, pass);
+            installToken = getInstallToken(hostname, port, username, password);
         } catch (Exception e) {
             logger.error("Unable to get installation token: " + e.getMessage(), e);
             throw new PKIException("Unable to get installation token: " + e.getMessage(), e);
@@ -325,11 +328,12 @@ public class Configurator {
          *
          * The default sleep time is 5s.
          */
-        Long d = request.getSecurityDomainPostLoginSleepSeconds();
-        if (null == d || d <= 0)
-            d = new Long(5);
-        logger.debug("Logged into security domain; sleeping for " + d + "s");
-        Thread.sleep(d * 1000);
+        if (null == sleep || sleep <= 0) {
+            sleep = new Long(5);
+        }
+
+        logger.debug("Logged into security domain; sleeping for " + sleep + "s");
+        Thread.sleep(sleep * 1000);
 
         return installToken;
     }

@@ -50,12 +50,6 @@ public class ConfigurationRequest {
     @XmlElement
     protected String securityDomainUri;
 
-    @XmlElement
-    protected String securityDomainUser;
-
-    @XmlElement
-    protected String securityDomainPassword;
-
     @XmlElement(defaultValue="false")
     protected String isClone;
 
@@ -73,11 +67,6 @@ public class ConfigurationRequest {
 
     @XmlElement
     protected String standAlone;
-
-    /** Seconds to sleep after logging into the Security Domain,
-     * so that replication of the session data may complete. */
-    @XmlElement
-    protected Long securityDomainPostLoginSleepSeconds;
 
     public ConfigurationRequest() {
         // required for JAXB
@@ -121,22 +110,6 @@ public class ConfigurationRequest {
 
     public void setSecurityDomainUri(String securityDomainUri) {
         this.securityDomainUri = securityDomainUri;
-    }
-
-    public String getSecurityDomainUser() {
-        return securityDomainUser;
-    }
-
-    public void setSecurityDomainUser(String securityDomainUser) {
-        this.securityDomainUser = securityDomainUser;
-    }
-
-    public String getSecurityDomainPassword() {
-        return securityDomainPassword;
-    }
-
-    public void setSecurityDomainPassword(String securityDomainPassword) {
-        this.securityDomainPassword = securityDomainPassword;
     }
 
     public boolean isClone() {
@@ -215,23 +188,12 @@ public class ConfigurationRequest {
         this.isClone = isClone;
     }
 
-    public Long getSecurityDomainPostLoginSleepSeconds() {
-        return securityDomainPostLoginSleepSeconds;
-    }
-
-    public void setSecurityDomainPostLoginSleepSeconds(Long d) {
-        securityDomainPostLoginSleepSeconds = d;
-    }
-
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
                ", installToken=XXXX" +
                ", securityDomainType=" + securityDomainType +
                ", securityDomainUri=" + securityDomainUri +
-               ", securityDomainUser=" + securityDomainUser +
-               ", securityDomainPassword=XXXX" +
-               ", securityDomainPostLoginSleepSeconds=" + securityDomainPostLoginSleepSeconds +
                ", isClone=" + isClone +
                ", cloneUri=" + cloneUri +
                ", hierarchy=" + hierarchy +

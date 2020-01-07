@@ -714,14 +714,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             if (data.getSecurityDomainUri() == null) {
                 throw new BadRequestException("Missing security domain URI");
             }
-
-            if (data.getSecurityDomainUser() == null) {
-                throw new BadRequestException("Missing security domain user");
-            }
-
-            if (data.getSecurityDomainPassword() == null) {
-                throw new BadRequestException("Missing security domain password");
-            }
         }
 
         if (data.isClone()) {

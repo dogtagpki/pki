@@ -287,8 +287,6 @@ public class ConfigurationTest {
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
         data.setSecurityDomainUri("https://" + host + ":9225");
-        data.setSecurityDomainUser("admin");
-        data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
         data.setHierarchy("join");
@@ -474,8 +472,6 @@ public class ConfigurationTest {
         data.setPin(pin);
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
         data.setSecurityDomainUri("https://" + host + ":9225");
-        data.setSecurityDomainUser("admin");
-        data.setSecurityDomainPassword("redhat123");
 
         data.setClone("true");
         data.setCloneUri("https://" + host + ":9224" );
@@ -503,8 +499,6 @@ public class ConfigurationTest {
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
         data.setSecurityDomainUri("https://" + host + ":9225");
-        data.setSecurityDomainUser("admin");
-        data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
 
@@ -564,8 +558,6 @@ public class ConfigurationTest {
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
         data.setSecurityDomainUri("https://" + host + ":9225");
-        data.setSecurityDomainUser("admin");
-        data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
 
@@ -617,8 +609,6 @@ public class ConfigurationTest {
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
         data.setSecurityDomainUri("https://" + host + ":9225");
-        data.setSecurityDomainUser("admin");
-        data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
 
