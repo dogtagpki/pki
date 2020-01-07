@@ -73,7 +73,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         sections.append('DEFAULT')
         for s in sections:
             for k in sensitive_parameters:
-                deployer.user_config.set(s, k, 'XXXXXXXX')
+                deployer.user_config.remove_option(s, k)
 
         deployer.file.create(
             deployer.mdict['pki_user_deployment_cfg_replica']
