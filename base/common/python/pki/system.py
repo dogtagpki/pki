@@ -20,7 +20,9 @@
 #
 
 from __future__ import absolute_import
+import inspect
 import json
+import logging
 import xml.etree.ElementTree as ETree
 import os
 
@@ -29,6 +31,8 @@ import pki.encoder
 SYSTEM_TYPE = "Fedora/RHEL"
 if os.path.exists("/etc/debian_version"):
     SYSTEM_TYPE = "debian"
+
+logger = logging.getLogger(__name__)
 
 
 class SecurityDomainHost(object):
@@ -39,15 +43,15 @@ class SecurityDomainHost(object):
     def __init__(self):
         """ constructor """
         self.id = None
-        self.clone = False
-        self.domain_manager = False
-        self.hostname = None
-        self.unsecure_port = None
-        self.admin_port = None
-        self.agent_port = None
-        self.ee_client_auth_port = None
-        self.secure_port = None
-        self.subsystem_name = None
+        self.Clone = False
+        self.DomainManager = False
+        self.Hostname = None
+        self.Port = None
+        self.SecureAdminPort = None
+        self.SecureAgentPort = None
+        self.SecureEEClientAuthPort = None
+        self.SecurePort = None
+        self.SubsystemName = None
 
     @classmethod
     def from_json(cls, json_value):
@@ -62,22 +66,22 @@ class SecurityDomainHost(object):
         host = cls()
 
         try:
-            # 10.2.x
+            # PKI 10.2
             host.id = json_value['id']
 
         except KeyError:
-            # 10.1.x
+            # PKI 10.1
             host.id = json_value['@id']
 
-        host.admin_port = json_value['SecureAdminPort']
-        host.agent_port = json_value['SecureAgentPort']
-        host.clone = json_value['Clone']
-        host.domain_manager = json_value['DomainManager']
-        host.ee_client_auth_port = json_value['SecureEEClientAuthPort']
-        host.hostname = json_value['Hostname']
-        host.secure_port = json_value['SecurePort']
-        host.subsystem_name = json_value['SubsystemName']
-        host.unsecure_port = json_value['Port']
+        host.SecureAdminPort = json_value['SecureAdminPort']
+        host.SecureAgentPort = json_value['SecureAgentPort']
+        host.Clone = json_value['Clone']
+        host.DomainManager = json_value['DomainManager']
+        host.SecureEEClientAuthPort = json_value['SecureEEClientAuthPort']
+        host.Hostname = json_value['Hostname']
+        host.SecurePort = json_value['SecurePort']
+        host.SubsystemName = json_value['SubsystemName']
+        host.Port = json_value['Port']
 
         return host
 
@@ -90,7 +94,7 @@ class SecurityDomainSubsystem(object):
     """
 
     def __init__(self):
-        self.name = None
+        self.id = None
         self.hosts = {}
 
     @classmethod
@@ -106,63 +110,93 @@ class SecurityDomainSubsystem(object):
         subsystem = cls()
 
         try:
-            # 10.2.x
-            subsystem.name = json_value['id']
+            # PKI 10.8
+            subsystem.id = json_value['id']
+            hosts = json_value['hosts']
+
+            for k, v in hosts.items():
+                host = SecurityDomainHost.from_json(v)
+                subsystem.hosts[k] = host
 
         except KeyError:
-            # 10.1.x
-            subsystem.name = json_value['@id']
 
-        hosts = json_value['Host']
-        if isinstance(hosts, dict):
-            hosts = [hosts]
+            try:
+                # PKI 10.2
+                subsystem.id = json_value['id']
 
-        for h in hosts:
-            host = SecurityDomainHost.from_json(h)
-            subsystem.hosts[host.id] = host
+            except KeyError:
+                # PKI 10.1
+                subsystem.id = json_value['@id']
+
+            hosts = json_value['Host']
+            if isinstance(hosts, dict):
+                hosts = [hosts]
+
+            for h in hosts:
+                host = SecurityDomainHost.from_json(h)
+                subsystem.hosts[host.id] = host
 
         return subsystem
 
 
-class SecurityDomainInfo(object):
+class DomainInfo(object):
     """
     Class representing the entire security domain.
     This is essentially a list of SecurityDomainSubsystem components.
     """
 
     def __init__(self):
-        self.name = None
-        self.systems = {}
+        self.id = None
+        self.subsystems = {}
+
+    @property
+    def systems(self):
+        logger.warning(
+            '%s:%s: The DomainInfo.systems has been deprecated '
+            '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+            inspect.stack()[1].filename, inspect.stack()[1].lineno)
+        return self.subsystems
 
     @classmethod
     def from_json(cls, json_value):
         """
-        Create a SecurityDomainInfo object from JSON.
+        Create a DomainInfo object from JSON.
 
         :param json_value: JSON representation of a security domain.
         :type json_value: str
-        :returns: SecurityDomainInfo
+        :returns: DomainInfo
         """
 
         security_domain = cls()
 
         try:
-            # 10.2.x
-            security_domain.name = json_value['id']
-            subsystems = json_value['Subsystem']
+            # PKI 10.8
+            security_domain.id = json_value['id']
+            subsystems = json_value['subsystems']
+
+            for k, v in subsystems.items():
+                subsystem = SecurityDomainSubsystem.from_json(v)
+                security_domain.subsystems[k] = subsystem
 
         except KeyError:
-            # 10.1.x
-            domain_info = json_value['DomainInfo']
-            security_domain.name = domain_info['@id']
 
-            subsystems = domain_info['Subsystem']
-            if isinstance(subsystems, dict):
-                subsystems = [subsystems]
+            try:
+                # PKI 10.2
+                security_domain.id = json_value['id']
+                subsystems = json_value['Subsystem']
 
-        for s in subsystems:
-            subsystem = SecurityDomainSubsystem.from_json(s)
-            security_domain.systems[subsystem.name] = subsystem
+            except KeyError:
+                # PKI 10.1
+                domain_info = json_value['DomainInfo']
+                security_domain.id = domain_info['@id']
+
+                subsystems = domain_info['Subsystem']
+                if isinstance(subsystems, dict):
+                    subsystems = [subsystems]
+
+            for s in subsystems:
+                subsystem = SecurityDomainSubsystem.from_json(s)
+                security_domain.subsystems[subsystem.id] = subsystem
 
         return security_domain
 
@@ -191,26 +225,29 @@ class SecurityDomainClient(object):
         used to construct this client and get the security domain using the
         REST API.
 
-        :returns: pki.system.SecurityDomainInfo
+        :returns: pki.system.DomainInfo
         """
-        response = self.connection.get(self.domain_info_url)
-        info = SecurityDomainInfo.from_json(response.json())
+        headers = {
+            'Accept': 'application/json'
+        }
+        response = self.connection.get(self.domain_info_url, headers=headers)
+        info = DomainInfo.from_json(response.json())
         return info
 
-    def get_old_security_domain_info(self):
+    def get_old_domain_info(self):
         """
         Contact the security domain CA specified in the connection object
         used to construct this client and get the security domain using the
         old servlet-based interface.  This method is useful when contacting
         old servers which do not provide the REST API.
 
-        :returns: pki.system.SecurityDomainInfo
+        :returns: pki.system.DomainInfo
         """
         response = self.connection.get(self.domain_xml_url)
         root = ETree.fromstring(response.text)
         domaininfo = ETree.fromstring(root.find("DomainInfo").text)
-        info = SecurityDomainInfo()
-        info.name = domaininfo.find("Name").text
+        info = DomainInfo()
+        info.id = domaininfo.find("Name").text
         return info
 
 
@@ -489,6 +526,9 @@ class SystemStatusClient(object):
 
 
 pki.encoder.NOTYPES['ConfigurationRequest'] = ConfigurationRequest
+pki.encoder.NOTYPES['DomainInfo'] = DomainInfo
+pki.encoder.NOTYPES['SecurityDomainSubsystem'] = SecurityDomainSubsystem
+pki.encoder.NOTYPES['SecurityDomainHost'] = SecurityDomainHost
 pki.encoder.NOTYPES['DatabaseSetupRequest'] = DatabaseSetupRequest
 pki.encoder.NOTYPES['CertificateSetupRequest'] = CertificateSetupRequest
 pki.encoder.NOTYPES['CertificateSetupResponse'] = CertificateSetupResponse

@@ -2272,8 +2272,8 @@ class KRAConnector:
                 ca_list = []
 
             for ca in ca_list:
-                ca_host = ca.hostname
-                ca_port = ca.secure_port
+                ca_host = ca.Hostname
+                ca_port = ca.SecurePort
 
                 # catching all exceptions because we do not want to break if
                 # the auth is not successful or servers are down.  In the
@@ -2313,8 +2313,8 @@ class KRAConnector:
         except requests.exceptions.HTTPError as e:
             logger.warning('Unable to get CA list from security domain: %s', e)
             logger.info('Trying older interface.')
-            info = sd.get_old_security_domain_info()
-        return list(info.systems['CA'].hosts.values())
+            info = sd.get_old_domain_info()
+        return list(info.subsystems['CA'].hosts.values())
 
     def execute_using_pki(
             self, caport, cahost, subsystemnick,

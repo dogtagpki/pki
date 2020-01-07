@@ -44,6 +44,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
         return hosts;
     }
 
+    @XmlElement(name="hosts")
     public void setHosts(Map<String, SecurityDomainHost> hosts) {
         this.hosts.clear();
         this.hosts.putAll(hosts);

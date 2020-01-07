@@ -54,6 +54,7 @@ public class DomainInfo {
         this.name = name;
     }
 
+    @XmlElement(name="subsystems")
     public Map<String, SecurityDomainSubsystem> getSubsystems() {
         return subsystems;
     }

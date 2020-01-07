@@ -241,7 +241,7 @@ class PKIDeployer:
 
         self.sd_connection.authenticate(sd_user, sd_password)
 
-    def get_domain_info(self):
+    def get_sd_info(self):
 
         logger.info('Getting security domain info')
 
