@@ -36,6 +36,9 @@ public class SecurityDomainSetupRequest {
     @XmlElement
     protected String securityDomainType;
 
+    @XmlElement
+    protected DomainInfo domainInfo;
+
     @XmlElement(defaultValue="false")
     protected String clone;
 
@@ -57,6 +60,14 @@ public class SecurityDomainSetupRequest {
 
     public void setSecurityDomainType(String securityDomainType) {
         this.securityDomainType = securityDomainType;
+    }
+
+    public void setDomainInfo(DomainInfo domainInfo) {
+        this.domainInfo = domainInfo;
+    }
+
+    public DomainInfo getDomainInfo() {
+        return domainInfo;
     }
 
     public boolean isClone() {

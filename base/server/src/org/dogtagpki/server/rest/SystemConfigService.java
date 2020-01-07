@@ -41,7 +41,6 @@ import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DatabaseUserSetupRequest;
-import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.KeyBackupRequest;
 import com.netscape.certsrv.system.SecurityDomainSetupRequest;
@@ -113,14 +112,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             // configure security domain
             logger.debug("=== Security Domain Configuration ===");
-            DomainInfo domainInfo = configurator.configureSecurityDomain(request);
+            configurator.configureSecurityDomain(request);
 
             // configure subsystem
             logger.debug("=== Subsystem Configuration ===");
-            configurator.configureSubsystem(request, domainInfo);
+            configurator.configureSubsystem(request);
 
             logger.debug("=== Configure CA Cert Chain ===");
-            configurator.configureCACertChain(request, domainInfo);
+            configurator.configureCACertChain(request);
 
             cs.commit(false);
 

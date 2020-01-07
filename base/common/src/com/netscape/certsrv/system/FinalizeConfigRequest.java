@@ -41,6 +41,9 @@ public class FinalizeConfigRequest {
     @XmlElement
     protected String securityDomainUri;
 
+    @XmlElement
+    protected DomainInfo domainInfo;
+
     @XmlElement(defaultValue="false")
     protected String isClone;
 
@@ -95,6 +98,14 @@ public class FinalizeConfigRequest {
 
     public void setSecurityDomainUri(String securityDomainUri) {
         this.securityDomainUri = securityDomainUri;
+    }
+
+    public void setDomainInfo(DomainInfo domainInfo) {
+        this.domainInfo = domainInfo;
+    }
+
+    public DomainInfo getDomainInfo() {
+        return domainInfo;
     }
 
     public boolean isClone() {

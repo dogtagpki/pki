@@ -220,6 +220,13 @@ class SecurityDomainClient(object):
             self.domain_xml_url = '/ca' + self.domain_xml_url
 
     def get_security_domain_info(self):
+        logger.warning(
+            '%s:%s: The SecurityDomainClient.get_security_domain_info() has been deprecated '
+            '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+            inspect.stack()[1].filename, inspect.stack()[1].lineno)
+        return self.get_domain_info()
+
+    def get_domain_info(self):
         """
         Contact the security domain CA specified in the connection object
         used to construct this client and get the security domain using the
@@ -262,6 +269,7 @@ class ConfigurationRequest(object):
 
     def __init__(self):
         self.isClone = "false"
+        self.domainInfo = None
 
 
 class DatabaseSetupRequest(object):

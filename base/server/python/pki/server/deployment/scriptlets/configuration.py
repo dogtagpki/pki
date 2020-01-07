@@ -648,6 +648,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         create_temp_sslserver_cert = self.create_temp_sslserver_cert(deployer, instance)
 
+        domain_info = None
+
+        if deployer.mdict['pki_security_domain_type'] != "new":
+            domain_info = deployer.get_domain_info()
+
         if config.str2bool(deployer.mdict['pki_ds_remove_data']):
 
             if config.str2bool(deployer.mdict['pki_ds_create_new_db']):
@@ -760,6 +765,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Configuring %s subsystem', subsystem.type)
         request = deployer.config_client.create_config_request()
+        request.domainInfo = domain_info
         client.configure(request)
 
         logger.info('Setting up database')
@@ -814,6 +820,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Setting up security domain')
         sd_setup_request = deployer.config_client.create_security_domain_setup_request()
+        sd_setup_request.domainInfo = domain_info
         client.setupSecurityDomain(sd_setup_request)
 
         if not config.str2bool(deployer.mdict['pki_share_db']):
@@ -823,6 +830,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Finalizing %s configuration', subsystem.type)
         finalize_config_request = deployer.config_client.create_finalize_config_request()
+        finalize_config_request.domainInfo = domain_info
         client.finalizeConfiguration(finalize_config_request)
 
         logger.info('%s configuration complete', subsystem.type)

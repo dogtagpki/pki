@@ -241,12 +241,12 @@ class PKIDeployer:
 
         self.sd_connection.authenticate(sd_user, sd_password)
 
-    def get_sd_info(self):
+    def get_domain_info(self):
 
         logger.info('Getting security domain info')
 
         sd_client = pki.system.SecurityDomainClient(self.sd_connection)
-        return sd_client.get_security_domain_info()
+        return sd_client.get_domain_info()
 
     def sd_login(self):
         account = pki.account.AccountClient(self.sd_connection, subsystem='ca')

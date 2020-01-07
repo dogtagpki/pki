@@ -248,7 +248,7 @@ public class Configurator {
         this.serverXml = serverXml;
     }
 
-    public DomainInfo configureSecurityDomain(ConfigurationRequest request) throws Exception {
+    public void configureSecurityDomain(ConfigurationRequest request) throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -256,7 +256,7 @@ public class Configurator {
 
         if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
             logger.info("Creating new security domain");
-            return null;
+            return;
         }
 
         if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)){
@@ -284,7 +284,9 @@ public class Configurator {
         String installToken = logIntoSecurityDomain(request, hostname, port);
         engine.setConfigSDSessionId(installToken);
 
-        DomainInfo domainInfo = getDomainInfo(hostname, port);
+        DomainInfo domainInfo = request.getDomainInfo();
+        logger.info("Domain: " + domainInfo);
+
         SecurityDomainHost host = getHostInfo(domainInfo, "CA", hostname, port);
 
         cs.putString("securitydomain.httpport", host.getPort());
@@ -296,8 +298,6 @@ public class Configurator {
             cs.putString("securitydomain.host", hostname);
             cs.putInteger("securitydomain.httpsadminport", port);
         }
-
-        return domainInfo;
     }
 
     private String logIntoSecurityDomain(ConfigurationRequest request, String hostname, int port) throws Exception {
@@ -337,15 +337,15 @@ public class Configurator {
         return installToken;
     }
 
-    public void configureCACertChain(ConfigurationRequest data, DomainInfo domainInfo) throws Exception {
+    public void configureCACertChain(ConfigurationRequest request) throws Exception {
 
-        if (data.getHierarchy() != null && !data.getHierarchy().equals("join")) {
+        if (request.getHierarchy() != null && !request.getHierarchy().equals("join")) {
             return;
         }
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
         String csType = cs.getType();
-        String url = data.getIssuingCA();
+        String url = request.getIssuingCA();
 
         if (url.equals("External CA")) {
 
@@ -371,6 +371,9 @@ public class Configurator {
         String hostname = urlx.getHost();
         int port = urlx.getPort();
 
+        DomainInfo domainInfo = request.getDomainInfo();
+        logger.info("Domain: " + domainInfo);
+
         SecurityDomainHost host = getHostInfo(domainInfo, "CA", hostname, port);
         int adminPort = Integer.parseInt(host.getSecureAdminPort());
 
@@ -379,7 +382,7 @@ public class Configurator {
         preopConfig.putInteger("ca.httpsport", port);
         preopConfig.putInteger("ca.httpsadminport", adminPort);
 
-        if (!data.isClone() && !data.getSystemCertsImported()) {
+        if (!request.isClone() && !request.getSystemCertsImported()) {
             byte[] certchain = getCertChain(hostname, adminPort);
             importCertChain(certchain, "ca");
         }
@@ -595,14 +598,14 @@ public class Configurator {
         return null;
     }
 
-    public void configureSubsystem(ConfigurationRequest request, DomainInfo domainInfo) throws Exception {
+    public void configureSubsystem(ConfigurationRequest request) throws Exception {
 
         if (request.isClone()) {
-            configureClone(request, domainInfo);
+            configureClone(request);
         }
     }
 
-    private void configureClone(ConfigurationRequest data, DomainInfo domainInfo) throws Exception {
+    private void configureClone(ConfigurationRequest request) throws Exception {
 
         String csType = cs.getType();
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -618,12 +621,16 @@ public class Configurator {
             }
         }
 
-        String cloneUri = data.getCloneUri();
+        String cloneUri = request.getCloneUri();
         URL url = new URL(cloneUri);
         String masterHostname = url.getHost();
         int masterPort = url.getPort();
 
         logger.debug("SystemConfigService: getting " + csType + " master host info: " + url);
+
+        DomainInfo domainInfo = request.getDomainInfo();
+        logger.info("Domain: " + domainInfo);
+
         SecurityDomainHost masterHost = getHostInfo(domainInfo, csType, masterHostname, masterPort);
 
         if (masterHost == null) {
@@ -636,7 +643,7 @@ public class Configurator {
         preopConfig.putInteger("master.httpsport", masterPort);
         preopConfig.putString("master.httpsadminport", masterAdminPort);
 
-        if (csType.equals("CA") && !data.getSystemCertsImported()) {
+        if (csType.equals("CA") && !request.getSystemCertsImported()) {
             logger.debug("SystemConfigService: import certificate chain from master");
             byte[] certchain = getCertChain(masterHostname, Integer.parseInt(masterAdminPort));
             importCertChain(certchain, "clone");
@@ -2973,7 +2980,10 @@ public class Configurator {
 
         boolean cloneMaster = false;
 
-        if (request.isClone() && type.equalsIgnoreCase("CA") && isSDHostDomainMaster()) {
+        DomainInfo domainInfo = request.getDomainInfo();
+        logger.info("Domain: " + domainInfo);
+
+        if (request.isClone() && type.equalsIgnoreCase("CA") && isSDHostDomainMaster(domainInfo)) {
             cloneMaster = true;
             logger.debug("Cloning a domain master");
         }
@@ -3012,17 +3022,16 @@ public class Configurator {
         }
 
         // Fetch the updated security domain
-        getDomainInfo(sd_host, sd_admin_port);
+        // getDomainInfo(sd_host, sd_admin_port);
     }
 
-    public boolean isSDHostDomainMaster() throws Exception {
+    public boolean isSDHostDomainMaster(DomainInfo domainInfo) throws Exception {
 
         logger.info("Checking whether security domain host is master");
 
         String hostname = cs.getString("securitydomain.host");
         int httpsadminport = cs.getInteger("securitydomain.httpsadminport");
 
-        DomainInfo domainInfo = getDomainInfo(hostname, httpsadminport);
         SecurityDomainHost host = getHostInfo(domainInfo, "CA", hostname, httpsadminport);
 
         String dm = host.getDomainManager();

@@ -2309,7 +2309,7 @@ class KRAConnector:
             trust_env=False)
         sd = pki.system.SecurityDomainClient(sd_connection)
         try:
-            info = sd.get_security_domain_info()
+            info = sd.get_domain_info()
         except requests.exceptions.HTTPError as e:
             logger.warning('Unable to get CA list from security domain: %s', e)
             logger.info('Trying older interface.')

@@ -34,6 +34,7 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
+import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
@@ -194,7 +195,10 @@ public class CAConfigurator extends Configurator {
         }
 
         try {
-            if (request.isClone() && isSDHostDomainMaster()) {
+            DomainInfo domainInfo = request.getDomainInfo();
+            logger.info("Domain: " + domainInfo);
+
+            if (request.isClone() && isSDHostDomainMaster(domainInfo)) {
                 updateSecurityDomainClone();
             }
 

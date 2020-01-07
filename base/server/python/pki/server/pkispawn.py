@@ -382,7 +382,7 @@ def main(argv):
 
                     try:
                         deployer.sd_connect()
-                        info = deployer.get_sd_info()
+                        info = deployer.get_domain_info()
                         parser.print_text('Name: ' + info.id)
                         deployer.set_property('pki_security_domain_name', info.id)
                         break
@@ -718,7 +718,7 @@ def check_security_domain():
 
             if not config.str2bool(deployer.mdict['pki_skip_sd_verify']):
                 deployer.sd_connect()
-                info = deployer.get_sd_info()
+                info = deployer.get_domain_info()
                 deployer.set_property('pki_security_domain_name', info.id)
                 deployer.sd_login()
                 deployer.sd_logout()
