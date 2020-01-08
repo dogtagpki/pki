@@ -150,9 +150,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             else:
                 securityDomainName = deployer.mdict['pki_security_domain_name']
 
-            subsystem.config['preop.securitydomain.select'] = 'new'
-            subsystem.config['preop.securitydomain.name'] = securityDomainName
-
             subsystem.config['securitydomain.select'] = 'new'
             subsystem.config['securitydomain.name'] = securityDomainName
             subsystem.config['securitydomain.host'] = deployer.mdict['pki_hostname']
@@ -166,7 +163,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         else:  # deployer.mdict['pki_security_domain_type'] == 'existing':
 
-            subsystem.config['preop.securitydomain.select'] = 'existing'
             subsystem.config['preop.cert.subsystem.type'] = 'remote'
             subsystem.config['securitydomain.select'] = 'existing'
 
