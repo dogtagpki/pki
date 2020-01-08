@@ -2984,7 +2984,6 @@ public class Configurator {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        int sd_agent_port = cs.getInteger("securitydomain.httpsagentport");
         int sd_admin_port = cs.getInteger("securitydomain.httpsadminport");
         String type = cs.getType();
         String sd_host = cs.getString("securitydomain.host");
@@ -3019,22 +3018,11 @@ public class Configurator {
 
         content.putSingle("httpport", engine.getEENonSSLPort());
 
-        try {
-            logger.debug("Update security domain using admin interface");
-            String session_id = request.getInstallToken().getToken();
-            content.putSingle("sessionID", session_id);
-            updateDomainXML(sd_host, sd_admin_port, true, url, content, false);
+        logger.debug("Update security domain using admin interface");
+        String session_id = request.getInstallToken().getToken();
+        content.putSingle("sessionID", session_id);
 
-        } catch (Exception e) {
-            logger.warn("Unable to access admin interface: " + e);
-
-            logger.warn("Update security domain using agent interface");
-            url = "/ca/agent/ca/updateDomainXML";
-            updateDomainXML(sd_host, sd_agent_port, true, url, content, true);
-        }
-
-        // Fetch the updated security domain
-        // getDomainInfo(sd_host, sd_admin_port);
+        updateDomainXML(sd_host, sd_admin_port, true, url, content, false);
     }
 
     public boolean isSDHostDomainMaster(DomainInfo domainInfo) throws Exception {
