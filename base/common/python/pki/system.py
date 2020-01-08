@@ -97,6 +97,20 @@ class SecurityDomainSubsystem(object):
         self.id = None
         self.hosts = {}
 
+    def get_host(self, hostname, secure_port):
+
+        for host in self.hosts.values():
+
+            if host.Hostname != hostname:
+                continue
+
+            if host.SecurePort != secure_port:
+                continue
+
+            return host
+
+        return None
+
     @classmethod
     def from_json(cls, json_value):
         """

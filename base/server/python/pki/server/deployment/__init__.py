@@ -100,6 +100,10 @@ class PKIDeployer:
         self.ds_connection = None
         self.sd_connection = None
 
+        self.domain_info = None
+        self.sd_host = None
+        self.install_token = None
+
     def set_property(self, key, value, section=None):
 
         if not section:
@@ -224,6 +228,9 @@ class PKIDeployer:
 
     def sd_connect(self):
 
+        if self.sd_connection:
+            return self.sd_connection
+
         sd_url = self.mdict['pki_security_domain_uri']
         sd_hostname = self.mdict['pki_security_domain_hostname']
         sd_port = self.mdict['pki_security_domain_https_port']
@@ -241,12 +248,21 @@ class PKIDeployer:
 
         self.sd_connection.authenticate(sd_user, sd_password)
 
+        return self.sd_connection
+
     def get_domain_info(self):
+
+        if self.domain_info:
+            return self.domain_info
 
         logger.info('Getting security domain info')
 
+        self.sd_connect()
+
         sd_client = pki.system.SecurityDomainClient(self.sd_connection)
-        return sd_client.get_domain_info()
+        self.domain_info = sd_client.get_domain_info()
+
+        return self.domain_info
 
     def sd_login(self):
         account = pki.account.AccountClient(self.sd_connection, subsystem='ca')
@@ -258,13 +274,16 @@ class PKIDeployer:
 
     def get_install_token(self):
 
+        if self.install_token:
+            return self.install_token
+
         hostname = self.mdict['pki_hostname']
         subsystem = self.mdict['pki_subsystem']
 
-        logger.info('Getting installation token for %s on %s', subsystem, hostname)
+        logger.info('Getting token for installing %s on %s', subsystem, hostname)
 
         sd_client = pki.system.SecurityDomainClient(self.sd_connection)
-        install_token = sd_client.get_install_token(hostname, subsystem)
+        self.install_token = sd_client.get_install_token(hostname, subsystem)
 
         # Sleep for a bit to allow the install token to replicate to other clones.
         # In the future this can be replaced with signed tokens.
@@ -275,4 +294,15 @@ class PKIDeployer:
         sd_delay = self.mdict.get('pki_security_domain_post_login_sleep_seconds', '5')
         time.sleep(int(sd_delay))
 
-        return install_token
+        return self.install_token
+
+    def join_domain(self):
+
+        self.get_domain_info()
+
+        sd_hostname = self.mdict['pki_security_domain_hostname']
+        sd_port = self.mdict['pki_security_domain_https_port']
+        sd_subsystem = self.domain_info.subsystems['CA']
+        self.sd_host = sd_subsystem.get_host(sd_hostname, sd_port)
+
+        self.get_install_token()
