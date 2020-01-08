@@ -142,38 +142,30 @@ public class TokenAuthentication implements IAuthManager,
         String givenHost = (String) authCred.get("clientHost");
         String authHost = sconfig.getString("securitydomain.host");
         int authAdminPort = sconfig.getInteger("securitydomain.httpsadminport");
-        int authEEPort = sconfig.getInteger("securitydomain.httpseeport");
-        String authURL = "/ca/admin/ca/tokenAuthenticate";
+        String authPath = "/ca/admin/ca/tokenAuthenticate";
+
+        String authURL = "https://" + authHost + ":" + authAdminPort + authPath;
+        logger.info("TokenAuthentication: Authenticating session ID against security domain at " + authURL);
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle(CRED_SESSION_ID, sessionId);
         content.putSingle("hostname", givenHost);
-        logger.debug("TokenAuthentication: content=" + content);
+        logger.debug("TokenAuthentication: content: " + content);
 
         String c = null;
         try {
-            c = sendAuthRequest(authHost, authAdminPort, authURL, content);
+            c = sendAuthRequest(authHost, authAdminPort, authPath, content);
             // in case where the new interface does not exist, EE will return a badly
             // formatted response which will throw an exception during parsing
             if (c != null) {
                 @SuppressWarnings("unused")
                 XMLObject parser = new XMLObject(new ByteArrayInputStream(c.getBytes()));
             }
+
         } catch (Exception e) {
-
-            logger.error("TokenAuthenticate: failed to contact admin host:port "
-                    + authHost + ":" + authAdminPort + " " + e.getMessage(), e);
-
-            logger.warn("TokenAuthenticate: attempting ee port " + authEEPort);
-            authURL = "/ca/ee/ca/tokenAuthenticate";
-
-            try {
-                c = sendAuthRequest(authHost, authEEPort, authURL, content);
-            } catch (Exception e1) {
-                logger.error("TokenAuthenticate: failed to contact EE host:port "
-                        + authHost + ":" + authAdminPort + " " + e1.getMessage(), e1);
-                throw new EBaseException(e1.getMessage());
-            }
+            String message = "Unable to access security domain: " + e.getMessage();
+            logger.error(message, e);
+            throw new EBaseException(message, e);
         }
 
         if (c != null) {
