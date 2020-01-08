@@ -136,18 +136,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
 
         server_config = instance.get_server_config()
-
-        unsecurePort = None
-        securePort = None
-
-        for connector in server_config.get_connectors():
-            protocol = connector.get('protocol')
-            sslEnabled = connector.get('SSLEnabled')
-
-            if sslEnabled:
-                securePort = connector.get('port')
-            elif not protocol.startswith('AJP/'):
-                unsecurePort = connector.get('port')
+        unsecurePort = server_config.get_unsecure_port()
+        securePort = server_config.get_secure_port()
 
         subsystem.config['preop.subsystem.name'] = deployer.mdict['pki_subsystem_name']
 
