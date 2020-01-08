@@ -199,7 +199,7 @@ public class CAConfigurator extends Configurator {
             logger.info("Domain: " + domainInfo);
 
             if (request.isClone() && isSDHostDomainMaster(domainInfo)) {
-                updateSecurityDomainClone();
+                enableSecurityDomainOnClone();
             }
 
             if (request.isClone()) {
@@ -236,17 +236,16 @@ public class CAConfigurator extends Configurator {
         super.finalizeConfiguration(request);
     }
 
-    public void updateSecurityDomainClone() throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
+    public void enableSecurityDomainOnClone() throws Exception {
 
         // cloning a domain master CA, the clone is also master of its domain
+
+        cs.putString("securitydomain.select", "new");
         cs.putString("securitydomain.host", engine.getEEHost());
         cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
         cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
         cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
         cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
-        cs.putString("securitydomain.select", "new");
     }
 
     public void disableCRLCachingAndGenerationForClone(String cloneUri) throws MalformedURLException {

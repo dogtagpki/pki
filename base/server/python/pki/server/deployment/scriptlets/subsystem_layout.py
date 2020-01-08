@@ -135,28 +135,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
 
-        server_config = instance.get_server_config()
-        unsecurePort = server_config.get_unsecure_port()
-        securePort = server_config.get_secure_port()
-
         subsystem.config['preop.subsystem.name'] = deployer.mdict['pki_subsystem_name']
 
         # configure security domain
         if deployer.mdict['pki_security_domain_type'] == 'new':
-
-            if config.str2bool(deployer.mdict['pki_subordinate']) and \
-                    config.str2bool(deployer.mdict['pki_subordinate_create_new_security_domain']):
-                securityDomainName = deployer.mdict['pki_subordinate_security_domain_name']
-            else:
-                securityDomainName = deployer.mdict['pki_security_domain_name']
-
-            subsystem.config['securitydomain.select'] = 'new'
-            subsystem.config['securitydomain.name'] = securityDomainName
-            subsystem.config['securitydomain.host'] = deployer.mdict['pki_hostname']
-            subsystem.config['securitydomain.httpport'] = unsecurePort
-            subsystem.config['securitydomain.httpsagentport'] = securePort
-            subsystem.config['securitydomain.httpseeport'] = securePort
-            subsystem.config['securitydomain.httpsadminport'] = securePort
 
             subsystem.config['preop.cert.subsystem.type'] = 'local'
             subsystem.config['preop.cert.subsystem.profile'] = 'subsystemCert.profile'
@@ -164,10 +146,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         else:  # deployer.mdict['pki_security_domain_type'] == 'existing':
 
             subsystem.config['preop.cert.subsystem.type'] = 'remote'
-            subsystem.config['securitydomain.select'] = 'existing'
-
-        subsystem.config['service.securityDomainPort'] = securePort
-        subsystem.config['securitydomain.store'] = 'ldap'
 
         # configure cloning
         if config.str2bool(deployer.mdict['pki_clone']):

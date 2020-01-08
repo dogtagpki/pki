@@ -269,32 +269,6 @@ public class Configurator {
             String profileID = getSystemCertProfileID(keyType, "subsystem", "caInternalAuthSubsystemCert");
             preopConfig.putString("cert.subsystem.profile", profileID);
         }
-
-        String securityDomainURL = request.getSecurityDomainUri();
-        URL url = new URL(securityDomainURL);
-        String hostname = url.getHost();
-        int port = url.getPort();
-
-        if (!request.getSystemCertsImported()) {
-            logger.debug("Getting security domain cert chain");
-            byte[] certchain = getCertChain(hostname, port);
-            importCertChain(certchain, "securitydomain");
-        }
-
-        DomainInfo domainInfo = request.getDomainInfo();
-        logger.info("Domain: " + domainInfo);
-
-        SecurityDomainHost host = getHostInfo(domainInfo, "CA", hostname, port);
-
-        cs.putString("securitydomain.httpport", host.getPort());
-        cs.putString("securitydomain.httpsagentport", host.getSecureAgentPort());
-        cs.putString("securitydomain.httpseeport", host.getSecurePort());
-
-        if (securityDomainType.equals(ConfigurationRequest.EXISTING_DOMAIN)) {
-            cs.putString("securitydomain.name", domainInfo.getName());
-            cs.putString("securitydomain.host", hostname);
-            cs.putInteger("securitydomain.httpsadminport", port);
-        }
     }
 
     private String logIntoSecurityDomain(

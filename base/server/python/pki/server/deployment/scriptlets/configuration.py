@@ -648,8 +648,63 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         create_temp_sslserver_cert = self.create_temp_sslserver_cert(deployer, instance)
 
-        if deployer.mdict['pki_security_domain_type'] != "new":
+        server_config = instance.get_server_config()
+        unsecurePort = server_config.get_unsecure_port()
+        securePort = server_config.get_secure_port()
+
+        if deployer.mdict['pki_security_domain_type'] == 'existing':
+
+            logger.info('Joining existing domain')
+
             deployer.join_domain()
+
+            subsystem.config['securitydomain.name'] = deployer.domain_info.id
+            subsystem.config['securitydomain.select'] = 'existing'
+
+            # hostname and ports point to security domain
+            subsystem.config['securitydomain.host'] = deployer.sd_host.Hostname
+            subsystem.config['securitydomain.httpport'] = deployer.sd_host.Port
+            subsystem.config['securitydomain.httpseeport'] = deployer.sd_host.SecurePort
+            subsystem.config['securitydomain.httpsadminport'] = deployer.sd_host.SecureAdminPort
+            subsystem.config['securitydomain.httpsagentport'] = deployer.sd_host.SecureAgentPort
+
+        elif config.str2bool(deployer.mdict['pki_subordinate']) and \
+                config.str2bool(deployer.mdict['pki_subordinate_create_new_security_domain']):
+
+            logger.info('Creating new security subdomain')
+
+            deployer.join_domain()
+
+            sd_name = deployer.mdict['pki_subordinate_security_domain_name']
+            subsystem.config['securitydomain.name'] = sd_name
+            subsystem.config['securitydomain.select'] = 'new'
+
+            # hostname and ports point to current host
+            subsystem.config['securitydomain.host'] = deployer.mdict['pki_hostname']
+            subsystem.config['securitydomain.httpport'] = unsecurePort
+            subsystem.config['securitydomain.httpsagentport'] = securePort
+            subsystem.config['securitydomain.httpseeport'] = securePort
+            subsystem.config['securitydomain.httpsadminport'] = securePort
+
+        else:
+
+            logger.info('Creating new security domain')
+
+            sd_name = deployer.mdict['pki_security_domain_name']
+            subsystem.config['securitydomain.name'] = sd_name
+            subsystem.config['securitydomain.select'] = 'new'
+
+            # hostname and ports point to current host
+            subsystem.config['securitydomain.host'] = deployer.mdict['pki_hostname']
+            subsystem.config['securitydomain.httpport'] = unsecurePort
+            subsystem.config['securitydomain.httpsagentport'] = securePort
+            subsystem.config['securitydomain.httpseeport'] = securePort
+            subsystem.config['securitydomain.httpsadminport'] = securePort
+
+        subsystem.config['service.securityDomainPort'] = securePort
+        subsystem.config['securitydomain.store'] = 'ldap'
+
+        subsystem.save()
 
         if config.str2bool(deployer.mdict['pki_ds_remove_data']):
 
