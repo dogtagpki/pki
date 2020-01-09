@@ -286,11 +286,8 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setSecurityDomainUri("https://" + host + ":9225");
-
         data.setClone("false");
         data.setHierarchy("join");
-
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
@@ -471,11 +468,7 @@ public class ConfigurationTest {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setSecurityDomainUri("https://" + host + ":9225");
-
         data.setClone("true");
-        data.setCloneUri("https://" + host + ":9224" );
-
         data.setHierarchy("root");
 
         // create system certs
@@ -498,10 +491,7 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setSecurityDomainUri("https://" + host + ":9225");
-
         data.setClone("false");
-
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
@@ -557,10 +547,7 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setSecurityDomainUri("https://" + host + ":9225");
-
         data.setClone("false");
-
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
@@ -608,10 +595,7 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setSecurityDomainUri("https://" + host + ":9225");
-
         data.setClone("false");
-
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs

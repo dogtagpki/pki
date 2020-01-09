@@ -2870,36 +2870,26 @@ class ConfigClient:
         logger.info('Creating config request')
 
         data = pki.system.ConfigurationRequest()
-
-        # Miscellaneous Configuration Information
         data.pin = self.mdict['pki_one_time_pin']
 
-        data.standAlone = self.standalone
-
-        # Cloning parameters
         if self.clone:
-            data.isClone = "true"
-            data.cloneUri = self.mdict['pki_clone_uri']
+            data.isClone = 'true'
         else:
-            data.isClone = "false"
+            data.isClone = 'false'
 
-        # Hierarchy
         self.set_hierarchy_parameters(data)
 
-        # Security Domain
-        if self.security_domain_type != "new":
-            data.securityDomainType = "existingdomain"
-            data.securityDomainUri = self.mdict['pki_security_domain_uri']
+        if self.security_domain_type == 'existing':
+            data.securityDomainType = 'existingdomain'
+
+        elif self.subordinate and \
+                config.str2bool(self.mdict['pki_subordinate_create_new_security_domain']):
+            data.securityDomainType = 'newsubdomain'
+
         else:
             # PKI CA, External CA, or Stand-alone PKI
-            data.securityDomainType = "newdomain"
+            data.securityDomainType = 'newdomain'
 
-        if self.subordinate and \
-                config.str2bool(self.mdict['pki_subordinate_create_new_security_domain']):
-            data.securityDomainType = "newsubdomain"
-            data.securityDomainUri = self.mdict['pki_security_domain_uri']
-
-        # Issuing CA Information
         self.set_issuing_ca_parameters(data)
 
         data.systemCertsImported = \
@@ -2907,6 +2897,20 @@ class ConfigClient:
             self.mdict['pki_clone_pkcs12_path'] != ''
 
         return data
+
+    def create_clone_setup_request(self):
+
+        logger.info('Creating clone setup request')
+
+        request = pki.system.CloneSetupRequest()
+        request.pin = self.mdict['pki_one_time_pin']
+        request.cloneUri = self.mdict['pki_clone_uri']
+
+        request.systemCertsImported = \
+            self.mdict['pki_server_pkcs12_path'] != '' or \
+            self.mdict['pki_clone_pkcs12_path'] != ''
+
+        return request
 
     def create_database_setup_request(self, subsystem):
 

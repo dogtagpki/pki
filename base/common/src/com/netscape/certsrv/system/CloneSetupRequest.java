@@ -26,14 +26,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author alee
  *
  */
-@XmlRootElement(name="ConfigurationRequest")
+@XmlRootElement(name="CloneSetupRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ConfigurationRequest {
-
-    //defaults
-    public static final String NEW_DOMAIN = "newdomain";
-    public static final String EXISTING_DOMAIN = "existingdomain";
-    public static final String NEW_SUBDOMAIN = "newsubdomain";
+public class CloneSetupRequest {
 
     @XmlElement
     protected String pin;
@@ -42,21 +37,15 @@ public class ConfigurationRequest {
     protected DomainInfo domainInfo;
 
     @XmlElement
-    protected String securityDomainType;
-
-    @XmlElement(defaultValue="false")
-    protected String isClone;
+    protected InstallToken installToken;
 
     @XmlElement
-    protected String hierarchy;
+    protected String cloneUri;
 
     @XmlElement
     protected Boolean systemCertsImported;
 
-    @XmlElement
-    protected String issuingCA;
-
-    public ConfigurationRequest() {
+    public CloneSetupRequest() {
         // required for JAXB
     }
 
@@ -76,83 +65,36 @@ public class ConfigurationRequest {
         this.domainInfo = domainInfo;
     }
 
-    public String getSecurityDomainType() {
-        return securityDomainType;
+    public InstallToken getInstallToken() {
+        return installToken;
     }
 
-    public void setSecurityDomainType(String securityDomainType) {
-        this.securityDomainType = securityDomainType;
+    public void setInstallToken(InstallToken installToken) {
+        this.installToken = installToken;
     }
 
-    public boolean isClone() {
-        return (isClone!= null) && isClone.equalsIgnoreCase("true");
+    public String getCloneUri() {
+        return cloneUri;
     }
 
-    public void setClone(String isClone) {
-        this.isClone = isClone;
+    public void setCloneUri(String cloneUri) {
+        this.cloneUri = cloneUri;
     }
 
-    /**
-     * @return the hierarchy
-     */
-    public String getHierarchy() {
-        return hierarchy;
-    }
-
-    /**
-     * @param hierarchy the hierarchy to set
-     */
-    public void setHierarchy(String hierarchy) {
-        this.hierarchy = hierarchy;
-    }
-
-    /**
-     *
-     * @return systemCertsImported
-     */
     public Boolean getSystemCertsImported() {
         return systemCertsImported;
     }
 
-    /**
-     *
-     * @param systemCertsImported
-     */
     public void setSystemCertsImported(Boolean systemCertsImported) {
         this.systemCertsImported = systemCertsImported;
     }
 
-   /**
-     * @return the issuingCA
-     */
-    public String getIssuingCA() {
-        return issuingCA;
-    }
-
-    /**
-     * @param issuingCA the issuingCA to set
-     */
-    public void setIssuingCA(String issuingCA) {
-        this.issuingCA = issuingCA;
-    }
-
-    public String getIsClone() {
-        return isClone;
-    }
-
-    public void setIsClone(String isClone) {
-        this.isClone = isClone;
-    }
-
     @Override
     public String toString() {
-        return "ConfigurationRequest [pin=XXXX" +
+        return "CloneSetupRequest [pin=XXXX" +
                ", installToken=XXXX" +
-               ", securityDomainType=" + securityDomainType +
-               ", isClone=" + isClone +
-               ", hierarchy=" + hierarchy +
+               ", cloneUri=" + cloneUri +
                ", systemCertsImported=" + systemCertsImported +
-               ", issuingCA=" + issuingCA +
                "]";
     }
 }

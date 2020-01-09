@@ -126,6 +126,7 @@ import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
+import com.netscape.certsrv.system.CloneSetupRequest;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
@@ -573,14 +574,7 @@ public class Configurator {
         return null;
     }
 
-    public void configureSubsystem(ConfigurationRequest request) throws Exception {
-
-        if (request.isClone()) {
-            configureClone(request);
-        }
-    }
-
-    private void configureClone(ConfigurationRequest request) throws Exception {
+    public void setupClone(CloneSetupRequest request) throws Exception {
 
         String csType = cs.getType();
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -639,7 +633,7 @@ public class Configurator {
         verifySystemCertificates();
     }
 
-    public void getConfigEntriesFromMaster(ConfigurationRequest request)
+    public void getConfigEntriesFromMaster(CloneSetupRequest request)
             throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();

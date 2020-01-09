@@ -817,10 +817,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem=deployer.mdict['pki_subsystem_type'])
 
         logger.info('Configuring %s subsystem', subsystem.type)
+
         request = deployer.config_client.create_config_request()
         request.domainInfo = deployer.domain_info
-        request.installToken = deployer.install_token
         client.configure(request)
+
+        if clone:
+
+            logger.info('Setting up clone')
+
+            clone_setup_request = deployer.config_client.create_clone_setup_request()
+            clone_setup_request.domainInfo = deployer.domain_info
+            clone_setup_request.installToken = deployer.install_token
+            client.setupClone(clone_setup_request)
 
         logger.info('Setting up database')
 

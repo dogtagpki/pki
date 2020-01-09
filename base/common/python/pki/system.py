@@ -311,6 +311,11 @@ class ConfigurationRequest(object):
     def __init__(self):
         self.isClone = "false"
         self.domainInfo = None
+
+
+class CloneSetupRequest(object):
+    def __init__(self):
+        self.domainInfo = None
         self.installToken = None
 
 
@@ -390,6 +395,7 @@ class SystemConfigClient(object):
         self.connection = connection
 
         self.configure_url = '/rest/installer/configure'
+        self.setup_clone_url = '/rest/installer/setupClone'
         self.setup_database_url = '/rest/installer/setupDatabase'
         self.setup_cert_url = '/rest/installer/setupCert'
         self.setup_admin_url = '/rest/installer/setupAdmin'
@@ -404,6 +410,7 @@ class SystemConfigClient(object):
                 raise Exception('Missing subsystem for SystemConfigClient')
 
             self.configure_url = '/' + subsystem + self.configure_url
+            self.setup_clone_url = '/' + subsystem + self.setup_clone_url
             self.setup_database_url = '/' + subsystem + self.setup_database_url
             self.setup_cert_url = '/' + subsystem + self.setup_cert_url
             self.setup_admin_url = '/' + subsystem + self.setup_admin_url
@@ -426,6 +433,21 @@ class SystemConfigClient(object):
                    'Accept': 'application/json'}
         self.connection.post(
             self.configure_url,
+            data,
+            headers)
+
+    def setupClone(self, request):
+        """
+        Set up clone.
+
+        :param request: Clone setup request
+        :type request: CloneSetupRequest
+        """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
+        headers = {'Content-type': 'application/json',
+                   'Accept': 'application/json'}
+        self.connection.post(
+            self.setup_clone_url,
             data,
             headers)
 
@@ -582,6 +604,7 @@ pki.encoder.NOTYPES['DomainInfo'] = DomainInfo
 pki.encoder.NOTYPES['SecurityDomainSubsystem'] = SecurityDomainSubsystem
 pki.encoder.NOTYPES['SecurityDomainHost'] = SecurityDomainHost
 pki.encoder.NOTYPES['InstallToken'] = InstallToken
+pki.encoder.NOTYPES['CloneSetupRequest'] = CloneSetupRequest
 pki.encoder.NOTYPES['DatabaseSetupRequest'] = DatabaseSetupRequest
 pki.encoder.NOTYPES['CertificateSetupRequest'] = CertificateSetupRequest
 pki.encoder.NOTYPES['CertificateSetupResponse'] = CertificateSetupResponse

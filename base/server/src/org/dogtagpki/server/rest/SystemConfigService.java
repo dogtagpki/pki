@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.rest;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.KeyPair;
 import java.security.Principal;
 import java.security.PublicKey;
@@ -38,6 +36,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
+import com.netscape.certsrv.system.CloneSetupRequest;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DatabaseUserSetupRequest;
@@ -114,10 +113,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.debug("=== Security Domain Configuration ===");
             configurator.configureSecurityDomain(request);
 
-            // configure subsystem
-            logger.debug("=== Subsystem Configuration ===");
-            configurator.configureSubsystem(request);
-
             logger.debug("=== Configure CA Cert Chain ===");
             configurator.configureCACertChain(request);
 
@@ -133,6 +128,30 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         } catch (Error e) { // system errors
             logger.error("Configuration failed: " + e.getMessage(), e); // show stack trace for troubleshooting
+            throw e;
+        }
+    }
+
+    @Override
+    public void setupClone(CloneSetupRequest request) throws Exception {
+
+        logger.info("SystemConfigService: setting up clone");
+
+        try {
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            configurator.setupClone(request);
+
+        } catch (PKIException e) { // normal response
+            logger.error("Configuration failed: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Configuration failed: " + e.getMessage(), e);
             throw e;
         }
     }
@@ -668,72 +687,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     private void validateRequest(ConfigurationRequest data) throws Exception {
-
-        // validate legal stand-alone PKI subsystems
-        if (data.getStandAlone()) {
-            // ADD checks for valid types of Stand-alone PKI subsystems here
-            // AND to the 'checkStandalonePKI()' Python method of
-            // the 'ConfigurationFile' Python class in the Python file called
-            // 'pkihelper.py'
-            if (!csType.equals("KRA") && !csType.equals("OCSP")) {
-                throw new BadRequestException("Stand-alone PKI " + csType + " subsystems are currently NOT supported!");
-            }
-            if (data.isClone()) {
-                throw new BadRequestException("A stand-alone PKI subsystem cannot be a clone");
-            }
-        }
-
-        // validate security domain settings
-        String domainType = data.getSecurityDomainType();
-        if (domainType == null) {
-            throw new BadRequestException("Security Domain Type not provided");
-        }
-
-        if (domainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-            if (!(data.getStandAlone() || csType.equals("CA"))) {
-                throw new BadRequestException("New Domain is only valid for stand-alone PKI or CA subsytems");
-            }
-
-        } else if (domainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
-            if (!csType.equals("CA")) {
-                throw new BadRequestException("New Subdomain is only valid for CA subsytems");
-            }
-
-        } else if (domainType.equals(ConfigurationRequest.EXISTING_DOMAIN)) {
-            if (data.getStandAlone()) {
-                throw new BadRequestException("Existing security domains are not valid for stand-alone PKI subsytems");
-            }
-
-        } else {
-            throw new BadRequestException("Invalid security domain type: " + domainType);
-        }
-
-        if (domainType.equals(ConfigurationRequest.NEW_SUBDOMAIN) ||
-                domainType.equals(ConfigurationRequest.EXISTING_DOMAIN)) {
-
-            if (data.getSecurityDomainUri() == null) {
-                throw new BadRequestException("Missing security domain URI");
-            }
-        }
-
-        if (data.isClone()) {
-            String cloneUri = data.getCloneUri();
-            if (cloneUri == null) {
-                throw new BadRequestException("Clone selected, but no clone URI provided");
-            }
-            try {
-                URL url = new URL(cloneUri);
-                // confirm protocol is https
-                if (!"https".equals(url.getProtocol())) {
-                    throw new BadRequestException("Clone URI must use HTTPS protocol: " + cloneUri);
-                }
-            } catch (MalformedURLException e) {
-                throw new BadRequestException("Invalid clone URI: " + cloneUri, e);
-            }
-
-        } else {
-            data.setClone("false");
-        }
 
         if (csType.equals("CA") && (data.getHierarchy() == null)) {
             throw new BadRequestException("Hierarchy is required for CA, not provided");
