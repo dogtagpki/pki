@@ -37,8 +37,6 @@ set(APP_SERVER "tomcat-8.0" CACHE STRING "Application server")
 option(WITH_SERVER "Build server package" ON)
 option(WITH_JAVADOC "Build Javadoc package" ON)
 option(WITH_TEST "Run unit tests" ON)
-option(WITH_PYTHON3 "Build with Python 3 support" ON)
-option(WITH_PYTHON3_DEFAULT "Build server and scripts with Python 3" OFF)
 
 set(APPLICATION_VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}.${APPLICATION_VERSION_PATCH}")
 

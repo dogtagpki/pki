@@ -23,23 +23,14 @@ function(find_site_packages pythonexecutable targetname)
 endfunction(find_site_packages)
 
 # Find default Python
-# When WITH_PYTHON3_DEFAULT is enabled, then require Python 3.
-if (WITH_PYTHON3_DEFAULT)
-    if (NOT WITH_PYTHON3)
-        message(FATAL_ERROR "WITH_PYTHON3_DEFAULT=ON requires WITH_PYTHON3=ON")
-    endif(NOT WITH_PYTHON3)
-    # find Python interpreter
-    set(Python_ADDITIONAL_VERSIONS 3)
-    find_package(PythonInterp REQUIRED)
-    # FindPythonInterp doesn't restrict version with ADDITIONAL_VERSIONS
-    if (PYTHON_VERSION_STRING VERSION_LESS "3.5.0")
-        message(FATAL_ERROR "Detect Python interpreter < 3.5.0")
-    endif()
+set(Python_ADDITIONAL_VERSIONS 3)
+find_package(PythonInterp REQUIRED)
+# FindPythonInterp doesn't restrict version with ADDITIONAL_VERSIONS
+if (PYTHON_VERSION_STRING VERSION_LESS "3.5.0")
+    message(FATAL_ERROR "Detect Python interpreter < 3.5.0")
 endif()
 message(STATUS "Building pki.server for ${PYTHON_VERSION_STRING}")
 
 # Find site-packages for Python 3
-if (WITH_PYTHON3)
-    find_site_packages("python3" PYTHON3_SITE_PACKAGES)
-    message(STATUS "Building Python 3 pki client package")
-endif(WITH_PYTHON3)
+find_site_packages("python3" PYTHON3_SITE_PACKAGES)
+message(STATUS "Building Python 3 pki client package")

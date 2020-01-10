@@ -43,24 +43,6 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # Python
 ################################################################################
 
-# Python 3 packages
-%if 0%{!?with_python3:1}
-%if 0%{?rhel} && 0%{?rhel} <= 7
-# no python3
-%else
-%global with_python3 1
-%endif
-%endif
-
-# Use Python 3 for all commands?
-%if 0%{!?with_python3_default:1}
-%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
-%global with_python3_default 0
-%else
-%global with_python3_default 1
-%endif
-%endif
-
 ################################################################################
 # Java
 ################################################################################
@@ -227,7 +209,6 @@ BuildRequires:    resteasy-core >= 3.0.17-1
 BuildRequires:    resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
-%if 0%{?with_python3}
 %if 0%{?rhel}
 # no pylint
 %else
@@ -236,10 +217,6 @@ BuildRequires:    python3-flake8 >= 2.5.4
 BuildRequires:    python3-pyflakes >= 1.2.3
 %endif
 
-# with_python3
-%endif
-
-%if 0%{?with_python3}
 BuildRequires:    python3
 BuildRequires:    python3-devel
 BuildRequires:    python3-cryptography
@@ -254,9 +231,6 @@ BuildRequires:    python3-libselinux
 BuildRequires:    python3-nss
 BuildRequires:    python3-requests >= 2.6.0
 BuildRequires:    python3-six
-
-# with_python3
-%endif
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
@@ -417,12 +391,8 @@ BuildArch:        noarch
 
 Requires:         nss >= 3.36.1
 
-%if 0%{?with_python3_default}
 Requires:         python3-pki = %{version}
 Requires(post):   python3-pki = %{version}
-
-# with_python3_default
-%endif
 
 # Ensure we end up with a useful installation
 Conflicts:        pki-symkey < %{version}
@@ -434,7 +404,6 @@ Conflicts:        pki-console-theme < %{version}
 The PKI Base Package contains the common and client libraries and utilities
 written in Python.
 
-%if 0%{?with_python3}
 ################################################################################
 %package -n       python3-pki
 ################################################################################
@@ -457,9 +426,6 @@ Requires:         python3-six
 
 %description -n   python3-pki
 This package contains PKI client library for Python 3.
-
-# with_python3 for python3-pki
-%endif
 
 ################################################################################
 %package -n       pki-base-java
@@ -574,7 +540,6 @@ Requires:         keyutils
 Requires:         policycoreutils-python-utils
 %endif
 
-%if 0%{?with_python3_default}
 %if 0%{?fedora} && 0%{?fedora} <= 27
 Requires:         python3-pyldap
 %else
@@ -583,9 +548,6 @@ Requires:         python3-ldap
 Requires:         python3-lxml
 Requires:         python3-libselinux
 Requires:         python3-policycoreutils
-
-# with_python3_default
-%endif
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
@@ -921,10 +883,6 @@ cd build
     -DRESTEASY_LIB=%{resteasy_lib} \
     -DNSS_DEFAULT_DB_TYPE=%{nss_default_db_type} \
     -DBUILD_PKI_CORE:BOOL=ON \
-    -DWITH_PYTHON3:BOOL=%{?with_python3:ON}%{!?with_python3:OFF} \
-%if 0%{?with_python3_default}
-    -DWITH_PYTHON3_DEFAULT:BOOL=ON \
-%endif
     -DPYTHON_EXECUTABLE=%{__python3} \
     -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
 %if ! %{with server} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
@@ -1062,29 +1020,21 @@ fi
 echo "Scanning Python code with pylint"
 ################################################################################
 
-%if 0%{?with_python3_default}
 %{__python3} ../tools/pylint-build-scan.py rpm --prefix %{buildroot}
 if [ $? -ne 0 ]; then
     echo "pylint for Python 3 failed. RC: $?"
     exit 1
 fi
 
-# with_python3_default
-%endif
-
 ################################################################################
 echo "Scanning Python code with flake8"
 ################################################################################
 
-%if 0%{?with_python3}
 python3-flake8 --config ../tox.ini %{buildroot}
 if [ $? -ne 0 ]; then
     echo "flake8 for Python 3 failed. RC: $?"
     exit 1
 fi
-
-# with_python3
-%endif
 
 %endif
 
@@ -1223,20 +1173,16 @@ fi
 %{_javadir}/pki/pki-nsutil.jar
 %{_javadir}/pki/pki-certsrv.jar
 
-%if 0%{?with_python3}
 ################################################################################
 %files -n python3-pki
 ################################################################################
 
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
-%if %{with server} && %{?with_python3_default}
+%if %{with server}
 %exclude %{python3_sitelib}/pki/server
 %endif
 %{python3_sitelib}/pki
-
-# with_python3
-%endif
 
 ################################################################################
 %files -n pki-tools
@@ -1325,12 +1271,7 @@ fi
 %{_sbindir}/pkidestroy
 %{_sbindir}/pki-server
 %{_sbindir}/pki-server-upgrade
-%if 0%{?with_python3_default}
 %{python3_sitelib}/pki/server/
-
-# with_python3_default
-%endif
-
 %{_datadir}/pki/etc/tomcat.conf
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
