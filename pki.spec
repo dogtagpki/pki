@@ -43,15 +43,6 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # Python
 ################################################################################
 
-# Python 2 packages
-%if 0%{!?with_python2:1}
-%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 28
-%global with_python2 1
-%else
-# no python2
-%endif
-%endif
-
 # Python 3 packages
 %if 0%{!?with_python3:1}
 %if 0%{?rhel} && 0%{?rhel} <= 7
@@ -204,18 +195,8 @@ BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    python-lxml
-BuildRequires:    python-sphinx
-%else
-%if 0%{?fedora} && 0%{?fedora} <= 28
-BuildRequires:    python2-lxml
-BuildRequires:    python2-sphinx
-%else
 BuildRequires:    python3-lxml
 BuildRequires:    python3-sphinx
-%endif
-%endif
 
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
@@ -246,23 +227,6 @@ BuildRequires:    resteasy-core >= 3.0.17-1
 BuildRequires:    resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
-%if 0%{?with_python2}
-%if 0%{?rhel}
-# no pylint
-%else
-BuildRequires:    pylint
-%if 0%{?fedora} && 0%{?fedora} <= 27
-BuildRequires:    python-flake8 >= 2.5.4
-BuildRequires:    pyflakes >= 1.2.3
-%else
-BuildRequires:    python2-flake8 >= 2.5.4
-BuildRequires:    python2-pyflakes >= 1.2.3
-%endif
-%endif
-
-# with_python2
-%endif
-
 %if 0%{?with_python3}
 %if 0%{?rhel}
 # no pylint
@@ -273,34 +237,6 @@ BuildRequires:    python3-pyflakes >= 1.2.3
 %endif
 
 # with_python3
-%endif
-
-%if 0%{?with_python2}
-BuildRequires:    python2
-BuildRequires:    python2-devel
-BuildRequires:    python2-cryptography
-%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
-BuildRequires:    python-nss
-BuildRequires:    python-requests >= 2.6.0
-BuildRequires:    python-six
-BuildRequires:    libselinux-python
-BuildRequires:    policycoreutils-python
-BuildRequires:    python-ldap
-%else
-BuildRequires:    python2-nss
-BuildRequires:    python2-requests >= 2.6.0
-BuildRequires:    python2-six
-BuildRequires:    python2-libselinux
-BuildRequires:    python2-policycoreutils
-BuildRequires:    python2-ldap
-%endif
-%if 0%{?rhel} && 0%{?rhel} <= 7
-# no policycoreutils-python-utils
-%else
-BuildRequires:    policycoreutils-python-utils
-%endif
-
-# with_python2
 %endif
 
 %if 0%{?with_python3}
@@ -484,9 +420,6 @@ Requires:         nss >= 3.36.1
 %if 0%{?with_python3_default}
 Requires:         python3-pki = %{version}
 Requires(post):   python3-pki = %{version}
-%else
-Requires:         python2-pki = %{version}
-Requires(post):   python2-pki = %{version}
 
 # with_python3_default
 %endif
@@ -500,38 +433,6 @@ Conflicts:        pki-console-theme < %{version}
 %description -n   pki-base
 The PKI Base Package contains the common and client libraries and utilities
 written in Python.
-
-%if 0%{?with_python2}
-################################################################################
-%package -n       python2-pki
-################################################################################
-
-Summary:          PKI Python 2 Package
-BuildArch:        noarch
-
-Obsoletes:        pki-base-python2 < %{version}
-Provides:         pki-base-python2 = %{version}
-%if 0%{?fedora}
-%{?python_provide:%python_provide python2-pki}
-%endif
-
-Requires:         pki-base = %{version}
-Requires:         python2-cryptography
-%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
-Requires:         python-nss
-Requires:         python-requests >= 2.6.0
-Requires:         python-six
-%else
-Requires:         python2-nss
-Requires:         python2-requests >= 2.6.0
-Requires:         python2-six
-%endif
-
-%description -n   python2-pki
-This package contains PKI client library for Python 2.
-
-# with_python2
-%endif
 
 %if 0%{?with_python3}
 ################################################################################
@@ -682,18 +583,6 @@ Requires:         python3-ldap
 Requires:         python3-lxml
 Requires:         python3-libselinux
 Requires:         python3-policycoreutils
-%else
-%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
-Requires:         python-ldap
-Requires:         python-lxml
-Requires:         libselinux-python
-Requires:         policycoreutils-python
-%else
-Requires:         python2-ldap
-Requires:         python2-lxml
-Requires:         python2-libselinux
-Requires:         python2-policycoreutils
-%endif
 
 # with_python3_default
 %endif
@@ -1032,7 +921,6 @@ cd build
     -DRESTEASY_LIB=%{resteasy_lib} \
     -DNSS_DEFAULT_DB_TYPE=%{nss_default_db_type} \
     -DBUILD_PKI_CORE:BOOL=ON \
-    -DWITH_PYTHON2:BOOL=%{?with_python2:ON}%{!?with_python2:OFF} \
     -DWITH_PYTHON3:BOOL=%{?with_python3:ON}%{!?with_python3:OFF} \
 %if 0%{?with_python3_default}
     -DWITH_PYTHON3_DEFAULT:BOOL=ON \
@@ -1180,18 +1068,6 @@ if [ $? -ne 0 ]; then
     echo "pylint for Python 3 failed. RC: $?"
     exit 1
 fi
-%else
-%{__python2} ../tools/pylint-build-scan.py rpm --prefix %{buildroot}
-if [ $? -ne 0 ]; then
-    echo "pylint for Python 2 failed. RC: $?"
-    exit 1
-fi
-
-%{__python2} ../tools/pylint-build-scan.py rpm --prefix %{buildroot} -- --py3k
-if [ $? -ne 0 ]; then
-    echo "pylint for Python 2 with --py3k failed. RC: $?"
-    exit 1
-fi
 
 # with_python3_default
 %endif
@@ -1199,16 +1075,6 @@ fi
 ################################################################################
 echo "Scanning Python code with flake8"
 ################################################################################
-
-%if 0%{?with_python2}
-flake8 --config ../tox.ini %{buildroot}
-if [ $? -ne 0 ]; then
-    echo "flake8 for Python 2 failed. RC: $?"
-    exit 1
-fi
-
-# with_python2
-%endif
 
 %if 0%{?with_python3}
 python3-flake8 --config ../tox.ini %{buildroot}
@@ -1344,21 +1210,6 @@ fi
 %{_mandir}/man5/pki-logging.5.gz
 %{_mandir}/man8/pki-upgrade.8.gz
 
-%if 0%{?with_python2}
-################################################################################
-%files -n python2-pki
-################################################################################
-
-%doc base/common/LICENSE
-%doc base/common/LICENSE.LESSER
-%if %{with server} && ! %{?with_python3_default}
-%exclude %{python2_sitelib}/pki/server
-%endif
-%{python2_sitelib}/pki
-
-# with_python2
-%endif
-
 ################################################################################
 %files -n pki-base-java
 ################################################################################
@@ -1476,8 +1327,6 @@ fi
 %{_sbindir}/pki-server-upgrade
 %if 0%{?with_python3_default}
 %{python3_sitelib}/pki/server/
-%else
-%{python2_sitelib}/pki/server/
 
 # with_python3_default
 %endif

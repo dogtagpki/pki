@@ -232,15 +232,6 @@ if(WITH_PYTHON3_DEFAULT)
         FILES_MATCHING PATTERN
             *.py
     )
-else()
-    install(
-        DIRECTORY
-            python/pki/server
-        DESTINATION
-            ${PYTHON2_SITE_PACKAGES}/pki
-        FILES_MATCHING PATTERN
-            *.py
-    )
 endif()
 
 # install systemd scripts

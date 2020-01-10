@@ -37,7 +37,6 @@ set(APP_SERVER "tomcat-8.0" CACHE STRING "Application server")
 option(WITH_SERVER "Build server package" ON)
 option(WITH_JAVADOC "Build Javadoc package" ON)
 option(WITH_TEST "Run unit tests" ON)
-option(WITH_PYTHON2 "Build with Python 2 support" ON)
 option(WITH_PYTHON3 "Build with Python 3 support" ON)
 option(WITH_PYTHON3_DEFAULT "Build server and scripts with Python 3" OFF)
 
@@ -104,7 +103,7 @@ else()
 endif()
 
 # Detect default Python interpreter
-# Set PYTHON2_SITE_PACKAGES, PYTHON3_SITE_PACKAGES
+# Set PYTHON3_SITE_PACKAGES
 if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
     include(DefinePythonSitePackages)
 endif ()
