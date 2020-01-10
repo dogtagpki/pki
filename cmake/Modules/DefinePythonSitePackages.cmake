@@ -1,4 +1,4 @@
-# Python 2 / 3 detection
+# Python 3 detection
 
 function(find_site_packages pythonexecutable targetname)
     execute_process(
@@ -23,7 +23,7 @@ function(find_site_packages pythonexecutable targetname)
 endfunction(find_site_packages)
 
 # Find default Python
-# When WITH_PYTHON3_DEFAULT is enabled, then require Python 3, otherwise 2.
+# When WITH_PYTHON3_DEFAULT is enabled, then require Python 3.
 if (WITH_PYTHON3_DEFAULT)
     if (NOT WITH_PYTHON3)
         message(FATAL_ERROR "WITH_PYTHON3_DEFAULT=ON requires WITH_PYTHON3=ON")
@@ -35,32 +35,11 @@ if (WITH_PYTHON3_DEFAULT)
     if (PYTHON_VERSION_STRING VERSION_LESS "3.5.0")
         message(FATAL_ERROR "Detect Python interpreter < 3.5.0")
     endif()
-else()
-    if (NOT WITH_PYTHON2)
-        message(FATAL_ERROR "WITH_PYTHON3_DEFAULT=OFF requires WITH_PYTHON2=ON")
-    endif(NOT WITH_PYTHON2)
-    # find Python interpreter
-    set(Python_ADDITIONAL_VERSIONS 2)
-    find_package(PythonInterp REQUIRED)
-    # only accept python2.7 as python2
-    if (PYTHON_VERSION_STRING VERSION_LESS "2.7.0" OR
-            PYTHON_VERSION_STRING VERSION_GREATER "3.0")
-        message(FATAL_ERROR "Detect Python interpreter != 2.7")
-    endif()
 endif()
 message(STATUS "Building pki.server for ${PYTHON_VERSION_STRING}")
 
-# Find site-packages for Python 2 and 3
-if (WITH_PYTHON2)
-    find_site_packages("python2" PYTHON2_SITE_PACKAGES)
-    message(STATUS "Building Python 2 pki client package")
-else()
-    message(STATUS "Skipping Python 2 pki client package")
-endif(WITH_PYTHON2)
-
+# Find site-packages for Python 3
 if (WITH_PYTHON3)
     find_site_packages("python3" PYTHON3_SITE_PACKAGES)
     message(STATUS "Building Python 3 pki client package")
-else()
-    message(STATUS "Skipping Python 3 pki client package")
 endif(WITH_PYTHON3)
