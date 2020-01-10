@@ -23,6 +23,6 @@
 # set NSS_DEFAULT_DB_TYPE.
 . /usr/share/pki/scripts/config
 
-${PYTHON_EXECUTABLE} -m pki.server.pkidestroy "$@"
+${PYTHON_EXECUTABLE} -I -m pki.server.pkidestroy "$@"
 
 exit $?

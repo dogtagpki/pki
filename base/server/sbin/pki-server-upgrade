@@ -24,6 +24,6 @@
 . /usr/share/pki/scripts/config
 
 echo "WARNING: The pki-server-upgrade has been deprecated. Use pki-server upgrade instead."
-${PYTHON_EXECUTABLE} -m pki.server.pkiserver upgrade "$@"
+${PYTHON_EXECUTABLE} -I -m pki.server.pkiserver upgrade "$@"
 
 exit $?
