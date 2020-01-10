@@ -148,6 +148,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             subsystem.config['preop.cert.subsystem.type'] = 'remote'
 
+        if subsystem.type == 'CA' and not config.str2bool(deployer.mdict['pki_clone']):
+
+            if config.str2bool(deployer.mdict['pki_external']) or \
+                    config.str2bool(deployer.mdict['pki_subordinate']):
+                subsystem.config['preop.cert.signing.type'] = 'remote'
+
+            else:
+                subsystem.config['preop.ca.type'] = 'sdca'
+
         # configure cloning
         if config.str2bool(deployer.mdict['pki_clone']):
             subsystem.config['subsystem.select'] = 'Clone'
@@ -155,17 +164,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem.config['subsystem.select'] = 'New'
 
         # configure CA hierarchy
-        if subsystem.type == 'CA' and not config.str2bool(deployer.mdict['pki_clone']):
+        if subsystem.type == 'CA':
 
             if config.str2bool(deployer.mdict['pki_external']) or \
                     config.str2bool(deployer.mdict['pki_subordinate']):
                 subsystem.config['hierarchy.select'] = 'Subordinate'
-                subsystem.config['preop.cert.signing.type'] = 'remote'
-                subsystem.config['preop.hierarchy.select'] = 'join'
+
             else:
                 subsystem.config['hierarchy.select'] = 'Root'
-                subsystem.config['preop.hierarchy.select'] = 'root'
-                subsystem.config['preop.ca.type'] = 'sdca'
 
         # configure TPS
         if subsystem.type == 'TPS':

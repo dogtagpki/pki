@@ -48,9 +48,6 @@ public class ConfigurationRequest {
     protected String isClone;
 
     @XmlElement
-    protected String hierarchy;
-
-    @XmlElement
     protected Boolean systemCertsImported;
 
     @XmlElement
@@ -90,20 +87,6 @@ public class ConfigurationRequest {
 
     public void setClone(String isClone) {
         this.isClone = isClone;
-    }
-
-    /**
-     * @return the hierarchy
-     */
-    public String getHierarchy() {
-        return hierarchy;
-    }
-
-    /**
-     * @param hierarchy the hierarchy to set
-     */
-    public void setHierarchy(String hierarchy) {
-        this.hierarchy = hierarchy;
     }
 
     /**
@@ -150,7 +133,6 @@ public class ConfigurationRequest {
                ", installToken=XXXX" +
                ", securityDomainType=" + securityDomainType +
                ", isClone=" + isClone +
-               ", hierarchy=" + hierarchy +
                ", systemCertsImported=" + systemCertsImported +
                ", issuingCA=" + issuingCA +
                "]";

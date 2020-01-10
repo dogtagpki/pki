@@ -2877,8 +2877,6 @@ class ConfigClient:
         else:
             data.isClone = 'false'
 
-        self.set_hierarchy_parameters(data)
-
         if self.security_domain_type == 'existing':
             data.securityDomainType = 'existingdomain'
 
@@ -3231,21 +3229,6 @@ class ConfigClient:
                 systemCerts.append(cert7)
 
         data.systemCerts = systemCerts
-
-    def set_hierarchy_parameters(self, data):
-        if self.subsystem == "CA":
-            if self.clone:
-                # Cloned CA
-                data.hierarchy = "root"
-            elif self.external:
-                # External CA
-                data.hierarchy = "join"
-            elif self.subordinate:
-                # Subordinate CA
-                data.hierarchy = "join"
-            else:
-                # PKI CA
-                data.hierarchy = "root"
 
     def set_backup_parameters(self, data):
         data.backupFile = self.mdict['pki_backup_file']

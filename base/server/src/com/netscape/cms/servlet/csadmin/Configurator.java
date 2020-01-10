@@ -315,17 +315,19 @@ public class Configurator {
 
     public void configureCACertChain(ConfigurationRequest request) throws Exception {
 
-        if (request.getHierarchy() != null && !request.getHierarchy().equals("join")) {
+        String csType = cs.getType();
+        String hierarchy = cs.getString("hierarchy.select", null);
+
+        if (csType.equals("CA") && hierarchy.equals("Root")) {
             return;
         }
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
-        String csType = cs.getType();
-        String url = request.getIssuingCA();
+        String issuingCA = request.getIssuingCA();
 
-        if (url.equals("External CA")) {
+        if (issuingCA.equals("External CA")) {
 
-            logger.debug("external CA selected");
+            logger.info("Using external CA");
 
             preopConfig.putString("ca.type", "otherca");
             preopConfig.putString("ca.pkcs7", "");
@@ -338,14 +340,13 @@ public class Configurator {
             return;
         }
 
-        logger.debug("local CA selected");
+        logger.info("Using CA at " + issuingCA);
 
-        url = url.substring(url.indexOf("https"));
-        preopConfig.putString("ca.url", url);
+        preopConfig.putString("ca.url", issuingCA);
 
-        URL urlx = new URL(url);
-        String hostname = urlx.getHost();
-        int port = urlx.getPort();
+        URL url = new URL(issuingCA);
+        String hostname = url.getHost();
+        int port = url.getPort();
 
         DomainInfo domainInfo = request.getDomainInfo();
         logger.info("Domain: " + domainInfo);

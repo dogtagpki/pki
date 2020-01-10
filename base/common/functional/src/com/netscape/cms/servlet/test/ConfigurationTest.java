@@ -231,7 +231,6 @@ public class ConfigurationTest {
         data.setPin(pin);
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
         data.setClone("false");
-        data.setHierarchy("root");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -287,7 +286,6 @@ public class ConfigurationTest {
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
         data.setClone("false");
-        data.setHierarchy("join");
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
@@ -343,10 +341,7 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
-
         data.setClone("false");
-        data.setHierarchy("join");
-
         data.setIssuingCA("External CA");
 
         // create system certs
@@ -402,10 +397,7 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
-
         data.setClone("false");
-        data.setHierarchy("join");
-
         data.setIssuingCA("External CA");
 
         // create system certs
@@ -469,7 +461,6 @@ public class ConfigurationTest {
         data.setPin(pin);
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
         data.setClone("true");
-        data.setHierarchy("root");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();

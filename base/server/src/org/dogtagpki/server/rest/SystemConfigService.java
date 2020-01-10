@@ -106,9 +106,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            logger.debug("SystemConfigService: request: " + request);
-            validateRequest(request);
-
             // configure security domain
             logger.debug("=== Security Domain Configuration ===");
             configurator.configureSecurityDomain(request);
@@ -682,13 +679,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         String preopPin = preopConfig.getString("pin");
         if (!preopPin.equals(pin)) {
             throw new BadRequestException("Invalid configuration PIN");
-        }
-    }
-
-    private void validateRequest(ConfigurationRequest data) throws Exception {
-
-        if (csType.equals("CA") && (data.getHierarchy() == null)) {
-            throw new BadRequestException("Hierarchy is required for CA, not provided");
         }
     }
 }
