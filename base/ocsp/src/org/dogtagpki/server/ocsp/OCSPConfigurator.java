@@ -50,15 +50,14 @@ public class OCSPConfigurator extends Configurator {
     private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
 
     @Override
-    public void initializeDatabase(DatabaseSetupRequest request) throws Exception {
+    public void setupDatabase(DatabaseSetupRequest request) throws Exception {
 
-        super.initializeDatabase(request);
-
-        // Enable subsystems after database initialization.
         CMSEngine engine = CMS.getCMSEngine();
 
         engine.setSubsystemEnabled(OCSPAuthority.ID, true);
         engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
+
+        super.setupDatabase(request);
     }
 
     @Override

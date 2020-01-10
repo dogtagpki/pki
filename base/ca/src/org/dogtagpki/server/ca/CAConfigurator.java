@@ -60,9 +60,7 @@ public class CAConfigurator extends Configurator {
     }
 
     @Override
-    public void initializeDatabase(DatabaseSetupRequest request) throws Exception {
-
-        super.initializeDatabase(request);
+    public void setupDatabase(DatabaseSetupRequest request) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
 
@@ -75,6 +73,8 @@ public class CAConfigurator extends Configurator {
                 throw new PKIException("Unable to import profiles: " + e.getMessage(), e);
             }
         }
+
+        super.setupDatabase(request);
     }
 
     /**
@@ -165,7 +165,6 @@ public class CAConfigurator extends Configurator {
 
         super.reinitSubsystems();
 
-        // Enable subsystems after database initialization.
         CMSEngine engine = CMS.getCMSEngine();
 
         engine.setSubsystemEnabled(CertificateAuthority.ID, true);

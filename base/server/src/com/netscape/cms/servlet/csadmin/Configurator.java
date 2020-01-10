@@ -1438,7 +1438,17 @@ public class Configurator {
         return null;
     }
 
-    public void initializeDatabase(DatabaseSetupRequest request) throws Exception {
+    public void setupDatabase(DatabaseSetupRequest request) throws Exception {
+        reinitSubsystems();
+    }
+
+    public void reinitSubsystems() throws EBaseException {
+
+        engine.setSubsystemEnabled(UGSubsystem.ID, true);
+
+        engine.reinit(UGSubsystem.ID);
+        engine.reinit(AuthSubsystem.ID);
+        engine.reinit(AuthzSubsystem.ID);
     }
 
     public void setupReplication(CloneSetupRequest request) throws Exception {
@@ -1612,17 +1622,6 @@ public class Configurator {
 
         logger.debug("Configurator: initializing replication consumer");
         masterConfigurator.initializeConsumer(replicaDN, masterAgreementName);
-    }
-
-    public void reinitSubsystems() throws EBaseException {
-
-        // Enable subsystems after database initialization.
-
-        engine.setSubsystemEnabled(UGSubsystem.ID, true);
-
-        engine.reinit(UGSubsystem.ID);
-        engine.reinit(AuthSubsystem.ID);
-        engine.reinit(AuthzSubsystem.ID);
     }
 
     public void releaseConnection(LDAPConnection conn) {

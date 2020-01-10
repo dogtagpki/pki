@@ -33,15 +33,14 @@ public class TKSConfigurator extends Configurator {
     }
 
     @Override
-    public void initializeDatabase(DatabaseSetupRequest request) throws Exception {
+    public void setupDatabase(DatabaseSetupRequest request) throws Exception {
 
-        super.initializeDatabase(request);
-
-        // Enable subsystems after database initialization.
         CMSEngine engine = CMS.getCMSEngine();
 
         engine.setSubsystemEnabled(TKSAuthority.ID, true);
         engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
+
+        super.setupDatabase(request);
     }
 
     @Override
