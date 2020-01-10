@@ -33,29 +33,8 @@ public class DatabaseSetupRequest {
     @XmlElement
     protected String pin;
 
-    @XmlElement
-    protected String createDatabase;
-
-    @XmlElement
-    protected String reindexDatabase;
-
     @XmlElement(defaultValue="false")
     protected String isClone;
-
-    @XmlElement
-    protected String masterReplicationPort;
-
-    @XmlElement
-    protected String cloneReplicationPort;
-
-    @XmlElement
-    protected String setupReplication;
-
-    @XmlElement
-    protected String replicateSchema;
-
-    @XmlElement
-    protected String replicationSecurity;
 
     public DatabaseSetupRequest() {
         // required for JAXB
@@ -69,22 +48,6 @@ public class DatabaseSetupRequest {
         this.pin = pin;
     }
 
-    public boolean getCreateDatabase() {
-        return createDatabase != null && createDatabase.equalsIgnoreCase("true");
-    }
-
-    public void setCreateDatabase(String createDatabase) {
-        this.createDatabase = createDatabase;
-    }
-
-    public boolean getReindexDatabase() {
-        return reindexDatabase != null && reindexDatabase.equalsIgnoreCase("true");
-    }
-
-    public void setReindexDatabase(String reindexDatabase) {
-        this.reindexDatabase = reindexDatabase;
-    }
-
     public boolean isClone() {
         return (isClone!= null) && isClone.equalsIgnoreCase("true");
     }
@@ -93,74 +56,10 @@ public class DatabaseSetupRequest {
         this.isClone = isClone;
     }
 
-    /**
-     * @return the masterReplicationPort
-     */
-    public String getMasterReplicationPort() {
-        return masterReplicationPort;
-    }
-
-    /**
-     * @param masterReplicationPort the masterReplicationPort to set
-     */
-    public void setMasterReplicationPort(String masterReplicationPort) {
-        this.masterReplicationPort = masterReplicationPort;
-    }
-
-    /**
-     * @return the cloneReplicationPort
-     */
-    public String getCloneReplicationPort() {
-        return cloneReplicationPort;
-    }
-
-    /**
-     * @param cloneReplicationPort the cloneReplicationPort to set
-     */
-    public void setCloneReplicationPort(String cloneReplicationPort) {
-        this.cloneReplicationPort = cloneReplicationPort;
-    }
-
-    public boolean getSetupReplication() {
-        return setupReplication != null && setupReplication.equalsIgnoreCase("true");
-    }
-
-    public void setSetupReplication(String setupReplication) {
-        this.setupReplication = setupReplication;
-    }
-
-    /**
-     * @return the replicationSecurity
-     */
-    public String getReplicationSecurity() {
-        return replicationSecurity;
-    }
-
-    /**
-     * @param replicationSecurity the replicationSecurity to set
-     */
-    public void setReplicationSecurity(String replicationSecurity) {
-        this.replicationSecurity = replicationSecurity;
-    }
-
-    public boolean getReplicateSchema() {
-        return replicateSchema != null && replicateSchema.equalsIgnoreCase("true");
-    }
-
-    public void setReplicateSchema(String replicateSchema) {
-        this.replicateSchema = replicateSchema;
-    }
-
     @Override
     public String toString() {
         return "DatabaseSetupRequest [pin=XXXX" +
-               ", createDatabase=" + createDatabase +
                ", isClone=" + isClone +
-               ", masterReplicationPort=" + masterReplicationPort +
-               ", cloneReplicationPort=" + cloneReplicationPort +
-               ", setupReplication=" + setupReplication +
-               ", replicationSecurity=" + replicationSecurity +
-               ", replicateSchema=" + replicateSchema +
                "]";
     }
 }

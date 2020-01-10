@@ -45,6 +45,18 @@ public class CloneSetupRequest {
     @XmlElement
     protected Boolean systemCertsImported;
 
+    @XmlElement
+    protected String setupReplication;
+
+    @XmlElement
+    protected String masterReplicationPort;
+
+    @XmlElement
+    protected String cloneReplicationPort;
+
+    @XmlElement
+    protected String replicationSecurity;
+
     public CloneSetupRequest() {
         // required for JAXB
     }
@@ -89,12 +101,48 @@ public class CloneSetupRequest {
         this.systemCertsImported = systemCertsImported;
     }
 
+    public boolean getSetupReplication() {
+        return setupReplication != null && setupReplication.equalsIgnoreCase("true");
+    }
+
+    public void setSetupReplication(String setupReplication) {
+        this.setupReplication = setupReplication;
+    }
+
+    public String getMasterReplicationPort() {
+        return masterReplicationPort;
+    }
+
+    public void setMasterReplicationPort(String masterReplicationPort) {
+        this.masterReplicationPort = masterReplicationPort;
+    }
+
+    public String getCloneReplicationPort() {
+        return cloneReplicationPort;
+    }
+
+    public void setCloneReplicationPort(String cloneReplicationPort) {
+        this.cloneReplicationPort = cloneReplicationPort;
+    }
+
+    public String getReplicationSecurity() {
+        return replicationSecurity;
+    }
+
+    public void setReplicationSecurity(String replicationSecurity) {
+        this.replicationSecurity = replicationSecurity;
+    }
+
     @Override
     public String toString() {
         return "CloneSetupRequest [pin=XXXX" +
                ", installToken=XXXX" +
                ", cloneUri=" + cloneUri +
                ", systemCertsImported=" + systemCertsImported +
+               ", setupReplication=" + setupReplication +
+               ", masterReplicationPort=" + masterReplicationPort +
+               ", cloneReplicationPort=" + cloneReplicationPort +
+               ", replicationSecurity=" + replicationSecurity +
                "]";
     }
 }

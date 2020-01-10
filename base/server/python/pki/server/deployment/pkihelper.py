@@ -2898,61 +2898,27 @@ class ConfigClient:
 
         return data
 
-    def create_clone_setup_request(self):
+    def create_clone_setup_request(self, subsystem):
 
         logger.info('Creating clone setup request')
-
-        request = pki.system.CloneSetupRequest()
-        request.pin = self.mdict['pki_one_time_pin']
-        request.cloneUri = self.mdict['pki_clone_uri']
-
-        request.systemCertsImported = \
-            self.mdict['pki_server_pkcs12_path'] != '' or \
-            self.mdict['pki_clone_pkcs12_path'] != ''
-
-        return request
-
-    def create_database_setup_request(self, subsystem):
-
-        logger.info('Creating database setup request')
 
         dsPort = subsystem.config['internaldb.ldapconn.port']
         secureConn = subsystem.config['internaldb.ldapconn.secureConn']
 
-        request = pki.system.DatabaseSetupRequest()
-
+        request = pki.system.CloneSetupRequest()
         request.pin = self.mdict['pki_one_time_pin']
-
-        if config.str2bool(self.mdict['pki_ds_create_new_db']):
-            request.createDatabase = 'true'
-        else:
-            request.createDatabase = 'false'
-
-        if config.str2bool(self.mdict['pki_clone_reindex_data']):
-            request.reindexDatabase = 'true'
-        else:
-            request.reindexDatabase = 'false'
-
-        if self.clone:
-            request.isClone = "true"
-        else:
-            request.isClone = "false"
-
-        request.masterReplicationPort = self.mdict['pki_clone_replication_master_port']
-        request.cloneReplicationPort = self.mdict['pki_clone_replication_clone_port']
-
-        if not request.cloneReplicationPort:
-            request.cloneReplicationPort = dsPort
+        request.cloneUri = self.mdict['pki_clone_uri']
 
         if config.str2bool(self.mdict['pki_clone_setup_replication']):
             request.setupReplication = 'true'
         else:
             request.setupReplication = 'false'
 
-        if config.str2bool(self.mdict['pki_clone_replicate_schema']):
-            request.replicateSchema = "true"
-        else:
-            request.replicateSchema = "false"
+        request.masterReplicationPort = self.mdict['pki_clone_replication_master_port']
+        request.cloneReplicationPort = self.mdict['pki_clone_replication_clone_port']
+
+        if not request.cloneReplicationPort:
+            request.cloneReplicationPort = dsPort
 
         request.replicationSecurity = self.mdict['pki_clone_replication_security']
 
@@ -2961,6 +2927,24 @@ class ConfigClient:
 
         elif not request.replicationSecurity:
             request.replicationSecurity = 'None'
+
+        request.systemCertsImported = \
+            self.mdict['pki_server_pkcs12_path'] != '' or \
+            self.mdict['pki_clone_pkcs12_path'] != ''
+
+        return request
+
+    def create_database_setup_request(self):
+
+        logger.info('Creating database setup request')
+
+        request = pki.system.DatabaseSetupRequest()
+        request.pin = self.mdict['pki_one_time_pin']
+
+        if self.clone:
+            request.isClone = "true"
+        else:
+            request.isClone = "false"
 
         return request
 
