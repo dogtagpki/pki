@@ -39,6 +39,12 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # Python
 ################################################################################
 
+%if 0%{?rhel}
+%global python_executable /usr/libexec/platform-python
+%else
+%global python_executable /usr/bin/python3
+%endif
+
 ################################################################################
 # Java
 ################################################################################
@@ -780,7 +786,7 @@ cd build
     -DRESTEASY_LIB=%{resteasy_lib} \
     -DNSS_DEFAULT_DB_TYPE=%{nss_default_db_type} \
     -DBUILD_PKI_CORE:BOOL=ON \
-    -DPYTHON_EXECUTABLE=%{__python3} \
+    -DPYTHON_EXECUTABLE=%{python_executable} \
     -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
 %if ! %{with server} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
     -DWITH_SERVER:BOOL=OFF \
@@ -839,7 +845,7 @@ ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.
 echo "Scanning Python code with pylint"
 ################################################################################
 
-%{__python3} ../tools/pylint-build-scan.py rpm --prefix %{buildroot}
+%{python_executable} -I ../tools/pylint-build-scan.py rpm --prefix %{buildroot}
 if [ $? -ne 0 ]; then
     echo "pylint for Python 3 failed. RC: $?"
     exit 1

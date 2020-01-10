@@ -23,6 +23,6 @@
 # set NSS_DEFAULT_DB_TYPE.
 . /usr/share/pki/scripts/config
 
-${PYTHON_EXECUTABLE} -m pki.cli.main "$@"
+${PYTHON_EXECUTABLE} -I -m pki.cli.main "$@"
 
 exit $?
