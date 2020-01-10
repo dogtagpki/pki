@@ -310,7 +310,6 @@ class ConfigurationRequest(object):
 
     def __init__(self):
         self.isClone = "false"
-        self.domainInfo = None
 
 
 class CloneSetupRequest(object):

@@ -39,9 +39,6 @@ public class ConfigurationRequest {
     protected String pin;
 
     @XmlElement
-    protected DomainInfo domainInfo;
-
-    @XmlElement
     protected String securityDomainType;
 
     @XmlElement(defaultValue="false")
@@ -63,14 +60,6 @@ public class ConfigurationRequest {
 
     public void setPin(String pin) {
         this.pin = pin;
-    }
-
-    public DomainInfo getDomainInfo() {
-        return domainInfo;
-    }
-
-    public void setDomainInfo(DomainInfo domainInfo) {
-        this.domainInfo = domainInfo;
     }
 
     public String getSecurityDomainType() {

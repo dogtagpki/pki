@@ -251,8 +251,6 @@ public class Configurator {
 
     public void configureSecurityDomain(ConfigurationRequest request) throws Exception {
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
         String securityDomainType = request.getSecurityDomainType();
 
         if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
@@ -262,14 +260,15 @@ public class Configurator {
 
         if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)){
             logger.info("Configuring new security subdomain");
-
-        } else {
-            logger.info("Joining existing security domain");
-
-            String keyType = preopConfig.getString("cert.subsystem.keytype");
-            String profileID = getSystemCertProfileID(keyType, "subsystem", "caInternalAuthSubsystemCert");
-            preopConfig.putString("cert.subsystem.profile", profileID);
+            return;
         }
+
+        logger.info("Joining existing security domain");
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        String keyType = preopConfig.getString("cert.subsystem.keytype");
+        String profileID = getSystemCertProfileID(keyType, "subsystem", "caInternalAuthSubsystemCert");
+        preopConfig.putString("cert.subsystem.profile", profileID);
     }
 
     private String logIntoSecurityDomain(
@@ -322,51 +321,18 @@ public class Configurator {
             return;
         }
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
         String issuingCA = request.getIssuingCA();
-
         if (issuingCA.equals("External CA")) {
-
-            logger.info("Using external CA");
-
-            preopConfig.putString("ca.type", "otherca");
-            preopConfig.putString("ca.pkcs7", "");
-            preopConfig.putInteger("ca.certchain.size", 0);
-
-            if (csType.equals("CA")) {
-                preopConfig.putString("cert.signing.type", "remote");
-            }
-
             return;
         }
-
-        logger.info("Using CA at " + issuingCA);
-
-        preopConfig.putString("ca.url", issuingCA);
 
         URL url = new URL(issuingCA);
         String hostname = url.getHost();
         int port = url.getPort();
 
-        DomainInfo domainInfo = request.getDomainInfo();
-        logger.info("Domain: " + domainInfo);
-
-        SecurityDomainHost host = getHostInfo(domainInfo, "CA", hostname, port);
-        int adminPort = Integer.parseInt(host.getSecureAdminPort());
-
-        preopConfig.putString("ca.type", "sdca");
-        preopConfig.putString("ca.hostname", hostname);
-        preopConfig.putInteger("ca.httpsport", port);
-        preopConfig.putInteger("ca.httpsadminport", adminPort);
-
         if (!request.isClone() && !request.getSystemCertsImported()) {
-            byte[] certchain = getCertChain(hostname, adminPort);
+            byte[] certchain = getCertChain(hostname, port);
             importCertChain(certchain, "ca");
-        }
-
-        if (csType.equals("CA")) {
-            preopConfig.putString("cert.signing.type", "remote");
-            preopConfig.putString("cert.signing.profile","caInstallCACert");
         }
     }
 

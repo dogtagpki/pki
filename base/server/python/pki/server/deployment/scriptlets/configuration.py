@@ -26,6 +26,7 @@ import logging
 import os
 import shutil
 import tempfile
+import urllib.parse
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -705,6 +706,38 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.config['service.securityDomainPort'] = securePort
         subsystem.config['securitydomain.store'] = 'ldap'
 
+        hierarchy = subsystem.config.get('hierarchy.select')
+        if not (subsystem.type == 'CA' and hierarchy == 'Root'):
+
+            issuing_ca = deployer.mdict['pki_issuing_ca']
+
+            if issuing_ca == 'External CA':
+
+                logger.info('Using external CA')
+
+                subsystem.config['preop.ca.type'] = 'otherca'
+                subsystem.config['preop.ca.pkcs7'] = ''
+                subsystem.config['preop.ca.certchain.size'] = '0'
+
+                if subsystem.type == 'CA':
+                    subsystem.config['preop.cert.signing.type'] = 'remote'
+
+            else:
+
+                logger.info('Using CA at %s', issuing_ca)
+
+                url = urllib.parse.urlparse(issuing_ca)
+
+                subsystem.config['preop.ca.url'] = issuing_ca
+                subsystem.config['preop.ca.type'] = 'sdca'
+                subsystem.config['preop.ca.hostname'] = url.hostname
+                subsystem.config['preop.ca.httpsport'] = str(url.port)
+                subsystem.config['preop.ca.httpsadminport'] = str(url.port)
+
+                if subsystem.type == 'CA':
+                    subsystem.config['preop.cert.signing.type'] = 'remote'
+                    subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
+
         subsystem.save()
 
         if config.str2bool(deployer.mdict['pki_ds_remove_data']):
@@ -820,7 +853,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Configuring %s subsystem', subsystem.type)
 
         request = deployer.config_client.create_config_request()
-        request.domainInfo = deployer.domain_info
         client.configure(request)
 
         if clone:
