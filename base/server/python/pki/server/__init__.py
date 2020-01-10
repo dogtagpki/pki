@@ -282,9 +282,9 @@ class PKIServer(object):
             if current_user != self.user:
                 prefix.extend(['sudo', '-u', self.user])
 
-        java_home = self.config['JAVA_HOME']
-        java_opts = self.config['JAVA_OPTS']
-        security_manager = self.config['SECURITY_MANAGER']
+        java_home = self.config.get('JAVA_HOME')
+        java_opts = self.config.get('JAVA_OPTS')
+        security_manager = self.config.get('SECURITY_MANAGER')
 
         classpath = [
             Tomcat.SHARE_DIR + '/bin/bootstrap.jar',
@@ -298,11 +298,17 @@ class PKIServer(object):
 
         if jdb:
             cmd.extend(['jdb'])
+
         else:
-            cmd.extend([
-                java_home + '/bin/java',
-                '-agentpath:/usr/lib/abrt-java-connector/libabrt-java-connector.so=abrt=on,'
-            ])
+            if java_home:
+                cmd.extend([java_home + '/bin/java'])
+            else:
+                cmd.extend(['java'])
+
+            if os.path.exists('/usr/lib/abrt-java-connector/libabrt-java-connector.so'):
+                cmd.extend([
+                    '-agentpath:/usr/lib/abrt-java-connector/libabrt-java-connector.so=abrt=on,'
+                ])
 
         cmd.extend([
             '-classpath', os.pathsep.join(classpath),
