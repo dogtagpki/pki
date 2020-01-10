@@ -47,7 +47,6 @@ import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.csadmin.Configurator;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -84,8 +83,6 @@ public class TPSConfigurator extends Configurator {
     @Override
     public void setupDatabase(DatabaseSetupRequest request) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
-
         engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
 
         super.setupDatabase(request);
@@ -98,7 +95,6 @@ public class TPSConfigurator extends Configurator {
 
         logger.debug("Adding all profiles to TPS admin user");
 
-        CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
         String adminID = request.getAdminUID();
@@ -304,8 +300,6 @@ public class TPSConfigurator extends Configurator {
     }
 
     public void getSharedSecret(String tksHost, int tksPort, boolean importKey) throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
 
         String host = cs.getString("service.machineName");
         String port = cs.getString("service.securePort");

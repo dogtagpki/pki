@@ -29,7 +29,6 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
@@ -44,8 +43,6 @@ public class KRAConfigurator extends Configurator {
 
     @Override
     public void setupDatabase(DatabaseSetupRequest request) throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
 
         engine.setSubsystemEnabled(KeyRecoveryAuthority.ID, true);
         engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
@@ -92,7 +89,6 @@ public class KRAConfigurator extends Configurator {
 
     public void configureKRAConnector(FinalizeConfigRequest request) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String url = preopConfig.getString("ca.url", "");

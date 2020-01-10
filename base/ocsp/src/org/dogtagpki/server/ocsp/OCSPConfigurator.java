@@ -34,7 +34,6 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
@@ -51,8 +50,6 @@ public class OCSPConfigurator extends Configurator {
 
     @Override
     public void setupDatabase(DatabaseSetupRequest request) throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
 
         engine.setSubsystemEnabled(OCSPAuthority.ID, true);
         engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
@@ -75,7 +72,6 @@ public class OCSPConfigurator extends Configurator {
             // import the CA certificate into the OCSP
             // configure the CRL Publishing to OCSP in CA
             if (!ca_host.equals("")) {
-                CMSEngine engine = CMS.getCMSEngine();
                 engine.reinit(IOCSPAuthority.ID);
 
                 if (!request.isClone()) {
@@ -112,7 +108,6 @@ public class OCSPConfigurator extends Configurator {
 
     public void importCACert() throws IOException, EBaseException, CertificateEncodingException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         // get certificate chain from CA
@@ -153,7 +148,6 @@ public class OCSPConfigurator extends Configurator {
 
     public void updateOCSPConfiguration(FinalizeConfigRequest request) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String caHost = preopConfig.getString("ca.hostname", "");

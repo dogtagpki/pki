@@ -37,7 +37,6 @@ import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.LDAPConfigStore;
@@ -62,8 +61,6 @@ public class CAConfigurator extends Configurator {
     @Override
     public void setupDatabase(DatabaseSetupRequest request) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
-
         if (!request.isClone()
                 && engine.getSubsystem(IProfileSubsystem.ID) instanceof LDAPProfileSubsystem) {
             try {
@@ -83,12 +80,10 @@ public class CAConfigurator extends Configurator {
      * @param configRoot Where to look for the profile files. For a
      *            fresh installation this should be
      *            "/usr/share/pki". For existing installations it
-     *            should be CMS.getCMSEngine().getConfig().getInstanceDir().
+     *            should be engine.getConfig().getInstanceDir().
      *
      */
     public void importProfiles(String configRoot) throws EBaseException, ELdapException {
-
-        CMSEngine engine = CMS.getCMSEngine();
 
         IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
         IConfigStore profileCfg = cs.getSubStore("profile");
@@ -164,8 +159,6 @@ public class CAConfigurator extends Configurator {
     public void reinitSubsystems() throws EBaseException {
 
         super.reinitSubsystems();
-
-        CMSEngine engine = CMS.getCMSEngine();
 
         engine.setSubsystemEnabled(CertificateAuthority.ID, true);
         engine.setSubsystemEnabled(CrossCertPairSubsystem.ID, true);
@@ -280,8 +273,6 @@ public class CAConfigurator extends Configurator {
         if (StringUtils.isEmpty(serialNumber)) {
             throw new PKIException("Missing signing certificate serial number");
         }
-
-        CMSEngine engine = CMS.getCMSEngine();
 
         LDAPConnection conn = null;
         try {
