@@ -33,11 +33,7 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # NSS
 ################################################################################
 
-%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
-%global nss_default_db_type dbm
-%else
 %global nss_default_db_type sql
-%endif
 
 ################################################################################
 # Python
@@ -53,13 +49,8 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # RESTEasy
 ################################################################################
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-%define jaxrs_api_jar /usr/share/java/resteasy-base/jaxrs-api.jar
-%define resteasy_lib /usr/share/java/resteasy-base
-%else
 %define jaxrs_api_jar /usr/share/java/jboss-jaxrs-2.0-api.jar
 %define resteasy_lib /usr/share/java/resteasy
-%endif
 
 ################################################################################
 # PKI
@@ -165,11 +156,7 @@ BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    glassfish-jaxb-api
 BuildRequires:    slf4j
-%if 0%{?rhel} && 0%{?rhel} <= 7
-# no slf4j-jdk14
-%else
 BuildRequires:    slf4j-jdk14
-%endif
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.36.1
 
@@ -185,19 +172,7 @@ BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 
 %if 0%{?rhel}
-%if 0%{?rhel} <= 7
-# 'resteasy-base' is a subset of the complete set of
-# 'resteasy' packages and consists of what is needed to
-# support the PKI Restful interface on certain RHEL platforms
-BuildRequires:    resteasy-base-atom-provider >= 3.0.6-1
-BuildRequires:    resteasy-base-client >= 3.0.6-1
-BuildRequires:    resteasy-base-jaxb-provider >= 3.0.6-1
-BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
-BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
-BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
-%else
 BuildRequires:    resteasy >= 3.0.26
-%endif
 %else
 BuildRequires:    jboss-annotations-1.2-api
 BuildRequires:    jboss-jaxrs-2.0-api
@@ -221,44 +196,22 @@ BuildRequires:    python3
 BuildRequires:    python3-devel
 BuildRequires:    python3-cryptography
 BuildRequires:    python3-lxml
-%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
-BuildRequires:    python3-pyldap
-# no python3-libselinux
-%else
 BuildRequires:    python3-ldap
 BuildRequires:    python3-libselinux
-%endif
 BuildRequires:    python3-nss
 BuildRequires:    python3-requests >= 2.6.0
 BuildRequires:    python3-six
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-%if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    jss >= 4.4.0-11
-BuildRequires:    tomcatjss >= 7.2.1-4
-%else
 BuildRequires:    jss >= 4.6.0
 BuildRequires:    tomcatjss >= 7.4.1
-%endif
 BuildRequires:    systemd-units
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    tomcat >= 7.0.69
-%else
-%if 0%{?fedora} && 0%{?fedora} <= 27
-BuildRequires:    tomcat >= 8.0.49
-%else
-%if 0%{?fedora} && 0%{?fedora} <= 28
-BuildRequires:    tomcat >= 1:8.5.23
-%else
 %if 0%{?rhel}
 BuildRequires:    pki-servlet-engine
 %else
 BuildRequires:    tomcat >= 1:9.0.7
-%endif
-%endif
-%endif
 %endif
 
 # additional build requirements needed to build native 'tpsclient'
@@ -329,11 +282,7 @@ Requires:         pki-javadoc = %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI clients
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         esc >= 1.1.0
-%else
 Requires:         esc >= 1.1.1
-%endif
 
 # description for top-level package (unless there is a separate meta package)
 %if "%{name}" == "%{vendor_id}-pki"
@@ -365,11 +314,7 @@ Summary:          PKI Symmetric Key Package
 
 Requires:         java-1.8.0-openjdk-headless
 Requires:         jpackage-utils >= 0:1.7.5-10
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         jss >= 4.4.0-11
-%else
 Requires:         jss >= 4.6.0
-%endif
 Requires:         nss >= 3.38.0
 
 # Ensure we end up with a useful installation
@@ -443,34 +388,14 @@ Requires:         apache-commons-logging
 Requires:         jakarta-commons-httpclient
 Requires:         glassfish-jaxb-api
 Requires:         slf4j
-%if 0%{?rhel} && 0%{?rhel} <= 7
-# no slf4j-jdk14
-%else
 Requires:         slf4j-jdk14
-%endif
 Requires:         jpackage-utils >= 0:1.7.5-10
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         jss >= 4.4.0-11
-%else
 Requires:         jss >= 4.6.0
-%endif
 Requires:         ldapjdk >= 4.21.0
 Requires:         pki-base = %{version}
 
 %if 0%{?rhel}
-%if 0%{?rhel} <= 7
-# 'resteasy-base' is a subset of the complete set of
-# 'resteasy' packages and consists of what is needed to
-# support the PKI Restful interface on certain RHEL platforms
-Requires:         resteasy-base-atom-provider >= 3.0.6-1
-Requires:         resteasy-base-client >= 3.0.6-1
-Requires:         resteasy-base-jaxb-provider >= 3.0.6-1
-Requires:         resteasy-base-jaxrs >= 3.0.6-1
-Requires:         resteasy-base-jaxrs-api >= 3.0.6-1
-Requires:         resteasy-base-jackson-provider >= 3.0.6-1
-%else
 Requires:         resteasy >= 3.0.26
-%endif
 %else
 Requires:         resteasy-atom-provider >= 3.0.17-1
 Requires:         resteasy-client >= 3.0.17-1
@@ -524,49 +449,25 @@ Requires:         net-tools
 Requires:         policycoreutils
 Requires:         procps-ng
 Requires:         openldap-clients
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         openssl >= 1.0.2k-11
-%else
 Requires:         openssl
-%endif
 Requires:         pki-symkey = %{version}
 Requires:         pki-tools = %{version}
 
 Requires:         keyutils
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-# no policycoreutils-python-utils
-%else
 Requires:         policycoreutils-python-utils
-%endif
 
-%if 0%{?fedora} && 0%{?fedora} <= 27
-Requires:         python3-pyldap
-%else
 Requires:         python3-ldap
-%endif
 Requires:         python3-lxml
 Requires:         python3-libselinux
 Requires:         python3-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         tomcat >= 7.0.69
-%else
-%if 0%{?fedora} && 0%{?fedora} <= 27
-Requires:         tomcat >= 8.0.49
-%else
-%if 0%{?fedora} && 0%{?fedora} <= 28
-Requires:         tomcat >= 1:8.5.23
-%else
 %if 0%{?rhel}
 Requires:         pki-servlet-engine >= 1:9.0.7
 %else
 Requires:         tomcat >= 1:9.0.7
-%endif
-%endif
-%endif
 %endif
 
 Requires:         velocity
@@ -574,11 +475,7 @@ Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         tomcatjss >= 7.2.1-4
-%else
 Requires:         tomcatjss >= 7.4.1
-%endif
 
 # https://pagure.io/freeipa/issue/7742
 %if 0%{?rhel}
@@ -923,94 +820,16 @@ EOF
 # with meta
 %endif
 
-# Customize system upgrade scripts in /usr/share/pki/upgrade
-%if 0%{?rhel} && 0%{?rhel} <= 7
-
-# merge newer upgrade scripts into 10.3.3 for RHEL
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.3.4
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.3.5
-
-# merge newer upgrade scripts into 10.4.1 for RHEL
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.2
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.3
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.4
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.5
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.6
-%endif
-
 # Customize client library links in /usr/share/pki/lib
-%if 0%{?rhel} && 0%{?rhel} <= 7
-# no link customization
-%else
-    ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/lib/jboss-logging.jar
-    ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/lib/jboss-annotations-api_1.2_spec.jar
-%endif
+ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/lib/jboss-logging.jar
+ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/lib/jboss-annotations-api_1.2_spec.jar
 
 %if %{with server}
 
-# Customize server upgrade scripts in /usr/share/pki/server/upgrade
-%if 0%{?rhel} && 0%{?rhel} <= 7
-
-# merge newer upgrade scripts into 10.3.3 for RHEL
-mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/01-FixServerLibrary.py \
-   %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/02-FixServerLibrary.py
-mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/02-FixDeploymentDescriptor.py \
-   %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/03-FixDeploymentDescriptor.py
-/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.4
-/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5
-
-# merge newer upgrade scripts into 10.4.1 for RHEL
-mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2/01-AddSessionAuthenticationPlugin.py \
-   %{buildroot}%{_datadir}/pki/server/upgrade/10.4.1/01-AddSessionAuthenticationPlugin.py
-mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2/02-AddKRAWrappingParams.py \
-   %{buildroot}%{_datadir}/pki/server/upgrade/10.4.1/02-AddKRAWrappingParams.py
-mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6/01-UpdateKeepAliveTimeout.py \
-   %{buildroot}%{_datadir}/pki/server/upgrade/10.4.1/03-UpdateKeepAliveTimeout.py
-/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2
-/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.3
-/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.4
-/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.5
-/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6
-
-# merge newer upgrade script into 10.5.1 for RHEL
-mv %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5/01-AddTPSExternalRegISEtokenParams.py \
-   %{buildroot}%{_datadir}/pki/server/upgrade/10.5.1/01-AddTPSExternalRegISEtokenParams.py
-
-/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5
-
-%endif
-
 # Customize server common library links in /usr/share/pki/server/common/lib
-%if 0%{?fedora} || 0%{?rhel} > 7
-    ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/server/common/lib/jboss-jaxrs-2.0-api.jar
-    ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-logging.jar
-    ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-annotations-api_1.2_spec.jar
-
-%else
-
-if [ -f /etc/debian_version ]; then
-    ln -sf /usr/share/java/commons-collections3.jar %{buildroot}%{_datadir}/pki/server/common/lib/commons-collections.jar
-    ln -sf /usr/share/java/httpclient.jar %{buildroot}%{_datadir}/pki/server/common/lib/httpclient.jar
-    ln -sf /usr/share/java/httpcore.jar %{buildroot}%{_datadir}/pki/server/common/lib/httpcore.jar
-    ln -sf /usr/share/java/jackson-core-asl.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-core-asl.jar
-    ln -sf /usr/share/java/jackson-jaxrs.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-jaxrs.jar
-    ln -sf /usr/share/java/jackson-mapper-asl.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-mapper-asl.jar
-    ln -sf /usr/share/java/jackson-mrbean.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-mrbean.jar
-    ln -sf /usr/share/java/jackson-smile.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-smile.jar
-    ln -sf /usr/share/java/jackson-xc.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-xc.jar
-    ln -sf /usr/share/java/jss4.jar %{buildroot}%{_datadir}/pki/server/common/lib/jss4.jar
-    ln -sf /usr/share/java/symkey.jar %{buildroot}%{_datadir}/pki/server/common/lib/symkey.jar
-    ln -sf /usr/share/java/xercesImpl.jar %{buildroot}%{_datadir}/pki/server/common/lib/xerces-j2.jar
-    ln -sf /usr/share/java/xml-apis.jar %{buildroot}%{_datadir}/pki/server/common/lib/xml-commons-apis.jar
-    ln -sf /usr/share/java/xml-resolver.jar %{buildroot}%{_datadir}/pki/server/common/lib/xml-commons-resolver.jar
-fi
-
-%endif
-
-# Customize server library links in /usr/share/pki/server/lib
-%if 0%{?rhel} && 0%{?rhel} <= 7
-    rm -f %{buildroot}%{_datadir}/pki/server/lib/slf4j-jdk14.jar
-%endif
+ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/server/common/lib/jboss-jaxrs-2.0-api.jar
+ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-logging.jar
+ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-annotations-api_1.2_spec.jar
 
 %if 0%{?rhel}
 # no pylint
