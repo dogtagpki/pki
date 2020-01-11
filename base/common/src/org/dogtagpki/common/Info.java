@@ -30,31 +30,34 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ResourceMessage;
 
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Info")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Info extends ResourceMessage {
 
-    private static Logger logger = LoggerFactory.getLogger(Info.class);
+    public static Logger logger = LoggerFactory.getLogger(Info.class);
 
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(Info.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(Info.class).createUnmarshaller();
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
-
+    String name;
     String version;
     String banner;
+
+    @XmlElement(name="Name")
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @XmlElement(name="Version")
     public String getVersion() {
@@ -79,6 +82,7 @@ public class Info extends ResourceMessage {
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + ((banner == null) ? 0 : banner.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + ((version == null) ? 0 : version.hashCode());
         return result;
     }
@@ -97,6 +101,11 @@ public class Info extends ResourceMessage {
                 return false;
         } else if (!banner.equals(other.banner))
             return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
         if (version == null) {
             if (other.version != null)
                 return false;
@@ -105,34 +114,57 @@ public class Info extends ResourceMessage {
         return true;
     }
 
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static Info fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, Info.class);
+    }
+
+    public String toXML() throws Exception {
+        StringWriter sw = new StringWriter();
+        Marshaller marshaller = JAXBContext.newInstance(Info.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static Info fromXML(String string) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(Info.class).createUnmarshaller();
+        return (Info)unmarshaller.unmarshal(new StringReader(string));
+    }
+
     public String toString() {
         try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
-
+            return toXML();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static Info valueOf(String string) throws Exception {
-        return (Info)unmarshaller.unmarshal(new StringReader(string));
-    }
-
     public static void main(String args[]) throws Exception {
 
-        Info before = new Info();
-        before.setVersion("10.4.0");
-        before.setBanner(
+        Info info = new Info();
+        info.setName("PKI");
+        info.setVersion("10.8.0");
+        info.setBanner(
                 "WARNING!\n" +
                 "Access to this service is restricted to those individuals with " +
                 "specific permissions.");
 
-        String string = before.toString();
-        System.out.println(string);
+        String json = info.toJSON();
+        System.out.println(json);
 
-        Info after = Info.valueOf(string);
-        System.out.println(before.equals(after));
+        Info afterJSON = Info.fromJSON(json);
+        System.out.println(info.equals(afterJSON));
+
+        String xml = info.toXML();
+        System.out.println(xml);
+
+        Info afterXML = Info.fromXML(xml);
+        System.out.println(info.equals(afterXML));
     }
 }

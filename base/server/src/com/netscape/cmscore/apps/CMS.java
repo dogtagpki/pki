@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.apps;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -37,6 +39,9 @@ public final class CMS {
 
     public static Logger logger = LoggerFactory.getLogger(CMS.class);
 
+    // product name is provided by the server theme package
+    private static final String PRODUCT_NAME_FILE = "/usr/share/pki/CS_SERVER_VERSION";
+
     public static final int DEBUG_OBNOXIOUS = 1;
     public static final int DEBUG_VERBOSE = 5;
     public static final int DEBUG_INFORM = 10;
@@ -54,6 +59,25 @@ public final class CMS {
 
     public static void setCMSEngine(CMSEngine engine) {
         CMS.engine = engine;
+    }
+
+    /**
+     * Return the product name from /usr/share/pki/CS_SERVER_VERSION
+     * which is provided by the server theme package.
+     */
+    public static String getProductName() throws Exception {
+
+        File file = new File(PRODUCT_NAME_FILE);
+
+        if (!file.exists()) {
+            return null;
+        }
+
+        return new String(Files.readAllBytes(file.toPath())).trim();
+    }
+
+    public static String getProductVersion() {
+        return System.getenv("PKI_VERSION");  // defined in tomcat.conf
     }
 
     /**

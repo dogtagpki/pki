@@ -104,6 +104,8 @@ public class MainCLI extends CLI {
         addModule(new ClientCLI(this));
         addModule(new NSSCLI(this));
 
+        addModule(new InfoCLI(this));
+
         addModule(new ProxyCertCLI(this));
         addModule(new ProxyGroupCLI(this));
         addModule(new ProxyKeyCLI(this));

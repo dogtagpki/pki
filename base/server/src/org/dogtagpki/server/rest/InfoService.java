@@ -30,6 +30,7 @@ import org.xml.sax.SAXParseException;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * @author Endi S. Dewata
@@ -58,10 +59,10 @@ public class InfoService extends PKIService implements InfoResource {
             // validate banner
             try {
                 // converting Info object into XML
-                String xmlInfo = info.toString();
+                String xmlInfo = info.toXML();
 
                 // and parse it back into Info object
-                info = Info.valueOf(xmlInfo);
+                info = Info.fromXML(xmlInfo);
 
             } catch (UnmarshalException e) {
                 Throwable cause = e.getCause();
@@ -76,7 +77,9 @@ public class InfoService extends PKIService implements InfoResource {
         }
 
         // add other info attributes after banner validation
-        info.setVersion(getVersion());
+
+        info.setName(CMS.getProductName());
+        info.setVersion(CMS.getProductVersion());
 
         return createOKResponse(info);
     }

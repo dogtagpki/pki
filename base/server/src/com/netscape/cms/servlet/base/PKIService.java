@@ -89,10 +89,6 @@ public class PKIService {
         return System.getProperty("catalina.base");  // provided by Tomcat
     }
 
-    public static String getVersion() {
-        return System.getenv("PKI_VERSION");  // defined in tomcat.conf
-    }
-
     public static boolean isBannerEnabled() {
         return Files.exists(bannerFile);
     }
