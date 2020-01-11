@@ -68,7 +68,7 @@ import com.netscape.cmscore.apps.EngineConfig;
  */
 public class CAInfoService extends PKIService implements CAInfoResource {
 
-    private static Logger logger = LoggerFactory.getLogger(InfoService.class);
+    private static Logger logger = LoggerFactory.getLogger(CAInfoService.class);
 
     // is the current KRA-related info authoritative?
     private static boolean kraInfoAuthoritative = false;

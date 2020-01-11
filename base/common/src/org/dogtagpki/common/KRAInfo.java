@@ -38,7 +38,7 @@ import com.netscape.certsrv.base.ResourceMessage;
 @XmlRootElement(name="KRAInfo")
 public class KRAInfo extends ResourceMessage {
 
-    private static Logger logger = LoggerFactory.getLogger(Info.class);
+    private static Logger logger = LoggerFactory.getLogger(KRAInfo.class);
 
     public static Marshaller marshaller;
     public static Unmarshaller unmarshaller;

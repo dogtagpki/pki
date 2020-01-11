@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -27,7 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +44,6 @@ public class GetStatus extends CMSServlet {
     public final static Logger logger = LoggerFactory.getLogger(GetStatus.class);
 
     private static final long serialVersionUID = -2852842030221659847L;
-    // File below will be a member of a pki theme package.
-    private static final String productVersionFILE = "/usr/share/pki/CS_SERVER_VERSION";
 
     public GetStatus() {
         super();
@@ -92,11 +87,11 @@ public class GetStatus extends CMSServlet {
             xmlObj.addItemToContainer(root, "Type", type);
             xmlObj.addItemToContainer(root, "Status", status);
             xmlObj.addItemToContainer(root, "Version", version);
-            // File below will be a member of a pki theme package.
-            String productVersion = getProductVersion(productVersionFILE);
 
-            if(!StringUtils.isEmpty(productVersion)) {
-                xmlObj.addItemToContainer(root,"ProductVersion", productVersion);
+            String productName = CMS.getProductName();
+
+            if (!StringUtils.isEmpty(productName)) {
+                xmlObj.addItemToContainer(root, "ProductVersion", productName);
             }
 
             byte[] cb = xmlObj.toByteArray();
@@ -126,45 +121,5 @@ public class GetStatus extends CMSServlet {
                     UserInfo.getUserCountry(lang));
         }
         return locale;
-    }
-
-    /**
-     * Return the product version in /usr/share/pki/CS_SERVER_VERSION
-     * which is provided by the server theme package.
-     *
-     * Caller only cares if there is a string or not, exceptions handled here.
-     */
-    private String getProductVersion(String versionFilePathName) throws IOException {
-
-        FileInputStream inputStream = null;
-
-        if (StringUtils.isEmpty(versionFilePathName)) {
-            logger.warn("Missing product version file path!");
-            return null;
-        }
-
-        try {
-            inputStream = new FileInputStream(versionFilePathName);
-            String version = IOUtils.toString(inputStream);
-
-            if (version != null) {
-                version = version.trim();
-                logger.debug("Returning product version: " + version);
-            }
-
-            return version;
-
-        } catch (FileNotFoundException e) {
-            // CS_SERVER_VERSION does not exist
-            return null;
-
-        } finally {
-            if(inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                }
-            }
-        }
     }
 }

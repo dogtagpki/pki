@@ -38,7 +38,7 @@ import com.netscape.certsrv.base.ResourceMessage;
 @XmlRootElement(name="CAInfo")
 public class CAInfo extends ResourceMessage {
 
-    private static Logger logger = LoggerFactory.getLogger(Info.class);
+    private static Logger logger = LoggerFactory.getLogger(CAInfo.class);
 
     public static Marshaller marshaller;
     public static Unmarshaller unmarshaller;

@@ -40,7 +40,8 @@ import com.netscape.cmscore.apps.EngineConfig;
  */
 public class KRAInfoService extends PKIService implements KRAInfoResource {
 
-    private static Logger logger = LoggerFactory.getLogger(InfoService.class);
+    private static Logger logger = LoggerFactory.getLogger(KRAInfoService.class);
+
     private IKeyRecoveryAuthority kra;
     private IStorageKeyUnit storageUnit;
 
