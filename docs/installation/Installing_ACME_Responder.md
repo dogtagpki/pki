@@ -140,7 +140,7 @@ $ curl -s -k https://$HOSTNAME:8443/acme/directory | python -m json.tool
             "dogtagpki.org"
         ],
         "externalAccountRequired": false,
-        "termsOfService": "https://www.dogtagpki.org/wiki/PKI_ACME_Service",
+        "termsOfService": "https://www.dogtagpki.org/wiki/PKI_ACME_Responder",
         "website": "https://www.dogtagpki.org"
     },
     "newAccount": "https://<hostname>:8443/acme/new-account",

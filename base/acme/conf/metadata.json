@@ -1,5 +1,5 @@
 {
-    "termsOfService": "https://www.dogtagpki.org/wiki/PKI_ACME_Service",
+    "termsOfService": "https://www.dogtagpki.org/wiki/PKI_ACME_Responder",
     "website": "https://www.dogtagpki.org",
     "caaIdentities": [
         "dogtagpki.org"
