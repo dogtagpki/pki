@@ -269,6 +269,26 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         addAccountContacts(account);
     }
 
+    public void updateAccount(ACMEAccount account) throws Exception {
+
+        String accountID = account.getID();
+        logger.info("Updating account " + accountID);
+
+        String sql = statements.getProperty("updateAccount");
+        logger.info("SQL: " + sql);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, account.getStatus());
+            ps.setString(2, accountID);
+
+            ps.executeUpdate();
+        }
+
+        deleteAccountContacts(account);
+        addAccountContacts(account);
+    }
+
     public void addAccountContacts(ACMEAccount account) throws Exception {
 
         String[] contacts = account.getContact();
@@ -289,6 +309,22 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 ps.executeUpdate();
             }
+        }
+    }
+
+    public void deleteAccountContacts(ACMEAccount account) throws Exception {
+
+        String accountID = account.getID();
+        logger.info("Deleting contacts for account " + accountID);
+
+        String sql = statements.getProperty("deleteAccountContacts");
+        logger.info("SQL: " + sql);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, accountID);
+
+            ps.executeUpdate();
         }
     }
 

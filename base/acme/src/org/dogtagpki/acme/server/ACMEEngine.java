@@ -493,6 +493,10 @@ public class ACMEEngine implements ServletContextListener {
         return new WebApplicationException(builder.build());
     }
 
+    public void updateAccount(ACMEAccount account) throws Exception {
+        database.updateAccount(account);
+    }
+
     public void addAuthorization(ACMEAccount account, ACMEAuthorization authorization) throws Exception {
 
         authorization.setAccountID(account.getID());
