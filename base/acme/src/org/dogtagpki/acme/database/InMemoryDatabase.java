@@ -52,6 +52,9 @@ public class InMemoryDatabase extends ACMEDatabase {
         accounts.put(account.getID(), account);
     }
 
+    public void updateAccount(ACMEAccount account) throws Exception {
+    }
+
     public ACMEOrder getOrder(String orderID) throws Exception {
         return orders.get(orderID);
     }
