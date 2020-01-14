@@ -116,7 +116,7 @@ public class HTTP01Validator extends ACMEValidator {
         String response;
         try {
             HttpEntity entity = httpResponse.getEntity();
-            response = IOUtils.toString(entity.getContent(), "UTF-8");
+            response = IOUtils.toString(entity.getContent(), "UTF-8").trim();
             EntityUtils.consume(entity);
 
         } finally {
