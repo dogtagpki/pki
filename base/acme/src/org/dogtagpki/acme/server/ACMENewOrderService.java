@@ -62,7 +62,7 @@ public class ACMENewOrderService {
         logger.info("Payload: " + payload);
 
         ACMEOrder request = ACMEOrder.fromJSON(payload);
-        ArrayList<URI> authzURLs = new ArrayList<>();
+        ArrayList<String> authzIDs = new ArrayList<>();
 
         logger.info("Generating authorization for each identifiers");
         for (ACMEIdentifier identifier : request.getIdentifiers()) {
@@ -79,8 +79,7 @@ public class ACMENewOrderService {
 
             engine.addAuthorization(account, authorization);
 
-            URI authzURI = uriInfo.getBaseUriBuilder().path("authz").path(authzID).build();
-            authzURLs.add(authzURI);
+            authzIDs.add(authzID);
         }
 
         String orderID = ACME.randomAlphanumeric(10);
@@ -93,9 +92,16 @@ public class ACMENewOrderService {
         order.setNotBefore(request.getNotBefore());
         order.setNotAfter(request.getNotAfter());
 
-        order.setAuthorizations(authzURLs.toArray(new URI[authzURLs.size()]));
+        order.setAuthzIDs(authzIDs.toArray(new String[authzIDs.size()]));
 
         engine.addOrder(account, order);
+
+        ArrayList<URI> authzURLs = new ArrayList<>();
+        for (String authzID : authzIDs) {
+            URI authzURI = uriInfo.getBaseUriBuilder().path("authz").path(authzID).build();
+            authzURLs.add(authzURI);
+        }
+        order.setAuthorizations(authzURLs.toArray(new URI[authzURLs.size()]));
 
         URI finalizeURL = uriInfo.getBaseUriBuilder().path("order").path(orderID).path("finalize").build();
         order.setFinalize(finalizeURL);

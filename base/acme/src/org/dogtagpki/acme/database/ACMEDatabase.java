@@ -42,7 +42,7 @@ public abstract class ACMEDatabase {
     public abstract void addAccount(ACMEAccount account) throws Exception;
 
     public abstract ACMEOrder getOrder(String orderID) throws Exception;
-    public abstract ACMEOrder getOrderByAuthorization(URI authzURI) throws Exception;
+    public abstract ACMEOrder getOrderByAuthorization(String authzID) throws Exception;
     public abstract void addOrder(ACMEOrder order) throws Exception;
     public abstract void updateOrder(ACMEOrder order) throws Exception;
 

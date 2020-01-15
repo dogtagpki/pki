@@ -68,8 +68,7 @@ public class ACMEChallengeService {
         ACMEAuthorization authorization = engine.getAuthorizationByChallenge(account, challengeURL);
 
         String authzID = authorization.getID();
-        URI authzURL = uriInfo.getBaseUriBuilder().path("authz").path(authzID).build();
-        ACMEOrder order = engine.getOrderByAuthorization(account, authzURL);
+        ACMEOrder order = engine.getOrderByAuthorization(account, authzID);
 
         ACMEChallenge challenge = authorization.getChallenge(challengeURL);
         if (challenge == null) {
@@ -121,10 +120,8 @@ public class ACMEChallengeService {
         logger.info("Checking all authorizations in the order");
         boolean allAuthorizationsValid = true;
 
-        for (URI url : order.getAuthorizations()) {
-            String authzPath = url.getPath();
-            String id = authzPath.substring(authzPath.lastIndexOf('/') + 1);
-            ACMEAuthorization authz = engine.getAuthorization(account, id);
+        for (String orderAuthzID : order.getAuthzIDs()) {
+            ACMEAuthorization authz = engine.getAuthorization(account, orderAuthzID);
 
             if (authz.getStatus().equals("valid")) {
                 continue;
@@ -151,6 +148,7 @@ public class ACMEChallengeService {
         URI directoryURL = uriInfo.getBaseUriBuilder().path("directory").build();
         builder.link(directoryURL, "index");
 
+        URI authzURL = uriInfo.getBaseUriBuilder().path("authz").path(authzID).build();
         builder.link(authzURL, "up");
 
         builder.entity(challenge);

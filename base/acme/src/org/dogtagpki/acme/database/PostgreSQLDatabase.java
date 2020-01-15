@@ -340,9 +340,9 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return order;
     }
 
-    public ACMEOrder getOrderByAuthorization(URI authzURI) throws Exception {
+    public ACMEOrder getOrderByAuthorization(String authzID) throws Exception {
 
-        logger.info("Getting order for authorization " + authzURI);
+        logger.info("Getting order for authorization " + authzID);
 
         String sql = statements.getProperty("getOrderByAuthorization");
         logger.info("SQL: " + sql);
@@ -350,7 +350,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         ACMEOrder order = new ACMEOrder();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, authzURI.toString());
+            ps.setString(1, authzID);
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -426,15 +426,15 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
             try (ResultSet rs = ps.executeQuery()) {
 
-                List<URI> authorizations = new ArrayList<>();
+                List<String> authzIDs = new ArrayList<>();
 
                 while (rs.next()) {
-                    URI authorization = new URI(rs.getString("url"));
-                    authorizations.add(authorization);
+                    String authzID = rs.getString("authz_id");
+                    authzIDs.add(authzID);
                 }
 
-                if (!authorizations.isEmpty()) {
-                    order.setAuthorizations(authorizations.toArray(new URI[authorizations.size()]));
+                if (!authzIDs.isEmpty()) {
+                    order.setAuthzIDs(authzIDs.toArray(new String[authzIDs.size()]));
                 }
             }
         }
@@ -501,8 +501,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
     public void addOrderAuthorizations(ACMEOrder order) throws Exception {
 
-        URI[] authorizations = order.getAuthorizations();
-        if (authorizations == null) return;
+        String[] authzIDs = order.getAuthzIDs();
+        if (authzIDs == null) return;
 
         String orderID = order.getID();
         logger.info("Adding authorizations for order " + orderID);
@@ -512,10 +512,10 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            for (URI authorization : authorizations) {
+            for (String authzID : authzIDs) {
 
                 ps.setString(1, orderID);
-                ps.setString(2, authorization.toString());
+                ps.setString(2, authzID);
 
                 ps.executeUpdate();
             }

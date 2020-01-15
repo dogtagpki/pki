@@ -7,6 +7,7 @@ package org.dogtagpki.acme.server;
 
 import java.math.BigInteger;
 import java.net.URI;
+import java.util.ArrayList;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -58,6 +59,16 @@ public class ACMEOrderService {
         engine.validateJWS(jws, header.getAlg(), account.getJWK());
 
         ACMEOrder order = engine.getOrder(account, orderID);
+
+        String[] authzIDs = order.getAuthzIDs();
+        if (authzIDs != null) {
+            ArrayList<URI> authzURLs = new ArrayList<>();
+            for (String authzID : authzIDs) {
+                URI authzURI = uriInfo.getBaseUriBuilder().path("authz").path(authzID).build();
+                authzURLs.add(authzURI);
+            }
+            order.setAuthorizations(authzURLs.toArray(new URI[authzURLs.size()]));
+        }
 
         URI finalizeURL = uriInfo.getBaseUriBuilder().path("order").path(orderID).path("finalize").build();
         order.setFinalize(finalizeURL);

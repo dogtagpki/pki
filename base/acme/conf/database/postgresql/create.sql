@@ -33,7 +33,7 @@ CREATE TABLE "order_identifiers" (
 
 CREATE TABLE "order_authorizations" (
     "order_id"         VARCHAR NOT NULL,
-    "url"              VARCHAR NOT NULL
+    "authz_id"         VARCHAR NOT NULL
 );
 
 CREATE TABLE "authorizations" (

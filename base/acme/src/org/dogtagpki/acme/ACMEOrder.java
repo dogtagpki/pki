@@ -38,6 +38,9 @@ public class ACMEOrder {
     private Date notAfterTime;
 
     @JsonIgnore
+    private String[] authzIDs;
+
+    @JsonIgnore
     private BigInteger serialNumber;
 
     private String status;
@@ -93,6 +96,14 @@ public class ACMEOrder {
     public void setNotAfterTime(Date notAfterTime) {
         this.notAfterTime = notAfterTime;
         notAfter = notAfterTime == null ? null : ACME.DATE_FORMAT.format(notAfterTime);
+    }
+
+    public String[] getAuthzIDs() {
+        return authzIDs;
+    }
+
+    public void setAuthzIDs(String[] authzIDs) {
+        this.authzIDs = authzIDs;
     }
 
     public BigInteger getSerialNumber() {

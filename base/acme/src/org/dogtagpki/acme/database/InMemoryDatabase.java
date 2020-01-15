@@ -50,15 +50,15 @@ public class InMemoryDatabase extends ACMEDatabase {
         return orders.get(orderID);
     }
 
-    public ACMEOrder getOrderByAuthorization(URI authzURI) throws Exception {
+    public ACMEOrder getOrderByAuthorization(String authzID) throws Exception {
         for (ACMEOrder order : orders.values()) {
 
-            if (order.getAuthorizations() == null) {
+            if (order.getAuthzIDs() == null) {
                 continue;
             }
 
-            for (URI authorization : order.getAuthorizations()) {
-                if (!authorization.equals(authzURI)) continue;
+            for (String orderAuthzID : order.getAuthzIDs()) {
+                if (!orderAuthzID.equals(authzID)) continue;
 
                 return order;
             }

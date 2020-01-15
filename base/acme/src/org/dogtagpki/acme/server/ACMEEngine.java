@@ -555,8 +555,8 @@ public class ACMEEngine implements ServletContextListener {
         return order;
     }
 
-    public ACMEOrder getOrderByAuthorization(ACMEAccount account, URI authzURL) throws Exception {
-        ACMEOrder order = database.getOrderByAuthorization(authzURL);
+    public ACMEOrder getOrderByAuthorization(ACMEAccount account, String authzID) throws Exception {
+        ACMEOrder order = database.getOrderByAuthorization(authzID);
         validateOrder(account, order);
         return order;
     }
@@ -569,13 +569,9 @@ public class ACMEEngine implements ServletContextListener {
     public void validateCSR(ACMEAccount account, ACMEOrder order, String csr) throws Exception {
 
         logger.info("Getting authorized identifiers");
-        URI[] authorizations = order.getAuthorizations();
         Set<String> authorizedDNSNames = new HashSet<>();
 
-        for (URI authzURL : authorizations) {
-
-            String authzPath = authzURL.getPath();
-            String authzID = authzPath.substring(authzPath.lastIndexOf('/') + 1);
+        for (String authzID : order.getAuthzIDs()) {
             ACMEAuthorization authz = database.getAuthorization(authzID);
 
             // authz is guaranteed to be valid at this point
