@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.acme;
 
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.Date;
 
@@ -35,6 +36,9 @@ public class ACMEOrder {
 
     @JsonIgnore
     private Date notAfterTime;
+
+    @JsonIgnore
+    private BigInteger serialNumber;
 
     private String status;
     private String expires;
@@ -89,6 +93,14 @@ public class ACMEOrder {
     public void setNotAfterTime(Date notAfterTime) {
         this.notAfterTime = notAfterTime;
         notAfter = notAfterTime == null ? null : ACME.DATE_FORMAT.format(notAfterTime);
+    }
+
+    public BigInteger getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(BigInteger serialNumber) {
+        this.serialNumber = serialNumber;
     }
 
     public String getStatus() {

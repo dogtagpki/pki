@@ -6,6 +6,8 @@
 package org.dogtagpki.acme.database;
 
 import java.io.FileReader;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -332,8 +334,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 order.setCSR(rs.getString("csr"));
 
-                String certificate = rs.getString("certificate");
-                order.setCertificate(certificate == null ? null : new URI(certificate));
+                BigDecimal serialNumber = rs.getBigDecimal("serial_number");
+                order.setSerialNumber(serialNumber == null ? null : serialNumber.toBigInteger());
             }
         }
 
@@ -379,8 +381,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 order.setCSR(rs.getString("csr"));
 
-                String certificate = rs.getString("certificate");
-                order.setCertificate(certificate == null ? null : new URI(certificate));
+                BigDecimal serialNumber = rs.getBigDecimal("serial_number");
+                order.setSerialNumber(serialNumber == null ? null : serialNumber.toBigInteger());
             }
         }
 
@@ -474,8 +476,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
             ps.setString(8, order.getCSR());
 
-            URI certificate = order.getCertificate();
-            ps.setString(9, certificate == null ? null : certificate.toString());
+            BigInteger serialNumber = order.getSerialNumber();
+            ps.setBigDecimal(9, serialNumber == null ? null : new BigDecimal(serialNumber));
 
             ps.executeUpdate();
         }
@@ -543,8 +545,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
             ps.setString(1, order.getStatus());
 
-            URI certificate = order.getCertificate();
-            ps.setString(2, certificate == null ? null : certificate.toString());
+            BigInteger serialNumber = order.getSerialNumber();
+            ps.setBigDecimal(2, serialNumber == null ? null : new BigDecimal(serialNumber));
 
             ps.setString(3, orderID);
 

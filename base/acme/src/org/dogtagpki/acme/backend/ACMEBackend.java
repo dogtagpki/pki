@@ -5,6 +5,8 @@
 //
 package org.dogtagpki.acme.backend;
 
+import java.math.BigInteger;
+
 import org.dogtagpki.acme.ACMERevocation;
 
 /**
@@ -28,7 +30,7 @@ public class ACMEBackend {
     public void close() throws Exception {
     }
 
-    public String issueCertificate(String csr) throws Exception {
+    public BigInteger issueCertificate(String csr) throws Exception {
         return null;
     }
 

@@ -24,7 +24,7 @@ CREATE TABLE "orders" (
     "not_after"        TIMESTAMP,
     "finalize"         VARCHAR NOT NULL,
     "csr"              VARCHAR,
-    "certificate"      VARCHAR
+    "serial_number"    NUMERIC
 );
 
 CREATE TABLE "order_identifiers" (

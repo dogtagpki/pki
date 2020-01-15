@@ -87,7 +87,7 @@ public class PKIBackend extends ACMEBackend {
         caClient = new CAClient(pkiClient);
     }
 
-    public String issueCertificate(String csr) throws Exception {
+    public BigInteger issueCertificate(String csr) throws Exception {
 
         logger.info("Issuing certificate");
 
@@ -136,8 +136,7 @@ public class PKIBackend extends ACMEBackend {
         logger.info("Serial number: " + info.getCertId().toHexString());
 
         CertId id = info.getCertId();
-
-        return Base64.encodeBase64URLSafeString(id.toBigInteger().toByteArray());
+        return id.toBigInteger();
     }
 
     public String getCertificateChain(String certID) throws Exception {
