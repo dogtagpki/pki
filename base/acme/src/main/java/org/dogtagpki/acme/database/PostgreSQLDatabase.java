@@ -413,6 +413,50 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return orders;
     }
 
+    public ACMEOrder getOrderByCertificate(String certID) throws Exception {
+
+        logger.info("Getting order for certificate " + certID);
+
+        String sql = statements.getProperty("getOrderByCertificate");
+        logger.info("SQL: " + sql);
+
+        ACMEOrder order = new ACMEOrder();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, certID);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (!rs.next()) {
+                    // no order found
+                    return null;
+                }
+
+                // order found
+
+                order.setID(rs.getString("id"));
+                order.setAccountID(rs.getString("account_id"));
+                order.setStatus(rs.getString("status"));
+
+                Timestamp expires = rs.getTimestamp("expires");
+                order.setExpirationTime(new Date(expires.getTime()));
+
+                Timestamp notBefore = rs.getTimestamp("not_before");
+                order.setNotBeforeTime(notBefore == null ? null : new Date(notBefore.getTime()));
+
+                Timestamp notAfter = rs.getTimestamp("not_after");
+                order.setNotAfterTime(notAfter == null ? null : new Date(notAfter.getTime()));
+
+                order.setCertID(certID);
+            }
+        }
+
+        getOrderIdentifiers(order);
+        getOrderAuthorizations(order);
+
+        return order;
+    }
+
     public void getOrderIdentifiers(ACMEOrder order) throws Exception {
 
         String orderID = order.getID();
