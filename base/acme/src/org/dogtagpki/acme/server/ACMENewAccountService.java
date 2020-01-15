@@ -58,15 +58,25 @@ public class ACMENewAccountService {
         String payload = new String(jws.getPayloadAsBytes(), "UTF-8");
         logger.info("Payload: " + payload);
 
-        ACMEAccount account = ACMEAccount.fromJSON(payload);
+        URI accountURL = uriInfo.getBaseUriBuilder().path("acct").path(accountID).build();
+        ResponseBuilder builder;
 
-        Boolean onlyReturnExisting = account.getOnlyReturnExisting();
-        if (onlyReturnExisting == null || !onlyReturnExisting) {
+        ACMEAccount account = engine.getAccount(accountID, false);
 
-            // create new account
+        if (account == null) {
+
+            account = ACMEAccount.fromJSON(payload);
+
+            Boolean onlyReturnExisting = account.getOnlyReturnExisting();
+            if (onlyReturnExisting != null && onlyReturnExisting) {
+                throw engine.createAccountDoesNotExistException(accountID);
+            }
+
+            logger.info("Creating new account");
 
             Boolean termsOfServiceAgreed = account.getTermsOfServiceAgreed();
             if (termsOfServiceAgreed == null || !termsOfServiceAgreed) {
+                // TODO: generate proper exception
                 throw new Exception("Missing terms of service agreement");
             }
 
@@ -76,16 +86,20 @@ public class ACMENewAccountService {
 
             engine.createAccount(account);
 
+            builder = Response.created(accountURL);
+
         } else {
-            // get existing account
-            account = engine.getAccount(accountID);
+
+            logger.info("Account already exists");
+
+            engine.validateAccount(accountID, account);
+
+            builder = Response.ok();
+            builder.location(accountURL);
         }
 
         URI ordersURL = uriInfo.getBaseUriBuilder().path("acct").path(accountID).path("orders").build();
         account.setOrders(ordersURL);
-
-        URI accountURL = uriInfo.getBaseUriBuilder().path("acct").path(accountID).build();
-        ResponseBuilder builder = Response.created(accountURL);
 
         ACMENonce nonce = engine.createNonce();
         builder.header("Replay-Nonce", nonce.getValue());
