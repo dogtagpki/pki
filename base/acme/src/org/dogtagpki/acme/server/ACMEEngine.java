@@ -435,9 +435,14 @@ public class ACMEEngine implements ServletContextListener {
 
         ACMEAccount account = database.getAccount(accountID);
 
-        if (account != null) {
-            return account;
+        if (account == null) {
+            throw createAccountDoesNotExistException(accountID);
         }
+
+        return account;
+    }
+
+    public Exception createAccountDoesNotExistException(String accountID) {
 
         logger.info("Account does not exist: " + accountID);
 
@@ -447,11 +452,11 @@ public class ACMEEngine implements ServletContextListener {
         ACMEError error = new ACMEError();
         error.setType("urn:ietf:params:acme:error:accountDoesNotExist");
         error.setDetail("Account does not exist on the server: " + accountID + "\n" +
-                "Remove the local account with the following command:\n" +
+                "Remove the account from the client, for example:\n" +
                 "$ rm -rf /etc/letsencrypt/accounts/<ACME server>");
         builder.entity(error);
 
-        throw new WebApplicationException(builder.build());
+        return new WebApplicationException(builder.build());
     }
 
     public void addAuthorization(ACMEAccount account, ACMEAuthorization authorization) throws Exception {
