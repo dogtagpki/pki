@@ -79,6 +79,18 @@ public class InMemoryDatabase extends ACMEDatabase {
         return l;
     }
 
+    public ACMEOrder getOrderByCertificate(String certID) throws Exception {
+        for (ACMEOrder order : orders.values()) {
+            if (certID.equals(order.getCertID())) {
+                // order found
+                return order;
+            }
+        }
+
+        // no order found
+        return null;
+    }
+
     public void addOrder(ACMEOrder order) throws Exception {
         orders.put(order.getID(), order);
     }

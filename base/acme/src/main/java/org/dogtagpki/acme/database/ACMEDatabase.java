@@ -47,6 +47,24 @@ public abstract class ACMEDatabase {
             String authzID,
             String status)
         throws Exception;
+
+    /**
+     * This method returns the order record that created the certificate.
+     * The order record may be purged by the server at some point, so this
+     * record is not guaranteed to be available for all certificates.
+     *
+     * A certificate has at most one order record that corresponds to it.
+     * Only valid orders will have a certificate associated to them. If an
+     * order fails during processing, no certificates will be issued for it.
+     * If a certificate is renewed, a new order will be created which will
+     * then have a new certificate.
+     *
+     * @param certID The ID of the certificate.
+     * @return The order record corresponding to the provided certificate.
+     * @throws Exception
+     */
+    public abstract ACMEOrder getOrderByCertificate(String certID) throws Exception;
+
     public abstract void addOrder(ACMEOrder order) throws Exception;
     public abstract void updateOrder(ACMEOrder order) throws Exception;
 
