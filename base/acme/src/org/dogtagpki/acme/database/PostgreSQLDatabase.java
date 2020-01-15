@@ -215,7 +215,6 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 account.setID(accountID);
                 account.setStatus(rs.getString("status"));
-                account.setOrders(new URI(rs.getString("orders")));
 
                 String jwk = rs.getString("jwk");
                 account.setJWK(JWK.fromJSON(jwk));
@@ -266,8 +265,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
             ps.setString(1, accountID);
             ps.setString(2, account.getStatus());
-            ps.setString(3, account.getOrders().toString());
-            ps.setString(4, account.getJWK().toJSON());
+            ps.setString(3, account.getJWK().toJSON());
 
             ps.executeUpdate();
         }

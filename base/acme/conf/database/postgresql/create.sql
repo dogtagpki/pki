@@ -6,7 +6,6 @@ CREATE TABLE "nonces" (
 CREATE TABLE "accounts" (
     "id"               VARCHAR PRIMARY KEY,
     "status"           VARCHAR NOT NULL,
-    "orders"           VARCHAR NOT NULL,
     "jwk"              VARCHAR NOT NULL
 );
 

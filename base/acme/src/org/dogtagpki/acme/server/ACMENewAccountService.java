@@ -74,15 +74,15 @@ public class ACMENewAccountService {
             account.setJWK(jwk);
             account.setStatus("valid");
 
-            URI ordersURL = uriInfo.getBaseUriBuilder().path("acct").path(accountID).path("orders").build();
-            account.setOrders(ordersURL);
-
             engine.createAccount(account);
 
         } else {
             // get existing account
             account = engine.getAccount(accountID);
         }
+
+        URI ordersURL = uriInfo.getBaseUriBuilder().path("acct").path(accountID).path("orders").build();
+        account.setOrders(ordersURL);
 
         URI accountURL = uriInfo.getBaseUriBuilder().path("acct").path(accountID).build();
         ResponseBuilder builder = Response.created(accountURL);
