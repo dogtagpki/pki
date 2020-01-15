@@ -168,8 +168,6 @@ public class ACMEEngine implements ServletContextListener {
             logger.info("Loading default ACME metadata");
             metadata = new ACMEMetadata();
         }
-
-        logger.info("Metadata:\n" + metadata);
     }
 
     public void loadDatabaseConfig(String filename) throws Exception {
@@ -185,8 +183,6 @@ public class ACMEEngine implements ServletContextListener {
             logger.info("Loading default ACME database config");
             databaseConfig = new ACMEDatabaseConfig();
         }
-
-        logger.info("Database:\n" + databaseConfig);
     }
 
     public void initDatabase() throws Exception {
@@ -218,8 +214,6 @@ public class ACMEEngine implements ServletContextListener {
             logger.info("Loading default ACME validators config");
             validatorsConfig = new ACMEValidatorsConfig();
         }
-
-        logger.info("Validators:\n" + validatorsConfig);
     }
 
     public void initValidators() throws Exception {
@@ -263,8 +257,6 @@ public class ACMEEngine implements ServletContextListener {
             logger.info("Loading default ACME backend config");
             backendConfig = new ACMEBackendConfig();
         }
-
-        logger.info("Backend:\n" + backendConfig);
     }
 
     public void initBackend() throws Exception {

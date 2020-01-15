@@ -41,12 +41,11 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
     public void init() throws Exception {
 
-        Properties info = new Properties();
+        logger.info("Initializing PostgreSQL database");
 
-        logger.info("Parameters:");
+        Properties info = new Properties();
         for (String name : config.getParameterNames()) {
             String value = config.getParameter(name);
-            logger.info("- " + name + ": " + value);
             info.put(name, value);
         }
 

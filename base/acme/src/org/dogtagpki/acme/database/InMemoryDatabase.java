@@ -21,10 +21,16 @@ import org.dogtagpki.acme.ACMEOrder;
  */
 public class InMemoryDatabase extends ACMEDatabase {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(InMemoryDatabase.class);
+
     private Map<String, ACMENonce> nonces = new ConcurrentHashMap<>();
     private Map<String, ACMEAccount> accounts = new ConcurrentHashMap<>();
     private Map<String, ACMEOrder> orders = new ConcurrentHashMap<>();
     private Map<String, ACMEAuthorization> authorizations = new ConcurrentHashMap<>();
+
+    public void init() throws Exception {
+        logger.info("Initializing in-memory database");
+    }
 
     public void addNonce(ACMENonce nonce) throws Exception {
         nonces.put(nonce.getValue(), nonce);
