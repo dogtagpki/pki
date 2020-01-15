@@ -95,10 +95,10 @@ public class ACMENewOrderService {
 
         order.setAuthorizations(authzURLs.toArray(new URI[authzURLs.size()]));
 
+        engine.addOrder(account, order);
+
         URI finalizeURL = uriInfo.getBaseUriBuilder().path("order").path(orderID).path("finalize").build();
         order.setFinalize(finalizeURL);
-
-        engine.addOrder(account, order);
 
         URI orderURL = uriInfo.getBaseUriBuilder().path("order").path(orderID).build();
         ResponseBuilder builder = Response.created(orderURL);

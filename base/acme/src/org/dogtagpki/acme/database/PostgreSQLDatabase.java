@@ -329,9 +329,6 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 Timestamp notAfter = rs.getTimestamp("not_after");
                 order.setNotAfterTime(notAfter == null ? null : new Date(notAfter.getTime()));
 
-                String finalize = rs.getString("finalize");
-                order.setFinalize(finalize == null ? null : new URI(finalize));
-
                 order.setCSR(rs.getString("csr"));
 
                 BigDecimal serialNumber = rs.getBigDecimal("serial_number");
@@ -375,9 +372,6 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 Timestamp notAfter = rs.getTimestamp("not_after");
                 order.setNotAfterTime(notAfter == null ? null : new Date(notAfter.getTime()));
-
-                String finalize = rs.getString("finalize");
-                order.setFinalize(finalize == null ? null : new URI(finalize));
 
                 order.setCSR(rs.getString("csr"));
 
@@ -471,13 +465,10 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             Date notAfter = order.getNotAfterTime();
             ps.setTimestamp(6, notAfter == null ? null : new Timestamp(notAfter.getTime()));
 
-            URI finalize = order.getFinalize();
-            ps.setString(7, finalize == null ? null : finalize.toString());
-
-            ps.setString(8, order.getCSR());
+            ps.setString(7, order.getCSR());
 
             BigInteger serialNumber = order.getSerialNumber();
-            ps.setBigDecimal(9, serialNumber == null ? null : new BigDecimal(serialNumber));
+            ps.setBigDecimal(8, serialNumber == null ? null : new BigDecimal(serialNumber));
 
             ps.executeUpdate();
         }

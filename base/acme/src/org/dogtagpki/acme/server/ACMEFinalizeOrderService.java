@@ -88,6 +88,9 @@ public class ACMEFinalizeOrderService {
 
         engine.updateOrder(account, order);
 
+        URI finalizeURL = uriInfo.getBaseUriBuilder().path("order").path(orderID).path("finalize").build();
+        order.setFinalize(finalizeURL);
+
         URI certURL = uriInfo.getBaseUriBuilder().path("cert").path(certID).build();
         order.setCertificate(certURL);
 

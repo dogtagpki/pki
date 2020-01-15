@@ -22,7 +22,6 @@ CREATE TABLE "orders" (
     "expires"          TIMESTAMP NOT NULL,
     "not_before"       TIMESTAMP,
     "not_after"        TIMESTAMP,
-    "finalize"         VARCHAR NOT NULL,
     "csr"              VARCHAR,
     "serial_number"    NUMERIC
 );

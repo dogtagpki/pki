@@ -59,6 +59,9 @@ public class ACMEOrderService {
 
         ACMEOrder order = engine.getOrder(account, orderID);
 
+        URI finalizeURL = uriInfo.getBaseUriBuilder().path("order").path(orderID).path("finalize").build();
+        order.setFinalize(finalizeURL);
+
         BigInteger serialNumber = order.getSerialNumber();
         String certID = Base64.encodeBase64URLSafeString(serialNumber.toByteArray());
 
