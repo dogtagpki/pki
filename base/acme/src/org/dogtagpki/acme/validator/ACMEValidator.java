@@ -5,12 +5,9 @@
 //
 package org.dogtagpki.acme.validator;
 
-import java.net.URI;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.acme.ACME;
 import org.dogtagpki.acme.ACMEAuthorization;
@@ -65,20 +62,16 @@ public abstract class ACMEValidator {
     }
 
     public ACMEChallenge createChallenge(
-            UriInfo uriInfo,
             String authzID,
             String token) throws Exception {
 
         String challengeID = ACME.randomAlphanumeric(10);
         logger.info("Creating " + name + " challenge: " + challengeID);
 
-        URI challengeURI = uriInfo.getBaseUriBuilder().path("chall").path(challengeID).build();
-
         ACMEChallenge challenge = new ACMEChallenge();
         challenge.setID(challengeID);
         challenge.setAuthzID(authzID);
         challenge.setType(type);
-        challenge.setURL(challengeURI);
         challenge.setToken(token);
         challenge.setStatus("pending");
 

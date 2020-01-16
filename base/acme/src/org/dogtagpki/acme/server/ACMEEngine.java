@@ -7,7 +7,6 @@ package org.dogtagpki.acme.server;
 
 import java.io.File;
 import java.math.BigInteger;
-import java.net.URI;
 import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
@@ -526,8 +525,8 @@ public class ACMEEngine implements ServletContextListener {
         return authorization;
     }
 
-    public ACMEAuthorization getAuthorizationByChallenge(ACMEAccount account, URI challengeURL) throws Exception {
-        ACMEAuthorization authorization = database.getAuthorizationByChallenge(challengeURL);
+    public ACMEAuthorization getAuthorizationByChallenge(ACMEAccount account, String challengeID) throws Exception {
+        ACMEAuthorization authorization = database.getAuthorizationByChallenge(challengeID);
         validateAuthorization(account, authorization);
         return authorization;
     }

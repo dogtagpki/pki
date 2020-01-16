@@ -5,7 +5,6 @@
 //
 package org.dogtagpki.acme.database;
 
-import java.net.URI;
 import java.util.Date;
 
 import org.dogtagpki.acme.ACMEAccount;
@@ -47,7 +46,7 @@ public abstract class ACMEDatabase {
     public abstract void updateOrder(ACMEOrder order) throws Exception;
 
     public abstract ACMEAuthorization getAuthorization(String authzID) throws Exception;
-    public abstract ACMEAuthorization getAuthorizationByChallenge(URI challengeURI) throws Exception;
+    public abstract ACMEAuthorization getAuthorizationByChallenge(String challengeID) throws Exception;
     public abstract void addAuthorization(ACMEAuthorization authorization) throws Exception;
     public abstract void updateAuthorization(ACMEAuthorization authorization) throws Exception;
 }

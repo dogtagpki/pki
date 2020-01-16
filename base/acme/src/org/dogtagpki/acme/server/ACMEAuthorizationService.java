@@ -84,18 +84,20 @@ public class ACMEAuthorizationService {
             challenges = new ArrayList<>();
 
             for (ACMEValidator validator : engine.getValidators()) {
-                ACMEChallenge challenge = validator.createChallenge(uriInfo, authzID, token);
+                ACMEChallenge challenge = validator.createChallenge(authzID, token);
                 challenges.add(challenge);
             }
 
             authorization.setChallenges(challenges);
             engine.updateAuthorization(account, authorization);
+        }
 
-        } else {
-            logger.info("Challenges:");
-            for (ACMEChallenge challenge : challenges) {
-                logger.info("- " + challenge.getType() + ": " + challenge.getStatus());
-            }
+        logger.info("Challenges:");
+        for (ACMEChallenge challenge : challenges) {
+            logger.info("- " + challenge.getType() + ": " + challenge.getStatus());
+
+            URI challengeURL = uriInfo.getBaseUriBuilder().path("chall").path(challenge.getID()).build();
+            challenge.setURL(challengeURL);
         }
 
         ResponseBuilder builder = Response.ok();

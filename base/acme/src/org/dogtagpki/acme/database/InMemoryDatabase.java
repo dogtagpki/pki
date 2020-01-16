@@ -5,14 +5,12 @@
 //
 package org.dogtagpki.acme.database;
 
-import java.net.URI;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
-import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 
@@ -85,17 +83,10 @@ public class InMemoryDatabase extends ACMEDatabase {
         return authorizations.get(authzID);
     }
 
-    public ACMEAuthorization getAuthorizationByChallenge(URI challengeURI) throws Exception {
+    public ACMEAuthorization getAuthorizationByChallenge(String challengeID) throws Exception {
         for (ACMEAuthorization authorization : authorizations.values()) {
 
-            if (authorization.getChallenges() == null) {
-                continue;
-            }
-
-            for (ACMEChallenge challenge : authorization.getChallenges()) {
-                URI url = challenge.getURL();
-                if (!url.equals(challengeURI)) continue;
-
+            if (authorization.getChallenge(challengeID) != null) {
                 return authorization;
             }
         }

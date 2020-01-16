@@ -5,7 +5,6 @@
 //
 package org.dogtagpki.acme;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 
@@ -90,10 +89,14 @@ public class ACMEAuthorization {
         return challenges;
     }
 
-    public ACMEChallenge getChallenge(URI challengeURL) {
-        for (ACMEChallenge challenge : challenges) {
-            if (challenge.getURL().equals(challengeURL)) return challenge;
+    public ACMEChallenge getChallenge(String challengeID) {
+
+        if (challenges != null) {
+            for (ACMEChallenge challenge : challenges) {
+                if (challenge.getID().equals(challengeID)) return challenge;
+            }
         }
+
         return null;
     }
 

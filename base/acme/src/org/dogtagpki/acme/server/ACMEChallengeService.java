@@ -62,18 +62,15 @@ public class ACMEChallengeService {
         String payload = new String(jws.getPayloadAsBytes(), "UTF-8");
         logger.info("Payload: " + payload);
 
-        URI challengeURL = uriInfo.getBaseUriBuilder().path("chall").path(challengeID).build();
-        logger.info("Challenge URL: " + challengeURL);
-
-        ACMEAuthorization authorization = engine.getAuthorizationByChallenge(account, challengeURL);
+        ACMEAuthorization authorization = engine.getAuthorizationByChallenge(account, challengeID);
 
         String authzID = authorization.getID();
         ACMEOrder order = engine.getOrderByAuthorization(account, authzID);
 
-        ACMEChallenge challenge = authorization.getChallenge(challengeURL);
+        ACMEChallenge challenge = authorization.getChallenge(challengeID);
         if (challenge == null) {
             // TODO: generate proper exception
-            throw new Exception("Unknown challenge: " + challengeURL);
+            throw new Exception("Unknown challenge: " + challengeID);
         }
 
         String type = challenge.getType();
@@ -139,6 +136,9 @@ public class ACMEChallengeService {
         } else {
             logger.info("Order " + order.getID() + " is not ready");
         }
+
+        URI challengeURL = uriInfo.getBaseUriBuilder().path("chall").path(challengeID).build();
+        challenge.setURL(challengeURL);
 
         ResponseBuilder builder = Response.ok();
 

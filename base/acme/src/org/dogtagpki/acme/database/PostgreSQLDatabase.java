@@ -8,7 +8,6 @@ package org.dogtagpki.acme.database;
 import java.io.FileReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URI;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -582,9 +581,9 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return authorization;
     }
 
-    public ACMEAuthorization getAuthorizationByChallenge(URI challengeURI) throws Exception {
+    public ACMEAuthorization getAuthorizationByChallenge(String challengeID) throws Exception {
 
-        logger.info("Getting authorization for challenge " + challengeURI);
+        logger.info("Getting authorization for challenge " + challengeID);
 
         String sql = statements.getProperty("getAuthorizationByChallenge");
         logger.info("SQL: " + sql);
@@ -592,7 +591,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         ACMEAuthorization authorization = new ACMEAuthorization();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, challengeURI.toString());
+            ps.setString(1, challengeID);
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -643,7 +642,6 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                     challenge.setID(rs.getString("id"));
                     challenge.setAuthzID(authzID);
                     challenge.setType(rs.getString("type"));
-                    challenge.setURL(new URI(rs.getString("url")));
                     challenge.setToken(rs.getString("token"));
                     challenge.setStatus(rs.getString("status"));
 
@@ -744,12 +742,11 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 ps.setString(1, challenge.getID());
                 ps.setString(2, authzID);
                 ps.setString(3, challenge.getType());
-                ps.setString(4, challenge.getURL().toString());
-                ps.setString(5, challenge.getToken());
-                ps.setString(6, challenge.getStatus());
+                ps.setString(4, challenge.getToken());
+                ps.setString(5, challenge.getStatus());
 
                 Date validationTime = challenge.getValidationTime();
-                ps.setTimestamp(7, validationTime == null ? null : new Timestamp(validationTime.getTime()));
+                ps.setTimestamp(6, validationTime == null ? null : new Timestamp(validationTime.getTime()));
 
                 ps.executeUpdate();
             }

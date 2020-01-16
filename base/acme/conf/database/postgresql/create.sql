@@ -50,7 +50,6 @@ CREATE TABLE "authorization_challenges" (
     "id"               VARCHAR NOT NULL,
     "authz_id"         VARCHAR NOT NULL,
     "type"             VARCHAR NOT NULL,
-    "url"              VARCHAR NOT NULL,
     "token"            VARCHAR NOT NULL,
     "status"           VARCHAR NOT NULL,
     "validated"        TIMESTAMP
