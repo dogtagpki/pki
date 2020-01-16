@@ -323,7 +323,6 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 Timestamp notAfter = rs.getTimestamp("not_after");
                 order.setNotAfterTime(notAfter == null ? null : new Date(notAfter.getTime()));
 
-                order.setCSR(rs.getString("csr"));
                 order.setCertID(rs.getString("cert_id"));
             }
         }
@@ -365,7 +364,6 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 Timestamp notAfter = rs.getTimestamp("not_after");
                 order.setNotAfterTime(notAfter == null ? null : new Date(notAfter.getTime()));
 
-                order.setCSR(rs.getString("csr"));
                 order.setCertID(rs.getString("cert_id"));
             }
         }
@@ -455,8 +453,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             Date notAfter = order.getNotAfterTime();
             ps.setTimestamp(6, notAfter == null ? null : new Timestamp(notAfter.getTime()));
 
-            ps.setString(7, order.getCSR());
-            ps.setString(8, order.getCertID());
+            ps.setString(7, order.getCertID());
 
             ps.executeUpdate();
         }

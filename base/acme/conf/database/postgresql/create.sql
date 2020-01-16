@@ -21,7 +21,6 @@ CREATE TABLE "orders" (
     "expires"          TIMESTAMP NOT NULL,
     "not_before"       TIMESTAMP,
     "not_after"        TIMESTAMP,
-    "csr"              VARCHAR,
     "cert_id"          VARCHAR
 );
 
