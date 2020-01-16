@@ -432,14 +432,40 @@ public class ACMEEngine implements ServletContextListener {
     }
 
     public ACMEAccount getAccount(String accountID) throws Exception {
+        return getAccount(accountID, true);
+    }
+
+    public ACMEAccount getAccount(String accountID, boolean validate) throws Exception {
 
         ACMEAccount account = database.getAccount(accountID);
 
-        if (account == null) {
-            throw createAccountDoesNotExistException(accountID);
+        if (validate) {
+
+            if (account == null) {
+                throw createAccountDoesNotExistException(accountID);
+            }
+
+            validateAccount(accountID, account);
         }
 
         return account;
+    }
+
+    public void validateAccount(String accountID, ACMEAccount account) throws Exception {
+        if (!"valid".equals(account.getStatus())) {
+
+            logger.info("Invalid account: " + accountID);
+
+            ResponseBuilder builder = Response.status(Response.Status.UNAUTHORIZED);
+            builder.type("application/problem+json");
+
+            ACMEError error = new ACMEError();
+            error.setType("urn:ietf:params:acme:error:unauthorized");
+            error.setDetail("Invalid account: " + accountID);
+            builder.entity(error);
+
+            throw new WebApplicationException(builder.build());
+        }
     }
 
     public Exception createAccountDoesNotExistException(String accountID) {
