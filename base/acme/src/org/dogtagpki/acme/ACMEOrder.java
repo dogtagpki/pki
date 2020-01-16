@@ -5,7 +5,6 @@
 //
 package org.dogtagpki.acme;
 
-import java.math.BigInteger;
 import java.net.URI;
 import java.util.Date;
 
@@ -41,7 +40,7 @@ public class ACMEOrder {
     private String[] authzIDs;
 
     @JsonIgnore
-    private BigInteger serialNumber;
+    private String certID;
 
     private String status;
     private String expires;
@@ -106,12 +105,12 @@ public class ACMEOrder {
         this.authzIDs = authzIDs;
     }
 
-    public BigInteger getSerialNumber() {
-        return serialNumber;
+    public String getCertID() {
+        return certID;
     }
 
-    public void setSerialNumber(BigInteger serialNumber) {
-        this.serialNumber = serialNumber;
+    public void setCertID(String certID) {
+        this.certID = certID;
     }
 
     public String getStatus() {

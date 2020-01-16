@@ -84,7 +84,7 @@ public class ACMEFinalizeOrderService {
         logger.info("Certificate issued: " + certID);
 
         order.setStatus("valid");
-        order.setSerialNumber(serialNumber);
+        order.setCertID(certID);
 
         engine.updateOrder(account, order);
 

@@ -6,8 +6,6 @@
 package org.dogtagpki.acme.database;
 
 import java.io.FileReader;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -326,9 +324,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 order.setNotAfterTime(notAfter == null ? null : new Date(notAfter.getTime()));
 
                 order.setCSR(rs.getString("csr"));
-
-                BigDecimal serialNumber = rs.getBigDecimal("serial_number");
-                order.setSerialNumber(serialNumber == null ? null : serialNumber.toBigInteger());
+                order.setCertID(rs.getString("cert_id"));
             }
         }
 
@@ -370,9 +366,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 order.setNotAfterTime(notAfter == null ? null : new Date(notAfter.getTime()));
 
                 order.setCSR(rs.getString("csr"));
-
-                BigDecimal serialNumber = rs.getBigDecimal("serial_number");
-                order.setSerialNumber(serialNumber == null ? null : serialNumber.toBigInteger());
+                order.setCertID(rs.getString("cert_id"));
             }
         }
 
@@ -462,9 +456,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.setTimestamp(6, notAfter == null ? null : new Timestamp(notAfter.getTime()));
 
             ps.setString(7, order.getCSR());
-
-            BigInteger serialNumber = order.getSerialNumber();
-            ps.setBigDecimal(8, serialNumber == null ? null : new BigDecimal(serialNumber));
+            ps.setString(8, order.getCertID());
 
             ps.executeUpdate();
         }
@@ -531,10 +523,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, order.getStatus());
-
-            BigInteger serialNumber = order.getSerialNumber();
-            ps.setBigDecimal(2, serialNumber == null ? null : new BigDecimal(serialNumber));
-
+            ps.setString(2, order.getCertID());
             ps.setString(3, orderID);
 
             ps.executeUpdate();

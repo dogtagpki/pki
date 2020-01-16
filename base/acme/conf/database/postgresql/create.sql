@@ -22,7 +22,7 @@ CREATE TABLE "orders" (
     "not_before"       TIMESTAMP,
     "not_after"        TIMESTAMP,
     "csr"              VARCHAR,
-    "serial_number"    NUMERIC
+    "cert_id"          VARCHAR
 );
 
 CREATE TABLE "order_identifiers" (
