@@ -378,16 +378,14 @@ public class ACMEEngine implements ServletContextListener {
 
     public void validateJWS(JWS jws, String alg, JWK jwk) throws Exception {
 
-        logger.info("Validating " + alg + " JWS");
-
-        String message = jws.getProtectedHeader() + "." + jws.getPayload();
-        byte[] signature = Base64.decodeBase64(jws.getSignature());
-
-        // JWS validation
-        // https://tools.ietf.org/html/rfc7515
         // TODO: support other algorithms
 
+        Signature signer;
+        PublicKey publicKey;
+
         if ("RS256".equals(alg)) {
+
+            signer = Signature.getInstance("SHA256withRSA", "Mozilla-JSS");
 
             String kty = jwk.getKty();
             KeyFactory keyFactory = KeyFactory.getInstance(kty, "Mozilla-JSS");
@@ -399,18 +397,29 @@ public class ACMEEngine implements ServletContextListener {
             BigInteger publicExponent = new BigInteger(1, Base64.decodeBase64(e));
 
             RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, publicExponent);
-            PublicKey publicKey = keyFactory.generatePublic(keySpec);
-
-            Signature signer = Signature.getInstance("SHA256withRSA", "Mozilla-JSS");
-            signer.initVerify(publicKey);
-            signer.update(message.getBytes());
-
-            if (!signer.verify(signature)) {
-                throw new Exception("Invalid " + alg + " JWS");
-            }
+            publicKey = keyFactory.generatePublic(keySpec);
 
         } else {
             throw new Exception("Unsupported JWS algorithm: " + alg);
+        }
+
+        validateJWS(jws, signer, publicKey);
+    }
+
+    public void validateJWS(JWS jws, Signature signer, PublicKey publicKey) throws Exception {
+
+        logger.info("Validating JWS");
+
+        // https://tools.ietf.org/html/rfc7515
+
+        String message = jws.getProtectedHeader() + "." + jws.getPayload();
+        byte[] signature = Base64.decodeBase64(jws.getSignature());
+
+        signer.initVerify(publicKey);
+        signer.update(message.getBytes());
+
+        if (!signer.verify(signature)) {
+            throw new Exception("Invalid JWS");
         }
     }
 
