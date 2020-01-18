@@ -37,9 +37,10 @@ SCRIPTPATH = os.path.dirname(os.path.abspath(__file__))
 PYLINTRC = os.path.join(SCRIPTPATH, 'pylintrc')
 FILENAMES = [
     os.path.abspath(__file__),
-    '{sitepackages}/pki',
+    os.path.abspath("base/server/healthcheck/setup.py")
 ]
 UPGRADE_SCRIPT = re.compile('^[0-9]+-.*')
+PYTHON_SCRIPT = re.compile('\\S+\\.py$')
 
 
 def tox_env(args):
@@ -74,6 +75,12 @@ def find_upgrades(root):
             if UPGRADE_SCRIPT.match(filename):
                 yield os.path.join(dirpath, filename)
 
+def find_pki_python_files(root):
+    """Find all python files in PKI project"""
+    for dirpath, _, filenames in os.walk(root):
+        for filename in filenames:
+            if PYTHON_SCRIPT.match(filename):
+                yield os.path.join(dirpath, filename)
 
 def main():
     """Dogtag pylint script"""
@@ -113,18 +120,21 @@ def main():
     if not os.path.isfile(PYLINTRC):
         raise IOError('{} not found'.format(PYLINTRC))
 
+    # Populate all the python files that needs to be linted
+    FILENAMES.extend(find_pki_python_files(env['sitepackages']))
+
     pylint = [
         'pylint' if sys.version_info.major == 2 else 'pylint-3',
         '--rcfile={}'.format(PYLINTRC)
     ]
     pylint.extend(extra_args)
-    pylint.extend(filename.format(**env) for filename in FILENAMES)
+    pylint.extend(FILENAMES)
     pylint.extend(find_upgrades('{sharepki}/upgrade'.format(**env)))
     pylint.extend(find_upgrades('{sharepki}/server/upgrade'.format(**env)))
     if args.verbose:
         pprint.pprint(pylint)
 
-    return subprocess.call(pylint, cwd=env['sitepackages'])
+    return subprocess.call(pylint)
 
 
 if __name__ == '__main__':
