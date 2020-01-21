@@ -6,10 +6,9 @@ services:
 cache: pip
 
 env:
-  - IMAGE=fedora:29 TASK="PKI"
-  - IMAGE=fedora:29 TASK="IPA"
   - IMAGE=fedora:30 TASK="PKI"
   - IMAGE=fedora:30 TASK="IPA"
+  - IMAGE=fedora:31 TASK="PKI"
 
 before_install:
   - set -a && source travis/global_variables
@@ -56,6 +55,9 @@ matrix:
     - stage: rawhide
       env: IMAGE=fedora:rawhide TASK="PKI"
     - env: IMAGE=fedora:rawhide TASK="IPA"
+    # NOTE: Fedora 31 canoot run IPA test suite
+    # due to upstream issue: https://pagure.io/freeipa/issue/7989
+    - env: IMAGE=fedora:31 TASK="IPA"
     # This is a dummy job to mark the build as finished, without waiting for rawhide jobs
     - env: DUMMY_JOB=FOR_FAST_FINISH
       before_install: true
@@ -66,6 +68,7 @@ matrix:
     - stage: rawhide
       env: IMAGE=fedora:rawhide TASK="PKI"
     - env: IMAGE=fedora:rawhide TASK="IPA"
+    - env: IMAGE=fedora:31 TASK="IPA"
 
 after_script:
   - cat ${LOGS}
