@@ -164,7 +164,7 @@ import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.listeners.ListenerPlugin;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.ARequestNotifier;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.security.KeyCertUtil;
@@ -2890,7 +2890,7 @@ public class CertificateAuthority
             // Sign certificate
             Locale locale = Locale.getDefault();
             String profileId = "caCACert";
-            IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
+            ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
             IProfile profile = ps.getProfile(profileId);
             ArgBlock argBlock = new ArgBlock();
             argBlock.set("cert_request_type", "pkcs10");
@@ -2968,7 +2968,7 @@ public class CertificateAuthority
             issuer.ensureReady();
         }
 
-        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
+        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
         IProfile profile = ps.getProfile("caManualRenewal");
         CertEnrollmentRequest req = CertEnrollmentRequestFactory.create(
             new ArgBlock(), profile, httpReq.getLocale());

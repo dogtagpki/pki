@@ -36,7 +36,8 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.registry.PluginRegistry;
 
-public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
+public abstract class AbstractProfileSubsystem implements ISubsystem {
+
     protected static final String PROP_CHECK_OWNER = "checkOwner";
     protected static final String PROP_ENABLE = "enable";
     protected static final String PROP_ENABLE_BY = "enableBy";

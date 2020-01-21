@@ -69,7 +69,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 public class CAProcessor extends Processor {
@@ -133,7 +133,7 @@ public class CAProcessor extends Processor {
     protected UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
     protected ICertUserLocator ul = ug.getCertUserLocator();
     protected IRequestQueue queue;
-    protected IProfileSubsystem ps;
+    protected ProfileSubsystem ps;
     protected ICertificateRepository certdb;
 
     //logging and stats
@@ -152,7 +152,7 @@ public class CAProcessor extends Processor {
             cs.getString(AUTHZ_RESOURCE_NAME);
         this.authMgr = cs.getString(AUTH_MGR, "").isEmpty() ? null : cs.getString(AUTH_MGR);
         this.getClientCert = cs.getString(GET_CLIENT_CERT, "").isEmpty() ? "false" : cs.getString(GET_CLIENT_CERT);
-        this.profileSubId = cs.getString(PROFILE_SUB_ID, "").isEmpty() ? IProfileSubsystem.ID :
+        this.profileSubId = cs.getString(PROFILE_SUB_ID, "").isEmpty() ? ProfileSubsystem.ID :
             cs.getString(PROFILE_SUB_ID);
 
         String aclInfo = cs.getString(ACL_INFO, "").isEmpty() ? null : cs.getString(ACL_INFO);
@@ -172,10 +172,10 @@ public class CAProcessor extends Processor {
         }
 
         if (profileSubId == null || profileSubId.equals("")) {
-            profileSubId = IProfileSubsystem.ID;
+            profileSubId = ProfileSubsystem.ID;
         }
 
-        ps = (IProfileSubsystem) engine.getSubsystem(profileSubId);
+        ps = (ProfileSubsystem) engine.getSubsystem(profileSubId);
         if (ps == null) {
             throw new EBaseException("CAProcessor: Profile Subsystem not found");
         }
@@ -190,7 +190,7 @@ public class CAProcessor extends Processor {
         return profileID;
     }
 
-    public IProfileSubsystem getProfileSubsystem() {
+    public ProfileSubsystem getProfileSubsystem() {
         return ps;
     }
 

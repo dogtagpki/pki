@@ -47,7 +47,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 
 /**
  * Toggle the approval state of a profile
@@ -113,7 +113,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
         String profileId = null;
 
-        IProfileSubsystem ps = null;
+        ProfileSubsystem ps;
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -180,10 +180,10 @@ public class ProfileApproveServlet extends ProfileServlet {
 
             // (2) Get profile id from the request
             if (mProfileSubId == null || mProfileSubId.equals("")) {
-                mProfileSubId = IProfileSubsystem.ID;
+                mProfileSubId = ProfileSubsystem.ID;
             }
             logger.debug("ProfileApproveServlet: SubId=" + mProfileSubId);
-            ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
+            ps = (ProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
             if (ps == null) {
                 logger.error("ProfileApproveServlet: ProfileSubsystem not found");
@@ -493,11 +493,11 @@ public class ProfileApproveServlet extends ProfileServlet {
 
         if (mProfileSubId == null ||
                 mProfileSubId.equals("")) {
-            mProfileSubId = IProfileSubsystem.ID;
+            mProfileSubId = ProfileSubsystem.ID;
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
+        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;

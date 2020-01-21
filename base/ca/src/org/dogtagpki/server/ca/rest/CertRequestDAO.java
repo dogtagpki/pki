@@ -55,7 +55,7 @@ import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -68,7 +68,7 @@ public class CertRequestDAO extends CMSRequestDAO {
 
     private IRequestQueue queue;
     private ICertificateAuthority ca;
-    IProfileSubsystem ps;
+    ProfileSubsystem ps;
     private SecureRandom random = null;
 
     public static final String ATTR_SERIALNO = "serialNumber";
@@ -84,7 +84,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         if (ca.noncesEnabled()) {
             random = jssSubsystem.getRandomNumberGenerator();
         }
-        ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
+        ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
     }
 
     /**

@@ -36,7 +36,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.profile.common.IProfile;
-import com.netscape.cms.servlet.csadmin.GetStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -62,10 +61,10 @@ import netscape.ldap.util.DN;
 
 
 public class LDAPProfileSubsystem
-        extends AbstractProfileSubsystem
-        implements IProfileSubsystem, Runnable {
+        extends ProfileSubsystem
+        implements Runnable {
 
-    public final static Logger logger = LoggerFactory.getLogger(GetStatus.class);
+    public final static Logger logger = LoggerFactory.getLogger(LDAPProfileSubsystem.class);
 
     private String profileContainerDNString;
     private DN profileContainerDN;

@@ -66,7 +66,7 @@ import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -419,7 +419,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
+        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
         if (ps == null) {
             String message = "Unable to get enrollment template: Profile Service not available";
             logger.error(message);
@@ -479,7 +479,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         size = size == null ? DEFAULT_PAGESIZE : size;
 
         CMSEngine engine = CMS.getCMSEngine();
-        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
+        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
 
         if (ps == null) {
             throw new PKIException("Profile subsystem unavailable.");

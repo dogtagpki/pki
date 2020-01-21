@@ -57,7 +57,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -215,7 +215,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         String profileId = processor.getProfileID() == null ? request.getParameter("profileId") : processor.getProfileID();
         logger.debug("ProfileSubmitServlet: profile: " + profileId);
 
-        IProfileSubsystem ps = processor.getProfileSubsystem();
+        ProfileSubsystem ps = processor.getProfileSubsystem();
         IProfile profile = ps.getProfile(profileId);
 
         if (profile == null) {
@@ -252,7 +252,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         String profileId = processor.getProfileID() == null ? request.getParameter("profileId") : processor.getProfileID();
         logger.debug("ProfileSubmitServlet: profile: " + profileId);
 
-        IProfileSubsystem ps = processor.getProfileSubsystem();
+        ProfileSubsystem ps = processor.getProfileSubsystem();
         IProfile profile = ps.getProfile(profileId);
 
         if (profile == null) {

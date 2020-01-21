@@ -51,7 +51,7 @@ import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
@@ -75,7 +75,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
     public final static String PROP_PREDICATE = "predicate";
     private PluginRegistry registry;
-    private IProfileSubsystem mProfileSub = null;
+    private ProfileSubsystem mProfileSub;
 
     // These will be moved to PolicyResources
     public static String INVALID_POLICY_SCOPE = "Invalid policy administration scope";
@@ -108,7 +108,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
         CMSEngine engine = CMS.getCMSEngine();
         registry = engine.getPluginRegistry();
-        mProfileSub = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
+        mProfileSub = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
     }
 
     /**

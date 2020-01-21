@@ -77,7 +77,7 @@ import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 
 /**
  * This servlet submits end-user request into the profile framework.
@@ -320,13 +320,13 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         logger.debug("ProfileSubmitCMCServlet: start serving");
 
         if (mProfileSubId == null || mProfileSubId.equals("")) {
-            mProfileSubId = IProfileSubsystem.ID;
+            mProfileSubId = ProfileSubsystem.ID;
         }
 
         logger.debug("ProfileSubmitCMCServlet: SubId=" + mProfileSubId);
 
         CAEngine engine = (CAEngine) CMS.getCMSEngine();
-        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
+        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             logger.warn("ProfileSubmitCMCServlet: ProfileSubsystem not found");

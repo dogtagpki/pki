@@ -78,7 +78,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
@@ -89,12 +89,13 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileService.class);
 
-    CMSEngine engine = CMS.getCMSEngine();
     private PluginRegistry registry;
-    private IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
+    private ProfileSubsystem ps;
 
     public ProfileService() {
+        CMSEngine engine = CMS.getCMSEngine();
         registry = engine.getPluginRegistry();
+        ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
     }
 
     @Override
@@ -333,7 +334,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             Locale locale) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
+        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
         if (profileId == null) {
             throw new EBaseException("Error creating ProfileDataInfo.");
         }

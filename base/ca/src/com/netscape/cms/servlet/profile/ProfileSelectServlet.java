@@ -48,7 +48,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 
 /**
  * Retrieve detailed information of a particular profile.
@@ -130,10 +130,10 @@ public class ProfileSelectServlet extends ProfileServlet {
 
         // (2) Get profile id from the request
         if (mProfileSubId == null || mProfileSubId.equals("")) {
-            mProfileSubId = IProfileSubsystem.ID;
+            mProfileSubId = ProfileSubsystem.ID;
         }
         logger.debug("ProfileSelectServlet: SubId=" + mProfileSubId);
-        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
+        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             logger.error("ProfileSelectServlet: ProfileSubsystem not found");

@@ -51,7 +51,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -152,10 +152,10 @@ public class ProfileReviewServlet extends ProfileServlet {
 
         // (2) Get profile id from the request
         if (mProfileSubId == null || mProfileSubId.equals("")) {
-            mProfileSubId = IProfileSubsystem.ID;
+            mProfileSubId = ProfileSubsystem.ID;
         }
         logger.debug("ProfileReviewServlet: SubId=" + mProfileSubId);
-        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
+        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             logger.error("ProfileReviewServlet: ProfileSubsystem not found");

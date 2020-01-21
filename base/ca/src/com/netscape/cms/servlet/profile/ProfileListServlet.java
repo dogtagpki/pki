@@ -36,7 +36,7 @@ import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 
 /**
  * List all enabled profiles.
@@ -103,10 +103,10 @@ public class ProfileListServlet extends ProfileServlet {
 
         // (2) Get profile id from the request
         if (mProfileSubId == null || mProfileSubId.equals("")) {
-            mProfileSubId = IProfileSubsystem.ID;
+            mProfileSubId = ProfileSubsystem.ID;
         }
         logger.debug("ProfileListServlet: SubId=" + mProfileSubId);
-        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
+        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             logger.warn("ProfileListServlet: ProfileSubsystem " +

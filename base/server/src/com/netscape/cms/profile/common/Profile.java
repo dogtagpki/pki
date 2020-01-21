@@ -48,7 +48,7 @@ import com.netscape.cms.profile.input.EnrollInput;
 import com.netscape.cms.profile.updater.IProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
@@ -83,9 +83,9 @@ public abstract class Profile implements IProfile {
     public static final String PROP_NO_CONSTRAINT = "noConstraintImpl";
     public static final String PROP_GENERIC_EXT_DEFAULT = "genericExtDefaultImpl";
 
-    protected IProfileSubsystem mOwner = null;
     protected IConfigStore mConfig = null;
     protected PluginRegistry registry;
+    protected ProfileSubsystem mOwner;
 
     protected Vector<String> mInputNames = new Vector<String>();
     protected Hashtable<String, IProfileInput> mInputs = new Hashtable<String, IProfileInput>();
@@ -179,7 +179,7 @@ public abstract class Profile implements IProfile {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
         logger.debug("Profile: start init");
-        mOwner = (IProfileSubsystem) owner;
+        mOwner = (ProfileSubsystem) owner;
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();

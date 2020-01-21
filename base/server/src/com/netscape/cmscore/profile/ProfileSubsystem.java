@@ -33,10 +33,11 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 public class ProfileSubsystem
-        extends AbstractProfileSubsystem
-        implements IProfileSubsystem {
+        extends AbstractProfileSubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileSubsystem.class);
+
+    public static final String ID = "profile";
 
     private static final String PROP_LIST = "list";
     private static final String PROP_CLASS_ID = "class_id";
@@ -107,7 +108,6 @@ public class ProfileSubsystem
     /**
      * Creates a profile instance.
      */
-    @Override
     public IProfile createProfile(String id, String classid, String className)
             throws EProfileException {
         return createProfile(id, classid, className, null, true);

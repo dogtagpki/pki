@@ -120,7 +120,7 @@ import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
-import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWCBsdr;
 import com.netscape.cmscore.util.Debug;
@@ -152,7 +152,7 @@ public class CRSEnrollment extends HttpServlet {
 
     private static final long serialVersionUID = 8483002540957382369L;
 
-    protected IProfileSubsystem mProfileSubsystem = null;
+    protected ProfileSubsystem mProfileSubsystem;
     protected String mProfileId = null;
     protected ICertAuthority mAuthority;
     protected IConfigStore mConfig = null;
@@ -291,7 +291,7 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         try {
-            mProfileSubsystem = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
+            mProfileSubsystem = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
             mProfileId = sc.getInitParameter("profileId");
             logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
 

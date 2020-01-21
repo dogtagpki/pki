@@ -43,8 +43,8 @@ import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.profile.IProfileSubsystem;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
@@ -62,7 +62,7 @@ public class CAConfigurator extends Configurator {
     public void setupDatabase(DatabaseSetupRequest request) throws Exception {
 
         if (!request.isClone()
-                && engine.getSubsystem(IProfileSubsystem.ID) instanceof LDAPProfileSubsystem) {
+                && engine.getSubsystem(ProfileSubsystem.ID) instanceof LDAPProfileSubsystem) {
             try {
                 importProfiles("/usr/share/pki");
             } catch (Exception e) {
