@@ -207,6 +207,7 @@ BuildRequires:    python3-libselinux
 BuildRequires:    python3-nss
 BuildRequires:    python3-requests >= 2.6.0
 BuildRequires:    python3-six
+BuildRequires:    python3-pytest-runner
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
@@ -433,6 +434,13 @@ Requires:         p11-kit-trust
 # PKICertImport depends on certutil and openssl
 Requires:         nss-tools
 Requires:         openssl
+
+# pki-healthcheck depends on the following library
+%if 0%{?rhel}
+Requires:         ipa-healthcheck-core
+%else
+Requires:         freeipa-healthcheck-core
+%endif
 
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make
@@ -1097,6 +1105,11 @@ fi
 %{_sbindir}/pki-server
 %{_sbindir}/pki-server-upgrade
 %{python3_sitelib}/pki/server/
+%{_sbindir}/pki-healthcheck
+%{python3_sitelib}/pki/server/healthcheck/
+%{python3_sitelib}/pkihealthcheck-*.egg-info/
+%config(noreplace) %{_sysconfdir}/pki/healthcheck.conf
+
 %{_datadir}/pki/etc/tomcat.conf
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/

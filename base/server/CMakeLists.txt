@@ -26,6 +26,7 @@ add_subdirectory(tomcat)
 add_subdirectory(src)
 add_subdirectory(cmsbundle)
 add_subdirectory(test)
+add_subdirectory(healthcheck)
 
 # build server classes
 javac(pki-server-classes
