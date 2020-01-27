@@ -1143,6 +1143,7 @@ fi
 %{_mandir}/man8/pki-server-ocsp.8.gz
 %{_mandir}/man8/pki-server-tks.8.gz
 %{_mandir}/man8/pki-server-tps.8.gz
+%{_mandir}/man8/pki-healthcheck.8.gz
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
 %{_datadir}/pki/acme/
