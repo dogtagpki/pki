@@ -435,13 +435,6 @@ Requires:         p11-kit-trust
 Requires:         nss-tools
 Requires:         openssl
 
-# pki-healthcheck depends on the following library
-%if 0%{?rhel}
-Requires:         ipa-healthcheck-core
-%else
-Requires:         freeipa-healthcheck-core
-%endif
-
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make
 Certificate System into a more complete and robust PKI solution.
@@ -490,6 +483,13 @@ Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
 Requires:         tomcatjss >= 7.4.1
+
+# pki-healthcheck depends on the following library
+%if 0%{?rhel}
+Requires:         ipa-healthcheck-core
+%else
+Requires:         freeipa-healthcheck-core
+%endif
 
 # https://pagure.io/freeipa/issue/7742
 %if 0%{?rhel}
