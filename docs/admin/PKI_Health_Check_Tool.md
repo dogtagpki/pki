@@ -10,17 +10,17 @@ The purpose of the healthcheck tool is to find and report error conditions that 
 
 ### Dependencies
 
-The pki-healthcheck tool will depend on `freeipa-healthcheck-core` package for the base framework, which is built along with `freeipa-healthcheck`. This is done to ensure that `pki-healthcheck` can integrate smoothly with the `freeipa-healthcheck` since FreeIPA project depends on PKI for CA/KRA backened.
+The pki-healthcheck tool depends on `freeipa-healthcheck-core` package for the base framework, which is built along with `freeipa-healthcheck`. This is done to ensure that `pki-healthcheck` can integrate smoothly with the `freeipa-healthcheck` since FreeIPA project depends on PKI for CA/KRA backened.
 
 You can read more on the base framework [here](https://www.freeipa.org/page/V4/Healthcheck)
 
 ### Delivery
 
-The Health Check tool requires privileged access and runs on a PKI server and so, it will be delivered via the `pki-server` package.
+PKI Health Check tool will be delivered via the `pki-server` package.
 
-In future, this tool can be delivered via PyPi.
+In the future, this tool can be delivered via PyPi.
 
-### Severity
+### Test Severity Status
 
 Severity of a problem is defined as:
 
@@ -28,12 +28,14 @@ Severity of a problem is defined as:
 |-------|----------|------------|
 | 0 | Success | The check executed and found no issue |
 | 1 | Critical | Something is terribly wrong (e.g. a service is not started, certificates are expired, etc). |
-| 2 | Error | Something is wrong but your IPA master is probably still working (e.g. replication conflict) |
+| 2 | Error | Something is wrong but your PKI server is probably still working (e.g. clone conflict) |
 | 3 | Warning | Not an issue yet, but may be (e.g. expiring certificate soon) |
 
 ### Checks Included
 
 1. System certificate sync between CS.cfg and NSS database
+
+(More checks will be added in the future)
 
 ### Configuration
 
@@ -52,13 +54,11 @@ It is difficult to simulate some issues and so, unit tests will use [unittest.mo
 
 ## How to use
 
-Healthcheck executes a series of plugins to collect its information. Each plugin, referred to later as a source, is organized around a specific theme (system certificates, file system permissions and ownership, clones, etc.). A source is a collection of tests, refered to as checks, that should test one small piece of IPA. The purpose is so that when developing and running the tests, one can control which are executed.
+Healthcheck executes a series of plugins to collect its information. Each plugin, referred to later as a source, is organized around a specific theme (system certificates, file system permissions and ownership, clones, etc.). A source is a collection of tests, refered to as checks, that should test one small piece of PKI.
 
-The report will consist of a message describing what was run and the status. If the status is not successful it may include additional information for the administrator to use to correct the issue (e.g. a file has the wrong permissions, expected X and got Y).
+The report will consist of a message describing what was run and the status. If the status is not successful, the message may include additional information, which can be used by the admin to correct the issue (e.g. a file has the wrong permissions, expected X and got Y).
 
 ### Manual Execution
-
-The `pki-healthcheck` command will exit with a returncode of 0, even if any checks discovered issues with the PKI installation. A non-zero returncode means that `pki-healthcheck` failed in a non-recoverable way.
 
 To run it manually, execute:
 
@@ -85,7 +85,9 @@ The default output looks like:
         }
     }
 
-For all available options, you can execute the tool with `--help` option or read the `pki-healthcheck (8)` man page.
+The `pki-healthcheck` command will exit with a returncode of 0, even if any checks discovered issues with the PKI installation. A non-zero returncode means that `pki-healthcheck` tool failed in a non-recoverable way.
+
+For all available options, you can execute the tool with `--help` or read the `pki-healthcheck (8)` man page.
 
 ### Repairing Issues
 

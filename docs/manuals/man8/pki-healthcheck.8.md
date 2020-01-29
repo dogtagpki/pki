@@ -10,17 +10,17 @@ pki-healthcheck - Command-Line Interface to check health of a PKI installation
 
 ## DESCRIPTION
 
-A PKI installation is a complex setup and identifying real or potential issues can be difficult and require a lot of analysis. This tool aims to reduce the burden by attempting to identify issues in advance so that they can be corrected, ideally before the issue becomes critical.
+A PKI installation can be complex, therefore identifying real or potential issues can be difficult and require a lot of analysis. This tool aims to reduce the burden by attempting to identify issues in advance so that they can be corrected, ideally before the issue becomes critical.
 
 ### ORGANIZATION
 
 The areas of the system to check are logically grouped together. This grouping is called a source. A source consists of one or more checks.
 
-A check is as atomic as possible to limit the scope and complexity and provide a yes/no answer on whether that particular configuration is correct.
+A check is as atomic as possible to limit the scope and complexity.
 
-Each check will return a result, either a result of WARNING, ERROR, CRITICAL or SUCCESS. Returning SUCCESS tells you that the check was done and was deemed correct. This should help track when the last time  something  was examined.
+Each check will return a result, either a result of WARNING, ERROR, CRITICAL or SUCCESS. Returning SUCCESS tells you that the check was done and was deemed correct.
 
-Upon  failure,  the  output  will include the source and check that detected the failure along with a message and name/value pairs indicating the problem. If a check can't make a final determination, it throws WARNING so that it can be examined.
+Upon  failure,  the  output  will include name of the source and name of the check that detected the failure along with a message and name/value pairs indicating the problem. If a check can't make a final determination, it throws WARNING so that it can be examined.
 
 ## OPTIONS
 
@@ -37,7 +37,7 @@ Upon  failure,  the  output  will include the source and check that detected the
 **--check**=*CHECK*  
     Execute this particular check within a source. A *source* must be supplied as well with this option.
 
-**--output-type**=*TYPE*  
+**--output-type**=*[json|human]*  
     Set the output type. Defaults to JSON.
 
 **--failures-only**  
