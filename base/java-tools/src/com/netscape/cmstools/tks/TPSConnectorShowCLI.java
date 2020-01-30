@@ -15,7 +15,7 @@
 // (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cmstools.system;
+package com.netscape.cmstools.tks;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;

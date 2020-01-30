@@ -15,7 +15,7 @@
 // (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cmstools.system;
+package com.netscape.cmstools.tks;
 
 import org.dogtagpki.cli.CLI;
 import org.jboss.resteasy.plugins.providers.atom.Link;
@@ -23,7 +23,6 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
-import com.netscape.cmstools.tks.TKSCLI;
 
 /**
  * @author Ade Lee
@@ -43,6 +42,7 @@ public class TPSConnectorCLI extends CLI {
         addModule(new TPSConnectorFindCLI(this));
         addModule(new TPSConnectorModCLI(this));
         addModule(new TPSConnectorRemoveCLI(this));
+        addModule(new TPSConnectorShowCLI(this));
     }
 
     public String getFullName() {
