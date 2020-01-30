@@ -15,30 +15,26 @@
 // (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cmstools.system;
-
-import java.util.Collection;
+package com.netscape.cmstools.tks;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.system.TPSConnectorClient;
-import com.netscape.certsrv.system.TPSConnectorCollection;
-import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Ade Lee
  */
-public class TPSConnectorFindCLI extends CommandCLI {
+public class TPSConnectorAddCLI extends CommandCLI {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSConnectorFindCLI.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSConnectorAddCLI.class);
 
     public TPSConnectorCLI tpsConnectorCLI;
 
-    public TPSConnectorFindCLI(TPSConnectorCLI tpsConnectorCLI) {
-        super("find", "Find TPS connectors on TKS", tpsConnectorCLI);
+    public TPSConnectorAddCLI(TPSConnectorCLI tpsConnectorCLI) {
+        super("add", "Add TPS connector to TKS", tpsConnectorCLI);
         this.tpsConnectorCLI = tpsConnectorCLI;
     }
 
@@ -47,12 +43,12 @@ public class TPSConnectorFindCLI extends CommandCLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "start", true, "Page start");
-        option.setArgName("start");
+        Option option = new Option(null, "host", true, "TPS host");
+        option.setArgName("host");
         options.addOption(option);
 
-        option = new Option(null, "size", true, "Page size");
-        option.setArgName("size");
+        option = new Option(null, "port", true, "TPS port");
+        option.setArgName("port");
         options.addOption(option);
     }
 
@@ -64,33 +60,16 @@ public class TPSConnectorFindCLI extends CommandCLI {
             throw new Exception("Too many arguments specified.");
         }
 
-        String s = cmd.getOptionValue("start");
-        Integer start = s == null ? null : Integer.valueOf(s);
-
-        s = cmd.getOptionValue("size");
-        Integer size = s == null ? null : Integer.valueOf(s);
+        String tpsHost = cmd.getOptionValue("host");
+        String tpsPort = cmd.getOptionValue("port");
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
-        TPSConnectorCollection result = tpsConnectorClient.findConnectors(null, null, start, size);
+        tpsConnectorClient.createConnector(tpsHost, tpsPort);
 
-        MainCLI.printMessage(result.getTotal() + " entries matched");
-        if (result.getTotal() == 0) return;
-
-        Collection<TPSConnectorData> conns = result.getEntries();
-        boolean first = true;
-        for (TPSConnectorData data: conns) {
-            if (first) {
-                first = false;
-            } else {
-                System.out.println();
-            }
-
-            TPSConnectorCLI.printConnectorInfo(data);
-        }
-
-        MainCLI.printMessage("Number of entries returned " + conns.size());
+        MainCLI.printMessage("Added TPS connector \""+tpsHost + ":" + tpsPort +"\"");
     }
+
 }

@@ -26,7 +26,6 @@ import com.netscape.cmstools.cli.SubsystemCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.logging.AuditCLI;
 import com.netscape.cmstools.selftests.SelfTestCLI;
-import com.netscape.cmstools.system.TPSConnectorCLI;
 import com.netscape.cmstools.user.UserCLI;
 
 /**
