@@ -42,6 +42,7 @@ public class TKSCLI extends SubsystemCLI {
         addModule(new GroupCLI(this));
         addModule(new SelfTestCLI(this));
         addModule(new TPSConnectorCLI(this));
+        addModule(new TKSKeyCLI(this));
         addModule(new UserCLI(this));
     }
 
