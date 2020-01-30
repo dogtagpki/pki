@@ -22,6 +22,8 @@ public class NSSCLI extends CLI {
 
         addModule(new NSSCreateCLI(this));
         addModule(new NSSRemoveCLI(this));
+
+        addModule(new NSSKeyCLI(this));
     }
 
     public String getFullName() {
