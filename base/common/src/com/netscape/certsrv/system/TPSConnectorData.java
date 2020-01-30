@@ -1,6 +1,7 @@
 package com.netscape.certsrv.system;
 
 import java.io.StringReader;
+import java.io.StringWriter;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -11,21 +12,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-@XmlRootElement(name="TPSSystemClient")
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+
+@XmlRootElement(name="TPSConnectorData")
 public class TPSConnectorData {
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(TPSConnectorData.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(TPSConnectorData.class).createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     String id;
     String host;
@@ -89,20 +81,6 @@ public class TPSConnectorData {
         this.link = link;
     }
 
-    public static TPSConnectorData valueOf(String string) throws Exception {
-        try {
-            return (TPSConnectorData)unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "TPSSystemClientData [id=" + id + ", host=" + host + ", port=" + port +
-                ", userID=" + userID + "]";
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -140,15 +118,61 @@ public class TPSConnectorData {
         return true;
     }
 
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(TPSConnectorData.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static TPSConnectorData fromXML(String string) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(TPSConnectorData.class).createUnmarshaller();
+        return (TPSConnectorData)unmarshaller.unmarshal(new StringReader(string));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        mapper.setSerializationInclusion(Include.NON_NULL);
+        return mapper.writeValueAsString(this);
+    }
+
+    public static TPSConnectorData fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        return mapper.readValue(json, TPSConnectorData.class);
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void main(String args[]) throws Exception {
+
         TPSConnectorData before = new TPSConnectorData();
         before.setID("tps0");
         before.setUserID("user1");
 
-        String string = before.toString();
-        System.out.println(string);
+        String xml = before.toXML();
+        System.out.println("XML (before): " + xml);
 
-        TPSConnectorData after = TPSConnectorData.valueOf(string);
-        System.out.println(before.equals(after));
+        TPSConnectorData afterXML = TPSConnectorData.fromXML(xml);
+        System.out.println("XML (after): " + afterXML);
+
+        System.out.println(before.equals(afterXML));
+
+        String json = before.toJSON();
+        System.out.println("JSON (before): " + json);
+
+        TPSConnectorData afterJSON = TPSConnectorData.fromJSON(json);
+        System.out.println("JSON (after): " + json);
+
+        System.out.println(before.equals(afterJSON));
     }
 }

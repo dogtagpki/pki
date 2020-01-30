@@ -22,6 +22,7 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.system.TPSConnectorClient;
+import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -50,6 +51,10 @@ public class TPSConnectorAddCLI extends CommandCLI {
         option = new Option(null, "port", true, "TPS port");
         option.setArgName("port");
         options.addOption(option);
+
+        option = new Option(null, "output-format", true, "Output format: text (default), json");
+        option.setArgName("format");
+        options.addOption(option);
     }
 
     public void execute(CommandLine cmd) throws Exception {
@@ -62,14 +67,20 @@ public class TPSConnectorAddCLI extends CommandCLI {
 
         String tpsHost = cmd.getOptionValue("host");
         String tpsPort = cmd.getOptionValue("port");
+        String outputFormat = cmd.getOptionValue("output-format", "text");
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
-        tpsConnectorClient.createConnector(tpsHost, tpsPort);
+        TPSConnectorData data = tpsConnectorClient.createConnector(tpsHost, tpsPort);
 
-        MainCLI.printMessage("Added TPS connector \""+tpsHost + ":" + tpsPort +"\"");
+        if ("json".equalsIgnoreCase(outputFormat)) {
+            System.out.println(data.toJSON());
+
+        } else {
+            MainCLI.printMessage("Added TPS connector \""+tpsHost + ":" + tpsPort +"\"");
+        }
     }
 
 }

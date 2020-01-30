@@ -51,6 +51,10 @@ public class TPSConnectorShowCLI extends CommandCLI {
         option = new Option(null, "port", true, "TPS port");
         option.setArgName("port");
         options.addOption(option);
+
+        option = new Option(null, "output-format", true, "Output format: text (default), json");
+        option.setArgName("format");
+        options.addOption(option);
     }
 
     public void execute(CommandLine cmd) throws Exception {
@@ -63,6 +67,7 @@ public class TPSConnectorShowCLI extends CommandCLI {
 
         String tpsHost = cmd.getOptionValue("host");
         String tpsPort = cmd.getOptionValue("port", "443");
+        String outputFormat = cmd.getOptionValue("output-format", "text");
 
         if (tpsHost == null) {
             throw new Exception("Missing TPS hostname");
@@ -71,7 +76,12 @@ public class TPSConnectorShowCLI extends CommandCLI {
         TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
         TPSConnectorData data = tpsConnectorClient.getConnector(tpsHost, tpsPort);
 
-        MainCLI.printMessage("TPS Connector \"" + tpsHost + ":" + tpsPort + "\"");
-        TPSConnectorCLI.printConnectorInfo(data);
+        if ("json".equalsIgnoreCase(outputFormat)) {
+            System.out.println(data.toJSON());
+
+        } else {
+            MainCLI.printMessage("TPS Connector \"" + tpsHost + ":" + tpsPort + "\"");
+            TPSConnectorCLI.printConnectorInfo(data);
+        }
     }
 }
