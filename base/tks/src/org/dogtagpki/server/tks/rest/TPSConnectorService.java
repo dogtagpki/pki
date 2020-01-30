@@ -1,9 +1,7 @@
 package org.dogtagpki.server.tks.rest;
 
-import java.io.CharConversionException;
 import java.net.URI;
 import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -17,11 +15,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
-import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.KeyGenAlgorithm;
-import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -314,7 +308,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             cs.commit(true);
 
             //Create des3 session sym key to wrap the shared secret.
-            SymmetricKey tempKey = createDes3SessionKeyOnInternal();
+            SymmetricKey tempKey = CryptoUtil.createDes3SessionKeyOnInternal();
 
             if (tempKey == null) {
                 return createNoContentResponse();
@@ -382,7 +376,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             CryptoUtil.createSharedSecret(nickname);
 
             //Create des3 session sym key to wrap the shared secret.
-            SymmetricKey tempKey = createDes3SessionKeyOnInternal();
+            SymmetricKey tempKey = CryptoUtil.createDes3SessionKeyOnInternal();
 
             if (tempKey == null) {
                 return createNoContentResponse();
@@ -465,7 +459,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             X509Certificate[] certs = user.getX509Certificates();
 
             //Create des3 session sym key to wrap the shared secrt.
-            SymmetricKey tempKey = createDes3SessionKeyOnInternal();
+            SymmetricKey tempKey = CryptoUtil.createDes3SessionKeyOnInternal();
 
             if (tempKey == null) {
                 return createNoContentResponse();
@@ -527,31 +521,5 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
         while (sorted.contains(Integer.toString(index)))
             index++;
         return Integer.toString(index);
-    }
-
-    private SymmetricKey createDes3SessionKeyOnInternal() throws EBaseException {
-
-        SymmetricKey tempKey = null;
-        try {
-            CryptoManager cm = CryptoManager.getInstance();
-            CryptoToken token = cm.getInternalKeyStorageToken();
-            KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
-
-            SymmetricKey.Usage usages[] = new SymmetricKey.Usage[4];
-            usages[0] = SymmetricKey.Usage.WRAP;
-            usages[1] = SymmetricKey.Usage.UNWRAP;
-            usages[2] = SymmetricKey.Usage.ENCRYPT;
-            usages[3] = SymmetricKey.Usage.DECRYPT;
-
-            kg.setKeyUsages(usages);
-            kg.temporaryKeys(true);
-            tempKey = kg.generate();
-        } catch (NoSuchAlgorithmException | TokenException | IllegalStateException | CharConversionException
-                | NotInitializedException e) {
-            logger.error("TPSConnectorService: Unable to generate temporary session key: " + e.getMessage(), e);
-            throw new EBaseException("Unable to generate temporary session key: " + e.getMessage(), e);
-        }
-
-        return tempKey;
     }
 }
