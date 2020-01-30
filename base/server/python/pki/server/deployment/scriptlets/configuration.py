@@ -933,6 +933,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finalize_config_request.installToken = deployer.install_token
         client.finalizeConfiguration(finalize_config_request)
 
+        if subsystem.type == 'TPS':
+            logger.info('Setting up shared secret')
+            deployer.setup_shared_secret(instance, subsystem)
+
         logger.info('%s configuration complete', subsystem.type)
 
         # Create an empty file that designates the fact that although
