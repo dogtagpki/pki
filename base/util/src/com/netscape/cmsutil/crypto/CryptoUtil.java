@@ -57,7 +57,6 @@ import java.util.Vector;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
@@ -2491,6 +2490,24 @@ public class CryptoUtil {
         CryptoToken token = cm.getInternalKeyStorageToken();
         KeyManager km = new KeyManager(token);
         km.deleteUniqueNamedKey(nickname);
+    }
+
+    public static SymmetricKey createDes3SessionKeyOnInternal() throws Exception {
+
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+        KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
+
+        SymmetricKey.Usage[] usages = new SymmetricKey.Usage[4];
+        usages[0] = SymmetricKey.Usage.WRAP;
+        usages[1] = SymmetricKey.Usage.UNWRAP;
+        usages[2] = SymmetricKey.Usage.ENCRYPT;
+        usages[3] = SymmetricKey.Usage.DECRYPT;
+
+        kg.setKeyUsages(usages);
+        kg.temporaryKeys(true);
+
+        return kg.generate();
     }
 
     // Return a list of two wrapped keys:
