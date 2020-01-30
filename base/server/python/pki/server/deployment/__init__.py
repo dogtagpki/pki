@@ -19,6 +19,7 @@
 #
 
 from __future__ import absolute_import
+import json
 import ldap
 import logging
 import socket
@@ -306,3 +307,190 @@ class PKIDeployer:
         self.sd_host = sd_subsystem.get_host(sd_hostname, sd_port)
 
         self.get_install_token()
+
+    def get_tps_connector(self, instance, subsystem):
+
+        tks_uri = self.mdict['pki_tks_uri']
+        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+
+        server_config = instance.get_server_config()
+        securePort = server_config.get_secure_port()
+
+        cmd = [
+            'pki',
+            '-U', tks_uri,
+            '-d', instance.nssdb_dir,
+            '-f', instance.password_conf,
+            '-n', subsystem_cert['nickname'],
+            'tks-tpsconnector-show',
+            '--host', self.mdict['pki_hostname'],
+            '--port', securePort,
+            '--output-format', 'json'
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        result = subprocess.run(cmd, capture_output=True)
+
+        if result.returncode == 0:
+            return json.loads(result.stdout.decode())
+        else:
+            return None
+
+    def create_tps_connector(self, instance, subsystem):
+
+        tks_uri = self.mdict['pki_tks_uri']
+        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+
+        server_config = instance.get_server_config()
+        securePort = server_config.get_secure_port()
+
+        cmd = [
+            'pki',
+            '-U', tks_uri,
+            '-d', instance.nssdb_dir,
+            '-f', instance.password_conf,
+            '-n', subsystem_cert['nickname'],
+            'tks-tpsconnector-add',
+            '--host', self.mdict['pki_hostname'],
+            '--port', securePort,
+            '--output-format', 'json'
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        result = subprocess.run(cmd, capture_output=True)
+
+        if result.returncode == 0:
+            return json.loads(result.stdout.decode())
+        else:
+            return None
+
+    def get_shared_secret(self, instance, subsystem, tps_connector_id):
+
+        tks_uri = self.mdict['pki_tks_uri']
+        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+
+        cmd = [
+            'pki',
+            '-U', tks_uri,
+            '-d', instance.nssdb_dir,
+            '-f', instance.password_conf,
+            '-n', subsystem_cert['nickname'],
+            'tks-key-export', tps_connector_id
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        result = subprocess.run(cmd, capture_output=True)
+
+        if result.returncode == 0:
+            return json.loads(result.stdout.decode())
+        else:
+            return None
+
+    def create_shared_secret(self, instance, subsystem, tps_connector_id):
+
+        tks_uri = self.mdict['pki_tks_uri']
+        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+
+        cmd = [
+            'pki',
+            '-U', tks_uri,
+            '-d', instance.nssdb_dir,
+            '-f', instance.password_conf,
+            '-n', subsystem_cert['nickname'],
+            'tks-key-create', tps_connector_id,
+            '--output-format', 'json'
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        result = subprocess.run(cmd, capture_output=True)
+
+        if result.returncode == 0:
+            return json.loads(result.stdout.decode())
+        else:
+            return None
+
+    def replace_shared_secret(self, instance, subsystem, tps_connector_id):
+
+        tks_uri = self.mdict['pki_tks_uri']
+        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+
+        cmd = [
+            'pki',
+            '-U', tks_uri,
+            '-d', instance.nssdb_dir,
+            '-f', instance.password_conf,
+            '-n', subsystem_cert['nickname'],
+            'tks-key-replace', tps_connector_id,
+            '--output-format', 'json'
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        result = subprocess.run(cmd, capture_output=True)
+
+        if result.returncode == 0:
+            return json.loads(result.stdout.decode())
+        else:
+            return None
+
+    def import_shared_secret(self, instance, subsystem, shared_secret):
+
+        hostname = self.mdict['pki_hostname']
+
+        server_config = instance.get_server_config()
+        securePort = server_config.get_secure_port()
+
+        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+        secret_nickname = 'TPS-%s-%s sharedSecret' % (hostname, securePort)
+
+        cmd = [
+            'pki',
+            '-d', instance.nssdb_dir,
+            '-f', instance.password_conf,
+            'nss-key-import', secret_nickname,
+            '--wrapper', subsystem_cert['nickname']
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.run(
+            cmd,
+            input=json.dumps(shared_secret),
+            text=True,
+            check=True)
+
+    def setup_shared_secret(self, instance, subsystem):
+
+        # This method configures the shared secret between TKS and TPS. The shared secret
+        # is initially generated in TKS, then exported from TKS, and reimported into TPS.
+        # However, if TKS and TPS are running on the same instance, it is not necessary
+        # to export and reimport since they are sharing the same NSS database.
+
+        # TODO: Clean up the code and determine whether TKS and TPS are in the same
+        # instance automatically.
+
+        logger.info('Searching for TPS connector in TKS')
+        tps_connector = self.get_tps_connector(instance, subsystem)
+
+        if tps_connector:
+            logger.info('Getting shared secret')
+            tps_connector_id = tps_connector['id']
+            shared_secret = self.get_shared_secret(instance, subsystem, tps_connector_id)
+
+            if shared_secret:
+                logger.info('Replacing shared secret')
+                shared_secret = self.replace_shared_secret(instance, subsystem, tps_connector_id)
+
+            else:
+                logger.info('Creating shared secret')
+                shared_secret = self.create_shared_secret(instance, subsystem, tps_connector_id)
+
+        else:
+            logger.info('Creating a new TPS connector')
+            tps_connector = self.create_tps_connector(instance, subsystem)
+            tps_connector_id = tps_connector['id']
+
+            logger.info('Creating shared secret')
+            shared_secret = self.create_shared_secret(instance, subsystem, tps_connector_id)
+
+        if config.str2bool(self.mdict['pki_import_shared_secret']):
+            logger.info('Importing shared secret')
+            self.import_shared_secret(instance, subsystem, shared_secret)
