@@ -52,6 +52,9 @@ import org.dogtagpki.tps.main.Util;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.pkcs11.PKCS11Constants;
+import org.mozilla.jss.crypto.IllegalBlockSizeException;
+
+import java.security.InvalidAlgorithmParameterException;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
@@ -419,7 +422,7 @@ public class SecureChannel {
             TPSBuffer context = new TPSBuffer(hostChallenge);
             context.add(cardChallenge);
             try {
-                calculatedCardCryptogram = Util.compute_AES_CMAC_Cryptogram(macSessionKey, context, Util.CARD_CRYPTO_KDF_CONSTANT_SCP03);
+                calculatedCardCryptogram = SecureChannelProtocol.compute_AES_CMAC_Cryptogram(macSessionKey, context, SecureChannelProtocol.CARD_CRYPTO_KDF_CONSTANT_SCP03);
             } catch (EBaseException e) {
                 throw new TPSException(method + "Failed to calculate card cryptogram!", TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
@@ -648,7 +651,7 @@ public class SecureChannel {
                 //logger.debug("SecureChannel.computeAPDUMacSCP03: final data To MAC: " + dataToMac.toHexString() + " incoming icv: "
                 //        + icv.toHexString());
 
-                newMac = Util.computeAES_CMAC(macSessionKey, dataToMac);
+                newMac = SecureChannelProtocol.computeAES_CMAC(macSessionKey, dataToMac);
 
 
         } catch (EBaseException e) {

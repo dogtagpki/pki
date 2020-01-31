@@ -1,4 +1,4 @@
-package com.netscape.cms.servlet.tks;
+package org.dogtagpki.server.tks.servlet;
 
 import java.security.InvalidKeyException;
 
