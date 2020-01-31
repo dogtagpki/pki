@@ -39,7 +39,6 @@ FILENAMES = [
     os.path.abspath(__file__),
     os.path.abspath("base/server/healthcheck/setup.py")
 ]
-UPGRADE_SCRIPT = re.compile('^[0-9]+-.*')
 PYTHON_SCRIPT = re.compile('\\S+\\.py$')
 
 
@@ -67,13 +66,6 @@ def rpm_env(args):
     }
     return env
 
-
-def find_upgrades(root):
-    """Find upgrade scripts"""
-    for dirpath, _, filenames in os.walk(root):
-        for filename in filenames:
-            if UPGRADE_SCRIPT.match(filename):
-                yield os.path.join(dirpath, filename)
 
 def find_pki_python_files(root):
     """Find all python files in PKI project"""
@@ -122,6 +114,8 @@ def main():
 
     # Populate all the python files that needs to be linted
     FILENAMES.extend(find_pki_python_files(env['sitepackages']))
+    FILENAMES.extend(find_pki_python_files('{sharepki}/upgrade'.format(**env)))
+    FILENAMES.extend(find_pki_python_files('{sharepki}/server/upgrade'.format(**env)))
 
     pylint = [
         'pylint' if sys.version_info.major == 2 else 'pylint-3',
@@ -129,8 +123,6 @@ def main():
     ]
     pylint.extend(extra_args)
     pylint.extend(FILENAMES)
-    pylint.extend(find_upgrades('{sharepki}/upgrade'.format(**env)))
-    pylint.extend(find_upgrades('{sharepki}/server/upgrade'.format(**env)))
     if args.verbose:
         pprint.pprint(pylint)
 
