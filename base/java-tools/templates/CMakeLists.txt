@@ -7,6 +7,7 @@ set(PKI_COMMANDS
     BtoA
     CMCEnroll
     CMCRequest
+    CMCRequestLegacy
     CMCResponse
     CMCRevoke
     CMCSharedToken

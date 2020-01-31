@@ -1234,6 +1234,7 @@ fi
 %{_bindir}/BtoA
 %{_bindir}/CMCEnroll
 %{_bindir}/CMCRequest
+%{_bindir}/CMCRequestLegacy
 %{_bindir}/CMCResponse
 %{_bindir}/CMCRevoke
 %{_bindir}/CMCSharedToken
