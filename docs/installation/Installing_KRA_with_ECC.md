@@ -6,103 +6,84 @@ Overview
 
 This page describes the process to install a KRA subsystem with ECC.
 
+Supported ECC curves:
 
-Supported ECC Curves:
----------------------
-
-Dogtag supports following ECC Curves.
 - nistp256 
 - nistp384
 - nistp521
 
-Supported ECC Key algorithms:
+Supported ECC key algorithms:
 
 - SHA256withEC 
 - SHA384withEC
 - SHA512withEC
 
-KRA Subsystem Installation with ECC
-----------------------------------
+KRA Subsystem Installation
+--------------------------
 
-Prepare a file (eg. kra_ecc.cfg) that contains the deployment configuration, for example:
+Prepare a file (e.g. kra.cfg) that contains the deployment configuration, for example:
 ```
 [DEFAULT]
-pki_instance_name = topology-ecc-KRA
-pki_https_port = 8443
-pki_http_port = 8080
-
-pki_token_password = SECret.123
-pki_admin_password = SECret.123
-pki_admin_key_type=ecc
-pki_admin_key_size=nistp521
-pki_admin_key_algorithm=SHA512withEC
-
-pki_hostname = pki1.example.com
-pki_security_domain_hostname = pki1.example.com
-pki_security_domain_https_port = 8443
-pki_security_domain_name = topology-ecc_Foobarmaster.org
-pki_security_domain_password = SECret.123
-
-pki_client_dir = /opt/topology-ecc-KRA
-pki_client_pkcs12_password = SECret.123
-pki_client_database_password = SECret.123
-
-pki_backup_keys = True
-pki_backup_password = SECret.123
-
-pki_ds_password = SECret.123
-pki_ds_ldap_port = 389
-
-
-pki_sslserver_key_algorithm=SHA512withEC
-pki_sslserver_key_size=nistp521
-pki_sslserver_key_type=ecc
-pki_sslserver_nickname=sslserver
-
-pki_subsystem_key_algorithm=SHA512withEC
-pki_subsystem_key_size=nistp521
-pki_subsystem_key_type=ecc
-pki_subsystem_nickname=subsystem
-
-pki_audit_signing_key_algorithm=SHA512withEC
-pki_audit_signing_key_size=nistp521
-pki_audit_signing_key_type=ecc
-pki_audit_signing_signing_algorithm=SHA512withEC
-pki_audit_signing_nickname=kra_audit_signing
-
-[Tomcat]
-pki_ajp_port = 8009
-pki_tomcat_server_port = 8005
+pki_server_database_password=Secret.123
 
 [KRA]
-pki_import_admin_cert = False
-pki_admin_nickname = PKI KRA Administrator for Example.Org
+pki_admin_cert_file=ca_admin.cert
+pki_admin_email=kraadmin@example.com
+pki_admin_name=kraadmin
+pki_admin_nickname=kraadmin
+pki_admin_password=Secret.123
+pki_admin_uid=kraadmin
 
-pki_ds_hostname = pki1.example.com
+pki_client_database_password=Secret.123
+pki_client_database_purge=False
+pki_client_pkcs12_password=Secret.123
 
+pki_ds_base_dn=dc=kra,dc=pki,dc=example,dc=com
+pki_ds_database=kra
+pki_ds_password=Secret.123
+
+pki_security_domain_name=EXAMPLE
+pki_security_domain_user=caadmin
+pki_security_domain_password=Secret.123
+
+pki_storage_nickname=kra_storage
+pki_storage_key_type=rsa
 pki_storage_key_algorithm=SHA512withRSA
 pki_storage_key_size=2048
-pki_storage_key_type=rsa
 pki_storage_signing_algorithm=SHA512withRSA
-pki_storage_nickname=kra_storage
 
+pki_transport_nickname=kra_transport
+pki_transport_key_type=rsa
 pki_transport_key_algorithm=SHA512withRSA
 pki_transport_key_size=2048
-pki_transport_key_type=rsa
 pki_transport_signing_algorithm=SHA512withRSA
-pki_transport_nickname=kra_transport
 
+pki_audit_signing_nickname=kra_audit_signing
+pki_audit_signing_key_type=ecc
+pki_audit_signing_key_algorithm=SHA512withEC
+pki_audit_signing_key_size=nistp521
+pki_audit_signing_signing_algorithm=SHA512withEC
+
+pki_sslserver_nickname=sslserver
+pki_sslserver_key_type=ecc
+pki_sslserver_key_algorithm=SHA512withEC
+pki_sslserver_key_size=nistp521
+
+pki_subsystem_nickname=subsystem
+pki_subsystem_key_type=ecc
+pki_subsystem_key_algorithm=SHA512withEC
+pki_subsystem_key_size=nistp521
 ```
 
 Then execute the following command:
 
 ```
-# pkispawn -f kra_ecc.cfg -s KRA
+$ pkispawn -f kra.cfg -s KRA
 ```
 
-It will install KRA subsystem in a Tomcat instance topology-ecc-KRA and create the following NSS databases:
-* server NSS database: /etc/pki/topology-ecc-KRA/alias
-* server Admin certificate: /opt/topology-ecc-KRA/ca_admin_cert.p12
+It will install KRA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+* server NSS database: /etc/pki/pki-tomcat/alias
+* admin NSS database: ~/.dogtag/pki-tomcat/kra/alias
 
 Verifying System Certificates
 -----------------------------
@@ -110,12 +91,12 @@ Verifying System Certificates
 Verify that the server NSS database contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/topology-ecc-KRA/alias
+$ certutil -L -d /etc/pki/pki-tomcat/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
 
-CA Signing Certificate - topology-ecc_Foobarmaster.org       CT,C,C
+ca_signing                                                   CT,C,C
 kra_transport                                                u,u,u
 kra_storage                                                  u,u,u
 subsystem                                                    u,u,u
@@ -126,24 +107,30 @@ sslserver                                                    u,u,u
 Verifying Admin Certificate
 ---------------------------
 
-Prepare a client NSS database (eg: /root/nssdb)
+Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
 ```
-# pki -d /root/nssdb -c Secret.123 client-init --force
+$ pki -c Secret.123 client-init
+```
+
+Import the CA signing certificate:
+
+```
+$ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
 ```
 
 Import admin key and certificate:
 
 ```
-# pki -d /root/nssdb -c Secret.123 client-cert-import \
-  --pkcs12 /opt/topology-ecc-KRA/kra_admin_cert.p12 \
-  --pkcs12-password-file /opt/topology-ecc-KRA/pkcs12_password.conf
+$ pki -c Secret.123 client-cert-import \
+ --pkcs12 ca_admin_cert.p12 \
+ --pkcs12-password-file pkcs12_password.conf
 ```
 
 Verify that the admin certificate can be used to access the KRA subsystem by executing the following command:
 
 ```
-# pki -d /root/nssdb -c Secret.123 -n "PKI KRA Administrator for Example.Org" kra-user-show kraadmin
+$ pki -c Secret.123 -n caadmin kra-user-show kraadmin
 --------------
 User "kraadmin"
 --------------
