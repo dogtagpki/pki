@@ -13,6 +13,7 @@ from pki.server.instance import PKIInstance
 
 class CSPlugin(Plugin):
     def __init__(self, registry):
+        # pylint: disable=redefined-outer-name
         super(CSPlugin, self).__init__(registry)
         # TODO: Support custom instance names
         self.instance = PKIInstance('pki-tomcat')

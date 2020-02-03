@@ -89,8 +89,8 @@ class DogtagCertsConfigCheck(CSPlugin):
                         token=cert['token'],
                         output_format='base64'
                     )
-                except Exception as e:
-                    logger.debug('Unable to load cert from NSSDB: %s' % str(e))
+                except Exception as e:  # pylint: disable=broad-except
+                    logger.debug('Unable to load cert from NSSDB: %s', str(e))
                     yield Result(self, constants.ERROR,
                                  key=cert_id,
                                  nssdbDir=self.instance.nssdb_dir,
