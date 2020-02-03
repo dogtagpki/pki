@@ -64,9 +64,9 @@ public class ProfileSubsystem
 
         // Configuration File Format:
         // *.list=profile1,profile2
-        // *.profile1.class=com.netscape.cms.profile.common.BasicProfile
+        // *.profile1.class=com.netscape.cms.profile.common.Profile
         // *.profile1.config=config/profiles/profile1.cfg
-        // *.profile2.class=com.netscape.cms.profile.common.BasicProfile
+        // *.profile2.class=com.netscape.cms.profile.common.Profile
         // *.profile2.config=config/profiles/profile2.cfg
 
         // read profile id, implementation, and its configuration files

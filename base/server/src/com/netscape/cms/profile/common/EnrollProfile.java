@@ -139,7 +139,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public abstract class EnrollProfile extends BasicProfile
+public abstract class EnrollProfile extends Profile
         implements IEnrollProfile {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollProfile.class);

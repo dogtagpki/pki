@@ -56,9 +56,9 @@ import com.netscape.cmscore.registry.PluginRegistry;
  *
  * @version $Revision$, $Date$
  */
-public abstract class BasicProfile implements IProfile {
+public abstract class Profile implements IProfile {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BasicProfile.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Profile.class);
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String PROP_ENABLE = "enable";
@@ -100,7 +100,7 @@ public abstract class BasicProfile implements IProfile {
 
     protected Hashtable<String, Vector<IProfilePolicy>> mPolicySet = new Hashtable<String, Vector<IProfilePolicy>>();
 
-    public BasicProfile() {
+    public Profile() {
     }
 
     public boolean isEnable() {
@@ -178,7 +178,7 @@ public abstract class BasicProfile implements IProfile {
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        logger.debug("BasicProfile: start init");
+        logger.debug("Profile: start init");
         mOwner = (IProfileSubsystem) owner;
         mConfig = config;
 
@@ -206,7 +206,7 @@ public abstract class BasicProfile implements IProfile {
             mAuthInstanceId = config.getString("auth." + PROP_INSTANCE_ID, null);
             mAuthzAcl = config.getString("authz.acl", "");
         } catch (EBaseException e) {
-            logger.warn("BasicProfile: authentication class not found " + e.getMessage(), e);
+            logger.warn("Profile: authentication class not found " + e.getMessage(), e);
         }
 
         // handle profile input plugins
@@ -227,7 +227,7 @@ public abstract class BasicProfile implements IProfile {
                 input = (EnrollInput) Class.forName(inputClass).newInstance();
             } catch (Exception e) {
                 // throw Exception
-                logger.error("BasicProfile: input plugin Class.forName " + inputClass + " " + e.getMessage(), e);
+                logger.error("Profile: input plugin Class.forName " + inputClass + " " + e.getMessage(), e);
                 throw new EBaseException(e.toString());
             }
 
@@ -258,7 +258,7 @@ public abstract class BasicProfile implements IProfile {
                         Class.forName(outputClass).newInstance();
             } catch (Exception e) {
                 // throw Exception
-                logger.error("BasicProfile: output plugin Class.forName " +
+                logger.error("Profile: output plugin Class.forName " +
                         outputClass + " " + e.getMessage(), e);
                 throw new EBaseException(e.toString());
             }
@@ -289,7 +289,7 @@ public abstract class BasicProfile implements IProfile {
                         Class.forName(updaterClass).newInstance();
             } catch (Exception e) {
                 // throw Exception
-                logger.error("BasicProfile: updater plugin Class.forName " +
+                logger.error("Profile: updater plugin Class.forName " +
                         updaterClass + " " + e.getMessage(), e);
                 throw new EBaseException(e.toString());
             }
@@ -326,7 +326,7 @@ public abstract class BasicProfile implements IProfile {
                         constraintClassId, false);
             }
         }
-        logger.debug("BasicProfile: done init");
+        logger.debug("Profile: done init");
     }
 
     public IConfigStore getConfigStore() {
@@ -580,7 +580,7 @@ public abstract class BasicProfile implements IProfile {
         }
         String outputClass = outputInfo.getClassName();
 
-        logger.debug("BasicProfile: loading output class " + outputClass);
+        logger.debug("Profile: loading output class " + outputClass);
         IProfileOutput output = null;
 
         try {
@@ -591,11 +591,11 @@ public abstract class BasicProfile implements IProfile {
             logger.warn(e.getMessage(), e);
         }
         if (output == null) {
-            logger.warn("BasicProfile: failed to create " + outputClass);
+            logger.warn("Profile: failed to create " + outputClass);
         } else {
-            logger.debug("BasicProfile: initing " + id + " output");
+            logger.debug("Profile: initing " + id + " output");
 
-            logger.debug("BasicProfile: outputStore " + outputStore);
+            logger.debug("Profile: outputStore " + outputStore);
             output.init(outputStore);
 
             mOutputs.put(id, output);
@@ -673,7 +673,7 @@ public abstract class BasicProfile implements IProfile {
         }
 
         String inputClass = inputInfo.getClassName();
-        logger.debug("BasicProfile: loading input class " + inputClass);
+        logger.debug("Profile: loading input class " + inputClass);
 
         EnrollInput input = null;
         try {
@@ -684,11 +684,11 @@ public abstract class BasicProfile implements IProfile {
         }
 
         if (input == null) {
-            logger.warn("BasicProfile: failed to create " + inputClass);
+            logger.warn("Profile: failed to create " + inputClass);
         } else {
-            logger.debug("BasicProfile: initing " + id + " input");
+            logger.debug("Profile: initing " + id + " input");
 
-            logger.debug("BasicProfile: inputStore " + inputStore);
+            logger.debug("Profile: inputStore " + inputStore);
             input.init(this, inputStore);
 
             mInputs.put(id, input);
@@ -761,7 +761,7 @@ public abstract class BasicProfile implements IProfile {
             boolean createConfig)
             throws EProfileException {
 
-        String method = "BasicProfile: createProfilePolicy: ";
+        String method = "Profile: createProfilePolicy: ";
         logger.debug(method + "begins");
         // String setId ex: policyset.set1
         // String id    Id of policy : examples: p1,p2,p3
@@ -799,7 +799,7 @@ public abstract class BasicProfile implements IProfile {
             }
 
             if (ids == null) {
-                logger.warn("BasicProfile::createProfilePolicy() - ids is null!");
+                logger.warn("Profile: createProfilePolicy() - ids is null!");
                 return null;
             }
 
@@ -914,7 +914,7 @@ public abstract class BasicProfile implements IProfile {
                     defaultClass + " " + e.getMessage(), e);
         }
         if (def == null) {
-            logger.warn("BasicProfile: failed to create " + defaultClass);
+            logger.warn("Profile: failed to create " + defaultClass);
         } else {
             IConfigStore defStore = null;
 
@@ -980,7 +980,7 @@ public abstract class BasicProfile implements IProfile {
                         Long.toString(new Date().getTime()));
                 policyStore.commit(false);
             } catch (EBaseException e) {
-                logger.warn("BasicProfile: commiting config store " +
+                logger.warn("Profile: commiting config store " +
                         e.getMessage(), e);
             }
             logger.debug(method + " config created.");
@@ -1077,7 +1077,7 @@ public abstract class BasicProfile implements IProfile {
      */
     public void populate(IRequest request)
             throws EProfileException {
-        String method = "BasicProfile: populate: ";
+        String method = "Profile: populate: ";
         String setId = getPolicySetId(request);
         Vector<IProfilePolicy> policies = getPolicies(setId);
         logger.debug(method + "policy setid =" + setId);
@@ -1096,7 +1096,7 @@ public abstract class BasicProfile implements IProfile {
     public void validate(IRequest request)
             throws ERejectException {
         String setId = getPolicySetId(request);
-        logger.debug("BasicProfile: validate start on setId=" + setId);
+        logger.debug("Profile: validate start on setId=" + setId);
         Vector<IProfilePolicy> policies = getPolicies(setId);
 
         for (int i = 0; i < policies.size(); i++) {
@@ -1104,9 +1104,9 @@ public abstract class BasicProfile implements IProfile {
 
             policy.getConstraint().validate(request);
         }
-        logger.debug("BasicProfile: change to pending state");
+        logger.debug("Profile: change to pending state");
         request.setRequestStatus(RequestStatus.PENDING);
-        logger.debug("BasicProfile: validate end");
+        logger.debug("Profile: validate end");
     }
 
     public Enumeration<IProfilePolicy> getProfilePolicies(String setId) {
@@ -1140,8 +1140,7 @@ public abstract class BasicProfile implements IProfile {
     /**
      * Signed Audit Log Subject ID
      *
-     * This method is inherited by all extended "BasicProfile"s,
-     * and is called to obtain the "SubjectID" for
+     * This method is used to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
      *
