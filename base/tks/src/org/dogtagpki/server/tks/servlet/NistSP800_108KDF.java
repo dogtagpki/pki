@@ -146,8 +146,6 @@ public class NistSP800_108KDF extends KDF {
 
     //Compute the AES based CMAC operation. Used to derive session keys and cryptograms
     //
-  
-    // Comment out for now until can be moved
     public byte[] kdf_AES_CMAC_SCP03(SymmetricKey masterKey, byte[] context, byte kdfConstant,
             int kdfOutputSizeBytes) throws EBaseException {
 
