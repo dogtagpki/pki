@@ -29,6 +29,7 @@ import com.netscape.certsrv.registry.ERegistryException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * This represents the registry subsystem that manages
@@ -84,13 +85,20 @@ public class PluginRegistry implements ISubsystem {
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        logger.debug("RegistrySubsystem: start init");
+
         mConfig = config;
         mOwner = owner;
 
         CMSEngine engine = CMS.getCMSEngine();
-        mFileConfig = engine.createFileConfigStore(
-                    mConfig.getString(PROP_FILE));
+        EngineConfig cs = engine.getConfig();
+        String subsystem = cs.getType().toLowerCase();
+        String instanceDir = engine.getInstanceDir();
+
+        String instanceRegistryFile = instanceDir + "/conf/" + subsystem + "/registry.cfg";
+        String registryFile = mConfig.getString(PROP_FILE, instanceRegistryFile);
+        logger.info("PluginRegistry: Loading " + registryFile);
+
+        mFileConfig = engine.createFileConfigStore(registryFile);
 
         String types_str = null;
 
