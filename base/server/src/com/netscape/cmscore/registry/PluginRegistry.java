@@ -27,13 +27,21 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.registry.ERegistryException;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
-public class PluginRegistry implements IPluginRegistry {
+/**
+ * This represents the registry subsystem that manages
+ * mulitple types of plugin information.
+ *
+ * The plugin information includes id, name,
+ * classname, and description.
+ */
+public class PluginRegistry implements ISubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PluginRegistry.class);
+
+    public static final String ID = "registry";
 
     private static final String PROP_TYPES = "types";
     private static final String PROP_IDS = "ids";
@@ -262,6 +270,9 @@ public class PluginRegistry implements IPluginRegistry {
         return mConfig;
     }
 
+    /**
+     * Returns handle to the registry configuration file.
+     */
     public IConfigStore getFileConfigStore() {
         return mFileConfig;
     }
