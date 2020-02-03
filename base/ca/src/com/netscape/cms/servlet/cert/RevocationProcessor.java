@@ -53,14 +53,13 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
  */
 public class RevocationProcessor extends CertProcessor {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RevocationProcessor.class);
 
     public final static String REVOKE = "revoke";
     public final static String ON_HOLD = "on-hold";

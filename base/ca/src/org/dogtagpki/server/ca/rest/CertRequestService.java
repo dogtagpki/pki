@@ -64,7 +64,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cms.servlet.cert.CertRequestDAO;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.profile.IProfileSubsystem;

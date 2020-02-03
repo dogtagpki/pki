@@ -15,7 +15,7 @@
 // (C) 2011 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.cert;
+package org.dogtagpki.server.ca.rest;
 
 import java.security.Principal;
 import java.security.SecureRandom;
@@ -45,6 +45,11 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cms.servlet.cert.CertRequestInfoFactory;
+import com.netscape.cms.servlet.cert.CertReviewResponseFactory;
+import com.netscape.cms.servlet.cert.EnrollmentProcessor;
+import com.netscape.cms.servlet.cert.RenewalProcessor;
+import com.netscape.cms.servlet.cert.RequestProcessor;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
