@@ -49,7 +49,7 @@ import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
-import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -71,7 +71,7 @@ import netscape.ldap.LDAPSearchResults;
 /**
  * @author Endi S. Dewata
  */
-public class SecurityDomainProcessor extends CAProcessor {
+public class SecurityDomainProcessor extends Processor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDomainProcessor.class);
 
