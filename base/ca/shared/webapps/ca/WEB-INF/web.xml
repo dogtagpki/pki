@@ -682,7 +682,7 @@
 
    <servlet>
       <servlet-name>  caConnector  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.connector.ConnectorServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.connector.KRAConnectorServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>

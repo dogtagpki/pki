@@ -64,7 +64,6 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
-import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -77,7 +76,6 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
-import com.netscape.cmscore.profile.IProfileSubsystem;
 
 /**
  * Connector servlet
@@ -356,27 +354,6 @@ public class ConnectorServlet extends CMSServlet {
             }
         } catch (Exception e) {
             logger.warn("ConnectorServlet: profile normalization " + e.getMessage(), e);
-        }
-
-        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
-        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
-        IEnrollProfile profile = null;
-
-        // profile subsystem may not be available. In case of KRA for
-        // example
-        if (ps == null) {
-            logger.error("ConnectorServlet: Profile Subsystem not found ");
-            return;
-        }
-        try {
-            profile = (IEnrollProfile) (ps.getProfile(profileId));
-            profile.setDefaultCertInfo(request);
-        } catch (EProfileException e) {
-            logger.warn("ConnectorServlet: normalizeProfileRequest Exception: " + e.getMessage(), e);
-        }
-        if (profile == null) {
-            logger.error("ConnectorServlet: Profile not found " + profileId);
-            return;
         }
     }
 
