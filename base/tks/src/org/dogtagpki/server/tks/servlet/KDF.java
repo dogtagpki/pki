@@ -1,5 +1,4 @@
-package com.netscape.cms.servlet.tks;
-
+package org.dogtagpki.server.tks.servlet;
 import com.netscape.certsrv.base.EBaseException;
 
 public class KDF {

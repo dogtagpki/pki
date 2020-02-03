@@ -15,8 +15,7 @@
 // (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.tks;
-
+package org.dogtagpki.server.tks.servlet;
 
 //Simple class used to hold scp03 related settings in TKS keyset config block
 // Ex: tks.defKeySet.prot3.divers=emv
