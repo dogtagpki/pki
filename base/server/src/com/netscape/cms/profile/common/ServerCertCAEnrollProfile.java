@@ -29,8 +29,7 @@ import com.netscape.certsrv.profile.IProfilePolicy;
  *
  * @version $Revision$, $Date$
  */
-public class ServerCertCAEnrollProfile extends CAEnrollProfile
-        implements IProfileEx {
+public class ServerCertCAEnrollProfile extends CAEnrollProfile {
 
     /**
      * Called after initialization. It populates default

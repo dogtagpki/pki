@@ -46,9 +46,8 @@ import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
+import com.netscape.cms.profile.common.CAEnrollProfile;
 import com.netscape.cms.profile.common.IProfile;
-import com.netscape.cms.profile.common.IProfileEx;
-import com.netscape.cms.servlet.admin.AdminServlet;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -2479,10 +2478,10 @@ public class ProfileAdminServlet extends AdminServlet {
                 profile.setAuthenticatorId(auth);
                 profile.getConfigStore().commit(false);
 
-                if (profile instanceof IProfileEx) {
+                if (profile instanceof CAEnrollProfile) {
                     // populates profile specific plugins such as
                     // policies, inputs and outputs
-                    ((IProfileEx) profile).populate();
+                    ((CAEnrollProfile) profile).populate();
                 }
             } catch (Exception e) {
                 logger.error("ProfileAdminServlet: " + e.getMessage(), e);

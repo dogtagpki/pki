@@ -74,6 +74,13 @@ public class CAEnrollProfile extends EnrollProfile {
         return issuerName;
     }
 
+    /**
+     * Called after initialization. It populates default
+     * policies, inputs, and outputs.
+     */
+    public void populate() throws EBaseException {
+    }
+
     public void execute(IRequest request)
             throws EProfileException, ERejectException {
 

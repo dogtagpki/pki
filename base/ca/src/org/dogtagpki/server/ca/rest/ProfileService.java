@@ -69,8 +69,8 @@ import com.netscape.certsrv.profile.ProfilePolicy;
 import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.registry.IPluginInfo;
+import com.netscape.cms.profile.common.CAEnrollProfile;
 import com.netscape.cms.profile.common.IProfile;
-import com.netscape.cms.profile.common.IProfileEx;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
@@ -479,10 +479,10 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             profile.setVisible(data.isVisible());
             ps.commitProfile(profileId);
 
-            if (profile instanceof IProfileEx) {
+            if (profile instanceof CAEnrollProfile) {
                 // populates profile specific plugins such as
                 // policies, inputs and outputs with defaults
-                ((IProfileEx) profile).populate();
+                ((CAEnrollProfile) profile).populate();
             }
 
             auditProfileChange(
