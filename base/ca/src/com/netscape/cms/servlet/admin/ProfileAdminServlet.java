@@ -49,6 +49,7 @@ import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.profile.common.IProfileEx;
+import com.netscape.cms.servlet.admin.AdminServlet;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
