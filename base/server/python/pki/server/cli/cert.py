@@ -279,7 +279,8 @@ class CertShowCLI(pki.cli.CLI):
                 output = nssdb.get_cert(
                     nickname=cert['nickname'],
                     token=cert['token'],
-                    output_format='pretty-print')
+                    output_format='pretty-print',
+                    output_text=True)
 
                 print()
                 print(output)
