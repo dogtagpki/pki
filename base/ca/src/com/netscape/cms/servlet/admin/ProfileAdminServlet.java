@@ -46,7 +46,6 @@ import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.profile.common.IProfileEx;
 import com.netscape.cms.servlet.admin.AdminServlet;
@@ -54,6 +53,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
  * This class is an administration servlet for policy management.
@@ -75,7 +75,7 @@ public class ProfileAdminServlet extends AdminServlet {
     private final static String INFO = "ProfileAdminServlet";
 
     public final static String PROP_PREDICATE = "predicate";
-    private IPluginRegistry mRegistry = null;
+    private PluginRegistry registry;
     private IProfileSubsystem mProfileSub = null;
 
     // These will be moved to PolicyResources
@@ -108,7 +108,7 @@ public class ProfileAdminServlet extends AdminServlet {
         super.init(config);
 
         CMSEngine engine = CMS.getCMSEngine();
-        mRegistry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
+        registry = engine.getPluginRegistry();
         mProfileSub = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
     }
 
@@ -391,12 +391,12 @@ public class ProfileAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException {
 
-        Enumeration<String> impls = mRegistry.getIds("profile");
+        Enumeration<String> impls = registry.getIds("profile");
         NameValuePairs nvp = new NameValuePairs();
 
         while (impls.hasMoreElements()) {
             String id = impls.nextElement();
-            IPluginInfo info = mRegistry.getPluginInfo("profile", id);
+            IPluginInfo info = registry.getPluginInfo("profile", id);
 
             nvp.put(id, info.getClassName() + "," +
                     info.getDescription(getLocale(req)));
@@ -2461,7 +2461,7 @@ public class ProfileAdminServlet extends AdminServlet {
                 return;
             }
 
-            IPluginInfo info = mRegistry.getPluginInfo("profile", impl);
+            IPluginInfo info = registry.getPluginInfo("profile", impl);
 
             IProfile profile = null;
 

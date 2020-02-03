@@ -69,7 +69,6 @@ import com.netscape.certsrv.profile.ProfilePolicy;
 import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.profile.common.IProfileEx;
 import com.netscape.cms.servlet.base.SubsystemService;
@@ -80,6 +79,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
  * @author alee
@@ -90,8 +90,12 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileService.class);
 
     CMSEngine engine = CMS.getCMSEngine();
+    private PluginRegistry registry;
     private IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
-    private IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
+
+    public ProfileService() {
+        registry = engine.getPluginRegistry();
+    }
 
     @Override
     public Response listProfiles(Integer start, Integer size) {

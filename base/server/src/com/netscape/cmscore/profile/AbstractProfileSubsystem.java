@@ -30,11 +30,11 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cms.profile.IProfileAuthenticator;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.registry.PluginRegistry;
 
 public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
     protected static final String PROP_CHECK_OWNER = "checkOwner";
@@ -123,7 +123,7 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
         // first create a *new* profile object from the configStore
         // and initialise it with the updated configStore
         //
-        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
+        PluginRegistry registry = engine.getPluginRegistry();
         String classId = mProfileClassIds.get(id);
         IPluginInfo info = registry.getPluginInfo("profile", classId);
         String className = info.getClassName();

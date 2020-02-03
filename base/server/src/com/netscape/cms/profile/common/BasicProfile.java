@@ -40,7 +40,6 @@ import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
@@ -50,6 +49,7 @@ import com.netscape.cms.profile.updater.IProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.profile.IProfileSubsystem;
+import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
  * This class implements a basic profile.
@@ -85,7 +85,7 @@ public abstract class BasicProfile implements IProfile {
 
     protected IProfileSubsystem mOwner = null;
     protected IConfigStore mConfig = null;
-    protected IPluginRegistry mRegistry = null;
+    protected PluginRegistry registry;
 
     protected Vector<String> mInputNames = new Vector<String>();
     protected Hashtable<String, IProfileInput> mInputs = new Hashtable<String, IProfileInput>();
@@ -183,7 +183,7 @@ public abstract class BasicProfile implements IProfile {
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();
-        mRegistry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
+        registry = engine.getPluginRegistry();
 
         // Configure File Formats:
         // visible
@@ -218,7 +218,7 @@ public abstract class BasicProfile implements IProfile {
             String input_id = input_st.nextToken();
             String inputClassId = inputStore.getString(input_id + "." +
                     PROP_CLASS_ID);
-            IPluginInfo inputInfo = mRegistry.getPluginInfo("profileInput",
+            IPluginInfo inputInfo = registry.getPluginInfo("profileInput",
                     inputClassId);
             String inputClass = inputInfo.getClassName();
 
@@ -247,7 +247,7 @@ public abstract class BasicProfile implements IProfile {
 
             String outputClassId = outputStore.getString(output_id + "." +
                     PROP_CLASS_ID);
-            IPluginInfo outputInfo = mRegistry.getPluginInfo("profileOutput",
+            IPluginInfo outputInfo = registry.getPluginInfo("profileOutput",
                     outputClassId);
             String outputClass = outputInfo.getClassName();
 
@@ -278,7 +278,7 @@ public abstract class BasicProfile implements IProfile {
 
             String updaterClassId = updaterStore.getString(updater_id + "." +
                     PROP_CLASS_ID);
-            IPluginInfo updaterInfo = mRegistry.getPluginInfo("profileUpdater",
+            IPluginInfo updaterInfo = registry.getPluginInfo("profileUpdater",
                      updaterClassId);
             String updaterClass = updaterInfo.getClassName();
 
@@ -571,7 +571,7 @@ public abstract class BasicProfile implements IProfile {
     throws EProfileException {
         IConfigStore outputStore = mConfig.getSubStore("output");
 
-        IPluginInfo outputInfo = mRegistry.getPluginInfo("profileOutput",
+        IPluginInfo outputInfo = registry.getPluginInfo("profileOutput",
                 outputId);
 
         if (outputInfo == null) {
@@ -664,7 +664,7 @@ public abstract class BasicProfile implements IProfile {
             throws EProfileException {
         IConfigStore inputStore = mConfig.getSubStore("input");
 
-        IPluginInfo inputInfo = mRegistry.getPluginInfo("profileInput",
+        IPluginInfo inputInfo = registry.getPluginInfo("profileInput",
                 inputId);
 
         if (inputInfo == null) {
@@ -893,7 +893,7 @@ public abstract class BasicProfile implements IProfile {
         }
         String defaultRoot = id + "." + PROP_DEFAULT;
         String constraintRoot = id + "." + PROP_CONSTRAINT;
-        IPluginInfo defInfo = mRegistry.getPluginInfo("defaultPolicy",
+        IPluginInfo defInfo = registry.getPluginInfo("defaultPolicy",
                 defaultClassId);
 
         if (defInfo == null) {
@@ -923,7 +923,7 @@ public abstract class BasicProfile implements IProfile {
             logger.debug(method + " default class initialized.");
         }
 
-        IPluginInfo conInfo = mRegistry.getPluginInfo("constraintPolicy",
+        IPluginInfo conInfo = registry.getPluginInfo("constraintPolicy",
                 constraintClassId);
         if (conInfo == null) {
             logger.error(method + " Cannot find " + constraintClassId);

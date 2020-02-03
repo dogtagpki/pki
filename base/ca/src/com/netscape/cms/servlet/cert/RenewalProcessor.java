@@ -47,7 +47,6 @@ import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.IProfileAuthenticator;
 import com.netscape.cms.profile.common.IEnrollProfile;
@@ -59,6 +58,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.registry.PluginRegistry;
 
 public class RenewalProcessor extends CertProcessor {
 
@@ -123,7 +123,7 @@ public class RenewalProcessor extends CertProcessor {
             // if not found, get serial number from profile input (no auth required)
             if (certSerial == null) {
 
-                IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
+                PluginRegistry registry = engine.getPluginRegistry();
 
                 // find SerialNumRenewInput
                 for (ProfileInput input : data.getInputs()) {

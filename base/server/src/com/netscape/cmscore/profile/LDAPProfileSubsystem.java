@@ -34,7 +34,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.csadmin.GetStatus;
@@ -46,6 +45,7 @@ import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -162,7 +162,7 @@ public class LDAPProfileSubsystem
     private synchronized void readProfile(LDAPEntry ldapProfile) {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
+        PluginRegistry registry = engine.getPluginRegistry();
 
         String nsUniqueId =
             ldapProfile.getAttribute("nsUniqueId").getStringValueArray()[0];

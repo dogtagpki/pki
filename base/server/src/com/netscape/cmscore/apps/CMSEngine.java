@@ -1614,4 +1614,8 @@ public class CMSEngine implements ISubsystem {
             }
         }
     }
+
+    public PluginRegistry getPluginRegistry() {
+        return (PluginRegistry) getSubsystem(PluginRegistry.ID);
+    }
 }

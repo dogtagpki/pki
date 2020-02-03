@@ -32,7 +32,6 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
@@ -46,6 +45,7 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.IProfileSubsystem;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
+import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 import netscape.ldap.LDAPAttribute;
@@ -85,7 +85,8 @@ public class CAConfigurator extends Configurator {
      */
     public void importProfiles(String configRoot) throws EBaseException, ELdapException {
 
-        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
+        PluginRegistry registry = engine.getPluginRegistry();
+
         IConfigStore profileCfg = cs.getSubStore("profile");
         String profileIds = profileCfg.getString("list", "");
         StringTokenizer st = new StringTokenizer(profileIds, ",");

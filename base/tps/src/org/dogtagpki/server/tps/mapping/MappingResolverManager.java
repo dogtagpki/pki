@@ -20,13 +20,15 @@ package org.dogtagpki.server.tps.mapping;
 
 import java.util.HashMap;
 
+import org.dogtagpki.server.tps.TPSEngine;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
  * mappingResolverManager is a class for mapping resolver plugin
@@ -43,7 +45,7 @@ public class MappingResolverManager
     public static final String PROP_RESOLVER_CLASS_ID = "class_id";
 
     protected static final String MAPPING_RESOLVER_CFG = "mappingResolver";
-    protected IPluginRegistry registry = null;
+    protected PluginRegistry registry;
     protected HashMap<String, BaseMappingResolver> mappingResolvers = null;
 
     public MappingResolverManager() {
@@ -78,16 +80,21 @@ public class MappingResolverManager
      */
     public void initMappingResolverInstances()
             throws EBaseException {
+
         String method = "mappingResolverManager.initMappingResolverInstance:";
         logger.debug(method + " begins");
+
         CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig conf = engine.getConfig();
-        registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
+        TPSEngine tpsEngine = (TPSEngine) engine;
+
+        registry = tpsEngine.getPluginRegistry();
+
         if (registry == null) {
             logger.warn(method + " registry null");
             return;
         }
 
+        EngineConfig conf = engine.getConfig();
         IConfigStore prConf = conf.getSubStore(MAPPING_RESOLVER_CFG);
         String profileList = prConf.getString(PROP_RESOLVER_LIST, "");
 
