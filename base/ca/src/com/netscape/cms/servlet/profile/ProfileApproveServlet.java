@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
@@ -46,7 +47,6 @@ import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 
 /**
@@ -97,7 +97,7 @@ public class ProfileApproveServlet extends ProfileServlet {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditProfileID = auditProfileID(request);
@@ -183,7 +183,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                 mProfileSubId = ProfileSubsystem.ID;
             }
             logger.debug("ProfileApproveServlet: SubId=" + mProfileSubId);
-            ps = (ProfileSubsystem) engine.getSubsystem(mProfileSubId);
+            ps = engine.getProfileSubsystem(mProfileSubId);
 
             if (ps == null) {
                 logger.error("ProfileApproveServlet: ProfileSubsystem not found");
@@ -496,8 +496,8 @@ public class ProfileApproveServlet extends ProfileServlet {
             mProfileSubId = ProfileSubsystem.ID;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
-        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(mProfileSubId);
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        ProfileSubsystem ps = engine.getProfileSubsystem(mProfileSubId);
 
         if (ps == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;

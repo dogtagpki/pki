@@ -31,6 +31,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICAService;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
@@ -330,8 +331,8 @@ public class CAService implements ICAService, IService {
             throw new EBaseException("profileId not found");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
-        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        ProfileSubsystem ps = engine.getProfileSubsystem();
         IProfile profile = null;
 
         try {

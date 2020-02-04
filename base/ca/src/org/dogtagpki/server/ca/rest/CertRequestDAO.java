@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriInfo;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -54,7 +55,6 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 
@@ -76,7 +76,7 @@ public class CertRequestDAO extends CMSRequestDAO {
     public CertRequestDAO() {
         super("ca");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
@@ -84,7 +84,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         if (ca.noncesEnabled()) {
             random = jssSubsystem.getRandomNumberGenerator();
         }
-        ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
+        ps = engine.getProfileSubsystem();
     }
 
     /**

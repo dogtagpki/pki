@@ -27,6 +27,7 @@ import java.util.List;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -418,8 +419,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new BadRequestException(message);
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
-        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        ProfileSubsystem ps = engine.getProfileSubsystem();
+
         if (ps == null) {
             String message = "Unable to get enrollment template: Profile Service not available";
             logger.error(message);
@@ -478,8 +480,8 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         start = start == null ? DEFAULT_START : start;
         size = size == null ? DEFAULT_PAGESIZE : size;
 
-        CMSEngine engine = CMS.getCMSEngine();
-        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        ProfileSubsystem ps = engine.getProfileSubsystem();
 
         if (ps == null) {
             throw new PKIException("Profile subsystem unavailable.");

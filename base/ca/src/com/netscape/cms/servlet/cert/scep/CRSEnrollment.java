@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
@@ -232,7 +233,7 @@ public class CRSEnrollment extends HttpServlet {
         if (crsCA == null)
             crsCA = "ca";
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         mAuthority = (ICertAuthority) engine.getSubsystem(crsCA);
@@ -291,7 +292,7 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         try {
-            mProfileSubsystem = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
+            mProfileSubsystem = engine.getProfileSubsystem();
             mProfileId = sc.getInitParameter("profileId");
             logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
 

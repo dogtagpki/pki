@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
@@ -38,6 +39,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
+import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 public class CAEngine extends CMSEngine {
@@ -121,5 +123,16 @@ public class CAEngine extends CMSEngine {
             logger.debug("CAEngine: checking certificate serial number ranges");
             ca.getCertificateRepository().checkRanges();
         }
+    }
+
+    public ProfileSubsystem getProfileSubsystem() {
+        return (ProfileSubsystem) getSubsystem(ProfileSubsystem.ID);
+    }
+
+    public ProfileSubsystem getProfileSubsystem(String name) {
+        if (StringUtils.isEmpty(name)) {
+            name = ProfileSubsystem.ID;
+        }
+        return (ProfileSubsystem) getSubsystem(name);
     }
 }

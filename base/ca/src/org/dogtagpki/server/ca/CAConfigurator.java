@@ -61,8 +61,10 @@ public class CAConfigurator extends Configurator {
     @Override
     public void setupDatabase(DatabaseSetupRequest request) throws Exception {
 
-        if (!request.isClone()
-                && engine.getSubsystem(ProfileSubsystem.ID) instanceof LDAPProfileSubsystem) {
+        CAEngine engine = (CAEngine) this.engine;
+        ProfileSubsystem ps = engine.getProfileSubsystem();
+
+        if (!request.isClone() && ps instanceof LDAPProfileSubsystem) {
             try {
                 importProfiles("/usr/share/pki");
             } catch (Exception e) {

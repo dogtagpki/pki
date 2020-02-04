@@ -19,6 +19,7 @@ package org.dogtagpki.legacy.ca;
 
 import org.dogtagpki.legacy.core.policy.GenericPolicyProcessor;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -29,7 +30,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 
 /**
@@ -106,7 +106,7 @@ public class CAPolicy implements IPolicy {
                 r.getRequestId().toString() + ",requestStatus=" +
                 r.getRequestStatus().toString() + ")");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
         if (isProfileRequest(r)) {
             logger.debug("CAPolicy: Profile-base Request " +
                     r.getRequestId().toString());
@@ -120,7 +120,7 @@ public class CAPolicy implements IPolicy {
                 return PolicyResult.REJECTED;
             }
 
-            ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
+            ProfileSubsystem ps = engine.getProfileSubsystem();
 
             try {
                 IProfile profile = ps.getProfile(profileId);

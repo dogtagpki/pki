@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
@@ -46,7 +47,6 @@ import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 
@@ -87,7 +87,7 @@ public class ProfileSelectServlet extends ProfileServlet {
 
         Locale locale = getLocale(request);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         IAuthToken authToken = null;
@@ -133,7 +133,7 @@ public class ProfileSelectServlet extends ProfileServlet {
             mProfileSubId = ProfileSubsystem.ID;
         }
         logger.debug("ProfileSelectServlet: SubId=" + mProfileSubId);
-        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(mProfileSubId);
+        ProfileSubsystem ps = engine.getProfileSubsystem(mProfileSubId);
 
         if (ps == null) {
             logger.error("ProfileSelectServlet: ProfileSubsystem not found");

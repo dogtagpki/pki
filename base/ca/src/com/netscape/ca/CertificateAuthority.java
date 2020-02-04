@@ -2802,7 +2802,7 @@ public class CertificateAuthority
             String subjectDN, String description)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
         ensureReady();
 
         // check requested DN
@@ -2890,7 +2890,7 @@ public class CertificateAuthority
             // Sign certificate
             Locale locale = Locale.getDefault();
             String profileId = "caCACert";
-            ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
+            ProfileSubsystem ps = engine.getProfileSubsystem();
             IProfile profile = ps.getProfile(profileId);
             ArgBlock argBlock = new ArgBlock();
             argBlock.set("cert_request_type", "pkcs10");
@@ -2959,7 +2959,8 @@ public class CertificateAuthority
      */
     public void renewAuthority(HttpServletRequest httpReq) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+
         if (
             authorityParentID != null
             && !authorityParentID.equals(authorityID)
@@ -2968,7 +2969,7 @@ public class CertificateAuthority
             issuer.ensureReady();
         }
 
-        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
+        ProfileSubsystem ps = engine.getProfileSubsystem();
         IProfile profile = ps.getProfile("caManualRenewal");
         CertEnrollmentRequest req = CertEnrollmentRequestFactory.create(
             new ArgBlock(), profile, httpReq.getLocale());

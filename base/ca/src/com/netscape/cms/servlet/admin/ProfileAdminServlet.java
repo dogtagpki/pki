@@ -26,6 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -106,9 +107,9 @@ public class ProfileAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
         registry = engine.getPluginRegistry();
-        mProfileSub = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
+        mProfileSub = engine.getProfileSubsystem();
     }
 
     /**

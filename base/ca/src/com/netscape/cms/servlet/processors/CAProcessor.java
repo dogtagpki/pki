@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.authorization.IAuthzSubsystem;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -143,7 +144,7 @@ public class CAProcessor extends Processor {
     public CAProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         super(id, locale);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
         EngineConfig config = engine.getConfig();
 
         IConfigStore cs = config.getSubStore("processor." + id);
@@ -175,7 +176,7 @@ public class CAProcessor extends Processor {
             profileSubId = ProfileSubsystem.ID;
         }
 
-        ps = (ProfileSubsystem) engine.getSubsystem(profileSubId);
+        ps = engine.getProfileSubsystem(profileSubId);
         if (ps == null) {
             throw new EBaseException("CAProcessor: Profile Subsystem not found");
         }

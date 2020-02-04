@@ -39,7 +39,7 @@ public class KRAConnectorServlet extends ConnectorServlet {
         super.normalizeProfileRequest(request);
 
         CAEngine engine = (CAEngine) CMS.getCMSEngine();
-        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
+        ProfileSubsystem ps = engine.getProfileSubsystem();
 
         String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
         IEnrollProfile profile = null;

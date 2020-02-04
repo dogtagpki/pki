@@ -38,6 +38,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.server.ca.CAEngine;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
@@ -75,7 +76,6 @@ import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.profile.ProfileSubsystem;
@@ -93,9 +93,9 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     private ProfileSubsystem ps;
 
     public ProfileService() {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
         registry = engine.getPluginRegistry();
-        ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
+        ps = engine.getProfileSubsystem();
     }
 
     @Override
@@ -333,8 +333,9 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     public static ProfileDataInfo createProfileDataInfo(String profileId, boolean visibleOnly, UriInfo uriInfo,
             Locale locale) throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        ProfileSubsystem ps = (ProfileSubsystem) engine.getSubsystem(ProfileSubsystem.ID);
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        ProfileSubsystem ps = engine.getProfileSubsystem();
+
         if (profileId == null) {
             throw new EBaseException("Error creating ProfileDataInfo.");
         }
