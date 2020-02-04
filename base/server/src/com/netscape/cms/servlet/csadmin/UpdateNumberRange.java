@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -34,7 +33,6 @@ import org.w3c.dom.Node;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.repository.IRepository;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -47,7 +45,7 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.xml.XMLObject;
 
-public class UpdateNumberRange extends CMSServlet {
+public abstract class UpdateNumberRange extends CMSServlet {
 
     public final static Logger logger = LoggerFactory.getLogger(UpdateNumberRange.class);
 
@@ -248,7 +246,6 @@ public class UpdateNumberRange extends CMSServlet {
                 }
 
                 logger.info("UpdateNumberRange: Transferring range: " + beginNum + ".." + endNum);
-
             }
 
             if (beginNum == null) {
@@ -306,35 +303,7 @@ public class UpdateNumberRange extends CMSServlet {
         }
     }
 
-    public IRepository getRepository(String type) throws EBaseException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-        String cstype = cs.getType();
-
-        if (cstype.equals("KRA")) {
-            IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
-            if (type.equals("request")) {
-                return kra.getRequestQueue().getRequestRepository();
-            } else if (type.equals("serialNo")) {
-                return kra.getKeyRepository();
-            } else if (type.equals("replicaId")) {
-                return kra.getReplicaRepository();
-            }
-
-        } else { // CA
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            if (type.equals("request")) {
-                return ca.getRequestQueue().getRequestRepository();
-            } else if (type.equals("serialNo")) {
-                return ca.getCertificateRepository();
-            } else if (type.equals("replicaId")) {
-                return ca.getReplicaRepository();
-            }
-        }
-
-        throw new EBaseException("Unsupported repository: " + type);
-    }
+    public abstract IRepository getRepository(String type) throws EBaseException;
 
     protected void setDefaultTemplates(ServletConfig sc) {
     }
