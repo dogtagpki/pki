@@ -639,6 +639,66 @@ public class Configurator {
         content.putSingle("xmlOutput", "true");
         content.putSingle("sessionID", sessionID);
         updateNumberRange(masterHostname, masterEEPort, masterAdminPort, true, content, "replicaId");
+
+        DatabaseConfig dbConfig = cs.getDatabaseConfig();
+        dbConfig.putString("enableSerialManagement", "true");
+
+        cs.commit(false);
+    }
+
+    public void updateNumberRange(String hostname, int eePort, int adminPort, boolean https,
+            MultivaluedMap<String, String> content, String type) throws Exception {
+
+        String cstype = cs.getType();
+        logger.info("Getting " + type + " number range from " + cstype + " master");
+
+        cstype = cstype.toLowerCase();
+        String serverPath = "/" + cstype + "/admin/" + cstype + "/updateNumberRange";
+
+        String response = post(hostname, adminPort, https, serverPath, content, null, null);
+        logger.debug("Response: " + response);
+
+        if (StringUtils.isEmpty(response)) {
+            String message = "Unable to get " + type + " number range from " + cstype + " master";
+            logger.error(message);
+            throw new IOException(message);
+        }
+
+        // when the admin servlet is unavailable, we return a badly formatted error page
+        XMLObject parser = new XMLObject(new ByteArrayInputStream(response.getBytes()));
+
+        String status = parser.getValue("Status");
+        logger.debug("Status: " + status);
+
+        if (status.equals(AUTH_FAILURE)) {
+            throw new EAuthException(AUTH_FAILURE);
+        }
+
+        if (!status.equals(SUCCESS)) {
+            String error = parser.getValue("Error");
+            throw new IOException(error);
+        }
+
+        String beginNumber = parser.getValue("beginNumber");
+        logger.info("Begin number: " + beginNumber);
+
+        String endNumber = parser.getValue("endNumber");
+        logger.info("End number: " + endNumber);
+
+        DatabaseConfig dbConfig = cs.getDatabaseConfig();
+
+        if (type.equals("request")) {
+            dbConfig.putString("beginRequestNumber", beginNumber);
+            dbConfig.putString("endRequestNumber", endNumber);
+
+        } else if (type.equals("serialNo")) {
+            dbConfig.putString("beginSerialNumber", beginNumber);
+            dbConfig.putString("endSerialNumber", endNumber);
+
+        } else if (type.equals("replicaId")) {
+            dbConfig.putString("beginReplicaNumber", beginNumber);
+            dbConfig.putString("endReplicaNumber", endNumber);
+        }
     }
 
     public void getConfigEntriesFromMaster(
@@ -726,82 +786,6 @@ public class Configurator {
         }
 
         cs.commit(false);
-    }
-
-    public void updateNumberRange(String hostname, int eePort, int adminPort, boolean https,
-            MultivaluedMap<String, String> content, String type) throws Exception {
-
-        logger.debug("updateNumberRange start host=" + hostname + " adminPort=" + adminPort + " eePort=" + eePort);
-        logger.debug("updateNumberRange content: " + content);
-
-        String cstype = cs.getType();
-        cstype = cstype.toLowerCase();
-
-        String serverPath = "/" + cstype + "/admin/" + cstype + "/updateNumberRange";
-        String c = null;
-        XMLObject parser = null;
-        try {
-            c = post(hostname, adminPort, https, serverPath, content, null, null);
-            if (c == null || c.equals("")) {
-                logger.debug("updateNumberRange: content is null.");
-                throw new IOException("The server you want to contact is not available");
-            }
-
-            logger.debug("content from admin interface =" + c);
-            // when the admin servlet is unavailable, we return a badly formatted error page
-            // in that case, this will throw an exception and be passed into the catch block.
-            parser = new XMLObject(new ByteArrayInputStream(c.getBytes()));
-
-        } catch (Exception e) {
-            // for backward compatibility, try the old ee interface too
-            logger.warn("updateNumberRange: Failed to contact master using admin port" + e);
-            logger.warn("updateNumberRange: Attempting to contact master using EE port");
-            serverPath = "/" + cstype + "/ee/" + cstype + "/updateNumberRange";
-            c = post(hostname, eePort, https, serverPath, content, null, null);
-            if (c == null || c.equals("")) {
-                logger.error("updateNumberRange: content is null.");
-                throw new IOException("The server you want to contact is not available", e);
-            }
-            logger.info("content from ee interface =" + c);
-            parser = new XMLObject(new ByteArrayInputStream(c.getBytes()));
-        }
-
-        String status = parser.getValue("Status");
-
-        logger.debug("updateNumberRange(): status=" + status);
-
-        if (status.equals(SUCCESS)) {
-
-            DatabaseConfig dbConfig = cs.getDatabaseConfig();
-            String beginNum = parser.getValue("beginNumber");
-            String endNum = parser.getValue("endNumber");
-
-            if (type.equals("request")) {
-                dbConfig.putString("beginRequestNumber", beginNum);
-                dbConfig.putString("endRequestNumber", endNum);
-
-            } else if (type.equals("serialNo")) {
-                dbConfig.putString("beginSerialNumber", beginNum);
-                dbConfig.putString("endSerialNumber", endNum);
-
-            } else if (type.equals("replicaId")) {
-                dbConfig.putString("beginReplicaNumber", beginNum);
-                dbConfig.putString("endReplicaNumber", endNum);
-            }
-
-            // enable serial number management in clone
-            dbConfig.putString("enableSerialManagement", "true");
-            cs.commit(false);
-
-            return;
-
-        } else if (status.equals(AUTH_FAILURE)) {
-            throw new EAuthException(AUTH_FAILURE);
-
-        } else {
-            String error = parser.getValue("Error");
-            throw new IOException(error);
-        }
     }
 
     public void updateConfigEntries(String hostname, int port, boolean https,
