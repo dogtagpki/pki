@@ -22,8 +22,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,20 +50,6 @@ public class GetConfigEntries extends CMSServlet {
     private final static String SUCCESS = "0";
     private final static String AUTH_FAILURE = "2";
 
-    public GetConfigEntries() {
-        super();
-    }
-
-    /**
-     * initialize the servlet.
-     *
-     * @param sc servlet configuration, read from the web.xml file
-     */
-    public void init(ServletConfig sc) throws ServletException {
-        super.init(sc);
-        logger.debug("GetConfigEntries init");
-    }
-
     /**
      * Process the HTTP request.
      * <ul>
@@ -76,49 +60,51 @@ public class GetConfigEntries extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
+
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = null;
 
+        logger.info("GetConfigEntries: Authenticating request");
+
         try {
             authToken = authenticate(cmsReq);
         } catch (Exception e) {
-            logger.warn("GetConfigEntries authentication failed: " + e.getMessage(), e);
-            logger.warn(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
+            logger.error("GetConfigEntries: Authentication failed: " + e.getMessage(), e);
+            logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated", null);
             return;
         }
 
-        // Construct an ArgBlock
         IArgBlock args = cmsReq.getHttpParams();
-
-        // Get the operation code
-        String op = null;
-
-        op = args.getValueAsString("op", null);
-        logger.debug("GetConfigEntries process: op=" + op);
+        String op = args.getValueAsString("op", null);
+        logger.info("GetConfigEntries: Operation: " + op);
 
         XMLObject xmlObj = null;
         try {
             xmlObj = new XMLObject();
         } catch (Exception e) {
-            logger.error("GetConfigEntries process: Exception: " + e.getMessage(), e);
-            throw new EBaseException(e.toString());
+            String message = "Unable to create XMLObject: " + e.getMessage();
+            logger.error(message, e);
+            throw new EBaseException(message, e);
         }
 
         Node root = xmlObj.createRoot("XMLResponse");
+
+        logger.info("GetConfigEntries: Authorizing request");
         AuthzToken authzToken = null;
 
         try {
             authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
                     "read");
         } catch (EAuthzAccessDenied e) {
-            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             outputError(httpResp, "Error: Not authorized");
             return;
+
         } catch (Exception e) {
-            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             outputError(httpResp, "Error: Encountered problem during authorization.");
             return;
         }
@@ -129,9 +115,13 @@ public class GetConfigEntries extends CMSServlet {
         }
 
         if (op != null) {
+
+            logger.info("GetConfigEntries: Processing substores");
+
             EngineConfig config = engine.getConfig();
             String substores = args.getValueAsString("substores", "");
             StringTokenizer t = new StringTokenizer(substores, ",");
+
             while (t.hasMoreTokens()) {
                 String name1 = t.nextToken();
                 IConfigStore cs = config.getSubStore(name1);
@@ -139,39 +129,39 @@ public class GetConfigEntries extends CMSServlet {
 
                 while (enum1.hasMoreElements()) {
                     String name = name1 + "." + enum1.nextElement();
-                    try {
-                        String value = config.getString(name);
-                        if (value.equals("localhost")) {
-                            value = config.getHostname();
-                        }
-                        Node container = xmlObj.createContainer(root, "Config");
-                        xmlObj.addItemToContainer(container, "name", name);
-                        xmlObj.addItemToContainer(container, "value", value);
-                    } catch (Exception ee) {
-                        continue;
+                    logger.info("- " + name);
+
+                    String value = config.getString(name, null);
+                    if ("localhost".equals(value)) {
+                        value = config.getHostname();
                     }
+
+                    Node container = xmlObj.createContainer(root, "Config");
+                    xmlObj.addItemToContainer(container, "name", name);
+                    xmlObj.addItemToContainer(container, "value", value);
                 }
             }
 
+            logger.info("GetConfigEntries: Processing names");
+
             String names = args.getValueAsString("names", "");
             StringTokenizer t1 = new StringTokenizer(names, ",");
+
             while (t1.hasMoreTokens()) {
                 String name = t1.nextToken();
-                String value = "";
+                logger.info("- " + name);
 
-                try {
-                    logger.debug("Retrieving config name=" + name);
-                    value = config.getString(name);
-                    logger.debug("Retrieving config value=" + value);
-                    if (value.equals("localhost"))
+                String value;
+                if (name.equals("internaldb.ldapauth.password")) {
+                    value = getLDAPPassword();
+
+                } else if (name.equals("internaldb.replication.password")) {
+                    value = getReplicationPassword();
+
+                } else {
+                    value = config.getString(name, null);
+                    if ("localhost".equals(value))
                         value = config.getHostname();
-                } catch (Exception ee) {
-                    if (name.equals("internaldb.ldapauth.password")) {
-                        value = getLDAPPassword();
-                    } else if (name.equals("internaldb.replication.password")) {
-                        value = getReplicationPassword();
-                    } else
-                        continue;
                 }
 
                 if (value != null) {
@@ -187,6 +177,7 @@ public class GetConfigEntries extends CMSServlet {
             byte[] cb = xmlObj.toByteArray();
 
             outputResult(httpResp, "application/xml", cb);
+
         } catch (Exception e) {
             logger.warn("Failed to send the XML output: " + e.getMessage(), e);
         }
