@@ -557,6 +557,8 @@ public class Configurator {
             }
         }
 
+        String sessionID = request.getInstallToken().getToken();
+
         String cloneUri = request.getCloneUri();
         URL url = new URL(cloneUri);
         String masterHostname = url.getHost();
@@ -585,8 +587,12 @@ public class Configurator {
             importCertChain(certchain, "clone");
         }
 
+        if (csType.equals("CA") || csType.equals("KRA")) {
+            setupNumberRanges(sessionID, masterHost);
+        }
+
         logger.debug("SystemConfigService: get configuration entries from master");
-        getConfigEntriesFromMaster(request);
+        getConfigEntriesFromMaster(sessionID);
 
         String token = preopConfig.getString("module.token", null);
         CryptoUtil.getKeyStorageToken(token); // throw exception if token doesn't exist
@@ -604,7 +610,39 @@ public class Configurator {
         }
     }
 
-    public void getConfigEntriesFromMaster(CloneSetupRequest request)
+    public void setupNumberRanges(
+            String sessionID,
+            SecurityDomainHost masterHost) throws Exception {
+
+        logger.info("Setting up number ranges");
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String masterHostname = masterHost.getHostname();
+        int masterAdminPort = Integer.parseInt(masterHost.getSecureAdminPort());
+        int masterEEPort = Integer.parseInt(masterHost.getSecurePort());
+
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("type", "request");
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", sessionID);
+        updateNumberRange(masterHostname, masterEEPort, masterAdminPort, true, content, "request");
+
+        content = new MultivaluedHashMap<String, String>();
+        content.putSingle("type", "serialNo");
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", sessionID);
+        updateNumberRange(masterHostname, masterEEPort, masterAdminPort, true, content, "serialNo");
+
+        content = new MultivaluedHashMap<String, String>();
+        content.putSingle("type", "replicaId");
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", sessionID);
+        updateNumberRange(masterHostname, masterEEPort, masterAdminPort, true, content, "replicaId");
+    }
+
+    public void getConfigEntriesFromMaster(
+            String sessionID)
             throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -612,30 +650,9 @@ public class Configurator {
 
         cstype = cstype.toLowerCase();
 
-        String session_id = request.getInstallToken().getToken();
         String master_hostname = preopConfig.getString("master.hostname", "");
         int master_port = preopConfig.getInteger("master.httpsadminport", -1);
         int master_ee_port = preopConfig.getInteger("master.httpsport", -1);
-
-        if (cstype.equals("ca") || cstype.equals("kra")) {
-            MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-            content.putSingle("type", "request");
-            content.putSingle("xmlOutput", "true");
-            content.putSingle("sessionID", session_id);
-            updateNumberRange(master_hostname, master_ee_port, master_port, true, content, "request");
-
-            content = new MultivaluedHashMap<String, String>();
-            content.putSingle("type", "serialNo");
-            content.putSingle("xmlOutput", "true");
-            content.putSingle("sessionID", session_id);
-            updateNumberRange(master_hostname, master_ee_port, master_port, true, content, "serialNo");
-
-            content = new MultivaluedHashMap<String, String>();
-            content.putSingle("type", "replicaId");
-            content.putSingle("xmlOutput", "true");
-            content.putSingle("sessionID", session_id);
-            updateNumberRange(master_hostname, master_ee_port, master_port, true, content, "replicaId");
-        }
 
         String list = "";
 
@@ -681,7 +698,7 @@ public class Configurator {
                 + "internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password" + c1);
         content.putSingle("substores", s1.toString());
         content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", session_id);
+        content.putSingle("sessionID", sessionID);
 
         updateConfigEntries(master_hostname, master_port, true,
                 "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content);
