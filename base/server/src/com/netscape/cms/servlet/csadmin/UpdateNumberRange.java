@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,23 +51,8 @@ public class UpdateNumberRange extends CMSServlet {
 
     public final static Logger logger = LoggerFactory.getLogger(UpdateNumberRange.class);
 
-    private static final long serialVersionUID = -1584171713024263331L;
     private final static String SUCCESS = "0";
     private final static String AUTH_FAILURE = "2";
-
-    public UpdateNumberRange() {
-    }
-
-    /**
-     * initialize the servlet.
-     *
-     * @param sc servlet configuration, read from the web.xml file
-     */
-    public void init(ServletConfig sc) throws ServletException {
-        logger.debug("UpdateNumberRange: initializing...");
-        super.init(sc);
-        logger.debug("UpdateNumberRange: done initializing...");
-    }
 
     /**
      * Process the HTTP request.
@@ -80,14 +64,13 @@ public class UpdateNumberRange extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        logger.debug("UpdateNumberRange: processing...");
+
+        CMSEngine engine = CMS.getCMSEngine();
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        logger.debug("UpdateNumberRange process: authentication starts");
-
-        CMSEngine engine = CMS.getCMSEngine();
+        logger.info("UpdateNumberRange: Authenticating request");
         IAuthToken authToken = authenticate(cmsReq);
 
         if (authToken == null) {
@@ -98,6 +81,7 @@ public class UpdateNumberRange extends CMSServlet {
             return;
         }
 
+        logger.info("UpdateNumberRange: Authorizing request");
         AuthzToken authzToken = null;
 
         try {
@@ -121,7 +105,7 @@ public class UpdateNumberRange extends CMSServlet {
 
         try {
             String type = httpReq.getParameter("type");
-            logger.debug("UpdateNumberRange: type: " + type);
+            logger.info("UpdateNumberRange: Type: " + type);
 
             EngineConfig cs = engine.getConfig();
             DatabaseConfig dbConfig = cs.getDatabaseConfig();
@@ -129,31 +113,8 @@ public class UpdateNumberRange extends CMSServlet {
 
             auditParams += "+type;;" + type;
 
-            logger.debug(
-                "UpdateNumberRange: servicing request for "
-                + cstype + " " + type + " range.");
-
-            IRepository repo = null;
-            if (cstype.equals("KRA")) {
-                IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
-                if (type.equals("request")) {
-                    repo = kra.getRequestQueue().getRequestRepository();
-                } else if (type.equals("serialNo")) {
-                    repo = kra.getKeyRepository();
-                } else if (type.equals("replicaId")) {
-                    repo = kra.getReplicaRepository();
-                }
-
-            } else { // CA
-                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-                if (type.equals("request")) {
-                    repo = ca.getRequestQueue().getRequestRepository();
-                } else if (type.equals("serialNo")) {
-                    repo = ca.getCertificateRepository();
-                } else if (type.equals("replicaId")) {
-                    repo = ca.getReplicaRepository();
-                }
-            }
+            logger.info("UpdateNumberRange: Getting " + type + " repository");
+            IRepository repo = getRepository(type);
 
             // checkRanges for replicaID - we do this each time a replica is created.
             // This needs to be done beforehand to ensure that we always have enough
@@ -173,11 +134,13 @@ public class UpdateNumberRange extends CMSServlet {
                 endNumConfig = "endRequestNumber";
                 cloneNumConfig = "requestCloneTransferNumber";
                 nextEndConfig = "nextEndRequestNumber";
+
             } else if (type.equals("serialNo")) {
                 radix = 16;
                 endNumConfig = "endSerialNumber";
                 cloneNumConfig = "serialCloneTransferNumber";
                 nextEndConfig = "nextEndSerialNumber";
+
             } else if (type.equals("replicaId")) {
                 radix = 10;
                 endNumConfig = "endReplicaNumber";
@@ -200,16 +163,16 @@ public class UpdateNumberRange extends CMSServlet {
 
             String endNumStr = dbConfig.getString(endNumConfig);
             BigInteger endNum = new BigInteger(endNumStr, radix);
-            logger.debug("UpdateNumberRange: dbs." + endNumConfig + ": " + endNum);
+            logger.info("UpdateNumberRange: dbs." + endNumConfig + ": " + endNum);
 
             String transferSizeStr = dbConfig.getString(cloneNumConfig, "");
             BigInteger transferSize = new BigInteger(transferSizeStr, radix);
-            logger.debug("UpdateNumberRange: dbs." + cloneNumConfig + ": " + transferSize);
+            logger.info("UpdateNumberRange: dbs." + cloneNumConfig + ": " + transferSize);
 
             // transferred range will start at beginNum
             //  (which, for now, is just a candidate)
             BigInteger beginNum = endNum.subtract(transferSize).add(BigInteger.ONE);
-            logger.debug("UpdateNumberRange: beginNum: " + beginNum);
+            logger.info("UpdateNumberRange: Begin number: " + beginNum);
 
             /* We need to synchronise on repo because we peek the next
              * serial number, then set the max serial of the current or
@@ -226,10 +189,9 @@ public class UpdateNumberRange extends CMSServlet {
                     throw new RuntimeException(msg); // will be caught below
                 }
 
-                logger.debug("Configured transfer size: " + transferSize);
-                logger.debug(
-                    "Current range: " + nextSerial + ".." + endNum
-                    + " (size: " + endNum.subtract(nextSerial).add(BigInteger.ONE) + ")");
+                logger.info("Configured transfer size: " + transferSize);
+                logger.info("UpdateNumberRange: Current range: " + nextSerial + ".." + endNum);
+                logger.info("UpdateNumberRange: Size: " + endNum.subtract(nextSerial).add(BigInteger.ONE));
 
                 if (beginNum.compareTo(nextSerial) < 0) {
                     /* beginNum = the start of the range to transfer.
@@ -264,27 +226,33 @@ public class UpdateNumberRange extends CMSServlet {
                      */
                     endNum = new BigInteger(dbConfig.getString(nextEndConfig, ""), radix);
                     BigInteger newEndNum = endNum.subtract(transferSize);
-                    logger.debug("UpdateNumberRange: Transferring from the end of next range");
-                    logger.debug("UpdateNumberRange:  Next range current end: " + endNum);
-                    logger.debug("UpdateNumberRange:  Next range new end: " + newEndNum);
+
+                    logger.info("UpdateNumberRange: Transferring from the end of next range");
+                    logger.info("UpdateNumberRange:   Next range current end: " + endNum);
+                    logger.info("UpdateNumberRange:   Next range new end: " + newEndNum);
+
                     repo.setNextMaxSerial(newEndNum.toString(radix));
                     dbConfig.putString(nextEndConfig, newEndNum.toString(radix));
                     beginNum = newEndNum.add(BigInteger.ONE);
 
                 } else {
-                    logger.debug("UpdateNumberRange: Transferring from the end of the current range");
+
+                    logger.info("UpdateNumberRange: Transferring from the end of the current range");
+
                     BigInteger newEndNum = beginNum.subtract(BigInteger.ONE);
                     String newValStr = newEndNum.toString(radix);
                     repo.setMaxSerial(newEndNum.toString(radix));
                     dbConfig.putString(endNumConfig, newValStr);
-                    logger.debug("UpdateNumberRange: New current range: " + nextSerial + ".." + newEndNum);
+
+                    logger.info("UpdateNumberRange: New current range: " + nextSerial + ".." + newEndNum);
                 }
-                logger.debug("UpdateNumberRange: Transferring range: " + beginNum + ".." + endNum);
+
+                logger.info("UpdateNumberRange: Transferring range: " + beginNum + ".." + endNum);
 
             }
 
             if (beginNum == null) {
-                logger.error("UpdateNumberRange: Missing beginNum");
+                logger.error("UpdateNumberRange: Missing begin number");
                 auditMessage = CMS.getLogMessage(
                                    AuditEvent.CONFIG_SERIAL_NUMBER,
                                    auditSubjectID,
@@ -336,6 +304,36 @@ public class UpdateNumberRange extends CMSServlet {
 
             outputError(httpResp, "Error: Unable to update number range: " + e.getMessage());
         }
+    }
+
+    public IRepository getRepository(String type) throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+        String cstype = cs.getType();
+
+        if (cstype.equals("KRA")) {
+            IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
+            if (type.equals("request")) {
+                return kra.getRequestQueue().getRequestRepository();
+            } else if (type.equals("serialNo")) {
+                return kra.getKeyRepository();
+            } else if (type.equals("replicaId")) {
+                return kra.getReplicaRepository();
+            }
+
+        } else { // CA
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+            if (type.equals("request")) {
+                return ca.getRequestQueue().getRequestRepository();
+            } else if (type.equals("serialNo")) {
+                return ca.getCertificateRepository();
+            } else if (type.equals("replicaId")) {
+                return ca.getReplicaRepository();
+            }
+        }
+
+        throw new EBaseException("Unsupported repository: " + type);
     }
 
     protected void setDefaultTemplates(ServletConfig sc) {
