@@ -1317,26 +1317,35 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
      * @throws EUsrGrpException
      */
     public Enumeration<IGroup> findGroups(String filter) throws EUsrGrpException {
+
         if (filter == null) {
             return null;
         }
+
+        String baseDN = getGroupBaseDN();
+        logger.debug("UGSubsystem: Retrieving groups from " + baseDN);
 
         LDAPConnection ldapconn = null;
 
         try {
             ldapconn = getConn();
-            LDAPSearchResults res =
-                    ldapconn.search(getGroupBaseDN(), LDAPv2.SCOPE_SUB,
-                            "(&(objectclass=groupofuniquenames)(cn=" + filter + "))",
-                            null, false);
+            LDAPSearchResults res = ldapconn.search(
+                    baseDN,
+                    LDAPv2.SCOPE_SUB,
+                    "(&(objectclass=groupofuniquenames)(cn=" + filter + "))",
+                    null,
+                    false);
 
             return buildGroups(res);
+
         } catch (LDAPException e) {
-            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_FIND_GROUPS", e.toString()), e);
+            logger.error("Unable to find groups: " + e, e);
             return null;
+
         } catch (ELdapException e) {
-            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_FIND_GROUPS", e.toString()), e);
+            logger.error("Unable to find groups: " + e, e);
             return null;
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
