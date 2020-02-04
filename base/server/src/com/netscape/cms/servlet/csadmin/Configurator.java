@@ -792,23 +792,27 @@ public class Configurator {
             String servlet, MultivaluedMap<String, String> content)
             throws Exception {
 
-        logger.debug("Configurator: updating config entries");
+        String cstype = cs.getType();
+        logger.info("Getting " + cstype + " master configuration entries");
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
+        LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
 
-        String c = post(hostname, port, https, servlet, content, null, null);
+        LDAPConfig replicaConfig = cs.getInternalDBConfig();
+        LDAPConnectionConfig replicaConnConfig = replicaConfig.getConnectionConfig();
 
-        if (c == null) {
-            throw new IOException("Unable to get master configuration entries");
+        String response = post(hostname, port, https, servlet, content, null, null);
+        if (response == null) {
+            throw new IOException("Unable to get " + cstype + " master configuration");
         }
 
-        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
         XMLObject parser = new XMLObject(bis);
 
         String status = parser.getValue("Status");
-        logger.debug("Configurator: status: " + status);
+        logger.debug("Status: " + status);
 
         if (status.equals(AUTH_FAILURE)) {
             throw new EAuthException(AUTH_FAILURE);
@@ -819,108 +823,106 @@ public class Configurator {
             throw new IOException(error);
         }
 
-                String cstype = cs.getType();
+        logger.info("Retrieved configuration entries:");
 
-                logger.debug("Master's configuration:");
-                Document doc = parser.getDocument();
-                NodeList list = doc.getElementsByTagName("name");
-                int len = list.getLength();
-                for (int i = 0; i < len; i++) {
-                    Node n = list.item(i);
-                    NodeList nn = n.getChildNodes();
-                    String name = nn.item(0).getNodeValue();
-                    logger.debug("- " + name);
+        Document doc = parser.getDocument();
+        NodeList list = doc.getElementsByTagName("name");
+        int len = list.getLength();
 
-                    Node parent = n.getParentNode();
-                    nn = parent.getChildNodes();
-                    int len1 = nn.getLength();
+        for (int i = 0; i < len; i++) {
+            Node n = list.item(i);
+            NodeList nn = n.getChildNodes();
+            String name = nn.item(0).getNodeValue();
+            logger.info("- " + name);
 
-                    String v = "";
-                    for (int j = 0; j < len1; j++) {
-                        Node nv = nn.item(j);
-                        String val = nv.getNodeName();
-                        if (val.equals("value")) {
-                            NodeList n2 = nv.getChildNodes();
-                            if (n2.getLength() > 0)
-                                v = n2.item(0).getNodeValue();
-                            break;
-                        }
+            Node parent = n.getParentNode();
+            nn = parent.getChildNodes();
+            int len1 = nn.getLength();
+
+            String v = "";
+            for (int j = 0; j < len1; j++) {
+                Node nv = nn.item(j);
+                String val = nv.getNodeName();
+
+                if (val.equals("value")) {
+                    NodeList n2 = nv.getChildNodes();
+                    if (n2.getLength() > 0) {
+                        v = n2.item(0).getNodeValue();
                     }
+                    break;
+                }
+            }
 
-                    if (name.equals("internaldb.basedn")) {
-                        LDAPConfig ldapConfig = cs.getInternalDBConfig();
-                        ldapConfig.setBaseDN(v);
-                        masterConfig.putString("basedn", v);
+            if (name.equals("internaldb.basedn")) {
+                masterConfig.setBaseDN(v);
+                replicaConfig.setBaseDN(v);
 
-                    } else if (name.startsWith("internaldb")) {
-                        cs.putString(name.replaceFirst("internaldb", "preop.internaldb.master"), v);
+            } else if (name.startsWith("internaldb")) {
+                preopConfig.putString(name.replaceFirst("internaldb", "internaldb.master"), v);
 
-                    } else if (name.equals("instanceId")) {
-                        preopConfig.putString("master.instanceId", v);
+            } else if (name.equals("instanceId")) {
+                preopConfig.putString("master.instanceId", v);
 
-                    } else if (name.equals("cloning.signing.nickname")) {
-                        preopConfig.putString("master.signing.nickname", v);
-                        preopConfig.putString("cert.signing.nickname", v);
+            } else if (name.equals("cloning.signing.nickname")) {
+                preopConfig.putString("master.signing.nickname", v);
+                preopConfig.putString("cert.signing.nickname", v);
 
-                    } else if (name.equals("cloning.ocsp_signing.nickname")) {
-                        preopConfig.putString("master.ocsp_signing.nickname", v);
-                        preopConfig.putString("cert.ocsp_signing.nickname", v);
+            } else if (name.equals("cloning.ocsp_signing.nickname")) {
+                preopConfig.putString("master.ocsp_signing.nickname", v);
+                preopConfig.putString("cert.ocsp_signing.nickname", v);
 
-                    } else if (name.equals("cloning.subsystem.nickname")) {
-                        preopConfig.putString("master.subsystem.nickname", v);
-                        preopConfig.putString("cert.subsystem.nickname", v);
+            } else if (name.equals("cloning.subsystem.nickname")) {
+                preopConfig.putString("master.subsystem.nickname", v);
+                preopConfig.putString("cert.subsystem.nickname", v);
 
-                    } else if (name.equals("cloning.transport.nickname")) {
-                        preopConfig.putString("master.transport.nickname", v);
-                        cs.putString("kra.transportUnit.nickName", v);
-                        preopConfig.putString("cert.transport.nickname", v);
+            } else if (name.equals("cloning.transport.nickname")) {
+                preopConfig.putString("master.transport.nickname", v);
+                cs.putString("kra.transportUnit.nickName", v);
+                preopConfig.putString("cert.transport.nickname", v);
 
-                    } else if (name.equals("cloning.storage.nickname")) {
-                        preopConfig.putString("master.storage.nickname", v);
-                        cs.putString("kra.storageUnit.nickName", v);
-                        preopConfig.putString("cert.storage.nickname", v);
+            } else if (name.equals("cloning.storage.nickname")) {
+                preopConfig.putString("master.storage.nickname", v);
+                cs.putString("kra.storageUnit.nickName", v);
+                preopConfig.putString("cert.storage.nickname", v);
 
-                    } else if (name.equals("cloning.audit_signing.nickname")) {
-                        preopConfig.putString("master.audit_signing.nickname", v);
-                        preopConfig.putString("cert.audit_signing.nickname", v);
-                        cs.putString(name, v);
+            } else if (name.equals("cloning.audit_signing.nickname")) {
+                preopConfig.putString("master.audit_signing.nickname", v);
+                preopConfig.putString("cert.audit_signing.nickname", v);
+                cs.putString(name, v);
 
-                    } else if (name.startsWith("cloning.ca")) {
-                        cs.putString(name.replaceFirst("cloning", "preop"), v);
+            } else if (name.startsWith("cloning.ca")) {
+                cs.putString(name.replaceFirst("cloning", "preop"), v);
 
-                    } else if (name.equals("cloning.signing.keyalgorithm")) {
-                        cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
-                        if (cstype.equals("CA")) {
-                            cs.putString("ca.crl.MasterCRL.signingAlgorithm", v);
-                            cs.putString("ca.signing.defaultSigningAlgorithm", v);
-                        } else if (cstype.equals("OCSP")) {
-                            cs.putString("ocsp.signing.defaultSigningAlgorithm", v);
-                        }
-                    } else if (name.equals("cloning.transport.keyalgorithm")) {
-                        cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
-                        cs.putString("kra.transportUnit.signingAlgorithm", v);
+            } else if (name.equals("cloning.signing.keyalgorithm")) {
+                cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
+                if (cstype.equals("CA")) {
+                    cs.putString("ca.crl.MasterCRL.signingAlgorithm", v);
+                    cs.putString("ca.signing.defaultSigningAlgorithm", v);
+                } else if (cstype.equals("OCSP")) {
+                    cs.putString("ocsp.signing.defaultSigningAlgorithm", v);
+                }
+            } else if (name.equals("cloning.transport.keyalgorithm")) {
+                cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
+                cs.putString("kra.transportUnit.signingAlgorithm", v);
 
-                    } else if (name.equals("cloning.ocsp_signing.keyalgorithm")) {
-                        cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
-                        if (cstype.equals("CA")) {
-                            cs.putString("ca.ocsp_signing.defaultSigningAlgorithm", v);
-                        }
-
-                    } else if (name.startsWith("cloning")) {
-                        cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
-
-                    } else {
-                        cs.putString(name, v);
-                    }
+            } else if (name.equals("cloning.ocsp_signing.keyalgorithm")) {
+                cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
+                if (cstype.equals("CA")) {
+                    cs.putString("ca.ocsp_signing.defaultSigningAlgorithm", v);
                 }
 
-        LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
+            } else if (name.startsWith("cloning")) {
+                cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
+
+            } else {
+                cs.putString(name, v);
+            }
+        }
+
         String masterHostname = masterConnConfig.getString("host", "");
         String masterPort = masterConnConfig.getString("port", "");
         String masterBaseDN = masterConfig.getBaseDN();
 
-        LDAPConfig replicaConfig = cs.getInternalDBConfig();
-        LDAPConnectionConfig replicaConnConfig = replicaConfig.getConnectionConfig();
         String replicaHostname = cs.getHostname();
         String replicaPort = replicaConnConfig.getString("port");
         String replicaBaseDN = replicaConfig.getBaseDN();
