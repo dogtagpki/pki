@@ -592,7 +592,7 @@ public class Configurator {
         }
 
         logger.debug("SystemConfigService: get configuration entries from master");
-        getConfigEntriesFromMaster(sessionID);
+        getConfigEntriesFromMaster(sessionID, masterHost);
 
         String token = preopConfig.getString("module.token", null);
         CryptoUtil.getKeyStorageToken(token); // throw exception if token doesn't exist
@@ -702,41 +702,44 @@ public class Configurator {
     }
 
     public void getConfigEntriesFromMaster(
-            String sessionID)
-            throws Exception {
+            String sessionID,
+            SecurityDomainHost masterHost) throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
         String cstype = cs.getType();
 
         cstype = cstype.toLowerCase();
 
-        String master_hostname = preopConfig.getString("master.hostname", "");
-        int master_port = preopConfig.getInteger("master.httpsadminport", -1);
-        int master_ee_port = preopConfig.getInteger("master.httpsport", -1);
-
-        String list = "";
-
-        list = preopConfig.getString("cert.list", "");
+        String masterHostname = masterHost.getHostname();
+        int masterAdminPort = Integer.parseInt(masterHost.getSecureAdminPort());
 
         StringBuffer c1 = new StringBuffer();
         StringBuffer s1 = new StringBuffer();
-        StringTokenizer tok = new StringTokenizer(list, ",");
-        while (tok.hasMoreTokens()) {
-            String t1 = tok.nextToken();
-            if (t1.equals("sslserver"))
-                continue;
-            c1.append(",cloning." + t1 + ".nickname");
-            c1.append(",cloning." + t1 + ".dn");
-            c1.append(",cloning." + t1 + ".keytype");
-            c1.append(",cloning." + t1 + ".keyalgorithm");
-            c1.append(",cloning." + t1 + ".privkey.id");
-            c1.append(",cloning." + t1 + ".pubkey.exponent");
-            c1.append(",cloning." + t1 + ".pubkey.modulus");
-            c1.append(",cloning." + t1 + ".pubkey.encoded");
 
-            if (s1.length() != 0)
+        String token = preopConfig.getString("module.token", "");
+        String value = preopConfig.getString("cert.list");
+        String[] certList = value.split(",");
+
+        for (String tag : certList) {
+
+            if (tag.equals("sslserver")) {
+                continue;
+            }
+
+            c1.append(",cloning." + tag + ".nickname");
+            c1.append(",cloning." + tag + ".dn");
+            c1.append(",cloning." + tag + ".keytype");
+            c1.append(",cloning." + tag + ".keyalgorithm");
+            c1.append(",cloning." + tag + ".privkey.id");
+            c1.append(",cloning." + tag + ".pubkey.exponent");
+            c1.append(",cloning." + tag + ".pubkey.modulus");
+            c1.append(",cloning." + tag + ".pubkey.encoded");
+
+            if (s1.length() != 0) {
                 s1.append(",");
-            s1.append(cstype + "." + t1);
+            }
+
+            s1.append(cstype + "." + tag);
         }
 
         if (!cstype.equals("ca")) {
@@ -760,21 +763,18 @@ public class Configurator {
         content.putSingle("xmlOutput", "true");
         content.putSingle("sessionID", sessionID);
 
-        updateConfigEntries(master_hostname, master_port, true,
+        updateConfigEntries(masterHostname, masterAdminPort, true,
                 "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content);
 
         preopConfig.putString("clone.configuration", "true");
 
         logger.debug("Configurator: configuring cert nicknames");
 
-        String token = preopConfig.getString("module.token", "");
-        String value = preopConfig.getString("cert.list");
-        String[] certList = value.split(",");
-
         for (String tag : certList) {
 
-            if (tag.equals("sslserver"))
+            if (tag.equals("sslserver")) {
                 continue;
+            }
 
             String nickname = preopConfig.getString("master." + tag + ".nickname", "");
             if (!CryptoUtil.isInternalToken(token))
