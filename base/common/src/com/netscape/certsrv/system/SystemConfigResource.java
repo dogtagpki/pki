@@ -48,10 +48,6 @@ public interface SystemConfigResource {
     public AdminSetupResponse setupAdmin(AdminSetupRequest request) throws Exception;
 
     @POST
-    @Path("backupKeys")
-    public void backupKeys(KeyBackupRequest request) throws Exception;
-
-    @POST
     @Path("setupSecurityDomain")
     public void setupSecurityDomain(SecurityDomainSetupRequest request) throws Exception;
 

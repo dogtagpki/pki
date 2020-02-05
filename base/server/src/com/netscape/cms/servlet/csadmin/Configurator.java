@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -68,8 +67,6 @@ import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.pkcs.PKCS12;
-import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
@@ -2452,75 +2449,6 @@ public class Configurator {
         IUser user = ug.getUser(request.getAdminUID());
         user.setX509Certificates(adminCerts);
         ug.addUserCert(user);
-    }
-
-    public void backupKeys(String pwd, String fname) throws Exception {
-
-        logger.debug("backupKeys(): start");
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        String certlist = preopConfig.getString("cert.list");
-
-        StringTokenizer st = new StringTokenizer(certlist, ",");
-        CryptoManager cm = CryptoManager.getInstance();
-
-        Password pass = new org.mozilla.jss.util.Password(pwd.toCharArray());
-
-        try {
-            PKCS12Util util = new PKCS12Util();
-            PKCS12 pkcs12 = new PKCS12();
-
-            // load system certificate (with key but without chain)
-            while (st.hasMoreTokens()) {
-
-                String t = st.nextToken();
-                if (t.equals("sslserver"))
-                    continue;
-
-                String nickname = preopConfig.getString("cert." + t + ".nickname");
-                String modname = preopConfig.getString("module.token");
-
-                if (!CryptoUtil.isInternalToken(modname))
-                    nickname = modname + ":" + nickname;
-
-                util.loadCertFromNSS(pkcs12, nickname, true, false);
-            }
-
-            // load CA certificates (without keys or chains)
-            for (X509Certificate caCert : cm.getCACerts()) {
-                util.loadCertFromNSS(pkcs12, caCert, false, false);
-            }
-
-            PFX pfx = util.generatePFX(pkcs12, pass);
-
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            pfx.encode(bos);
-            byte[] output = bos.toByteArray();
-
-            preopConfig.putString("pkcs12", CryptoUtil.byte2string(output));
-            cs.commit(false);
-
-            if (fname != null) {
-                FileOutputStream fout = null;
-                try {
-                    fout = new FileOutputStream(fname);
-                    fout.write(output);
-
-                } catch (Exception e) {
-                    throw new IOException("Failed to store keys in backup file " + e, e);
-
-                } finally {
-                    if (fout != null) {
-                        fout.close();
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            pass.clear();
-        }
     }
 
     public void createAdminCertificate(String certRequest, String certRequestType, String subject)

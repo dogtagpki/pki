@@ -41,7 +41,6 @@ import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DatabaseUserSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
-import com.netscape.certsrv.system.KeyBackupRequest;
 import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
@@ -633,39 +632,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString(csSubsystem + "." + tag + ".nickname", cdata.getNickname());
         cs.putString(csSubsystem + "." + tag + ".tokenname", StringUtils.defaultString(tokenName));
         cs.putString(csSubsystem + "." + tag + ".dn", cdata.getSubjectDN());
-    }
-
-    @Override
-    public void backupKeys(KeyBackupRequest request) throws Exception {
-
-        logger.info("SystemConfigService: backing up keys into " + request.getBackupFile());
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            if (request.getBackupFile() == null || request.getBackupFile().length() <= 0) {
-                //TODO: also check for valid path, perhaps by touching file there
-                throw new BadRequestException("Invalid key backup file name");
-            }
-
-            if (request.getBackupPassword() == null || request.getBackupPassword().length() < 8) {
-                throw new BadRequestException("Key backup password must be at least 8 characters");
-            }
-
-            configurator.backupKeys(request.getBackupPassword(), request.getBackupFile());
-
-        } catch (PKIException e) { // normal response
-            logger.error("Configuration failed: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Configuration failed: " + e.getMessage(), e);
-            throw e;
-        }
     }
 
     private void validatePin(String pin) throws Exception {
