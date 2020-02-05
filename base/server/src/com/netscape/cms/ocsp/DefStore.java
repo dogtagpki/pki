@@ -41,7 +41,6 @@ import org.mozilla.jss.pkix.cert.Extension;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.IDBSSession;
@@ -110,7 +109,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     protected boolean mByName = true;
     protected boolean mIncludeNextUpdate = false;
     protected Hashtable<String, CRLIPContainer> mCacheCRLIssuingPoints = new Hashtable<String, CRLIPContainer>();
-    private IOCSPAuthority mOCSPAuthority = null;
+    private IOCSPAuthority mOCSPAuthority;
     private IConfigStore mConfig = null;
     private String mId = null;
     private IDBSubsystem mDBService = null;
@@ -135,9 +134,9 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         return org.mozilla.jss.netscape.security.util.Utils.getStringArrayFromVector(v);
     }
 
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IOCSPAuthority owner, IConfigStore config)
             throws EBaseException {
-        mOCSPAuthority = (IOCSPAuthority) owner;
+        mOCSPAuthority = owner;
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();

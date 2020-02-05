@@ -18,7 +18,7 @@
 package com.netscape.certsrv.ocsp;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
@@ -34,7 +34,15 @@ import com.netscape.cmsutil.ocsp.OCSPResponse;
  *
  * @version $Revision$, $Date$
  */
-public interface IOCSPStore extends ISubsystem {
+public interface IOCSPStore {
+
+    public void init(IOCSPAuthority owner, IConfigStore config)
+            throws EBaseException;
+
+    public void startup() throws EBaseException;
+
+    public void shutdown();
+
     /**
      * This method validates the information associated with the specified
      * OCSP request and returns an OCSP response.

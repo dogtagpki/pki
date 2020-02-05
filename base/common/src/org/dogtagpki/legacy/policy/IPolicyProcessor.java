@@ -42,8 +42,7 @@ import com.netscape.certsrv.base.ISubsystem;
  *
  * @version $Revision$, $Date$
  */
-public interface IPolicyProcessor extends ISubsystem,
-        com.netscape.certsrv.request.IPolicy {
+public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
 
     public final static String PROP_DEF_POLICIES = "systemPolicies";
     public final static String PROP_UNDELETABLE_POLICIES = "undeletablePolicies";

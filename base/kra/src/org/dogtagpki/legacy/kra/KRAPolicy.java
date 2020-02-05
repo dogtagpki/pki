@@ -23,11 +23,11 @@ import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * KRA Policy.
@@ -39,17 +39,19 @@ public class KRAPolicy implements IPolicy {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAPolicy.class);
 
     IConfigStore mConfig = null;
-    IKeyRecoveryAuthority mKRA = null;
+    KeyRecoveryAuthority mKRA = null;
 
-    public GenericPolicyProcessor mPolicies = new GenericPolicyProcessor(false);
+    public GenericPolicyProcessor mPolicies;
 
     public KRAPolicy() {
     }
 
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        mKRA = (IKeyRecoveryAuthority) owner;
+        mKRA = (KeyRecoveryAuthority) owner;
         mConfig = config;
+
+        mPolicies = new GenericPolicyProcessor(false);
         mPolicies.init(mKRA, mConfig);
     }
 

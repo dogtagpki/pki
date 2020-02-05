@@ -20,8 +20,8 @@ package org.dogtagpki.legacy.ca;
 import org.dogtagpki.legacy.core.policy.GenericPolicyProcessor;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -47,7 +47,7 @@ public class CAPolicy implements IPolicy {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAPolicy.class);
 
     IConfigStore mConfig = null;
-    ICertificateAuthority mCA = null;
+    CertificateAuthority mCA = null;
 
     public static String PROP_PROCESSOR =
             "processor";
@@ -67,7 +67,7 @@ public class CAPolicy implements IPolicy {
 
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        mCA = (ICertificateAuthority) owner;
+        mCA = (CertificateAuthority) owner;
         mConfig = config;
 
         String processorType = // XXX - need to upgrade 4.2

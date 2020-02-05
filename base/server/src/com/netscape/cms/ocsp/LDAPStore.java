@@ -41,7 +41,6 @@ import org.mozilla.jss.pkix.cert.Extension;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
@@ -100,7 +99,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private final static String PROP_INCLUDE_NEXT_UPDATE =
             "includeNextUpdate";
 
-    private IOCSPAuthority mOCSPAuthority = null;
+    private IOCSPAuthority mOCSPAuthority;
     private IConfigStore mConfig = null;
     private String mId = null;
     private String mCRLAttr = null;
@@ -135,9 +134,9 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Fetch CA certificate and CRL from LDAP server.
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IOCSPAuthority owner, IConfigStore config)
             throws EBaseException {
-        mOCSPAuthority = (IOCSPAuthority) owner;
+        mOCSPAuthority = owner;
         mConfig = config;
 
         mCRLAttr = mConfig.getString(PROP_CRL_ATTR, DEF_CRL_ATTR);
