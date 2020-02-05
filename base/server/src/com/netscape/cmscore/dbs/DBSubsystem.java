@@ -77,7 +77,6 @@ public class DBSubsystem implements IDBSubsystem {
     private LdapBoundConnFactory mLdapConnFactory = null;
     private DBRegistry mRegistry = null;
     private String mBaseDN = null;
-    private ISubsystem mOwner = null;
 
     private Hashtable<String, String>[] mRepos = null;
 
@@ -198,6 +197,10 @@ public class DBSubsystem implements IDBSubsystem {
 
     public void setEnableSerialMgmt(boolean v)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         if (v) {
             logger.debug("DBSubsystem: Enabling Serial Number Management");
         } else {
@@ -205,8 +208,7 @@ public class DBSubsystem implements IDBSubsystem {
         }
 
         mDBConfig.setEnableSerialManagement(v);
-        IConfigStore rootStore = getOwner().getConfigStore();
-        rootStore.commit(false);
+        cs.commit(false);
         mEnableSerialMgmt = v;
     }
 
@@ -299,13 +301,16 @@ public class DBSubsystem implements IDBSubsystem {
      */
     public void setMaxSerialConfig(int repo, String serial)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         Hashtable<String, String> h = mRepos[repo];
         logger.debug("DBSubsystem: Setting max serial number for " + h.get(NAME) + ": " + serial);
 
         //persist to file
         mDBConfig.putString(h.get(PROP_MAX_NAME), serial);
-        IConfigStore rootStore = getOwner().getConfigStore();
-        rootStore.commit(false);
+        cs.commit(false);
 
         h.put(PROP_MAX, serial);
         mRepos[repo] = h;
@@ -320,13 +325,16 @@ public class DBSubsystem implements IDBSubsystem {
      */
     public void setMinSerialConfig(int repo, String serial)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         Hashtable<String, String> h = mRepos[repo];
         logger.debug("DBSubsystem: Setting min serial number for " + h.get(NAME) + ": " + serial);
 
         //persist to file
         mDBConfig.putString(h.get(PROP_MIN_NAME), serial);
-        IConfigStore rootStore = getOwner().getConfigStore();
-        rootStore.commit(false);
+        cs.commit(false);
 
         h.put(PROP_MIN, serial);
         mRepos[repo] = h;
@@ -341,6 +349,10 @@ public class DBSubsystem implements IDBSubsystem {
      */
     public void setNextMaxSerialConfig(int repo, String serial)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         Hashtable<String, String> h = mRepos[repo];
         if (serial == null) {
             logger.debug("DBSubsystem: Removing next max " + h.get(NAME) + " number");
@@ -349,13 +361,15 @@ public class DBSubsystem implements IDBSubsystem {
             logger.debug("DBSubsystem: Setting next max " + h.get(NAME) + " number: " + serial);
             mDBConfig.putString(h.get(PROP_NEXT_MAX_NAME), serial);
         }
-        IConfigStore rootStore = getOwner().getConfigStore();
-        rootStore.commit(false);
+
+        cs.commit(false);
+
         if (serial == null) {
             h.remove(PROP_NEXT_MAX);
         } else {
             h.put(PROP_NEXT_MAX, serial);
         }
+
         mRepos[repo] = h;
     }
 
@@ -368,6 +382,10 @@ public class DBSubsystem implements IDBSubsystem {
      */
     public void setNextMinSerialConfig(int repo, String serial)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         Hashtable<String, String> h = mRepos[repo];
         if (serial == null) {
             logger.debug("DBSubsystem: Removing next min " + h.get(NAME) + " number");
@@ -376,13 +394,15 @@ public class DBSubsystem implements IDBSubsystem {
             logger.debug("DBSubsystem: Setting next min " + h.get(NAME) + " number: " + serial);
             mDBConfig.putString(h.get(PROP_NEXT_MIN_NAME), serial);
         }
-        IConfigStore rootStore = getOwner().getConfigStore();
-        rootStore.commit(false);
+
+        cs.commit(false);
+
         if (serial == null) {
             h.remove(PROP_NEXT_MIN);
         } else {
             h.put(PROP_NEXT_MIN, serial);
         }
+
         mRepos[repo] = h;
     }
 
@@ -395,7 +415,9 @@ public class DBSubsystem implements IDBSubsystem {
      * @return start of next range
      */
     public String getNextRange(int repo) {
+
         CMSEngine engine = CMS.getCMSEngine();
+
         LDAPConnection conn = null;
         String nextRange = null;
         try {
@@ -476,7 +498,9 @@ public class DBSubsystem implements IDBSubsystem {
      * @return true if range conflict, false otherwise
      */
     public boolean hasRangeConflict(int repo) {
+
         CMSEngine engine = CMS.getCMSEngine();
+
         LDAPConnection conn = null;
         boolean conflict = false;
         try {
@@ -512,11 +536,8 @@ public class DBSubsystem implements IDBSubsystem {
                 logger.warn("Error releasing the ldap connection" + e.getMessage(), e);
             }
         }
-        return conflict;
-    }
 
-    public ISubsystem getOwner() {
-        return mOwner;
+        return conflict;
     }
 
     /**
@@ -538,8 +559,6 @@ public class DBSubsystem implements IDBSubsystem {
         mConfig = config.getSubStore(PROP_LDAP, LDAPConfig.class);
         try {
             mBaseDN = mConfig.getBaseDN("o=NetscapeCertificateServer");
-
-            mOwner = owner;
 
             mNextSerialConfig = new BigInteger(mDBConfig.getNextSerialNumber(), 16);
 
@@ -912,6 +931,10 @@ public class DBSubsystem implements IDBSubsystem {
      * Creates a database session.
      */
     public IDBSSession createSession() throws EDBException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         LDAPConnection conn = null;
 
         try {
@@ -945,9 +968,8 @@ public class DBSubsystem implements IDBSubsystem {
                     newObjClass.add(conn);
                 }
                 mDBConfig.setNewSchemaEntryAdded("true");
-                IConfigStore rootStore = getOwner().getConfigStore();
 
-                rootStore.commit(false);
+                cs.commit(false);
             }
         } catch (ELdapException e) {
             if (e instanceof ELdapServerDownException) {
