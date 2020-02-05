@@ -42,7 +42,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPlugin;
-import com.netscape.certsrv.publish.ILdapPublishModule;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
@@ -56,7 +55,10 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPConnection;
 
-public class LdapPublishModule implements ILdapPublishModule {
+/**
+ * Handles requests to perform Ldap publishing.
+ */
+public class LdapPublishModule implements IRequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapPublishModule.class);
 
@@ -101,6 +103,9 @@ public class LdapPublishModule implements ILdapPublishModule {
     public LdapPublishModule() {
     }
 
+    /**
+     * initialize ldap publishing module with config store
+     */
     public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
     }
 
@@ -277,8 +282,14 @@ public class LdapPublishModule implements ILdapPublishModule {
                 new HandleUnrevocation(this));
     }
 
-    public void accept(IRequest r) {
-        String type = r.getRequestType();
+    /**
+     * Accepts completed requests from an authority and
+     * performs ldap publishing.
+     *
+     * @param request The publishing request.
+     */
+    public void accept(IRequest request) {
+        String type = request.getRequestType();
 
         IRequestListener handler = mEventHandlers.get(type);
 
@@ -286,7 +297,7 @@ public class LdapPublishModule implements ILdapPublishModule {
             logger.debug("Nothing to publish for request type " + type);
             return;
         }
-        handler.accept(r);
+        handler.accept(request);
     }
 
     public void publish(String certType, X509Certificate cert)
