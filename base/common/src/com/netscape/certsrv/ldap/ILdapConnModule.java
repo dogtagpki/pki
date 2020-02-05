@@ -19,7 +19,6 @@ package com.netscape.certsrv.ldap;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 
 /**
  * Class on behalf of the Publishing system that controls an instance of an ILdapConnFactory.
@@ -34,12 +33,11 @@ public interface ILdapConnModule {
     /**
      * Initialize ldap publishing module with config store.
      *
-     * @param owner Entity that is interested in this instance of Publishing.
      * @param config Config store containing the info needed to set up Publishing.
      * @exception ELdapException Due to Ldap error.
      * @exception EBaseException Due to config value errors and all other errors.
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException, ELdapException;
 
     /**

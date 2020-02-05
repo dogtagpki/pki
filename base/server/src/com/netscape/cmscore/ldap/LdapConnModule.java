@@ -19,7 +19,6 @@ package com.netscape.cmscore.ldap;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
@@ -56,10 +55,7 @@ public class LdapConnModule implements ILdapConnModule {
         mInited = true;
     }
 
-    protected ISubsystem mPubProcessor;
-
-    public void init(ISubsystem p,
-            IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
 
         logger.debug("LdapConnModule: init called");
@@ -74,7 +70,6 @@ public class LdapConnModule implements ILdapConnModule {
         EngineConfig cs = engine.getConfig();
         IPasswordStore passwordStore = engine.getPasswordStore();
 
-        mPubProcessor = p;
         mConfig = config;
         /*
         mLdapConnFactory = new LdapBoundConnFactory();

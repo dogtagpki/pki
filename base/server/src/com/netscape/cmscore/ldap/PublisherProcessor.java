@@ -371,7 +371,7 @@ public class PublisherProcessor implements
             //c = authConfig.getSubStore(PROP_LDAP_PUBLISH_SUBSTORE);
             if (c != null && c.size() > 0) {
                 mLdapConnModule = new LdapConnModule();
-                mLdapConnModule.init(this, c);
+                mLdapConnModule.init(c);
                 logger.debug("LdapPublishing connection inited");
             } else {
                 logger.error("PublisherProcessor: No Ldap Module configuration found");
