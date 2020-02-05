@@ -49,18 +49,14 @@ public class CMSExtensionsMap implements ISubsystem {
 
     private Hashtable<String, ICMSExtension> mName2Ext = new Hashtable<String, ICMSExtension>();
     private Hashtable<String, ICMSExtension> mOID2Ext = new Hashtable<String, ICMSExtension>();
-    @SuppressWarnings("unused")
-    private ISubsystem mOwner;
     private IConfigStore mConfig = null;
 
     /**
      * Create extensions from configuration store.
-     *
      * @param config the configuration store.
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
-        mOwner = owner;
         mConfig = config;
 
         Enumeration<String> sstores = mConfig.getSubStoreNames();

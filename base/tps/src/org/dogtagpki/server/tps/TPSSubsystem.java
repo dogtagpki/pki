@@ -110,7 +110,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     }
 
     @Override
-    public void init(ISubsystem owner, IConfigStore config) throws EBaseException {
+    public void init(IConfigStore config) throws EBaseException {
 
         logger.info("Initializing TPS subsystem");
 

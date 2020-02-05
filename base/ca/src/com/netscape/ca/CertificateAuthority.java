@@ -104,7 +104,6 @@ import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -238,7 +237,6 @@ public class CertificateAuthority
     private boolean hasKeys = false;
     ECAException signingUnitException = null;
 
-    protected ISubsystem mOwner = null;
     protected CAConfig mConfig;
 
     protected Hashtable<String, ICRLIssuingPoint> mCRLIssuePoints = new Hashtable<String, ICRLIssuingPoint>();
@@ -385,7 +383,7 @@ public class CertificateAuthority
         this.authorityEnabled = authorityEnabled;
         mNickname = signingKeyNickname;
         this.authorityKeyHosts = authorityKeyHosts;
-        init(hostCA.mOwner, hostCA.mConfig);
+        init(hostCA.mConfig);
     }
 
     public boolean isHostAuthority() {
@@ -494,12 +492,11 @@ public class CertificateAuthority
     /**
      * Initializes this CA subsystem.
      * <P>
-     *
-     * @param owner owner of this subsystem
      * @param config configuration of this subsystem
+     *
      * @exception EBaseException failed to initialize this CA
      */
-    public void init(ISubsystem owner, IConfigStore config) throws
+    public void init(IConfigStore config) throws
             EBaseException {
 
         logger.info("CertificateAuthority: initialization");
@@ -510,7 +507,6 @@ public class CertificateAuthority
         LDAPConfig dbCfg = cs.getInternalDBConfig();
         IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
 
-        mOwner = owner;
         mConfig = cs.getCAConfig();
 
         if (isHostAuthority()) {

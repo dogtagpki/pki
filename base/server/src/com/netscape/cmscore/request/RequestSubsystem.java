@@ -135,8 +135,7 @@ public class RequestSubsystem implements ISubsystem {
     }
 
     // ISubsystem.init
-    public void init(ISubsystem parent, IConfigStore config) {
-        mParent = parent;
+    public void init(IConfigStore config) {
         mConfig = config;
     }
 
@@ -186,7 +185,5 @@ public class RequestSubsystem implements ISubsystem {
     // Instance variables
 
     private IConfigStore mConfig;
-    @SuppressWarnings("unused")
-    private ISubsystem mParent;
     private String mId = ID;
 }

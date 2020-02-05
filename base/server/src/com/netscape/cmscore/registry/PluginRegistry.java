@@ -53,8 +53,6 @@ public class PluginRegistry implements ISubsystem {
 
     private IConfigStore mConfig = null;
     private IConfigStore mFileConfig = null;
-    @SuppressWarnings("unused")
-    private ISubsystem mOwner;
     private Hashtable<String, Hashtable<String, IPluginInfo>> mTypes =
             new Hashtable<String, Hashtable<String, IPluginInfo>>();
 
@@ -78,16 +76,14 @@ public class PluginRegistry implements ISubsystem {
      * Initializes this subsystem with the given configuration
      * store.
      * <P>
-     *
-     * @param owner owner of this subsystem
      * @param config configuration store
+     *
      * @exception EBaseException failed to initialize
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
 
         mConfig = config;
-        mOwner = owner;
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();

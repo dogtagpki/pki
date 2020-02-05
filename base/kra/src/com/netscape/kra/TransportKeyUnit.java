@@ -87,7 +87,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
     /**
      * Initializes this subsystem.
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
         mConfig = config;
         try {

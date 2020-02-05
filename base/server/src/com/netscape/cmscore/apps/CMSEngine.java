@@ -132,8 +132,6 @@ public class CMSEngine implements ISubsystem {
     private String mSAuditCertNickName = null;
     private PrivateKey mSigningKey = null;
     private byte[] mSigningData = null;
-    @SuppressWarnings("unused")
-    private ISubsystem mOwner;
     private long mStartupTime = 0;
     private boolean isStarted = false;
     private ITimeSource mTimeSource = null;
@@ -425,18 +423,16 @@ public class CMSEngine implements ISubsystem {
 
     /**
      * initialize all static, dynamic and final static subsystems.
-     *
-     * @param owner null
      * @param config null
+     *
      * @exception EBaseException if any error occur in subsystems during
      *                initialization.
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
 
         logger.info("Initializing " + name + " subsystem");
 
-        mOwner = owner;
         int state = mConfig.getState();
 
         ready = false;
@@ -836,7 +832,7 @@ public class CMSEngine implements ISubsystem {
         }
 
         logger.debug("CMSEngine: initializing " + id);
-        ss.init(this, ssConfig);
+        ss.init(ssConfig);
 
         try {
             /*
@@ -1030,7 +1026,7 @@ public class CMSEngine implements ISubsystem {
 
         ISubsystem system = getSubsystem(id);
         IConfigStore cs = mConfig.getSubStore(id);
-        system.init(this, cs);
+        system.init(cs);
     }
 
     public void startupSubsystems() throws EBaseException {

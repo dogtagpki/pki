@@ -23,7 +23,6 @@ import java.util.StringTokenizer;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.Profile;
@@ -47,12 +46,11 @@ public class ProfileSubsystem
      * Initializes this subsystem with the given configuration
      * store.
      * <P>
-     *
-     * @param owner owner of this subsystem
      * @param cs configuration store
+     *
      * @exception EBaseException failed to initialize
      */
-    public void init(ISubsystem owner, IConfigStore cs)
+    public void init(IConfigStore cs)
             throws EBaseException {
 
         logger.debug("ProfileSubsystem: initialization");
@@ -61,7 +59,6 @@ public class ProfileSubsystem
         PluginRegistry registry = engine.getPluginRegistry();
 
         mConfig = cs;
-        mOwner = owner;
 
         // Configuration File Format:
         // *.list=profile1,profile2

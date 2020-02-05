@@ -90,7 +90,6 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.security.ICryptoSubsystem;
@@ -268,7 +267,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
      * Initializes the Jss security subsystem.
      * <P>
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
 
         logger.debug("JssSubsystem: initializing JSS subsystem");

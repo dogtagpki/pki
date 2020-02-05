@@ -4,7 +4,6 @@ import netscape.ldap.LDAPAttributeSet;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBDynAttrMapper;
@@ -64,7 +63,7 @@ public class DBRegistryDefaultStub implements IDBRegistry {
     public void setId(String id) throws EBaseException {
     }
 
-    public void init(ISubsystem owner, IConfigStore config) throws EBaseException {
+    public void init(IConfigStore config) throws EBaseException {
     }
 
     public void startup() throws EBaseException {

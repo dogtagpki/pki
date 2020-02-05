@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
@@ -89,12 +88,11 @@ public class LDAPProfileSubsystem
      * Initializes this subsystem with the given configuration
      * store.
      * <P>
-     *
-     * @param owner owner of this subsystem
      * @param config configuration store
+     *
      * @exception EBaseException failed to initialize
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
 
         logger.debug("LDAPProfileSubsystem: start init");
@@ -107,7 +105,6 @@ public class LDAPProfileSubsystem
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         mConfig = config;
-        mOwner = owner;
 
         // Configuration File Format:
         // *.list=profile1,profile2

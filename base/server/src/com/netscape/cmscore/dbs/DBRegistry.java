@@ -94,7 +94,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
      * applications can use. Optionally, check the integrity
      * of the database.
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
         mConfig = config;
         mConverter = new LdapFilterConverter(mAttrufNames);

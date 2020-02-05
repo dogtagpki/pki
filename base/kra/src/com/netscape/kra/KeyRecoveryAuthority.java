@@ -55,7 +55,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -140,7 +139,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     protected ReplicaIDRepository mReplicaRepot = null;
     protected IRequestNotifier mNotify = null;
     protected IRequestNotifier mPNotify = null;
-    protected ISubsystem mOwner = null;
     protected int mRecoveryIDCounter = 0;
     protected Hashtable<String, Hashtable<String, Object>> mRecoveryParams =
             new Hashtable<String, Hashtable<String, Object>>();
@@ -254,12 +252,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * necessary components. This subsystem is started by
      * KRASubsystem.
      * <P>
-     *
-     * @param owner owner of this subsystem
      * @param config configuration store for this subsystem
+     *
      * @exception EBaseException failed to start subsystem
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
 
         logger.debug("KeyRecoveryAuthority init() begins");
@@ -270,7 +267,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         KRAEngine engine = KRAEngine.getInstance();
         KRAEngineConfig engineConfig = engine.getConfig();
 
-        mOwner = owner;
         mConfig = engineConfig.getKRAConfig();
 
         // initialize policy processor
@@ -289,7 +285,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // read transport key from internal database
         mTransportKeyUnit = new TransportKeyUnit();
         try {
-            mTransportKeyUnit.init(this, mConfig.getSubStore(
+            mTransportKeyUnit.init(mConfig.getSubStore(
                     PROP_TRANSPORT_KEY));
         } catch (EBaseException e) {
             logger.warn("KeyRecoveryAuthority: transport unit exception " + e.getMessage(), e);

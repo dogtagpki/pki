@@ -127,11 +127,9 @@ public class X500NameSubsystem implements ISubsystem {
      *
      * </ul>
      * <P>
-     *
-     * @param owner owner of this subsystem
      * @param config configuration store
      */
-    public synchronized void init(ISubsystem owner, IConfigStore config)
+    public synchronized void init(IConfigStore config)
             throws EBaseException {
         logger.trace(ID + " started");
         mConfig = config;

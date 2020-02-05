@@ -123,11 +123,9 @@ public class OidLoaderSubsystem implements ISubsystem {
      * Note that individual subsystem should be initialized in a separated thread if it has dependency on the
      * initialization of other subsystems.
      * <P>
-     *
-     * @param owner owner of this subsystem
      * @param config configuration store
      */
-    public synchronized void init(ISubsystem owner, IConfigStore config)
+    public synchronized void init(IConfigStore config)
             throws EBaseException {
         logger.trace("OIDLoaderSubsystem started");
         mConfig = config;

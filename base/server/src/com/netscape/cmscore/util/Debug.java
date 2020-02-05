@@ -113,7 +113,7 @@ public class Debug
      * Debug subsystem initialization. This subsystem is usually
      * given the following parameters:
      */
-    public void init(ISubsystem owner, IConfigStore config) {
+    public void init(IConfigStore config) {
         mConfig = config;
 
         try {

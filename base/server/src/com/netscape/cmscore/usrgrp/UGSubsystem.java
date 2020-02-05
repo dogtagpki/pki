@@ -126,7 +126,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
     /**
      * Connects to LDAP server.
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
 
         logger.debug("UGSubsystem: initializing");
@@ -136,7 +136,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
             return;
         }
 
-        super.init(owner, config);
+        super.init(config);
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();

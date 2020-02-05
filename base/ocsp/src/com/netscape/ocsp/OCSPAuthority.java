@@ -125,12 +125,11 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * Initializes this subsystem with the given configuration
      * store.
      * <P>
-     *
-     * @param owner owner of this subsystem
      * @param config configuration store
+     *
      * @exception EBaseException failed to initialize
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
 
         OCSPEngine engine = OCSPEngine.getInstance();

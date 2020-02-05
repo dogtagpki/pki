@@ -40,7 +40,6 @@ import com.netscape.certsrv.authorization.EAuthzMgrPluginNotFound;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -80,11 +79,9 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      * Initializes the authorization subsystem from the config store.
      * Load Authorization manager plugins, create and initialize
      * initialize authorization manager instances.
-     *
-     * @param owner The owner of this module.
      * @param config The configuration store.
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();

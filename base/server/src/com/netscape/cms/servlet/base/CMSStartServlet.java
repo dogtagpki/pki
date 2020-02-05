@@ -110,7 +110,7 @@ public class CMSStartServlet extends HttpServlet {
 
         try {
             logger.debug("CMSStartServlet: Starting CMS engine: " + engineClass.getName());
-            engine.init(null, null);
+            engine.init(null);
             engine.startup();
 
         } catch (Exception e) {

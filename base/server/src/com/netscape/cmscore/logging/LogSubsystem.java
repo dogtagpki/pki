@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogQueue;
@@ -84,11 +83,9 @@ public class LogSubsystem implements ILogSubsystem {
     /**
      * Initializes the log subsystem.
      * <P>
-     *
-     * @param owner owner of this subsystem
      * @param config configuration store
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
         mConfig = config;
         mLogQueue.init();

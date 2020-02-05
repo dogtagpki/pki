@@ -33,11 +33,9 @@ public abstract class BaseSubsystem implements ISubsystem {
 
     /**
      * Initializes this subsystem.
-     *
-     * @param owner owner subsystem
      * @param config configuration store
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
         this.owner = owner;
         this.config = config;

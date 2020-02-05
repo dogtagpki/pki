@@ -43,7 +43,6 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
     protected static final String PROP_ENABLE_BY = "enableBy";
 
     protected IConfigStore mConfig = null;
-    protected ISubsystem mOwner;
     protected LinkedHashMap<String, Profile> mProfiles = new LinkedHashMap<String, Profile>();
     protected Hashtable<String, String> mProfileClassIds = new Hashtable<String, String>();
 

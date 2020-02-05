@@ -25,7 +25,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.IDBRegistry;
@@ -547,7 +546,7 @@ public class DBSubsystem implements IDBSubsystem {
      * of the database.
      */
     @SuppressWarnings("unchecked")
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -645,7 +644,7 @@ public class DBSubsystem implements IDBSubsystem {
 
             // initialize registry
             mRegistry = new DBRegistry();
-            mRegistry.init(this, null);
+            mRegistry.init(null);
 
             // initialize LDAP connection factory
             // by default return error if server is down at startup time.

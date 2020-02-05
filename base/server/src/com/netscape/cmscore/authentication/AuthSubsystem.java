@@ -38,7 +38,6 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cms.authentication.CMCAuth;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -80,11 +79,9 @@ public class AuthSubsystem implements IAuthSubsystem {
      * Initializes the authentication subsystem from the config store.
      * Load Authentication manager plugins, create and initialize
      * initialize authentication manager instances.
-     *
-     * @param owner The owner of this module.
      * @param config The configuration store.
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();

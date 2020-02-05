@@ -35,8 +35,6 @@ public class TKSAuthority implements IAuthority, ISubsystem {
     public static final String ID = "tks";
 
     private String mNickname = null;
-    @SuppressWarnings("unused")
-    private ISubsystem mOwner;
     private TKSConfig mConfig;
     protected String mId = null;
     public static final String PROP_NICKNAME = "nickName";
@@ -88,18 +86,16 @@ public class TKSAuthority implements IAuthority, ISubsystem {
     /**
      * Initializes this subsystem.
      * <P>
-     *
-     * @param owner owner of this subsystem
      * @param config configuration of this subsystem
+     *
      * @exception EBaseException failed to initialize this RA
      */
-    public void init(ISubsystem owner, IConfigStore config) throws
+    public void init(IConfigStore config) throws
             EBaseException {
 
         TKSEngine engine = TKSEngine.getInstance();
         TKSEngineConfig engineConfig = engine.getConfig();
 
-        mOwner = owner;
         mConfig = engineConfig.getTKSConfig();
 
         //mNickname = mConfig.getString(PROP_NICKNAME);

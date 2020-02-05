@@ -24,7 +24,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.jobs.EJobsException;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
@@ -92,10 +91,9 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
      * the config params have the following formats: jobScheduler.impl.[implementation name].class=[package name]
      * jobScheduler.job.[job name].pluginName=[implementation name] jobScheduler.job.[job name].cron=[crontab format]
      * jobScheduler.job.[job name].[any job specific params]=[values]
-     *
      * @param config jobsScheduler configStore
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException, EJobsException {
 
         // read in config parameters and set variables

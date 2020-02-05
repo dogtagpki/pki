@@ -29,7 +29,6 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.IPublisherProcessor;
@@ -99,7 +98,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         mId = id;
     }
 
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config)
             throws EBaseException {
 
         logger.debug("CrossCertPairSubsystem: initializing");
