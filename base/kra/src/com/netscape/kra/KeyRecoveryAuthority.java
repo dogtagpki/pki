@@ -317,8 +317,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // read transport key from storage key
         mStorageKeyUnit = new StorageKeyUnit();
         try {
-            mStorageKeyUnit.init(this,
-                    mConfig.getSubStore(PROP_STORAGE_KEY));
+            mStorageKeyUnit.init(
+                    mConfig.getSubStore(PROP_STORAGE_KEY),
+                    mConfig.getBoolean("keySplitting", false));
         } catch (EBaseException e) {
             logger.error("KeyRecoveryAuthority: storage unit exception " + e.getMessage(), e);
             throw e;

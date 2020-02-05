@@ -61,10 +61,8 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IJoinShares;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IShare;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
@@ -82,8 +80,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class StorageKeyUnit extends EncryptionUnit implements
-        ISubsystem, IStorageKeyUnit {
+public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StorageKeyUnit.class);
     private IConfigStore mConfig = null;
@@ -92,7 +89,6 @@ public class StorageKeyUnit extends EncryptionUnit implements
     // private RSAPrivateKey mPrivateKey = null;
 
     private IConfigStore mStorageConfig = null;
-    private IKeyRecoveryAuthority mKRA = null;
     private String mTokenFile = null;
     private X509Certificate mCert = null;
     private CryptoManager mManager = null;
@@ -230,14 +226,12 @@ public class StorageKeyUnit extends EncryptionUnit implements
     /**
      * Initializes this subsystem.
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IConfigStore config, boolean keySplitting)
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        mKRA = (IKeyRecoveryAuthority) owner;
         mConfig = config;
-
-        mKeySplitting = owner.getConfigStore().getBoolean("keySplitting", false);
+        mKeySplitting = keySplitting;
 
         try {
             mManager = CryptoManager.getInstance();
