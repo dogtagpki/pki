@@ -2874,7 +2874,7 @@ public class CertificateAuthority
 
             KeyPair keypair = gen.genKeyPair();
             PublicKey pub = keypair.getPublic();
-            X509Key x509key = CryptoUtil.convertPublicKeyToX509Key(pub);
+            X509Key x509key = CryptoUtil.createX509Key(pub);
 
             // Create pkcs10 request
             logger.debug("createSubCA: creating pkcs10 request");

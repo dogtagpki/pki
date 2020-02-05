@@ -42,6 +42,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -141,7 +142,6 @@ import org.mozilla.jss.netscape.security.x509.X500Signer;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
-import org.mozilla.jss.pkcs11.PK11ECPublicKey;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs7.IssuerAndSerialNumber;
@@ -888,17 +888,19 @@ public class CryptoUtil {
         return result.toString();
     }
 
-    public static String getPKCS10FromKey(String dn,
-                    byte modulus[], byte exponent[], byte prikdata[])
-              throws IOException,
-                     InvalidKeyException,
-                     TokenException,
-                     NoSuchProviderException,
-                     CertificateException,
-                     SignatureException,
-                     NotInitializedException,
-                     NoSuchAlgorithmException {
-        X509Key x509key = getPublicX509Key(modulus, exponent);
+    public static String getPKCS10FromKey(
+            String dn,
+            PublicKey publicKey,
+            byte prikdata[])
+            throws IOException,
+            InvalidKeyException,
+            TokenException,
+            NoSuchProviderException,
+            CertificateException,
+            SignatureException,
+            NotInitializedException,
+            NoSuchAlgorithmException {
+        X509Key x509key = createX509Key(publicKey);
         PrivateKey prik = findPrivateKeyFromID(prikdata);
         PKCS10 pkcs10 = createCertificationRequest(dn, x509key, prik);
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
@@ -907,17 +909,20 @@ public class CryptoUtil {
         return bs.toString();
     }
 
-    public static String getPKCS10FromKey(String dn,
-                    byte modulus[], byte exponent[], byte prikdata[], String alg)
-              throws IOException,
-                     InvalidKeyException,
-                     TokenException,
-                     NoSuchProviderException,
-                     CertificateException,
-                     SignatureException,
-                     NotInitializedException,
-                     NoSuchAlgorithmException {
-        X509Key x509key = getPublicX509Key(modulus, exponent);
+    public static String getPKCS10FromKey(
+            String dn,
+            PublicKey publicKey,
+            byte prikdata[],
+            String alg)
+            throws IOException,
+            InvalidKeyException,
+            TokenException,
+            NoSuchProviderException,
+            CertificateException,
+            SignatureException,
+            NotInitializedException,
+            NoSuchAlgorithmException {
+        X509Key x509key = createX509Key(publicKey);
         PrivateKey prik = findPrivateKeyFromID(prikdata);
         PKCS10 pkcs10 = createCertificationRequest(dn, x509key, prik, alg);
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
@@ -1199,7 +1204,7 @@ public class CryptoUtil {
         CertTemplate certTemplate = certreq.getCertTemplate();
         SubjectPublicKeyInfo spkinfo = certTemplate.getPublicKey();
         PublicKey pkey = spkinfo.toPublicKey();
-        X509Key x509key = convertPublicKeyToX509Key(pkey);
+        X509Key x509key = createX509Key(pkey);
         return x509key;
     }
 
@@ -1218,28 +1223,40 @@ public class CryptoUtil {
         }
     }
 
-    public static X509Key convertPublicKeyToX509Key(PublicKey pubk)
-            throws InvalidKeyException {
-        X509Key xKey;
+    public static X509Key createX509Key(PublicKey publicKey) throws InvalidKeyException {
 
-        if (pubk instanceof RSAPublicKey) {
-            RSAPublicKey rsaKey = (RSAPublicKey) pubk;
+        if (publicKey instanceof RSAPublicKey) {
 
-            xKey = new org.mozilla.jss.netscape.security.provider.RSAPublicKey(
-                    new BigInt(rsaKey.getModulus()),
-                    new BigInt(rsaKey.getPublicExponent()));
-        } else if (pubk instanceof PK11ECPublicKey) {
-            byte encoded[] = pubk.getEncoded();
-            xKey = CryptoUtil.getPublicX509ECCKey(encoded);
+            RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+            return new org.mozilla.jss.netscape.security.provider.RSAPublicKey(
+                    new BigInt(rsaPublicKey.getModulus()),
+                    new BigInt(rsaPublicKey.getPublicExponent()));
+
+        } else if (publicKey instanceof ECPublicKey) {
+
+            ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
+            try {
+                DerValue derValue = new DerValue(ecPublicKey.getEncoded());
+                return X509Key.parse(derValue);
+            } catch (IOException e) {
+                throw new InvalidKeyException(e);
+            }
+
+        } else if (publicKey instanceof DSAPublicKey) {
+
+            DSAPublicKey dsaPublicKey = (DSAPublicKey) publicKey;
+            DSAParams params = dsaPublicKey.getParams();
+            return new org.mozilla.jss.netscape.security.provider.DSAPublicKey(
+                    dsaPublicKey.getY(),
+                    params.getP(),
+                    params.getQ(),
+                    params.getG());
+
         } else {
-            // Assert.assert(pubk instanceof DSAPublicKey);
-            DSAPublicKey dsaKey = (DSAPublicKey) pubk;
-            DSAParams params = dsaKey.getParams();
-
-            xKey = new org.mozilla.jss.netscape.security.provider.DSAPublicKey(dsaKey.getY(),
-                    params.getP(), params.getQ(), params.getG());
+            String message = "Unsupported public key: " + publicKey.getClass().getName();
+            logger.error(message);
+            throw new InvalidKeyException(message);
         }
-        return xKey;
     }
 
     public static String getSubjectName(SEQUENCE crmfMsgs)
@@ -1269,7 +1286,7 @@ public class CryptoUtil {
             throws IOException,
                 CertificateException,
                 InvalidKeyException {
-        return createX509CertInfo(convertPublicKeyToX509Key(pair.getPublic()),
+        return createX509CertInfo(createX509Key(pair.getPublic()),
                 serialno, issuername, subjname, notBefore, notAfter);
     }
 
@@ -1279,7 +1296,7 @@ public class CryptoUtil {
             throws IOException,
                 CertificateException,
                 InvalidKeyException {
-        return createX509CertInfo(convertPublicKeyToX509Key(publickey), serialno,
+        return createX509CertInfo(createX509Key(publickey), serialno,
                 issuername, subjname, notBefore, notAfter);
     }
 
@@ -1463,7 +1480,7 @@ public class CryptoUtil {
 
         String alg = "SHA256withRSA";
         PublicKey pubk = keyPair.getPublic();
-        X509Key key = convertPublicKeyToX509Key(pubk);
+        X509Key key = createX509Key(pubk);
         if (pubk instanceof RSAPublicKey) {
             alg = "SHA256withRSA";
         } else if (isECCKey(key)) {
@@ -1514,8 +1531,7 @@ public class CryptoUtil {
         String method = "CryptoUtil: createKeyIdentifier: ";
         logger.debug(method + "begins");
 
-        X509Key subjectKeyInfo = convertPublicKeyToX509Key(
-                keypair.getPublic());
+        X509Key subjectKeyInfo = createX509Key(keypair.getPublic());
 
         byte[] hash = generateKeyIdentifier(subjectKeyInfo.getKey());
 
@@ -1588,7 +1604,7 @@ public class CryptoUtil {
                 SignatureException {
         String alg;
         PublicKey pubk = keyPair.getPublic();
-        X509Key key = convertPublicKeyToX509Key(pubk);
+        X509Key key = createX509Key(pubk);
         if (pubk instanceof RSAPublicKey) {
             alg = "SHA256withRSA";
         } else if (isECCKey(key)) {
@@ -1606,7 +1622,7 @@ public class CryptoUtil {
                 InvalidKeyException, IOException, CertificateException,
                 SignatureException {
         PublicKey pubk = keyPair.getPublic();
-        X509Key key = convertPublicKeyToX509Key(pubk);
+        X509Key key = createX509Key(pubk);
 
         java.security.Signature sig = java.security.Signature.getInstance(alg,
                 "Mozilla-JSS");
