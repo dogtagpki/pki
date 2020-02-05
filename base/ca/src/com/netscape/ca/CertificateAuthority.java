@@ -130,7 +130,6 @@ import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
 import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.publish.ICRLPublisher;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
@@ -274,7 +273,7 @@ public class CertificateAuthority
     protected org.mozilla.jss.crypto.X509Certificate mOCSPX509Cert = null;
     protected String[] mCASigningAlgorithms = null;
 
-    protected PublisherProcessor mPublisherProcessor = null;
+    protected PublisherProcessor mPublisherProcessor;
     protected IRequestQueue mRequestQueue = null;
     protected CAPolicy mPolicy = null;
     protected CAService mService = null;
@@ -1155,7 +1154,7 @@ public class CertificateAuthority
         return mCRLRepot;
     }
 
-    public IPublisherProcessor getPublisherProcessor() {
+    public PublisherProcessor getPublisherProcessor() {
         return mPublisherProcessor;
     }
 

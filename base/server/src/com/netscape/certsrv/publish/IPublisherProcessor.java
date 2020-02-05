@@ -38,7 +38,7 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$ $Date$
  */
 
-public interface IPublisherProcessor extends ISubsystem {
+public interface IPublisherProcessor {
 
     public final static String PROP_PUBLISH_SUBSTORE = "publish";
     public final static String PROP_LDAP_PUBLISH_SUBSTORE = "ldappublish";

@@ -43,13 +43,13 @@ import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cmscore.dbs.IDBSubsystem;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * An interface represents a Certificate Authority that is
@@ -146,7 +146,7 @@ public interface ICertificateAuthority extends ISubsystem {
      *
      * @return CA's publishing processor
      */
-    public IPublisherProcessor getPublisherProcessor();
+    public PublisherProcessor getPublisherProcessor();
 
     /**
      * Retrieves the next available serial number.

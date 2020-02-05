@@ -63,6 +63,7 @@ import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -90,7 +91,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
     private final static String INFO = "PublisherAdminServlet";
     public final static String NOMAPPER = "<NONE>";
-    private IPublisherProcessor mProcessor = null;
+    private PublisherProcessor mProcessor;
     private IAuthority mAuth = null;
 
     public PublisherAdminServlet() {
