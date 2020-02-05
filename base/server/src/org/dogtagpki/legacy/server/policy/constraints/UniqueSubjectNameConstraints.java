@@ -36,7 +36,6 @@ import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
@@ -113,11 +112,11 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      *
      * @param config The config store reference
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         // get CA's public key to create authority key id.
         ICertAuthority certAuthority = (ICertAuthority)
-                ((IPolicyProcessor) owner).getAuthority();
+                owner.getAuthority();
 
         if (certAuthority == null) {
             logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));

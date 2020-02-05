@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
@@ -35,7 +36,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -124,7 +124,7 @@ public class SubjAltNameExt extends APolicyRule
      *
      * @param config The config store reference
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         // future use.
         mAllowAgentOverride = config.getBoolean(PROP_AGENT_OVERR, false);

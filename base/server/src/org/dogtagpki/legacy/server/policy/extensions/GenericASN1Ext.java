@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.extensions.GenericASN1Extension;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -39,7 +40,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -220,7 +220,7 @@ public class GenericASN1Ext extends APolicyRule implements
      *
      * @param config The config store reference
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
         if (mConfig == null) {

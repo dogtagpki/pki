@@ -20,12 +20,12 @@ package org.dogtagpki.legacy.server.policy.extensions;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 
@@ -77,7 +77,7 @@ public class PresenceExt extends APolicyRule {
         DESC = "Sets Presence Server Extension in certificates.";
     }
 
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
 

@@ -39,7 +39,6 @@ import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -119,7 +118,7 @@ public class NSCertTypeExt extends APolicyRule
      *
      * @param config The config store reference
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
 
@@ -129,7 +128,7 @@ public class NSCertTypeExt extends APolicyRule
         mCritical = config.getBoolean(PROP_CRITICAL, false);
 
         ICertAuthority certAuthority = (ICertAuthority)
-                ((IPolicyProcessor) owner).getAuthority();
+                owner.getAuthority();
 
         if (certAuthority instanceof ICertificateAuthority) {
             CertificateChain caChain = certAuthority.getCACertChain();

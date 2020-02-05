@@ -21,7 +21,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 
@@ -48,7 +47,7 @@ public interface IPolicyRule
      *
      * @param config The config store reference
      */
-    void init(ISubsystem owner, IConfigStore config)
+    void init(IPolicyProcessor owner, IConfigStore config)
             throws EBaseException;
 
     /**
