@@ -101,11 +101,9 @@ import com.netscape.cmsutil.password.NuxwdogPasswordStore;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 
-public class CMSEngine implements ISubsystem {
+public class CMSEngine {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
-
-    private static final String ID = "MAIN";
 
     private static final String SERVER_XML = "server.xml";
 
@@ -176,20 +174,6 @@ public class CMSEngine implements ISubsystem {
 
     public EngineConfig createConfig(ConfigStorage storage) throws Exception {
         return new EngineConfig(storage);
-    }
-
-    /**
-     * gets this ID
-     */
-    public String getId() {
-        return ID;
-    }
-
-    /**
-     * should never be called. returns error.
-     */
-    public void setId(String id) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
     }
 
     /**
@@ -423,13 +407,11 @@ public class CMSEngine implements ISubsystem {
 
     /**
      * initialize all static, dynamic and final static subsystems.
-     * @param config null
      *
      * @exception EBaseException if any error occur in subsystems during
      *                initialization.
      */
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init() throws EBaseException {
 
         logger.info("Initializing " + name + " subsystem");
 
@@ -697,9 +679,6 @@ public class CMSEngine implements ISubsystem {
     }
 
     protected void initSubsystems() throws EBaseException {
-
-        subsystems.put(ID, this);
-
         initSubsystems(staticSubsystems);
         initSubsystems(dynSubsystems);
         initSubsystems(finalSubsystems);
