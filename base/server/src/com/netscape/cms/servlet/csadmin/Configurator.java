@@ -138,7 +138,7 @@ import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -2281,7 +2281,7 @@ public class Configurator {
                 info,
                 x509key);
 
-        req.setExtData(IEnrollProfile.REQUEST_ISSUED_CERT, x509CertImpl);
+        req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, x509CertImpl);
         req.setExtData("cert_request", cert.getRequest());
         req.setExtData("cert_request_type", "pkcs10");
 

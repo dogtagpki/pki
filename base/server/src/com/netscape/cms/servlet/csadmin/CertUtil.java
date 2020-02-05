@@ -65,7 +65,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -262,8 +262,8 @@ public class CertUtil {
         req.setExtData("requestversion", "1.0.0");
         req.setExtData("req_seq_num", "0");
 
-        req.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
-        req.setExtData(IEnrollProfile.REQUEST_EXTENSIONS, new CertificateExtensions());
+        req.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
+        req.setExtData(EnrollProfile.REQUEST_EXTENSIONS, new CertificateExtensions());
 
         req.setExtData("requesttype", "enrollment");
         req.setExtData("requestor_name", "");
@@ -566,7 +566,7 @@ public class CertUtil {
         createCertRecord(req, profile, cert);
 
         // update request with cert
-        req.setExtData(IEnrollProfile.REQUEST_ISSUED_CERT, cert);
+        req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
 
         // store request in db
         queue.updateRequest(req);

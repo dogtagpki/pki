@@ -47,7 +47,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
@@ -364,7 +364,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 Node subnode = xmlObj.createContainer(n, "Request");
                 xmlObj.addItemToContainer(subnode, "Id", reqs[i].getRequestId().toString());
                 X509CertInfo certInfo =
-                        reqs[i].getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+                        reqs[i].getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
                 if (certInfo != null) {
                     String subject = "";
                     subject = certInfo.get(X509CertInfo.SUBJECT).toString();

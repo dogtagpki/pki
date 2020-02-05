@@ -115,7 +115,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.IProfileAuthenticator;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
@@ -1600,7 +1600,7 @@ public class CRSEnrollment extends HttpServlet {
 
             IRequest reqs[] = null;
             logger.debug("CRSEnrollment: Creating profile requests");
-            ctx.put(IEnrollProfile.CTX_CERT_REQUEST_TYPE, "pkcs10");
+            ctx.put(EnrollProfile.CTX_CERT_REQUEST_TYPE, "pkcs10");
             ctx.put(IRequest.CTX_CERT_REQUEST, pkcs10blob);
             Locale locale = Locale.getDefault();
             reqs = profile.createRequests(ctx, locale);
@@ -1614,7 +1614,7 @@ public class CRSEnrollment extends HttpServlet {
             reqs[0].setSourceId(req.getTransactionID());
             reqs[0].setExtData("profile", "true");
             reqs[0].setExtData(IRequest.PROFILE_ID, mProfileId);
-            reqs[0].setExtData(IEnrollProfile.CTX_CERT_REQUEST_TYPE, IEnrollProfile.REQ_TYPE_PKCS10);
+            reqs[0].setExtData(EnrollProfile.CTX_CERT_REQUEST_TYPE, EnrollProfile.REQ_TYPE_PKCS10);
             reqs[0].setExtData(IRequest.CTX_CERT_REQUEST, pkcs10blob);
             reqs[0].setExtData("requestor_name", "");
             reqs[0].setExtData("requestor_email", "");
@@ -1727,7 +1727,7 @@ public class CRSEnrollment extends HttpServlet {
         if (profileId != null) {
             logger.debug("CRSEnrollment: Found profile request");
             X509CertImpl cert =
-                    pkiReq.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+                    pkiReq.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
             if (cert == null) {
                 logger.debug("CRSEnrollment: No certificate has been found");
             } else {

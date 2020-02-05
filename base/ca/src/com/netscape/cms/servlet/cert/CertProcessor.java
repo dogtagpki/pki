@@ -46,7 +46,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.IProfileAuthenticator;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
@@ -247,7 +247,7 @@ public class CertProcessor extends CAProcessor {
                 profile.submit(authToken, req);
                 req.setRequestStatus(RequestStatus.COMPLETE);
 
-                X509CertImpl x509cert = req.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+                X509CertImpl x509cert = req.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
 
                 if (x509cert != null) {
 

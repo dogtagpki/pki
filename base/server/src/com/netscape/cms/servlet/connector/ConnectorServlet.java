@@ -68,7 +68,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
@@ -310,7 +310,7 @@ public class ConnectorServlet extends CMSServlet {
         CMSEngine engine = CMS.getCMSEngine();
 
         try {
-            info = request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+            info = request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
             //   request.set(IEnrollProfile.REQUEST_SEQ_NUM, new Integer("0"));
             CertificateX509Key certKey = (CertificateX509Key) info.get(X509CertInfo.KEY);
@@ -333,14 +333,14 @@ public class ConnectorServlet extends CMSServlet {
             if (certValidity != null) {
                 byteStream = new ByteArrayOutputStream();
                 certValidity.encode(byteStream);
-                request.setExtData(IEnrollProfile.REQUEST_VALIDITY,
+                request.setExtData(EnrollProfile.REQUEST_VALIDITY,
                         byteStream.toByteArray());
             }
 
             CertificateExtensions extensions = (CertificateExtensions)
                     info.get(X509CertInfo.EXTENSIONS);
             if (extensions != null) {
-                request.setExtData(IEnrollProfile.REQUEST_EXTENSIONS,
+                request.setExtData(EnrollProfile.REQUEST_EXTENSIONS,
                         extensions);
             }
 
@@ -349,7 +349,7 @@ public class ConnectorServlet extends CMSServlet {
             if (certAlg != null) {
                 ByteArrayOutputStream certAlgOut = new ByteArrayOutputStream();
                 certAlg.encode(certAlgOut);
-                request.setExtData(IEnrollProfile.REQUEST_SIGNING_ALGORITHM,
+                request.setExtData(EnrollProfile.REQUEST_SIGNING_ALGORITHM,
                         certAlgOut.toByteArray());
             }
         } catch (Exception e) {
@@ -495,7 +495,7 @@ public class ConnectorServlet extends CMSServlet {
             if (isProfileRequest(thisreq)) {
                 X509CertInfo info =
                                     thisreq.getExtDataInCertInfo(
-                                            IEnrollProfile.REQUEST_CERTINFO);
+                                            EnrollProfile.REQUEST_CERTINFO);
 
                 try {
                     CertificateSubjectName sn = (CertificateSubjectName)
@@ -589,7 +589,7 @@ public class ConnectorServlet extends CMSServlet {
 
                 if (isProfileRequest(thisreq)) {
 
-                    X509CertImpl x509cert = thisreq.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+                    X509CertImpl x509cert = thisreq.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
 
                     if (x509cert != null) {
 

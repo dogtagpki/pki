@@ -136,13 +136,113 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 /**
  * This class implements a generic enrollment profile.
  *
+ * <p>
+ * An enrollment profile contains a list of enrollment specific input plugins, default policies, constriant policies and
+ * output plugins.
+ * <p>
+ * This interface also defines a set of enrollment specific attribute names that can be used to retrieve values from an
+ * enrollment request.
+ * <p>
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */
-public abstract class EnrollProfile extends Profile
-        implements IEnrollProfile {
+public abstract class EnrollProfile extends Profile {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollProfile.class);
+
+    /**
+     * Name of request attribute that stores the User
+     * Supplied Certificate Request Type.
+     */
+    public static final String CTX_CERT_REQUEST_TYPE = "cert_request_type";
+
+    /**
+     * Possible values for CTX_CERT_REQUEST_TYPE attribute.
+     */
+    public static final String REQ_TYPE_PKCS10 = "pkcs10";
+    public static final String REQ_TYPE_CRMF = "crmf";
+    public static final String REQ_TYPE_CMC = "cmc";
+    public static final String REQ_TYPE_KEYGEN = "keygen";
+
+    /**
+     * Name of request attribute that stores the End-User Locale.
+     * <p>
+     * The value is of type java.util.Locale.
+     */
+    public static final String REQUEST_LOCALE = "req_locale";
+
+    /**
+     * Name of request attribute that stores the sequence number. Consider
+     * a CRMF request that may contain multiple certificate request.
+     * The first sub certificate certificate request has a sequence
+     * number of 0, the next one has a sequence of 1, and so on.
+     * <p>
+     * The value is of type java.lang.Integer.
+     */
+    public static final String REQUEST_SEQ_NUM = "req_seq_num";
+
+    /**
+     * Name of the request attribute that stores the sequence number for a
+     * renewal request. Only one request at a time is permitted for a renewal.
+     * This value corresponds to the sequence number (and hence the appropriate
+     * certificate) of the original request
+     */
+    public static final String CTX_RENEWAL_SEQ_NUM = "renewal_seq_num";
+
+    /**
+     * Name of request attribute to indicate if this is a renewal
+     */
+    public static final String CTX_RENEWAL = "renewal";
+
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * Validity.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateValidity
+     */
+    public static final String REQUEST_VALIDITY = "req_validity";
+
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * Signing Algorithm.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId
+     */
+    public static final String REQUEST_SIGNING_ALGORITHM = "req_signing_alg";
+
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * Extensions.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateExtensions
+     */
+    public static final String REQUEST_EXTENSIONS = "req_extensions";
+
+    /**
+     * Name of request attribute that stores the certificate template
+     * that will be signed and then become a certificate.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.X509CertInfo
+     */
+    public static final String REQUEST_CERTINFO = "req_x509info";
+
+    /**
+     * Name of request attribute that stores the issued certificate.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.X509CertImpl
+     */
+    public static final String REQUEST_ISSUED_CERT = "req_issued_cert";
+
+    /**
+     * ID of requested certificate authority (absense implies host authority)
+     */
+    public static final String REQUEST_AUTHORITY_ID = "req_authority_id";
+
+    /**
+     * Arbitrary user-supplied data.
+     */
+    public static final String REQUEST_USER_DATA = "req_user_data";
 
     public EnrollProfile() {
         super();
@@ -261,6 +361,12 @@ public abstract class EnrollProfile extends Profile
 
     public abstract X500Name getIssuerName();
 
+    /**
+     * Set Default X509CertInfo in the request.
+     *
+     * @param request profile-based certificate request.
+     * @exception EProfileException failed to set the X509CertInfo.
+     */
     public void setDefaultCertInfo(IRequest req) throws EProfileException {
         // create an empty certificate template so that
         // default plugins that store stuff

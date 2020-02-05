@@ -56,7 +56,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.RawJS;
@@ -663,7 +663,7 @@ public class CertReqParser extends ReqParser {
 
     public String getRequestorDN(IRequest request) {
         try {
-            X509CertInfo info = request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+            X509CertInfo info = request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
             if (info == null) return null;
             // retrieve the subject name
             CertificateSubjectName sn = (CertificateSubjectName)

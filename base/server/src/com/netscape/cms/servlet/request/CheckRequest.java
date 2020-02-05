@@ -72,7 +72,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -341,7 +341,7 @@ public class CheckRequest extends CMSServlet {
 
             if (profileId != null) {
                 X509CertImpl impl[] = new X509CertImpl[1];
-                impl[0] = r.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+                impl[0] = r.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
                 o = impl;
             }
             if (o != null && (o instanceof X509CertImpl[])) {

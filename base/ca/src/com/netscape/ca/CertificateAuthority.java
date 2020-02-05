@@ -144,7 +144,7 @@ import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
@@ -2919,7 +2919,7 @@ public class CertificateAuthority
             }
 
             // Add certificate to nssdb
-            cert = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+            cert = request.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
             cryptoManager.importCertPackage(cert.getEncoded(), nickname);
         } catch (Exception e) {
             // something went wrong; delete just-added entry
@@ -2986,7 +2986,7 @@ public class CertificateAuthority
         RequestStatus requestStatus = request.getRequestStatus();
         if (requestStatus != RequestStatus.COMPLETE)
             throw new EBaseException("renewAuthority: certificate renewal did not complete; status: " + requestStatus);
-        X509CertImpl cert = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+        X509CertImpl cert = request.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
         authoritySerial = cert.getSerialNumber();
 
         // Update authority record with serial of issued cert

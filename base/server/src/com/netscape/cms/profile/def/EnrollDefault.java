@@ -55,7 +55,6 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.IEnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 
@@ -220,11 +219,11 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         name = name.substring(name.lastIndexOf('.') + 1);
         logger.debug(method + name + ": start");
         X509CertInfo info =
-                request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         populate(request, info);
 
-        request.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
+        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
         logger.debug(method + name + ": end");
     }
 
@@ -256,11 +255,11 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             String value)
             throws EPropertyException {
         X509CertInfo info =
-                request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         setValue(name, locale, info, value);
 
-        boolean ret = request.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
+        boolean ret = request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
         if (ret == false) {
             logger.error("EnrollDefault: setValue(): request.setExtData() returned false");
             throw new EPropertyException("EnrollDefault: setValue(): request.setExtData() failed");
@@ -282,10 +281,10 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     public String getValue(String name, Locale locale, IRequest request)
             throws EPropertyException {
         X509CertInfo info =
-                request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         String value = getValue(name, locale, info);
-        request.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
+        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
         return value;
     }
 

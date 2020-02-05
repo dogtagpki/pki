@@ -24,6 +24,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestResource;
 import com.netscape.certsrv.cert.CertResource;
@@ -31,9 +33,7 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.IEnrollProfile;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import com.netscape.cms.profile.common.EnrollProfile;
 
 public class CertRequestInfoFactory {
 
@@ -69,7 +69,7 @@ public class CertRequestInfoFactory {
         if (requestType == null || requestStatus != RequestStatus.COMPLETE)
             return info;
 
-        X509CertImpl impl = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+        X509CertImpl impl = request.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
         if (impl == null && requestType.equals(IRequest.REVOCATION_REQUEST)) {
             // revocation request; try and get serial of revoked cert
             X509CertImpl[] certs =

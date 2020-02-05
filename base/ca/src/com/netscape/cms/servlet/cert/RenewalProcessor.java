@@ -49,7 +49,7 @@ import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.IProfileAuthenticator;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.profile.input.SerialNumRenewInput;
 import com.netscape.cms.realm.PKIPrincipal;
@@ -219,7 +219,7 @@ public class RenewalProcessor extends CertProcessor {
             String aidString = origReq.getExtDataInString(
                     IRequest.AUTHORITY_ID);
 
-            Integer origSeqNum = origReq.getExtDataInInteger(IEnrollProfile.REQUEST_SEQ_NUM);
+            Integer origSeqNum = origReq.getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
                 logger.error(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)));
@@ -233,7 +233,7 @@ public class RenewalProcessor extends CertProcessor {
             Map<String, String> ctx = new HashMap<>();
 
             if (aidString != null)
-                ctx.put(IEnrollProfile.REQUEST_AUTHORITY_ID, aidString);
+                ctx.put(EnrollProfile.REQUEST_AUTHORITY_ID, aidString);
 
             IProfileAuthenticator authenticator = ps.getProfileAuthenticator(renewProfile);
             IProfileAuthenticator origAuthenticator = ps.getProfileAuthenticator(profile);
@@ -253,9 +253,9 @@ public class RenewalProcessor extends CertProcessor {
             // for renewal, input needs to be retrieved from the orig req record
             logger.debug("processRenewal: set original Inputs into profile Context");
             setInputsIntoContext(origReq, profile, ctx, locale);
-            ctx.put(IEnrollProfile.CTX_RENEWAL, "true");
+            ctx.put(EnrollProfile.CTX_RENEWAL, "true");
             ctx.put("renewProfileId", renewProfileId);
-            ctx.put(IEnrollProfile.CTX_RENEWAL_SEQ_NUM, origSeqNum.toString());
+            ctx.put(EnrollProfile.CTX_RENEWAL_SEQ_NUM, origSeqNum.toString());
 
             // for ssl authentication; pass in servlet for retrieving
             // ssl client certificates

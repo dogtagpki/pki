@@ -29,7 +29,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -108,7 +108,7 @@ public class UserSigningAlgDefault extends EnrollDefault {
         // the key from request into x509 certinfo
         try {
             byte[] certAlgData = request.getExtDataInByteArray(
-                    IEnrollProfile.REQUEST_SIGNING_ALGORITHM);
+                    EnrollProfile.REQUEST_SIGNING_ALGORITHM);
             if (certAlgData != null) {
                 certAlg = new CertificateAlgorithmId(
                         new ByteArrayInputStream(certAlgData));

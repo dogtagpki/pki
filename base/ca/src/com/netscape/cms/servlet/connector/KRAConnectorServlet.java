@@ -21,7 +21,7 @@ import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 
@@ -42,12 +42,12 @@ public class KRAConnectorServlet extends ConnectorServlet {
         ProfileSubsystem ps = engine.getProfileSubsystem();
 
         String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
-        IEnrollProfile profile = null;
+        EnrollProfile profile = null;
 
         try {
             logger.info("KRAConnectorServlet: Updating profile " + profileId);
 
-            profile = (IEnrollProfile) ps.getProfile(profileId);
+            profile = (EnrollProfile) ps.getProfile(profileId);
             profile.setDefaultCertInfo(request);
 
         } catch (EProfileException e) {

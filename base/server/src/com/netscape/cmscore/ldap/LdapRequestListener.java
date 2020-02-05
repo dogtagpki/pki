@@ -36,7 +36,7 @@ import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 
@@ -202,7 +202,7 @@ class LdapEnrollmentListener implements IRequestListener {
             certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
         } else {
             certs = new Certificate[1];
-            certs[0] = r.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+            certs[0] = r.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
         }
 
         if (certs == null || certs.length == 0 || certs[0] == null) {

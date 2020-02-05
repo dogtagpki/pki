@@ -56,7 +56,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
@@ -392,7 +392,7 @@ public class RequestProcessor extends CertProcessor {
 
             // retrieve the certificate
             X509CertImpl theCert = req.getExtDataInCert(
-                    IEnrollProfile.REQUEST_ISSUED_CERT);
+                    EnrollProfile.REQUEST_ISSUED_CERT);
 
             signedAuditLogger.log(CertRequestProcessedEvent.createSuccessEvent(
                     auditSubjectID,

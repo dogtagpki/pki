@@ -70,7 +70,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.IProfileAuthenticator;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
@@ -874,7 +874,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     profile.submit(authToken, reqs[k]);
                     reqs[k].setRequestStatus(RequestStatus.COMPLETE);
 
-                    X509CertImpl x509cert = reqs[k].getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+                    X509CertImpl x509cert = reqs[k].getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
 
                     if (x509cert != null) {
 
@@ -982,7 +982,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     reqs[0].setRequestStatus(RequestStatus.COMPLETE);
                     //profile.getRequestQueue().markAsServiced(provedReq);
 
-                    X509CertImpl x509cert = reqs[0].getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+                    X509CertImpl x509cert = reqs[0].getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
 
                     if (x509cert != null) {
 

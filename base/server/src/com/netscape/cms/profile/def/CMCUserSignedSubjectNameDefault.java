@@ -31,7 +31,6 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.IEnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -153,7 +152,7 @@ public class CMCUserSignedSubjectNameDefault extends EnrollDefault {
             msg = method + "exception thrown:" + e;
             throw new EProfileException(e.toString());
         }
-        request.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
+        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
         logger.debug(method + "ends");
     }
 }

@@ -40,7 +40,7 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.IProfileAuthenticator;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -153,10 +153,10 @@ public class EnrollmentProcessor extends CertProcessor {
             if (request != null)
                 userData = request.getParameter("user-data");
             if (userData != null)
-                ctx.put(IEnrollProfile.REQUEST_USER_DATA, userData);
+                ctx.put(EnrollProfile.REQUEST_USER_DATA, userData);
 
             if (aid != null)
-                ctx.put(IEnrollProfile.REQUEST_AUTHORITY_ID, aid.toString());
+                ctx.put(EnrollProfile.REQUEST_AUTHORITY_ID, aid.toString());
 
             logger.debug("EnrollmentProcessor: set Inputs into profile Context");
             setInputsIntoContext(data, profile, ctx);

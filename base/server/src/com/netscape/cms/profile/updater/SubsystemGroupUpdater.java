@@ -39,7 +39,7 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.IProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -117,7 +117,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
             return;
         }
 
-        X509CertImpl cert = req.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+        X509CertImpl cert = req.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
         if (cert == null)
             return;
 

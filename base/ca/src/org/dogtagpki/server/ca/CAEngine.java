@@ -33,7 +33,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -80,7 +80,7 @@ public class CAEngine extends CMSEngine {
 
     public byte[] getPKCS7(Locale locale, IRequest req) {
         try {
-            X509CertImpl cert = req.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+            X509CertImpl cert = req.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
 
             if (cert == null) {
                 return null;

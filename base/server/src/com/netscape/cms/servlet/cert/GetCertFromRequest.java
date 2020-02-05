@@ -44,7 +44,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.IEnrollProfile;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -225,7 +225,7 @@ public class GetCertFromRequest extends CMSServlet {
 
         if (r.getExtDataInString("profile") != null) {
             // handle profile-based request
-            X509CertImpl cert = r.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+            X509CertImpl cert = r.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
             X509CertImpl certs[] = new X509CertImpl[1];
 
             certs[0] = cert;
