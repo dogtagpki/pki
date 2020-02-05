@@ -20,7 +20,6 @@ package com.netscape.cmscore.ldap;
 import java.util.Vector;
 
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.publish.ILdapExpression;
 import com.netscape.cmscore.apps.CMS;
 
 /**

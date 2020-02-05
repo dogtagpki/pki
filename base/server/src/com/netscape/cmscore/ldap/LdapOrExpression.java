@@ -19,7 +19,6 @@ package com.netscape.cmscore.ldap;
 
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.publish.ILdapExpression;
 import com.netscape.certsrv.request.IRequest;
 
 /**
