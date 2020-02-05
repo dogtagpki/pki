@@ -396,10 +396,13 @@ public class PublisherProcessor implements
         }
 
         LdapRequestListener listener = null;
+
         if (mConfig.getBoolean(PROP_ENABLE, false)) {
+
             listener = new LdapRequestListener();
-            listener.init(this, mLdapConfig);
+            listener.setPublisherProcessor(this);
             mAuthority.registerRequestListener(listener);
+
             IConfigStore queueConfig = mConfig.getSubStore(PROP_QUEUE_PUBLISH_SUBSTORE);
             if (queueConfig != null) {
                 boolean isPublishingQueueEnabled = queueConfig.getBoolean("enable", false);
@@ -419,6 +422,7 @@ public class PublisherProcessor implements
                                                 savePublishingStatus);
             }
         }
+
         mLdapRequestListener = listener;
     }
 

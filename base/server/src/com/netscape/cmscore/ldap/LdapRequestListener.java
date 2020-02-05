@@ -44,15 +44,11 @@ public class LdapRequestListener implements IRequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapRequestListener.class);
 
-    private boolean mInited = false;
-
     /**
      * handlers for request types (events)
      * each handler implement IRequestListener
      */
     private Hashtable<String, IRequestListener> mRequestListeners = new Hashtable<String, IRequestListener>();
-
-    private IPublisherProcessor mPublisherProcessor = null;
 
     public LdapRequestListener() {
     }
@@ -60,21 +56,22 @@ public class LdapRequestListener implements IRequestListener {
     public void set(String name, String val) {
     }
 
-    public void init(ISubsystem sys, IConfigStore config) throws EBaseException {
-        if (mInited)
-            return;
-
-        mPublisherProcessor = (IPublisherProcessor) sys;
+    public void setPublisherProcessor(PublisherProcessor publisherProcessor) {
 
         mRequestListeners.put(IRequest.ENROLLMENT_REQUEST,
-                new LdapEnrollmentListener(mPublisherProcessor));
+                new LdapEnrollmentListener(publisherProcessor));
+
         mRequestListeners.put(IRequest.RENEWAL_REQUEST,
-                new LdapRenewalListener(mPublisherProcessor));
+                new LdapRenewalListener(publisherProcessor));
+
         mRequestListeners.put(IRequest.REVOCATION_REQUEST,
-                new LdapRevocationListener(mPublisherProcessor));
+                new LdapRevocationListener(publisherProcessor));
+
         mRequestListeners.put(IRequest.UNREVOCATION_REQUEST,
-                new LdapUnrevocationListener(mPublisherProcessor));
-        mInited = true;
+                new LdapUnrevocationListener(publisherProcessor));
+    }
+
+    public void init(ISubsystem sys, IConfigStore config) throws EBaseException {
     }
 
     public PublishObject getPublishObject(IRequest r) {
