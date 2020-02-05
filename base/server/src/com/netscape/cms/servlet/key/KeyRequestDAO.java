@@ -65,7 +65,6 @@ import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.IEnrollProfile;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -94,11 +93,11 @@ public class KeyRequestDAO extends CMSRequestDAO {
         ASYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DSA_ALGORITHM, KeyPairAlgorithm.DSA);
     }
 
-    private static String REQUEST_ARCHIVE_OPTIONS = IEnrollProfile.REQUEST_ARCHIVE_OPTIONS;
-    private static String REQUEST_SECURITY_DATA = IEnrollProfile.REQUEST_SECURITY_DATA;
-    private static String REQUEST_SESSION_KEY = IEnrollProfile.REQUEST_SESSION_KEY;
-    private static String REQUEST_ALGORITHM_OID = IEnrollProfile.REQUEST_ALGORITHM_OID;
-    private static String REQUEST_ALGORITHM_PARAMS = IEnrollProfile.REQUEST_ALGORITHM_PARAMS;
+    private static String REQUEST_ARCHIVE_OPTIONS = IRequest.REQUEST_ARCHIVE_OPTIONS;
+    private static String REQUEST_SECURITY_DATA = IRequest.REQUEST_SECURITY_DATA;
+    private static String REQUEST_SESSION_KEY = IRequest.REQUEST_SESSION_KEY;
+    private static String REQUEST_ALGORITHM_OID = IRequest.REQUEST_ALGORITHM_OID;
+    private static String REQUEST_ALGORITHM_PARAMS = IRequest.REQUEST_ALGORITHM_PARAMS;
 
     public static final String ATTR_SERIALNO = "serialNumber";
 

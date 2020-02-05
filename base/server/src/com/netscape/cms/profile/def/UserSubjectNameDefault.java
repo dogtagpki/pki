@@ -29,7 +29,6 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.common.IEnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -202,7 +201,7 @@ public class UserSubjectNameDefault extends EnrollDefault {
         // authenticate the subject name and populate it
         // to the certinfo
         CertificateSubjectName req_sbj = request.getExtDataInCertSubjectName(
-                    IEnrollProfile.REQUEST_SUBJECT_NAME);
+                    IRequest.REQUEST_SUBJECT_NAME);
         logger.info("UserSubjectNameDefault: Subject: " + req_sbj);
 
         if (req_sbj == null) {

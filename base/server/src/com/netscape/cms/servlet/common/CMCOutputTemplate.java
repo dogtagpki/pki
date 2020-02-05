@@ -524,7 +524,7 @@ public class CMCOutputTemplate {
         }
         logger.debug(method + "popChallengeRequired true");
 
-        byte[] cmc_msg = req.getExtDataInByteArray(IEnrollProfile.CTX_CERT_REQUEST);
+        byte[] cmc_msg = req.getExtDataInByteArray(IRequest.CTX_CERT_REQUEST);
         byte[] pop_encryptedData = req.getExtDataInByteArray("pop_encryptedData");
         //don't need this for encryptedPOP, but need to check for existence anyway
         byte[] pop_sysPubEncryptedSession = req.getExtDataInByteArray("pop_sysPubEncryptedSession");

@@ -373,7 +373,7 @@ public class SubjectNameInput extends EnrollInput {
     protected void parseSubjectName(X500Name subj, X509CertInfo info, IRequest req)
             throws EProfileException {
         try {
-            req.setExtData(EnrollProfile.REQUEST_SUBJECT_NAME,
+            req.setExtData(IRequest.REQUEST_SUBJECT_NAME,
                     new CertificateSubjectName(subj));
         } catch (Exception e) {
             logger.warn("SubjectNameInput: parseSubject Name " + e.getMessage(), e);

@@ -217,6 +217,64 @@ public interface IRequest extends Serializable {
     public static final String SSL_CLIENT = "SSLClient";
 
     /**
+     * Name of request attribute that stores the End-User Supplied
+     * Subject Name.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateSubjectName
+     */
+    String REQUEST_SUBJECT_NAME = "req_subject_name";
+
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * Key.
+     * <p>
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateX509Key
+     */
+    String REQUEST_KEY = "req_key";
+
+    /**
+     * Name of request attribute that stores the transport certificate.
+     * <p>
+     * The value is of type String including base64 encoded certificate.
+     */
+    String REQUEST_TRANSPORT_CERT = "req_transport_cert";
+
+    /**
+     * Name of request attribute that stores the End-User Supplied
+     * PKI Archive Option extension. This extension is extracted
+     * from a CRMF request that has the user-provided private key.
+     * <p>
+     * The value is of type byte []
+     */
+    String REQUEST_ARCHIVE_OPTIONS = "req_archive_options";
+
+    /**
+     * Transport Key wrapped session key passed into DRM archival service.
+     */
+    String REQUEST_SESSION_KEY = "req_session_key";
+
+    /**
+     * Session wrapped security data passed in to the DRM archival service
+     */
+    String REQUEST_SECURITY_DATA = "req_security_data";
+
+    /**
+     * Symmetric key algorithm params passed into DRM archival service
+     */
+    String REQUEST_ALGORITHM_PARAMS = "req_algorithm_params";
+
+    /**
+     * Symmetric Key algorithm OID passed into DRM archival service
+     */
+    String REQUEST_ALGORITHM_OID = "req_algorithm_oid";
+
+    /**
+     * Name of request attribute that stores the User
+     * Supplied Certificate Request.
+     */
+    String CTX_CERT_REQUEST = "cert_request";
+
+    /**
      * Gets the primary identifier for this request.
      *
      * @return request id

@@ -54,7 +54,7 @@ public class SigningKeyGenInput extends EnrollInput {
     public static final String VAL_KEYGEN_REQUEST_TYPE =
             EnrollProfile.CTX_CERT_REQUEST_TYPE;
     public static final String VAL_KEYGEN_REQUEST =
-            EnrollProfile.CTX_CERT_REQUEST;
+            IRequest.CTX_CERT_REQUEST;
 
     public EnrollProfile mEnrollProfile = null;
 

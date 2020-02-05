@@ -26,7 +26,6 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.common.IEnrollProfile;
 import com.netscape.cms.profile.def.UserSubjectNameDefault;
 import com.netscape.cmscore.apps.CMS;
 
@@ -63,7 +62,7 @@ public class UserSubjectNameConstraint extends EnrollConstraint {
 
         try {
             requestSN = request.getExtDataInCertSubjectName(
-                                IEnrollProfile.REQUEST_SUBJECT_NAME);
+                                IRequest.REQUEST_SUBJECT_NAME);
             info.set(X509CertInfo.SUBJECT, requestSN);
             logger.debug("UserSubjectNameConstraint: validate user subject=" + requestSN);
         } catch (Exception e) {

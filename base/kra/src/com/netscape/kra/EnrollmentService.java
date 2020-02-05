@@ -68,7 +68,6 @@ import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.profile.common.IEnrollProfile;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -174,11 +173,11 @@ public class EnrollmentService implements IService {
         // updateRequest() to delay actual write to ldap
         request.setExtData("delayLDAPCommit", "true");
 
-        String transportCert = request.getExtDataInString(IEnrollProfile.REQUEST_TRANSPORT_CERT);
+        String transportCert = request.getExtDataInString(IRequest.REQUEST_TRANSPORT_CERT);
         if (transportCert != null && transportCert.length() > 0) {
             //logger.debug("EnrollmentService: serviceRequest: transportCert=" + transportCert);
             logger.debug("EnrollmentService: serviceRequest: transportCert is in request");
-            request.deleteExtData(IEnrollProfile.REQUEST_TRANSPORT_CERT);
+            request.deleteExtData(IRequest.REQUEST_TRANSPORT_CERT);
         } else {
             logger.warn("EnrollmentService: serviceRequest: Missing transport certificate");
         }
@@ -222,7 +221,7 @@ public class EnrollmentService implements IService {
         } else {
             // profile-based request
             PKIArchiveOptions options = toPKIArchiveOptions(
-            request.getExtDataInByteArray(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS));
+            request.getExtDataInByteArray(IRequest.REQUEST_ARCHIVE_OPTIONS));
 
             aOpts = new PKIArchiveOptionsContainer[1];
             aOpts[0] = new PKIArchiveOptionsContainer(options,
@@ -652,15 +651,15 @@ public class EnrollmentService implements IService {
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
 
         /* zero out the fields */
-        request.setExtData(IEnrollProfile.CTX_CERT_REQUEST, "");
-        request.setExtData(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS, "");
+        request.setExtData(IRequest.CTX_CERT_REQUEST, "");
+        request.setExtData(IRequest.REQUEST_ARCHIVE_OPTIONS, "");
         request.setExtData(ATTR_PROOF_OF_ARCHIVAL, "");
-        request.setExtData(IEnrollProfile.REQUEST_KEY, "");
+        request.setExtData(IRequest.REQUEST_KEY, "");
         /* delete the fields */
-        request.deleteExtData(IEnrollProfile.CTX_CERT_REQUEST);
-        request.deleteExtData(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS);
+        request.deleteExtData(IRequest.CTX_CERT_REQUEST);
+        request.deleteExtData(IRequest.REQUEST_ARCHIVE_OPTIONS);
         request.deleteExtData(ATTR_PROOF_OF_ARCHIVAL);
-        request.deleteExtData(IEnrollProfile.REQUEST_KEY);
+        request.deleteExtData(IRequest.REQUEST_KEY);
 
         // now that fields are cleared, we can really write to ldap
         request.setExtData("delayLDAPCommit", "false");
@@ -812,7 +811,7 @@ public class EnrollmentService implements IService {
         String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
 
         if (profileId != null && !profileId.equals("")) {
-            byte[] certKeyData = request.getExtDataInByteArray(IEnrollProfile.REQUEST_KEY);
+            byte[] certKeyData = request.getExtDataInByteArray(IRequest.REQUEST_KEY);
             if (certKeyData != null) {
                 try {
                     CertificateX509Key x509key = new CertificateX509Key(
@@ -879,7 +878,7 @@ public class EnrollmentService implements IService {
 
         if (profileId != null && !profileId.equals("")) {
             CertificateSubjectName sub = request.getExtDataInCertSubjectName(
-                    IEnrollProfile.REQUEST_SUBJECT_NAME);
+                    IRequest.REQUEST_SUBJECT_NAME);
             if (sub != null) {
                 return sub.toString();
             }

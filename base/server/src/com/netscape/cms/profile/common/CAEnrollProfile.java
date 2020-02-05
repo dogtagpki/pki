@@ -107,7 +107,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
         // if PKI Archive Option present, send this request
         // to DRM
-        byte optionsData[] = request.getExtDataInByteArray(REQUEST_ARCHIVE_OPTIONS);
+        byte optionsData[] = request.getExtDataInByteArray(IRequest.REQUEST_ARCHIVE_OPTIONS);
 
         // do not archive keys for renewal requests
         if ((optionsData != null) && (!request.getRequestType().equals(IRequest.RENEWAL_REQUEST))) {

@@ -41,12 +41,6 @@ public interface IEnrollProfile extends IProfile {
     public static final String CTX_CERT_REQUEST_TYPE = "cert_request_type";
 
     /**
-     * Name of request attribute that stores the User
-     * Supplied Certificate Request.
-     */
-    public static final String CTX_CERT_REQUEST = "cert_request";
-
-    /**
      * Possible values for CTX_CERT_REQUEST_TYPE attribute.
      */
     public static final String REQ_TYPE_PKCS10 = "pkcs10";
@@ -86,22 +80,6 @@ public interface IEnrollProfile extends IProfile {
 
     /**
      * Name of request attribute that stores the End-User Supplied
-     * Key.
-     * <p>
-     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateX509Key
-     */
-    public static final String REQUEST_KEY = "req_key";
-
-    /**
-     * Name of request attribute that stores the End-User Supplied
-     * Subject Name.
-     * <p>
-     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateSubjectName
-     */
-    public static final String REQUEST_SUBJECT_NAME = "req_subject_name";
-
-    /**
-     * Name of request attribute that stores the End-User Supplied
      * Validity.
      * <p>
      * The value is of type org.mozilla.jss.netscape.security.x509.CertificateValidity
@@ -125,15 +103,6 @@ public interface IEnrollProfile extends IProfile {
     public static final String REQUEST_EXTENSIONS = "req_extensions";
 
     /**
-     * Name of request attribute that stores the End-User Supplied
-     * PKI Archive Option extension. This extension is extracted
-     * from a CRMF request that has the user-provided private key.
-     * <p>
-     * The value is of type byte []
-     */
-    public static final String REQUEST_ARCHIVE_OPTIONS = "req_archive_options";
-
-    /**
      * Name of request attribute that stores the certificate template
      * that will be signed and then become a certificate.
      * <p>
@@ -147,33 +116,6 @@ public interface IEnrollProfile extends IProfile {
      * The value is of type org.mozilla.jss.netscape.security.x509.X509CertImpl
      */
     public static final String REQUEST_ISSUED_CERT = "req_issued_cert";
-
-    /**
-     * Name of request attribute that stores the transport certificate.
-     * <p>
-     * The value is of type String including base64 encoded certificate.
-     */
-    public static final String REQUEST_TRANSPORT_CERT = "req_transport_cert";
-
-    /**
-     * Session wrapped security data passed in to the DRM archival service
-     */
-    public static final String REQUEST_SECURITY_DATA = "req_security_data";
-
-    /**
-     * Transport Key wrapped session key passed into DRM archival service.
-     */
-    public static final String REQUEST_SESSION_KEY = "req_session_key";
-
-    /**
-     * Symmetric Key algorithm OID passed into DRM archival service
-     */
-    public static final String REQUEST_ALGORITHM_OID = "req_algorithm_oid";
-
-    /**
-     * Symmetric key algorithm params passed into DRM archival service
-     */
-    public static final String REQUEST_ALGORITHM_PARAMS = "req_algorithm_params";
 
     /**
      * ID of requested certificate authority (absense implies host authority)

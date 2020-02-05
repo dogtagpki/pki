@@ -48,7 +48,6 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.profile.common.IEnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -86,13 +85,13 @@ public class SecurityDataProcessor {
         String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
 
         // one way to get data - unexploded pkiArchiveOptions
-        String pkiArchiveOptions = request.getExtDataInString(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS);
+        String pkiArchiveOptions = request.getExtDataInString(IRequest.REQUEST_ARCHIVE_OPTIONS);
 
         // another way - exploded pkiArchiveOptions
-        String transWrappedSessionKey = request.getExtDataInString(IEnrollProfile.REQUEST_SESSION_KEY);
-        String wrappedSecurityData = request.getExtDataInString(IEnrollProfile.REQUEST_SECURITY_DATA);
-        String algParams = request.getExtDataInString(IEnrollProfile.REQUEST_ALGORITHM_PARAMS);
-        String algStr = request.getExtDataInString(IEnrollProfile.REQUEST_ALGORITHM_OID);
+        String transWrappedSessionKey = request.getExtDataInString(IRequest.REQUEST_SESSION_KEY);
+        String wrappedSecurityData = request.getExtDataInString(IRequest.REQUEST_SECURITY_DATA);
+        String algParams = request.getExtDataInString(IRequest.REQUEST_ALGORITHM_PARAMS);
+        String algStr = request.getExtDataInString(IRequest.REQUEST_ALGORITHM_OID);
 
         // parameters if the secret is a symmetric key
         String dataType = request.getExtDataInString(IRequest.SECURITY_DATA_TYPE);
