@@ -22,6 +22,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.PublicKey;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
@@ -122,6 +124,7 @@ public class CertUtil {
 
     public static PKCS10 getPKCS10(
             EngineConfig config,
+            KeyPair keyPair,
             Cert certObj) throws Exception {
 
         PreOpConfig preopConfig = config.getPreOpConfig();
@@ -132,36 +135,10 @@ public class CertUtil {
         String dn = preopConfig.getString("cert." + certTag + ".dn");
         logger.debug("CertUtil: subject: " + dn);
 
-        String keyType = preopConfig.getString("cert." + certTag + ".keytype");
+        PublicKey publicKey = keyPair.getPublic();
+        X509Key x509key = CryptoUtil.createX509Key(publicKey);
 
-        X509Key publicKey;
-
-        if (keyType.equals("rsa")) {
-
-            String pubKeyModulus = preopConfig.getString("cert." + certTag + ".pubkey.modulus");
-            String pubKeyPublicExponent = preopConfig.getString("cert." + certTag + ".pubkey.exponent");
-
-            publicKey = CryptoUtil.getPublicX509Key(
-                    CryptoUtil.string2byte(pubKeyModulus),
-                    CryptoUtil.string2byte(pubKeyPublicExponent));
-
-        } else if (keyType.equals("ecc")) {
-
-            String pubKeyEncoded = preopConfig.getString("cert." + certTag + ".pubkey.encoded");
-
-            publicKey = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
-
-        } else {
-            logger.error("CertUtil: Unsupported public key type: " + keyType);
-            throw new IOException("Unsupported public key type: " + keyType);
-        }
-
-        if (publicKey == null) {
-            logger.error("CertUtil: Unable to get public key for " + certTag);
-            throw new IOException("Unable to get public key for " + certTag);
-        }
-
-        logger.debug("CertUtil: public key: " + publicKey.getAlgorithm());
+        logger.debug("CertUtil: public key: " + x509key.getAlgorithm());
 
         String privateKeyID = preopConfig.getString("cert." + certTag + ".privkey.id");
         byte[] keyID = CryptoUtil.decodeKeyID(privateKeyID);
@@ -179,7 +156,7 @@ public class CertUtil {
 
         return CryptoUtil.createCertificationRequest(
                 dn,
-                publicKey,
+                x509key,
                 privateKey,
                 algorithm);
     }

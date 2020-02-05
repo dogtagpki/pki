@@ -224,9 +224,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 return null;
             }
 
-            processKeyPair(certData);
+            KeyPair keyPair = processKeyPair(certData);
 
-            Cert cert = processCert(request, certData);
+            Cert cert = processCert(request, keyPair, certData);
 
             String subsystem = cert.getSubsystem();
             configurator.handleCert(cert);
@@ -388,7 +388,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    public void processKeyPair(SystemCertData certData) throws Exception {
+    public KeyPair processKeyPair(SystemCertData certData) throws Exception {
 
         String tag = certData.getTag();
         logger.debug("SystemConfigService.processKeyPair(" + tag + ")");
@@ -419,21 +419,18 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
         }
         cs.commit(false);
+        KeyPair pair;
 
         try {
             logger.debug("SystemConfigService: loading existing key pair from NSS database");
-            KeyPair pair = configurator.loadKeyPair(certData.getNickname(), tokenName);
+            pair = configurator.loadKeyPair(certData.getNickname(), tokenName);
             logger.info("SystemConfigService: loaded existing key pair for " + tag + " certificate");
-
-            logger.debug("SystemConfigService: storing key pair into CS.cfg");
-            configurator.storeKeyPair(tag, pair);
 
         } catch (ObjectNotFoundException e) {
 
             logger.debug("SystemConfigService: key pair not found, generating new key pair");
             logger.info("SystemConfigService: generating new key pair for " + tag + " certificate");
 
-            KeyPair pair;
             if (keytype.equals("ecc")) {
                 String curvename = certData.getKeySize() != null ?
                         certData.getKeySize() : cs.getString("keys.ecc.curve.default");
@@ -446,14 +443,17 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 preopConfig.putString("cert." + tag + ".keysize.size", keysize);
                 pair = configurator.createRSAKeyPair(token, Integer.parseInt(keysize), tag);
             }
-
-            logger.debug("SystemConfigService: storing key pair into CS.cfg");
-            configurator.storeKeyPair(tag, pair);
         }
+
+        logger.debug("SystemConfigService: storing key pair into CS.cfg");
+        configurator.storeKeyPair(tag, pair);
+
+        return pair;
     }
 
     public Cert processCert(
             CertificateSetupRequest request,
+            KeyPair keyPair,
             SystemCertData certData) throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -555,7 +555,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // generate and configure other system certificate
         logger.info("SystemConfigService: generating new " + tag + " certificate");
-        configurator.configCert(request, cert);
+        configurator.configCert(request, keyPair, cert);
 
         String certStr = cs.getString(subsystem + "." + tag + ".cert" );
         cert.setCert(CryptoUtil.base64Decode(certStr));
@@ -563,7 +563,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: cert: " + certStr);
 
         // generate certificate request for the system certificate
-        configurator.generateCertRequest(tag, cert);
+        configurator.generateCertRequest(tag, keyPair, cert);
 
         return cert;
     }

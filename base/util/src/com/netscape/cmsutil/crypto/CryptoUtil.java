@@ -1208,21 +1208,6 @@ public class CryptoUtil {
         return x509key;
     }
 
-    public static X509Key getPublicX509Key(byte modulus[], byte exponent[])
-            throws InvalidKeyException {
-        return new org.mozilla.jss.netscape.security.provider.RSAPublicKey(new BigInt(modulus),
-                new BigInt(exponent));
-    }
-
-    public static X509Key getPublicX509ECCKey(byte encoded[])
-            throws InvalidKeyException {
-        try {
-            return X509Key.parse(new DerValue(encoded));
-        } catch (IOException e) {
-            throw new InvalidKeyException();
-        }
-    }
-
     public static X509Key createX509Key(PublicKey publicKey) throws InvalidKeyException {
 
         if (publicKey instanceof RSAPublicKey) {

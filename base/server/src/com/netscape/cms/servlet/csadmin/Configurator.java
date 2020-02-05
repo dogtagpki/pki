@@ -27,7 +27,6 @@ import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
-import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
@@ -1804,7 +1803,7 @@ public class Configurator {
         }
     }
 
-    public void configCert(CertificateSetupRequest request, Cert certObj) throws Exception {
+    public void configCert(CertificateSetupRequest request, KeyPair keyPair, Cert certObj) throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -1860,6 +1859,7 @@ public class Configurator {
 
             cert = configRemoteCert(
                     request,
+                    keyPair,
                     certObj,
                     cert,
                     certTag,
@@ -1876,7 +1876,7 @@ public class Configurator {
 
         } else { // not remote CA, ie, self-signed or local
 
-            cert = configLocalCert(certObj, caType, cert, certTag);
+            cert = configLocalCert(keyPair, certObj, caType, cert, certTag);
 
             if (cert != null) {
                 if (certTag.equals("subsystem")) {
@@ -1900,6 +1900,7 @@ public class Configurator {
 
     private X509CertImpl configRemoteCert(
             CertificateSetupRequest request,
+            KeyPair keyPair,
             Cert certObj,
             X509CertImpl cert,
             String certTag,
@@ -1912,7 +1913,7 @@ public class Configurator {
 
         logger.debug("configCert: remote CA");
         logger.debug("confgCert: tag: " + certTag);
-        PKCS10 pkcs10 = CertUtil.getPKCS10(cs, certObj);
+        PKCS10 pkcs10 = CertUtil.getPKCS10(cs, keyPair, certObj);
         byte[] binRequest = pkcs10.toByteArray();
         String b64Request = CryptoUtil.base64Encode(binRequest);
         certObj.setRequest(binRequest);
@@ -2013,13 +2014,13 @@ public class Configurator {
     }
 
     private X509CertImpl configLocalCert(
+            KeyPair keyPair,
             Cert certObj,
             String caType,
             X509CertImpl cert,
             String certTag)
             throws Exception {
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
         ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
 
         if (ca == null) {
@@ -2028,33 +2029,10 @@ public class Configurator {
             throw new IOException("The value for " + s + " should be remote");
         }
 
-        String pubKeyType = preopConfig.getString("cert." + certTag + ".keytype");
+        PublicKey publicKey = keyPair.getPublic();
+        X509Key x509key = CryptoUtil.createX509Key(publicKey);
 
-        if (pubKeyType.equals("rsa")) {
-
-            String pubKeyModulus = preopConfig.getString("cert." + certTag + ".pubkey.modulus");
-            String pubKeyPublicExponent = preopConfig.getString("cert." + certTag + ".pubkey.exponent");
-
-            X509Key x509key = CryptoUtil.getPublicX509Key(
-                    CryptoUtil.string2byte(pubKeyModulus),
-                    CryptoUtil.string2byte(pubKeyPublicExponent));
-
-            cert = CertUtil.createLocalCert(cs, x509key, certTag, caType);
-
-        } else if (pubKeyType.equals("ecc")) {
-
-            String pubKeyEncoded = preopConfig.getString("cert." + certTag + ".pubkey.encoded");
-
-            X509Key x509key = CryptoUtil.getPublicX509ECCKey(
-                    CryptoUtil.string2byte(pubKeyEncoded));
-            cert = CertUtil.createLocalCert(cs, x509key, certTag, caType);
-
-        } else {
-            // invalid key type
-            logger.warn("Invalid key type " + pubKeyType);
-        }
-
-        return cert;
+        return CertUtil.createLocalCert(cs, x509key, certTag, caType);
     }
 
     public void updateConfig(Cert cert)
@@ -2143,28 +2121,16 @@ public class Configurator {
         return CryptoUtil.base64Decode(certreq);
     }
 
-    public void generateCertRequest(String certTag, Cert cert) throws Exception {
+    public void generateCertRequest(String certTag, KeyPair keyPair, Cert cert) throws Exception {
 
         logger.debug("generateCertRequest: getting public key for certificate " + certTag);
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        String pubKeyType = preopConfig.getString("cert." + certTag + ".keytype");
         String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
 
-        X509Key pubk;
-        if (pubKeyType.equals("rsa")) {
-            pubk = getRSAX509Key(certTag);
-
-        } else if (pubKeyType.equals("ecc")) {
-            pubk = getECCX509Key(certTag);
-
-        } else {
-            logger.error("generateCertRequest: Unsupported public key type: " + pubKeyType);
-            throw new BadRequestException("Unsupported public key type: " + pubKeyType);
-        }
-
-        // public key cannot be null here
+        PublicKey publicKey = keyPair.getPublic();
+        X509Key x509key = CryptoUtil.createX509Key(publicKey);
 
         logger.debug("generateCertRequest: getting private key for certificate " + certTag);
         String privKeyID = preopConfig.getString("cert." + certTag + ".privkey.id");
@@ -2193,7 +2159,7 @@ public class Configurator {
         createGenericExtensions(certTag, exts);
 
         logger.debug("generateCertRequest: generating PKCS #10 request");
-        PKCS10 certReq = CryptoUtil.createCertificationRequest(caDN, pubk, privk, algorithm, exts);
+        PKCS10 certReq = CryptoUtil.createCertificationRequest(caDN, x509key, privk, algorithm, exts);
 
         logger.debug("generateCertRequest: storing cert request");
         byte[] certReqb = certReq.toByteArray();
@@ -2275,31 +2241,6 @@ public class Configurator {
             logger.error("Configurator: createGenericExtensions: Unable to add generic extension: " + e);
             throw new BadRequestException("Unable to add generic certificate extension: " + e, e);
         }
-    }
-
-    public X509Key getECCX509Key(String certTag) throws EPropertyNotFound, EBaseException,
-            InvalidKeyException {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String pubKeyEncoded = preopConfig.getString("cert." + certTag + ".pubkey.encoded");
-        X509Key pubk = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
-
-        return pubk;
-    }
-
-    public X509Key getRSAX509Key(String certTag) throws EPropertyNotFound, EBaseException,
-            InvalidKeyException {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String pubKeyModulus = preopConfig.getString("cert." + certTag + ".pubkey.modulus");
-        String pubKeyPublicExponent = preopConfig.getString("cert." + certTag + ".pubkey.exponent");
-        X509Key pubk = CryptoUtil.getPublicX509Key(
-                CryptoUtil.string2byte(pubKeyModulus),
-                CryptoUtil.string2byte(pubKeyPublicExponent));
-
-        return pubk;
     }
 
     public void createCertRecord(Cert cert) throws Exception {
