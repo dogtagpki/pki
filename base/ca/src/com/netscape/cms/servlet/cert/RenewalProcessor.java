@@ -50,7 +50,7 @@ import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.IProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.input.SerialNumRenewInput;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.common.AuthCredentials;
@@ -100,7 +100,7 @@ public class RenewalProcessor extends CertProcessor {
             String renewProfileId = (this.profileID == null) ? data.getProfileId() : this.profileID;
             logger.debug("RenewalProcessor: profile: " + renewProfileId);
 
-            IProfile renewProfile = ps.getProfile(renewProfileId);
+            Profile renewProfile = ps.getProfile(renewProfileId);
             if (renewProfile == null) {
                 logger.error(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",
                         CMSTemplate.escapeJavaScriptStringHTML(renewProfileId)));
@@ -220,7 +220,7 @@ public class RenewalProcessor extends CertProcessor {
                     IRequest.AUTHORITY_ID);
 
             Integer origSeqNum = origReq.getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
-            IProfile profile = ps.getProfile(profileId);
+            Profile profile = ps.getProfile(profileId);
             if (profile == null) {
                 logger.error(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)));
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
@@ -379,7 +379,7 @@ public class RenewalProcessor extends CertProcessor {
      * This is expected to be used by renewal where the request
      * is retrieved from request record
      */
-    private void setInputsIntoContext(IRequest request, IProfile profile, Map<String, String> ctx, Locale locale) {
+    private void setInputsIntoContext(IRequest request, Profile profile, Map<String, String> ctx, Locale locale) {
         // passing inputs into context
         Enumeration<String> inputIds = profile.getProfileInputIds();
 

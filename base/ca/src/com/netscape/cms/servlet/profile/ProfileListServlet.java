@@ -33,7 +33,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
@@ -124,7 +124,7 @@ public class ProfileListServlet extends ProfileServlet {
         if (e != null) {
             while (e.hasMoreElements()) {
                 String id = e.nextElement();
-                IProfile profile = null;
+                Profile profile = null;
 
                 try {
                     profile = ps.getProfile(id);

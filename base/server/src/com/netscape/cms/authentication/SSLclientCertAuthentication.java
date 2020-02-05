@@ -43,7 +43,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.cms.profile.IProfileAuthenticator;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -309,7 +309,7 @@ public class SSLclientCertAuthentication implements IAuthManager,
 
     // Profile-related methods
 
-    public void init(IProfile profile, IConfigStore config)
+    public void init(Profile profile, IConfigStore config)
             throws EProfileException {
     }
 

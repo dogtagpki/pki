@@ -35,7 +35,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.util.AsyncLoader;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -134,7 +134,7 @@ public class LDAPProfileSubsystem
         logger.debug("LDAPProfileSubsystem: finished init");
     }
 
-    public IProfile getProfile(String id)
+    public Profile getProfile(String id)
             throws EProfileException {
         try {
             loader.awaitLoadDone();
@@ -213,7 +213,7 @@ public class LDAPProfileSubsystem
         }
     }
 
-    public synchronized IProfile createProfile(String id, String classid, String className)
+    public synchronized Profile createProfile(String id, String classid, String className)
             throws EProfileException {
         return createProfile(id, classid, className, null);
     }
@@ -225,7 +225,7 @@ public class LDAPProfileSubsystem
      * with the same profileId from Monitor and ProfileService,
      * so the method is synchronized.
      */
-    private synchronized IProfile createProfile(
+    private synchronized Profile createProfile(
             String id, String classid, String className, InputStream data)
             throws EProfileException {
         try {
@@ -243,7 +243,7 @@ public class LDAPProfileSubsystem
                 subStoreConfig.load(data);
 
             logger.debug("LDAPProfileSubsystem: initing " + className);
-            IProfile profile = (IProfile) Class.forName(className).newInstance();
+            Profile profile = (Profile) Class.forName(className).newInstance();
             profile.setId(id);
             profile.init(this, subStoreConfig);
             mProfiles.put(id, profile);

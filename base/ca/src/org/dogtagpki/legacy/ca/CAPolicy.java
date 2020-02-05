@@ -28,7 +28,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 
@@ -123,7 +123,7 @@ public class CAPolicy implements IPolicy {
             ProfileSubsystem ps = engine.getProfileSubsystem();
 
             try {
-                IProfile profile = ps.getProfile(profileId);
+                Profile profile = ps.getProfile(profileId);
 
                 r.setExtData("dbStatus", "NOT_UPDATED");
                 profile.populate(r);

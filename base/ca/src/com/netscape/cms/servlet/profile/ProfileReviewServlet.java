@@ -47,7 +47,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
@@ -210,7 +210,7 @@ public class ProfileReviewServlet extends ProfileServlet {
 
         logger.debug("ProfileReviewServlet: requestId=" +
                 requestId + " profileId=" + profileId);
-        IProfile profile = null;
+        Profile profile = null;
 
         try {
             profile = ps.getProfile(profileId);

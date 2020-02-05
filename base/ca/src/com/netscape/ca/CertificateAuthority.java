@@ -145,7 +145,7 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
@@ -2891,7 +2891,7 @@ public class CertificateAuthority
             Locale locale = Locale.getDefault();
             String profileId = "caCACert";
             ProfileSubsystem ps = engine.getProfileSubsystem();
-            IProfile profile = ps.getProfile(profileId);
+            Profile profile = ps.getProfile(profileId);
             ArgBlock argBlock = new ArgBlock();
             argBlock.set("cert_request_type", "pkcs10");
             argBlock.set("cert_request", pkcs10String);
@@ -2970,7 +2970,7 @@ public class CertificateAuthority
         }
 
         ProfileSubsystem ps = engine.getProfileSubsystem();
-        IProfile profile = ps.getProfile("caManualRenewal");
+        Profile profile = ps.getProfile("caManualRenewal");
         CertEnrollmentRequest req = CertEnrollmentRequestFactory.create(
             new ArgBlock(), profile, httpReq.getLocale());
         req.setSerialNum(new CertId(mCaCert.getSerialNumber()));

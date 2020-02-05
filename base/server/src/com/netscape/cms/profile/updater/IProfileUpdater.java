@@ -24,7 +24,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 
 /**
  * This interface represents an updater that will be
@@ -41,7 +41,7 @@ public interface IProfileUpdater extends IConfigTemplate {
      * @param config configuration store
      * @exception EProfileException failed to initialize
      */
-    public void init(IProfile profile, IConfigStore config)
+    public void init(Profile profile, IConfigStore config)
             throws EProfileException;
 
     /**

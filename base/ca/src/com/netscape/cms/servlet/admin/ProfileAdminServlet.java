@@ -48,7 +48,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.CAEnrollProfile;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -433,7 +433,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String defImpl = st.nextToken();
             String conImpl = st.nextToken();
 
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(profileId);
@@ -573,7 +573,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String inputId = st.nextToken();
             String inputImpl = st.nextToken();
 
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(profileId);
@@ -698,7 +698,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String outputId = st.nextToken();
             String outputImpl = st.nextToken();
 
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(profileId);
@@ -833,7 +833,7 @@ public class ProfileAdminServlet extends AdminServlet {
                 if (name.equals("POLICYID"))
                     policyId = req.getParameter(name);
             }
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(profileId);
@@ -955,7 +955,7 @@ public class ProfileAdminServlet extends AdminServlet {
             }
             logger.debug("ProfileAdminServlet: deleteProfileInput profileId -> " + profileId);
             logger.debug("ProfileAdminServlet: deleteProfileInput inputId -> " + inputId);
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(profileId);
@@ -1072,7 +1072,7 @@ public class ProfileAdminServlet extends AdminServlet {
             }
             logger.debug("ProfileAdminServlet: deleteProfileOutput profileId -> " + profileId);
             logger.debug("ProfileAdminServlet: deleteProfileOutput outputId -> " + outputId);
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(profileId);
@@ -1177,7 +1177,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String profileId = st.nextToken();
             String policyId = st.nextToken();
 
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(profileId);
@@ -1313,7 +1313,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String profileId = st.nextToken();
             String policyId = st.nextToken();
 
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(profileId);
@@ -1451,7 +1451,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String profileId = st.nextToken();
             String policyId = st.nextToken();
 
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(profileId);
@@ -1582,7 +1582,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String profileId = st.nextToken();
             String inputId = st.nextToken();
 
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(profileId);
@@ -1701,7 +1701,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String profileId = st.nextToken();
             String outputId = st.nextToken();
 
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(profileId);
@@ -1821,7 +1821,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String profileId = st.nextToken();
             String policyId = st.nextToken();
 
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(profileId);
@@ -1936,7 +1936,7 @@ public class ProfileAdminServlet extends AdminServlet {
         String profileId = st.nextToken();
         String policyId = st.nextToken();
 
-        IProfile profile = null;
+        Profile profile = null;
 
         try {
             profile = mProfileSub.getProfile(profileId);
@@ -1991,7 +1991,7 @@ public class ProfileAdminServlet extends AdminServlet {
         String profileId = st.nextToken();
         String policyId = st.nextToken();
 
-        IProfile profile = null;
+        Profile profile = null;
 
         try {
             profile = mProfileSub.getProfile(profileId);
@@ -2033,7 +2033,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
         // only allow profile retrival if it is disabled
 
-        IProfile profile = null;
+        Profile profile = null;
 
         try {
             profile = mProfileSub.getProfile(id);
@@ -2073,7 +2073,7 @@ public class ProfileAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException {
         String id = req.getParameter(Constants.RS_ID);
-        IProfile profile = null;
+        Profile profile = null;
 
         try {
             profile = mProfileSub.getProfile(id);
@@ -2100,7 +2100,7 @@ public class ProfileAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException {
         String id = req.getParameter(Constants.RS_ID);
-        IProfile profile = null;
+        Profile profile = null;
 
         try {
             profile = mProfileSub.getProfile(id);
@@ -2131,7 +2131,7 @@ public class ProfileAdminServlet extends AdminServlet {
         StringTokenizer st = new StringTokenizer(id, ";");
         String profileId = st.nextToken();
         String inputId = st.nextToken();
-        IProfile profile = null;
+        Profile profile = null;
 
         try {
             profile = mProfileSub.getProfile(profileId);
@@ -2172,7 +2172,7 @@ public class ProfileAdminServlet extends AdminServlet {
         StringTokenizer st = new StringTokenizer(id, ";");
         String profileId = st.nextToken();
         String outputId = st.nextToken();
-        IProfile profile = null;
+        Profile profile = null;
 
         try {
             profile = mProfileSub.getProfile(profileId);
@@ -2230,7 +2230,7 @@ public class ProfileAdminServlet extends AdminServlet {
     public void getProfileInstanceConfig(HttpServletRequest req, HttpServletResponse resp) throws Exception {
 
         String id = req.getParameter(Constants.RS_ID);
-        IProfile profile = mProfileSub.getProfile(id);
+        Profile profile = mProfileSub.getProfile(id);
 
         NameValuePairs nvp = new NameValuePairs();
 
@@ -2412,7 +2412,7 @@ public class ProfileAdminServlet extends AdminServlet {
             }
 
             // see if profile id already used
-            IProfile p = null;
+            Profile p = null;
 
             try {
                 p = mProfileSub.getProfile(id);
@@ -2463,7 +2463,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             IPluginInfo info = registry.getPluginInfo("profile", impl);
 
-            IProfile profile = null;
+            Profile profile = null;
 
             // create profile
             try {
@@ -2563,7 +2563,7 @@ public class ProfileAdminServlet extends AdminServlet {
             // Get the policy impl id and class path.
             String id = req.getParameter(Constants.RS_ID);
 
-            IProfile profile = null;
+            Profile profile = null;
 
             try {
                 profile = mProfileSub.getProfile(id);

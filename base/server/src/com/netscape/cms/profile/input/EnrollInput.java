@@ -40,7 +40,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -59,12 +59,12 @@ public abstract class EnrollInput implements IProfileInput {
     protected IConfigStore mConfig = null;
     protected Vector<String> mValueNames = new Vector<String>();
     protected Vector<String> mConfigNames = new Vector<String>();
-    protected IProfile mProfile = null;
+    protected Profile mProfile = null;
 
     /**
      * Initializes this default policy.
      */
-    public void init(IProfile profile, IConfigStore config)
+    public void init(Profile profile, IConfigStore config)
             throws EProfileException {
         mConfig = config;
         mProfile = profile;

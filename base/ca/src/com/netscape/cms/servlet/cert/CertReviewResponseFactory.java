@@ -37,7 +37,7 @@ import com.netscape.certsrv.profile.ProfilePolicy;
 import com.netscape.certsrv.profile.ProfilePolicySet;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
@@ -48,7 +48,7 @@ public class CertReviewResponseFactory {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertReviewResponseFactory.class);
 
-    public static CertReviewResponse create(IRequest request, IProfile profile, UriInfo uriInfo, Locale locale) throws EBaseException {
+    public static CertReviewResponse create(IRequest request, Profile profile, UriInfo uriInfo, Locale locale) throws EBaseException {
         CertReviewResponse ret = new CertReviewResponse();
 
         if (request.getRequestType().equals("renewal")) {
@@ -131,7 +131,7 @@ public class CertReviewResponseFactory {
     }
 
     public static CertReviewResponse create(
-            CMSRequest cmsReq, IProfile profile, boolean noncesEnabled, Locale locale)
+            CMSRequest cmsReq, Profile profile, boolean noncesEnabled, Locale locale)
             throws EPropertyException, EProfileException {
         HttpServletRequest req = cmsReq.getHttpReq();
         IRequest ireq = cmsReq.getIRequest();

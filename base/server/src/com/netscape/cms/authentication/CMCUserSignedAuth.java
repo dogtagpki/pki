@@ -102,7 +102,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.IProfileAuthenticator;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -1231,7 +1231,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
     // Profile-related methods
 
-    public void init(IProfile profile, IConfigStore config)
+    public void init(Profile profile, IConfigStore config)
             throws EProfileException {
     }
 

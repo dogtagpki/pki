@@ -71,7 +71,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.IProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -114,7 +114,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         mRenderResult = false;
     }
 
-    private void setInputsIntoContext(HttpServletRequest request, IProfile profile, Map<String, String> ctx) {
+    private void setInputsIntoContext(HttpServletRequest request, Profile profile, Map<String, String> ctx) {
         String method = "ProfileSubmitCMCServlet.setInputsIntoContext: ";
         // passing inputs into context
         Enumeration<String> inputIds = profile.getProfileInputIds();
@@ -221,7 +221,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         return authToken;
     }
 
-    private void setInputsIntoRequest(HttpServletRequest request, IProfile
+    private void setInputsIntoRequest(HttpServletRequest request, Profile
             profile, IRequest req) {
         Enumeration<String> inputIds = profile.getProfileInputIds();
 
@@ -350,7 +350,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             profileId = mProfileId;
         }
 
-        IProfile profile = null;
+        Profile profile = null;
 
         try {
             logger.debug("ProfileSubmitCMCServlet: profileId " + profileId);

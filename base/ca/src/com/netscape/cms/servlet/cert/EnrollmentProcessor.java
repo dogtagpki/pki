@@ -41,7 +41,7 @@ import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.IProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
@@ -56,7 +56,7 @@ public class EnrollmentProcessor extends CertProcessor {
         super(id, locale);
     }
 
-    private void setInputsIntoContext(CertEnrollmentRequest data, IProfile profile, Map<String, String> ctx) {
+    private void setInputsIntoContext(CertEnrollmentRequest data, Profile profile, Map<String, String> ctx) {
         // put profile inputs into a local map
         HashMap<String, String> dataInputs = new HashMap<String, String>();
         for (ProfileInput input : data.getInputs()) {
@@ -136,7 +136,7 @@ public class EnrollmentProcessor extends CertProcessor {
             String profileId = (this.profileID == null) ? data.getProfileId() : this.profileID;
             logger.debug("EnrollmentProcessor: profileId " + profileId);
 
-            IProfile profile = ps.getProfile(profileId);
+            Profile profile = ps.getProfile(profileId);
             if (profile == null) {
                 logger.error(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));

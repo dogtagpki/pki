@@ -48,7 +48,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
@@ -148,7 +148,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         IRequest[] reqs = (IRequest []) results.get(CAProcessor.ARG_REQUESTS);
         String errorCode = (String) results.get(CAProcessor.ARG_ERROR_CODE);
         String errorReason = (String) results.get(CAProcessor.ARG_ERROR_REASON);
-        IProfile profile = (IProfile) results.get(CAProcessor.ARG_PROFILE);
+        Profile profile = (Profile) results.get(CAProcessor.ARG_PROFILE);
         ArgSet args = new ArgSet();
 
         if (errorCode != null) {
@@ -216,7 +216,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         logger.debug("ProfileSubmitServlet: profile: " + profileId);
 
         ProfileSubsystem ps = processor.getProfileSubsystem();
-        IProfile profile = ps.getProfile(profileId);
+        Profile profile = ps.getProfile(profileId);
 
         if (profile == null) {
             logger.error("ProfileSubmitServlet: Profile " + profileId + " not found");
@@ -253,7 +253,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         logger.debug("ProfileSubmitServlet: profile: " + profileId);
 
         ProfileSubsystem ps = processor.getProfileSubsystem();
-        IProfile profile = ps.getProfile(profileId);
+        Profile profile = ps.getProfile(profileId);
 
         if (profile == null) {
             logger.error("ProfileSubmitServlet: Profile " + profileId + " not found");
@@ -272,7 +272,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         return processor.processRenewal(data, request, null);
     }
 
-    private void setOutputIntoArgs(IProfile profile, ArgList outputlist, Locale locale, IRequest req) {
+    private void setOutputIntoArgs(Profile profile, ArgList outputlist, Locale locale, IRequest req) {
         Enumeration<String> outputIds = profile.getProfileOutputIds();
 
         if (outputIds != null) {
@@ -350,7 +350,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         return xmlOutput;
     }
 
-    private void xmlOutput(HttpServletResponse httpResp, IProfile profile, Locale locale, IRequest[] reqs) {
+    private void xmlOutput(HttpServletResponse httpResp, Profile profile, Locale locale, IRequest[] reqs) {
         try {
             XMLObject xmlObj = null;
             xmlObj = new XMLObject();

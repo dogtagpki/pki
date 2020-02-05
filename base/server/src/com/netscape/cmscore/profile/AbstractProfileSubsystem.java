@@ -31,7 +31,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.IProfileAuthenticator;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.registry.PluginRegistry;
@@ -44,7 +44,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
 
     protected IConfigStore mConfig = null;
     protected ISubsystem mOwner;
-    protected LinkedHashMap<String, IProfile> mProfiles = new LinkedHashMap<String, IProfile>();
+    protected LinkedHashMap<String, Profile> mProfiles = new LinkedHashMap<String, Profile>();
     protected Hashtable<String, String> mProfileClassIds = new Hashtable<String, String>();
 
     /**
@@ -71,7 +71,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
     }
 
     public boolean isProfileEnable(String id) throws EBaseException{
-        IProfile profile = mProfiles.get(id);
+        Profile profile = mProfiles.get(id);
         String enable = profile.getConfigStore().getString(PROP_ENABLE, null);
         return Boolean.valueOf(enable);
     }
@@ -79,7 +79,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
     public String getProfileEnableBy(String id) throws EBaseException {
         if (!isProfileEnable(id))
             return null;
-        IProfile profile = mProfiles.get(id);
+        Profile profile = mProfiles.get(id);
         return profile.getConfigStore().getString(PROP_ENABLE_BY, null);
     }
 
@@ -88,7 +88,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
      */
     public void enableProfile(String id, String enableBy)
             throws EProfileException {
-        IProfile profile = mProfiles.get(id);
+        Profile profile = mProfiles.get(id);
 
         profile.getConfigStore().putString(PROP_ENABLE, "true");
         profile.getConfigStore().putString(PROP_ENABLE_BY, enableBy);
@@ -97,7 +97,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
     /**
      * Retrieves a profile by id.
      */
-    public IProfile getProfile(String id)
+    public Profile getProfile(String id)
             throws EProfileException {
         return mProfiles.get(id);
     }
@@ -107,7 +107,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
      */
     public void disableProfile(String id)
             throws EProfileException {
-        IProfile profile = mProfiles.get(id);
+        Profile profile = mProfiles.get(id);
 
         profile.getConfigStore().putString(PROP_ENABLE, "false");
     }
@@ -128,9 +128,9 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         String classId = mProfileClassIds.get(id);
         IPluginInfo info = registry.getPluginInfo("profile", classId);
         String className = info.getClassName();
-        IProfile newProfile = null;
+        Profile newProfile = null;
         try {
-            newProfile = (IProfile) Class.forName(className).newInstance();
+            newProfile = (Profile) Class.forName(className).newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new EProfileException("Could not instantiate class '"
                     + classId + "' for profile '" + id + "': " + e);
@@ -170,7 +170,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         return mProfileClassIds.get(id);
     }
 
-    public IProfileAuthenticator getProfileAuthenticator(IProfile profile) throws EBaseException {
+    public IProfileAuthenticator getProfileAuthenticator(Profile profile) throws EBaseException {
 
         String authenticatorID = profile.getAuthenticatorId();
         if (StringUtils.isEmpty(authenticatorID)) return null;

@@ -40,7 +40,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.IProfileAuthenticator;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -265,7 +265,7 @@ public class TokenAuthentication implements IAuthManager,
 
     // Profile-related methods
 
-    public void init(IProfile profile, IConfigStore config)
+    public void init(Profile profile, IConfigStore config)
             throws EProfileException {
     }
 

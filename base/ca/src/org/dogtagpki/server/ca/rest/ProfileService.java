@@ -71,7 +71,7 @@ import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.CAEnrollProfile;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
@@ -159,7 +159,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         return createOKResponse(infos);
     }
 
-    private IProfile getProfile(String profileId) throws ProfileNotFoundException {
+    private Profile getProfile(String profileId) throws ProfileNotFoundException {
         boolean visibleOnly = true;
 
         if (profileId == null) {
@@ -182,7 +182,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                     visibleOnly = false;
         }
 
-        IProfile profile;
+        Profile profile;
         try {
             profile = ps.getProfile(profileId);
         } catch (EProfileException e) {
@@ -220,7 +220,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     @Override
     public Response retrieveProfileRaw(String profileId) throws Exception {
-        IProfile profile = getProfile(profileId);
+        Profile profile = getProfile(profileId);
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         // add profileId and classId "virtual" properties
         profile.getConfigStore().put("profileId", profileId);
@@ -231,7 +231,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
 
     public ProfileData createProfileData(String profileId) throws EBaseException {
-        IProfile profile = getProfile(profileId);
+        Profile profile = getProfile(profileId);
 
         ProfileData data = new ProfileData();
 
@@ -294,7 +294,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         return data;
     }
 
-    public ProfilePolicy createProfilePolicy(IProfile profile, String setId, String policyId) throws EBaseException {
+    public ProfilePolicy createProfilePolicy(Profile profile, String setId, String policyId) throws EBaseException {
         IProfilePolicy policy = profile.getProfilePolicy(setId, policyId);
         IConfigStore policyStore = profile.getConfigStore().getSubStore(
                 "policyset." + setId + "." + policy.getId());
@@ -308,7 +308,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         return p;
     }
 
-    public static ProfileInput createProfileInput(IProfile profile, String inputId, Locale locale) throws EBaseException {
+    public static ProfileInput createProfileInput(Profile profile, String inputId, Locale locale) throws EBaseException {
         IProfileInput profileInput = profile.getProfileInput(inputId);
         if (profileInput == null)
             return null;
@@ -319,7 +319,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         return new ProfileInput(profileInput, inputId, classId, locale);
     }
 
-    public static ProfileOutput createProfileOutput(IProfile profile, String outputId, Locale locale) throws EBaseException {
+    public static ProfileOutput createProfileOutput(Profile profile, String outputId, Locale locale) throws EBaseException {
         IProfileOutput profileOutput = profile.getProfileOutput(outputId);
         if (profileOutput == null)
             return null;
@@ -341,7 +341,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
         ProfileDataInfo ret = null;
 
-        IProfile profile = null;
+        Profile profile = null;
 
         profile = ps.getProfile(profileId);
         if (profile == null) {
@@ -385,7 +385,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
 
         try {
-            IProfile profile = ps.getProfile(profileId);
+            Profile profile = ps.getProfile(profileId);
             if (profile == null) {
                 logger.error("Trying to modify profile: " + profileId + ".  Profile not found.");
                 throw new ProfileNotFoundException(profileId);
@@ -459,7 +459,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             throw new PKIException("Error creating profile.  Profile Service not available");
         }
 
-        IProfile profile = null;
+        Profile profile = null;
         String profileId = data.getId();
         Map<String, String> auditParams = new LinkedHashMap<String, String>();
         try {
@@ -565,7 +565,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             properties.store(out, null);
             data = out.toByteArray();  // original data sans profileId, classId
 
-            IProfile profile = ps.getProfile(profileId);
+            Profile profile = ps.getProfile(profileId);
             if (profile != null) {
                 String message = "Unable to create profile: Profile already exists";
                 logger.error(message);
@@ -578,9 +578,9 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             String className = info.getClassName();
 
             // create temporary profile to verify profile configuration
-            IProfile tempProfile;
+            Profile tempProfile;
             try {
-                tempProfile = (IProfile) Class.forName(className).newInstance();
+                tempProfile = (Profile) Class.forName(className).newInstance();
             } catch (Exception e) {
                 String message = "Unable to create profile: " + e.getMessage();
                 logger.error(message, e);
@@ -648,7 +648,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             throw new PKIException("Error modifying profile.  Profile Service not available");
         }
 
-        IProfile profile = null;
+        Profile profile = null;
         try {
             profile = ps.getProfile(profileId);
             if (profile == null) {
@@ -698,7 +698,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         properties.remove("classId");
 
         try {
-            IProfile profile = ps.getProfile(profileId);
+            Profile profile = ps.getProfile(profileId);
             if (profile == null) {
                 throw new ProfileNotFoundException(profileId);
             }
@@ -711,9 +711,9 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             String classId = ps.getProfileClassId(profileId);
             String className =
                 registry.getPluginInfo("profile", classId).getClassName();
-            IProfile tempProfile;
+            Profile tempProfile;
             try {
-                tempProfile = (IProfile) Class.forName(className).newInstance();
+                tempProfile = (Profile) Class.forName(className).newInstance();
             } catch (Exception e) {
                 throw new PKIException(
                     "Error instantiating profile class: " + className);
@@ -740,7 +740,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
     }
 
-    private void changeProfileData(ProfileData data, IProfile profile) throws Exception {
+    private void changeProfileData(ProfileData data, Profile profile) throws Exception {
         String profileId = data.getId();
         if (profile == null) {
             logger.error("changeProfileData - profile is null");
@@ -827,7 +827,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         return false;
     }
 
-    private void populateProfilePolicies(ProfileData data, IProfile profile) throws EBaseException {
+    private void populateProfilePolicies(ProfileData data, Profile profile) throws EBaseException {
         // get list of changes for auditing
         List<String> auditAdd = new ArrayList<String>();
         List<String> auditModify = new ArrayList<String>();
@@ -952,7 +952,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
     }
 
-    private void populateProfileOutputs(ProfileData data, IProfile profile) throws EBaseException {
+    private void populateProfileOutputs(ProfileData data, Profile profile) throws EBaseException {
         // get list of changes for auditing
         List<String> auditAdd = new ArrayList<String>();
         List<String> auditModify = new ArrayList<String>();
@@ -1043,7 +1043,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
     }
 
-    private void populateProfileInputs(ProfileData data, IProfile profile) throws EBaseException {
+    private void populateProfileInputs(ProfileData data, Profile profile) throws EBaseException {
         // get list of changes for auditing
         List<String> auditAdd = new ArrayList<String>();
         List<String> auditModify = new ArrayList<String>();
@@ -1147,7 +1147,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
 
         try {
-            IProfile profile = ps.getProfile(profileId);
+            Profile profile = ps.getProfile(profileId);
             if (profile == null) {
                 logger.error("Trying to delete profile: " + profileId + ".  Profile already deleted.");
                 throw new ProfileNotFoundException(profileId);

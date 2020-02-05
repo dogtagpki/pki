@@ -116,7 +116,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.IProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -625,7 +625,7 @@ public class CRSEnrollment extends HttpServlet {
             verifyRequest(req, cx);
             unwrapPKCS10(req, cx);
 
-            IProfile profile = mProfileSubsystem.getProfile(mProfileId);
+            Profile profile = mProfileSubsystem.getProfile(mProfileId);
             if (profile == null) {
                 logger.error("Profile '" + mProfileId + "' not found.");
                 throw new ServletException("Profile '" + mProfileId + "' not found.");
@@ -1554,7 +1554,7 @@ public class CRSEnrollment extends HttpServlet {
 
             // XXX authentication handling
             logger.debug("Found profile=" + mProfileId);
-            IProfile profile = mProfileSubsystem.getProfile(mProfileId);
+            Profile profile = mProfileSubsystem.getProfile(mProfileId);
             if (profile == null) {
                 logger.error("profile " + mProfileId + " not found");
                 return null;

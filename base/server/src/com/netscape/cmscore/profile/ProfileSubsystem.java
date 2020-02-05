@@ -26,7 +26,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -108,12 +108,12 @@ public class ProfileSubsystem
     /**
      * Creates a profile instance.
      */
-    public IProfile createProfile(String id, String classid, String className)
+    public Profile createProfile(String id, String classid, String className)
             throws EProfileException {
         return createProfile(id, classid, className, null, true);
     }
 
-    private IProfile createProfile(String id, String classid, String className,
+    private Profile createProfile(String id, String classid, String className,
             String configPath,
             boolean isNew) throws EProfileException {
 
@@ -138,7 +138,7 @@ public class ProfileSubsystem
             IConfigStore subStoreConfig = engine.createFileConfigStore(configPath);
 
             logger.debug("ProfileSubsystem: Initializing " + className);
-            IProfile profile = (IProfile) Class.forName(className).newInstance();
+            Profile profile = (Profile) Class.forName(className).newInstance();
             profile.setId(id);
             profile.init(this, subStoreConfig);
 

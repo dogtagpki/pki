@@ -44,7 +44,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.cert.CertRequestInfoFactory;
 import com.netscape.cms.servlet.cert.CertReviewResponseFactory;
@@ -161,7 +161,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         }
 
         String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
-        IProfile profile = ps.getProfile(profileId);
+        Profile profile = ps.getProfile(profileId);
         CertReviewResponse info = CertReviewResponseFactory.create(request, profile, uriInfo, locale);
 
         if (ca.noncesEnabled()) {

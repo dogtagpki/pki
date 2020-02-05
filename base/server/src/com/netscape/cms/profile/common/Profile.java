@@ -25,12 +25,14 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyConstraint;
@@ -41,6 +43,7 @@ import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -52,11 +55,28 @@ import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
- * This class implements a basic profile.
+ * This class implements a basic profile. A profile contains
+ * a list of input policies, default policies, constraint
+ * policies and output policies.
+ * <p>
  *
- * @version $Revision$, $Date$
+ * The input policy is for building the enrollment page.
+ * <p>
+ *
+ * The default policy is for populating user-supplied and system-supplied values into the request.
+ * <p>
+ *
+ * The constraint policy is for validating the request before processing.
+ * <p>
+ *
+ * The output policy is for building the result page.
+ * <p>
+ *
+ * Each profile can have multiple policy set. Each set is composed of zero or more default policies and zero or more
+ * constraint policies.
+ * <p>
  */
-public abstract class Profile implements IProfile {
+public abstract class Profile {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Profile.class);
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
@@ -111,6 +131,9 @@ public abstract class Profile implements IProfile {
         }
     }
 
+    /**
+     * Is this a renewal profile
+     */
     public String isRenewal() {
         try {
             return mConfig.getString(PROP_IS_RENEWAL, "false");
@@ -123,6 +146,9 @@ public abstract class Profile implements IProfile {
         mConfig.putBoolean(PROP_IS_RENEWAL, renewal);
     }
 
+    /**
+     * is output going to be in xml?
+     */
     public String isXmlOutput() {
         try {
             return mConfig.getString(PROP_XML_OUTPUT, "false");
@@ -135,6 +161,12 @@ public abstract class Profile implements IProfile {
         mConfig.putBoolean(PROP_XML_OUTPUT, xmlOutput);
     }
 
+    /**
+     * Retrieves the user id of the person who
+     * approves this profile.
+     *
+     * @return user id of the approver of this profile
+     */
     public String getApprovedBy() {
         try {
             return mConfig.getString(PROP_ENABLE_BY, "");
@@ -143,22 +175,50 @@ public abstract class Profile implements IProfile {
         }
     }
 
+    /**
+     * Sets id of this profile.
+     *
+     * @param id profile identifier
+     */
     public void setId(String id) {
         mId = id;
     }
 
+    /**
+     * Returns the identifier of this profile.
+     *
+     * @return profile id
+     */
     public String getId() {
         return mId;
     }
 
+    /**
+     * Retrieves a localized string that represents
+     * requestor's distinguished name. This string
+     * displayed in the request listing user interface.
+     *
+     * @param request request
+     * @return distringuished name of the request owner
+     */
     public String getRequestorDN(IRequest request) {
         return null;
     }
 
+    /**
+     * Retrieves the instance id of the authenticator for this profile.
+     *
+     * @return authenticator instance id
+     */
     public String getAuthenticatorId() {
         return mAuthInstanceId;
     }
 
+    /**
+     * Sets the instance id of the authenticator for this profile.
+     *
+     * @param id authenticator instance id
+     */
     public void setAuthenticatorId(String id) {
         mAuthInstanceId = id;
         mConfig.putString("auth." + PROP_INSTANCE_ID, id);
@@ -175,6 +235,10 @@ public abstract class Profile implements IProfile {
 
     /**
      * Initializes this profile.
+     *
+     * @param owner profile subsystem
+     * @param config configuration store for this profile
+     * @exception EBaseException failed to initialize
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
@@ -329,6 +393,20 @@ public abstract class Profile implements IProfile {
         logger.debug("Profile: done init");
     }
 
+    /**
+     * Retrieves the request queue that is associated with
+     * this profile. The request queue is for creating
+     * new requests.
+     *
+     * @return request queue
+     */
+    public abstract IRequestQueue getRequestQueue();
+
+    /**
+     * Retrieves the configuration store of this profile.
+     *
+     * @return configuration store
+     */
     public IConfigStore getConfigStore() {
         return mConfig;
     }
@@ -345,18 +423,40 @@ public abstract class Profile implements IProfile {
         return mUpdaters.get(name);
     }
 
+    /**
+     * Retrieves a list of output policy IDs.
+     *
+     * @return output policy id list
+     */
     public Enumeration<String> getProfileOutputIds() {
         return mOutputIds.elements(); // ordered list
     }
 
+    /**
+     * Retrieves output policy by id.
+     *
+     * @param id output policy id
+     * @return output policy instance
+     */
     public IProfileOutput getProfileOutput(String name) {
         return mOutputs.get(name);
     }
 
+    /**
+     * Retrieves a list of input policy IDs.
+     *
+     * @return input policy id list
+     */
     public Enumeration<String> getProfileInputIds() {
         return mInputIds.elements(); // ordered list
     }
 
+    /**
+     * Retrieves input policy by id.
+     *
+     * @param id input policy id
+     * @return input policy instance
+     */
     public IProfileInput getProfileInput(String name) {
         return mInputs.get(name);
     }
@@ -378,10 +478,22 @@ public abstract class Profile implements IProfile {
             String value) throws EProfileException {
     }
 
+    /**
+     * Returns the profile policy set identifiers.
+     *
+     * @return a list of policy set id
+     */
     public Enumeration<String> getProfilePolicySetIds() {
         return mPolicySet.keys();
     }
 
+    /**
+     * Deletes a policy.
+     *
+     * @param setId id of the policy set
+     * @param policyId id of policy to delete
+     * @exception EProfileException failed to delete
+     */
     public void deleteProfilePolicy(String setId, String policyId)
             throws EProfileException {
         Vector<IProfilePolicy> policies = mPolicySet.get(setId);
@@ -451,6 +563,10 @@ public abstract class Profile implements IProfile {
 
     }
 
+    /**
+     * Delete all profile policies
+     * @exception EProfileException
+     */
     public void deleteAllProfilePolicies() throws EProfileException {
         for (Map.Entry<String, Vector<IProfilePolicy>> entry : mPolicySet.entrySet()) {
             String setId = entry.getKey();
@@ -463,6 +579,12 @@ public abstract class Profile implements IProfile {
         mPolicySet.clear();
     }
 
+    /**
+     * Deletes input policy by id.
+     *
+     * @param inputId id of the input policy
+     * @exception EProfileException failed to delete
+     */
     public void deleteProfileInput(String inputId) throws EProfileException {
         try {
             mConfig.removeSubStore("input." + inputId);
@@ -503,6 +625,10 @@ public abstract class Profile implements IProfile {
         }
     }
 
+    /**
+     * Delete all profile inputs
+     * @throws EProfileException
+     */
     public void deleteAllProfileInputs() throws EProfileException {
         // need to use a copy here because we are removing elements from the vector
         Vector<String> inputs = new Vector<String>(mInputIds);
@@ -511,6 +637,12 @@ public abstract class Profile implements IProfile {
         }
     }
 
+    /**
+     * Deletes output policy by id.
+     *
+     * @param outputId id of the output policy
+     * @exception EProfileException failed to delete
+     */
     public void deleteProfileOutput(String outputId) throws EProfileException {
         try {
             mConfig.removeSubStore("output." + outputId);
@@ -551,6 +683,10 @@ public abstract class Profile implements IProfile {
         }
     }
 
+    /**
+     * Delete all profile inputs
+     * @exception EProfileException
+     */
     public void deleteAllProfileOutputs() throws EProfileException {
      // need to use a copy here because we are removing elements from the vector
         Vector<String> outputs = new Vector<String>(mOutputIds);
@@ -559,6 +695,15 @@ public abstract class Profile implements IProfile {
         }
     }
 
+    /**
+     * Creates a output policy.
+     *
+     * @param id output policy id
+     * @param outputClassId id of the registered output implementation
+     * @param nvp default parameters
+     * @return output policy
+     * @exception EProfileException failed to create
+     */
     public IProfileOutput createProfileOutput(String id, String outputId,
             NameValuePairs nvps)
             throws EProfileException {
@@ -653,6 +798,15 @@ public abstract class Profile implements IProfile {
         return output;
     }
 
+    /**
+     * Creates a input policy.
+     *
+     * @param id input policy id
+     * @param inputClassId id of the registered input implementation
+     * @param nvp default parameters
+     * @return input policy
+     * @exception EProfileException failed to create
+     */
     public IProfileInput createProfileInput(String id, String inputId,
             NameValuePairs nvps)
             throws EProfileException {
@@ -747,7 +901,14 @@ public abstract class Profile implements IProfile {
     }
 
     /**
-     * Creates a profile policy
+     * Creates a profile policy.
+     *
+     * @param setId id of the policy set that owns this policy
+     * @param id policy id
+     * @param defaultClassId id of the registered default implementation
+     * @param constraintClassId id of the registered constraint implementation
+     * @exception EProfileException failed to create policy
+     * @return profile policy instance
      */
     public IProfilePolicy createProfilePolicy(String setId, String id,
             String defaultClassId, String constraintClassId)
@@ -990,6 +1151,13 @@ public abstract class Profile implements IProfile {
         return policy;
     }
 
+    /**
+     * Retrieves a policy.
+     *
+     * @param setId set id
+     * @param id policy id
+     * @return profile policy
+     */
     public IProfilePolicy getProfilePolicy(String setId, String id) {
         Vector<IProfilePolicy> policies = mPolicySet.get(setId);
 
@@ -1006,6 +1174,14 @@ public abstract class Profile implements IProfile {
         return null;
     }
 
+    /**
+     * Checks if this profile is end-user profile or not.
+     * End-user profile will be displayed to the end user.
+     * Non end-user profile mainly is for registration
+     * manager.
+     *
+     * @return end-user profile or not
+     */
     public boolean isVisible() {
         try {
             return mConfig.getBoolean(PROP_VISIBLE, false);
@@ -1014,12 +1190,20 @@ public abstract class Profile implements IProfile {
         }
     }
 
+    /**
+     * Sets this profile end-user profile or not.
+     *
+     * @param v end-user profile or not
+     */
     public void setVisible(boolean v) {
         mConfig.putBoolean(PROP_VISIBLE, v);
     }
 
     /**
      * Returns the profile name.
+     *
+     * @param locale end-user locale
+     * @return localized profile name
      */
     public String getName(Locale locale) {
         try {
@@ -1029,17 +1213,33 @@ public abstract class Profile implements IProfile {
         }
     }
 
+    /**
+     * Returns the profile name.
+     *
+     * @param locale end-user locale
+     * @param name profile name
+     */
     public void setName(Locale locale, String name) {
         mConfig.putString(PROP_NAME, name);
     }
 
     /**
-     * Creates request.
+     * Creates one or more requests. Normally, only one request will
+     * be created. In case of CRMF request, multiple requests may be
+     * created for one submission.
+     *
+     * @param ctx profile context
+     * @param locale user locale
+     * @return a list of requests
+     * @exception Exception failed to create requests
      */
     public abstract IRequest[] createRequests(Map<String, String> ctx, Locale locale) throws Exception;
 
     /**
      * Returns the profile description.
+     *
+     * @param locale end-user locale
+     * @return localized profile description
      */
     public String getDescription(Locale locale) {
         try {
@@ -1049,10 +1249,23 @@ public abstract class Profile implements IProfile {
         }
     }
 
+    /**
+     * Returns the profile description.
+     *
+     * @param locale end-user locale
+     * @param desc profile description
+     */
     public void setDescription(Locale locale, String desc) {
         mConfig.putString(PROP_DESC, desc);
     }
 
+    /**
+     * Populates user-supplied input values into the requests.
+     *
+     * @param ctx profile context
+     * @param request request
+     * @exception Exception failed to populate
+     */
     public void populateInput(Map<String, String> ctx, IRequest request) throws Exception {
 
         Enumeration<String> ids = getProfileInputIds();
@@ -1072,8 +1285,21 @@ public abstract class Profile implements IProfile {
     }
 
     /**
+     * Retrieves a default set id for the given request.
+     * It is the profile's responsibility to return
+     * an appropriate set id for the request.
+     *
+     * @param req request
+     * @return policy set id
+     */
+    public abstract String getPolicySetId(IRequest req);
+
+    /**
      * Passes the request to the set of default policies that
      * populate the profile information against the profile.
+     *
+     * @param request request
+     * @exception EProfileException failed to populate default values
      */
     public void populate(IRequest request)
             throws EProfileException {
@@ -1092,6 +1318,9 @@ public abstract class Profile implements IProfile {
     /**
      * Passes the request to the set of constraint policies
      * that validate the request against the profile.
+     *
+     * @param request request
+     * @exception ERejectException validation violation
      */
     public void validate(IRequest request)
             throws ERejectException {
@@ -1109,6 +1338,12 @@ public abstract class Profile implements IProfile {
         logger.debug("Profile: validate end");
     }
 
+    /**
+     * Returns a list of profile policies.
+     *
+     * @param setId set id
+     * @return a list of policies
+     */
     public Enumeration<IProfilePolicy> getProfilePolicies(String setId) {
         Vector<IProfilePolicy> policies = mPolicySet.get(setId);
 
@@ -1117,6 +1352,12 @@ public abstract class Profile implements IProfile {
         return policies.elements();
     }
 
+    /**
+     * Retrieves all the policy id within a set.
+     *
+     * @param setId set id
+     * @return a list of policy id
+     */
     public Enumeration<String> getProfilePolicyIds(String setId) {
         Vector<IProfilePolicy> policies = mPolicySet.get(setId);
 
@@ -1133,9 +1374,26 @@ public abstract class Profile implements IProfile {
         return v.elements();
     }
 
+    /**
+     * Process a request after validation.
+     *
+     * @param request request to be processed
+     * @exception EProfileException failed to process
+     */
     public void execute(IRequest request)
             throws EProfileException {
     }
+
+    /**
+     * Handles end-user request submission.
+     *
+     * @param token authentication token
+     * @param request request to be processed
+     * @exception EDeferException defer request
+     * @exception EProfileException failed to submit
+     */
+    public abstract void submit(IAuthToken token, IRequest request)
+            throws EDeferException, EProfileException;
 
     /**
      * Signed Audit Log Subject ID

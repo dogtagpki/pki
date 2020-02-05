@@ -63,7 +63,7 @@ import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -428,7 +428,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new PKIException(message);
         }
 
-        IProfile profile = null;
+        Profile profile = null;
         try {
             profile = ps.getProfile(profileId);
             if (profile == null) {

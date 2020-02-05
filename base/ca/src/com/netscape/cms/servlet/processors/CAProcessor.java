@@ -62,7 +62,7 @@ import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.profile.IProfileAuthenticator;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
@@ -867,7 +867,7 @@ public class CAProcessor extends Processor {
         }
     }
 
-    public void authorize(String profileId, IProfile profile, IAuthToken authToken) throws EBaseException {
+    public void authorize(String profileId, Profile profile, IAuthToken authToken) throws EBaseException {
         if (authToken != null) {
             logger.debug("CertProcessor authToken not null");
 

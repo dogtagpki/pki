@@ -57,7 +57,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
 import com.netscape.cmscore.apps.CMS;
@@ -78,7 +78,7 @@ public class RequestProcessor extends CertProcessor {
         IRequest ireq = cmsReq.getIRequest();
 
         String profileId = ireq.getExtDataInString(IRequest.PROFILE_ID);
-        IProfile profile = ps.getProfile(profileId);
+        Profile profile = ps.getProfile(profileId);
         CertReviewResponse data = CertReviewResponseFactory.create(
                 cmsReq, profile, authority.noncesEnabled(), locale);
 
@@ -149,7 +149,7 @@ public class RequestProcessor extends CertProcessor {
             }
             logger.debug("RequestProcessor: profileId=" + profileId);
 
-            IProfile profile = ps.getProfile(profileId);
+            Profile profile = ps.getProfile(profileId);
             if (profile == null) {
                 logger.error(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
@@ -243,7 +243,7 @@ public class RequestProcessor extends CertProcessor {
      * Check if the request creation time is older than the profile
      * lastModified attribute.
      */
-    private void checkProfileVersion(IProfile profile, IRequest req) throws EProfileException {
+    private void checkProfileVersion(Profile profile, IRequest req) throws EProfileException {
         IConfigStore profileConfig = profile.getConfigStore();
         if (profileConfig != null) {
             String lastModified = null;
@@ -369,7 +369,7 @@ public class RequestProcessor extends CertProcessor {
      * @exception EProfileException an error related to this profile has
      *                occurred
      */
-    private void approveRequest(IRequest req, CertReviewResponse data, IProfile profile, Locale locale)
+    private void approveRequest(IRequest req, CertReviewResponse data, Profile profile, Locale locale)
             throws EBaseException {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
@@ -414,7 +414,7 @@ public class RequestProcessor extends CertProcessor {
     }
 
     private void updateValues(CertReviewResponse data, IRequest req,
-            IProfile profile, Locale locale)
+            Profile profile, Locale locale)
             throws ERejectException, EDeferException, EPropertyException {
 
         // put request policy defaults in a local hash

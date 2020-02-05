@@ -47,7 +47,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.IProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.tomcat.ExternalPrincipal;
@@ -90,7 +90,7 @@ public class CertProcessor extends CAProcessor {
         }
     }
 
-    private void setInputsIntoRequest(CertEnrollmentRequest data, IProfile profile, IRequest req) {
+    private void setInputsIntoRequest(CertEnrollmentRequest data, Profile profile, IRequest req) {
         // put profile inputs into a local map
         HashMap<String, String> dataInputs = new HashMap<String, String>();
         for (ProfileInput input : data.getInputs()) {
@@ -172,7 +172,7 @@ public class CertProcessor extends CAProcessor {
      * This is expected to be used by renewal where the request
      * is retrieved from request record
      */
-    private void setInputsIntoRequest(IRequest request, IProfile profile, IRequest req, Locale locale) {
+    private void setInputsIntoRequest(IRequest request, Profile profile, IRequest req, Locale locale) {
         logger.debug("CertProcessor: setInputsIntoRequest()");
         // passing inputs into request
         Enumeration<String> inputIds = profile.getProfileInputIds();
@@ -218,7 +218,7 @@ public class CertProcessor extends CAProcessor {
         return null;
     }
 
-    protected String submitRequests(Locale locale, IProfile profile, IAuthToken authToken, IRequest[] reqs) {
+    protected String submitRequests(Locale locale, Profile profile, IAuthToken authToken, IRequest[] reqs) {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
         String errorCode = null;
@@ -318,7 +318,7 @@ public class CertProcessor extends CAProcessor {
 
     protected void populateRequests(CertEnrollmentRequest data, boolean isRenewal,
             Locale locale, Date origNotAfter, String origSubjectDN, IRequest origReq, String profileId,
-            IProfile profile, Map<String, String> ctx, IProfileAuthenticator authenticator, IAuthToken authToken,
+            Profile profile, Map<String, String> ctx, IProfileAuthenticator authenticator, IAuthToken authToken,
             IRequest[] reqs) throws Exception {
 
         for (IRequest req : reqs) {

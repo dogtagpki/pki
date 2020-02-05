@@ -40,7 +40,7 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -58,7 +58,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     @SuppressWarnings("unused")
-    private IProfile mProfile;
+    private Profile mProfile;
     private IConfigStore mConfig = null;
 
     private Vector<String> mConfigNames = new Vector<String>();
@@ -66,7 +66,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     public SubsystemGroupUpdater() {
     }
 
-    public void init(IProfile profile, IConfigStore config)
+    public void init(Profile profile, IConfigStore config)
             throws EProfileException {
         mConfig = config;
         mProfile = profile;

@@ -86,7 +86,7 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.profile.common.IProfile;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.connector.HttpConnector;
@@ -333,7 +333,7 @@ public class CAService implements ICAService, IService {
 
         CAEngine engine = (CAEngine) CMS.getCMSEngine();
         ProfileSubsystem ps = engine.getProfileSubsystem();
-        IProfile profile = null;
+        Profile profile = null;
 
         try {
             profile = ps.getProfile(profileId);
