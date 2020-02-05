@@ -57,6 +57,7 @@ import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * This base class provides methods to import CA signing cert or get certificate
@@ -177,7 +178,7 @@ public abstract class CertificateInfo {
                     new CertificateVersion(CertificateVersion.V3));
 
             PublicKey pubk = mKeyPair.getPublic();
-            X509Key xKey = KeyCertUtil.convertPublicKeyToX509Key(pubk);
+            X509Key xKey = CryptoUtil.createX509Key(pubk);
 
             certInfo.set(X509CertInfo.KEY, new CertificateX509Key(xKey));
             //SignatureAlgorithm algm = getSigningAlgorithm();

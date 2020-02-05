@@ -34,8 +34,6 @@ import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.security.interfaces.DSAParams;
-import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.Enumeration;
@@ -539,7 +537,7 @@ public class KeyCertUtil {
             InvalidKeyException, IOException, CertificateException,
             SignatureException {
         PublicKey pubk = keyPair.getPublic();
-        X509Key key = convertPublicKeyToX509Key(pubk);
+        X509Key key = CryptoUtil.createX509Key(pubk);
         String alg;
 
         if (pubk instanceof RSAPublicKey) {
@@ -571,7 +569,7 @@ public class KeyCertUtil {
             InvalidKeyException, IOException, CertificateException,
             SignatureException {
         PublicKey pubk = keyPair.getPublic();
-        X509Key key = convertPublicKeyToX509Key(pubk);
+        X509Key key = CryptoUtil.createX509Key(pubk);
         String alg;
 
         if (pubk instanceof RSAPublicKey) {
@@ -607,35 +605,6 @@ public class KeyCertUtil {
         pkcs10.encodeAndSign(signer);
 
         return pkcs10;
-    }
-
-    public static X509Key convertPublicKeyToX509Key(PublicKey pubk)
-            throws InvalidKeyException {
-
-        X509Key xKey;
-
-        if (pubk instanceof RSAPublicKey) {
-            RSAPublicKey rsaKey = (RSAPublicKey) pubk;
-
-            // REMOVED constructors from parameters by MLH on 1/9/99
-            xKey = new org.mozilla.jss.netscape.security.provider.RSAPublicKey(
-                        new BigInt(rsaKey.getModulus()),
-                        new BigInt(rsaKey.getPublicExponent()));
-        } else if (pubk instanceof PK11ECPublicKey) {
-            byte encoded[] = pubk.getEncoded();
-            xKey = CryptoUtil.getPublicX509ECCKey(encoded);
-
-        } else {
-            DSAPublicKey dsaKey = (DSAPublicKey) pubk;
-            DSAParams params = dsaKey.getParams();
-
-            xKey = new org.mozilla.jss.netscape.security.provider.DSAPublicKey(
-                        dsaKey.getY(),
-                        params.getP(),
-                        params.getQ(),
-                        params.getG());
-        }
-        return xKey;
     }
 
     public static X509Certificate
@@ -1036,8 +1005,7 @@ public class KeyCertUtil {
 
     public static KeyIdentifier createKeyIdentifier(KeyPair keypair)
             throws NoSuchAlgorithmException, InvalidKeyException {
-        X509Key subjectKeyInfo = convertPublicKeyToX509Key(
-                keypair.getPublic());
+        X509Key subjectKeyInfo = CryptoUtil.createX509Key(keypair.getPublic());
 
         byte[] hash = CryptoUtil.generateKeyIdentifier(subjectKeyInfo.getKey());
 
