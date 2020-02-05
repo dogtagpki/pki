@@ -22,9 +22,12 @@ from __future__ import absolute_import
 import json
 import ldap
 import logging
+import os
+import shutil
 import socket
 import struct
 import subprocess
+import tempfile
 import time
 from time import strftime as date
 
@@ -307,6 +310,28 @@ class PKIDeployer:
         self.sd_host = sd_subsystem.get_host(sd_hostname, sd_port)
 
         self.get_install_token()
+
+    def backup_keys(self, subsystem):
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            password_file = os.path.join(tmpdir, 'password.txt')
+            with open(password_file, 'w') as f:
+                f.write(self.mdict['pki_backup_password'])
+
+            cmd = [
+                'pki-server',
+                'subsystem-cert-export',
+                subsystem.name,
+                '--pkcs12-file', self.mdict['pki_backup_file'],
+                '--pkcs12-password-file', password_file
+            ]
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.run(cmd, check=True)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
     def get_tps_connector(self, instance, subsystem):
 

@@ -2979,18 +2979,6 @@ class ConfigClient:
 
         return request
 
-    def create_key_backup_request(self):
-
-        logger.info('Creating key backup request')
-
-        request = pki.system.KeyBackupRequest()
-
-        request.pin = self.mdict['pki_one_time_pin']
-
-        self.set_backup_parameters(request)
-
-        return request
-
     def create_security_domain_setup_request(self):
 
         logger.info('Creating security domain setup request')
@@ -3229,10 +3217,6 @@ class ConfigClient:
                 systemCerts.append(cert7)
 
         data.systemCerts = systemCerts
-
-    def set_backup_parameters(self, data):
-        data.backupFile = self.mdict['pki_backup_file']
-        data.backupPassword = self.mdict['pki_backup_password']
 
     def set_admin_parameters(self, data):
         data.adminEmail = self.mdict['pki_admin_email']
