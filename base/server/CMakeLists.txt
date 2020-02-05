@@ -60,12 +60,6 @@ jar(pki-cms-jar
         ${CMAKE_CURRENT_BINARY_DIR}/src/pki-cms.mf
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    FILES
-        com/netscape/cms/*
-        com/netscape/cmscore/*
-        org/dogtagpki/legacy/core/policy/*
-        org/dogtagpki/legacy/server/policy/*
-        org/dogtagpki/server/*
     DEPENDS
         pki-server-classes
 )
