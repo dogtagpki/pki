@@ -139,6 +139,7 @@ public class CMSEngine {
     private boolean ready;
 
     private Debug debug = new Debug();
+    private PluginRegistry pluginRegistry = new PluginRegistry();
     private RequestSubsystem requestSubsystem = new RequestSubsystem();
 
     public Collection<String> staticSubsystems = new LinkedHashSet<>();
@@ -457,6 +458,9 @@ public class CMSEngine {
 
         Security.addProvider(new org.mozilla.jss.netscape.security.provider.CMS());
 
+        IConfigStore pluginRegistryConfig = mConfig.getSubStore(PluginRegistry.ID);
+        pluginRegistry.init(pluginRegistryConfig);
+
         loadSubsystems();
         initSubsystems();
 
@@ -711,9 +715,6 @@ public class CMSEngine {
         staticSubsystems.add(UGSubsystem.ID);
         addSubsystem(UGSubsystem.ID, UGSubsystem.getInstance());
 
-        staticSubsystems.add(PluginRegistry.ID);
-        addSubsystem(PluginRegistry.ID, new PluginRegistry());
-
         staticSubsystems.add(OidLoaderSubsystem.ID);
         addSubsystem(OidLoaderSubsystem.ID, OidLoaderSubsystem.getInstance());
 
@@ -811,12 +812,12 @@ public class CMSEngine {
             ss.setId(id);
         }
 
-        IConfigStore ssConfig = mConfig.getSubStore(id);
         if (!ssinfo.enabled) {
             logger.debug("CMSEngine: " + id + " subsystem is disabled");
             return;
         }
 
+        IConfigStore ssConfig = mConfig.getSubStore(id);
         ss.init(ssConfig);
     }
 
@@ -1028,6 +1029,8 @@ public class CMSEngine {
     }
 
     public void startupSubsystems() throws EBaseException {
+
+        pluginRegistry.startup();
 
         startupSubsystems(staticSubsystems);
         startupSubsystems(dynSubsystems);
@@ -1243,6 +1246,8 @@ public class CMSEngine {
         if (mSecurityDomainSessionTable != null) {
             mSecurityDomainSessionTable.shutdown();
         }
+
+        pluginRegistry.shutdown();
     }
 
     /**
@@ -1324,6 +1329,8 @@ public class CMSEngine {
         shutdownSubsystems(finalSubsystems);
         shutdownSubsystems(dynSubsystems);
         shutdownSubsystems(staticSubsystems);
+
+        pluginRegistry.shutdown();
 
         shutdownHttpServer(restart);
     }
@@ -1609,6 +1616,6 @@ public class CMSEngine {
     }
 
     public PluginRegistry getPluginRegistry() {
-        return (PluginRegistry) getSubsystem(PluginRegistry.ID);
+        return pluginRegistry;
     }
 }

@@ -23,7 +23,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 public class TPSEngine extends CMSEngine {
@@ -58,9 +57,5 @@ public class TPSEngine extends CMSEngine {
 
             setSubsystemEnabled(SelfTestSubsystem.ID, false);
         }
-    }
-
-    public PluginRegistry getPluginRegistry() {
-        return (PluginRegistry) getSubsystem(PluginRegistry.ID);
     }
 }

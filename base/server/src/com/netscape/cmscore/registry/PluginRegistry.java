@@ -24,7 +24,6 @@ import java.util.StringTokenizer;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.registry.ERegistryException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cmscore.apps.CMS;
@@ -38,7 +37,7 @@ import com.netscape.cmscore.apps.EngineConfig;
  * The plugin information includes id, name,
  * classname, and description.
  */
-public class PluginRegistry implements ISubsystem {
+public class PluginRegistry {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PluginRegistry.class);
 
@@ -57,19 +56,6 @@ public class PluginRegistry implements ISubsystem {
             new Hashtable<String, Hashtable<String, IPluginInfo>>();
 
     public PluginRegistry() {
-    }
-
-    /**
-     * Retrieves the name of this subsystem.
-     */
-    public String getId() {
-        return null;
-    }
-
-    /**
-     * Sets specific to this subsystem.
-     */
-    public void setId(String id) throws EBaseException {
     }
 
     /**
