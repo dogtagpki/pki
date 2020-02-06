@@ -26,10 +26,8 @@ package com.netscape.certsrv.base;
  */
 public abstract class BaseSubsystem implements ISubsystem {
 
-    ISubsystem owner;
     IConfigStore config;
     String id;
-    boolean enabled = true;
 
     /**
      * Initializes this subsystem.
@@ -37,7 +35,6 @@ public abstract class BaseSubsystem implements ISubsystem {
      */
     public void init(IConfigStore config)
             throws EBaseException {
-        this.owner = owner;
         this.config = config;
     }
 
@@ -66,13 +63,5 @@ public abstract class BaseSubsystem implements ISubsystem {
      */
     public String getId() {
         return id;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 }

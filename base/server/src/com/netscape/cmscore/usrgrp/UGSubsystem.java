@@ -129,13 +129,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
     public void init(IConfigStore config)
             throws EBaseException {
 
-        logger.debug("UGSubsystem: initializing");
-
-        if (!isEnabled()) {
-            logger.warn("UGSubsystem: subsystem disabled");
-            return;
-        }
-
+        logger.debug("UGSubsystem: Initializing user/group subsystem");
         super.init(config);
 
         CMSEngine engine = CMS.getCMSEngine();
