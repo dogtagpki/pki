@@ -138,6 +138,7 @@ public class CMSEngine {
     private String mServerCertNickname = null;
     private boolean ready;
 
+    private Debug debug = new Debug();
     private RequestSubsystem requestSubsystem = new RequestSubsystem();
 
     public Collection<String> staticSubsystems = new LinkedHashSet<>();
@@ -410,7 +411,10 @@ public class CMSEngine {
      * @exception EBaseException if any error occur in subsystems during
      *                initialization.
      */
-    public void init() throws EBaseException {
+    public void init() throws Exception {
+
+        IConfigStore debugConfig = mConfig.getSubStore(Debug.ID);
+        debug.init(debugConfig);
 
         logger.info("Initializing " + name + " subsystem");
 
@@ -681,20 +685,6 @@ public class CMSEngine {
         si.enabled = enabled;
     }
 
-    protected void initSubsystems() throws EBaseException {
-        initSubsystems(staticSubsystems);
-        initSubsystems(dynSubsystems);
-        initSubsystems(finalSubsystems);
-    }
-
-    private void initSubsystems(Collection<String> ids)
-            throws EBaseException {
-        for (String id : ids) {
-            SubsystemInfo si = subsystemInfos.get(id);
-            initSubsystem(si);
-        }
-    }
-
     /**
      * load subsystems
      */
@@ -708,9 +698,6 @@ public class CMSEngine {
 
         subsystemInfos.clear();
         subsystems.clear();
-
-        staticSubsystems.add(Debug.ID);
-        addSubsystem(Debug.ID, Debug.getInstance());
 
         staticSubsystems.add(LogSubsystem.ID);
         addSubsystem(LogSubsystem.ID, LogSubsystem.getInstance());
@@ -789,6 +776,23 @@ public class CMSEngine {
             // in pre-op mode to prevent errors.
 
             setSubsystemEnabled(UGSubsystem.ID, false);
+        }
+    }
+
+    protected void initSubsystems() throws Exception {
+
+        logger.info("CMSEngine: Initializing subsystems");
+
+        initSubsystems(staticSubsystems);
+        initSubsystems(dynSubsystems);
+        initSubsystems(finalSubsystems);
+    }
+
+    private void initSubsystems(Collection<String> ids)
+            throws EBaseException {
+        for (String id : ids) {
+            SubsystemInfo si = subsystemInfos.get(id);
+            initSubsystem(si);
         }
     }
 
@@ -1322,7 +1326,6 @@ public class CMSEngine {
         shutdownSubsystems(staticSubsystems);
 
         shutdownHttpServer(restart);
-
     }
 
     public void disableSubsystem() {

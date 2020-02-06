@@ -20,13 +20,13 @@ package com.netscape.cmscore.util;
 import org.dogtagpki.util.logging.PKILogger;
 
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.cmscore.apps.CMS;
 
-public class Debug
-        implements ISubsystem {
+public class Debug {
 
-    private static Debug mInstance = new Debug();
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Debug.class);
+
+    public final static String ID = "debug";
+    public final static String PROP_LEVEL = "level";
 
     public static final int OBNOXIOUS = 1;
     public static final int VERBOSE = 5;
@@ -94,56 +94,17 @@ public class Debug
         PKILogger.setLevel(logLevel);
     }
 
-    /*  ISubsystem methods: */
-
-    public static String ID = "debug";
-    private static IConfigStore mConfig = null;
-
-    public String getId() {
-        return ID;
-    }
-
-    public void setId(String id) {
-        ID = id;
-    }
-
-    private static final String PROP_LEVEL = "level";
-
     /**
      * Debug subsystem initialization. This subsystem is usually
      * given the following parameters:
      */
-    public void init(IConfigStore config) {
-        mConfig = config;
+    public void init(IConfigStore config) throws Exception {
 
-        try {
-            int level = mConfig.getInteger(PROP_LEVEL, INFORM);
-            setLevel(level);
+        int level = config.getInteger(PROP_LEVEL, INFORM);
+        setLevel(level);
 
-            CMS.logger.debug("============================================");
-            CMS.logger.debug("=====  DEBUG SUBSYSTEM INITIALIZED   =======");
-            CMS.logger.debug("============================================");
-
-        } catch (Exception e) {
-            // Don't do anything. Logging is not set up yet, and
-            // we can't write to STDOUT.
-        }
+        logger.debug("============================================");
+        logger.debug("=====  DEBUG SUBSYSTEM INITIALIZED   =======");
+        logger.debug("============================================");
     }
-
-    public void startup() {
-    }
-
-    public void shutdown() {
-    }
-
-    public IConfigStore getConfigStore() {
-        return mConfig;
-    }
-
-    // for singleton
-
-    public static Debug getInstance() {
-        return mInstance;
-    }
-
 }
