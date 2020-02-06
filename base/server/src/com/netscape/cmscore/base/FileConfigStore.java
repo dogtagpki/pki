@@ -40,11 +40,7 @@ import com.netscape.cmscore.apps.CMS;
  */
 public class FileConfigStore extends ConfigStorage {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 2642124526598175633L;
-    private File mFile = null;
+    private File mFile;
 
     /**
      * Constructs a file configuration store.
@@ -55,6 +51,10 @@ public class FileConfigStore extends ConfigStorage {
      */
     public FileConfigStore(String fileName) throws Exception {
         mFile = new File(fileName);
+    }
+
+    public File getFile() {
+        return mFile;
     }
 
     public void load(IConfigStore config) throws Exception {

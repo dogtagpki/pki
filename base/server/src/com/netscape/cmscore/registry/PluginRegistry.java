@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.registry;
 
+import java.io.File;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -26,9 +27,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.registry.ERegistryException;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.PropConfigStore;
 
 /**
  * This represents the registry subsystem that manages
@@ -51,7 +51,7 @@ public class PluginRegistry {
     private static final String PROP_FILE = "file";
 
     private IConfigStore mConfig = null;
-    private IConfigStore mFileConfig = null;
+    private PropConfigStore fileConfig;
     private Hashtable<String, Hashtable<String, IPluginInfo>> mTypes =
             new Hashtable<String, Hashtable<String, IPluginInfo>>();
 
@@ -66,36 +66,32 @@ public class PluginRegistry {
      *
      * @exception EBaseException failed to initialize
      */
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(IConfigStore config, String defaultRegistryFile)
+            throws Exception {
 
         mConfig = config;
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-        String subsystem = cs.getType().toLowerCase();
-        String instanceDir = engine.getInstanceDir();
+        String registryFile = config.getString(PROP_FILE, defaultRegistryFile);
+        logger.info("PluginRegistry: Loading plugin registry from " + registryFile);
 
-        String instanceRegistryFile = instanceDir + "/conf/" + subsystem + "/registry.cfg";
-        String registryFile = mConfig.getString(PROP_FILE, instanceRegistryFile);
-        logger.info("PluginRegistry: Loading " + registryFile);
+        File f = new File(registryFile);
+        f.createNewFile();
 
-        mFileConfig = engine.createFileConfigStore(registryFile);
+        FileConfigStore storage = new FileConfigStore(registryFile);
+        fileConfig = new PropConfigStore(storage);
+        fileConfig.load();
 
-        String types_str = null;
+        String types = fileConfig.getString(PROP_TYPES, null);
 
-        try {
-            types_str = mFileConfig.getString(PROP_TYPES, null);
-        } catch (EBaseException e) {
-        }
-        if (types_str == null) {
-            logger.debug("PluginRegistry: no types");
+        if (types == null) {
             return;
         }
-        StringTokenizer st = new StringTokenizer(types_str, ",");
+
+        StringTokenizer st = new StringTokenizer(types, ",");
 
         while (st.hasMoreTokens()) {
             String type = st.nextToken();
+            logger.info("PluginRegistry: - " + type);
 
             loadPlugins(config, type);
         }
@@ -106,19 +102,18 @@ public class PluginRegistry {
      */
     public void loadPlugins(IConfigStore config, String type)
             throws EBaseException {
-        String ids_str = null;
 
-        try {
-            ids_str = mFileConfig.getString(type + "." + PROP_IDS, null);
-        } catch (EBaseException e) {
-        }
+        String ids_str = fileConfig.getString(type + "." + PROP_IDS, null);
+
         if (ids_str == null) {
             return;
         }
+
         StringTokenizer st = new StringTokenizer(ids_str, ",");
 
         while (st.hasMoreTokens()) {
             String id = st.nextToken();
+            logger.info("PluginRegistry:   - " + id);
 
             loadPlugin(config, type, id);
         }
@@ -133,25 +128,11 @@ public class PluginRegistry {
      */
     public void loadPlugin(IConfigStore config, String type, String id)
             throws EBaseException {
-        String name = null;
 
-        try {
-            name = mFileConfig.getString(type + "." + id + "." + PROP_NAME, null);
-        } catch (EBaseException e) {
-        }
-        String desc = null;
+        String name = fileConfig.getString(type + "." + id + "." + PROP_NAME, null);
+        String desc = fileConfig.getString(type + "." + id + "." + PROP_DESC, null);
+        String classpath = fileConfig.getString(type + "." + id + "." + PROP_CLASSPATH, null);
 
-        try {
-            desc = mFileConfig.getString(type + "." + id + "." + PROP_DESC, null);
-        } catch (EBaseException e) {
-        }
-        String classpath = null;
-
-        try {
-            classpath = mFileConfig.getString(type + "." + id + "." + PROP_CLASSPATH,
-                        null);
-        } catch (EBaseException e) {
-        }
         PluginInfo info = new PluginInfo(name, desc, classpath);
 
         addPluginInfo(type, id, info, 0);
@@ -174,26 +155,30 @@ public class PluginRegistry {
 
     public void addPluginInfo(String type, String id, IPluginInfo info, int saveConfig)
             throws ERegistryException {
+
         Hashtable<String, IPluginInfo> plugins = mTypes.get(type);
 
         if (plugins == null) {
             plugins = new Hashtable<String, IPluginInfo>();
             mTypes.put(type, plugins);
         }
+
         Locale locale = Locale.getDefault();
 
-        logger.debug("added plugin " + type + " " + id + " " +
+        logger.debug("PluginRegistry: Added plugin " + type + " " + id + " " +
                 info.getName(locale) + " " + info.getDescription(locale) + " " +
                 info.getClassName());
         plugins.put(id, info);
 
         // rebuild configuration store
-        if (saveConfig == 1)
+        if (saveConfig == 1) {
             rebuildConfigStore(locale);
+        }
     }
 
     public void rebuildConfigStore(Locale locale)
             throws ERegistryException {
+
         Enumeration<String> types = mTypes.keys();
         StringBuffer typesBuf = new StringBuffer();
 
@@ -204,6 +189,7 @@ public class PluginRegistry {
             if (types.hasMoreElements()) {
                 typesBuf.append(",");
             }
+
             Hashtable<String, IPluginInfo> mPlugins = mTypes.get(type);
             StringBuffer idsBuf = new StringBuffer();
             Enumeration<String> plugins = mPlugins.keys();
@@ -215,22 +201,29 @@ public class PluginRegistry {
                 if (plugins.hasMoreElements()) {
                     idsBuf.append(",");
                 }
+
                 IPluginInfo plugin = mPlugins.get(id);
 
-                mFileConfig.putString(type + "." + id + ".class",
+                fileConfig.putString(type + "." + id + ".class",
                         plugin.getClassName());
-                mFileConfig.putString(type + "." + id + ".name",
+                fileConfig.putString(type + "." + id + ".name",
                         plugin.getName(locale));
-                mFileConfig.putString(type + "." + id + ".desc",
+                fileConfig.putString(type + "." + id + ".desc",
                         plugin.getDescription(locale));
             }
-            mFileConfig.putString(type + ".ids", idsBuf.toString());
+            fileConfig.putString(type + ".ids", idsBuf.toString());
         }
-        mFileConfig.putString("types", typesBuf.toString());
+
+        fileConfig.putString("types", typesBuf.toString());
+
+        File file = ((FileConfigStore) fileConfig.getStorage()).getFile();
+
         try {
-            mFileConfig.commit(false);
-        } catch (EBaseException e) {
-            logger.warn("PluginRegistry: failed to commit registry.cfg: " + e.getMessage(), e);
+            logger.info("PluginRegistry: Updating " + file.getAbsolutePath());
+            fileConfig.commit(false);
+
+        } catch (Exception e) {
+            logger.warn("Unable to update " + file.getAbsolutePath() + ": " + e.getMessage(), e);
         }
     }
 
@@ -264,7 +257,7 @@ public class PluginRegistry {
      * Returns handle to the registry configuration file.
      */
     public IConfigStore getFileConfigStore() {
-        return mFileConfig;
+        return fileConfig;
     }
 
     /**

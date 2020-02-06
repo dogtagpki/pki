@@ -409,7 +409,7 @@ public class CMSEngine {
     /**
      * initialize all static, dynamic and final static subsystems.
      *
-     * @exception EBaseException if any error occur in subsystems during
+     * @exception Exception if any error occur in subsystems during
      *                initialization.
      */
     public void init() throws Exception {
@@ -459,7 +459,9 @@ public class CMSEngine {
         Security.addProvider(new org.mozilla.jss.netscape.security.provider.CMS());
 
         IConfigStore pluginRegistryConfig = mConfig.getSubStore(PluginRegistry.ID);
-        pluginRegistry.init(pluginRegistryConfig);
+        String subsystem = mConfig.getType().toLowerCase();
+        String defaultRegistryFile = instanceDir + "/conf/" + subsystem + "/registry.cfg";
+        pluginRegistry.init(pluginRegistryConfig, defaultRegistryFile);
 
         loadSubsystems();
         initSubsystems();
