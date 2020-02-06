@@ -50,6 +50,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
@@ -115,8 +116,6 @@ public class CMSEngine {
     public String instanceDir; /* path to instance <server-root>/cert-<instance-name> */
     private String instanceId;
     private int pid;
-
-    private CryptoManager mManager = null;
 
     protected EngineConfig mConfig;
     protected ServerXml serverXml;
@@ -457,6 +456,10 @@ public class CMSEngine {
         loadSubsystems();
         initSubsystems();
 
+        configureAutoShutdown();
+        configureServerCertNickname();
+        configureExcludedLdapAttrs();
+
         logger.debug("Java version: " + System.getProperty("java.version"));
         java.security.Provider ps[] = java.security.Security.getProviders();
 
@@ -796,7 +799,7 @@ public class CMSEngine {
             throws EBaseException {
 
         String id = ssinfo.id;
-        logger.debug("CMSEngine: initSubsystem(" + id + ")");
+        logger.info("CMSEngine: Initializing " + id + " subsystem");
 
         ISubsystem ss = subsystems.get(id);
 
@@ -806,12 +809,16 @@ public class CMSEngine {
 
         IConfigStore ssConfig = mConfig.getSubStore(id);
         if (!ssinfo.enabled) {
-            logger.debug("CMSEngine: " + id + " disabled");
+            logger.debug("CMSEngine: " + id + " subsystem is disabled");
             return;
         }
 
-        logger.debug("CMSEngine: initializing " + id);
         ss.init(ssConfig);
+    }
+
+    public void configureAutoShutdown() throws EBaseException {
+
+        logger.info("CMSEngine: Configuring auto shutdown");
 
         try {
             /*
@@ -854,10 +861,9 @@ public class CMSEngine {
              * for HSM failover detection
              */
             mSAuditCertNickName = mConfig.getString(PROP_SIGNED_AUDIT_CERT_NICKNAME);
-            mManager = CryptoManager.getInstance();
-
             logger.debug("CMSEngine: about to look for cert for auto-shutdown support:" + mSAuditCertNickName);
 
+            CryptoManager mManager = CryptoManager.getInstance();
             org.mozilla.jss.crypto.X509Certificate cert = null;
             try {
                 cert = mManager.findCertByNickname(mSAuditCertNickName);
@@ -874,15 +880,16 @@ public class CMSEngine {
         } catch (Exception e) {
             logger.warn("CMSEngine: Unable to configure auto-shutdown: " + e.getMessage(), e);
         }
+    }
 
-        // add to id - subsystem hash table.
-        logger.debug("CMSEngine: done init id=" + id);
-        logger.debug("CMSEngine: initialized " + id);
+    public void configureServerCertNickname() throws EBaseException {
+
+        String id = mConfig.getType().toLowerCase();
 
         if (id.equals("ca") || id.equals("ocsp") ||
                 id.equals("kra") || id.equals("tks")) {
 
-            logger.debug("CMSEngine: get SSL server nickname");
+            logger.info("CMSEngine: Configuring servlet certificate nickname");
             IConfigStore serverCertStore = mConfig.getSubStore(id + "." + "sslserver");
 
             if (serverCertStore != null && serverCertStore.size() > 0) {
@@ -892,20 +899,26 @@ public class CMSEngine {
                 if (tokenName != null && tokenName.length() > 0 &&
                         nickName != null && nickName.length() > 0) {
                     setServerCertNickname(tokenName, nickName);
-                    logger.debug("Subsystem " + id + " init sslserver:  tokenName:" + tokenName + "  nickName:" + nickName);
+                    logger.debug("CMSEngine: server certificate nickname: " + tokenName + ":" + nickName);
 
                 } else if (nickName != null && nickName.length() > 0) {
                     setServerCertNickname(nickName);
-                    logger.debug("Subsystem " + id + " init sslserver:  nickName:" + nickName);
+                    logger.debug("CMSEngine: server certificate nickName: " + nickName);
 
                 } else {
-                    logger.warn("Subsystem " + id + " init error: SSL server certificate nickname is not available.");
+                    logger.warn("Unable to configure server certificate nickname");
                 }
             }
         }
+    }
+
+    public void configureExcludedLdapAttrs() throws EBaseException {
+
+        String id = mConfig.getType().toLowerCase();
 
         if (id.equals("ca") || id.equals("kra")) {
 
+            logger.info("CMSEngine: Configuring excluded LDAP attributes");
             /*
               figure out if any ldap attributes need exclusion in enrollment records
               Default config:
@@ -913,23 +926,25 @@ public class CMSEngine {
                 (excludedLdapAttrs.attrs unspecified to take default)
              */
             mExcludedLdapAttrsEnabled = mConfig.getBoolean("excludedLdapAttrs.enabled", false);
-            if (mExcludedLdapAttrsEnabled == true) {
-                logger.debug("CMSEngine: initSubsystem: excludedLdapAttrs.enabled: true");
+            logger.debug("CMSEngine: excludedLdapAttrs.enabled: " + mExcludedLdapAttrsEnabled);
+
+            if (mExcludedLdapAttrsEnabled) {
+
                 excludedLdapAttrsList = Arrays.asList(excludedLdapAttrs);
                 String unparsedExcludedLdapAttrs = "";
+
                 try {
                     unparsedExcludedLdapAttrs = mConfig.getString("excludedLdapAttrs.attrs");
-                    logger.debug("CMSEngine: initSubsystem: excludedLdapAttrs.attrs =" + unparsedExcludedLdapAttrs);
-                } catch (Exception e) {
-                    logger.debug("CMSEngine: initSubsystem: excludedLdapAttrs.attrs unspecified, taking default");
+                    logger.debug("CMSEngine: excludedLdapAttrs.attrs: " + unparsedExcludedLdapAttrs);
+                } catch (EPropertyNotFound e) {
+                    logger.debug("CMSEngine: excludedLdapAttrs.attrs unspecified, using the default: " + unparsedExcludedLdapAttrs);
                 }
+
                 if (!unparsedExcludedLdapAttrs.equals("")) {
                     excludedLdapAttrsList = Arrays.asList(unparsedExcludedLdapAttrs.split(","));
                     // overwrites the default
                     //excludedLdapAttrSet = new HashSet(excludedLdapAttrsList);
                 }
-            } else {
-                logger.debug("CMSEngine: initSubsystem: excludedLdapAttrs.enabled: false");
             }
         }
     }
