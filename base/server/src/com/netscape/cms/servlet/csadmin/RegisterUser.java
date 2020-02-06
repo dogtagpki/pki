@@ -86,25 +86,28 @@ public class RegisterUser extends CMSServlet {
      * Process the HTTP request.
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        logger.debug("UpdateUpdater: processing...");
+
+        logger.debug("RegisterUser: Processing request");
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = null;
+
         try {
+            logger.info("RegisterUser: Authenticating request");
             authToken = authenticate(cmsReq);
-            logger.debug("RegisterUser authentication successful.");
+            logger.debug("RegisterUser: authentication successful");
+
         } catch (Exception e) {
-            logger.error("RegisterUser: authentication failed: " + e.getMessage(), e);
-            logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
+            logger.error("Unable to authenticate request: " + e.getMessage(), e);
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated", null);
             return;
         }
 
         if (authToken == null) {
-            logger.error("RegisterUser: authentication failed.");
+            logger.error("Unable to authenticate request");
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
                         null);
             return;
@@ -112,13 +115,16 @@ public class RegisterUser extends CMSServlet {
 
         AuthzToken authzToken = null;
         try {
+            logger.info("RegisterUser: Authorizing request");
             authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
                     "modify");
-            logger.debug("RegisterUser authorization successful.");
+            logger.debug("RegisterUser: Authorization successful");
+
         } catch (EAuthzAccessDenied e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             outputError(httpResp, "Error: Not authorized");
             return;
+
         } catch (Exception e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             outputError(httpResp, "Error: Encountered problem during authorization.");
@@ -126,6 +132,7 @@ public class RegisterUser extends CMSServlet {
         }
 
         if (authzToken == null) {
+            logger.error("Unable to authorize request");
             outputError(httpResp, "Error: Not authorized");
             return;
         }
@@ -134,9 +141,10 @@ public class RegisterUser extends CMSServlet {
         String uid = httpReq.getParameter("uid");
         String name = httpReq.getParameter("name");
         String certsString = httpReq.getParameter("certificate");
-        logger.debug("RegisterUser got uid=" + uid);
-        logger.debug("RegisterUser got name=" + name);
-        logger.debug("RegisterUser got certsString=" + certsString);
+
+        logger.info("RegisterUser: uid: " + uid);
+        logger.info("RegisterUser: name: " + name);
+        logger.info("RegisterUser: cert: " + certsString);
 
         String auditSubjectID = auditSubjectID();
         String auditParams = "Scope;;users+Operation;;OP_ADD+source;;RegisterUser" +
@@ -150,12 +158,12 @@ public class RegisterUser extends CMSServlet {
         IUser user = null;
         boolean foundByCert = false;
         X509Certificate certs[] = new X509Certificate[1];
-        try {
 
-            byte bCert[] = null;
-            X509CertImpl cert = null;
-            bCert = Utils.base64decode(certsString);
-            cert = new X509CertImpl(bCert);
+        try {
+            logger.info("RegisterUser: Searching user by cert");
+
+            byte[] bCert = Utils.base64decode(certsString);
+            X509CertImpl cert = new X509CertImpl(bCert);
             certs[0] = cert;
 
             // test to see if the cert already belongs to a user
@@ -163,25 +171,30 @@ public class RegisterUser extends CMSServlet {
             com.netscape.certsrv.usrgrp.Certificates c =
                     new com.netscape.certsrv.usrgrp.Certificates(certs);
             user = cul.locateUser(c);
-        } catch (Exception ec) {
-            logger.warn("RegisterUser: exception thrown: " + ec.getMessage(), ec);
+
+        } catch (Exception e) {
+            logger.warn("Unable to find user: " + e.getMessage());
         }
+
         if (user == null) {
-            logger.debug("RegisterUser NOT found user by cert");
+            logger.info("RegisterUser: Searching user by uid");
             try {
                 user = ugsys.getUser(uid);
-                logger.debug("RegisterUser found user by uid " + uid);
+                logger.debug("RegisterUser: found user " + uid);
             } catch (Exception eee) {
+                logger.warn("Unable to find user " + uid);
             }
+
         } else {
+            logger.info("RegisterUser: Found user by cert");
             foundByCert = true;
-            logger.debug("RegisterUser found user by cert");
         }
 
         try {
-
             if (user == null) {
-                // create user only if such user does not exist
+
+                logger.info("RegisterUser: Creating user " + uid);
+
                 user = ugsys.createUser(uid);
                 user.setFullName(name);
                 user.setState("1");
@@ -191,7 +204,7 @@ public class RegisterUser extends CMSServlet {
                 user.setPassword("");
 
                 ugsys.addUser(user);
-                logger.debug("RegisterUser created user " + uid);
+                logger.debug("RegisterUser: created user " + uid);
 
                 audit(new ConfigRoleEvent(
                               auditSubjectID,
@@ -207,19 +220,22 @@ public class RegisterUser extends CMSServlet {
                         "+cert;;" + certsString;
 
             user.setX509Certificates(certs);
+
             if (!foundByCert) {
+                logger.info("RegisterUser: Adding user certificate");
                 ugsys.addUserCert(user);
-                logger.debug("RegisterUser added user certificate");
 
                 audit(new ConfigRoleEvent(
                               auditSubjectID,
                               ILogger.SUCCESS,
                               auditParams));
 
-            } else
-                logger.debug("RegisterUser no need to add user certificate");
-        } catch (Exception eee) {
-            logger.error("RegisterUser error " + eee.getMessage(), eee);
+            } else {
+                logger.debug("RegisterUser: No need to add user certificate");
+            }
+
+        } catch (Exception e) {
+            logger.error("Unable to create user: " + e.getMessage(), e);
 
             audit(new ConfigRoleEvent(
                                 auditSubjectID,
@@ -230,7 +246,8 @@ public class RegisterUser extends CMSServlet {
             return;
         }
 
-        // add user to the group
+        logger.info("RegisterUser: Adding user to group " + mGroupName);
+
         auditParams = "Scope;;groups+Operation;;OP_MODIFY+source;;RegisterUser" +
                       "+Resource;;" + mGroupName;
         try {
@@ -257,15 +274,15 @@ public class RegisterUser extends CMSServlet {
                                ILogger.SUCCESS,
                                auditParams));
             }
-        } catch (Exception e) {
 
+        } catch (Exception e) {
+            logger.warn("Unable to add user to group " + mGroupName + ": " + e.getMessage(), e);
             audit(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams));
         }
 
-        // send success status back to the requestor
         try {
             logger.debug("RegisterUser: Sending response");
             XMLObject xmlObj = new XMLObject();
@@ -275,6 +292,7 @@ public class RegisterUser extends CMSServlet {
             byte[] cb = xmlObj.toByteArray();
 
             outputResult(httpResp, "application/xml", cb);
+
         } catch (Exception e) {
             logger.warn("RegisterUser: Failed to send the XML output: " + e.getMessage(), e);
         }
