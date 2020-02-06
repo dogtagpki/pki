@@ -51,6 +51,9 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
     @Override
     public Response findConnectors(String host, String port, Integer start, Integer size) {
+
+        logger.info("TPSConnectorService: Finding TPS connectors for " + host + ":" + port);
+
         try {
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
@@ -125,6 +128,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
     public TPSConnectorData getConnectorData(String id) {
 
+        logger.info("TPSConnectorService: Getting TPS connector " + id);
+
         if (id == null)
             throw new BadRequestException("TPS connector ID is null.");
 
@@ -142,6 +147,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
     @Override
     public Response createConnector(String tpsHost, String tpsPort) {
+
+        logger.info("TPSConnectorService: Creating TPS connector for " + tpsHost + ":" + tpsPort);
 
         if (tpsHost == null)
             throw new BadRequestException("TPS connector host is null.");
@@ -179,6 +186,9 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
     @Override
     public Response modifyConnector(String id, TPSConnectorData data) {
+
+        logger.info("TPSConnectorService: Modifying TPS connector " + id);
+
         try {
             if (id == null) {
                 throw new BadRequestException("Invalid connector ID");
@@ -233,6 +243,9 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
     @Override
     public Response deleteConnector(String id) {
+
+        logger.info("TPSConnectorService: Deleting TPS connector " + id);
+
         try {
             if (StringUtils.isEmpty(id))
                 throw new BadRequestException("Attempt to delete TPS connection with null or empty id");
@@ -256,6 +269,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response deleteConnector(String host, String port) {
 
+        logger.info("TPSConnectorService: Deleting TPS connector for " + host + ":" + port);
+
         if (host == null)
             throw new BadRequestException("TPS connector host is null.");
         if (port == null)
@@ -276,7 +291,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response createSharedSecret(String id) {
 
-        logger.debug("TPSConnectorService.createSharedSecret.id: " + id);
+        logger.info("TPSConnectorService: Creating shared secret for " + id);
 
         if (id == null)
             throw new BadRequestException("TPS connector ID is null.");
@@ -352,6 +367,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response replaceSharedSecret(String id) {
 
+        logger.info("TPSConnectorService: Replacing shared secret for " + id);
+
         if (id == null)
             throw new BadRequestException("TPS connector ID is null.");
 
@@ -402,6 +419,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response deleteSharedSecret(String id) {
 
+        logger.info("TPSConnectorService: Deleting shared secret for " + id);
+
         if (id == null)
             throw new BadRequestException("TPS connector ID is null.");
 
@@ -437,10 +456,11 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response getSharedSecret(String id) {
 
+        logger.info("TPSConnectorService: Getting shared secret for " + id);
+
         if (id == null)
             throw new BadRequestException("TPS connector ID is null.");
 
-        logger.debug("TPSConnectorServlet.getSharedSecret: id : " + id);
         try {
             if (!connectorExists(id)) {
                 throw new ResourceNotFoundException("TPS connection does not exist");
