@@ -354,7 +354,7 @@ class PKIDeployer:
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
-        result = subprocess.run(cmd, capture_output=True)
+        result = subprocess.run(cmd, capture_output=True, check=False)
 
         if result.returncode == 0:
             return json.loads(result.stdout.decode())
@@ -382,7 +382,7 @@ class PKIDeployer:
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
-        result = subprocess.run(cmd, capture_output=True)
+        result = subprocess.run(cmd, capture_output=True, check=False)
 
         if result.returncode == 0:
             return json.loads(result.stdout.decode())
@@ -404,7 +404,7 @@ class PKIDeployer:
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
-        result = subprocess.run(cmd, capture_output=True)
+        result = subprocess.run(cmd, capture_output=True, check=False)
 
         if result.returncode == 0:
             return json.loads(result.stdout.decode())
@@ -427,7 +427,7 @@ class PKIDeployer:
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
-        result = subprocess.run(cmd, capture_output=True)
+        result = subprocess.run(cmd, capture_output=True, check=False)
 
         if result.returncode == 0:
             return json.loads(result.stdout.decode())
@@ -450,7 +450,7 @@ class PKIDeployer:
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
-        result = subprocess.run(cmd, capture_output=True)
+        result = subprocess.run(cmd, capture_output=True, check=False)
 
         if result.returncode == 0:
             return json.loads(result.stdout.decode())

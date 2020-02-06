@@ -977,7 +977,7 @@ class PKISubsystem(object):
         logger.debug('Command: %s', ' '.join(cmd))
 
         try:
-            subprocess.check_call(cmd)
+            subprocess.run(cmd, check=True)
 
         except KeyboardInterrupt:
             logger.debug('Server stopped')
