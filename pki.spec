@@ -207,7 +207,12 @@ BuildRequires:    python3-libselinux
 BuildRequires:    python3-nss
 BuildRequires:    python3-requests >= 2.6.0
 BuildRequires:    python3-six
-BuildRequires:    python3-pytest-runner
+
+%if 0%{?rhel}
+# no python3-pytest-runner
+%else
+# BuildRequires:  python3-pytest-runner
+%endif
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
