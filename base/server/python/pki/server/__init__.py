@@ -378,6 +378,9 @@ class PKIServer(object):
 
         self.copy(Tomcat.TOMCAT_CONF, self.tomcat_conf, force=force)
 
+        with open(self.tomcat_conf, 'a') as f:
+            f.write('\nPKI_VERSION=%s\n' % pki.specification_version())
+
         web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
         self.symlink(web_xml, self.web_xml, force=force)
 
