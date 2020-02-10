@@ -10,9 +10,9 @@ URL:              http://www.dogtagpki.org/
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 
-Version:          10.8.0
+Version:          10.8.1
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
-# global           _phase -a1
+# global          _phase -a1
 
 # To create a tarball from a version tag:
 # $ git archive \
@@ -246,9 +246,9 @@ BuildRequires:    golang-github-cpuguy83-md2man
 
 # pki-healthcheck depends on the following library
 %if 0%{?rhel}
-BuildRequires:         ipa-healthcheck-core
+BuildRequires:    ipa-healthcheck-core
 %else
-BuildRequires:         freeipa-healthcheck-core
+BuildRequires:    freeipa-healthcheck-core
 %endif
 
 # PKICertImport depends on certutil and openssl
