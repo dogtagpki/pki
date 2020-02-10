@@ -2814,39 +2814,32 @@ class ConfigClient:
         self.san_inject = config.str2bool(self.mdict['pki_san_inject'])
 
     def process_admin_cert(self, admin_cert):
-        logger.debug('admin cert: %s', admin_cert)
 
-        # Store the Administration Certificate in a file
         admin_cert_file = self.mdict['pki_client_admin_cert']
-        admin_cert_bin_file = admin_cert_file + ".der"
+        logger.info('Storing admin certificate into %s', admin_cert_file)
+
         self.save_admin_cert(admin_cert, admin_cert_file,
                              self.mdict['pki_subsystem_name'])
-
-        # convert the cert file to binary
-        command = ["AtoB", admin_cert_file, admin_cert_bin_file]
-        logger.debug('Command: %s', ' '.join(command))
-        try:
-            subprocess.check_call(command)
-        except subprocess.CalledProcessError as exc:
-            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
-            raise
-
         os.chmod(admin_cert_file,
                  config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
 
-        os.chmod(admin_cert_bin_file,
-                 config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
+        logger.info('Importing admin certificate into %s',
+                    self.mdict['pki_client_database_dir'])
 
-        # Import the Administration Certificate
-        # into the client NSS security database
-        self.deployer.certutil.import_cert(
-            re.sub("&#39;", "'", self.mdict['pki_admin_nickname']),
-            "u,u,u",
-            admin_cert_bin_file,
-            self.mdict['pki_client_password_conf'],
-            self.mdict['pki_client_database_dir'],
-            None,
-            True)
+        client_nssdb = pki.nssdb.NSSDatabase(
+            directory=self.mdict['pki_client_database_dir'],
+            password_file=self.mdict['pki_client_password_conf'])
+
+        try:
+            client_nssdb.add_cert(
+                re.sub("&#39;", "'", self.mdict['pki_admin_nickname']),
+                admin_cert_file)
+
+        finally:
+            client_nssdb.close()
+
+        logger.info('Exporting admin certificate into %s',
+                    self.mdict['pki_client_admin_cert_p12'])
 
         # create directory for p12 file if it does not exist
         self.deployer.directory.create(os.path.dirname(
