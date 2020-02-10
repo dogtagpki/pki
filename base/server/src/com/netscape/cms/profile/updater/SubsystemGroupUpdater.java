@@ -129,7 +129,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         } catch (Exception e) {
         }
 
-        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem system = engine.getUGSubsystem();
 
         String requestor_name = "subsystem";
         try {

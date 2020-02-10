@@ -1481,7 +1481,7 @@ public class EnrollServlet extends CMSServlet {
             throws EBaseException {
         String userid = cmsReq.getHttpParams().getValueAsString("uid");
         CMSEngine engine = CMS.getCMSEngine();
-        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem ug = engine.getUGSubsystem();
 
         IUser adminuser = ug.createUser(userid);
 

@@ -1561,7 +1561,7 @@ public class ProcessCertReq extends CMSServlet {
         header.addStringValue(GRANT_PRIVILEGE, privilege);
 
         CMSEngine engine = CMS.getCMSEngine();
-        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem ug = engine.getUGSubsystem();
         IUser user = ug.createUser(uid);
 
         user.setFullName(uid);

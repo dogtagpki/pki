@@ -147,7 +147,7 @@ public class AdminServlet extends HttpServlet {
         super.init(sc);
 
         CMSEngine engine = CMS.getCMSEngine();
-        mUG = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        mUG = engine.getUGSubsystem();
         mConfig = engine.getConfig();
 
         String srcType = AUTHZ_SRC_LDAP;

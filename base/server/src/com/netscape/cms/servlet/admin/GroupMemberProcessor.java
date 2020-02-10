@@ -66,7 +66,7 @@ public class GroupMemberProcessor extends Processor {
     public static String[] multiRoleGroupEnforceList;
 
     CMSEngine engine = CMS.getCMSEngine();
-    public UGSubsystem userGroupManager = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+    public UGSubsystem userGroupManager = engine.getUGSubsystem();
 
     protected UriInfo uriInfo;
 

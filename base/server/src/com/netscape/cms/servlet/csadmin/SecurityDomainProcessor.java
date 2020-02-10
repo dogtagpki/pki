@@ -99,7 +99,7 @@ public class SecurityDomainProcessor extends Processor {
 
         subsystem = subsystem.toUpperCase();
         CMSEngine engine = CMS.getCMSEngine();
-        UGSubsystem ugSubsystem = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem ugSubsystem = engine.getUGSubsystem();
 
         String group = getEnterpriseGroupName(subsystem);
         logger.debug("SecurityDomainProcessor: group: " + group);

@@ -153,7 +153,7 @@ public class RegisterUser extends CMSServlet {
                              "+state;;1" +
                              "+userType;;<null>+email;;<null>+password;;<null>+phone;;<null>";
 
-        UGSubsystem ugsys = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem ugsys = engine.getUGSubsystem();
 
         IUser user = null;
         boolean foundByCert = false;

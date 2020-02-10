@@ -47,7 +47,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     CMSEngine engine = CMS.getCMSEngine();
     EngineConfig cs = engine.getConfig();
 
-    public UGSubsystem userGroupManager = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+    public UGSubsystem userGroupManager = engine.getUGSubsystem();
 
     @Override
     public Response findConnectors(String host, String port, Integer start, Integer size) {

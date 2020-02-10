@@ -114,7 +114,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         CMSEngine engine = CMS.getCMSEngine();
-        mMgr = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        mMgr = engine.getUGSubsystem();
     }
 
     /**

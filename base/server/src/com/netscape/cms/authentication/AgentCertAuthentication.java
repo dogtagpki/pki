@@ -97,7 +97,7 @@ public class AgentCertAuthentication implements IAuthManager,
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();
-        mUGSub = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        mUGSub = engine.getUGSubsystem();
         mCULocator = mUGSub.getCertUserLocator();
     }
 
@@ -223,7 +223,7 @@ public class AgentCertAuthentication implements IAuthManager,
 
         if (!groupname.equals("")) {
             logger.debug("check if " + user.getUserID() + " is  in group " + groupname);
-            UGSubsystem uggroup = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+            UGSubsystem uggroup = engine.getUGSubsystem();
             if (!uggroup.isMemberOf(user, groupname)) {
                 logger.error(user.getUserID() + " is not in this group " + groupname);
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHORIZATION_ERROR"));

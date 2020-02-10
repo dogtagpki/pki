@@ -250,7 +250,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     protected String mOutputTemplatePath = null;
     CMSEngine engine = CMS.getCMSEngine();
-    private UGSubsystem mUG = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+    private UGSubsystem mUG = engine.getUGSubsystem();
 
     public CMSServlet() {
     }

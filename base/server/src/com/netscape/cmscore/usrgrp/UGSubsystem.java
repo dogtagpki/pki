@@ -74,7 +74,6 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UGSubsystem.class);
 
-    private static final long serialVersionUID = 8080165044652629774L;
     public static final String ID = "usrgrp";
     public static final String SUPER_CERT_ADMINS = "Administrators";
 
@@ -93,20 +92,10 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
     protected String mBaseDN = null;
     protected static UGSubsystem mUG = null;
 
-    // singleton enforcement
-
-    private static UGSubsystem mInstance = new UGSubsystem();
-
-    public static UGSubsystem getInstance() {
-        return mInstance;
-    }
-
-    // end singleton enforcement.
-
     /**
      * Constructs LDAP based usr/grp management
      */
-    private UGSubsystem() {
+    public UGSubsystem() {
     }
 
     /**

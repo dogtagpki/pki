@@ -85,7 +85,7 @@ public class UserService extends SubsystemService implements UserResource {
     public final static String SYSTEM_USER = "$System$";
 
     CMSEngine engine = CMS.getCMSEngine();
-    public UGSubsystem userGroupManager = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+    public UGSubsystem userGroupManager = engine.getUGSubsystem();
 
     public UserData createUserData(IUser user) throws Exception {
 

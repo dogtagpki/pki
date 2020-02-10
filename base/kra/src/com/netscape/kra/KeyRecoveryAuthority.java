@@ -687,7 +687,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // see if we have the uid already
         if (!mConfig.getBoolean("keySplitting")) {
             // check if the uid is in the specified group
-            UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+            UGSubsystem ug = engine.getUGSubsystem();
             if (!ug.isMemberOf(uid, mConfig.getString("recoveryAgentGroup"))) {
                 // invalid group
                 throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_NOT_EXIST"));
@@ -914,7 +914,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         IRequest r = null;
 
         // check if the uid is in the specified group
-        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem ug = engine.getUGSubsystem();
         if (!ug.isMemberOf(agentID, mConfig.getString("recoveryAgentGroup"))) {
             // invalid group
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_NOT_EXIST"));

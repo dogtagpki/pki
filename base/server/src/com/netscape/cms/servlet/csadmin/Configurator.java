@@ -2445,7 +2445,7 @@ public class Configurator {
 
         X509CertImpl[] adminCerts = new X509CertImpl[] { adminCert };
 
-        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem ug = engine.getUGSubsystem();
         IUser user = ug.getUser(request.getAdminUID());
         user.setX509Certificates(adminCerts);
         ug.addUserCert(user);
@@ -2540,7 +2540,7 @@ public class Configurator {
         String pwd = request.getAdminPassword();
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
-        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem system = engine.getUGSubsystem();
 
         String groupNames = preopConfig.getString("admin.group", "Certificate Manager Agents,Administrators");
 
@@ -2911,7 +2911,7 @@ public class Configurator {
         int port = preopConfig.getInteger("ca.httpsadminport", -1);
 
         // retrieve CA subsystem certificate from the CA
-        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem system = engine.getUGSubsystem();
         String id = "";
 
         String b64 = getSubsystemCert(host, port, true);
@@ -2984,7 +2984,7 @@ public class Configurator {
 
     public void setupDatabaseUser() throws Exception {
 
-        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem system = engine.getUGSubsystem();
 
         // checking existing user
         IUser user = system.getUser(DBUSER);
@@ -3108,7 +3108,7 @@ public class Configurator {
 
     public void removeOldDBUsers(String subjectDN) throws EBaseException, LDAPException {
 
-        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem system = engine.getUGSubsystem();
 
         LDAPConfig dbCfg = cs.getInternalDBConfig();
         String userbasedn = "ou=people, " + dbCfg.getBaseDN();

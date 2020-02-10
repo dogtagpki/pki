@@ -85,7 +85,7 @@ public class TPSConfigurator extends Configurator {
 
         logger.debug("Adding all profiles to TPS admin user");
 
-        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem system = engine.getUGSubsystem();
 
         String adminID = request.getAdminUID();
         IUser user = system.getUser(adminID);

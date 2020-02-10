@@ -615,7 +615,7 @@ public class CertUtil {
             logger.warn("Unable to retrieve server configuration: " + e, e);
         }
 
-        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem system = engine.getUGSubsystem();
         String id = "user" + num;
 
         try {

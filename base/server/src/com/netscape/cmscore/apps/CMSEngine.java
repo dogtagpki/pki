@@ -140,6 +140,7 @@ public class CMSEngine {
 
     private Debug debug = new Debug();
     private PluginRegistry pluginRegistry = new PluginRegistry();
+    private UGSubsystem ugSubsystem = new UGSubsystem();
     private RequestSubsystem requestSubsystem = new RequestSubsystem();
 
     public Collection<String> staticSubsystems = new LinkedHashSet<>();
@@ -715,7 +716,7 @@ public class CMSEngine {
         addSubsystem(DBSubsystem.ID, DBSubsystem.getInstance());
 
         staticSubsystems.add(UGSubsystem.ID);
-        addSubsystem(UGSubsystem.ID, UGSubsystem.getInstance());
+        addSubsystem(UGSubsystem.ID, ugSubsystem);
 
         staticSubsystems.add(OidLoaderSubsystem.ID);
         addSubsystem(OidLoaderSubsystem.ID, OidLoaderSubsystem.getInstance());
@@ -1619,5 +1620,9 @@ public class CMSEngine {
 
     public PluginRegistry getPluginRegistry() {
         return pluginRegistry;
+    }
+
+    public UGSubsystem getUGSubsystem() {
+        return ugSubsystem;
     }
 }

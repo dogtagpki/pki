@@ -149,7 +149,8 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
-        UGSubsystem ug = UGSubsystem.getInstance();
+        CMSEngine engine = CMS.getCMSEngine();
+        UGSubsystem ug = engine.getUGSubsystem();
         IUser user;
 
         try {

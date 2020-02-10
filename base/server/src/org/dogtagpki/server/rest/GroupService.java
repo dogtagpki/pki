@@ -57,7 +57,7 @@ public class GroupService extends SubsystemService implements GroupResource {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupService.class);
 
     CMSEngine engine = CMS.getCMSEngine();
-    public UGSubsystem userGroupManager = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+    public UGSubsystem userGroupManager = engine.getUGSubsystem();
 
     public GroupData createGroupData(IGroup group) throws Exception {
 

@@ -65,7 +65,7 @@ public class Auditor implements IAuditor {
         Enumeration<IGroup> groups;
 
         try {
-            UGSubsystem userGroupSubsystem = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+            UGSubsystem userGroupSubsystem = engine.getUGSubsystem();
             groups = userGroupSubsystem.findGroups("*");
 
         } catch (Exception e) {

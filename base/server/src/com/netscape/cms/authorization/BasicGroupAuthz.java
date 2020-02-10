@@ -104,7 +104,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem ug = engine.getUGSubsystem();
         IGroup group = ug.getGroupFromName(groupName);
         if (!group.isMember(user)) {
             logger.error("BasicGroupAuthz: access denied. User: " + user + " is not a member of group: " + groupName);

@@ -168,7 +168,7 @@ public class PKIRealm extends RealmBase {
 
     protected IUser getUser(String username) throws EUsrGrpException {
         CMSEngine engine = CMS.getCMSEngine();
-        UGSubsystem ugSub = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem ugSub = engine.getUGSubsystem();
         IUser user = ugSub.getUser(username);
         logger.info("User DN: " + user.getUserDN());
         return user;
@@ -179,7 +179,7 @@ public class PKIRealm extends RealmBase {
         List<String> roles = new ArrayList<String>();
 
         CMSEngine engine = CMS.getCMSEngine();
-        UGSubsystem ugSub = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        UGSubsystem ugSub = engine.getUGSubsystem();
         Enumeration<IGroup> groups = ugSub.findGroupsByUser(user.getUserDN(), null);
 
         logger.info("Roles:");
