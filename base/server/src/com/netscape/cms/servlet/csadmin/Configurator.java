@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -2486,36 +2485,33 @@ public class Configurator {
 
         ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
         if (ca != null) {
-            createPKCS7(impl);
+            PKCS7 pkcs7 = createPKCS7(impl);
+            byte[] bytes = pkcs7.getBytes();
+            String base64 = Utils.base64encodeSingleLine(bytes);
+
+            preopConfig.putString("admincert.pkcs7", base64);
         }
 
         preopConfig.putString("admincert.serialno.0", impl.getSerialNumber().toString(16));
     }
 
-    public void createPKCS7(X509CertImpl cert) throws IOException {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
+    public PKCS7 createPKCS7(X509CertImpl cert) throws IOException {
 
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         CertificateChain cachain = ca.getCACertChain();
         java.security.cert.X509Certificate[] cacerts = cachain.getChain();
+
         X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
-        int m = 1, n = 0;
-
-        for (; n < cacerts.length; m++, n++) {
-            userChain[m] = (X509CertImpl) cacerts[n];
+        for (int i=0; i < cacerts.length; i++) {
+            userChain[i + 1] = (X509CertImpl) cacerts[i];
         }
-
         userChain[0] = cert;
-        PKCS7 p7 = new PKCS7(new AlgorithmId[0],
-                new ContentInfo(new byte[0]), userChain, new SignerInfo[0]);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-        p7.encodeSignedData(bos);
-        byte[] p7Bytes = bos.toByteArray();
-        String p7Str = Utils.base64encode(p7Bytes, true);
-
-        preopConfig.putString("admincert.pkcs7", CryptoUtil.normalizeCertStr(p7Str));
+        return new PKCS7(
+                new AlgorithmId[0],
+                new ContentInfo(new byte[0]),
+                userChain,
+                new SignerInfo[0]);
     }
 
     public void setupAdmin(AdminSetupRequest request, AdminSetupResponse response) throws Exception {
