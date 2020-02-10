@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
@@ -2427,17 +2426,12 @@ public class Configurator {
 
         logger.debug("Configurator: profile: " + profileID);
 
-        String b64 = submitAdminCertRequest(
+        return submitAdminCertRequest(
                 request,
                 ca_hostname,
                 ca_port,
                 profileID,
                 adminSubjectDN);
-
-        b64 = CryptoUtil.stripCertBrackets(b64.trim());
-        byte[] b = CryptoUtil.base64Decode(b64);
-
-        return new X509CertImpl(b);
     }
 
     public void updateAdminUserCert(AdminSetupRequest request, X509CertImpl adminCert) throws Exception {
@@ -2629,14 +2623,14 @@ public class Configurator {
         engine.reinit(UGSubsystem.ID);
     }
 
-    public String submitAdminCertRequest(
+    public X509CertImpl submitAdminCertRequest(
             AdminSetupRequest request,
             String ca_hostname,
             int ca_port,
             String profileId,
             String subjectDN) throws Exception {
 
-        logger.debug("Configurator: submitAdminCertRequest()");
+        logger.info("Configurator: Generating admin cert on https://" + ca_hostname + ":" + ca_port);
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -2658,44 +2652,42 @@ public class Configurator {
 
         String c = post(ca_hostname, ca_port, true, "/ca/ee/ca/profileSubmit", content, null, null);
 
-        // retrieve the request Id and admin certificate
-        if (c != null) {
-            ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-            XMLObject parser = new XMLObject(bis);
-
-            String status = parser.getValue("Status");
-            logger.debug("submitAdminXertRequest: status=" + status);
-            if (status.equals(AUTH_FAILURE)) {
-                throw new EAuthException("Unable to generate admin certificate: authentication failure");
-
-            } else if (!status.equals(SUCCESS)) {
-                String error = parser.getValue("Error");
-                logger.error("Error: " + error);
-                throw new IOException("Unable to generate admin certificate: " + error);
-            }
-
-            String id = parser.getValue("Id");
-
-            preopConfig.putString("admincert.requestId.0", id);
-            String serial = parser.getValue("serialno");
-
-            preopConfig.putString("admincert.serialno.0", serial);
-            String b64 = parser.getValue("b64");
-
-            // save in a file for access by ImportAdminCertPanel
-            String instanceRoot = cs.getInstanceDir();
-            String dir = instanceRoot + File.separator + "conf" + File.separator + "admin.b64";
-            preopConfig.putString("admincert.b64", dir);
-
-            PrintStream ps = new PrintStream(dir, "UTF-8");
-            ps.println(b64);
-            ps.flush();
-            ps.close();
-
-            return b64;
-        } else {
-            throw new IOException("submitAdminCertRequest: Failed to get response from ca");
+        if (c == null) {
+            logger.error("Unable to generate admin certificate: no response from CA");
+            throw new IOException("Unable to generate admin certificate: no response from CA");
         }
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        XMLObject parser = new XMLObject(bis);
+
+        String status = parser.getValue("Status");
+        logger.info("Configurator: Status: " + status);
+
+        if (status.equals(AUTH_FAILURE)) {
+            logger.error("Unable to generate admin certificate: authentication failure");
+            throw new EAuthException("Unable to generate admin certificate: authentication failure");
+        }
+
+        if (!status.equals(SUCCESS)) {
+            String error = parser.getValue("Error");
+            logger.error("Unable to generate admin certificate: " + error);
+            throw new IOException("Unable to generate admin certificate: " + error);
+        }
+
+        String id = parser.getValue("Id");
+        logger.info("Configurator: Request ID: " + id);
+        preopConfig.putString("admincert.requestId.0", id);
+
+        String serial = parser.getValue("serialno");
+        logger.info("Configurator: Serial: " + serial);
+        preopConfig.putString("admincert.serialno.0", serial);
+
+        String b64 = parser.getValue("b64");
+        logger.info("Configurator: Cert: " + b64);
+        b64 = CryptoUtil.stripCertBrackets(b64.trim());
+        byte[] bytes = CryptoUtil.base64Decode(b64);
+
+        return new X509CertImpl(bytes);
     }
 
     public void setupSecurityDomain(SecurityDomainSetupRequest request) throws Exception {
