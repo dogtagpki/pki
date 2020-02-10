@@ -311,7 +311,7 @@ class PKIDeployer:
 
         self.get_install_token()
 
-    def backup_keys(self, subsystem):
+    def backup_keys(self, instance, subsystem):
 
         tmpdir = tempfile.mkdtemp()
         try:
@@ -323,6 +323,7 @@ class PKIDeployer:
                 'pki-server',
                 'subsystem-cert-export',
                 subsystem.name,
+                '-i', instance.name,
                 '--pkcs12-file', self.mdict['pki_backup_file'],
                 '--pkcs12-password-file', password_file
             ]

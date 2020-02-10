@@ -912,7 +912,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.mdict['pki_subsystem'].lower() + '_backup_keys.p12'
 
             logger.info('Backing up keys into %s', deployer.mdict['pki_backup_file'])
-            deployer.backup_keys(subsystem)
+            deployer.backup_keys(instance, subsystem)
 
         logger.info('Setting up security domain')
         sd_setup_request = deployer.config_client.create_security_domain_setup_request()
