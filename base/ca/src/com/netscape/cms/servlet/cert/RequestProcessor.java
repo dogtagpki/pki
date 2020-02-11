@@ -44,7 +44,6 @@ import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.PolicyDefault;
 import com.netscape.certsrv.profile.ProfileAttribute;
@@ -470,7 +469,7 @@ public class RequestProcessor extends CertProcessor {
     private void setValue(Locale locale, int count, ProfilePolicy policy, IRequest req,
             HashMap<String, String> data) throws EPropertyException {
         // handle default policy
-        IPolicyDefault def = policy.getDefault();
+        com.netscape.cms.profile.def.PolicyDefault def = policy.getDefault();
         Enumeration<String> defNames = def.getValueNames();
 
         while (defNames.hasMoreElements()) {

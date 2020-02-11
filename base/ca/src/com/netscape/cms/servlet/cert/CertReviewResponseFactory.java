@@ -27,7 +27,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.PolicyConstraint;
 import com.netscape.certsrv.profile.PolicyDefault;
@@ -108,7 +107,7 @@ public class CertReviewResponseFactory {
                 ProfilePolicy dataPolicy = new ProfilePolicy();
 
                 //populate defaults
-                IPolicyDefault def = policy.getDefault();
+                com.netscape.cms.profile.def.PolicyDefault def = policy.getDefault();
                 PolicyDefault dataDef = PolicyDefaultFactory.create(request, locale, def);
                 dataPolicy.setDef(dataDef);
 
@@ -160,7 +159,7 @@ public class CertReviewResponseFactory {
                         new com.netscape.certsrv.profile.ProfilePolicy();
 
                 //populate defaults
-                IPolicyDefault def = policy.getDefault();
+                com.netscape.cms.profile.def.PolicyDefault def = policy.getDefault();
                 PolicyDefault dataDef = PolicyDefaultFactory.create(params, locale, def);
                 dataPolicy.setDef(dataDef);
 

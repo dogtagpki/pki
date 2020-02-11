@@ -23,10 +23,10 @@ import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NSCertTypeExtDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserExtensionDefault;
@@ -223,7 +223,7 @@ public class NSCertTypeExtConstraint extends EnrollConstraint {
                 "CMS_PROFILE_CONSTRAINT_NS_CERT_EXT_TEXT", params);
     }
 
-    public boolean isApplicable(IPolicyDefault def) {
+    public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;
         if (def instanceof NSCertTypeExtDefault)

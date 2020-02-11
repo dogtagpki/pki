@@ -26,12 +26,12 @@ import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.CAValidityDefault;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.RandomizedValidityDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
@@ -243,7 +243,7 @@ public class ValidityConstraint extends EnrollConstraint {
         return CMS.getUserMessage(locale, "CMS_PROFILE_CONSTRAINT_VALIDITY_TEXT", getConfig(CONFIG_RANGE));
     }
 
-    public boolean isApplicable(IPolicyDefault def) {
+    public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;
         if (def instanceof UserValidityDefault)

@@ -25,10 +25,10 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -92,7 +92,7 @@ public class NoConstraint extends PolicyConstraint {
         }
     }
 
-    public boolean isApplicable(IPolicyDefault def) {
+    public boolean isApplicable(PolicyDefault def) {
         return true;
     }
 }

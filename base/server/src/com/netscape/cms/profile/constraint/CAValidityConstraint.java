@@ -29,9 +29,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.CAValidityDefault;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
 import com.netscape.cms.profile.def.ValidityDefault;
@@ -138,7 +138,7 @@ public class CAValidityConstraint extends CAEnrollConstraint {
                 params);
     }
 
-    public boolean isApplicable(IPolicyDefault def) {
+    public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;
         if (def instanceof UserValidityDefault)

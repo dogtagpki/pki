@@ -38,10 +38,10 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.SubjectNameDefault;
 import com.netscape.cms.profile.def.UserSubjectNameDefault;
@@ -235,7 +235,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
                 params);
     }
 
-    public boolean isApplicable(IPolicyDefault def) {
+    public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;
         if (def instanceof SubjectNameDefault)

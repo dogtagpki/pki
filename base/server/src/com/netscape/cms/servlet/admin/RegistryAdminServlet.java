@@ -29,11 +29,11 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.registry.PluginRegistry;
@@ -264,7 +264,7 @@ public class RegistryAdminServlet extends AdminServlet {
         try {
             IPluginInfo info = registry.getPluginInfo("defaultPolicy", id);
             String className = info.getClassName();
-            IPolicyDefault policyDefaultClass = (IPolicyDefault)
+            PolicyDefault policyDefaultClass = (PolicyDefault)
                     Class.forName(className).newInstance();
 
             if (policyDefaultClass != null) {

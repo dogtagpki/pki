@@ -24,11 +24,11 @@ import java.util.Locale;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cmscore.apps.CMS;
 
@@ -153,7 +153,7 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
                                 renew_grace_after_s + " days after original cert expiration date");
     }
 
-    public boolean isApplicable(IPolicyDefault def) {
+    public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;
         return false;

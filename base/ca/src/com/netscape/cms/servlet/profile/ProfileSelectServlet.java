@@ -34,7 +34,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -44,6 +43,7 @@ import com.netscape.cms.profile.IProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
@@ -353,7 +353,7 @@ public class ProfileSelectServlet extends ProfileServlet {
         set.set(ARG_POLICY_ID, id);
 
         // handle default policy
-        IPolicyDefault def = policy.getDefault();
+        PolicyDefault def = policy.getDefault();
         String dDesc = def.getText(locale);
 
         set.set(ARG_DEF_DESC, dDesc);

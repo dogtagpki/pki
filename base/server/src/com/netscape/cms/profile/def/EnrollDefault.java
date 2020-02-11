@@ -50,7 +50,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.pattern.Pattern;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -63,7 +62,7 @@ import com.netscape.cmscore.cert.PrettyPrintFormat;
  *
  * @version $Revision$, $Date$
  */
-public abstract class EnrollDefault implements IPolicyDefault {
+public abstract class EnrollDefault extends PolicyDefault {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollDefault.class);
 

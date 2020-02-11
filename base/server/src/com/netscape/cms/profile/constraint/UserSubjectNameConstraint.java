@@ -23,9 +23,9 @@ import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.UserSubjectNameDefault;
 import com.netscape.cmscore.apps.CMS;
 
@@ -77,7 +77,7 @@ public class UserSubjectNameConstraint extends EnrollConstraint {
                    "CMS_PROFILE_CONSTRAINT_USER_SUBJECT_NAME_TEXT");
     }
 
-    public boolean isApplicable(IPolicyDefault def) {
+    public boolean isApplicable(PolicyDefault def) {
         if (def instanceof UserSubjectNameDefault)
             return true;
         return false;

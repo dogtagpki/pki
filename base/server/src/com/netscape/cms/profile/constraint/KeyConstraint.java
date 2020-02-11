@@ -32,11 +32,11 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserKeyDefault;
 import com.netscape.cmscore.apps.CMS;
@@ -241,7 +241,7 @@ public class KeyConstraint extends EnrollConstraint {
                 "CMS_PROFILE_CONSTRAINT_KEY_TEXT", params);
     }
 
-    public boolean isApplicable(IPolicyDefault def) {
+    public boolean isApplicable(PolicyDefault def) {
         if (def instanceof NoDefault)
             return true;
         if (def instanceof UserKeyDefault)

@@ -15,12 +15,13 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.profile;
+package com.netscape.cms.profile.def;
 
 import java.util.Enumeration;
 import java.util.Locale;
 
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
@@ -47,7 +48,7 @@ import com.netscape.certsrv.request.IRequest;
  *
  * @version $Revision$, $Date$
  */
-public interface IPolicyDefault extends IConfigTemplate {
+public abstract class PolicyDefault implements IConfigTemplate {
 
     /**
      * Initializes this default policy.
@@ -55,14 +56,14 @@ public interface IPolicyDefault extends IConfigTemplate {
      * @param config configuration store for this default
      * @exception EProfileException failed to initialize
      */
-    public void init(IConfigStore config) throws EProfileException;
+    public abstract void init(IConfigStore config) throws EProfileException;
 
     /**
      * Retrieves the configuration store of this default.
      *
      * @return configuration store of this default policy
      */
-    public IConfigStore getConfigStore();
+    public abstract IConfigStore getConfigStore();
 
     /**
      * Populates the request with this policy default.
@@ -70,7 +71,7 @@ public interface IPolicyDefault extends IConfigTemplate {
      * @param request request to be populated
      * @exception EProfileException failed to populate
      */
-    public void populate(IRequest request)
+    public abstract void populate(IRequest request)
             throws EProfileException;
 
     /**
@@ -79,7 +80,7 @@ public interface IPolicyDefault extends IConfigTemplate {
      * @param locale locale of the end user
      * @return localized name of this default policy
      */
-    public String getName(Locale locale);
+    public abstract String getName(Locale locale);
 
     /**
      * Retrieves the localizable description of this policy.
@@ -87,7 +88,7 @@ public interface IPolicyDefault extends IConfigTemplate {
      * @param locale locale of the end user
      * @return localized description of this default policy
      */
-    public String getText(Locale locale);
+    public abstract String getText(Locale locale);
 
     /**
      * Retrieves a list of names of the property.
@@ -95,7 +96,7 @@ public interface IPolicyDefault extends IConfigTemplate {
      * @return a list of property names. The values are
      *         of type java.lang.String
      */
-    public Enumeration<String> getValueNames();
+    public abstract Enumeration<String> getValueNames();
 
     /**
      * Retrieves the descriptor of the given property
@@ -106,7 +107,7 @@ public interface IPolicyDefault extends IConfigTemplate {
      * @param name name of property
      * @return descriptor of the property
      */
-    public IDescriptor getValueDescriptor(Locale locale, String name);
+    public abstract IDescriptor getValueDescriptor(Locale locale, String name);
 
     /**
      * Sets the value of the given value property by name.
@@ -117,7 +118,7 @@ public interface IPolicyDefault extends IConfigTemplate {
      * @param value value to be set in the given request
      * @exception EPropertyException failed to set property
      */
-    public void setValue(String name, Locale locale, IRequest request,
+    public abstract void setValue(String name, Locale locale, IRequest request,
             String value) throws EPropertyException;
 
     /**
@@ -129,7 +130,7 @@ public interface IPolicyDefault extends IConfigTemplate {
      * @param request request
      * @exception EPropertyException failed to get property
      */
-    public String getValue(String name, Locale locale, IRequest request)
+    public abstract String getValue(String name, Locale locale, IRequest request)
             throws EPropertyException;
 
 }

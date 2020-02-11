@@ -25,10 +25,10 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.AuthTokenSubjectNameDefault;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -109,7 +109,7 @@ public class CMCSharedTokenSubjectNameConstraint extends EnrollConstraint {
                    "CMS_PROFILE_CONSTRAINT_CMC_SELF_SIGNED_SUBJECT_NAME_TEXT");
     }
 
-    public boolean isApplicable(IPolicyDefault def) {
+    public boolean isApplicable(PolicyDefault def) {
         String method = "CMCSharedTokenSubjectNameConstraint: isApplicable: ";
         if (def instanceof AuthTokenSubjectNameDefault) {
             logger.debug(method + "true");

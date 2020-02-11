@@ -22,9 +22,9 @@ import java.util.Locale;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.def.PolicyDefault;
 
 /**
  * This represents a constraint policy. A constraint policy
@@ -86,5 +86,5 @@ public abstract class PolicyConstraint implements IConfigTemplate {
      * @return true if this constraint can be applied to
      *         the given default policy
      */
-    public abstract boolean isApplicable(IPolicyDefault def);
+    public abstract boolean isApplicable(PolicyDefault def);
 }
