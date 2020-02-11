@@ -25,7 +25,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.def.ICertInfoPolicyDefault;
+import com.netscape.cms.profile.def.EnrollDefault;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -33,7 +33,7 @@ public class CertInfoProfile {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertInfoProfile.class);
 
-    private Vector<ICertInfoPolicyDefault> mDefaults = new Vector<ICertInfoPolicyDefault>();
+    private Vector<EnrollDefault> mDefaults = new Vector<EnrollDefault>();
     private String mName = null;
     private String mID = null;
     private String mDescription = null;
@@ -54,7 +54,7 @@ public class CertInfoProfile {
             String c = config.getString(id + ".default.class");
             try {
                 /* load defaults */
-                ICertInfoPolicyDefault def = (ICertInfoPolicyDefault)
+                EnrollDefault def = (EnrollDefault)
                         Class.forName(c).newInstance();
                 init(config.getSubStore(id + ".default"), def);
                 mDefaults.addElement(def);
@@ -64,7 +64,7 @@ public class CertInfoProfile {
         }
     }
 
-    private void init(IConfigStore config, ICertInfoPolicyDefault def)
+    private void init(IConfigStore config, EnrollDefault def)
             throws Exception {
         try {
             def.init(config);
@@ -98,9 +98,9 @@ public class CertInfoProfile {
     }
 
     public void populate(IRequest request, X509CertInfo info) throws Exception {
-        Enumeration<ICertInfoPolicyDefault> e1 = mDefaults.elements();
+        Enumeration<EnrollDefault> e1 = mDefaults.elements();
         while (e1.hasMoreElements()) {
-            ICertInfoPolicyDefault def = e1.nextElement();
+            EnrollDefault def = e1.nextElement();
             try {
                 logger.debug("CertInfoProfile: Populating certificate with " + def.getClass().getName());
                 def.populate(request, info);

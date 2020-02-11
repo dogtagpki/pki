@@ -63,7 +63,7 @@ import com.netscape.cmscore.cert.PrettyPrintFormat;
  *
  * @version $Revision$, $Date$
  */
-public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDefault {
+public abstract class EnrollDefault implements IPolicyDefault {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollDefault.class);
 
