@@ -151,43 +151,7 @@ $ curl -s -k https://$HOSTNAME:8443/acme/directory | python -m json.tool
 
 For more info execute `pki-server acme-deploy --help`.
 
-## Using ACME Responder with certbot
+## See Also
 
-Note that certbot does not accept self-signed CA certificate,
-so the sample operations below are executed over insecure HTTP connections.
-
-| WARNING: Do not use ACME over insecure HTTP connections in production environment. |
-| --- |
-
-### Certificate Enrollment with HTTP-01
-
-To request a certificate with automatic http-01 validation, execute the following command:
-
-```
-$ certbot certonly --standalone \
-    --server http://$HOSTNAME:8080/acme/directory \
-    -d $HOSTNAME \
-    --preferred-challenges http \
-    --register-unsafely-without-email
-```
-
-### Certificate Enrollment with DNS-01
-
-To request a certificate with manual dns-01 validation, execute the following command:
-
-```
-$ certbot certonly --manual \
-    --server http://$HOSTNAME:8080/acme/directory \
-    -d server.example.com \
-    --preferred-challenges dns \
-    --register-unsafely-without-email
-```
-
-Create a TXT record in the DNS server as instructed by certbot.
-Check the TXT record propagation with the following command:
-
-```
-$ dig _acme-challenge.server.example.com TXT
-```
-
-Once the TXT record is propagated properly, complete the enrollment using certbot.
+* [Installing CA](Installing_CA.md)
+* [Using ACME Responder](../user/Using_ACME_Responder.md)
