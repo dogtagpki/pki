@@ -58,6 +58,7 @@ import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.PolicyConstraint;
 import com.netscape.certsrv.profile.PolicyConstraintValue;
 import com.netscape.certsrv.profile.PolicyDefault;
+import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.certsrv.profile.ProfileDataInfo;
 import com.netscape.certsrv.profile.ProfileDataInfos;
@@ -67,6 +68,7 @@ import com.netscape.certsrv.profile.ProfileOutput;
 import com.netscape.certsrv.profile.ProfileParameter;
 import com.netscape.certsrv.profile.ProfilePolicy;
 import com.netscape.certsrv.profile.ProfileResource;
+import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.CAEnrollProfile;
@@ -313,9 +315,22 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return null;
 
         IConfigStore inputStore = profile.getConfigStore().getSubStore("input");
+        String name = profileInput.getName(locale);
         String classId = inputStore.getString(inputId + ".class_id");
 
-        return new ProfileInput(profileInput, inputId, classId, locale);
+        ProfileInput input = new ProfileInput(inputId, name, classId);
+
+        Enumeration<String> attrNames = profileInput.getValueNames();
+        while (attrNames.hasMoreElements()) {
+            String attrName = attrNames.nextElement();
+
+            Descriptor descriptor = (Descriptor) profileInput.getValueDescriptor(locale, attrName);
+
+            ProfileAttribute attr = new ProfileAttribute(attrName, null, descriptor);
+            input.addAttribute(attr);
+        }
+
+        return input;
     }
 
     public static ProfileOutput createProfileOutput(Profile profile, String outputId, Locale locale) throws EBaseException {

@@ -21,9 +21,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Locale;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -34,8 +32,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.netscape.certsrv.property.Descriptor;
 
 @XmlRootElement(name="Input")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -67,16 +63,6 @@ public class ProfileInput {
         this.id = id;
         this.name = name;
         this.classId = classId;
-    }
-
-    public ProfileInput(IProfileInput input, String id, String classId, Locale locale) {
-        this(id, input.getName(locale), classId);
-        Enumeration<String> names = input.getValueNames();
-        while (names.hasMoreElements()) {
-            String name = names.nextElement();
-            addAttribute(new ProfileAttribute(name, null,
-                    (Descriptor) input.getValueDescriptor(locale, name)));
-        }
     }
 
     public String getClassId() {
