@@ -39,7 +39,6 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
@@ -49,6 +48,7 @@ import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.CAEnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfilePolicy;
+import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -1338,7 +1338,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String pId = ss.nextToken();
 
             ProfilePolicy policy = profile.getProfilePolicy(setId, pId);
-            IPolicyConstraint con = policy.getConstraint();
+            PolicyConstraint con = policy.getConstraint();
 
             Enumeration<String> names = req.getParameterNames();
 
@@ -1845,7 +1845,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String setId = ss.nextToken();
             String pId = ss.nextToken();
             ProfilePolicy policy = profile.getProfilePolicy(setId, pId);
-            IPolicyConstraint con = policy.getConstraint();
+            PolicyConstraint con = policy.getConstraint();
 
             Enumeration<String> names = req.getParameterNames();
 
@@ -2004,7 +2004,7 @@ public class ProfileAdminServlet extends AdminServlet {
         String setId = ss.nextToken();
         String pId = ss.nextToken();
         ProfilePolicy policy = profile.getProfilePolicy(setId, pId);
-        IPolicyConstraint rule = policy.getConstraint();
+        PolicyConstraint rule = policy.getConstraint();
 
         NameValuePairs nvp = new NameValuePairs();
         Enumeration<String> names = rule.getConfigNames();
@@ -2057,7 +2057,7 @@ public class ProfileAdminServlet extends AdminServlet {
             while (policies.hasMoreElements()) {
                 ProfilePolicy policy = policies.nextElement();
                 IPolicyDefault def = policy.getDefault();
-                IPolicyConstraint con = policy.getConstraint();
+                PolicyConstraint con = policy.getConstraint();
 
                 nvp.put(setId + ":" + policy.getId(),
                         def.getName(getLocale(req)) + ";" +

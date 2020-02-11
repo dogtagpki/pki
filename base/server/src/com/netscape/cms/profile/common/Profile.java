@@ -35,7 +35,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
@@ -46,6 +45,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.input.EnrollInput;
 import com.netscape.cms.profile.updater.IProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
@@ -1092,9 +1092,9 @@ public abstract class Profile {
         String constraintClass = conInfo.getClassName();
 
         logger.debug(method + " loading constraint class " + constraintClass);
-        IPolicyConstraint constraint = null;
+        PolicyConstraint constraint = null;
         try {
-            constraint = (IPolicyConstraint)
+            constraint = (PolicyConstraint)
                     Class.forName(constraintClass).newInstance();
         } catch (Exception e) {
             // throw Exception

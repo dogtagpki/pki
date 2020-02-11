@@ -36,7 +36,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
@@ -48,6 +47,7 @@ import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfilePolicy;
+import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
@@ -436,7 +436,7 @@ public class ProfileReviewServlet extends ProfileServlet {
         set.set(ARG_DEF_LIST, deflist);
 
         // handle constraint policy
-        IPolicyConstraint con = policy.getConstraint();
+        PolicyConstraint con = policy.getConstraint();
 
         if (con != null) {
             String conDesc = con.getText(locale);

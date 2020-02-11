@@ -15,11 +15,14 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.profile;
+package com.netscape.cms.profile.constraint;
 
 import java.util.Locale;
 
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.request.IRequest;
 
@@ -31,7 +34,7 @@ import com.netscape.certsrv.request.IRequest;
  *
  * @version $Revision$, $Date$
  */
-public interface IPolicyConstraint extends IConfigTemplate {
+public abstract class PolicyConstraint implements IConfigTemplate {
 
     /**
      * Initializes this constraint policy.
@@ -39,7 +42,7 @@ public interface IPolicyConstraint extends IConfigTemplate {
      * @param config configuration store for this constraint
      * @exception EProfileException failed to initialize
      */
-    public void init(IConfigStore config) throws EProfileException;
+    public abstract void init(IConfigStore config) throws EProfileException;
 
     /**
      * Returns the corresponding configuration store
@@ -47,7 +50,7 @@ public interface IPolicyConstraint extends IConfigTemplate {
      *
      * @return config store of this constraint
      */
-    public IConfigStore getConfigStore();
+    public abstract IConfigStore getConfigStore();
 
     /**
      * Validates the request. The request is not modified
@@ -56,7 +59,7 @@ public interface IPolicyConstraint extends IConfigTemplate {
      * @param request request to be validated
      * @exception ERejectException reject the given request
      */
-    public void validate(IRequest request)
+    public abstract void validate(IRequest request)
             throws ERejectException;
 
     /**
@@ -65,7 +68,7 @@ public interface IPolicyConstraint extends IConfigTemplate {
      * @param locale locale of the end-user
      * @return localized description of this constraint
      */
-    public String getText(Locale locale);
+    public abstract String getText(Locale locale);
 
     /**
      * Returns localized name of this constraint.
@@ -73,7 +76,7 @@ public interface IPolicyConstraint extends IConfigTemplate {
      * @param locale locale of the end-user
      * @return localized name of this constraint
      */
-    public String getName(Locale locale);
+    public abstract String getName(Locale locale);
 
     /**
      * Checks if this constraint is applicable to the
@@ -83,5 +86,5 @@ public interface IPolicyConstraint extends IConfigTemplate {
      * @return true if this constraint can be applied to
      *         the given default policy
      */
-    public boolean isApplicable(IPolicyDefault def);
+    public abstract boolean isApplicable(IPolicyDefault def);
 }

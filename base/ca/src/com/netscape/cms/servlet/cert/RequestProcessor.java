@@ -44,7 +44,6 @@ import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.PolicyDefault;
@@ -58,6 +57,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfilePolicy;
+import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
 import com.netscape.cmscore.apps.CMS;
@@ -462,7 +462,7 @@ public class RequestProcessor extends CertProcessor {
 
     private void validate(int count, ProfilePolicy policy, IRequest req)
             throws ERejectException, EDeferException {
-        IPolicyConstraint con = policy.getConstraint();
+        PolicyConstraint con = policy.getConstraint();
 
         con.validate(req);
     }

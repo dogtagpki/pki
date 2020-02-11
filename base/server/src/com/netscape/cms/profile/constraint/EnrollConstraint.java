@@ -29,7 +29,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -41,7 +40,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
  *
  * @version $Revision$, $Date$
  */
-public abstract class EnrollConstraint implements IPolicyConstraint {
+public abstract class EnrollConstraint extends PolicyConstraint {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollConstraint.class);
 

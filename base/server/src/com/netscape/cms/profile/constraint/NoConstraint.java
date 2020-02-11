@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -37,7 +36,7 @@ import com.netscape.cmscore.apps.CMS;
  *
  * @version $Revision$, $Date$
  */
-public class NoConstraint implements IPolicyConstraint {
+public class NoConstraint extends PolicyConstraint {
 
     public static final String CONFIG_NAME = "name";
 

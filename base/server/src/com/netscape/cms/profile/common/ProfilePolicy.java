@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.common;
 
-import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
+import com.netscape.cms.profile.constraint.PolicyConstraint;
 
 /**
  * This class represents a profile policy that
@@ -28,9 +28,9 @@ import com.netscape.certsrv.profile.IPolicyDefault;
 public class ProfilePolicy {
     private String mId = null;
     private IPolicyDefault mDefault = null;
-    private IPolicyConstraint mConstraint = null;
+    private PolicyConstraint mConstraint;
 
-    public ProfilePolicy(String id, IPolicyDefault def, IPolicyConstraint constraint) {
+    public ProfilePolicy(String id, IPolicyDefault def, PolicyConstraint constraint) {
         mId = id;
         mDefault = def;
         mConstraint = constraint;
@@ -44,7 +44,7 @@ public class ProfilePolicy {
         return mDefault;
     }
 
-    public IPolicyConstraint getConstraint() {
+    public PolicyConstraint getConstraint() {
         return mConstraint;
     }
 }

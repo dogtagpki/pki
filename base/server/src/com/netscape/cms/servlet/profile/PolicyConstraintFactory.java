@@ -20,14 +20,17 @@ package com.netscape.cms.servlet.profile;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.PolicyConstraint;
 import com.netscape.certsrv.profile.PolicyConstraintValue;
 import com.netscape.certsrv.property.Descriptor;
 
 public class PolicyConstraintFactory {
 
-    public static PolicyConstraint create(Locale locale, IPolicyConstraint cons, String classId) {
+    public static PolicyConstraint create(
+            Locale locale,
+            com.netscape.cms.profile.constraint.PolicyConstraint cons,
+            String classId) {
+
         PolicyConstraint ret = new PolicyConstraint();
         ret.setName(cons.getName(locale));
         ret.setText(cons.getText(locale));

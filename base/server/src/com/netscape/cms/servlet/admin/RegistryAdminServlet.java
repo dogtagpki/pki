@@ -29,11 +29,11 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
-import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
+import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.registry.PluginRegistry;
@@ -274,7 +274,7 @@ public class RegistryAdminServlet extends AdminServlet {
                     String constraintID = impls.nextElement();
                     IPluginInfo constraintInfo = registry.getPluginInfo(
                             "constraintPolicy", constraintID);
-                    IPolicyConstraint policyConstraintClass = (IPolicyConstraint)
+                    PolicyConstraint policyConstraintClass = (PolicyConstraint)
                             Class.forName(constraintInfo.getClassName()).newInstance();
 
                     logger.debug("RegistryAdminServlet: getSUpportedConstraint " + constraintInfo.getClassName());
