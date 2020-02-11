@@ -38,12 +38,12 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
-import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
@@ -377,7 +377,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
             while (policyIds.hasMoreElements()) {
                 String id = policyIds.nextElement();
-                IProfilePolicy policy = profile.getProfilePolicy(setId, id);
+                ProfilePolicy policy = profile.getProfilePolicy(setId, id);
 
                 // (3) query all the profile policies
                 // (4) default plugins convert request parameters
@@ -405,7 +405,7 @@ public class ProfileApproveServlet extends ProfileServlet {
     }
 
     private void handlePolicy(ArgList list, ServletResponse response,
-            Locale locale, String id, IProfilePolicy policy) {
+            Locale locale, String id, ProfilePolicy policy) {
         ArgSet set = new ArgSet();
 
         set.set(ARG_POLICY_ID, id);

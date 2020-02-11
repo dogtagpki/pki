@@ -47,7 +47,6 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileOutput;
-import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.profile.PolicyDefault;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileOutput;
@@ -58,6 +57,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
 import com.netscape.cmscore.apps.CMS;
@@ -431,11 +431,11 @@ public class RequestProcessor extends CertProcessor {
 
         String profileSetId = req.getExtDataInString("profileSetId");
 
-        Enumeration<IProfilePolicy> policies = profile.getProfilePolicies(profileSetId);
+        Enumeration<ProfilePolicy> policies = profile.getProfilePolicies(profileSetId);
         int count = 0;
 
         while (policies.hasMoreElements()) {
-            IProfilePolicy policy = policies.nextElement();
+            ProfilePolicy policy = policies.nextElement();
 
             setValue(locale, count, policy, req, policyData);
             count++;
@@ -444,7 +444,7 @@ public class RequestProcessor extends CertProcessor {
         policies = profile.getProfilePolicies(profileSetId);
         count = 0;
         while (policies.hasMoreElements()) {
-            IProfilePolicy policy = policies.nextElement();
+            ProfilePolicy policy = policies.nextElement();
 
             validate(count, policy, req);
             count++;
@@ -460,14 +460,14 @@ public class RequestProcessor extends CertProcessor {
         }
     }
 
-    private void validate(int count, IProfilePolicy policy, IRequest req)
+    private void validate(int count, ProfilePolicy policy, IRequest req)
             throws ERejectException, EDeferException {
         IPolicyConstraint con = policy.getConstraint();
 
         con.validate(req);
     }
 
-    private void setValue(Locale locale, int count, IProfilePolicy policy, IRequest req,
+    private void setValue(Locale locale, int count, ProfilePolicy policy, IRequest req,
             HashMap<String, String> data) throws EPropertyException {
         // handle default policy
         IPolicyDefault def = policy.getDefault();

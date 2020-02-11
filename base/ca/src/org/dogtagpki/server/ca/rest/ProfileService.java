@@ -55,7 +55,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
-import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.profile.PolicyConstraint;
 import com.netscape.certsrv.profile.PolicyConstraintValue;
 import com.netscape.certsrv.profile.PolicyDefault;
@@ -295,7 +294,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     public ProfilePolicy createProfilePolicy(Profile profile, String setId, String policyId) throws EBaseException {
-        IProfilePolicy policy = profile.getProfilePolicy(setId, policyId);
+        com.netscape.cms.profile.common.ProfilePolicy policy = profile.getProfilePolicy(setId, policyId);
         IConfigStore policyStore = profile.getConfigStore().getSubStore(
                 "policyset." + setId + "." + policy.getId());
 
@@ -872,7 +871,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                     PolicyConstraint con = policy.getConstraint();
 
                     // create policy using defaults for PolicyDefault and PolicyConstraint
-                    IProfilePolicy p = profile.createProfilePolicy(setId, policy.getId(),
+                    com.netscape.cms.profile.common.ProfilePolicy p = profile.createProfilePolicy(setId, policy.getId(),
                             def.getClassId(), con.getClassId());
 
                     // change specific elements to match incoming data for PolicyDefault

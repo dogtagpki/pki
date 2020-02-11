@@ -43,12 +43,12 @@ import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
-import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.CAEnrollProfile;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -1201,7 +1201,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String setId = ss.nextToken();
             String pId = ss.nextToken();
 
-            IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
+            ProfilePolicy policy = profile.getProfilePolicy(setId, pId);
             IPolicyDefault def = policy.getDefault();
 
             Enumeration<String> names = req.getParameterNames();
@@ -1337,7 +1337,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String setId = ss.nextToken();
             String pId = ss.nextToken();
 
-            IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
+            ProfilePolicy policy = profile.getProfilePolicy(setId, pId);
             IPolicyConstraint con = policy.getConstraint();
 
             Enumeration<String> names = req.getParameterNames();
@@ -1474,7 +1474,7 @@ public class ProfileAdminServlet extends AdminServlet {
             StringTokenizer ss = new StringTokenizer(policyId, ":");
             String setId = ss.nextToken();
             String pId = ss.nextToken();
-            IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
+            ProfilePolicy policy = profile.getProfilePolicy(setId, pId);
             IPolicyDefault def = policy.getDefault();
 
             Enumeration<String> names = req.getParameterNames();
@@ -1844,7 +1844,7 @@ public class ProfileAdminServlet extends AdminServlet {
             StringTokenizer ss = new StringTokenizer(policyId, ":");
             String setId = ss.nextToken();
             String pId = ss.nextToken();
-            IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
+            ProfilePolicy policy = profile.getProfilePolicy(setId, pId);
             IPolicyConstraint con = policy.getConstraint();
 
             Enumeration<String> names = req.getParameterNames();
@@ -1946,14 +1946,13 @@ public class ProfileAdminServlet extends AdminServlet {
             throw new ServletException(e1.toString());
         }
 
-        IProfilePolicy policy = null;
         IPolicyDefault rule = null;
 
         StringTokenizer ss = new StringTokenizer(policyId, ":");
         String setId = ss.nextToken();
         String pId = ss.nextToken();
 
-        policy = profile.getProfilePolicy(setId, pId);
+        ProfilePolicy policy = profile.getProfilePolicy(setId, pId);
         rule = policy.getDefault();
 
         NameValuePairs nvp = new NameValuePairs();
@@ -2004,7 +2003,7 @@ public class ProfileAdminServlet extends AdminServlet {
         StringTokenizer ss = new StringTokenizer(policyId, ":");
         String setId = ss.nextToken();
         String pId = ss.nextToken();
-        IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
+        ProfilePolicy policy = profile.getProfilePolicy(setId, pId);
         IPolicyConstraint rule = policy.getConstraint();
 
         NameValuePairs nvp = new NameValuePairs();
@@ -2053,10 +2052,10 @@ public class ProfileAdminServlet extends AdminServlet {
         }
         while (setIds.hasMoreElements()) {
             String setId = setIds.nextElement();
-            Enumeration<IProfilePolicy> policies = profile.getProfilePolicies(setId);
+            Enumeration<ProfilePolicy> policies = profile.getProfilePolicies(setId);
 
             while (policies.hasMoreElements()) {
-                IProfilePolicy policy = policies.nextElement();
+                ProfilePolicy policy = policies.nextElement();
                 IPolicyDefault def = policy.getDefault();
                 IPolicyConstraint con = policy.getConstraint();
 

@@ -29,7 +29,6 @@ import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileInput;
-import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.profile.PolicyConstraint;
 import com.netscape.certsrv.profile.PolicyDefault;
 import com.netscape.certsrv.profile.ProfileInput;
@@ -105,7 +104,7 @@ public class CertReviewResponseFactory {
             while (policyIds.hasMoreElements()) {
                 String id = policyIds.nextElement();
                 logger.debug("policyId:" + id);
-                IProfilePolicy policy = profile.getProfilePolicy(profileSetId, id);
+                com.netscape.cms.profile.common.ProfilePolicy policy = profile.getProfilePolicy(profileSetId, id);
                 ProfilePolicy dataPolicy = new ProfilePolicy();
 
                 //populate defaults
@@ -156,7 +155,7 @@ public class CertReviewResponseFactory {
             while (policyIds.hasMoreElements()) {
                 String id = policyIds.nextElement();
                 logger.debug("policyId:" + id);
-                IProfilePolicy policy = profile.getProfilePolicy(profileSetId, id);
+                com.netscape.cms.profile.common.ProfilePolicy policy = profile.getProfilePolicy(profileSetId, id);
                 com.netscape.certsrv.profile.ProfilePolicy dataPolicy =
                         new com.netscape.certsrv.profile.ProfilePolicy();
 

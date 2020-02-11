@@ -39,7 +39,6 @@ import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
-import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.request.IRequest;
@@ -118,7 +117,7 @@ public abstract class Profile {
     protected String mId = null;
     protected String mAuthzAcl = "";
 
-    protected Hashtable<String, Vector<IProfilePolicy>> mPolicySet = new Hashtable<String, Vector<IProfilePolicy>>();
+    protected Hashtable<String, Vector<ProfilePolicy>> mPolicySet = new Hashtable<String, Vector<ProfilePolicy>>();
 
     public Profile() {
     }
@@ -496,7 +495,7 @@ public abstract class Profile {
      */
     public void deleteProfilePolicy(String setId, String policyId)
             throws EProfileException {
-        Vector<IProfilePolicy> policies = mPolicySet.get(setId);
+        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null) {
             return;
@@ -530,7 +529,7 @@ public abstract class Profile {
             int size = policies.size();
 
             for (int i = 0; i < size; i++) {
-                IProfilePolicy policy = policies.elementAt(i);
+                ProfilePolicy policy = policies.elementAt(i);
                 String id = policy.getId();
 
                 if (id.equals(policyId)) {
@@ -568,10 +567,10 @@ public abstract class Profile {
      * @exception EProfileException
      */
     public void deleteAllProfilePolicies() throws EProfileException {
-        for (Map.Entry<String, Vector<IProfilePolicy>> entry : mPolicySet.entrySet()) {
+        for (Map.Entry<String, Vector<ProfilePolicy>> entry : mPolicySet.entrySet()) {
             String setId = entry.getKey();
-            Vector<IProfilePolicy> pList = new Vector<IProfilePolicy>(entry.getValue());
-            for (IProfilePolicy policy: pList) {
+            Vector<ProfilePolicy> pList = new Vector<ProfilePolicy>(entry.getValue());
+            for (ProfilePolicy policy: pList) {
                 deleteProfilePolicy(setId, policy.getId());
             }
         }
@@ -910,14 +909,14 @@ public abstract class Profile {
      * @exception EProfileException failed to create policy
      * @return profile policy instance
      */
-    public IProfilePolicy createProfilePolicy(String setId, String id,
+    public ProfilePolicy createProfilePolicy(String setId, String id,
             String defaultClassId, String constraintClassId)
             throws EProfileException {
         return createProfilePolicy(setId, id, defaultClassId,
                 constraintClassId, true);
     }
 
-    public IProfilePolicy createProfilePolicy(String setId, String id,
+    public ProfilePolicy createProfilePolicy(String setId, String id,
             String defaultClassId, String constraintClassId,
             boolean createConfig)
             throws EProfileException {
@@ -930,11 +929,11 @@ public abstract class Profile {
         // String constraintClassId : if of the constraint plugin ex: basicConstraintsExtConstraintImpl
         // boolean createConfig : true : being called from the console. false: being called from server startup code
 
-        Vector<IProfilePolicy> policies = mPolicySet.get(setId);
+        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
         IConfigStore policyStore = mConfig.getSubStore("policyset." + setId);
         if (policies == null) {
-            policies = new Vector<IProfilePolicy>();
+            policies = new Vector<ProfilePolicy>();
             mPolicySet.put(setId, policies);
             if (createConfig) {
                 // re-create policyset.list
@@ -1158,14 +1157,14 @@ public abstract class Profile {
      * @param id policy id
      * @return profile policy
      */
-    public IProfilePolicy getProfilePolicy(String setId, String id) {
-        Vector<IProfilePolicy> policies = mPolicySet.get(setId);
+    public ProfilePolicy getProfilePolicy(String setId, String id) {
+        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null)
             return null;
 
         for (int i = 0; i < policies.size(); i++) {
-            IProfilePolicy policy = policies.elementAt(i);
+            ProfilePolicy policy = policies.elementAt(i);
 
             if (policy.getId().equals(id)) {
                 return policy;
@@ -1278,10 +1277,8 @@ public abstract class Profile {
         }
     }
 
-    public Vector<IProfilePolicy> getPolicies(String setId) {
-        Vector<IProfilePolicy> policies = mPolicySet.get(setId);
-
-        return policies;
+    public Vector<ProfilePolicy> getPolicies(String setId) {
+        return mPolicySet.get(setId);
     }
 
     /**
@@ -1305,11 +1302,11 @@ public abstract class Profile {
             throws EProfileException {
         String method = "Profile: populate: ";
         String setId = getPolicySetId(request);
-        Vector<IProfilePolicy> policies = getPolicies(setId);
+        Vector<ProfilePolicy> policies = getPolicies(setId);
         logger.debug(method + "policy setid =" + setId);
 
         for (int i = 0; i < policies.size(); i++) {
-            IProfilePolicy policy = policies.elementAt(i);
+            ProfilePolicy policy = policies.elementAt(i);
 
             policy.getDefault().populate(request);
         }
@@ -1326,10 +1323,10 @@ public abstract class Profile {
             throws ERejectException {
         String setId = getPolicySetId(request);
         logger.debug("Profile: validate start on setId=" + setId);
-        Vector<IProfilePolicy> policies = getPolicies(setId);
+        Vector<ProfilePolicy> policies = getPolicies(setId);
 
         for (int i = 0; i < policies.size(); i++) {
-            IProfilePolicy policy = policies.elementAt(i);
+            ProfilePolicy policy = policies.elementAt(i);
 
             policy.getConstraint().validate(request);
         }
@@ -1344,8 +1341,8 @@ public abstract class Profile {
      * @param setId set id
      * @return a list of policies
      */
-    public Enumeration<IProfilePolicy> getProfilePolicies(String setId) {
-        Vector<IProfilePolicy> policies = mPolicySet.get(setId);
+    public Enumeration<ProfilePolicy> getProfilePolicies(String setId) {
+        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null)
             return null;
@@ -1359,7 +1356,7 @@ public abstract class Profile {
      * @return a list of policy id
      */
     public Enumeration<String> getProfilePolicyIds(String setId) {
-        Vector<IProfilePolicy> policies = mPolicySet.get(setId);
+        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null)
             return null;
@@ -1367,7 +1364,7 @@ public abstract class Profile {
         Vector<String> v = new Vector<String>();
 
         for (int i = 0; i < policies.size(); i++) {
-            IProfilePolicy policy = policies.elementAt(i);
+            ProfilePolicy policy = policies.elementAt(i);
 
             v.addElement(policy.getId());
         }

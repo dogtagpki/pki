@@ -21,7 +21,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.profile.IPolicyDefault;
-import com.netscape.certsrv.profile.IProfilePolicy;
 
 /**
  * This class implements a Certificate Manager enrollment
@@ -50,7 +49,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile {
         createProfilePolicy("set1", "p1",
                         "userSubjectNameDefaultImpl", "noConstraintImpl");
 
-        IProfilePolicy policy2 =
+        ProfilePolicy policy2 =
                 createProfilePolicy("set1", "p2",
                         "validityDefaultImpl", "noConstraintImpl");
         IPolicyDefault def2 = policy2.getDefault();
@@ -58,7 +57,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile {
         defConfig2.putString("params.range", "180");
         defConfig2.putString("params.startTime", "0");
 
-        IProfilePolicy policy3 =
+        ProfilePolicy policy3 =
                 createProfilePolicy("set1", "p3",
                         "userKeyDefaultImpl", "noConstraintImpl");
         IPolicyDefault def3 = policy3.getDefault();
@@ -67,7 +66,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile {
         defConfig3.putString("params.keyMinLength", "512");
         defConfig3.putString("params.keyMaxLength", "4096");
 
-        IProfilePolicy policy4 =
+        ProfilePolicy policy4 =
                 createProfilePolicy("set1", "p4",
                         "signingAlgDefaultImpl", "noConstraintImpl");
         IPolicyDefault def4 = policy4.getDefault();
@@ -77,7 +76,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile {
                 "SHA1withRSA,SHA256withRSA,SHA512withRSA,SHA256withEC,SHA384withEC,SHA512withEC");
 
         // extensions
-        IProfilePolicy policy5 =
+        ProfilePolicy policy5 =
                 createProfilePolicy("set1", "p5",
                         "keyUsageExtDefaultImpl", "noConstraintImpl");
         IPolicyDefault def5 = policy5.getDefault();
@@ -93,7 +92,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile {
         defConfig5.putString("params.keyUsageKeyEncipherment", "false");
         defConfig5.putString("params.keyUsageNonRepudiation", "true");
 
-        IProfilePolicy policy6 =
+        ProfilePolicy policy6 =
                 createProfilePolicy("set1", "p6",
                         "basicConstraintsExtDefaultImpl", "noConstraintImpl");
         IPolicyDefault def6 = policy6.getDefault();

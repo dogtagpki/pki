@@ -40,7 +40,6 @@ import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
-import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -48,6 +47,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
@@ -237,7 +237,7 @@ public class ProfileReviewServlet extends ProfileServlet {
         if (policyIds != null) {
             while (policyIds.hasMoreElements()) {
                 String id = policyIds.nextElement();
-                IProfilePolicy policy =
+                ProfilePolicy policy =
                         profile.getProfilePolicy(req.getExtDataInString("profileSetId"),
                                 id);
 
@@ -392,7 +392,7 @@ public class ProfileReviewServlet extends ProfileServlet {
     }
 
     private void handlePolicy(ArgList list, ServletResponse response,
-            Locale locale, String id, IProfilePolicy policy,
+            Locale locale, String id, ProfilePolicy policy,
             IRequest req) {
         ArgSet set = new ArgSet();
 
