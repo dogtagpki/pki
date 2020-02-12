@@ -18,17 +18,13 @@
 package com.netscape.certsrv.profile;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Locale;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.netscape.certsrv.property.Descriptor;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -62,16 +58,10 @@ public class ProfileOutput {
         // required for jaxb
     }
 
-    public ProfileOutput(IProfileOutput output, String id, String classId, Locale locale) {
-        this.name = output.getName(locale);
+    public ProfileOutput(String id, String name, String classId) {
         this.id = id;
+        this.name = name;
         this.classId = classId;
-        Enumeration<String> names = output.getValueNames();
-        while (names.hasMoreElements()) {
-            String name = names.nextElement();
-            addAttribute(new ProfileAttribute(name, null,
-                    (Descriptor) output.getValueDescriptor(locale, name)));
-        }
     }
 
     public String getClassId() {

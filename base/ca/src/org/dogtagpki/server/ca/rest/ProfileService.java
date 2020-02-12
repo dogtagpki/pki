@@ -339,9 +339,22 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return null;
 
         IConfigStore outputStore = profile.getConfigStore().getSubStore("output");
+        String name = profileOutput.getName(locale);
         String classId = outputStore.getString(outputId + ".class_id");
 
-        return new ProfileOutput(profileOutput, outputId, classId, locale);
+        ProfileOutput output = new ProfileOutput(outputId, name, classId);
+
+        Enumeration<String> attrNames = profileOutput.getValueNames();
+        while (attrNames.hasMoreElements()) {
+            String attrName = attrNames.nextElement();
+
+            Descriptor descriptor = (Descriptor) profileOutput.getValueDescriptor(locale, attrName);
+
+            ProfileAttribute attr = new ProfileAttribute(attrName, null, descriptor);
+            output.addAttribute(attr);
+        }
+
+        return output;
     }
 
     public static ProfileDataInfo createProfileDataInfo(String profileId, boolean visibleOnly, UriInfo uriInfo,
