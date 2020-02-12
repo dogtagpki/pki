@@ -33,24 +33,16 @@ class RemoveLDAPSetupFiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
         self.message = 'Remove LDAP setup files from instance folder'
 
     def upgrade_instance(self, instance):
+        filenames = [
+            'schema-authority.ldif',
+            'schema-certProfile.ldif',
+            'usn.ldif',
+        ]
 
-        schema_authority_ldif = os.path.join(instance.conf_dir, 'schema-authority.ldif')
-        logging.info('Checking %s', schema_authority_ldif)
-        if os.path.exists(schema_authority_ldif):
-            logging.info('Removing %s', schema_authority_ldif)
-            self.backup(schema_authority_ldif)
-            pki.util.remove(schema_authority_ldif)
-
-        schema_certProfile_ldif = os.path.join(instance.conf_dir, 'schema-certProfile.ldif')
-        logging.info('Checking %s', schema_certProfile_ldif)
-        if os.path.exists(schema_certProfile_ldif):
-            logging.info('Removing %s', schema_certProfile_ldif)
-            self.backup(schema_certProfile_ldif)
-            pki.util.remove(schema_certProfile_ldif)
-
-        usn_ldif = os.path.join(instance.conf_dir, 'usn.ldif')
-        logging.info('Checking %s', usn_ldif)
-        if os.path.exists(usn_ldif):
-            logging.info('Removing %s', usn_ldif)
-            self.backup(usn_ldif)
-            pki.util.remove(usn_ldif)
+        for filename in filenames:
+            path = os.path.join(instance.conf_dir, filename)
+            logging.info('Checking %s', path)
+            if os.path.exists(path):
+                logging.info('Removing %s', path)
+                self.backup(path)
+                pki.util.remove(path)
