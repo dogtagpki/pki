@@ -15,13 +15,14 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.profile;
+package com.netscape.cms.profile.common;
 
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
@@ -34,14 +35,14 @@ import com.netscape.certsrv.request.IRequest;
  *
  * @version $Revision$, $Date$
  */
-public interface IProfileInput extends IConfigTemplate {
+public abstract class ProfileInput implements IConfigTemplate {
 
     /**
      * Returns configuration store.
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore();
+    public abstract IConfigStore getConfigStore();
 
     /**
      * Populates the request with this policy default.
@@ -50,7 +51,7 @@ public interface IProfileInput extends IConfigTemplate {
      * @param request request
      * @exception Exception failed to populate
      */
-    public void populate(Map<String, String> ctx, IRequest request) throws Exception;
+    public abstract void populate(Map<String, String> ctx, IRequest request) throws Exception;
 
     /**
      * Retrieves the localizable name of this policy.
@@ -58,7 +59,7 @@ public interface IProfileInput extends IConfigTemplate {
      * @param locale user locale
      * @return localized input name
      */
-    public String getName(Locale locale);
+    public abstract String getName(Locale locale);
 
     /**
      * Retrieves the localizable description of this policy.
@@ -66,14 +67,14 @@ public interface IProfileInput extends IConfigTemplate {
      * @param locale user locale
      * @return localized input description
      */
-    public String getText(Locale locale);
+    public abstract String getText(Locale locale);
 
     /**
      * Retrieves a list of names of the property.
      *
      * @return a list of property names
      */
-    public Enumeration<String> getValueNames();
+    public abstract Enumeration<String> getValueNames();
 
     /**
      * Retrieves the descriptor of the given value
@@ -83,7 +84,7 @@ public interface IProfileInput extends IConfigTemplate {
      * @param name property name
      * @return descriptor of the property
      */
-    public IDescriptor getValueDescriptor(Locale locale, String name);
+    public abstract IDescriptor getValueDescriptor(Locale locale, String name);
 
     /**
      * Retrieves value from the request.
@@ -93,7 +94,7 @@ public interface IProfileInput extends IConfigTemplate {
      * @param request request
      * @exception EProfileException failed to get value
      */
-    public String getValue(String name, Locale locale, IRequest request)
+    public abstract String getValue(String name, Locale locale, IRequest request)
             throws EProfileException;
 
     /**
@@ -104,6 +105,6 @@ public interface IProfileInput extends IConfigTemplate {
      * @param request request
      * @param value value
      */
-    public void setValue(String name, Locale locale, IRequest request,
+    public abstract void setValue(String name, Locale locale, IRequest request,
             String value) throws EPropertyException;
 }

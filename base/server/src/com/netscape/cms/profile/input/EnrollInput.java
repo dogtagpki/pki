@@ -33,7 +33,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -41,6 +40,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -51,7 +51,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  *
  * @version $Revision$, $Date$
  */
-public abstract class EnrollInput implements IProfileInput {
+public abstract class EnrollInput extends ProfileInput {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollInput.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();

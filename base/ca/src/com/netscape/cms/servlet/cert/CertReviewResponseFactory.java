@@ -27,7 +27,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.PolicyConstraint;
 import com.netscape.certsrv.profile.PolicyDefault;
 import com.netscape.certsrv.profile.ProfileInput;
@@ -88,7 +87,7 @@ public class CertReviewResponseFactory {
         // populate profile inputs
         Enumeration<String> inputIds = profile.getProfileInputIds();
         while (inputIds.hasMoreElements()) {
-            IProfileInput input = profile.getProfileInput(inputIds.nextElement());
+            com.netscape.cms.profile.common.ProfileInput input = profile.getProfileInput(inputIds.nextElement());
             ProfileInput addInput = ProfileInputFactory.create(input, request, locale);
             ret.addInput(addInput);
         }

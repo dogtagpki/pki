@@ -39,12 +39,12 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.CAEnrollProfile;
+import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
@@ -1602,7 +1602,7 @@ public class ProfileAdminServlet extends AdminServlet {
                 return;
             }
 
-            IProfileInput input = profile.getProfileInput(inputId);
+            ProfileInput input = profile.getProfileInput(inputId);
             IConfigStore inputConfig = input.getConfigStore();
 
             Enumeration<String> names = req.getParameterNames();
@@ -2114,7 +2114,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
         while (inputs.hasMoreElements()) {
             String inputId = inputs.nextElement();
-            IProfileInput input = profile.getProfileInput(inputId);
+            ProfileInput input = profile.getProfileInput(inputId);
 
             nvp.put(inputId, input.getName(getLocale(req)));
         }
@@ -2140,7 +2140,7 @@ public class ProfileAdminServlet extends AdminServlet {
             throw new ServletException(e1.toString());
         }
 
-        IProfileInput profileInput = null;
+        ProfileInput profileInput = null;
         NameValuePairs nvp = new NameValuePairs();
 
         profileInput = profile.getProfileInput(inputId);

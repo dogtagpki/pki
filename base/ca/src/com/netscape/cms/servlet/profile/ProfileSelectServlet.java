@@ -34,12 +34,12 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
@@ -297,7 +297,7 @@ public class ProfileSelectServlet extends ProfileServlet {
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
                 String inputId = inputIds.nextElement();
-                IProfileInput profileInput = profile.getProfileInput(inputId);
+                ProfileInput profileInput = profile.getProfileInput(inputId);
 
                 if (profileInput != null) {
 

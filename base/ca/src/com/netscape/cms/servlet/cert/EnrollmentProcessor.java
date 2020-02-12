@@ -35,7 +35,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.IRequest;
@@ -70,7 +69,7 @@ public class EnrollmentProcessor extends CertProcessor {
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
                 String inputId = inputIds.nextElement();
-                IProfileInput profileInput = profile.getProfileInput(inputId);
+                com.netscape.cms.profile.common.ProfileInput profileInput = profile.getProfileInput(inputId);
                 Enumeration<String> inputNames = profileInput.getValueNames();
 
                 while (inputNames.hasMoreElements()) {

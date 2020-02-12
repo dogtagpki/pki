@@ -43,7 +43,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.registry.IPluginInfo;
@@ -386,7 +385,7 @@ public class RenewalProcessor extends CertProcessor {
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
                 String inputId = inputIds.nextElement();
-                IProfileInput profileInput = profile.getProfileInput(inputId);
+                com.netscape.cms.profile.common.ProfileInput profileInput = profile.getProfileInput(inputId);
                 Enumeration<String> inputNames = profileInput.getValueNames();
 
                 while (inputNames.hasMoreElements()) {

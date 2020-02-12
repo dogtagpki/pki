@@ -35,7 +35,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
@@ -107,7 +106,7 @@ public abstract class Profile {
     protected ProfileSubsystem mOwner;
 
     protected Vector<String> mInputNames = new Vector<String>();
-    protected Hashtable<String, IProfileInput> mInputs = new Hashtable<String, IProfileInput>();
+    protected Hashtable<String, ProfileInput> mInputs = new Hashtable<String, ProfileInput>();
     protected Vector<String> mInputIds = new Vector<String>();
     protected Hashtable<String, IProfileOutput> mOutputs = new Hashtable<String, IProfileOutput>();
     protected Vector<String> mOutputIds = new Vector<String>();
@@ -456,7 +455,7 @@ public abstract class Profile {
      * @param id input policy id
      * @return input policy instance
      */
-    public IProfileInput getProfileInput(String name) {
+    public ProfileInput getProfileInput(String name) {
         return mInputs.get(name);
     }
 
@@ -806,13 +805,13 @@ public abstract class Profile {
      * @return input policy
      * @exception EProfileException failed to create
      */
-    public IProfileInput createProfileInput(String id, String inputId,
+    public ProfileInput createProfileInput(String id, String inputId,
             NameValuePairs nvps)
             throws EProfileException {
         return createProfileInput(id, inputId, nvps, true);
     }
 
-    public IProfileInput createProfileInput(String id, String inputId,
+    public ProfileInput createProfileInput(String id, String inputId,
             NameValuePairs nvps, boolean createConfig)
             throws EProfileException {
         IConfigStore inputStore = mConfig.getSubStore("input");
@@ -1271,7 +1270,7 @@ public abstract class Profile {
 
         while (ids.hasMoreElements()) {
             String id = ids.nextElement();
-            IProfileInput input = getProfileInput(id);
+            ProfileInput input = getProfileInput(id);
 
             input.populate(ctx, request);
         }

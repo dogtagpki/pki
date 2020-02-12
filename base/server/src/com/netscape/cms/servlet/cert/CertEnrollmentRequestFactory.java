@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -54,7 +53,7 @@ public class CertEnrollmentRequestFactory {
         // populate profile inputs
         Enumeration<String> inputIds = profile.getProfileInputIds();
         while (inputIds.hasMoreElements()) {
-            IProfileInput input = profile.getProfileInput(inputIds.nextElement());
+            com.netscape.cms.profile.common.ProfileInput input = profile.getProfileInput(inputIds.nextElement());
             ProfileInput addInput = ProfileInputFactory.create(input, params, locale);
             request.addInput(addInput);
         }

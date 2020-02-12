@@ -53,7 +53,6 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.PolicyConstraint;
 import com.netscape.certsrv.profile.PolicyConstraintValue;
@@ -310,7 +309,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     public static ProfileInput createProfileInput(Profile profile, String inputId, Locale locale) throws EBaseException {
-        IProfileInput profileInput = profile.getProfileInput(inputId);
+        com.netscape.cms.profile.common.ProfileInput profileInput = profile.getProfileInput(inputId);
         if (profileInput == null)
             return null;
 

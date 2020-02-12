@@ -62,7 +62,6 @@ import com.netscape.certsrv.profile.ECMCPopRequiredException;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
@@ -71,6 +70,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.IProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
@@ -122,7 +122,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
                 String inputId = inputIds.nextElement();
-                IProfileInput profileInput = profile.getProfileInput(inputId);
+                ProfileInput profileInput = profile.getProfileInput(inputId);
                 Enumeration<String> inputNames = profileInput.getValueNames();
 
                 while (inputNames.hasMoreElements()) {
@@ -228,7 +228,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
                 String inputId = inputIds.nextElement();
-                IProfileInput profileInput = profile.getProfileInput(inputId);
+                ProfileInput profileInput = profile.getProfileInput(inputId);
                 Enumeration<String> inputNames = profileInput.getValueNames();
 
                 if (inputNames != null) {
