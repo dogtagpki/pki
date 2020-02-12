@@ -36,6 +36,7 @@ class RemoveLDAPSetupFiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
         filenames = [
             'schema-authority.ldif',
             'schema-certProfile.ldif',
+            'schema-acme.ldif',
             'usn.ldif',
         ]
 
