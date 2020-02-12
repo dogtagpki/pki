@@ -35,7 +35,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.request.IRequest;
@@ -108,7 +107,7 @@ public abstract class Profile {
     protected Vector<String> mInputNames = new Vector<String>();
     protected Hashtable<String, ProfileInput> mInputs = new Hashtable<String, ProfileInput>();
     protected Vector<String> mInputIds = new Vector<String>();
-    protected Hashtable<String, IProfileOutput> mOutputs = new Hashtable<String, IProfileOutput>();
+    protected Hashtable<String, ProfileOutput> mOutputs = new Hashtable<String, ProfileOutput>();
     protected Vector<String> mOutputIds = new Vector<String>();
     protected Hashtable<String, IProfileUpdater> mUpdaters = new Hashtable<String, IProfileUpdater>();
     protected Vector<String> mUpdaterIds = new Vector<String>();
@@ -313,10 +312,10 @@ public abstract class Profile {
                     outputClassId);
             String outputClass = outputInfo.getClassName();
 
-            IProfileOutput output = null;
+            ProfileOutput output = null;
 
             try {
-                output = (IProfileOutput)
+                output = (ProfileOutput)
                         Class.forName(outputClass).newInstance();
             } catch (Exception e) {
                 // throw Exception
@@ -436,7 +435,7 @@ public abstract class Profile {
      * @param id output policy id
      * @return output policy instance
      */
-    public IProfileOutput getProfileOutput(String name) {
+    public ProfileOutput getProfileOutput(String name) {
         return mOutputs.get(name);
     }
 
@@ -702,13 +701,13 @@ public abstract class Profile {
      * @return output policy
      * @exception EProfileException failed to create
      */
-    public IProfileOutput createProfileOutput(String id, String outputId,
+    public ProfileOutput createProfileOutput(String id, String outputId,
             NameValuePairs nvps)
             throws EProfileException {
         return createProfileOutput(id, outputId, nvps, true);
     }
 
-    public IProfileOutput createProfileOutput(String id, String outputId,
+    public ProfileOutput createProfileOutput(String id, String outputId,
             NameValuePairs nvps, boolean createConfig)
 
     throws EProfileException {
@@ -724,10 +723,10 @@ public abstract class Profile {
         String outputClass = outputInfo.getClassName();
 
         logger.debug("Profile: loading output class " + outputClass);
-        IProfileOutput output = null;
+        ProfileOutput output = null;
 
         try {
-            output = (IProfileOutput)
+            output = (ProfileOutput)
                     Class.forName(outputClass).newInstance();
         } catch (Exception e) {
             // throw Exception

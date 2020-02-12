@@ -21,7 +21,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileOutput;
 import com.netscape.certsrv.property.Descriptor;
@@ -29,7 +28,11 @@ import com.netscape.certsrv.request.IRequest;
 
 public class ProfileOutputFactory {
 
-    public static ProfileOutput create(IProfileOutput output, IRequest request, Locale locale) throws EProfileException {
+    public static ProfileOutput create(
+            com.netscape.cms.profile.common.ProfileOutput output,
+            IRequest request,
+            Locale locale) throws EProfileException {
+
         ProfileOutput ret = new ProfileOutput();
         ret.setName(output.getName(locale));
         ret.setText(output.getText(locale));
@@ -45,5 +48,4 @@ public class ProfileOutputFactory {
         }
         return ret;
     }
-
 }

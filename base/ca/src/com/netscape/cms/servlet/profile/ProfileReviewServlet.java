@@ -36,7 +36,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -44,6 +43,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.profile.common.ProfileInput;
+import com.netscape.cms.profile.common.ProfileOutput;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
@@ -348,7 +348,7 @@ public class ProfileReviewServlet extends ProfileServlet {
         if (outputIds != null) {
             while (outputIds.hasMoreElements()) {
                 String outputId = outputIds.nextElement();
-                IProfileOutput profileOutput = profile.getProfileOutput(outputId
+                ProfileOutput profileOutput = profile.getProfileOutput(outputId
                         );
 
                 Enumeration<String> outputNames = profileOutput.getValueNames();

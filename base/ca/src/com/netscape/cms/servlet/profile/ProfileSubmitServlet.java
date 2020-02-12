@@ -42,12 +42,12 @@ import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cms.profile.common.ProfileOutput;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
@@ -278,7 +278,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         if (outputIds != null) {
             while (outputIds.hasMoreElements()) {
                 String outputId = outputIds.nextElement();
-                IProfileOutput profileOutput = profile.getProfileOutput(outputId);
+                ProfileOutput profileOutput = profile.getProfileOutput(outputId);
 
                 Enumeration<String> outputNames = profileOutput.getValueNames();
 
@@ -376,7 +376,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 if (outputIds != null) {
                     while (outputIds.hasMoreElements()) {
                         String outputId = outputIds.nextElement();
-                        IProfileOutput profileOutput = profile.getProfileOutput(outputId);
+                        ProfileOutput profileOutput = profile.getProfileOutput(outputId);
                         Enumeration<String> outputNames = profileOutput.getValueNames();
                         if (outputNames != null) {
                             while (outputNames.hasMoreElements()) {

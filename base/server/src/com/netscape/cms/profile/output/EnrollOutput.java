@@ -24,17 +24,17 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.common.ProfileOutput;
 
 /**
  * This class implements the basic enrollment output.
  *
  * @version $Revision$, $Date$
  */
-public abstract class EnrollOutput implements IProfileOutput {
+public abstract class EnrollOutput extends ProfileOutput {
     private IConfigStore mConfig = null;
     private Vector<String> mValueNames = new Vector<String>();
     protected Vector<String> mConfigNames = new Vector<String>();

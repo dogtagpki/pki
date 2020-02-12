@@ -15,13 +15,14 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.profile;
+package com.netscape.cms.profile.common;
 
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
@@ -34,7 +35,7 @@ import com.netscape.certsrv.request.IRequest;
  *
  * @version $Revision$, $Date$
  */
-public interface IProfileOutput extends IConfigTemplate {
+public abstract class ProfileOutput implements IConfigTemplate {
 
     /**
      * Initializes this default policy.
@@ -42,14 +43,14 @@ public interface IProfileOutput extends IConfigTemplate {
      * @param config configuration store
      * @exception EProfileException failed to initialize
      */
-    public void init(IConfigStore config) throws EProfileException;
+    public abstract void init(IConfigStore config) throws EProfileException;
 
     /**
      * Retrieves configuration store.
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore();
+    public abstract IConfigStore getConfigStore();
 
     /**
      * Populates the request with this policy default.
@@ -58,7 +59,7 @@ public interface IProfileOutput extends IConfigTemplate {
      * @param request request
      * @exception EProfileException failed to populate
      */
-    public void populate(Map<String, String> ctx, IRequest request)
+    public abstract void populate(Map<String, String> ctx, IRequest request)
             throws EProfileException;
 
     /**
@@ -67,7 +68,7 @@ public interface IProfileOutput extends IConfigTemplate {
      * @param locale user locale
      * @return output policy name
      */
-    public String getName(Locale locale);
+    public abstract String getName(Locale locale);
 
     /**
      * Retrieves the localizable description of this policy.
@@ -75,14 +76,14 @@ public interface IProfileOutput extends IConfigTemplate {
      * @param locale user locale
      * @return output policy description
      */
-    public String getText(Locale locale);
+    public abstract String getText(Locale locale);
 
     /**
      * Retrieves a list of names of the value parameter.
      *
      * @return a list of property names
      */
-    public Enumeration<String> getValueNames();
+    public abstract Enumeration<String> getValueNames();
 
     /**
      * Retrieves the descriptor of the given value
@@ -92,7 +93,7 @@ public interface IProfileOutput extends IConfigTemplate {
      * @param name property name
      * @return property descriptor
      */
-    public IDescriptor getValueDescriptor(Locale locale, String name);
+    public abstract IDescriptor getValueDescriptor(Locale locale, String name);
 
     /**
      * Retrieves the value of the given value parameter by name.
@@ -103,7 +104,7 @@ public interface IProfileOutput extends IConfigTemplate {
      * @return property value
      * @exception EProfileException failed to retrieve value
      */
-    public String getValue(String name, Locale locale, IRequest request)
+    public abstract String getValue(String name, Locale locale, IRequest request)
             throws EProfileException;
 
     /**
@@ -114,6 +115,6 @@ public interface IProfileOutput extends IConfigTemplate {
      * @param request request
      * @param value property value
      */
-    public void setValue(String name, Locale locale, IRequest request,
+    public abstract void setValue(String name, Locale locale, IRequest request,
             String value) throws EPropertyException;
 }

@@ -44,7 +44,6 @@ import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.PolicyDefault;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileOutput;
@@ -384,7 +383,7 @@ public class RequestProcessor extends CertProcessor {
 
             Enumeration<String> outputIds = profile.getProfileOutputIds();
             while (outputIds.hasMoreElements()) {
-                IProfileOutput output = profile.getProfileOutput(outputIds.nextElement());
+                com.netscape.cms.profile.common.ProfileOutput output = profile.getProfileOutput(outputIds.nextElement());
                 ProfileOutput addOutput = ProfileOutputFactory.create(output, req, locale);
                 data.addOutput(addOutput);
             }
