@@ -198,7 +198,7 @@ BuildRequires:    python3-flake8 >= 2.5.4
 BuildRequires:    python3-pyflakes >= 1.2.3
 %endif
 
-BuildRequires:    python3
+BuildRequires:    python3 >= 3.5
 BuildRequires:    python3-devel
 BuildRequires:    python3-cryptography
 BuildRequires:    python3-lxml
@@ -382,6 +382,7 @@ Provides:         pki-base-python3 = %{version}
 %endif
 
 Requires:         pki-base = %{version}
+Requires:         python3 >= 3.5
 Requires:         python3-cryptography
 Requires:         python3-lxml
 Requires:         python3-nss
