@@ -716,7 +716,18 @@ display_configuration_information()
 
 display_instance_status_systemd()
 {
+    # source the instance specific variables
+    . /etc/sysconfig/${PKI_INSTANCE_NAME}
+
+    echo "Instance ${PKI_INSTANCE_NAME} is configured to use nuxwdog: ${USE_NUXWDOG}"
     echo -n "Status for ${PKI_INSTANCE_NAME}: "
+
+    # find the systemd target to query status
+    PKI_SYSTEMD_TARGET="pki-${pki_instance_type}d"
+    if [ "$USE_NUXWDOG" = true ] ; then
+        PKI_SYSTEMD_TARGET="${PKI_SYSTEMD_TARGET}-nuxwdog"
+    fi
+
     systemctl status "$PKI_SYSTEMD_TARGET@$PKI_INSTANCE_NAME.service" > /dev/null 2>&1
     rv=$?
 
