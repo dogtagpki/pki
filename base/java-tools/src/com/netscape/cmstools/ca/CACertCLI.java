@@ -183,7 +183,7 @@ public class CACertCLI extends CLI {
         String encoded = certData.getEncoded();
         if (showEncoded && encoded != null) {
             System.out.println();
-            System.out.println(encoded);
+            System.out.print(encoded);
         }
     }
 }

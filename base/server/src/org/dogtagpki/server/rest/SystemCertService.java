@@ -48,7 +48,7 @@ public class SystemCertService extends PKIService {
         Principal subjectDN = cert.getSubjectDN();
         if (subjectDN != null) data.setSubjectDN(subjectDN.toString());
 
-        String b64 = Cert.HEADER + "\n" + Utils.base64encode(cert.getEncoded(), true) + Cert.FOOTER;
+        String b64 = Cert.HEADER + "\n" + Utils.base64encodeMultiLine(cert.getEncoded()) + Cert.FOOTER + "\n";
         data.setEncoded(b64);
 
         Date notBefore = cert.getNotBefore();

@@ -88,7 +88,7 @@ public class CACertTransportExportCLI extends CommandCLI {
         if (outputFile != null) {
             try (PrintStream out = new PrintStream(new FileOutputStream(outputFile))) {
                 if (cert != null) {
-                    out.println(cert);
+                    out.print(cert);
                 } else {
                     out.write(bytes);
                 }
@@ -96,7 +96,7 @@ public class CACertTransportExportCLI extends CommandCLI {
 
         } else {
             if (cert != null) {
-                System.out.println(cert);
+                System.out.print(cert);
             } else {
                 System.out.write(bytes);
             }
