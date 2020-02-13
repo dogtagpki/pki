@@ -197,7 +197,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 return null;
             }
 
-            SystemCertData certData = request.getSystemCert(tag);
+            SystemCertData certData = request.getSystemCert();
 
             if (certData == null) {
                 logger.error("SystemConfigService: missing certificate: " + tag);

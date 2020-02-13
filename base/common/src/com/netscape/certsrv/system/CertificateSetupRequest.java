@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -42,7 +40,7 @@ public class CertificateSetupRequest {
     protected String tag;
 
     @XmlElement
-    protected List<SystemCertData> systemCerts;
+    protected SystemCertData systemCert;
 
     @XmlElement
     protected Boolean external;
@@ -87,29 +85,12 @@ public class CertificateSetupRequest {
         this.tag = tag;
     }
 
-    /**
-    *
-    * @return systemCerts
-    */
-   public List<SystemCertData> getSystemCerts() {
-       return systemCerts;
+   public SystemCertData getSystemCert() {
+       return systemCert;
    }
 
-   public SystemCertData getSystemCert(String tag) {
-       for (SystemCertData systemCert : systemCerts) {
-           if (systemCert.getTag().equals(tag)) {
-               return systemCert;
-           }
-       }
-       return null;
-   }
-
-   /**
-    *
-    * @param systemCerts
-    */
-   public void setSystemCerts(List<SystemCertData> systemCerts) {
-       this.systemCerts = systemCerts;
+   public void setSystemCert(SystemCertData systemCert) {
+       this.systemCert = systemCert;
    }
 
     public Boolean isExternal() {
@@ -156,7 +137,7 @@ public class CertificateSetupRequest {
     public String toString() {
         return "CertificateSetupRequest [pin=XXXX" +
                ", tag=" + tag +
-               ", systemCerts=" + systemCerts +
+               ", systemCert=" + systemCert +
                ", generateServerCert=" + generateServerCert +
                ", external=" + external +
                ", standAlone=" + standAlone +

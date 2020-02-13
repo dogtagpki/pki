@@ -3090,36 +3090,32 @@ class ConfigClient:
 
     def set_system_cert_info(self, request, tag):
 
-        systemCerts = []  # nopep8
-
         if self.subsystem == 'CA' and tag == 'signing':
-            self.set_ca_signing_cert_info(request, systemCerts)
+            self.set_ca_signing_cert_info(request)
 
         elif self.subsystem == 'CA' and tag == 'ocsp_signing' or \
                 self.subsystem == 'OCSP' and tag == 'signing':
-            self.set_ocsp_signing_cert_info(request, systemCerts)
+            self.set_ocsp_signing_cert_info(request)
 
         elif tag == 'sslserver':
-            self.set_sslserver_cert_info(request, systemCerts)
+            self.set_sslserver_cert_info(request)
 
         elif tag == 'subsystem':
-            self.set_subsystem_cert_info(request, systemCerts)
+            self.set_subsystem_cert_info(request)
 
         elif tag == 'audit_signing':
-            self.set_audit_signing_cert_info(request, systemCerts)
+            self.set_audit_signing_cert_info(request)
 
         elif tag == 'transport':
-            self.set_transport_cert_info(request, systemCerts)
+            self.set_transport_cert_info(request)
 
         elif tag == 'storage':
-            self.set_storage_cert_info(request, systemCerts)
+            self.set_storage_cert_info(request)
 
         else:
             raise Exception('Unknown certificate tag: %s' % tag)
 
-        request.systemCerts = systemCerts
-
-    def set_ca_signing_cert_info(self, data, systemCerts):
+    def set_ca_signing_cert_info(self, data):
 
         if not self.clone:
 
@@ -3143,14 +3139,14 @@ class ConfigClient:
                 if self.external and self.external_step_two:
 
                     # external/existing CA step 2
-                    systemCerts.append(cert1)
+                    data.systemCert = cert1
 
                 elif self.subsystem == "CA":
 
                     # PKI CA or Subordinate CA
-                    systemCerts.append(cert1)
+                    data.systemCert = cert1
 
-    def set_ocsp_signing_cert_info(self, data, systemCerts):
+    def set_ocsp_signing_cert_info(self, data):
 
         if not self.clone:
 
@@ -3160,15 +3156,15 @@ class ConfigClient:
 
                 # Stand-alone PKI OCSP (Step 2)
                 cert2 = self.create_system_cert("ocsp_signing")
-                systemCerts.append(cert2)
+                data.systemCert = cert2
 
             elif self.subsystem == "CA" or self.subsystem == "OCSP":
 
                 # External CA, Subordinate CA, PKI CA, or PKI OCSP
                 cert2 = self.create_system_cert("ocsp_signing")
-                systemCerts.append(cert2)
+                data.systemCert = cert2
 
-    def set_sslserver_cert_info(self, data, systemCerts):
+    def set_sslserver_cert_info(self, data):
 
         # create new sslserver cert only if this is a new instance
         system_list = self.deployer.instance.tomcat_instance_subsystems()
@@ -3177,7 +3173,7 @@ class ConfigClient:
 
             # Stand-alone PKI (Step 2)
             cert3 = self.create_system_cert("sslserver")
-            systemCerts.append(cert3)
+            data.systemCert = cert3
 
         elif len(system_list) >= 2:
 
@@ -3191,7 +3187,7 @@ class ConfigClient:
 
                 if subsystem != self.subsystem and os.path.exists(dst):
                     cert3 = self.retrieve_existing_server_cert(dst)
-                    systemCerts.append(cert3)
+                    data.systemCert = cert3
                     break
 
         else:
@@ -3201,9 +3197,9 @@ class ConfigClient:
             # Subordinate CA, or External CA
 
             cert3 = self.create_system_cert("sslserver")
-            systemCerts.append(cert3)
+            data.systemCert = cert3
 
-    def set_subsystem_cert_info(self, data, systemCerts):
+    def set_subsystem_cert_info(self, data):
 
         # create new subsystem cert only if this is a new instance
         system_list = self.deployer.instance.tomcat_instance_subsystems()
@@ -3215,7 +3211,7 @@ class ConfigClient:
                 data.generateSubsystemCert = "true"
                 # Stand-alone PKI (Step 2)
                 cert4 = self.create_system_cert("subsystem")
-                systemCerts.append(cert4)
+                data.systemCert = cert4
 
             elif len(system_list) >= 2:
 
@@ -3229,7 +3225,7 @@ class ConfigClient:
 
                     if subsystem != self.subsystem and os.path.exists(dst):
                         cert4 = self.retrieve_existing_subsystem_cert(dst)
-                        systemCerts.append(cert4)
+                        data.systemCert = cert4
                         break
 
             else:
@@ -3239,9 +3235,9 @@ class ConfigClient:
 
                 data.generateSubsystemCert = "true"
                 cert4 = self.create_system_cert("subsystem")
-                systemCerts.append(cert4)
+                data.systemCert = cert4
 
-    def set_audit_signing_cert_info(self, data, systemCerts):
+    def set_audit_signing_cert_info(self, data):
 
         if not self.clone:
 
@@ -3249,14 +3245,14 @@ class ConfigClient:
 
                 # Stand-alone PKI (Step 2)
                 cert5 = self.create_system_cert("audit_signing")
-                systemCerts.append(cert5)
+                data.systemCert = cert5
 
             elif self.subsystem != "RA":
 
                 cert5 = self.create_system_cert("audit_signing")
-                systemCerts.append(cert5)
+                data.systemCert = cert5
 
-    def set_transport_cert_info(self, data, systemCerts):
+    def set_transport_cert_info(self, data):
 
         if not self.clone:
 
@@ -3266,15 +3262,15 @@ class ConfigClient:
 
                 # Stand-alone PKI KRA Transport Certificate (Step 2)
                 cert6 = self.create_system_cert("transport")
-                systemCerts.append(cert6)
+                data.systemCert = cert6
 
             elif self.subsystem == "KRA":
 
                 # PKI KRA Transport Certificate
                 cert6 = self.create_system_cert("transport")
-                systemCerts.append(cert6)
+                data.systemCert = cert6
 
-    def set_storage_cert_info(self, data, systemCerts):
+    def set_storage_cert_info(self, data):
 
         if not self.clone:
 
@@ -3284,13 +3280,13 @@ class ConfigClient:
 
                 # Stand-alone PKI KRA Storage Certificate (Step 2)
                 cert7 = self.create_system_cert("storage")
-                systemCerts.append(cert7)
+                data.systemCert = cert7
 
             elif self.subsystem == "KRA":
 
                 # PKI KRA Storage Certificate
                 cert7 = self.create_system_cert("storage")
-                systemCerts.append(cert7)
+                data.systemCert = cert7
 
     def set_admin_parameters(self, data):
         data.adminEmail = self.mdict['pki_admin_email']
