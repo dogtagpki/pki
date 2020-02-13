@@ -870,14 +870,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         client.setupDatabase(database_setup_request)
 
         sslserver = subsystem.get_subsystem_cert('sslserver')
-        cert_setup_request = deployer.config_client.create_certificate_setup_request()
-        cert_setup_request.installToken = deployer.install_token
 
         for tag in subsystem.config['preop.cert.list'].split(','):
 
             logger.info('Setting up %s certificate', tag)
 
-            cert_setup_request.tag = tag
+            cert_setup_request = deployer.config_client.create_certificate_setup_request(tag)
+            cert_setup_request.installToken = deployer.install_token
             cert = client.setupCert(cert_setup_request)
 
             if not cert:
