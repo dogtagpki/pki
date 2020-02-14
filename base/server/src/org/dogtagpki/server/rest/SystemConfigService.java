@@ -28,6 +28,8 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -299,9 +301,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 }
             }
 
-            AdminSetupResponse response = new AdminSetupResponse();
+            X509CertImpl cert = configurator.createAdminCertificate(request);
+            String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
+            logger.debug("SystemConfigService: admin cert: " + b64cert);
 
-            configurator.setupAdmin(request, response);
+            configurator.setupAdminUser(request, cert);
+
+            AdminSetupResponse response = new AdminSetupResponse();
+            SystemCertData adminCert = response.getAdminCert();
+            adminCert.setCert(b64cert);
 
             return response;
 

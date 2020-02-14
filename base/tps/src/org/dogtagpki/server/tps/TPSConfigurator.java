@@ -27,11 +27,11 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.dogtagpki.server.tps.installer.TPSInstaller;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.AdminSetupRequest;
-import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.user.UserResource;
@@ -79,9 +79,9 @@ public class TPSConfigurator extends Configurator {
     }
 
     @Override
-    public void setupAdmin(AdminSetupRequest request, AdminSetupResponse response) throws Exception {
+    public void setupAdminUser(AdminSetupRequest request, X509CertImpl cert) throws Exception {
 
-        super.setupAdmin(request, response);
+        super.setupAdminUser(request, cert);
 
         logger.debug("Adding all profiles to TPS admin user");
 

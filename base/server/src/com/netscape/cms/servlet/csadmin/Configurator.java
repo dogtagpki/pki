@@ -118,7 +118,6 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.system.AdminSetupRequest;
-import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.CloneSetupRequest;
 import com.netscape.certsrv.system.ConfigurationRequest;
@@ -130,7 +129,6 @@ import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
-import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -2508,18 +2506,9 @@ public class Configurator {
                 new SignerInfo[0]);
     }
 
-    public void setupAdmin(AdminSetupRequest request, AdminSetupResponse response) throws Exception {
-
+    public void setupAdminUser(AdminSetupRequest request, X509CertImpl cert) throws Exception {
         createAdminUser(request);
-
-        X509CertImpl cert = createAdminCertificate(request);
         updateAdminUserCert(request, cert);
-
-        String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
-        logger.debug("SystemConfigService: admin cert: " + b64cert);
-
-        SystemCertData adminCert = response.getAdminCert();
-        adminCert.setCert(b64cert);
     }
 
     public void createAdminUser(AdminSetupRequest request) throws Exception {
