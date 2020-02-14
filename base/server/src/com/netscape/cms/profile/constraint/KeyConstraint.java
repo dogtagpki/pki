@@ -36,8 +36,8 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NoDefault;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.UserKeyDefault;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -106,16 +106,19 @@ public class KeyConstraint extends EnrollConstraint {
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         try {
-            CertificateX509Key infokey = (CertificateX509Key)
-                    info.get(X509CertInfo.KEY);
+            CertificateX509Key infokey = (CertificateX509Key) info.get(X509CertInfo.KEY);
             X509Key key = (X509Key) infokey.get(CertificateX509Key.KEY);
-
             String alg = key.getAlgorithmId().getName().toUpperCase();
+            logger.info("KeyConstraint: Key algorithnm: " + alg);
+
             String value = getConfig(CONFIG_KEY_TYPE);
+            logger.info("KeyConstraint: Key type: " + value);
+
             String keyType = value;
 
             if (!isOptional(value)) {
                 if (!alg.equals(value)) {
+                    logger.error("Invalid key type: " + value);
                     throw new ERejectException(
                             CMS.getUserMessage(
                                     getLocale(request),
@@ -146,6 +149,7 @@ public class KeyConstraint extends EnrollConstraint {
 
             if (alg.equals("EC")) {
                 if (!alg.equals(keyType) && !isOptional(keyType)) {
+                    logger.error("Invalid key type: " + keyType);
                     throw new ERejectException(
                             CMS.getUserMessage(
                                     getLocale(request),
@@ -252,7 +256,8 @@ public class KeyConstraint extends EnrollConstraint {
     public void setConfig(String name, String value)
             throws EPropertyException {
 
-        logger.debug("KeyConstraint.setConfig name: " + name + " value: " + value);
+        logger.info("KeyConstraint: Setting " + name + ": " + value);
+
         //establish keyType, we don't know which order these params will arrive
         if (name.equals(CONFIG_KEY_TYPE)) {
             keyType = value;
@@ -262,12 +267,12 @@ public class KeyConstraint extends EnrollConstraint {
 
         //establish keyParams
         if (name.equals(CONFIG_KEY_PARAMETERS)) {
-            logger.debug("establish keyParams: " + value);
             keyParams = value;
 
             if (keyType.equals(""))
                 return;
         }
+
         // All the params we need for validation have been collected,
         // we don't know which order they will show up
         if (keyType.length() > 0 && keyParams.length() > 0) {
@@ -275,38 +280,51 @@ public class KeyConstraint extends EnrollConstraint {
             boolean isECCurve = false;
             int keySize = 0;
 
-            for (int i = 0; i < params.length; i++) {
-                if (keyType.equals("EC")) {
+            if (keyType.equals("EC")) {
+
+                for (String param : params) {
+                    logger.info("KeyConstraint: EC curve: " + param);
+
                     if (cfgECCurves == null) {
                         //Use the static array as a backup if the config values are not present.
-                        isECCurve = arrayContainsString(CryptoUtil.getECcurves(), params[i]);
+                        isECCurve = arrayContainsString(CryptoUtil.getECcurves(), param);
                     } else {
-                        isECCurve = arrayContainsString(cfgECCurves, params[i]);
+                        isECCurve = arrayContainsString(cfgECCurves, param);
                     }
-                    if (isECCurve == false) { //Not a valid EC curve throw exception.
+
+                    if (!isECCurve) {
+                        logger.error("Invalid EC curve: " + param);
                         keyType = "";
                         keyParams = "";
-                        throw new EPropertyException(CMS.getUserMessage(
-                                "CMS_INVALID_PROPERTY", name));
+                        throw new EPropertyException(CMS.getUserMessage("CMS_INVALID_PROPERTY", name));
                     }
-                } else {
+                }
+
+            } else {
+
+                for (String param : params) {
                     try {
-                        keySize = Integer.parseInt(params[i]);
-                    } catch (Exception e) {
+                        logger.info("KeyConstraint: RSA key size: " + param);
+                        keySize = Integer.parseInt(param);
+
+                    } catch (NumberFormatException e) {
                         if (isOptional(keyType)) {
-                            isECCurve = arrayContainsString(CryptoUtil.getECcurves(), params[i]);
+                            logger.info("KeyConstraint: EC curve: " + param);
+                            isECCurve = arrayContainsString(CryptoUtil.getECcurves(), param);
                         }
                         keySize = 0;
                     }
-                    if ((keySize <= 0) && (isECCurve == false)) {
+
+                    if (keySize <= 0 && !isECCurve) {
+                        logger.error("Invalid EC curve: " + param);
                         keyType = "";
                         keyParams = "";
-                        throw new EPropertyException(CMS.getUserMessage(
-                                "CMS_INVALID_PROPERTY", name));
+                        throw new EPropertyException(CMS.getUserMessage("CMS_INVALID_PROPERTY", name));
                     }
                 }
             }
         }
+
         //Actually set the configuration in the profile
         super.setConfig(CONFIG_KEY_TYPE, keyType);
         super.setConfig(CONFIG_KEY_PARAMETERS, keyParams);
