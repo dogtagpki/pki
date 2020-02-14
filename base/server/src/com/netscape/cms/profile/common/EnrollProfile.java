@@ -69,6 +69,7 @@ import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertAttrSet;
 import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
@@ -278,8 +279,19 @@ public abstract class EnrollProfile extends Profile {
         int num_requests = 1; // default to 1 request
 
         if (cert_request_type != null && cert_request_type.startsWith("pkcs10")) {
-            // catch for invalid request
-            CertUtils.parsePKCS10(locale, cert_request);
+
+            logger.info("EnrollProfile: Parsing PKCS #10 request:");
+
+            PKCS10 pkcs10 = CertUtils.parsePKCS10(locale, cert_request);
+
+            PKCS10Attributes attributes = pkcs10.getAttributes();
+            for (PKCS10Attribute attribute : attributes) {
+
+                ObjectIdentifier attrID = attribute.getAttributeId();
+                CertAttrSet attrValues = attribute.getAttributeValue();
+                String attrName = attrValues.getName();
+                logger.info("- " + attrID + ": " + attrName);
+            }
         }
 
         if (cert_request_type != null && cert_request_type.startsWith("crmf")) {
@@ -2406,79 +2418,96 @@ public abstract class EnrollProfile extends Profile {
     public void fillPKCS10(Locale locale, PKCS10 pkcs10, X509CertInfo info, IRequest req)
             throws EProfileException, ECMCUnsupportedExtException {
 
-        String method = "EnrollProfile: fillPKCS10: ";
-        logger.info(method + "Filling PKCS #10 data");
+        logger.info("EnrollProfile: Filling PKCS #10 data");
 
         X509Key key = pkcs10.getSubjectPublicKeyInfo();
+        logger.info("EnrollProfile: Key algorithm: " + key.getAlgorithm());
 
         try {
             CertificateX509Key certKey = new CertificateX509Key(key);
+
             ByteArrayOutputStream certKeyOut = new ByteArrayOutputStream();
             certKey.encode(certKeyOut);
             req.setExtData(IRequest.REQUEST_KEY, certKeyOut.toByteArray());
 
             X500Name subjectName = pkcs10.getSubjectName();
-            req.setExtData(IRequest.REQUEST_SUBJECT_NAME,
-                    new CertificateSubjectName(subjectName));
+            logger.info("EnrollProfile: Subject name: " + subjectName);
 
+            req.setExtData(IRequest.REQUEST_SUBJECT_NAME, new CertificateSubjectName(subjectName));
+
+            String subjectCN;
             try {
-                String subjectCN = subjectName.getCommonName();
-                if (subjectCN == null)
-                    subjectCN = "";
-                req.setExtData(IRequest.REQUEST_SUBJECT_NAME + ".cn", subjectCN);
-            } catch (Exception ee) {
-                req.setExtData(IRequest.REQUEST_SUBJECT_NAME + ".cn", "");
+                subjectCN = subjectName.getCommonName();
+                if (subjectCN == null) subjectCN = "";
+
+            } catch (Exception e) {
+                // TODO: Change X500Name.getCommonName() to return null if CN is missing.
+                subjectCN = "";
             }
 
+            logger.info("EnrollProfile: Subject CN: " + subjectCN);
+            req.setExtData(IRequest.REQUEST_SUBJECT_NAME + ".cn", subjectCN);
+
+            String subjectUID;
             try {
-                String subjectUID = pkcs10.getSubjectName().getUserID();
-                if (subjectUID == null)
-                    subjectUID = "";
-                req.setExtData(IRequest.REQUEST_SUBJECT_NAME + ".uid", subjectUID);
-            } catch (Exception ee) {
-                req.setExtData(IRequest.REQUEST_SUBJECT_NAME + ".uid", "");
+                subjectUID = subjectName.getUserID();
+                if (subjectUID == "") subjectUID = "";
+
+            } catch (Exception e) {
+                // TODO: Change X500Name.getUserID() to return null if UID is missing.
+                subjectUID = "";
             }
+
+            logger.info("EnrollProfile: Subject UID: " + subjectUID);
+            req.setExtData(IRequest.REQUEST_SUBJECT_NAME + ".uid", subjectUID);
 
             info.set(X509CertInfo.KEY, certKey);
 
             PKCS10Attributes p10Attrs = pkcs10.getAttributes();
             if (p10Attrs != null) {
-                logger.info(method + "Attributes:");
-                for (Enumeration<PKCS10Attribute> e = p10Attrs.getElements();
-                        e.hasMoreElements(); ) {
+
+                logger.info("EnrollProfile: Attributes:");
+
+                for (Enumeration<PKCS10Attribute> e = p10Attrs.getElements(); e.hasMoreElements(); ) {
                     PKCS10Attribute p10Attr = e.nextElement();
-                    logger.info(method + "- " + p10Attr.getAttributeId());
+                    logger.info("EnrollProfile: - " + p10Attr.getAttributeId());
                 }
 
                 PKCS10Attribute p10Attr = p10Attrs.getAttribute(CertificateExtensions.NAME);
-                if (p10Attr != null && p10Attr.getAttributeId().equals(
-                        PKCS9Attribute.EXTENSION_REQUEST_OID)) {
-                    logger.debug(method + "Found PKCS10 extension");
-                    Extensions exts0 = (Extensions)
-                            (p10Attr.getAttributeValue());
+
+                if (p10Attr != null &&
+                        p10Attr.getAttributeId().equals(PKCS9Attribute.EXTENSION_REQUEST_OID)) {
+
+                    logger.debug("EnrollProfile: Extensions:");
+
+                    Extensions extensions = (Extensions) p10Attr.getAttributeValue();
+
+                    Enumeration<String> extNames = extensions.getAttributeNames();
+                    while (extNames.hasMoreElements()) {
+                        String name = extNames.nextElement();
+                        logger.info("EnrollProfile: - " + name);
+                    }
+
                     DerOutputStream extOut = new DerOutputStream();
 
-                    exts0.encode(extOut);
+                    extensions.encode(extOut);
                     byte[] extB = extOut.toByteArray();
                     DerInputStream extIn = new DerInputStream(extB);
-                    CertificateExtensions exts = new CertificateExtensions(extIn);
-                    if (exts != null) {
-                        logger.debug(method + "PKCS10 found extensions " + exts);
-                        // info.set(X509CertInfo.EXTENSIONS, exts);
-                        req.setExtData(REQUEST_EXTENSIONS, exts);
-                    }
-                } else {
-                    logger.debug(method + "PKCS10 no extension found");
+
+                    CertificateExtensions certExts = new CertificateExtensions(extIn);
+
+                    // info.set(X509CertInfo.EXTENSIONS, certExts);
+                    req.setExtData(REQUEST_EXTENSIONS, certExts);
                 }
             }
 
-            logger.debug(method + "Finish parsePKCS10 - " + pkcs10.getSubjectName());
         } catch (IOException e) {
-            logger.error(method + "Unable to fill PKCS #10: " + e.getMessage(), e);
+            logger.error("Unable to fill PKCS #10 data: " + e.getMessage(), e);
             throw new ECMCUnsupportedExtException(
                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
+
         } catch (CertificateException e) {
-            logger.error(method + "Unable to fill PKCS #10: " + e.getMessage(), e);
+            logger.error("Unable to fill PKCS #10 data: " + e.getMessage(), e);
             throw new EProfileException(
                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         }
