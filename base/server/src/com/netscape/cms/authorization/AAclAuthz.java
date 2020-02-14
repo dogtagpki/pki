@@ -287,6 +287,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      */
     protected synchronized void checkPermission(String name, String perm)
             throws EACLsException {
+
         String resource = "";
         StringTokenizer st = new StringTokenizer(name, ".");
 
@@ -303,24 +304,19 @@ public abstract class AAclAuthz implements IAuthzManager {
 
             try {
                 passed = checkACLs(resource, perm);
+
             } catch (EACLsException e) {
                 Object[] params = new Object[2];
-
                 params[0] = name;
                 params[1] = perm;
 
-                logger.error("AAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_ACCESS_DENIED", name, perm));
+                logger.error(CMS.getLogMessage("AUTHZ_EVALUATOR_ACCESS_DENIED", name, perm), e);
 
-                throw new EACLsException(CMS.getUserMessage("CMS_ACL_NO_PERMISSION",
-                            (String[]) params));
+                throw new EACLsException(CMS.getUserMessage("CMS_ACL_NO_PERMISSION", (String[]) params));
             }
 
             if (passed) {
-                String infoMsg = "checkPermission(): permission granted for the resource " +
-                        name + " on operation " + perm;
-
-                logger.info("AAclAuthz: " + infoMsg);
-
+                logger.info("AAclAuthz: Granting " + perm + " permission for " + name);
                 return;
             } // else, continue
         }
@@ -528,15 +524,12 @@ public abstract class AAclAuthz implements IAuthzManager {
             params[0] = name;
             params[1] = perm;
 
-            logger.error("AAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_ACCESS_DENIED", name, perm));
+            logger.error(CMS.getLogMessage("AUTHZ_EVALUATOR_ACCESS_DENIED", name, perm));
 
             throw new EACLsException(CMS.getUserMessage("CMS_ACL_NO_PERMISSION", params));
         }
 
-        String infoMsg = "checkPermission(): permission granted for the resource " +
-                name + " on operation " + perm;
-
-        logger.info("AAclAuthz: " + infoMsg);
+        logger.info("AAclAuthz: Granting " + perm + " permission for " + name);
     }
 
     protected boolean checkAllowEntries(
