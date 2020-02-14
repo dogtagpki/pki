@@ -1301,6 +1301,9 @@ public class ProfileAdminServlet extends AdminServlet {
     public void addPolicyConstraintConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        logger.info("ProfileAdminServlet: Adding policy constraints");
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1342,6 +1345,8 @@ public class ProfileAdminServlet extends AdminServlet {
 
             Enumeration<String> names = req.getParameterNames();
 
+            logger.info("ProfileAdminServlet: Parameters:");
+
             while (names.hasMoreElements()) {
                 String name = names.nextElement();
 
@@ -1352,8 +1357,11 @@ public class ProfileAdminServlet extends AdminServlet {
                 if (name.equals("RS_ID"))
                     continue;
 
+                String value = req.getParameter(name);
+                logger.info("ProfileAdminServlet: - " + name + ": " + value);
+
                 try {
-                    con.setConfig(name, req.getParameter(name));
+                    con.setConfig(name, value);
 
                 } catch (EPropertyException e) {
 
@@ -1809,6 +1817,9 @@ public class ProfileAdminServlet extends AdminServlet {
     public void modifyPolicyConstraintConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        logger.info("ProfileAdminServlet: Modifying policy constraints");
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1849,7 +1860,8 @@ public class ProfileAdminServlet extends AdminServlet {
 
             Enumeration<String> names = req.getParameterNames();
 
-            logger.debug("ProfileAdminServlet: modifyPolicyConstraintConfig policy " + policy + " con " + con);
+            logger.info("ProfileAdminServlet: Parameters:");
+
             while (names.hasMoreElements()) {
                 String name = names.nextElement();
 
@@ -1860,9 +1872,11 @@ public class ProfileAdminServlet extends AdminServlet {
                 if (name.equals("RS_ID"))
                     continue;
 
-                //   logger.debug("ProfileAdminServlet: modifyPolicyConstraintConfig name" + name  + " val " + req.getParameter(name));
+                String value = req.getParameter(name);
+                logger.info("ProfileAdminServlet: - " + name + ": " + value);
+
                 try {
-                    con.setConfig(name, req.getParameter(name));
+                    con.setConfig(name, value);
 
                 } catch (EPropertyException e) {
 
