@@ -228,22 +228,23 @@ public class CertProcessor extends CAProcessor {
                 // reset the "auditRequesterID"
                 auditRequesterID = auditRequesterID(req);
 
-                /* print request debug
-                logger.debug("CertProcessor: Request:");
+                logger.info("CertProcessor: Processing certificate request:");
+
                 if (req != null) {
                     Enumeration<String> reqKeys = req.getExtDataKeys();
                     while (reqKeys.hasMoreElements()) {
                         String reqKey = reqKeys.nextElement();
                         String reqVal = req.getExtDataInString(reqKey);
                         if (reqVal != null) {
-                            logger.debug("CertProcessor: - " + reqKey + ": " + reqVal);
+                            logger.info("CertProcessor: - " + reqKey + ": " + reqVal);
                         }
                     }
                 }
-                */
 
-                logger.debug("CertProcessor.submitRequest: calling profile submit");
+                logger.info("CertProcessor: Submitting certificate request to " + profile.getId() + " profile");
+
                 profile.submit(authToken, req);
+
                 req.setRequestStatus(RequestStatus.COMPLETE);
 
                 X509CertImpl x509cert = req.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
@@ -258,7 +259,9 @@ public class CertProcessor extends CAProcessor {
                 }
 
             } catch (EDeferException e) {
-                // return defer message to the user
+
+                logger.warn("Certificate request deferred: " + e.getMessage(), e);
+
                 req.setRequestStatus(RequestStatus.PENDING);
                 // need to notify
                 INotify notify = profile.getRequestQueue().getPendingNotify();
@@ -266,17 +269,19 @@ public class CertProcessor extends CAProcessor {
                     notify.notify(req);
                 }
 
-                logger.debug("CertProcessor: submit " + e);
                 errorCode = "2";
                 req.setExtData(IRequest.ERROR_CODE, errorCode);
 
                 // do NOT store a message in the signed audit log file
                 // as this errorCode indicates that a process has been
                 // deferred for manual acceptance/cancellation/rejection
+
             } catch (ERejectException e) {
-                // return error to the user
+
+                logger.warn("Certificate request rejected: " + e.getMessage(), e);
+
                 req.setRequestStatus(RequestStatus.REJECTED);
-                logger.warn("CertProcessor: submit " + e);
+
                 errorCode = "3";
                 req.setExtData(IRequest.ERROR, e.toString());
                 req.setExtData(IRequest.ERROR_CODE, errorCode);
@@ -288,8 +293,9 @@ public class CertProcessor extends CAProcessor {
                         codeToReason(locale, errorCode, e.toString(), req.getRequestId())));
 
             } catch (Throwable e) {
-                // return error to the user
-                logger.warn("CertProcessor: submit " + e.getMessage(), e);
+
+                logger.warn("Certificate request failed: " + e.getMessage(), e);
+
                 errorCode = "1";
                 errorReason = codeToReason(locale, errorCode, null, req.getRequestId());
                 req.setExtData(IRequest.ERROR, errorReason);
@@ -303,15 +309,19 @@ public class CertProcessor extends CAProcessor {
             }
 
             try {
+                logger.info("Updating certificate request");
+
                 if (errorCode == null) {
                     profile.getRequestQueue().markAsServiced(req);
                 } else {
                     profile.getRequestQueue().updateRequest(req);
                 }
+
             } catch (EBaseException e) {
-                logger.warn("CertProcessor: updateRequest " + e.getMessage(), e);
+                logger.warn("Unable to update certificate request: " + e.getMessage(), e);
             }
         }
+
         return errorCode;
     }
 
