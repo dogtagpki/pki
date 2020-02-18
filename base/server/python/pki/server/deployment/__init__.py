@@ -253,11 +253,6 @@ class PKIDeployer:
             port=sd_port,
             trust_env=False)
 
-        sd_user = self.mdict['pki_security_domain_user']
-        sd_password = self.mdict['pki_security_domain_password']
-
-        self.sd_connection.authenticate(sd_user, sd_password)
-
         return self.sd_connection
 
     def get_domain_info(self):
@@ -275,6 +270,12 @@ class PKIDeployer:
         return self.domain_info
 
     def sd_login(self):
+
+        sd_user = self.mdict['pki_security_domain_user']
+        sd_password = self.mdict['pki_security_domain_password']
+
+        self.sd_connection.authenticate(sd_user, sd_password)
+
         account = pki.account.AccountClient(self.sd_connection, subsystem='ca')
         account.login()
 
