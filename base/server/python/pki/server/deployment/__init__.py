@@ -146,6 +146,9 @@ class PKIDeployer:
         self.tps_connector = util.TPSConnector(self)
         self.config_client = util.ConfigClient(self)
 
+        self.ds_init()
+
+    def ds_init(self):
         ds_hostname = self.mdict['pki_ds_hostname']
 
         if config.str2bool(self.mdict['pki_ds_secure_connection']):
@@ -212,6 +215,9 @@ class PKIDeployer:
         self.manifest_db.append(record)
 
     def ds_connect(self):
+        if not self.ds_url:
+            logger.info('ds_connect called without corresponding call to ds_init')
+            self.ds_init()
 
         logger.info('Connecting to LDAP server at %s', self.ds_url)
 
