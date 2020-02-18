@@ -66,6 +66,7 @@ def interrupt_handler(event, frame):
 
 def verify_ds_configuration():
     try:
+        deployer.ds_init()
         deployer.ds_connect()
         deployer.ds_bind()
         deployer.ds_search()
@@ -336,6 +337,10 @@ def main(argv):
 
                 except ldap.LDAPError as e:
                     parser.print_text('ERROR: ' + e.args[0]['desc'])
+
+                    # Force deployer to re-initialize the DS connection string
+                    # next time, as we're in interactive mode here.
+                    deployer.ds_url = None
                     continue
 
                 parser.read_text('Base DN',
