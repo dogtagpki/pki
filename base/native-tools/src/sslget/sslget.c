@@ -96,8 +96,6 @@ int getopt(int ac, char * const av[], const char * opts);
 #endif /* XP_PC */
 /*end secopt.h*/
 
-#define VERSIONSTRING "$Revision$ ($Date$)"
-
 #ifndef PORT_Sprintf
 #define PORT_Sprintf sprintf
 #endif
@@ -140,12 +138,11 @@ static void
 Usage(const char *progName)
 {
     fprintf(stderr, 
-    	"Usage: %s [-n nickname] [-p password | -w pwfile ] [-d dbdir] \n"
-	"          [-e post] [-v] [-V] -r url hostname[:port]\n"
-    "     -n  : nickname or hsm:nickname\n"
-    "     -v  : verbose\n"
-    "     -V  : report version information\n",
-	progName);
+            "Usage: %s [-n nickname] [-p password | -w pwfile ] [-d dbdir] \n"
+            "          [-e post] [-v] -r url hostname[:port]\n"
+            "     -n  : nickname or hsm:nickname\n"
+            "     -v  : verbose\n",
+            progName);
     exit(1);
 }
 
@@ -823,14 +820,8 @@ main(int argc, char **argv)
     progName = progName ? progName + 1 : tmp;
  
 
-    while ((optchar = getopt(argc, argv, "Vd:e:n:p:r:w:v")) != -1) {
+    while ((optchar = getopt(argc, argv, "d:e:n:p:r:w:v")) != -1) {
 	switch(optchar) {
-
-/* Version */
-	case 'V':
-	  printf("%s\n",VERSIONSTRING);
-	  PR_Cleanup();
-	  return 0;
 
 /* Directory which holds NSS database */
 	case 'd':
