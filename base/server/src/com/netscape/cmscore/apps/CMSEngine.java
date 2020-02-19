@@ -185,7 +185,7 @@ public class CMSEngine {
         return instanceDir;
     }
 
-    public boolean startedByNuxwdog() {
+    public static boolean startedByNuxwdog() {
         String wdPipeName = System.getenv("WD_PIPE_NAME");
         if (StringUtils.isNotEmpty(wdPipeName)) {
             return true;
@@ -193,27 +193,33 @@ public class CMSEngine {
         return false;
     }
 
+    public static IPasswordStore getPasswordStore(String id, PropConfigStore cs)
+            throws EBaseException {
+        String pwdClass = null;
+        String pwdPath = null;
+
+        if (startedByNuxwdog()) {
+            pwdClass = NuxwdogPasswordStore.class.getName();
+            // note: pwdPath is expected to be null in this case
+        } else {
+            pwdClass = cs.getString("passwordClass");
+            pwdPath = cs.getString("passwordFile", null);
+        }
+
+        try {
+            IPasswordStore ps = (IPasswordStore) Class.forName(pwdClass).newInstance();
+            ps.init(pwdPath);
+            ps.setId(id);
+            return ps;
+        } catch (Exception e) {
+            logger.error("Cannot get password store: " + e);
+            throw new EBaseException(e);
+        }
+    }
+
     public synchronized IPasswordStore getPasswordStore() throws EBaseException {
         if (mPasswordStore == null) {
-            String pwdClass = null;
-            String pwdPath = null;
-
-            if (startedByNuxwdog()) {
-                pwdClass = NuxwdogPasswordStore.class.getName();
-                // note: pwdPath is expected to be null in this case
-            } else {
-                pwdClass = mConfig.getString("passwordClass");
-                pwdPath = mConfig.getString("passwordFile", null);
-            }
-
-            try {
-                mPasswordStore = (IPasswordStore) Class.forName(pwdClass).newInstance();
-                mPasswordStore.init(pwdPath);
-                mPasswordStore.setId(instanceId);
-            } catch (Exception e) {
-                logger.error("Cannot get password store: " + e);
-                throw new EBaseException(e);
-            }
+            mPasswordStore = getPasswordStore(instanceId, mConfig);
         }
         return mPasswordStore;
     }
