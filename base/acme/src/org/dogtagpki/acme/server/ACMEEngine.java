@@ -197,7 +197,8 @@ public class ACMEEngine implements ServletContextListener {
     }
 
     public void shutdownDatabase() throws Exception {
-        database.close();
+        if (database != null)
+            database.close();
     }
 
     public void loadValidatorsConfig(String filename) throws Exception {
@@ -271,7 +272,8 @@ public class ACMEEngine implements ServletContextListener {
     }
 
     public void shutdownBackend() throws Exception {
-        backend.close();
+        if (backend != null)
+            backend.close();
     }
 
     public void contextInitialized(ServletContextEvent event) {
