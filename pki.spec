@@ -159,6 +159,7 @@ BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
 BuildRequires:    apache-commons-lang
+BuildRequires:    apache-commons-net
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    glassfish-jaxb-api
 BuildRequires:    slf4j
@@ -405,6 +406,7 @@ Requires:         apache-commons-codec
 Requires:         apache-commons-io
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
+Requires:         apache-commons-net
 Requires:         jakarta-commons-httpclient
 Requires:         glassfish-jaxb-api
 Requires:         slf4j

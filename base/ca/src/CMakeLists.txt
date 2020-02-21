@@ -6,7 +6,7 @@ javac(pki-ca-classes
         *.java
     CLASSPATH
         ${SLF4J_API_JAR}
-        ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR}
+        ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR} ${COMMONS_NET_JAR}
         ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${LDAPJDK_JAR}
