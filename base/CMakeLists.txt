@@ -92,6 +92,13 @@ find_file(COMMONS_LOGGING_JAR
         /usr/share/java
 )
 
+find_file(COMMONS_NET_JAR
+    NAMES
+        commons-net.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(HAMCREST_JAR
     NAMES
         core.jar

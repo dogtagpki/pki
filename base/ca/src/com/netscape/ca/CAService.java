@@ -19,10 +19,18 @@ package com.netscape.ca;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.Object;
+import java.util.Arrays;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import java.security.spec.X509EncodedKeySpec;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.KeyFactory;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -31,13 +39,18 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.apache.commons.net.ntp.TimeStamp;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICAService;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
@@ -63,6 +76,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
+import com.netscape.ca.CTParser;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -87,6 +101,10 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cmsutil.http.HttpClient;
+import com.netscape.cmsutil.http.HttpRequest;
+import com.netscape.cmsutil.http.HttpResponse;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.connector.HttpConnector;
@@ -99,6 +117,8 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Request Service for CertificateAuthority.
  */
@@ -110,6 +130,8 @@ public class CAService implements ICAService, IService {
     public static final String CRMF_REQUEST = "CRMFRequest";
     public static final String CHALLENGE_PHRASE = "challengePhrase";
     public static final String SERIALNO_ARRAY = "serialNoArray";
+
+    public static final String GoogleTestTube_Pub = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEw8i8S7qiGEs9NXv0ZJFh6uuOmR2Q7dPprzk9XNNGkUXjzqx2SDvRfiwKYwBljfWujozHESVPQyydGaHhkaSz/g==";
 
     // CCA->CLA connector
     protected static IConnector mCLAConnector = null;
@@ -615,6 +637,7 @@ public class CAService implements ICAService, IService {
 
         logger.debug("dnUTF8Encoding " + doUTF8);
 
+        CertificateExtensions exts = null;
         try {
             // check required fields in certinfo.
             if (certi.get(X509CertInfo.SUBJECT) == null ||
@@ -663,7 +686,6 @@ public class CAService implements ICAService, IService {
 
             // First find out if it is a CA cert
             boolean is_ca = false;
-            CertificateExtensions exts = null;
             BasicConstraintsExtension bc_ext = null;
 
             try {
@@ -847,10 +869,444 @@ public class CAService implements ICAService, IService {
             }
         }
 
-        logger.debug("About to ca.sign cert.");
+        /**
+         * (Certificate Transparency)
+         *
+         * Check to see if certInfo contains Certificate Transparency poison
+         * extension (from profile containig certTransparencyExtDefaultImpl);
+         * if it does then reach out to the CT log servers to obtain
+         * signed certificate timestamp (SCT) for inclusion in the SCT extension
+         * in the cert to be issued.
+         */
+        String method = "CAService: issueX509Cert - CT:";
+        try {
+            exts = (CertificateExtensions)
+                    certi.get(X509CertInfo.EXTENSIONS);
+            logger.debug(method + " about to check CT poison");
+            Extension ctPoison = (Extension) exts.get("1.3.6.1.4.1.11129.2.4.3");
+            if ( ctPoison == null) {
+                logger.debug(method + " ctPoison not found");
+            } else {
+                logger.debug(method + " ctPoison found");
+                logger.debug(method + " About to ca.sign CT pre-cert.");
+                cert = ca.sign(certi, algname);
+                
+                // compose JSON request
+                String ct_json_request = composeJSONrequest(cert);
+
+                // submit to CT log(s)
+                // TODO: retrieve certTrans config and submit to designated CT logs
+                // This prototype code currently only handles one single hardcoded CT log
+                CTResponse ctResponse = null;
+                { // loop through all CTs
+                    String ct_host = "ct.googleapis.com";
+                    int ct_port = 80;
+                    String ct_uri = "http://ct.googleapis.com/testtube/ct/v1/add-pre-chain";
+
+                    String respS = certTransSendReq(
+                            ct_host, ct_port, ct_uri, ct_json_request);
+                    ObjectMapper mapper = new ObjectMapper();
+                    try {
+                        ctResponse = mapper.readValue(respS, CTResponse.class);
+                        logger.debug(method + " CTResponse: " + ctResponse);
+
+                        // verify the sct: TODO - not working, need to fix
+                        verifySCT(ctResponse, cert.getTBSCertificate());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } // todo: should collect a list of CTResonses once out of loop
+
+                /**
+                 * Now onto turning the precert into a real cert
+                 */
+                // remove the poison extension
+                exts.delete("1.3.6.1.4.1.11129.2.4.3");
+                certi.delete(X509CertInfo.EXTENSIONS);
+                certi.set(X509CertInfo.EXTENSIONS, exts);
+
+                // create SCT extension
+                // TODO : handle multiple SCTs; should pass in list of CTResponses
+                Extension sctExt = createSCTextension(ctResponse);
+
+                // add the SCT extension
+                exts.set(sctExt.getExtensionId().toString(), sctExt);
+                //check
+                Extension p = (Extension) exts.get("1.3.6.1.4.1.11129.2.4.2");
+                certi.delete(X509CertInfo.EXTENSIONS);
+                certi.set(X509CertInfo.EXTENSIONS, exts);
+
+                try { //double-check if it's there
+                    exts = (CertificateExtensions)
+                            certi.get(X509CertInfo.EXTENSIONS);
+                    logger.debug(method + " about to check sct ext");
+                    Extension check = (Extension) exts.get("1.3.6.1.4.1.11129.2.4.2");
+                    if ( check == null)
+                        logger.debug(method + " check not found");
+                    else
+                        logger.debug(method + " SCT ext found added successfully");
+                } catch (Exception e) {
+                    logger.debug(method + " check sct failed:" + e.toString());
+                }
+            }
+        } catch (Exception e) {
+            logger.debug(method + " ctPoison check failure:" + e.toString());
+        }
+
+        logger.debug(method + "About to ca.sign cert.");
         cert = ca.sign(certi, algname);
         return cert;
     }
+
+    /**
+     * (Certificate Transparency)
+     *
+     * timeStampHexStringToByteArray
+     */
+    public static byte[] timeStampHexStringToByteArray(String timeStampString) {
+        String method = "timeStampHexStringToByteArray: ";
+        int len = timeStampString.length();
+        logger.debug(method + "len =" + len);
+        byte[] data = new byte[(len-1) / 2];
+        for (int i = 0; i < len; i += 2) {
+            if (i == 8 ) {
+                i--; // skip the '.' and at i+=2 it will move to next digit
+                continue;
+            }
+            data[i / 2] = (byte) ((Character.digit(timeStampString.charAt(i), 16) << 4)
+                             + Character.digit(timeStampString.charAt(i+1), 16));
+        }
+        return data;
+    }
+
+    /**
+     * (Certificate Transparency)
+     *
+       https://tools.ietf.org/html/rfc6962
+       ...
+          a certificate authority MAY submit a Precertificate to
+          more than one log, and all obtained SCTs can be directly embedded in
+          the final certificate, by encoding the SignedCertificateTimestampList
+          structure as an ASN.1 OCTET STRING and inserting the resulting data
+          in the TBSCertificate as an X.509v3 certificate extension (OID
+          1.3.6.1.4.1.11129.2.4.2).  Upon receiving the certificate, clients
+          can reconstruct the original TBSCertificate to verify the SCT
+          signature.
+       ...
+
+       SCT response:
+
+       struct {
+           Version sct_version;
+           LogID id;
+           uint64 timestamp;
+           CtExtensions extensions;
+           digitally-signed struct {
+               Version sct_version;
+               SignatureType signature_type = certificate_timestamp;
+               uint64 timestamp;
+               LogEntryType entry_type;
+               select(entry_type) {
+                   case x509_entry: ASN.1Cert;
+                   case precert_entry: PreCert;
+               } signed_entry;
+              CtExtensions extensions;
+           };
+       } SignedCertificateTimestamp;
+
+       TODO: support multiple CTs: list of CTResponse as input param
+    */
+    Extension createSCTextension(CTResponse response) {
+
+        String method = "CAService.createSCTextension:";
+        boolean ct_sct_critical = false;
+        ObjectIdentifier ct_sct_oid = new ObjectIdentifier("1.3.6.1.4.1.11129.2.4.2");
+
+        /*
+              TLS encoding:
+               [ total len : 2 bytes ]
+                   [ sct1 len : 2 bytes ]
+                   [ sct1 ]
+                   [ sct2 len : 2 bytes ]
+                   [ sct2 ]
+                   ...
+                   [ sctx ...]
+        */
+        try {
+            int tls_len = 0;
+
+            ByteArrayOutputStream sct_ostream = new ByteArrayOutputStream();
+            { // loop through each ctResponse
+                byte ct_version[] = new byte[] {0}; // sct_version
+                byte ct_id[] = CryptoUtil.base64Decode(response.getId()); // id
+                logger.debug(method + " ct_id: " + bytesToHex(ct_id));
+
+                long timestamp_l = response.getTimestamp();
+                TimeStamp timestamp_t = new TimeStamp(timestamp_l);
+                String timestamp_s = timestamp_t.toString();
+                logger.debug(method + " ct_timestamp: " + timestamp_s);
+                // timestamp
+                byte ct_timestamp[] = timeStampHexStringToByteArray(timestamp_s);
+
+                byte ct_ext[] = new byte[] {0, 0}; // CT extension
+                // signature
+                byte ct_signature[] = CryptoUtil.base64Decode(response.getSignature());
+                logger.debug(method + " ct_signature: " + bytesToHex(ct_signature));
+
+                int sct_len = ct_version.length + ct_id.length +
+                        ct_timestamp.length + 2 /* ext */ + ct_signature.length;
+                ByteBuffer sct_len_bytes = ByteBuffer.allocate(4);
+                //sct_len_bytes.order(ByteOrder.BIG_ENDIAN);
+                sct_len_bytes.putInt(sct_len);
+
+                logger.debug(method + " sct_len = "+ sct_len);
+                byte sct_len_ba[] = sct_len_bytes.array();
+                // stuff into 2 byte len
+                byte sct_len_b2[] = {sct_len_ba[2], sct_len_ba[3]};
+                tls_len += (2 + sct_len); // add 2 bytes for sct len ltself
+
+                sct_ostream.write(sct_len_b2);
+                sct_ostream.write(ct_version);
+                sct_ostream.write(ct_id);
+                sct_ostream.write(ct_timestamp);
+                sct_ostream.write(ct_ext);
+                sct_ostream.write(ct_signature);
+
+                /* test double the SCT to act as though there were two
+                sct_ostream.write(sct_len_b2);
+                sct_ostream.write(ct_version);
+                sct_ostream.write(ct_id);
+                sct_ostream.write(ct_timestamp);
+                sct_ostream.write(ct_ext);
+                sct_ostream.write(ct_signature);
+                */
+            }
+
+            // collection of sct bytes that comes after tls_len bytes
+            byte[] sct_bytes = sct_ostream.toByteArray();
+            ByteBuffer tls_len_bytes = ByteBuffer.allocate(4);
+            //tls_len_bytes.order(ByteOrder.BIG_ENDIAN);
+            //tls_len_bytes.putInt((sct_len + 2) * 2); //cfu test: double it
+            tls_len_bytes.putInt(tls_len);
+            byte tls_len_ba[] = tls_len_bytes.array();
+            // stuff into 2 byte len
+            byte tls_len_b2[] = {tls_len_ba[2], tls_len_ba[3]};
+
+            ByteArrayOutputStream tls_sct_ostream = new ByteArrayOutputStream();
+            tls_sct_ostream.write(tls_len_b2);
+            tls_sct_ostream.write(sct_bytes);
+            byte[] tls_sct_bytes = tls_sct_ostream.toByteArray();
+
+            Extension ct_sct_ext = new Extension();
+            try (DerOutputStream out = new DerOutputStream()) {
+                out.putOctetString(tls_sct_bytes);
+                ct_sct_ext.setExtensionId(ct_sct_oid);
+                ct_sct_ext.setCritical(false);
+                ct_sct_ext.setExtensionValue(out.toByteArray());
+                logger.debug(method + " ct_sct_ext id = " +
+                    ct_sct_ext.getExtensionId().toString());
+                logger.debug(method + " CT extension constructed");
+            } catch (IOException e) {
+                logger.debug(method + " test 3 " + e.toString());
+                return null;
+            } catch (Exception e) {
+                logger.debug(method + " test4 " + e.toString());
+                return null;
+            }
+
+            return ct_sct_ext;
+        } catch (Exception ex) {
+            logger.debug(method + " test 5" + ex.toString());
+            return null;
+        }
+    }
+
+    /** cfu == This is not yet working ==
+     * (Certificate Transparency)
+
+           digitally-signed struct {
+               Version sct_version;
+               SignatureType signature_type = certificate_timestamp; == 0 for ct
+               uint64 timestamp;
+               LogEntryType entry_type; ===> 1 for precert
+               select(entry_type) { ==> 32 bit sha256 hash of issuer pub key + DER of precert
+                   case x509_entry: ASN.1Cert;
+                   case precert_entry: PreCert;
+               } signed_entry;
+              CtExtensions extensions;
+           };
+
+         struct {
+           opaque issuer_key_hash[32];
+           TBSCertificate tbs_certificate;
+         } PreCert;
+    */
+    void verifySCT(CTResponse response, byte[] cert)
+            throws Exception {
+
+        String method = "CAService:verifySCT: ";
+        logger.debug(method + "begins");
+
+        long timestamp_l = response.getTimestamp();
+        TimeStamp timestamp_t = new TimeStamp(timestamp_l);
+        String timestamp_s = timestamp_t.toString();
+        logger.debug(method + " ct_timestamp: " + timestamp_s);
+        // timestamp
+        byte timestamp[] = timeStampHexStringToByteArray(timestamp_s);
+        byte ct_signature[] = CryptoUtil.base64Decode(response.getSignature());
+        byte[] signature = Arrays.copyOfRange(ct_signature, 4, ct_signature.length+1);
+
+        /* compose data */
+        byte[] version = new byte[] {0}; // v1(0)
+        byte[] signature_type = new byte[] {0}; // certificate_timestamp(0)
+        byte[] entry_type = new byte[] {0, 1}; // LogEntryType: precert_entry(1)
+        byte google_pub[] = CryptoUtil.base64Decode(GoogleTestTube_Pub);
+        PublicKey google_pubKey = KeyFactory.getInstance("RSA").generatePublic(
+                new X509EncodedKeySpec(google_pub));
+        /*
+        byte[] key_id = null;
+        try {
+            MessageDigest SHA256Digest = MessageDigest.getInstance("SHA256");
+
+            key_id = SHA256Digest.digest(google_pubKey.getEncoded());
+        } catch (NoSuchAlgorithmException ex) {
+            logger.debug(method + " getting hash of CT signer key:" + ex.toString());
+        }
+
+        */
+        X509CertImpl cacert = mCA.getCACert();
+        byte[] issuer_key = cacert.getPublicKey().getEncoded();
+        byte[] issuer_key_hash = null;
+        try {
+            MessageDigest SHA256Digest = MessageDigest.getInstance("SHA256");
+
+            issuer_key_hash = SHA256Digest.digest(issuer_key);
+        } catch (NoSuchAlgorithmException ex) {
+            logger.debug(method + " getting hash of CA signing key:" + ex.toString());
+        }
+
+        byte[] extensions = new byte[] {0, 0};
+
+        // piece them together
+        int data_len = version.length + signature_type.length +
+                 timestamp.length + entry_type.length +
+                 issuer_key_hash.length + cert.length + extensions.length;
+        logger.debug(method + " issuer_key_hash.length = "+ issuer_key_hash.length);
+        logger.debug(method + " data_len = "+ data_len);
+        ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+        ostream.write(version);
+        ostream.write(signature_type);
+        ostream.write(timestamp);
+        ostream.write(entry_type);
+        ostream.write(issuer_key_hash);
+        ostream.write(cert);
+        ostream.write(extensions);
+        byte[] data = ostream.toByteArray();
+
+        // todo: interpret the alg bytes later; hardcode for now
+        Signature signer = Signature.getInstance("SHA256withEC", "Mozilla-JSS");
+        signer.initVerify(/*pubKey*/ google_pubKey);
+        signer.update(data);
+
+        if (!signer.verify(signature)) {
+            logger.debug(method + "failed to verify SCT signature");
+            // this method is not yet working;  Let this pass for now
+            // throw new Exception("Invalid SCT signature");
+        }
+        logger.debug("verifySCT ends");
+
+    }
+
+    /**
+     * (Certificate Transparency)
+     * Given a leaf cert, build chain and format a JSON request
+     * @param leaf cert
+     * @return JSON request in String
+     */
+    String composeJSONrequest(X509CertImpl cert) {
+        String method = "CAService.composeJSONrequest";
+
+        // JSON request
+        String ct_json_request_begin = "{\"chain\":[\"";
+        String ct_json_request_end = "\"]}";
+        String ct_json_request = ct_json_request_begin;
+
+        // Create chain, leaf first
+        ByteArrayOutputStream certOut = new ByteArrayOutputStream();
+        CertificateChain caCertChain = mCA.getCACertChain();
+        X509Certificate[] cacerts = caCertChain.getChain();
+
+        try {
+            // first, leaf cert;
+            cert.encode(certOut);
+            byte[] certBytes = certOut.toByteArray();
+            certOut.reset();
+            ct_json_request += Utils.base64encode(certBytes, false);
+
+            // then ca chain;
+            // TODO: need to make sure they are in order
+            //       I believe they are; should test
+            for (int n = 0; n < cacerts.length; n++) {
+                ct_json_request += "\",\"";
+                X509CertImpl caCertInChain = (X509CertImpl) cacerts[n];
+                caCertInChain.encode(certOut);
+                certBytes = certOut.toByteArray();
+                certOut.reset();
+                logger.debug(method + "caCertInChain " + n + " = " +
+                        Utils.base64encode(certBytes, false));
+                ct_json_request += Utils.base64encode(certBytes, false);
+;
+            }
+            certOut.close();
+            ct_json_request += ct_json_request_end;
+            logger.debug(method + " ct_json_request:" + ct_json_request);
+        } catch (Exception e) {
+            logger.debug(method + e.toString());
+        }
+        return ct_json_request;
+    }
+
+    /**
+     * (Certificate Transparency)
+     * certTransSendReq connects to CT host and send ct request
+     */
+    private String certTransSendReq(String ct_host, int ct_port, String ct_uri, String ctReq) {
+        HttpClient client = new HttpClient();
+        HttpRequest req = new HttpRequest();
+        HttpResponse resp = null;
+
+        logger.debug("CAService.certTransSendReq begins");
+        try {
+            client.connect(ct_host, ct_port);
+            req.setMethod("POST");
+            req.setURI(ct_uri);
+            req.setHeader("Content-Type", "application/json");
+            req.setContent(ctReq);
+            req.setHeader("Content-Length", Integer.toString(ctReq.length()));
+
+            resp = client.send(req);
+            logger.debug("version " + resp.getHttpVers());
+            logger.debug("status code " + resp.getStatusCode());
+            logger.debug("reason " + resp.getReasonPhrase());
+            logger.debug("content " + resp.getContent());
+            logger.debug("CAService.certTransSendReq ends");
+        } catch (Exception e) {
+        }
+
+        return (resp.getContent());
+    }
+
+    /*
+     * (Certificate Transparency)
+     */
+    public static String bytesToHex(byte[] bytes) {
+        final StringBuilder sb = new StringBuilder();
+        for(byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
 
     void storeX509Cert(String rid, X509CertImpl cert,
             boolean renewal, BigInteger oldSerialNo)
