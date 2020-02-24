@@ -13,11 +13,11 @@ javac(pki-tomcat-classes
         ${TOMCAT_API_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_COYOTE_JAR} ${TOMCAT_UTIL_SCAN_JAR}
         ${SLF4J_API_JAR}
         ${JSS_JAR} ${TOMCATJSS_JAR}
-        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
+        ${PKI_CMSUTIL_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/../../tomcat
     DEPENDS
-        pki-nsutil-jar pki-cmsutil-jar pki-tools-jar
+        pki-cmsutil-jar pki-tools-jar
 )
 
 configure_file(

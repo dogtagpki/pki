@@ -5,7 +5,7 @@ javac(pki-tools-classes
     SOURCES
         *.java
     CLASSPATH
-        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
         ${XALAN_JAR} ${XERCES_JAR}
         ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
         ${JSS_JAR} ${LDAPJDK_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
@@ -16,7 +16,7 @@ javac(pki-tools-classes
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar tkstool
+        pki-cmsutil-jar pki-certsrv-jar tkstool
 )
 
 configure_file(

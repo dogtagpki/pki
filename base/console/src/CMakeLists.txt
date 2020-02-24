@@ -9,12 +9,12 @@ javac(pki-console-classes
         ${JAXRS_API_JAR}
         ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
         ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
-        ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR} ${PKI_CERTSRV_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        symkey-jar pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar
+        symkey-jar pki-cmsutil-jar pki-certsrv-jar
 )
 
 configure_file(
