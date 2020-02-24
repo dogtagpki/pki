@@ -211,7 +211,7 @@ BuildRequires:    python3-six
 %if 0%{?rhel}
 # no python3-pytest-runner
 %else
-# BuildRequires:  python3-pytest-runner
+BuildRequires:  python3-pytest-runner
 %endif
 
 BuildRequires:    junit
