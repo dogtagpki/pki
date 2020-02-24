@@ -13,11 +13,11 @@ javac(pki-certsrv-classes
         ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR} ${RESTEASY_CLIENT_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
-        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${JAXB_API_JAR}
+        ${PKI_CMSUTIL_JAR} ${JAXB_API_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-nsutil-jar pki-cmsutil-jar
+        pki-cmsutil-jar
 )
 
 configure_file(

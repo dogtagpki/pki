@@ -5,11 +5,11 @@ javac(pki-examples-classes
         java/*.java
     CLASSPATH
         ${JSS_JAR}
-        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar
+        pki-cmsutil-jar pki-certsrv-jar
 )
 
 install(

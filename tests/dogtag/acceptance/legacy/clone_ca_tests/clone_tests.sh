@@ -1079,7 +1079,7 @@ clone_legacy_ca_tests()
 	# (4) Search for the serial number in Clone CA
 	rlLog "Sleep for 10 seconds for clone to get synced"
 	rlRun "sleep 10"
-	rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
+	rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
         rlRun ". /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
         rlLog "Executing java -cp"
         rlLog "java -cp $CLASSPATH ca_ee_ocspRequest -ca_hostname $tmp_ca_host -ca_ee_port $clone_ca1_http_port -client_certdb_dir $CERTDB_DIR -client_certdb_pwd $CERTDB_DIR_PASSWORD -ca_cert_nickname $(eval echo \$${CA_INST}_SIGNING_NICKNAME) -serial_number $decimal_serial_number -debug true > $TmpDir/$test_out 2>&1"
@@ -1196,7 +1196,7 @@ clone_legacy_ca_tests()
 	# (4) Search for the serial number in Master CA
 	rlLog "Sleep for 10 seconds for clone to get synced"
 	rlRun "sleep 10"
-	rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
+	rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
         rlRun ". /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
         rlLog "Executing java -cp"
         rlLog "java -cp $CLASSPATH ca_ee_ocspRequest -ca_hostname $tmp_ca_host -ca_ee_port $target_port -client_certdb_dir $CERTDB_DIR -client_certdb_pwd $CERTDB_DIR_PASSWORD -ca_cert_nickname $(eval echo \$${CA_INST}_SIGNING_NICKNAME) -serial_number $decimal_serial_number -debug true > $TmpDir/$test_out 2>&1"
@@ -1311,7 +1311,7 @@ clone_legacy_ca_tests()
 	# (4) Search for this certificate from clone CA, status should be revoked.
         rlLog "Sleep for 10 seconds for clone to get synced"
         rlRun "sleep 10"
-        rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
+        rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
         rlRun ". /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
         rlLog "Executing java -cp"
         rlLog "java -cp $CLASSPATH ca_ee_ocspRequest -ca_hostname $tmp_ca_host -ca_ee_port $clone_ca1_http_port -client_certdb_dir $CERTDB_DIR -client_certdb_pwd $CERTDB_DIR_PASSWORD -ca_cert_nickname $(eval echo \$${CA_INST}_SIGNING_NICKNAME) -serial_number $decimal_serial_number -debug true > $TmpDir/$test_out 2>&1"
@@ -1332,7 +1332,7 @@ clone_legacy_ca_tests()
 	# (6) Search for this certificate from master CA, status should be valid
 	rlLog "Sleep for 10 seconds for master to get synced"
 	rlRun "sleep 10"
-	rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
+	rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
         rlRun ". /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
         rlLog "Executing java -cp"
         rlLog "java -cp $CLASSPATH ca_ee_ocspRequest -ca_hostname $tmp_ca_host -ca_ee_port $target_port -client_certdb_dir $CERTDB_DIR -client_certdb_pwd $CERTDB_DIR_PASSWORD -ca_cert_nickname $(eval echo \$${CA_INST}_SIGNING_NICKNAME) -serial_number $decimal_serial_number -debug true > $TmpDir/$test_out 2>&1"
@@ -1448,7 +1448,7 @@ clone_legacy_ca_tests()
 	# (4) Search for this certificate from master CA, status should be revoked
         rlLog "Sleep for 10 seconds for clone to get synced"
         rlRun "sleep 10"
-        rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
+        rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
         rlRun ". /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
         rlLog "Executing java -cp"
         rlLog "java -cp $CLASSPATH ca_ee_ocspRequest -ca_hostname $tmp_ca_host -ca_ee_port $masterca_secure_port -client_certdb_dir $CERTDB_DIR -client_certdb_pwd $CERTDB_DIR_PASSWORD -ca_cert_nickname $(eval echo \$${CA_INST}_SIGNING_NICKNAME) -serial_number $decimal_serial_number -debug true > $TmpDir/$test_out 2>&1"
@@ -1469,7 +1469,7 @@ clone_legacy_ca_tests()
 	# (6) Search for this certificate from clone CA, status should be valid
 	rlLog "Sleep for 10 seconds for master to get synced"
 	rlRun "sleep 10"
-	rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
+	rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
         rlRun ". /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
         rlLog "Executing java -cp"
         rlLog "java -cp $CLASSPATH ca_ee_ocspRequest -ca_hostname $tmp_ca_host -ca_ee_port $clone_ca1_http_port -client_certdb_dir $CERTDB_DIR -client_certdb_pwd $CERTDB_DIR_PASSWORD -ca_cert_nickname $(eval echo \$${CA_INST}_SIGNING_NICKNAME) -serial_number $decimal_serial_number -debug true > $TmpDir/$test_out 2>&1"

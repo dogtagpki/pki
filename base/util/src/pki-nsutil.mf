@@ -1,3 +1,0 @@
-Name: pki-nsutil
-Specification-Version: ${APPLICATION_VERSION}
-Implementation-Version: ${VERSION}

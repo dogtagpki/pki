@@ -238,7 +238,6 @@ Summary:
      /usr/share/java/pki/cms-9.0.0.jar
      /usr/share/java/pki/cmscore-9.0.0.jar
      /usr/share/java/pki/cmsutil-9.0.0.jar
-     /usr/share/java/pki/nsutil-9.0.0.jar
      /usr/share/java/tomcat5-jsp-2.0-api-5.5.27.jar
      /usr/share/java/tomcat5-servlet-2.4-api-5.5.27.jar
      /usr/share/java/tomcat6-jsp-2.1-api-6.0.26.jar
