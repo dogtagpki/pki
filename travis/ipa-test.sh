@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eEx
 #
 # Authors:
 #     Dinesh Prasanth M K <dmoluguw@redhat.com>
@@ -19,7 +19,6 @@
 # Copyright (C) 2017 Red Hat, Inc.
 # All rights reserved.
 #
-set -eE
 
 TEST_LOG=/tmp/ipa-test.txt
 LOGS_TAR_NAME="var_log.tar"
