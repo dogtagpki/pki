@@ -67,5 +67,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/slf4j/slf4j-simple.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jackson-annotations.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/apache-commons-net.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
