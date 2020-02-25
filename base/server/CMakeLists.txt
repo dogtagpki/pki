@@ -142,6 +142,7 @@ add_custom_command(
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-server-logging.5.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man5/pki-server-logging.5
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/man/man8
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-acme.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-acme.8
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-ca.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-ca.8
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-cert.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-cert.8
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-instance.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-instance.8

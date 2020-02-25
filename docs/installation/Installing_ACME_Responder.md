@@ -62,7 +62,7 @@ $ pki-server acme-create
 
 The command will create the initial configuration files in /etc/pki/pki-tomcat/acme folder.
 
-For more info execute `pki-server acme-create --help`.
+See also [pki-server-acme(8)](../manuals/man8/pki-server-acme.8.md).
 
 ## Configuring ACME Responder Database
 
@@ -149,7 +149,7 @@ $ curl -s -k https://$HOSTNAME:8443/acme/directory | python -m json.tool
 }
 ```
 
-For more info execute `pki-server acme-deploy --help`.
+See also [pki-server-acme(8)](../manuals/man8/pki-server-acme.8.md).
 
 ## See Also
 
