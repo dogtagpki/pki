@@ -818,7 +818,7 @@ public class CertUtils {
     public static String getFingerPrint(Certificate cert)
             throws CertificateEncodingException, NoSuchAlgorithmException {
         byte certDer[] = cert.getEncoded();
-        MessageDigest md = MessageDigest.getInstance("MD5");
+        MessageDigest md = MessageDigest.getInstance("MD5", "Mozilla-JSS");
 
         md.update(certDer);
         byte digestedCert[] = md.digest();
@@ -856,7 +856,7 @@ public class CertUtils {
         PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
         for (int i = 0; i < hashes.length; i++) {
-            MessageDigest md = MessageDigest.getInstance(hashes[i]);
+            MessageDigest md = MessageDigest.getInstance(hashes[i], "Mozilla-JSS");
 
             md.update(certDer);
             certFingerprints += "    " + hashes[i] + ":" +
@@ -893,7 +893,7 @@ public class CertUtils {
         PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
         for (int i = 0; i < hashes.length; i++) {
-            MessageDigest md = MessageDigest.getInstance(hashes[i]);
+            MessageDigest md = MessageDigest.getInstance(hashes[i], "Mozilla-JSS");
 
             md.update(certDer);
             certFingerprints.append(hashes[i] + ":\n" +

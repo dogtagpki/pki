@@ -231,7 +231,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         MessageDigest md = null;
 
         try {
-            md = MessageDigest.getInstance("SHA1");
+            md = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
         } catch (NoSuchAlgorithmException e) {
             return null;
         }

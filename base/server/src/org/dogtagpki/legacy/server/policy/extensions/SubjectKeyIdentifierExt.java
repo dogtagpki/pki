@@ -313,7 +313,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
         }
         try {
             byte[] octetString = new byte[8];
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            MessageDigest md = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
 
             md.update(key.getKey());
             byte[] hash = md.digest();

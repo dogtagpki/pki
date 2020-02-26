@@ -449,7 +449,7 @@ public class KeyClient extends Client {
             // TODO(alee) This assumes RSA for now
 
             byte[] pubKeyBytes = Utils.base64decode(data.getPublicKey());
-            PublicKey pubKey = KeyFactory.getInstance("RSA").generatePublic(
+            PublicKey pubKey = KeyFactory.getInstance("RSA", "Mozilla-JSS").generatePublic(
                     new X509EncodedKeySpec(pubKeyBytes));
 
             bytes = crypto.unwrapAsymmetricKeyWithSessionKey(

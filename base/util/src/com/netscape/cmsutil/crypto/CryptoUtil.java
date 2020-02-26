@@ -1539,7 +1539,7 @@ public class CryptoUtil {
             alg = "SHA-1";
         }
         try {
-            MessageDigest md = MessageDigest.getInstance(alg);
+            MessageDigest md = MessageDigest.getInstance(alg, "Mozilla-JSS");
 
             md.update(rawKey);
             byte[] hash = md.digest();

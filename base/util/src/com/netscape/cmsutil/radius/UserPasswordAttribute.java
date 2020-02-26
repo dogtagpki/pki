@@ -41,7 +41,7 @@ public class UserPasswordAttribute extends Attribute {
         MessageDigest md5 = null;
 
         try {
-            md5 = MessageDigest.getInstance("MD5");
+            md5 = MessageDigest.getInstance("MD5", "Mozilla-JSS");
         } catch (NoSuchAlgorithmException e) {
             throw new IOException(e.getMessage());
         }

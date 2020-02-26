@@ -1161,12 +1161,12 @@ public class CAService implements ICAService, IService {
         byte[] signature_type = new byte[] {0}; // certificate_timestamp(0)
         byte[] entry_type = new byte[] {0, 1}; // LogEntryType: precert_entry(1)
         byte google_pub[] = CryptoUtil.base64Decode(GoogleTestTube_Pub);
-        PublicKey google_pubKey = KeyFactory.getInstance("RSA").generatePublic(
+        PublicKey google_pubKey = KeyFactory.getInstance("RSA", "Mozilla-JSS").generatePublic(
                 new X509EncodedKeySpec(google_pub));
         /*
         byte[] key_id = null;
         try {
-            MessageDigest SHA256Digest = MessageDigest.getInstance("SHA256");
+            MessageDigest SHA256Digest = MessageDigest.getInstance("SHA256", "Mozilla-JSS");
 
             key_id = SHA256Digest.digest(google_pubKey.getEncoded());
         } catch (NoSuchAlgorithmException ex) {
@@ -1178,7 +1178,7 @@ public class CAService implements ICAService, IService {
         byte[] issuer_key = cacert.getPublicKey().getEncoded();
         byte[] issuer_key_hash = null;
         try {
-            MessageDigest SHA256Digest = MessageDigest.getInstance("SHA256");
+            MessageDigest SHA256Digest = MessageDigest.getInstance("SHA256", "Mozilla-JSS");
 
             issuer_key_hash = SHA256Digest.digest(issuer_key);
         } catch (NoSuchAlgorithmException ex) {
@@ -2055,7 +2055,7 @@ class serviceCheckChallenge implements IServant {
         mService = service;
         mCA = mService.getCA();
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
+            mSHADigest = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
         } catch (NoSuchAlgorithmException e) {
             logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
         }

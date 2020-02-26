@@ -766,7 +766,7 @@ public class RecoveryService implements IService {
             byte certDer[] = cert.getEncoded();
 
             // XXX - should use JSS
-            MessageDigest md = MessageDigest.getInstance("SHA");
+            MessageDigest md = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
 
             md.update(certDer);
             return md.digest();

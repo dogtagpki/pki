@@ -264,7 +264,7 @@ public class PKCS10Client {
             String secretValue = "testing";
             byte[] key1 = null;
             byte[] finalDigest = null;
-            MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
+            MessageDigest SHA1Digest = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
             key1 = SHA1Digest.digest(secretValue.getBytes());
 
             // seed

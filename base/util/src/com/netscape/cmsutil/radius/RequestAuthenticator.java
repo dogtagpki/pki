@@ -31,7 +31,7 @@ public class RequestAuthenticator extends Authenticator {
 
         rand.nextBytes(authenticator);
 
-        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        MessageDigest md5 = MessageDigest.getInstance("MD5", "Mozilla-JSS");
 
         md5.update(authenticator);
         md5.update(secret.getBytes());

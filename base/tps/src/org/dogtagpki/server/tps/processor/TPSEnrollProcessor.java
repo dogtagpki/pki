@@ -3749,7 +3749,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         java.security.MessageDigest mozillaDigest;
         try {
-            mozillaDigest = java.security.MessageDigest.getInstance(alg);
+            mozillaDigest = java.security.MessageDigest.getInstance(alg, "Mozilla-JSS");
         } catch (NoSuchAlgorithmException e) {
             throw new TPSException("TPSEnrollProcessor.makeKeyIDFromPublicKeyInfo: " + e,
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);

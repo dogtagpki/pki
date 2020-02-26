@@ -984,7 +984,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                 AlgorithmIdentifier dai = (AlgorithmIdentifier) dais.elementAt(i);
                 String name = DigestAlgorithm.fromOID(dai.getOID()).toString();
 
-                MessageDigest md = MessageDigest.getInstance(name);
+                MessageDigest md = MessageDigest.getInstance(name, "Mozilla-JSS");
 
                 byte[] digest = md.digest(content.toByteArray());
 
@@ -1002,7 +1002,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                 byte[] digest = digs.get(name);
 
                 if (digest == null) {
-                    MessageDigest md = MessageDigest.getInstance(name);
+                    MessageDigest md = MessageDigest.getInstance(name, "Mozilla-JSS");
                     ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
                     pkiData.encode(ostream);

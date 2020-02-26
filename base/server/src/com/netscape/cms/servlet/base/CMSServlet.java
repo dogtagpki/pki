@@ -369,7 +369,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
+            mSHADigest = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
         } catch (NoSuchAlgorithmException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS", e.toString()), e);
             throw new ServletException(e);

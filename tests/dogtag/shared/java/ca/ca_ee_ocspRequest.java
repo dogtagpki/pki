@@ -62,7 +62,7 @@ public class ca_ee_ocspRequest
                 {
                         CryptoManager manager = CryptoManager.getInstance();
                         cert = manager.findCertByNickname(ca_cert_nickname);
-                        MessageDigest md = MessageDigest.getInstance("SHA");
+                        MessageDigest md = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
 
                         // calculate issuer key hash
                         X509CertImpl x509Cert = new X509CertImpl(cert.getEncoded());

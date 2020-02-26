@@ -124,7 +124,7 @@ public class PFXUtils {
             throws EBaseException {
         try {
             byte certDer[] = cert.getEncoded();
-            MessageDigest md = MessageDigest.getInstance("SHA");
+            MessageDigest md = MessageDigest.getInstance("SHA", "Mozilla-JSS");
 
             md.update(certDer);
             return md.digest();

@@ -98,7 +98,7 @@ public class OCSPProcessor {
     public OCSPRequest createRequest(X500Name issuerName, X509Key issuerKey, BigInteger serialNumber)
             throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA");
+        MessageDigest md = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
 
         // calculate hashes
         byte issuerNameHash[] = md.digest(issuerName.getEncoded());

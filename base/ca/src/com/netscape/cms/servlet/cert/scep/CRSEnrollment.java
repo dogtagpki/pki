@@ -323,7 +323,7 @@ public class CRSEnrollment extends HttpServlet {
         OID_SERIALNUMBER = X500NameAttrMap.getDefault().getOid("SERIALNUMBER");
 
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
+            mSHADigest = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
         } catch (NoSuchAlgorithmException e) {
         }
 
@@ -1700,7 +1700,7 @@ public class CRSEnrollment extends HttpServlet {
 
         for (int i = 0; i < hashes.length; i++) {
             try {
-                md = MessageDigest.getInstance(hashes[i]);
+                md = MessageDigest.getInstance(hashes[i], "Mozilla-JSS");
                 md.update(p10.getCertRequestInfo());
                 fingerprints.put(hashes[i], md.digest());
             } catch (NoSuchAlgorithmException nsa) {
@@ -1853,7 +1853,7 @@ public class CRSEnrollment extends HttpServlet {
             byte[] ed = crsResp.makeEnvelopedData(0);
 
             // 7. Make Digest of SignedData Content
-            MessageDigest md = MessageDigest.getInstance(mHashAlgorithm);
+            MessageDigest md = MessageDigest.getInstance(mHashAlgorithm, "Mozilla-JSS");
             msgdigest = md.digest(ed);
 
             crsResp.setMsgDigest(msgdigest);

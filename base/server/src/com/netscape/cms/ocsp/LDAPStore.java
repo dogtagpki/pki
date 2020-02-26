@@ -486,7 +486,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
         while (caCerts.hasMoreElements()) {
             X509CertImpl caCert = caCerts.nextElement();
-            MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
+            MessageDigest md = MessageDigest.getInstance(cid.getDigestName(), "Mozilla-JSS");
             X509Key key = (X509Key) caCert.getPublicKey();
 
             if (key == null) {

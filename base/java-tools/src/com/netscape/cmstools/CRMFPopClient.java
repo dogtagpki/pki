@@ -746,7 +746,7 @@ public class CRMFPopClient {
     public OCTET_STRING createIDPOPLinkWitness() throws Exception {
 
         String secretValue = "testing";
-        MessageDigest digest1 = MessageDigest.getInstance("SHA1");
+        MessageDigest digest1 = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
         byte[] key1 = digest1.digest(secretValue.getBytes());
 
         /* Example of adding the POP link witness control to CRMF */

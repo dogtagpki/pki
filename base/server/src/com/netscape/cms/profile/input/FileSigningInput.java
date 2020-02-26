@@ -114,7 +114,7 @@ public class FileSigningInput extends EnrollInput {
             is.close();
 
             // calculate digest
-            MessageDigest digester = MessageDigest.getInstance("SHA256");
+            MessageDigest digester = MessageDigest.getInstance("SHA-256", "Mozilla-JSS");
             byte digest[] = digester.digest(data);
             request.setExtData(DIGEST, toHexString(digest));
         } catch (Exception e) {

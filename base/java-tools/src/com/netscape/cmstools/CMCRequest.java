@@ -338,7 +338,7 @@ public class CMCRequest {
 
             byte[] digest = null;
             try {
-                SHADigest = MessageDigest.getInstance("SHA256");
+                SHADigest = MessageDigest.getInstance("SHA-256", "Mozilla-JSS");
                 digestAlg = DigestAlgorithm.SHA256;
 
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
@@ -1066,7 +1066,7 @@ public class CMCRequest {
             toBeDigested = sharedSecret + ident;
         }
         try {
-            MessageDigest hash = MessageDigest.getInstance(hashAlgString);
+            MessageDigest hash = MessageDigest.getInstance(hashAlgString, "Mozilla-JSS");
             key = hash.digest(toBeDigested.getBytes());
         } catch (NoSuchAlgorithmException ex) {
             System.out.println(method + "No such algorithm!");
@@ -1121,7 +1121,7 @@ public class CMCRequest {
         byte[] key = null;
         byte[] finalDigest = null;
         try {
-            MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
+            MessageDigest SHA1Digest = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
             key = SHA1Digest.digest(sharedSecret.getBytes());
         } catch (NoSuchAlgorithmException ex) {
             System.out.println("CMCRequest::addIdentityProofAttr() - "
@@ -1276,7 +1276,7 @@ public class CMCRequest {
             byte[] rdigest = null;
             DigestAlgorithm digestAlg1 = null;
             try {
-                rSHADigest = MessageDigest.getInstance("SHA1");
+                rSHADigest = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
                 digestAlg1 = DigestAlgorithm.SHA1;
 
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
@@ -1382,7 +1382,7 @@ public class CMCRequest {
         String salt = "lala123" + date.toString();
         if (id == null || id.equals("")) {
             try {
-                MessageDigest MD5Digest = MessageDigest.getInstance("MD5");
+                MessageDigest MD5Digest = MessageDigest.getInstance("MD5", "Mozilla-JSS");
                 if (format.equals("crmf")) {
                     CertRequest certreq = certReqMsg.getCertReq();
                     CertTemplate certTemplate = certreq.getCertTemplate();
@@ -1428,7 +1428,7 @@ public class CMCRequest {
             String salt = "lala123" + date.toString();
 
             try {
-                MessageDigest SHA256Digest = MessageDigest.getInstance("SHA256");
+                MessageDigest SHA256Digest = MessageDigest.getInstance("SHA-256", "Mozilla-JSS");
 
                 dig = SHA256Digest.digest(salt.getBytes());
             } catch (NoSuchAlgorithmException ex) {
@@ -1545,7 +1545,7 @@ public class CMCRequest {
 
         // (2) compute key from sharedSecret + identity
         try {
-            MessageDigest hash = MessageDigest.getInstance(keyGenAlgString);
+            MessageDigest hash = MessageDigest.getInstance(keyGenAlgString, "Mozilla-JSS");
             key = hash.digest(toBeDigested.getBytes());
         } catch (NoSuchAlgorithmException ex) {
             System.out.println(method + "No such algorithm!");
@@ -1871,7 +1871,7 @@ public class CMCRequest {
 
             // now verify the witness
             try {
-                MessageDigest hash = MessageDigest.getInstance(CryptoUtil.getNameFromHashAlgorithm(witnessAlgID));
+                MessageDigest hash = MessageDigest.getInstance(CryptoUtil.getNameFromHashAlgorithm(witnessAlgID), "Mozilla-JSS");
                 byte[] digest = hash.digest(challenge);
                 boolean witnessChecked = Arrays.equals(digest, witness.toByteArray());
                 CryptoUtil.obscureBytes(digest,"random");

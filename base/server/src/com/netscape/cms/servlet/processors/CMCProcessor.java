@@ -212,7 +212,7 @@ public class CMCProcessor extends PKIProcessor {
                         DigestAlgorithm.fromOID(dai.getOID()).toString();
 
                 MessageDigest md =
-                        MessageDigest.getInstance(name);
+                        MessageDigest.getInstance(name, "Mozilla-JSS");
 
                 byte[] digest = md.digest(content.toByteArray());
 
@@ -231,7 +231,7 @@ public class CMCProcessor extends PKIProcessor {
                 byte[] digest = digs.get(name);
 
                 if (digest == null) {
-                    MessageDigest md = MessageDigest.getInstance(name);
+                    MessageDigest md = MessageDigest.getInstance(name, "Mozilla-JSS");
                     ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
                     pkiData.encode(ostream);
@@ -296,7 +296,7 @@ public class CMCProcessor extends PKIProcessor {
                         X509Key subjectKeyInfo =
                                 (X509Key) ((CertificateX509Key) certInfoArray[j].get(X509CertInfo.KEY))
                                         .get(CertificateX509Key.KEY);
-                        MessageDigest md = MessageDigest.getInstance("SHA-1");
+                        MessageDigest md = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
 
                         md.update(subjectKeyInfo.getEncoded());
                         byte[] skib = md.digest();

@@ -176,9 +176,9 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         }
 
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
-            mMD5Digest = MessageDigest.getInstance("MD5");
-            mSHA256Digest = MessageDigest.getInstance("SHA256");
+            mSHADigest = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
+            mMD5Digest = MessageDigest.getInstance("MD5", "Mozilla-JSS");
+            mSHA256Digest = MessageDigest.getInstance("SHA-256", "Mozilla-JSS");
         } catch (NoSuchAlgorithmException e) {
             throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.getMessage()));
         }

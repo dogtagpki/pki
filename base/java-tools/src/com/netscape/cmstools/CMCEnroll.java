@@ -187,7 +187,7 @@ public class CMCEnroll {
             byte[] dig;
 
             try {
-                MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
+                MessageDigest SHA1Digest = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
 
                 dig = SHA1Digest.digest(salt.getBytes());
             } catch (NoSuchAlgorithmException ex) {
@@ -207,7 +207,7 @@ public class CMCEnroll {
             byte[] transId;
 
             try {
-                MessageDigest MD5Digest = MessageDigest.getInstance("MD5");
+                MessageDigest MD5Digest = MessageDigest.getInstance("MD5", "Mozilla-JSS");
 
                 transId = MD5Digest.digest(pkcs.getSubjectPublicKeyInfo().getKey());
             } catch (Exception ex) {
@@ -238,7 +238,7 @@ public class CMCEnroll {
             byte[] digest = null;
 
             try {
-                SHADigest = MessageDigest.getInstance("SHA1");
+                SHADigest = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
                 digestAlg = DigestAlgorithm.SHA1;
 
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();

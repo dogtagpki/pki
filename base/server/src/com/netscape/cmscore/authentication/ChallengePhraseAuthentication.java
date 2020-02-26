@@ -112,7 +112,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
         mConfig = config;
 
         try {
-            mSHADigest = MessageDigest.getInstance("SHA1");
+            mSHADigest = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
 
         } catch (NoSuchAlgorithmException e) {
             throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.getMessage()), e);

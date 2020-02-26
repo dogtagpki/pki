@@ -160,7 +160,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                 byte[] dig;
 
                 try {
-                    MessageDigest SHA2Digest = MessageDigest.getInstance("SHA256");
+                    MessageDigest SHA2Digest = MessageDigest.getInstance("SHA-256", "Mozilla-JSS");
 
                     dig = SHA2Digest.digest(salt.getBytes());
                 } catch (NoSuchAlgorithmException ex) {
@@ -220,7 +220,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                     byte[] digest = null;
 
                     try {
-                        SHADigest = MessageDigest.getInstance("SHA256");
+                        SHADigest = MessageDigest.getInstance("SHA-256", "Mozilla-JSS");
                         digestAlg = DigestAlgorithm.SHA256;
 
                         ByteArrayOutputStream ostream = new ByteArrayOutputStream();

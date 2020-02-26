@@ -2382,7 +2382,7 @@ public class CertificateAuthority
         MessageDigest md = null;
 
         try {
-            md = MessageDigest.getInstance("SHA1");
+            md = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
         } catch (NoSuchAlgorithmException e) {
             return null;
         }
@@ -2612,7 +2612,7 @@ public class CertificateAuthority
         String digestName = cid.getDigestName();
         if (digestName != null) {
             try {
-                MessageDigest md = MessageDigest.getInstance(digestName);
+                MessageDigest md = MessageDigest.getInstance(digestName, "Mozilla-JSS");
                 nameHash = md.digest(mName.getEncoded());
             } catch (NoSuchAlgorithmException | IOException e) {
             }

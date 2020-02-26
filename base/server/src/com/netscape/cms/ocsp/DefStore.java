@@ -462,7 +462,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     throw e;
                 }
 
-                MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
+                MessageDigest md = MessageDigest.getInstance(cid.getDigestName(), "Mozilla-JSS");
                 X509Key key = (X509Key) cert.getPublicKey();
                 byte digest[] = md.digest(key.getKey());
 

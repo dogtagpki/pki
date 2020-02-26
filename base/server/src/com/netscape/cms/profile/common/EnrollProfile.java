@@ -610,7 +610,7 @@ public abstract class EnrollProfile extends Profile {
                 logger.debug(method + "now compute and set witness");
                 String hashName = CryptoUtil.getDefaultHashAlgName();
                 logger.debug(method + "hashName is " + hashName);
-                MessageDigest hash = MessageDigest.getInstance(hashName);
+                MessageDigest hash = MessageDigest.getInstance(hashName, "Mozilla-JSS");
                 byte[] witness = hash.digest(challenge);
                 req.setExtData("pop_witness", witness);
 
@@ -1370,7 +1370,7 @@ public abstract class EnrollProfile extends Profile {
                 return null;
             }
 
-            MessageDigest digest = MessageDigest.getInstance(CryptoUtil.getDefaultHashAlgName());
+            MessageDigest digest = MessageDigest.getInstance(CryptoUtil.getDefaultHashAlgName(), "Mozilla-JSS");
             if (digest == null) {
                 msg = method + "digest null after decryptUsingSymmetricKey returned";
                 logger.warn(msg);
@@ -1466,7 +1466,7 @@ public abstract class EnrollProfile extends Profile {
         byte[] verifyBytes = null;
         try {
             DigestAlgorithm keyGenAlgID = DigestAlgorithm.fromOID(keyGenAlg.getOID());
-            MessageDigest keyGenMDAlg = MessageDigest.getInstance(keyGenAlgID.toString());
+            MessageDigest keyGenMDAlg = MessageDigest.getInstance(keyGenAlgID.toString(), "Mozilla-JSS");
 
             HMACAlgorithm macAlgID = HMACAlgorithm.fromOID(macAlg.getOID());
             MessageDigest macMDAlg = MessageDigest
@@ -1708,7 +1708,7 @@ public abstract class EnrollProfile extends Profile {
     private boolean verifyDigest(byte[] sharedSecret, byte[] text, byte[] bv) {
         MessageDigest hashAlg;
         try {
-            hashAlg = MessageDigest.getInstance("SHA1");
+            hashAlg = MessageDigest.getInstance("SHA-1", "Mozilla-JSS");
         } catch (NoSuchAlgorithmException ex) {
             logger.warn("EnrollProfile:verifyDigest: " + ex.getMessage(), ex);
             return false;
@@ -1885,7 +1885,7 @@ public abstract class EnrollProfile extends Profile {
                     ASN1Util.encode(vals.elementAt(0))));
 
             DigestAlgorithm hashAlgID = DigestAlgorithm.fromOID(idV2val.getHashAlgID().getOID());
-            MessageDigest hashAlg = MessageDigest.getInstance(hashAlgID.toString());
+            MessageDigest hashAlg = MessageDigest.getInstance(hashAlgID.toString(), "Mozilla-JSS");
 
             HMACAlgorithm macAlgId = HMACAlgorithm.fromOID(idV2val.getMacAlgId().getOID());
             MessageDigest macAlg = MessageDigest

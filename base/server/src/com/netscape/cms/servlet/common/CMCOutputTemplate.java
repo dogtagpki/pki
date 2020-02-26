@@ -633,7 +633,7 @@ public class CMCOutputTemplate {
             MessageDigest msgDigest = null;
             byte[] digest = null;
 
-            msgDigest = MessageDigest.getInstance(digestAlg.toString());
+            msgDigest = MessageDigest.getInstance(digestAlg.toString(), "Mozilla-JSS");
 
             ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
@@ -929,7 +929,7 @@ public class CMCOutputTemplate {
                 String salt = "lala123" + date.toString();
                 byte[] dig;
                 try {
-                    MessageDigest SHA2Digest = MessageDigest.getInstance("SHA256");
+                    MessageDigest SHA2Digest = MessageDigest.getInstance("SHA-256", "Mozilla-JSS");
                     dig = SHA2Digest.digest(salt.getBytes());
                 } catch (NoSuchAlgorithmException ex) {
                     dig = salt.getBytes();
@@ -1513,7 +1513,7 @@ public class CMCOutputTemplate {
             for (int i = 0; i < numDig; i++) {
                 AlgorithmIdentifier dai = (AlgorithmIdentifier) dias.elementAt(i);
                 String name = DigestAlgorithm.fromOID(dai.getOID()).toString();
-                MessageDigest md = MessageDigest.getInstance(name);
+                MessageDigest md = MessageDigest.getInstance(name, "Mozilla-JSS");
                 byte[] digest = md.digest(content.toByteArray());
                 digs.put(name, digest);
             }
@@ -1525,7 +1525,7 @@ public class CMCOutputTemplate {
                 String name = si.getDigestAlgorithm().toString();
                 byte[] digest = digs.get(name);
                 if (digest == null) {
-                    MessageDigest md = MessageDigest.getInstance(name);
+                    MessageDigest md = MessageDigest.getInstance(name, "Mozilla-JSS");
                     ByteArrayOutputStream ostream = new ByteArrayOutputStream();
                     revRequest.encode(ostream);
                     digest = md.digest(ostream.toByteArray());
