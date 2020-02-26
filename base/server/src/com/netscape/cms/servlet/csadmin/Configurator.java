@@ -869,12 +869,10 @@ public class Configurator {
 
             } else if (name.equals("cloning.transport.nickname")) {
                 preopConfig.putString("master.transport.nickname", v);
-                cs.putString("kra.transportUnit.nickName", v);
                 preopConfig.putString("cert.transport.nickname", v);
 
             } else if (name.equals("cloning.storage.nickname")) {
                 preopConfig.putString("master.storage.nickname", v);
-                cs.putString("kra.storageUnit.nickName", v);
                 preopConfig.putString("cert.storage.nickname", v);
 
             } else if (name.equals("cloning.audit_signing.nickname")) {
