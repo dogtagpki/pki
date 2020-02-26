@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 #
 # Authors:
 #     Dinesh Prasanth M K <dmoluguw@redhat.com>
@@ -19,7 +19,6 @@
 # Copyright (C) 2018 Red Hat, Inc.
 # All rights reserved.
 #
-set -e
 
 # Enable IPA's nightly COPR repo
 dnf copr enable -y @freeipa/freeipa-master-nightly

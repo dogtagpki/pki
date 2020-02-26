@@ -1,5 +1,4 @@
-#!/bin/bash
-set -e
+#!/bin/bash -ex
 
 BUILDLOG=/tmp/pki-build.txt
 

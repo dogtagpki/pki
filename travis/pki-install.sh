@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e
+#!/bin/bash -ex
+
 PACKAGES=`find ${BUILDDIR}/packages/RPMS/ -name '*.rpm' -and -not -name '*debuginfo*'`
 
 # To list all packages that are available. Useful for debug purposes
