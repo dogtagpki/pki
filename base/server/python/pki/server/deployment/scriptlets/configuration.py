@@ -888,6 +888,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if tag == 'sslserver':
                 sslserver['data'] = cert['cert']
                 sslserver['request'] = cert['request']
+                sslserver['token'] = cert['token']
 
         if not clone:
 
@@ -962,7 +963,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if not (standalone or external and subsystem.name in ['kra', 'ocsp']):
 
                 nickname = sslserver['nickname']
-                token = sslserver['token']
+                token = pki.nssdb.normalize_token(sslserver['token'])
+
+                if not token:
+                    token = deployer.mdict['pki_token_name']
+
                 instance.set_sslserver_cert_nickname(nickname, token)
 
                 self.import_perm_sslserver_cert(deployer, instance, sslserver)
