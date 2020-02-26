@@ -29,6 +29,7 @@ public class SystemCertDataFactory {
     public static SystemCertData create(Cert cert) throws Exception {
         SystemCertData data = new SystemCertData();
         data.setNickname(cert.getNickname());
+        data.setToken(cert.getTokenname());
 
         byte[] binCert = cert.getCert();
         if (binCert != null) {
