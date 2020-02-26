@@ -25,6 +25,7 @@ import os
 
 import pki
 import pki.server.instance
+import pki.util
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -276,28 +277,40 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Removing %s instance', deployer.mdict['pki_instance_name'])
 
         # remove Tomcat instance systemd service link
-        deployer.symlink.delete(deployer.systemd.systemd_link)
+        pki.util.unlink(link=deployer.systemd.systemd_link,
+                        force=deployer.mdict['pki_force_destroy'])
 
         # delete systemd override directories
         if deployer.directory.exists(deployer.systemd.base_override_dir):
-            deployer.directory.delete(deployer.systemd.base_override_dir)
+            pki.util.rmtree(path=deployer.systemd.base_override_dir,
+                            force=deployer.mdict['pki_force_destroy'])
         if deployer.directory.exists(deployer.systemd.nuxwdog_override_dir):
-            deployer.directory.delete(deployer.systemd.nuxwdog_override_dir)
+            pki.util.rmtree(path=deployer.systemd.nuxwdog_override_dir,
+                            force=deployer.mdict['pki_force_destroy'])
+
         deployer.systemd.daemon_reload()
 
         # remove Tomcat instance base
-        deployer.directory.delete(deployer.mdict['pki_instance_path'])
+        pki.util.rmtree(path=deployer.mdict['pki_instance_path'],
+                        force=deployer.mdict['pki_force_destroy'])
 
         # remove Tomcat instance logs only if --remove-logs is specified
         if deployer.mdict['pki_remove_logs']:
-            deployer.directory.delete(deployer.mdict['pki_instance_log_path'])
+            pki.util.rmtree(path=deployer.mdict['pki_instance_log_path'],
+                            force=deployer.mdict['pki_force_destroy'])
 
         # remove Tomcat instance configuration
-        deployer.directory.delete(
-            deployer.mdict['pki_instance_configuration_path'])
+        pki.util.rmtree(
+            path=deployer.mdict['pki_instance_configuration_path'],
+            force=deployer.mdict['pki_force_destroy']
+        )
         # remove PKI 'tomcat.conf' instance file
-        deployer.file.delete(
-            deployer.mdict['pki_target_tomcat_conf_instance_id'])
+        pki.util.remove(
+            path=deployer.mdict['pki_target_tomcat_conf_instance_id'],
+            force=deployer.mdict['pki_force_destroy']
+        )
         # remove Tomcat instance registry
-        deployer.directory.delete(
-            deployer.mdict['pki_instance_registry_path'])
+        pki.util.rmtree(
+            path=deployer.mdict['pki_instance_registry_path'],
+            force=deployer.mdict['pki_force_destroy']
+        )
