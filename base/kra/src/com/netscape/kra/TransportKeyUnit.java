@@ -91,8 +91,11 @@ public class TransportKeyUnit extends EncryptionUnit implements
             throws EBaseException {
         mConfig = config;
         try {
+            String nickname = getNickName();
+            logger.info("TransportKeyUnit: Loading " + nickname + " certificate");
+
             mManager = CryptoManager.getInstance();
-            mCert = mManager.findCertByNickname(getNickName());
+            mCert = mManager.findCertByNickname(nickname);
             String algo = config.getString("signingAlgorithm", "SHA256withRSA");
 
             // #613795 - initialize this; otherwise JSS is not happy
@@ -107,14 +110,16 @@ public class TransportKeyUnit extends EncryptionUnit implements
             }
 
         } catch (NotInitializedException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
 
         } catch (TokenException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+
         } catch (ObjectNotFoundException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+
         } catch (Exception e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         }
     }
 
