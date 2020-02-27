@@ -25,6 +25,7 @@ import logging
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from .. import pkiscriptlet
+import pki.util
 
 logger = logging.getLogger('infrastructure')
 
@@ -123,7 +124,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if deployer.mdict['pki_path'] != "/var/lib/pki":
             # remove relocated top-level infrastructure base
-            deployer.directory.delete(deployer.mdict['pki_path'])
+            pki.util.rmtree(deployer.mdict['pki_path'],
+                            deployer.mdict['pki_force_destroy'])
 
         # do NOT remove top-level infrastructure logs
         # since it now stores 'pkispawn'/'pkidestroy' logs
@@ -135,5 +137,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_configuration_path'] != \
                 config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
 
-            deployer.directory.delete(
-                deployer.mdict['pki_configuration_path'])
+            pki.util.rmtree(
+                deployer.mdict['pki_configuration_path'],
+                deployer.mdict['pki_force_destroy'])

@@ -365,10 +365,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if deployer.directory.exists(deployer.mdict['pki_client_dir']):
             logger.info('Removing %s', deployer.mdict['pki_client_dir'])
-            pki.util.rmtree(deployer.mdict['pki_client_dir'])
+            pki.util.rmtree(deployer.mdict['pki_client_dir'],
+                            deployer.mdict['pki_force_destroy'])
 
         logger.info('Removing %s', deployer.mdict['pki_server_database_path'])
-        pki.util.rmtree(deployer.mdict['pki_server_database_path'])
+        pki.util.rmtree(deployer.mdict['pki_server_database_path'],
+                        deployer.mdict['pki_force_destroy'])
 
         logger.info('Removing %s', deployer.mdict['pki_shared_password_conf'])
-        pki.util.remove(deployer.mdict['pki_shared_password_conf'])
+        pki.util.remove(deployer.mdict['pki_shared_password_conf'],
+                        deployer.mdict['pki_force_destroy'])

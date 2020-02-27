@@ -25,6 +25,7 @@ import os
 
 import pki
 import pki.server.instance
+import pki.util
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -71,9 +72,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Undeploying /%s web application', deployer.mdict['pki_subsystem'].lower())
 
         # Delete <instance>/Catalina/localhost/<subsystem>.xml
-        deployer.file.delete(
-            os.path.join(
+        pki.util.remove(
+            path=os.path.join(
                 deployer.mdict['pki_instance_configuration_path'],
                 "Catalina",
                 "localhost",
-                deployer.mdict['pki_subsystem'].lower() + ".xml"))
+                deployer.mdict['pki_subsystem'].lower() + ".xml"),
+            force=deployer.mdict['pki_force_destroy']
+        )
