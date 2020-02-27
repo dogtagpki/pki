@@ -91,11 +91,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_subsystem_database_link'],
             force=True)
 
-        if config.str2bool(deployer.mdict['pki_hsm_enable']):
-            deployer.modutil.register_security_module(
-                deployer.mdict['pki_server_database_path'],
+        if config.str2bool(deployer.mdict['pki_hsm_enable']) and \
+                not nssdb.module_exists(deployer.mdict['pki_hsm_modulename']):
+            nssdb.add_module(
                 deployer.mdict['pki_hsm_modulename'],
                 deployer.mdict['pki_hsm_libfile'])
+
         pki.util.chown(
             deployer.mdict['pki_server_database_path'],
             deployer.mdict['pki_uid'],
