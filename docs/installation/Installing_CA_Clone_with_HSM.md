@@ -1,11 +1,14 @@
-Installing CA with HSM
-======================
+Installing CA Clone with HSM
+============================
 
 Overview
 --------
 
-This page describes the process to install a CA subsystem with a self-signed CA signing certificate
-where the system certificates and their keys will be stored in HSM.
+This page describes the process to install a CA subsystem as a clone of an existing CA subsystem
+where the system certificates and their keys are stored in HSM.
+
+Since the certificates and the keys are already in HSM, it's not necessary to export them into a
+PKCS #12 file to create a clone.
 
 CA Subsystem Installation
 -------------------------
@@ -37,13 +40,20 @@ pki_ds_base_dn=dc=ca,dc=pki,dc=example,dc=com
 pki_ds_database=ca
 pki_ds_password=Secret.123
 
-pki_security_domain_name=EXAMPLE
+pki_security_domain_hostname=server.example.com
+pki_security_domain_https_port=8443
+pki_security_domain_user=caadmin
+pki_security_domain_password=Secret.123
 
 pki_ca_signing_nickname=ca_signing
 pki_ocsp_signing_nickname=ca_ocsp_signing
 pki_audit_signing_nickname=ca_audit_signing
-pki_sslserver_nickname=sslserver/server.example.com
+pki_sslserver_nickname=sslserver/replica.example.com
 pki_subsystem_nickname=subsystem
+
+pki_clone=True
+pki_clone_replicate_schema=True
+pki_clone_uri=https://server.example.com:8443
 ```
 
 Then execute the following command:
@@ -83,7 +93,7 @@ token:ca_signing                                             CTu,Cu,Cu
 token:ca_ocsp_signing                                        u,u,u
 token:subsystem                                              u,u,u
 token:ca_audit_signing                                       u,u,Pu
-token:sslserver/server.example.com                           u,u,u
+token:sslserver/replica.example.com                          u,u,u
 ```
 
 Verifying Admin Certificate
@@ -101,15 +111,15 @@ Import the CA signing certificate:
 $ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
 ```
 
-Import admin key and certificate:
+Import the master's admin key and certificate:
 
 ```
 $ pki -c Secret.123 client-cert-import \
- --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
- --pkcs12-password-file ~/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+ --pkcs12 ca_admin_cert.p12 \
+ --pkcs12-password-file pkcs12_password.conf
 ```
 
-Verify that the admin certificate can be used to access the CA subsystem by executing the following command:
+Verify that the admin certificate can be used to access the CA clone by executing the following command:
 
 ```
 $ pki -c Secret.123 -n caadmin ca-user-show caadmin

@@ -1,11 +1,14 @@
-Installing OCSP with HSM
-========================
+Installing OCSP Clone with HSM
+==============================
 
 Overview
 --------
 
-This page describes the process to install an OCSP subsystem
-where the system certificates and their keys will be stored in HSM.
+This page describes the process to install an OCSP subsystem as a clone of an existing OCSP subsystem
+where the system certificates and their keys are stored in HSM.
+
+Since the certificates and the keys are already in HSM, it's not necessary to export them into a
+PKCS #12 file to create a clone.
 
 OCSP Subsystem Installation
 ---------------------------
@@ -23,7 +26,6 @@ pki_token_name=token
 pki_token_password=Secret.123
 
 [OCSP]
-pki_admin_cert_file=ca_admin.cert
 pki_admin_email=ocspadmin@example.com
 pki_admin_name=ocspadmin
 pki_admin_nickname=ocspadmin
@@ -44,8 +46,12 @@ pki_security_domain_password=Secret.123
 
 pki_ocsp_signing_nickname=ocsp_signing
 pki_audit_signing_nickname=ocsp_audit_signing
-pki_sslserver_nickname=sslserver/server.example.com
+pki_sslserver_nickname=sslserver/replica.example.com
 pki_subsystem_nickname=subsystem
+
+pki_clone=True
+pki_clone_replicate_schema=True
+pki_clone_uri=https://server.example.com:8443
 ```
 
 Then execute the following command:
@@ -84,7 +90,7 @@ Certificate Nickname                                         Trust Attributes
 token:ocsp_signing                                           u,u,u
 token:subsystem                                              u,u,u
 token:ocsp_audit_signing                                     u,u,Pu
-token:sslserver/server.example.com                           u,u,u
+token:sslserver/replica.example.com                          u,u,u
 ```
 
 Verifying Admin Certificate
