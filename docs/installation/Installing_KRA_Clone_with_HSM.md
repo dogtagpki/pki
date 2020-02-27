@@ -1,11 +1,14 @@
-Installing KRA with HSM
-=======================
+Installing KRA Clone with HSM
+=============================
 
 Overview
 --------
 
-This page describes the process to install a KRA subsystem
-where the system certificates and their keys will be stored in HSM.
+This page describes the process to install a KRA subsystem as a clone of an existing KRA subsystem
+where the system certificates and their keys are stored in HSM.
+
+Since the certificates and the keys are already in HSM, it's not necessary to export them into a
+PKCS #12 file to create a clone.
 
 KRA Subsystem Installation
 --------------------------
@@ -23,7 +26,6 @@ pki_token_name=token
 pki_token_password=Secret.123
 
 [KRA]
-pki_admin_cert_file=ca_admin.cert
 pki_admin_email=kraadmin@example.com
 pki_admin_name=kraadmin
 pki_admin_nickname=kraadmin
@@ -38,15 +40,20 @@ pki_ds_base_dn=dc=kra,dc=pki,dc=example,dc=com
 pki_ds_database=kra
 pki_ds_password=Secret.123
 
-pki_security_domain_name=EXAMPLE
+pki_security_domain_hostname=server.example.com
+pki_security_domain_https_port=8443
 pki_security_domain_user=caadmin
 pki_security_domain_password=Secret.123
 
 pki_storage_nickname=kra_storage
 pki_transport_nickname=kra_transport
 pki_audit_signing_nickname=kra_audit_signing
-pki_sslserver_nickname=sslserver/server.example.com
+pki_sslserver_nickname=sslserver/replica.example.com
 pki_subsystem_nickname=subsystem
+
+pki_clone=True
+pki_clone_replicate_schema=True
+pki_clone_uri=https://server.example.com:8443
 ```
 
 Then execute the following command:
@@ -86,7 +93,7 @@ token:kra_transport                                          u,u,u
 token:kra_storage                                            u,u,u
 token:subsystem                                              u,u,u
 token:kra_audit_signing                                      u,u,Pu
-token:sslserver/server.example.com                           u,u,u
+token:sslserver/replica.example.com                          u,u,u
 ```
 
 Verifying Admin Certificate

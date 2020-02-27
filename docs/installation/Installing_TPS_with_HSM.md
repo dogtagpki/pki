@@ -5,7 +5,7 @@ Overview
 --------
 
 This page describes the process to install a TPS subsystem
-where the keys of the system certificates will be stored in HSM.
+where the system certificates and their keys will be stored in HSM.
 
 TPS Subsystem Installation
 --------------------------
