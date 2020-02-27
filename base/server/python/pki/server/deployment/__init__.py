@@ -68,7 +68,6 @@ class PKIDeployer:
         self.password = None
         self.hsm = None
         self.certutil = None
-        self.modutil = None
         self.pk12util = None
         self.kra_connector = None
         self.security_domain = None
@@ -138,7 +137,6 @@ class PKIDeployer:
         self.password = util.Password(self)
         self.hsm = util.HSM(self)
         self.certutil = util.Certutil(self)
-        self.modutil = util.Modutil(self)
         self.pk12util = util.PK12util(self)
         self.kra_connector = util.KRAConnector(self)
         self.security_domain = util.SecurityDomain(self)

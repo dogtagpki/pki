@@ -422,6 +422,7 @@ class NSSDatabase(object):
         cmd = [
             'modutil',
             '-dbdir', self.directory,
+            '-nocertdb',
             '-add', name,
             '-libfile', library,
             '-force'
