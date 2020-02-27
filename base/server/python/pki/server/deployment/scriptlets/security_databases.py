@@ -276,18 +276,24 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if subsystem.type == 'KRA':
             if deployer.configuration_file.clone:
 
+                storage_subsystem = subsystem.config['preop.cert.storage.subsystem']
+                storage_nickname = subsystem.config['preop.cert.storage.nickname']
+                transport_nickname = subsystem.config['preop.cert.transport.nickname']
+
                 token = subsystem.config['preop.module.token']
                 if pki.nssdb.normalize_token(token):
-
-                    storage_subsystem = subsystem.config['preop.cert.storage.subsystem']
-                    storage_nickname = subsystem.config['preop.cert.storage.nickname']
-                    transport_nickname = subsystem.config['preop.cert.transport.nickname']
 
                     subsystem.config['%s.storageUnit.hardware' % storage_subsystem] = token
                     subsystem.config['%s.storageUnit.nickName' % storage_subsystem] = \
                         token + ':' + storage_nickname
                     subsystem.config['%s.transportUnit.nickName' % storage_subsystem] = \
                         token + ':' + transport_nickname
+
+                else:
+                    subsystem.config['%s.storageUnit.nickName' % storage_subsystem] = \
+                        storage_nickname
+                    subsystem.config['%s.transportUnit.nickName' % storage_subsystem] = \
+                        transport_nickname
 
         if deployer.configuration_file.clone:
 
