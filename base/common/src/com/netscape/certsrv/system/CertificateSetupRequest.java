@@ -46,7 +46,7 @@ public class CertificateSetupRequest {
     protected Boolean external;
 
     @XmlElement
-    protected String standAlone;
+    protected Boolean standAlone;
 
     @XmlElement(defaultValue = "true")
     protected String generateServerCert;
@@ -55,7 +55,7 @@ public class CertificateSetupRequest {
     protected String generateSubsystemCert;
 
     @XmlElement(defaultValue="false")
-    protected String clone;
+    protected Boolean clone;
 
     public CertificateSetupRequest() {
         // required for JAXB
@@ -101,11 +101,11 @@ public class CertificateSetupRequest {
         this.external = external;
     }
 
-    public boolean getStandAlone() {
-        return (standAlone != null && standAlone.equalsIgnoreCase("true"));
+    public Boolean getStandAlone() {
+        return standAlone;
     }
 
-    public void setStandAlone(String standAlone) {
+    public void setStandAlone(Boolean standAlone) {
         this.standAlone = standAlone;
     }
 
@@ -125,12 +125,12 @@ public class CertificateSetupRequest {
         this.generateSubsystemCert = generateSubsystemCert;
     }
 
-    public boolean isClone() {
-        return "true".equalsIgnoreCase(clone);
+    public Boolean isClone() {
+        return clone;
     }
 
-    public void setClone(String isClone) {
-        this.clone = isClone;
+    public void setClone(Boolean clone) {
+        this.clone = clone;
     }
 
     @Override

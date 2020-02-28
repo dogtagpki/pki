@@ -1813,6 +1813,9 @@ public class Configurator {
         boolean sign_clone_sslserver_cert_using_master = false;
 
         if (request.isClone() && csType.equals("CA") && certTag.equals("sslserver")) {
+
+            logger.info("Configuring sslserver cert for CA clone");
+
             // retrieve and store original 'CS.cfg' entries
             preop_ca_type = preopConfig.getString("ca.type", "");
             preop_cert_signing_type = preopConfig.getString("cert.signing.type", "");

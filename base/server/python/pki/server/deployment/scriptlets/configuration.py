@@ -874,10 +874,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         for tag in subsystem.config['preop.cert.list'].split(','):
 
             logger.info('Setting up %s certificate', tag)
-
-            cert_setup_request = deployer.config_client.create_certificate_setup_request(tag)
-            cert_setup_request.installToken = deployer.install_token
-            cert = client.setupCert(cert_setup_request)
+            cert = deployer.setup_cert(client, tag)
 
             if not cert:
                 continue

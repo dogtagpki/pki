@@ -316,6 +316,24 @@ class PKIDeployer:
 
         self.get_install_token()
 
+    def setup_cert(self, client, tag):
+
+        request = pki.system.CertificateSetupRequest()
+
+        request.pin = self.mdict['pki_one_time_pin']
+        request.installToken = self.install_token
+
+        # Process existing CA installation like external CA
+        request.external = config.str2bool(self.mdict['pki_external']) or \
+            config.str2bool(self.mdict['pki_existing'])
+        request.standAlone = config.str2bool(self.mdict['pki_standalone'])
+        request.clone = config.str2bool(self.mdict['pki_clone'])
+
+        request.tag = tag
+        self.config_client.set_system_cert_info(request, tag)
+
+        return client.setupCert(request)
+
     def backup_keys(self, instance, subsystem):
 
         tmpdir = tempfile.mkdtemp()

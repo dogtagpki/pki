@@ -2838,27 +2838,6 @@ class ConfigClient:
 
         return request
 
-    def create_certificate_setup_request(self, tag):
-
-        logger.info('Creating %s certificate setup request', tag)
-
-        request = pki.system.CertificateSetupRequest()
-        request.pin = self.mdict['pki_one_time_pin']
-
-        # Process existing CA installation like external CA
-        request.external = self.external or self.existing
-        request.standAlone = self.standalone
-
-        request.tag = tag
-        self.set_system_cert_info(request, tag)
-
-        if self.clone:
-            request.clone = 'true'
-        else:
-            request.clone = 'false'
-
-        return request
-
     def create_admin_setup_request(self):
 
         logger.info('Creating admin setup request')
