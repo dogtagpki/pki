@@ -708,65 +708,6 @@ public class CertUtil {
         return result.toString();
     }
 
-    public static boolean privateKeyExistsOnToken(String certTag,
-            String tokenname, String nickname) {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String givenid = "";
-        try {
-            givenid = preopConfig.getString("cert." + certTag + ".privkey.id");
-        } catch (Exception e) {
-            logger.warn("CertUtil privateKeyExistsOnToken: we did not generate private key yet: " + e, e);
-            return false;
-        }
-
-        String fullnickname = nickname;
-        if (!CryptoUtil.isInternalToken(tokenname)) {
-            fullnickname = tokenname + ":" + nickname;
-        }
-
-        X509Certificate cert = null;
-        CryptoManager cm = null;
-        try {
-            cm = CryptoManager.getInstance();
-            cert = cm.findCertByNickname(fullnickname);
-        } catch (Exception e) {
-            logger.warn("CertUtil privateKeyExistsOnToken: nickname=" + fullnickname + " Exception:" + e, e);
-            return false;
-        }
-
-        PrivateKey privKey = null;
-        try {
-            privKey = cm.findPrivKeyByCert(cert);
-        } catch (Exception e) {
-            logger.warn("CertUtil privateKeyExistsOnToken: cant find private key ("
-                    + fullnickname + ") exception: " + e, e);
-            return false;
-        }
-
-        if (privKey == null) {
-            logger.warn("CertUtil privateKeyExistsOnToken: cant find private key (" + fullnickname + ")");
-            return false;
-        } else {
-            String str = "";
-            try {
-                str = CryptoUtil.encodeKeyID(privKey.getUniqueID());
-            } catch (Exception e) {
-                logger.warn("CertUtil privateKeyExistsOnToken: encode string Exception: " + e, e);
-            }
-
-            if (str.equals(givenid)) {
-                logger.debug("CertUtil privateKeyExistsOnToken: find the private key on the token.");
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public static X509Certificate findCertificate(String fullnickname)
             throws Exception {
 
