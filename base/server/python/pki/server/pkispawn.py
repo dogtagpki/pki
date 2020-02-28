@@ -710,29 +710,26 @@ def create_master_dictionary(parser):
 
 
 def check_security_domain():
-    if deployer.mdict['pki_security_domain_type'] != "new":
-        try:
-            # Verify existence of Security Domain Password
-            if 'pki_security_domain_password' not in deployer.mdict or \
-                    not len(deployer.mdict['pki_security_domain_password']):
-                logger.error(
-                    log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
-                    "pki_security_domain_password",
-                    deployer.mdict['pki_user_deployment_cfg'])
-                sys.exit(1)
 
-            if not config.str2bool(deployer.mdict['pki_skip_sd_verify']):
-                deployer.sd_connect()
-                info = deployer.get_domain_info()
-                deployer.set_property('pki_security_domain_name', info.id)
-                deployer.sd_login()
-                deployer.sd_logout()
+    # If the subsystem being installed is joining an existing security domain,
+    # or it is a subordinate CA (either joining the security domain or creating
+    # a new one), connect to and authenticate against the security domain.
 
-        except requests.exceptions.RequestException:
-            logger.error(
-                'Unable to access security domain: %s',
-                deployer.mdict['pki_security_domain_uri'])
-            raise
+    if deployer.mdict['pki_security_domain_type'] == 'existing' \
+            or config.str2bool(deployer.mdict['pki_subordinate']):
+
+        if 'pki_security_domain_password' not in deployer.mdict or \
+                not len(deployer.mdict['pki_security_domain_password']):
+            raise Exception('Missing security domain password')
+
+        deployer.sd_connect()
+
+        info = deployer.get_domain_info()
+        deployer.set_property('pki_security_domain_name', info.id)
+
+        logger.info('Logging into security domain %s', info.id)
+
+        deployer.sd_login()
 
 
 def check_ds():
