@@ -2125,18 +2125,7 @@ public class Configurator {
 
         PublicKey publicKey = keyPair.getPublic();
         X509Key x509key = CryptoUtil.createX509Key(publicKey);
-
-        logger.debug("generateCertRequest: getting private key for certificate " + certTag);
-        String privKeyID = preopConfig.getString("cert." + certTag + ".privkey.id");
-
-        logger.debug("generateCertRequest: private key ID: " + privKeyID);
-        byte[] keyIDb = CryptoUtil.decodeKeyID(privKeyID);
-
-        PrivateKey privk = CryptoUtil.findPrivateKeyFromID(keyIDb);
-        if (privk == null) {
-            logger.error("generateCertRequest: Unable to find private key for certificate " + certTag);
-            throw new BadRequestException("Unable to find private key for certificate " + certTag);
-        }
+        PrivateKey privk = (PrivateKey) keyPair.getPrivate();
 
         // construct cert request
         String caDN = preopConfig.getString("cert." + certTag + ".dn");
