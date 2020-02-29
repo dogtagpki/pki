@@ -19,21 +19,19 @@ package com.netscape.ca;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.Object;
-import java.util.Arrays;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
-import java.security.spec.X509EncodedKeySpec;
 import java.security.PublicKey;
 import java.security.Signature;
-import java.security.KeyFactory;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -44,8 +42,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICAService;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
-import org.mozilla.jss.asn1.OCTET_STRING;
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.util.BigInt;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
@@ -76,7 +72,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
-import com.netscape.ca.CTParser;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -101,10 +96,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.Profile;
-import com.netscape.cmsutil.http.HttpClient;
-import com.netscape.cmsutil.http.HttpRequest;
-import com.netscape.cmsutil.http.HttpResponse;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.connector.HttpConnector;
@@ -116,8 +107,10 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmscore.profile.ProfileSubsystem;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.http.HttpClient;
+import com.netscape.cmsutil.http.HttpRequest;
+import com.netscape.cmsutil.http.HttpResponse;
 
 /**
  * Request Service for CertificateAuthority.
@@ -890,31 +883,25 @@ public class CAService implements ICAService, IService {
                 logger.debug(method + " ctPoison found");
                 logger.debug(method + " About to ca.sign CT pre-cert.");
                 cert = ca.sign(certi, algname);
-                
+
                 // compose JSON request
                 String ct_json_request = composeJSONrequest(cert);
 
                 // submit to CT log(s)
                 // TODO: retrieve certTrans config and submit to designated CT logs
                 // This prototype code currently only handles one single hardcoded CT log
-                CTResponse ctResponse = null;
+                String respS;
+
                 { // loop through all CTs
                     String ct_host = "ct.googleapis.com";
                     int ct_port = 80;
                     String ct_uri = "http://ct.googleapis.com/testtube/ct/v1/add-pre-chain";
 
-                    String respS = certTransSendReq(
+                    respS = certTransSendReq(
                             ct_host, ct_port, ct_uri, ct_json_request);
-                    ObjectMapper mapper = new ObjectMapper();
-                    try {
-                        ctResponse = mapper.readValue(respS, CTResponse.class);
-                        logger.debug(method + " CTResponse: " + ctResponse);
 
-                        // verify the sct: TODO - not working, need to fix
-                        verifySCT(ctResponse, cert.getTBSCertificate());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    // verify the sct: TODO - not working, need to fix
+                    verifySCT(CTResponse.fromJSON(respS), cert.getTBSCertificate());
                 } // todo: should collect a list of CTResonses once out of loop
 
                 /**
@@ -927,7 +914,7 @@ public class CAService implements ICAService, IService {
 
                 // create SCT extension
                 // TODO : handle multiple SCTs; should pass in list of CTResponses
-                Extension sctExt = createSCTextension(ctResponse);
+                Extension sctExt = createSCTextension(CTResponse.fromJSON(respS));
 
                 // add the SCT extension
                 exts.set(sctExt.getExtensionId().toString(), sctExt);
