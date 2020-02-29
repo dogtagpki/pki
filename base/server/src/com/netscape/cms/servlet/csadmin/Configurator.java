@@ -721,7 +721,6 @@ public class Configurator {
             c1.append(",cloning." + tag + ".dn");
             c1.append(",cloning." + tag + ".keytype");
             c1.append(",cloning." + tag + ".keyalgorithm");
-            c1.append(",cloning." + tag + ".privkey.id");
             c1.append(",cloning." + tag + ".pubkey.exponent");
             c1.append(",cloning." + tag + ".pubkey.modulus");
             c1.append(",cloning." + tag + ".pubkey.encoded");
@@ -1670,11 +1669,6 @@ public class Configurator {
             byte encoded[] = publicKey.getEncoded();
             preopConfig.putString("cert." + tag + ".pubkey.encoded", CryptoUtil.byte2string(encoded));
         }
-
-        PrivateKey privateKey = (PrivateKey) pair.getPrivate();
-        byte id[] = privateKey.getUniqueID();
-        String kid = CryptoUtil.encodeKeyID(id);
-        preopConfig.putString("cert." + tag + ".privkey.id", kid);
 
         String keyAlgo = preopConfig.getString("cert." + tag + ".signingalgorithm");
         setSigningAlgorithm(tag, keyAlgo);
@@ -3208,9 +3202,6 @@ public class Configurator {
 
             String keyAlgorithm = preopConfig.getString("cert." + ss + ".keyalgorithm", "");
             cs.putString("cloning." + ss + ".keyalgorithm", keyAlgorithm);
-
-            String privateKeyID = preopConfig.getString("cert." + ss + ".privkey.id", "");
-            cs.putString("cloning." + ss + ".privkey.id", privateKeyID);
 
             String publicKeyExponent = preopConfig.getString("cert." + ss + ".pubkey.exponent", "");
             cs.putString("cloning." + ss + ".pubkey.exponent", publicKeyExponent);

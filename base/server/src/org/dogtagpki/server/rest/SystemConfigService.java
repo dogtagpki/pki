@@ -26,7 +26,6 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
-import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -615,10 +614,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             cs.putString("preop.cert." + tag + ".pubkey.modulus", CryptoUtil.byte2string(modulus));
             cs.putString("preop.cert." + tag + ".pubkey.exponent", CryptoUtil.byte2string(exponent));
         }
-
-        PrivateKey privk = cryptoManager.findPrivKeyByCert(cert);
-
-        preopConfig.putString("cert." + tag + ".privkey.id", CryptoUtil.encodeKeyID(privk.getUniqueID()));
     }
 
     private void updateConfiguration(SystemCertData cdata, String tag) throws Exception {
