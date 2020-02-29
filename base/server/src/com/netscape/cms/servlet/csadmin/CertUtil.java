@@ -137,20 +137,7 @@ public class CertUtil {
 
         PublicKey publicKey = keyPair.getPublic();
         X509Key x509key = CryptoUtil.createX509Key(publicKey);
-
-        logger.debug("CertUtil: public key: " + x509key.getAlgorithm());
-
-        String privateKeyID = preopConfig.getString("cert." + certTag + ".privkey.id");
-        byte[] keyID = CryptoUtil.decodeKeyID(privateKeyID);
-
-        PrivateKey privateKey = CryptoUtil.findPrivateKeyFromID(keyID);
-
-        if (privateKey == null) {
-            logger.warn("CertUtil: Unable to get private key for " + certTag);
-            throw new IOException("Unable to get private key for " + certTag);
-        }
-
-        logger.debug("CertUtil: private key: " + privateKey.getAlgorithm());
+        PrivateKey privateKey = (PrivateKey) keyPair.getPrivate();
 
         String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
 
