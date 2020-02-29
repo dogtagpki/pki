@@ -430,6 +430,7 @@ public class CertUtil {
 
     public static X509CertImpl createLocalCert(
             EngineConfig config,
+            PrivateKey signingPrivateKey,
             X509Key x509key,
             String certTag,
             String type) throws Exception {
@@ -508,23 +509,6 @@ public class CertUtil {
 
         profile.populate(req, info);
 
-        /*
-        java.security.PrivateKey pk = ca.getSigningUnit().getPrivateKey();
-        if (!(pk instanceof PrivateKey)) {
-            throw new Exception("CA Private key must be a JSS PrivateKey");
-        }
-        PrivateKey caPrik = (PrivateKey) pk;
-        */
-        String caPriKeyID = preopConfig.getString("cert.signing" + ".privkey.id");
-        byte[] keyIDb = CryptoUtil.decodeKeyID(caPriKeyID);
-        PrivateKey caPrik = CryptoUtil.findPrivateKeyFromID(keyIDb);
-
-        if (caPrik == null) {
-            throw new Exception("Unable to find CA private key");
-        }
-
-        logger.debug("CertUtil createLocalCert: got CA private key");
-
         String keyAlgo = x509key.getAlgorithm();
         logger.debug("key algorithm is " + keyAlgo);
 
@@ -542,10 +526,10 @@ public class CertUtil {
         X509CertImpl cert;
         if (caSigningKeyType.equals("ecc")) {
             logger.debug("CA signing cert is ECC");
-            cert = CryptoUtil.signECCCert(caPrik, info, caSigningKeyAlgo);
+            cert = CryptoUtil.signECCCert(signingPrivateKey, info, caSigningKeyAlgo);
         } else {
             logger.debug("CA signing cert is not ecc");
-            cert = CryptoUtil.signCert(caPrik, info, caSigningKeyAlgo);
+            cert = CryptoUtil.signCert(signingPrivateKey, info, caSigningKeyAlgo);
         }
 
         logger.debug("CertUtil createLocalCert: got cert signed");

@@ -105,7 +105,6 @@ import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
@@ -2015,7 +2014,7 @@ public class Configurator {
             String certTag)
             throws Exception {
 
-        ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
         if (ca == null) {
             String s = "preop.cert." + certTag + ".type";
@@ -2026,7 +2025,15 @@ public class Configurator {
         PublicKey publicKey = keyPair.getPublic();
         X509Key x509key = CryptoUtil.createX509Key(publicKey);
 
-        return CertUtil.createLocalCert(cs, x509key, certTag, caType);
+        PrivateKey signingPrivateKey;
+
+        if (caType.equals("selfsign")) {
+            signingPrivateKey = (PrivateKey) keyPair.getPrivate();
+        } else {
+            signingPrivateKey = (PrivateKey) ca.getSigningUnit().getPrivateKey();
+        }
+
+        return CertUtil.createLocalCert(cs, signingPrivateKey, x509key, certTag, caType);
     }
 
     public void updateConfig(Cert cert)
@@ -2460,12 +2467,15 @@ public class Configurator {
 
         preopConfig.putString("cert.admin.dn", subject);
         String caType = preopConfig.getString("cert.admin.type", "local");
-        X509CertImpl impl = CertUtil.createLocalCert(cs, x509key, "admin", caType);
+
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        PrivateKey signingPrivateKey = (PrivateKey) ca.getSigningUnit().getPrivateKey();
+
+        X509CertImpl impl = CertUtil.createLocalCert(cs, signingPrivateKey, x509key, "admin", caType);
 
         // update the locally created request for renewal
         CertUtil.updateLocalRequest(cs, "admin", binRequest, certRequestType, subject);
 
-        ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
         if (ca != null) {
             PKCS7 pkcs7 = createPKCS7(impl);
             byte[] bytes = pkcs7.getBytes();
