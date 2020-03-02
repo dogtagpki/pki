@@ -2296,7 +2296,6 @@ public class Configurator {
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String adminSubjectDN = request.getAdminSubjectDN();
-        preopConfig.putString("cert.admin.dn", adminSubjectDN);
 
         String csType = cs.getType();
 
@@ -2383,7 +2382,6 @@ public class Configurator {
             throw new IOException("x509key is null");
         }
 
-        preopConfig.putString("cert.admin.dn", subject);
         String caType = preopConfig.getString("cert.admin.type", "local");
 
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);

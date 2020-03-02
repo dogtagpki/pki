@@ -271,6 +271,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # TODO: move more system cert params here
 
+        admin_dn = deployer.mdict['pki_admin_subject_dn']
+        subsystem.config['preop.cert.admin.dn'] = admin_dn
+
         # If specified in the deployment parameter, add generic CA signing cert
         # extension parameters into the CS.cfg. Generic extension for other
         # system certs can be added directly into CS.cfg after before the
