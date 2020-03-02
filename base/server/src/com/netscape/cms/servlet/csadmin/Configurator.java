@@ -848,27 +848,21 @@ public class Configurator {
 
             } else if (name.equals("cloning.signing.nickname")) {
                 preopConfig.putString("master.signing.nickname", v);
-                preopConfig.putString("cert.signing.nickname", v);
 
             } else if (name.equals("cloning.ocsp_signing.nickname")) {
                 preopConfig.putString("master.ocsp_signing.nickname", v);
-                preopConfig.putString("cert.ocsp_signing.nickname", v);
 
             } else if (name.equals("cloning.subsystem.nickname")) {
                 preopConfig.putString("master.subsystem.nickname", v);
-                preopConfig.putString("cert.subsystem.nickname", v);
 
             } else if (name.equals("cloning.transport.nickname")) {
                 preopConfig.putString("master.transport.nickname", v);
-                preopConfig.putString("cert.transport.nickname", v);
 
             } else if (name.equals("cloning.storage.nickname")) {
                 preopConfig.putString("master.storage.nickname", v);
-                preopConfig.putString("cert.storage.nickname", v);
 
             } else if (name.equals("cloning.audit_signing.nickname")) {
                 preopConfig.putString("master.audit_signing.nickname", v);
-                preopConfig.putString("cert.audit_signing.nickname", v);
                 cs.putString(name, v);
 
             } else if (name.startsWith("cloning.ca")) {
