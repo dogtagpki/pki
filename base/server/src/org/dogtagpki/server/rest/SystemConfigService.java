@@ -605,14 +605,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
         X509Certificate cert = cryptoManager.findCertByNickname(nickname);
         PublicKey pubk = cert.getPublicKey();
-        byte[] exponent = null;
         byte[] modulus = null;
 
         if (isECC == false) {
-            exponent = CryptoUtil.getPublicExponent(pubk);
             modulus = CryptoUtil.getModulus(pubk);
             cs.putString("preop.cert." + tag + ".pubkey.modulus", CryptoUtil.byte2string(modulus));
-            cs.putString("preop.cert." + tag + ".pubkey.exponent", CryptoUtil.byte2string(exponent));
         }
     }
 
