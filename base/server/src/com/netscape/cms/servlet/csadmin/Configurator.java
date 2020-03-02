@@ -717,7 +717,6 @@ public class Configurator {
             }
 
             c1.append(",cloning." + tag + ".nickname");
-            c1.append(",cloning." + tag + ".dn");
 
             if (s1.length() != 0) {
                 s1.append(",");
@@ -3115,9 +3114,6 @@ public class Configurator {
 
             String nickname = preopConfig.getString("cert." + ss + ".nickname", "");
             cs.putString("cloning." + ss + ".nickname", nickname);
-
-            String dn = preopConfig.getString("cert." + ss + ".dn", "");
-            cs.putString("cloning." + ss + ".dn", dn);
         }
 
         String tokens = preopConfig.getString("module.token", "");
