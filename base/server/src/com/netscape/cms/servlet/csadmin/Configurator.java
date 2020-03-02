@@ -723,7 +723,6 @@ public class Configurator {
             c1.append(",cloning." + tag + ".keyalgorithm");
             c1.append(",cloning." + tag + ".pubkey.exponent");
             c1.append(",cloning." + tag + ".pubkey.modulus");
-            c1.append(",cloning." + tag + ".pubkey.encoded");
 
             if (s1.length() != 0) {
                 s1.append(",");
@@ -1662,12 +1661,6 @@ public class Configurator {
             byte exponent[] = rsaPublicKey.getPublicExponent().toByteArray();
             preopConfig.putString("cert." + tag + ".pubkey.exponent",
                     CryptoUtil.byte2string(exponent));
-
-        } else { // ECC
-
-            logger.debug("Configurator: Public key class: " + publicKey.getClass().getName());
-            byte encoded[] = publicKey.getEncoded();
-            preopConfig.putString("cert." + tag + ".pubkey.encoded", CryptoUtil.byte2string(encoded));
         }
 
         String keyAlgo = preopConfig.getString("cert." + tag + ".signingalgorithm");
@@ -3208,9 +3201,6 @@ public class Configurator {
 
             String publicKeyModulus = preopConfig.getString("cert." + ss + ".pubkey.modulus", "");
             cs.putString("cloning." + ss + ".pubkey.modulus", publicKeyModulus);
-
-            String publicKeyEncoded = preopConfig.getString("cert." + ss + ".pubkey.encoded", "");
-            cs.putString("cloning." + ss + ".pubkey.encoded", publicKeyEncoded);
         }
 
         String tokens = preopConfig.getString("module.token", "");
