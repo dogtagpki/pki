@@ -344,6 +344,12 @@ class PKIDeployer:
         tks_uri = self.mdict['pki_tks_uri']
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
 
+        nickname = subsystem_cert['nickname']
+        token = subsystem_cert['token']
+
+        if pki.nssdb.normalize_token(token):
+            nickname = token + ':' + nickname
+
         server_config = instance.get_server_config()
         securePort = server_config.get_secure_port()
 
@@ -352,7 +358,7 @@ class PKIDeployer:
             '-U', tks_uri,
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
-            '-n', subsystem_cert['nickname'],
+            '-n', nickname,
             'tks-tpsconnector-show',
             '--host', self.mdict['pki_hostname'],
             '--port', securePort,
@@ -373,6 +379,12 @@ class PKIDeployer:
         tks_uri = self.mdict['pki_tks_uri']
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
 
+        nickname = subsystem_cert['nickname']
+        token = subsystem_cert['token']
+
+        if pki.nssdb.normalize_token(token):
+            nickname = token + ':' + nickname
+
         server_config = instance.get_server_config()
         securePort = server_config.get_secure_port()
 
@@ -381,7 +393,7 @@ class PKIDeployer:
             '-U', tks_uri,
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
-            '-n', subsystem_cert['nickname'],
+            '-n', nickname,
             'tks-tpsconnector-add',
             '--host', self.mdict['pki_hostname'],
             '--port', securePort,
@@ -402,12 +414,18 @@ class PKIDeployer:
         tks_uri = self.mdict['pki_tks_uri']
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
 
+        nickname = subsystem_cert['nickname']
+        token = subsystem_cert['token']
+
+        if pki.nssdb.normalize_token(token):
+            nickname = token + ':' + nickname
+
         cmd = [
             'pki',
             '-U', tks_uri,
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
-            '-n', subsystem_cert['nickname'],
+            '-n', nickname,
             'tks-key-export', tps_connector_id
         ]
 
@@ -425,12 +443,18 @@ class PKIDeployer:
         tks_uri = self.mdict['pki_tks_uri']
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
 
+        nickname = subsystem_cert['nickname']
+        token = subsystem_cert['token']
+
+        if pki.nssdb.normalize_token(token):
+            nickname = token + ':' + nickname
+
         cmd = [
             'pki',
             '-U', tks_uri,
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
-            '-n', subsystem_cert['nickname'],
+            '-n', nickname,
             'tks-key-create', tps_connector_id,
             '--output-format', 'json'
         ]
@@ -449,12 +473,18 @@ class PKIDeployer:
         tks_uri = self.mdict['pki_tks_uri']
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
 
+        nickname = subsystem_cert['nickname']
+        token = subsystem_cert['token']
+
+        if pki.nssdb.normalize_token(token):
+            nickname = token + ':' + nickname
+
         cmd = [
             'pki',
             '-U', tks_uri,
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
-            '-n', subsystem_cert['nickname'],
+            '-n', nickname,
             'tks-key-replace', tps_connector_id,
             '--output-format', 'json'
         ]
@@ -476,6 +506,13 @@ class PKIDeployer:
         securePort = server_config.get_secure_port()
 
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+
+        nickname = subsystem_cert['nickname']
+        token = subsystem_cert['token']
+
+        if pki.nssdb.normalize_token(token):
+            nickname = token + ':' + nickname
+
         secret_nickname = 'TPS-%s-%s sharedSecret' % (hostname, securePort)
 
         cmd = [
@@ -483,7 +520,7 @@ class PKIDeployer:
             '-d', instance.nssdb_dir,
             '-f', instance.password_conf,
             'nss-key-import', secret_nickname,
-            '--wrapper', subsystem_cert['nickname']
+            '--wrapper', nickname
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
