@@ -334,6 +334,23 @@ class PKIDeployer:
 
         return client.setupCert(request)
 
+    def setup_admin(self, client):
+
+        request = pki.system.AdminSetupRequest()
+        request.pin = self.mdict['pki_one_time_pin']
+        request.installToken = self.install_token
+
+        self.config_client.set_admin_parameters(request)
+
+        response = client.setupAdmin(request)
+
+        if config.str2bool(self.mdict['pki_external']) \
+                or config.str2bool(self.mdict['pki_standalone']) \
+                or not config.str2bool(self.mdict['pki_import_admin_cert']):
+
+            admin_cert = response['adminCert']['cert']
+            self.config_client.process_admin_cert(admin_cert)
+
     def backup_keys(self, instance, subsystem):
 
         tmpdir = tempfile.mkdtemp()

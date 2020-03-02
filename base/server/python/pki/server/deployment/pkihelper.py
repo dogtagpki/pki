@@ -2838,18 +2838,6 @@ class ConfigClient:
 
         return request
 
-    def create_admin_setup_request(self):
-
-        logger.info('Creating admin setup request')
-
-        request = pki.system.AdminSetupRequest()
-
-        request.pin = self.mdict['pki_one_time_pin']
-
-        self.set_admin_parameters(request)
-
-        return request
-
     def create_security_domain_setup_request(self):
 
         logger.info('Creating security domain setup request')

@@ -890,15 +890,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not clone:
 
             logger.info('Setting up admin user')
-
-            admin_setup_request = deployer.config_client.create_admin_setup_request()
-            admin_setup_request.installToken = deployer.install_token
-            admin_setup_response = client.setupAdmin(admin_setup_request)
-
-            if external or standalone \
-                    or not config.str2bool(deployer.mdict['pki_import_admin_cert']):
-                admin_cert = admin_setup_response['adminCert']['cert']
-                deployer.config_client.process_admin_cert(admin_cert)
+            deployer.setup_admin(client)
 
         if config.str2bool(deployer.mdict['pki_backup_keys']):
 
