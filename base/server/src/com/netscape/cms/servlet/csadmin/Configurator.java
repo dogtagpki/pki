@@ -759,7 +759,7 @@ public class Configurator {
                 continue;
             }
 
-            String nickname = preopConfig.getString("master." + tag + ".nickname", "");
+            String nickname = preopConfig.getString("cert." + tag + ".nickname", "");
             if (!CryptoUtil.isInternalToken(token))
                 nickname = token + ":" + nickname;
 
@@ -847,22 +847,16 @@ public class Configurator {
                 preopConfig.putString("master.instanceId", v);
 
             } else if (name.equals("cloning.signing.nickname")) {
-                preopConfig.putString("master.signing.nickname", v);
 
             } else if (name.equals("cloning.ocsp_signing.nickname")) {
-                preopConfig.putString("master.ocsp_signing.nickname", v);
 
             } else if (name.equals("cloning.subsystem.nickname")) {
-                preopConfig.putString("master.subsystem.nickname", v);
 
             } else if (name.equals("cloning.transport.nickname")) {
-                preopConfig.putString("master.transport.nickname", v);
 
             } else if (name.equals("cloning.storage.nickname")) {
-                preopConfig.putString("master.storage.nickname", v);
 
             } else if (name.equals("cloning.audit_signing.nickname")) {
-                preopConfig.putString("master.audit_signing.nickname", v);
                 cs.putString(name, v);
 
             } else if (name.startsWith("cloning.ca")) {
@@ -1189,7 +1183,7 @@ public class Configurator {
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         // nickname has no token prepended to it, so no need to strip
-        String nickname = preopConfig.getString("master.audit_signing.nickname");
+        String nickname = preopConfig.getString("cert.audit_signing.nickname");
         String cstype = cs.getType();
         cstype = cstype.toLowerCase();
 
@@ -1206,7 +1200,7 @@ public class Configurator {
         // ca signing cert
         if (cstype.equals("ca")) {
             // nickname has no token prepended to it, so no need to strip
-            nickname = preopConfig.getString("master.signing.nickname");
+            nickname = preopConfig.getString("cert.signing.nickname");
             certStr = cs.getString(cstype + ".signing.cert");
             cert = CryptoUtil.base64Decode(certStr);
             xcert = cm.importUserCACertPackage(cert, nickname);
@@ -1262,12 +1256,12 @@ public class Configurator {
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         try {
-            String nickname = preopConfig.getString("master.signing.nickname");
-            logger.debug("Property preop.master.signing.nickname: " + nickname);
+            String nickname = preopConfig.getString("cert.signing.nickname");
+            logger.debug("Property preop.cert.signing.nickname: " + nickname);
             if (nickname.equals(name)) return true;
 
         } catch (EPropertyNotFound e) {
-            logger.warn("Property preop.master.signing.nickname not found -> cert " + name + " is not CA signing cert");
+            logger.warn("Property preop.cert.signing.nickname not found -> cert " + name + " is not CA signing cert");
             // nickname may not exist if this is not cloning a CA
         };
 
@@ -1278,7 +1272,7 @@ public class Configurator {
     public boolean isAuditSigningCert(String name) throws EPropertyNotFound, EBaseException {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
-        String nickname = preopConfig.getString("master.audit_signing.nickname");
+        String nickname = preopConfig.getString("cert.audit_signing.nickname");
 
         if (nickname.equals(name))
             return true;
@@ -1305,7 +1299,7 @@ public class Configurator {
             if (s.equals("sslserver"))
                 continue;
 
-            String nickname = preopConfig.getString("master." + s + ".nickname", "");
+            String nickname = preopConfig.getString("cert." + s + ".nickname", "");
             logger.debug("- Certificate " + nickname);
 
             X509Certificate cert;
@@ -1339,7 +1333,7 @@ public class Configurator {
             if (s.equals("sslserver"))
                 continue;
 
-            String nickname = preopConfig.getString("master." + s + ".nickname");
+            String nickname = preopConfig.getString("cert." + s + ".nickname");
             list.add(nickname);
 
             String dn = preopConfig.getString("cert." + s + ".dn");
