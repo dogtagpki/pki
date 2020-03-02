@@ -719,7 +719,6 @@ public class Configurator {
             c1.append(",cloning." + tag + ".nickname");
             c1.append(",cloning." + tag + ".dn");
             c1.append(",cloning." + tag + ".keytype");
-            c1.append(",cloning." + tag + ".keyalgorithm");
 
             if (s1.length() != 0) {
                 s1.append(",");
@@ -876,15 +875,6 @@ public class Configurator {
 
             } else if (name.startsWith("cloning.ca")) {
                 cs.putString(name.replaceFirst("cloning", "preop"), v);
-
-            } else if (name.equals("cloning.signing.keyalgorithm")) {
-                cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
-
-            } else if (name.equals("cloning.transport.keyalgorithm")) {
-                cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
-
-            } else if (name.equals("cloning.ocsp_signing.keyalgorithm")) {
-                cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
 
             } else if (name.startsWith("cloning")) {
                 cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
@@ -3134,9 +3124,6 @@ public class Configurator {
 
             String keyType = preopConfig.getString("cert." + ss + ".keytype", "");
             cs.putString("cloning." + ss + ".keytype", keyType);
-
-            String keyAlgorithm = preopConfig.getString("cert." + ss + ".keyalgorithm", "");
-            cs.putString("cloning." + ss + ".keyalgorithm", keyAlgorithm);
         }
 
         String tokens = preopConfig.getString("module.token", "");
