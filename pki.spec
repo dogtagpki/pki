@@ -834,12 +834,6 @@ cd build
     -DTHEME=%{?with_theme:%{vendor_id}} \
     ..
 
-################################################################################
-%install
-################################################################################
-
-cd build
-
 # Do not use _smp_mflags to preserve build order
 %{__make} \
     VERBOSE=%{?_verbose} \
@@ -847,7 +841,21 @@ cd build
     DESTDIR=%{buildroot} \
     INSTALL="install -p" \
     --no-print-directory \
-    all install
+    all
+
+################################################################################
+%install
+################################################################################
+
+cd build
+
+%{__make} \
+    VERBOSE=%{?_verbose} \
+    CMAKE_NO_VERBOSE=1 \
+    DESTDIR=%{buildroot} \
+    INSTALL="install -p" \
+    --no-print-directory \
+    install
 
 %if %{with_test}
 ctest --output-on-failure
