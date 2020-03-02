@@ -3353,9 +3353,9 @@ class ConfigClient:
         cert = pki.system.SystemCertData()
         cert.tag = self.mdict["pki_subsystem_tag"]
         cert.keySize = self.mdict["pki_subsystem_key_size"]
-        cert.nickname = cs_cfg.get(cstype + ".subsystem.nickname")
+        cert.nickname = self.mdict['pki_subsystem_nickname']
         cert.cert = cs_cfg.get(cstype + ".subsystem.cert")
         cert.request = cs_cfg.get(cstype + ".subsystem.certreq")
-        cert.subjectDN = cs_cfg.get("cloning.subsystem.dn")
-        cert.token = cs_cfg.get(cstype + ".subsystem.tokenname")
+        cert.subjectDN = self.mdict['pki_subsystem_subject_dn']
+        cert.token = self.mdict['pki_subsystem_token']
         return cert
