@@ -1639,17 +1639,6 @@ public class Configurator {
         return new KeyPair(publicKey, privateKey);
     }
 
-    public void storeKeyPair(String tag, KeyPair pair)
-            throws TokenException, EBaseException {
-
-        logger.debug("Configurator: storeKeyPair(" + tag + ")");
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String keyAlgo = preopConfig.getString("cert." + tag + ".signingalgorithm");
-        setSigningAlgorithm(tag, keyAlgo);
-    }
-
     public KeyPair createECCKeyPair(CryptoToken token, String curveName, String ct)
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
             NotInitializedException, EPropertyNotFound, EBaseException {
@@ -1740,27 +1729,6 @@ public class Configurator {
         } while (pair == null);
 
         return pair;
-    }
-
-    public void setSigningAlgorithm(String ct, String keyAlgo) throws EPropertyNotFound,
-            EBaseException {
-        String systemType = cs.getType();
-        if (systemType.equalsIgnoreCase("CA")) {
-            if (ct.equals("signing")) {
-                cs.putString("ca.signing.defaultSigningAlgorithm", keyAlgo);
-                cs.putString("ca.crl.MasterCRL.signingAlgorithm", keyAlgo);
-            } else if (ct.equals("ocsp_signing")) {
-                cs.putString("ca.ocsp_signing.defaultSigningAlgorithm", keyAlgo);
-            }
-        } else if (systemType.equalsIgnoreCase("OCSP")) {
-            if (ct.equals("signing")) {
-                cs.putString("ocsp.signing.defaultSigningAlgorithm", keyAlgo);
-            }
-        } else if (systemType.equalsIgnoreCase("KRA") || systemType.equalsIgnoreCase("DRM")) {
-            if (ct.equals("transport")) {
-                cs.putString("kra.transportUnit.signingAlgorithm", keyAlgo);
-            }
-        }
     }
 
     public void configCert(CertificateSetupRequest request, KeyPair keyPair, Cert certObj) throws Exception {

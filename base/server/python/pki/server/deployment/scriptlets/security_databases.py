@@ -253,6 +253,22 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 'pki_%s_signing_algorithm' % deploy_tag, keyalgorithm)
             subsystem.config['preop.cert.%s.signingalgorithm' % config_tag] = signingalgorithm
 
+            if subsystem.name == 'ca':
+                if config_tag == 'signing':
+                    subsystem.config['ca.signing.defaultSigningAlgorithm'] = signingalgorithm
+                    subsystem.config['ca.crl.MasterCRL.signingAlgorithm'] = signingalgorithm
+
+                elif config_tag == 'ocsp_signing':
+                    subsystem.config['ca.ocsp_signing.defaultSigningAlgorithm'] = signingalgorithm
+
+            elif subsystem.name == 'ocsp':
+                if config_tag == 'signing':
+                    subsystem.config['ocsp.signing.defaultSigningAlgorithm'] = signingalgorithm
+
+            elif subsystem.name == 'kra':
+                if config_tag == 'transport':
+                    subsystem.config['kra.transportUnit.signingAlgorithm'] = signingalgorithm
+
             # TODO: move more system cert params here
 
         # If specified in the deployment parameter, add generic CA signing cert

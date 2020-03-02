@@ -410,8 +410,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
         String keytype = preopConfig.getString("cert." + tag + ".keytype");
-        String keyalgorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
-        String signingalgorithm = preopConfig.getString("cert." + tag + ".signingalgorithm");
 
         // support injecting SAN into server cert
         if (tag.equals("sslserver") && certData.getServerCertSAN() != null) {
@@ -424,7 +422,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 logger.debug("SystemConfigService: san_server_cert not found");
             }
         }
+
         cs.commit(false);
+
         KeyPair pair;
 
         try {
@@ -450,9 +450,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 pair = configurator.createRSAKeyPair(token, Integer.parseInt(keysize), tag);
             }
         }
-
-        logger.debug("SystemConfigService: storing key pair into CS.cfg");
-        configurator.storeKeyPair(tag, pair);
 
         return pair;
     }
