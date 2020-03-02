@@ -879,21 +879,12 @@ public class Configurator {
 
             } else if (name.equals("cloning.signing.keyalgorithm")) {
                 cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
-                if (cstype.equals("CA")) {
-                    cs.putString("ca.crl.MasterCRL.signingAlgorithm", v);
-                    cs.putString("ca.signing.defaultSigningAlgorithm", v);
-                } else if (cstype.equals("OCSP")) {
-                    cs.putString("ocsp.signing.defaultSigningAlgorithm", v);
-                }
+
             } else if (name.equals("cloning.transport.keyalgorithm")) {
                 cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
-                cs.putString("kra.transportUnit.signingAlgorithm", v);
 
             } else if (name.equals("cloning.ocsp_signing.keyalgorithm")) {
                 cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
-                if (cstype.equals("CA")) {
-                    cs.putString("ca.ocsp_signing.defaultSigningAlgorithm", v);
-                }
 
             } else if (name.startsWith("cloning")) {
                 cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
