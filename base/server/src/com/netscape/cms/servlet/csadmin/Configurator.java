@@ -32,7 +32,6 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
-import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
@@ -721,7 +720,6 @@ public class Configurator {
             c1.append(",cloning." + tag + ".dn");
             c1.append(",cloning." + tag + ".keytype");
             c1.append(",cloning." + tag + ".keyalgorithm");
-            c1.append(",cloning." + tag + ".pubkey.modulus");
 
             if (s1.length() != 0) {
                 s1.append(",");
@@ -1647,16 +1645,6 @@ public class Configurator {
         logger.debug("Configurator: storeKeyPair(" + tag + ")");
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
-        PublicKey publicKey = pair.getPublic();
-
-        if (publicKey instanceof RSAPublicKey) {
-
-            RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
-
-            byte modulus[] = rsaPublicKey.getModulus().toByteArray();
-            preopConfig.putString("cert." + tag + ".pubkey.modulus",
-                    CryptoUtil.byte2string(modulus));
-        }
 
         String keyAlgo = preopConfig.getString("cert." + tag + ".signingalgorithm");
         setSigningAlgorithm(tag, keyAlgo);
@@ -3190,9 +3178,6 @@ public class Configurator {
 
             String keyAlgorithm = preopConfig.getString("cert." + ss + ".keyalgorithm", "");
             cs.putString("cloning." + ss + ".keyalgorithm", keyAlgorithm);
-
-            String publicKeyModulus = preopConfig.getString("cert." + ss + ".pubkey.modulus", "");
-            cs.putString("cloning." + ss + ".pubkey.modulus", publicKeyModulus);
         }
 
         String tokens = preopConfig.getString("module.token", "");
