@@ -402,7 +402,7 @@ class NSSDatabase(object):
         result = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
         output = result.stdout.decode('utf-8')
 
-        pattern = re.compile(r' name="%s" ' % name)
+        pattern = re.compile(r' name="%s"' % name)
 
         for line in output.splitlines():
 
