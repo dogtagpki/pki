@@ -2306,30 +2306,9 @@ class TPSConnector:
                 else:
                     return
 
-            # retrieve name of token based upon type (hardware/software)
-            if ':' in subsystemnick:
-                token_name = subsystemnick.split(':')[0]
-            else:
-                token_name = pki.nssdb.INTERNAL_TOKEN_NAME
-
-            token_pwd = self.password.get_password(
-                self.mdict['pki_shared_password_conf'],
-                token_name)
-
-            if token_pwd is None or token_pwd == '':
-                logger.warning(log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE)
-                logger.error(
-                    log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1,
-                    token_name)
-                if critical_failure:
-                    raise Exception(
-                        log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1 % token_name)
-                else:
-                    return
-
             self.execute_using_pki(
                 tkshost, tksport, subsystemnick,
-                token_pwd, tpshost, tpsport)
+                tpshost, tpsport)
 
         except subprocess.CalledProcessError as exc:
             logger.warning(
@@ -2343,15 +2322,18 @@ class TPSConnector:
 
     def execute_using_pki(
             self, tkshost, tksport, subsystemnick,
-            token_pwd, tpshost, tpsport, critical_failure=False):
-        command = ["/usr/bin/pki",
-                   "-p", str(tksport),
-                   "-h", tkshost,
+            tpshost, tpsport, critical_failure=False):
+
+        tks_url = 'https://%s:%s' % (tkshost, tksport)
+        password_conf = os.path.join(
+            self.mdict['pki_instance_configuration_path'],
+            'password.conf')
+
+        command = ["pki",
+                   "-U", tks_url,
                    "-n", subsystemnick,
-                   "-P", "https",
                    "-d", self.mdict['pki_server_database_path'],
-                   "-c", token_pwd,
-                   "-t", "tks",
+                   "-f", password_conf,
                    "tks-tpsconnector-del",
                    "--host", tpshost,
                    "--port", str(tpsport)]
