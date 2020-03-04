@@ -186,33 +186,14 @@ public class CMSEngine {
         return instanceDir;
     }
 
-    public static IPasswordStore getPasswordStore(String id, PropConfigStore cs)
-            throws EBaseException {
-        String pwdClass = null;
-        String pwdPath = null;
-
-        if (NuxwdogUtil.startedByNuxwdog()) {
-            pwdClass = NuxwdogPasswordStore.class.getName();
-            // note: pwdPath is expected to be null in this case
-        } else {
-            pwdClass = cs.getString("passwordClass");
-            pwdPath = cs.getString("passwordFile", null);
-        }
-
-        try {
-            IPasswordStore ps = (IPasswordStore) Class.forName(pwdClass).newInstance();
-            ps.init(pwdPath);
-            ps.setId(id);
-            return ps;
-        } catch (Exception e) {
-            logger.error("Cannot get password store: " + e);
-            throw new EBaseException(e);
-        }
-    }
-
     public synchronized IPasswordStore getPasswordStore() throws EBaseException {
         if (mPasswordStore == null) {
-            mPasswordStore = getPasswordStore(instanceId, mConfig);
+            try {
+                mPasswordStore =
+                    IPasswordStore.getPasswordStore(instanceId, mConfig.getProperties());
+            } catch (Exception e) {
+                throw new EBaseException("Failed to initialise password store", e);
+            }
         }
         return mPasswordStore;
     }
