@@ -3075,8 +3075,6 @@ public class Configurator {
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String type = cs.getType();
-        String list = preopConfig.getString("cert.list", "");
-        cs.putString("cloning.list", list);
 
         // more cloning variables needed for non-ca clones
 
