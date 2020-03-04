@@ -716,8 +716,6 @@ public class Configurator {
                 continue;
             }
 
-            c1.append(",cloning." + tag + ".nickname");
-
             if (s1.length() != 0) {
                 s1.append(",");
             }
@@ -845,19 +843,6 @@ public class Configurator {
 
             } else if (name.equals("instanceId")) {
                 preopConfig.putString("master.instanceId", v);
-
-            } else if (name.equals("cloning.signing.nickname")) {
-
-            } else if (name.equals("cloning.ocsp_signing.nickname")) {
-
-            } else if (name.equals("cloning.subsystem.nickname")) {
-
-            } else if (name.equals("cloning.transport.nickname")) {
-
-            } else if (name.equals("cloning.storage.nickname")) {
-
-            } else if (name.equals("cloning.audit_signing.nickname")) {
-                cs.putString(name, v);
 
             } else if (name.startsWith("cloning.ca")) {
                 cs.putString(name.replaceFirst("cloning", "preop"), v);
@@ -3091,18 +3076,6 @@ public class Configurator {
 
         String type = cs.getType();
         String list = preopConfig.getString("cert.list", "");
-        StringTokenizer st = new StringTokenizer(list, ",");
-
-        while (st.hasMoreTokens()) {
-
-            String ss = st.nextToken();
-            if (ss.equals("sslserver")) {
-                continue;
-            }
-
-            String nickname = preopConfig.getString("cert." + ss + ".nickname", "");
-            cs.putString("cloning." + ss + ".nickname", nickname);
-        }
 
         String tokens = preopConfig.getString("module.token", "");
         cs.putString("cloning.module.token", tokens);
