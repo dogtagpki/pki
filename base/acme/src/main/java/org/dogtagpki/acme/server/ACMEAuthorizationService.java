@@ -79,7 +79,7 @@ public class ACMEAuthorizationService {
 
         Collection<ACMEChallenge> challenges = authorization.getChallenges();
 
-        if (challenges == null) {
+        if (challenges == null || challenges.size() <= 0) {
             logger.info("Creating new challenges");
             challenges = new ArrayList<>();
 
