@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.acme.database;
 
+import java.util.Collection;
 import java.util.Date;
 
 import org.dogtagpki.acme.ACMEAccount;
@@ -42,7 +43,10 @@ public abstract class ACMEDatabase {
     public abstract void updateAccount(ACMEAccount account) throws Exception;
 
     public abstract ACMEOrder getOrder(String orderID) throws Exception;
-    public abstract ACMEOrder getOrderByAuthorization(String authzID) throws Exception;
+    public abstract Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(
+            String authzID,
+            String status)
+        throws Exception;
     public abstract void addOrder(ACMEOrder order) throws Exception;
     public abstract void updateOrder(ACMEOrder order) throws Exception;
 

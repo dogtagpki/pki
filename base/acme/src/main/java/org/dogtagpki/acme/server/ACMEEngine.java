@@ -606,10 +606,13 @@ public class ACMEEngine implements ServletContextListener {
         return order;
     }
 
-    public ACMEOrder getOrderByAuthorization(ACMEAccount account, String authzID) throws Exception {
-        ACMEOrder order = database.getOrderByAuthorization(authzID);
-        validateOrder(account, order);
-        return order;
+    public Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(
+            ACMEAccount account, String authzID, String status)
+            throws Exception {
+        Collection<ACMEOrder> orders = database.getOrdersByAuthorizationAndStatus(authzID, status);
+        // remove orders that are expired or don't match the account ID
+        orders.removeIf(o -> checkOrder(account, o) != CheckOrderResult.OrderAccessOK);
+        return orders;
     }
 
     public void updateOrder(ACMEAccount account, ACMEOrder order) throws Exception {
