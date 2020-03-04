@@ -5,8 +5,10 @@
 //
 package org.dogtagpki.acme.database;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.dogtagpki.acme.ACMEAccount;
@@ -57,7 +59,10 @@ public class InMemoryDatabase extends ACMEDatabase {
         return orders.get(orderID);
     }
 
-    public ACMEOrder getOrderByAuthorization(String authzID) throws Exception {
+    public Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(
+            String authzID, String status) throws Exception {
+        Vector<ACMEOrder> l = new Vector<>();
+
         for (ACMEOrder order : orders.values()) {
 
             if (order.getAuthzIDs() == null) {
@@ -65,13 +70,13 @@ public class InMemoryDatabase extends ACMEDatabase {
             }
 
             for (String orderAuthzID : order.getAuthzIDs()) {
-                if (!orderAuthzID.equals(authzID)) continue;
-
-                return order;
+                if (orderAuthzID.equals(authzID) && order.getStatus() == "pending") {
+                    l.add(order);
+                }
             }
         }
 
-        return null;
+        return l;
     }
 
     public void addOrder(ACMEOrder order) throws Exception {

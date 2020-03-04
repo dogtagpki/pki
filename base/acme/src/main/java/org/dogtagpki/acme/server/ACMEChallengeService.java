@@ -6,6 +6,7 @@
 package org.dogtagpki.acme.server;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Date;
 
 import javax.ws.rs.POST;
@@ -65,7 +66,6 @@ public class ACMEChallengeService {
         ACMEAuthorization authorization = engine.getAuthorizationByChallenge(account, challengeID);
 
         String authzID = authorization.getID();
-        ACMEOrder order = engine.getOrderByAuthorization(account, authzID);
 
         ACMEChallenge challenge = authorization.getChallenge(challengeID);
         if (challenge == null) {
@@ -114,27 +114,30 @@ public class ACMEChallengeService {
 
         engine.updateAuthorization(account, authorization);
 
-        logger.info("Checking all authorizations in the order");
-        boolean allAuthorizationsValid = true;
+        logger.info("Checking associated pending orders for validity");
+        Collection<ACMEOrder> orders =
+            engine.getOrdersByAuthorizationAndStatus(account, authzID, "pending");
 
-        for (String orderAuthzID : order.getAuthzIDs()) {
-            ACMEAuthorization authz = engine.getAuthorization(account, orderAuthzID);
+        for (ACMEOrder order : orders) {
+            boolean allAuthorizationsValid = true;
 
-            if (authz.getStatus().equals("valid")) {
-                continue;
+            for (String orderAuthzID : order.getAuthzIDs()) {
+                ACMEAuthorization authz = engine.getAuthorization(account, orderAuthzID);
+                if (authz.getStatus().equals("valid")) {
+                    continue;
+                } else {
+                    allAuthorizationsValid = false;
+                    break;
+                }
             }
 
-            allAuthorizationsValid = false;
-            break;
-        }
-
-        if (allAuthorizationsValid) {
-            logger.info("Order " + order.getID() + " is ready");
-            order.setStatus("ready");
-            engine.updateOrder(account, order);
-
-        } else {
-            logger.info("Order " + order.getID() + " is not ready");
+            if (allAuthorizationsValid) {
+                logger.info("Order " + order.getID() + " is ready");
+                order.setStatus("ready");
+                engine.updateOrder(account, order);
+            } else {
+                logger.info("Order " + order.getID() + " is not ready");
+            }
         }
 
         URI challengeURL = uriInfo.getBaseUriBuilder().path("chall").path(challengeID).build();

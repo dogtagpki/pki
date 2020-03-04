@@ -369,45 +369,48 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return order;
     }
 
-    public ACMEOrder getOrderByAuthorization(String authzID) throws Exception {
+    public Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(String authzID, String status)
+            throws Exception {
 
-        logger.info("Getting order for authorization " + authzID);
+        logger.info("Getting pending orders for authorization " + authzID);
 
-        String sql = statements.getProperty("getOrderByAuthorization");
+        String sql = statements.getProperty("getOrdersByAuthorizationAndStatus");
         logger.info("SQL: " + sql);
 
-        ACMEOrder order = new ACMEOrder();
+        Collection<ACMEOrder> orders = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, authzID);
+            ps.setString(2, status);
 
             try (ResultSet rs = ps.executeQuery()) {
 
-                if (!rs.next()) {
-                    return null;
+                while (rs.next()) {
+                    ACMEOrder order = new ACMEOrder();
+                    order.setID(rs.getString("id"));
+                    order.setAccountID(rs.getString("account_id"));
+                    order.setStatus(rs.getString("status"));
+
+                    Timestamp expires = rs.getTimestamp("expires");
+                    order.setExpirationTime(new Date(expires.getTime()));
+
+                    Timestamp notBefore = rs.getTimestamp("not_before");
+                    order.setNotBeforeTime(notBefore == null ? null : new Date(notBefore.getTime()));
+
+                    Timestamp notAfter = rs.getTimestamp("not_after");
+                    order.setNotAfterTime(notAfter == null ? null : new Date(notAfter.getTime()));
+
+                    order.setCertID(rs.getString("cert_id"));
+
+                    getOrderIdentifiers(order);
+                    getOrderAuthorizations(order);
+
+                    orders.add(order);
                 }
-
-                order.setID(rs.getString("id"));
-                order.setAccountID(rs.getString("account_id"));
-                order.setStatus(rs.getString("status"));
-
-                Timestamp expires = rs.getTimestamp("expires");
-                order.setExpirationTime(new Date(expires.getTime()));
-
-                Timestamp notBefore = rs.getTimestamp("not_before");
-                order.setNotBeforeTime(notBefore == null ? null : new Date(notBefore.getTime()));
-
-                Timestamp notAfter = rs.getTimestamp("not_after");
-                order.setNotAfterTime(notAfter == null ? null : new Date(notAfter.getTime()));
-
-                order.setCertID(rs.getString("cert_id"));
             }
         }
 
-        getOrderIdentifiers(order);
-        getOrderAuthorizations(order);
-
-        return order;
+        return orders;
     }
 
     public void getOrderIdentifiers(ACMEOrder order) throws Exception {
