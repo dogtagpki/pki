@@ -566,24 +566,38 @@ public class ACMEEngine implements ServletContextListener {
         database.addOrder(order);
     }
 
-    public void validateOrder(ACMEAccount account, ACMEOrder order) throws Exception {
+    enum CheckOrderResult { OrderAccountMismatch , OrderExpired , OrderAccessOK };
+
+    public CheckOrderResult checkOrder(ACMEAccount account, ACMEOrder order) {
 
         String orderID = order.getID();
 
         if (!order.getAccountID().equals(account.getID())) {
-            // TODO: generate proper exception
-            throw new Exception("Unable to access order " + orderID);
+            return CheckOrderResult.OrderAccountMismatch;
         }
 
         long currentTime = System.currentTimeMillis();
         long expirationTime = order.getExpirationTime().getTime();
 
         if (expirationTime <= currentTime) {
-            // TODO: generate proper exception
-            throw new Exception("Expired order: " + orderID);
+            return CheckOrderResult.OrderExpired;
         }
 
-        logger.info("Valid order: " + orderID);
+        return CheckOrderResult.OrderAccessOK;
+    }
+
+    public void validateOrder(ACMEAccount account, ACMEOrder order) throws Exception {
+        switch (checkOrder(account, order)) {
+            case OrderAccountMismatch:
+                // TODO: generate proper exception
+                throw new Exception("Unable to access order " + order.getID());
+            case OrderExpired:
+                // TODO: generate proper exception
+                throw new Exception("Expired order: " + order.getID());
+            case OrderAccessOK:
+                logger.info("Valid order: " + order.getID());
+                return;
+        }
     }
 
     public ACMEOrder getOrder(ACMEAccount account, String orderID) throws Exception {
