@@ -739,7 +739,7 @@ public class Configurator {
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("op", "get");
         content.putSingle("names", "cloning.token,instanceId,"
-                + "internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password" + c1);
+                + "internaldb.ldapauth.password,internaldb.replication.password" + c1);
         content.putSingle("substores", s1.toString());
         content.putSingle("xmlOutput", "true");
         content.putSingle("sessionID", sessionID);
@@ -834,11 +834,7 @@ public class Configurator {
                 }
             }
 
-            if (name.equals("internaldb.basedn")) {
-                masterConfig.setBaseDN(v);
-                replicaConfig.setBaseDN(v);
-
-            } else if (name.startsWith("internaldb")) {
+            if (name.startsWith("internaldb")) {
                 preopConfig.putString(name.replaceFirst("internaldb", "internaldb.master"), v);
 
             } else if (name.equals("instanceId")) {
@@ -857,18 +853,12 @@ public class Configurator {
 
         String masterHostname = masterConnConfig.getString("host", "");
         String masterPort = masterConnConfig.getString("port", "");
-        String masterBaseDN = masterConfig.getBaseDN();
 
         String replicaHostname = cs.getHostname();
         String replicaPort = replicaConnConfig.getString("port");
-        String replicaBaseDN = replicaConfig.getBaseDN();
 
         if (masterHostname.equals(replicaHostname) && masterPort.equals(replicaPort)) {
             throw new BadRequestException("Master and clone must not share the same LDAP database");
-        }
-
-        if (!masterBaseDN.equals(replicaBaseDN)) {
-            throw new BadRequestException("Master and clone must have the same base DN");
         }
     }
 
