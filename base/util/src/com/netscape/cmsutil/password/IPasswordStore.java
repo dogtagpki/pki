@@ -19,8 +19,49 @@ package com.netscape.cmsutil.password;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Map;
+
+import com.netscape.cmsutil.util.NuxwdogUtil;
 
 public interface IPasswordStore {
+
+    /**
+     * Construct a password store.
+     *
+     * If the process was started by Nuxwdog return a NuxwdogPasswordStore.
+     * Otherwise the class name is read from the "passwordClass" key in the
+     * map, an instance is constructed, its init() method is called with the
+     * value of the "passwordFile" key in the map, and the instance is
+     * returned.
+     */
+    public static IPasswordStore getPasswordStore(String id, Map<String, String> kv)
+            throws RuntimeException {
+        String pwdClass = null;
+        String pwdPath = null;
+
+        if (NuxwdogUtil.startedByNuxwdog()) {
+            pwdClass = NuxwdogPasswordStore.class.getName();
+            // note: pwdPath is expected to be null in this case
+        } else {
+            pwdClass = kv.get("passwordClass");
+            if (pwdClass == null) {
+                throw new RuntimeException(
+                    "IPasswordStore.getPasswordStore: passwordClass not defined");
+            }
+
+            pwdPath = kv.get("passwordFile");
+        }
+
+        try {
+            IPasswordStore ps = (IPasswordStore) Class.forName(pwdClass).newInstance();
+            ps.init(pwdPath);
+            ps.setId(id);
+            return ps;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to construct or initialise password store", e);
+        }
+    }
+
     public void init(String pwdPath) throws IOException;
 
     public String getPassword(String tag, int iteration);
