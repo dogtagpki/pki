@@ -10,7 +10,7 @@ URL:              http://www.dogtagpki.org/
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 
-Version:          10.8.2
+Version:          10.8.3
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 # global          _phase -a1
 
@@ -82,8 +82,6 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 %define package_option() %bcond_with %1
 %else
 %define package_option() %bcond_without %1
-
-# with pkgs
 %endif
 
 # Define --with <package> or --without <package> options depending on
@@ -104,8 +102,6 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 
 %if ! %{with debug}
 %define debug_package %{nil}
-
-# with debug
 %endif
 
 # ignore unpackaged files from native 'tpsclient'
@@ -211,7 +207,7 @@ BuildRequires:    python3-six
 %if 0%{?rhel}
 # no python3-pytest-runner
 %else
-BuildRequires:  python3-pytest-runner
+BuildRequires:    python3-pytest-runner
 %endif
 
 BuildRequires:    junit
