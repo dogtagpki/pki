@@ -738,7 +738,7 @@ public class Configurator {
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("op", "get");
-        content.putSingle("names", "cloning.module.token,cloning.token,instanceId,"
+        content.putSingle("names", "cloning.token,instanceId,"
                 + "internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password" + c1);
         content.putSingle("substores", s1.toString());
         content.putSingle("xmlOutput", "true");
@@ -3076,9 +3076,6 @@ public class Configurator {
 
         String type = cs.getType();
         String list = preopConfig.getString("cert.list", "");
-
-        String tokens = preopConfig.getString("module.token", "");
-        cs.putString("cloning.module.token", tokens);
         cs.putString("cloning.list", list);
 
         // more cloning variables needed for non-ca clones
