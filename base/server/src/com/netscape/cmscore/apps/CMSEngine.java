@@ -98,6 +98,7 @@ import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.NuxwdogPasswordStore;
+import com.netscape.cmsutil.util.NuxwdogUtil;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -185,20 +186,12 @@ public class CMSEngine {
         return instanceDir;
     }
 
-    public static boolean startedByNuxwdog() {
-        String wdPipeName = System.getenv("WD_PIPE_NAME");
-        if (StringUtils.isNotEmpty(wdPipeName)) {
-            return true;
-        }
-        return false;
-    }
-
     public static IPasswordStore getPasswordStore(String id, PropConfigStore cs)
             throws EBaseException {
         String pwdClass = null;
         String pwdPath = null;
 
-        if (startedByNuxwdog()) {
+        if (NuxwdogUtil.startedByNuxwdog()) {
             pwdClass = NuxwdogPasswordStore.class.getName();
             // note: pwdPath is expected to be null in this case
         } else {
@@ -1195,7 +1188,7 @@ public class CMSEngine {
             cmds = new String[3];
             cmds[0] = "/usr/bin/systemctl";
             cmds[1] = cmd;
-            if (startedByNuxwdog()) {
+            if (NuxwdogUtil.startedByNuxwdog()) {
                 cmds[2] = "pki-tomcatd-nuxwdog@" + instanceId + ".service";
             } else {
                 cmds[2] = "pki-tomcatd@" + instanceId + ".service";

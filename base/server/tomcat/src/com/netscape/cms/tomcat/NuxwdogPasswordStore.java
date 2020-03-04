@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Keyring;
+import com.netscape.cmsutil.util.NuxwdogUtil;
 
 public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPasswordStore {
 
@@ -26,7 +27,7 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
 
     @Override
     public void init(String confFile) throws IOException {
-        if (!startedByNuxwdog()) {
+        if (!NuxwdogUtil.startedByNuxwdog()) {
             throw new IOException("process not started by nuxwdog");
         }
 
@@ -37,16 +38,6 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
         }
 
         pwCache = new Hashtable<String, String>();
-    }
-
-    private boolean startedByNuxwdog() {
-        // confirm that process was started by nuxwdog
-        String wdPipeName = System.getenv("WD_PIPE_NAME");
-        if (StringUtils.isNotEmpty(wdPipeName)) {
-            return true;
-        }
-        return false;
-
     }
 
     /**
