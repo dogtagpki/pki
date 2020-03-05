@@ -716,7 +716,7 @@ public class Configurator {
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("op", "get");
-        content.putSingle("names", "cloning.token,instanceId,"
+        content.putSingle("names", "cloning.token,"
                 + "internaldb.ldapauth.password,internaldb.replication.password" + c1);
         content.putSingle("substores", s1.toString());
         content.putSingle("xmlOutput", "true");
@@ -814,9 +814,6 @@ public class Configurator {
 
             if (name.startsWith("internaldb")) {
                 preopConfig.putString(name.replaceFirst("internaldb", "internaldb.master"), v);
-
-            } else if (name.equals("instanceId")) {
-                preopConfig.putString("master.instanceId", v);
 
             } else if (name.startsWith("cloning.ca")) {
                 cs.putString(name.replaceFirst("cloning", "preop"), v);
