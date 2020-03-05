@@ -435,11 +435,13 @@ public class CertUtil {
             String certTag,
             String type) throws Exception {
 
-        logger.debug("CertUtil: createLocalCert(" + certTag + ")");
+        logger.info("CertUtil: Creating " + certTag + " certificate locally");
 
         PreOpConfig preopConfig = config.getPreOpConfig();
 
         String dn = preopConfig.getString("cert." + certTag + ".dn");
+        logger.info("CertUtil: DN: " + dn);
+
         String keyAlgorithm = null;
         Date date = new Date();
 
@@ -458,32 +460,32 @@ public class CertUtil {
 
         if (type.equals("selfsign")) {
 
-            logger.debug("Creating local certificate... selfsign cert");
-            logger.debug("Creating local certificate... issuer DN: " + dn);
-            logger.debug("Creating local certificate... DN: " + dn);
-            info = CryptoUtil.createX509CertInfo(x509key, serialNo, dn, dn, date, date, keyAlgorithm);
+            logger.debug("CertUtil: Creating self-signed certificate");
+
+            CertificateIssuerName issuerdnObj = new CertificateIssuerName(new X500Name(dn));
+            info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
 
         } else {
 
+            logger.debug("CertUtil: Creating CA-signed certificate");
+
             String issuerdn = preopConfig.getString("cert.signing.dn", "");
-            logger.debug("Creating local certificate... issuer DN: " + issuerdn);
-            logger.debug("Creating local certificate... DN: " + dn);
+            CertificateIssuerName issuerdnObj = ca.getIssuerObj();
 
-            if (ca.getIssuerObj() != null) {
-                // this ensures the isserDN has the same encoding as the
-                // subjectDN of the CA signing cert
-                logger.debug("Creating local certificate...  setting issuerDN using exact CA signing cert subjectDN encoding");
-                CertificateIssuerName issuerdnObj = ca.getIssuerObj();
+            if (issuerdnObj == null) {
 
+                logger.debug("CertUtil: Reusing CA's CertificateIssuerName to preserve the DN encoding");
                 info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
 
             } else {
-                logger.debug("Creating local certificate... ca.getIssuerObj() is null, creating new CertificateIssuerName");
-                info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdn, dn, date, date, keyAlgorithm);
+
+                logger.debug("CertUtil: Creating new CertificateIssuerName");
+                issuerdnObj = new CertificateIssuerName(new X500Name(issuerdn));
+                info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
             }
         }
 
-        logger.debug("Cert Template: " + info);
+        logger.info("CertUtil: Cert:\n" + info);
 
         String instanceRoot = config.getInstanceDir();
         String configurationRoot = config.getString("configurationRoot");
