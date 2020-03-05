@@ -27,7 +27,6 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
@@ -905,24 +904,6 @@ public class Configurator {
                     | InternalCertificate.TRUSTED_CLIENT_CA
                     | InternalCertificate.VALID_CA);
         }
-    }
-
-    public X509Certificate getX509CertFromToken(byte[] cert)
-            throws IOException, CertificateException, NotInitializedException {
-
-        X509CertImpl impl = new X509CertImpl(cert);
-        String issuer_impl = impl.getIssuerDN().toString();
-        BigInteger serial_impl = impl.getSerialNumber();
-        CryptoManager cm = CryptoManager.getInstance();
-        X509Certificate[] permcerts = cm.getPermCerts();
-        for (int i = 0; i < permcerts.length; i++) {
-            String issuer_p = permcerts[i].getIssuerDN().toString();
-            BigInteger serial_p = permcerts[i].getSerialNumber();
-            if (issuer_p.equals(issuer_impl) && serial_p.compareTo(serial_impl) == 0) {
-                return permcerts[i];
-            }
-        }
-        return null;
     }
 
     public boolean isAuditSigningCert(String name) throws EPropertyNotFound, EBaseException {
