@@ -66,7 +66,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
@@ -909,28 +908,6 @@ public class Configurator {
                     | InternalCertificate.TRUSTED_CLIENT_CA
                     | InternalCertificate.VALID_CA);
         }
-    }
-
-    private boolean importRequired(ArrayList<String> masterList, String nickname) {
-        if (masterList.contains(nickname))
-            return true;
-        try {
-            X500Name xname = new X500Name(nickname);
-            for (String key : masterList) {
-                try {
-                    X500Name xkey = new X500Name(key);
-                    if (xkey.equals(xname))
-                        return true;
-                } catch (IOException e) {
-                    // xkey not an X500Name
-                }
-            }
-
-        } catch (IOException e) {
-            // nickname is not a x500Name
-            return false;
-        }
-        return false;
     }
 
     public X509Certificate getX509CertFromToken(byte[] cert)
