@@ -19,7 +19,6 @@ package com.netscape.cms.servlet.csadmin;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
@@ -30,8 +29,6 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
@@ -48,12 +45,7 @@ import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.UserCertConflictException;
-import org.mozilla.jss.asn1.ANY;
-import org.mozilla.jss.asn1.BMPString;
-import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
-import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.InternalCertificate;
@@ -80,12 +72,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs11.PK11Store;
-import org.mozilla.jss.pkcs12.AuthenticatedSafes;
-import org.mozilla.jss.pkcs12.CertBag;
-import org.mozilla.jss.pkcs12.PFX;
 import org.mozilla.jss.pkcs12.PasswordConverter;
-import org.mozilla.jss.pkcs12.SafeBag;
-import org.mozilla.jss.pkix.primitive.Attribute;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
 import org.mozilla.jss.util.Password;
@@ -859,140 +846,6 @@ public class Configurator {
 
         if (masterHostname.equals(replicaHostname) && masterPort.equals(replicaPort)) {
             throw new BadRequestException("Master and clone must not share the same LDAP database");
-        }
-    }
-
-    public void restoreCertsFromP12(String p12File, String p12Pass) throws Exception {
-
-        // TODO: The PKCS #12 file is already imported in security_database.py.
-        // This method should be removed.
-
-        byte b[] = new byte[1000000];
-        FileInputStream fis = new FileInputStream(p12File);
-        while (fis.available() > 0)
-            fis.read(b);
-        fis.close();
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(b);
-        StringBuffer reason = new StringBuffer();
-        Password password = new Password(p12Pass.toCharArray());
-
-        try {
-            PFX pfx = (PFX) (new PFX.Template()).decode(bis);
-            boolean verifypfx = pfx.verifyAuthSafes(password, reason);
-
-            if (!verifypfx) {
-                throw new IOException("PKCS #12 password is incorrect");
-            }
-
-            AuthenticatedSafes safes = pfx.getAuthSafes();
-            Vector<Vector<Object>> pkeyinfo_collection = new Vector<Vector<Object>>();
-            Vector<Vector<Object>> cert_collection = new Vector<Vector<Object>>();
-
-            logger.debug("Importing PKCS #12 data");
-
-            for (int i = 0; i < safes.getSize(); i++) {
-
-                logger.debug("- Safe #" + i + ":");
-                SEQUENCE scontent = safes.getSafeContentsAt(null, i);
-
-                for (int j = 0; j < scontent.size(); j++) {
-
-                    SafeBag bag = (SafeBag) scontent.elementAt(j);
-                    OBJECT_IDENTIFIER oid = bag.getBagType();
-
-                    if (oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) {
-
-                        logger.debug("  - Bag #" + j + ": key");
-                        byte[] epki = bag.getBagContent().getEncoded();
-
-                        SET bagAttrs = bag.getBagAttributes();
-                        String subjectDN = null;
-
-                        for (int k = 0; k < bagAttrs.size(); k++) {
-
-                            Attribute attrs = (Attribute) bagAttrs.elementAt(k);
-                            OBJECT_IDENTIFIER aoid = attrs.getType();
-
-                            if (aoid.equals(SafeBag.FRIENDLY_NAME)) {
-                                SET val = attrs.getValues();
-                                ANY ss = (ANY) val.elementAt(0);
-
-                                ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
-                                BMPString sss = (BMPString) new BMPString.Template().decode(bbis);
-                                subjectDN = sss.toString();
-                                logger.debug("    Subject DN: " + subjectDN);
-                                break;
-                            }
-                        }
-
-                        // pkeyinfo_v stores EncryptedPrivateKeyInfo
-                        // (byte[]) and subject DN (String)
-                        Vector<Object> pkeyinfo_v = new Vector<Object>();
-                        pkeyinfo_v.addElement(epki);
-                        if (subjectDN != null)
-                            pkeyinfo_v.addElement(subjectDN);
-
-                        pkeyinfo_collection.addElement(pkeyinfo_v);
-
-                    } else if (oid.equals(SafeBag.CERT_BAG)) {
-
-                        logger.debug("  - Bag #" + j + ": certificate");
-                        CertBag cbag = (CertBag) bag.getInterpretedBagContent();
-                        OCTET_STRING str = (OCTET_STRING) cbag.getInterpretedCert();
-                        byte[] x509cert = str.toByteArray();
-
-                        SET bagAttrs = bag.getBagAttributes();
-                        String nickname = null;
-
-                        if (bagAttrs != null) {
-
-                            for (int k = 0; k < bagAttrs.size(); k++) {
-
-                                Attribute attrs = (Attribute) bagAttrs.elementAt(k);
-                                OBJECT_IDENTIFIER aoid = attrs.getType();
-
-                                if (aoid.equals(SafeBag.FRIENDLY_NAME)) {
-                                    SET val = attrs.getValues();
-                                    ANY ss = (ANY) val.elementAt(0);
-
-                                    ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
-                                    BMPString sss = (BMPString) (new BMPString.Template()).decode(bbis);
-                                    nickname = sss.toString();
-                                    logger.debug("    Nickname: " + nickname);
-                                    break;
-                                }
-                            }
-                        }
-
-                        X509CertImpl certImpl = new X509CertImpl(x509cert);
-                        logger.debug("    Serial number: " + certImpl.getSerialNumber());
-
-                        try {
-                            certImpl.checkValidity();
-                            logger.debug("    Status: valid");
-
-                        } catch (CertificateExpiredException | CertificateNotYetValidException e) {
-                            logger.debug("    Status: " + e);
-                            continue;
-                        }
-
-                        // cert_v stores certificate (byte[]) and nickname (String)
-                        Vector<Object> cert_v = new Vector<Object>();
-                        cert_v.addElement(x509cert);
-                        if (nickname != null)
-                            cert_v.addElement(nickname);
-
-                        cert_collection.addElement(cert_v);
-                    }
-                }
-            }
-
-            importKeyCert(password, pkeyinfo_collection, cert_collection);
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            password.clear();
         }
     }
 
