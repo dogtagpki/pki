@@ -337,15 +337,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem.config['ocsp.signing.certnickname'] = signing_nickname
             subsystem.config['ocsp.signing.cacertnickname'] = signing_nickname
 
-        if deployer.configuration_file.clone:
+        audit_nickname = subsystem.config['%s.audit_signing.nickname' % subsystem.name]
+        audit_token = subsystem.config['%s.audit_signing.tokenname' % subsystem.name]
 
-            nickname = subsystem.config['%s.audit_signing.nickname' % subsystem.name]
-            token = subsystem.config['%s.audit_signing.tokenname' % subsystem.name]
+        if pki.nssdb.normalize_token(audit_token):
+            audit_nickname = audit_token + ':' + audit_nickname
 
-            if pki.nssdb.normalize_token(token):
-                nickname = token + ':' + nickname
-
-            subsystem.config['log.instance.SignedAudit.signedAuditCertNickname'] = nickname
+        subsystem.config['log.instance.SignedAudit.signedAuditCertNickname'] = audit_nickname
 
         subsystem.save()
 

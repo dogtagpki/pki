@@ -1476,16 +1476,6 @@ public class Configurator {
 
         String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
 
-        if (certTag.equals("audit_signing")) {
-            if (!CryptoUtil.isInternalToken(token)) {
-                cs.putString("log.instance.SignedAudit.signedAuditCertNickname",
-                        token + ":" + nickname);
-            } else {
-                cs.putString("log.instance.SignedAudit.signedAuditCertNickname",
-                        nickname);
-            }
-        }
-
         cs.commit(false);
         logger.debug("updateConfig() done");
     }
