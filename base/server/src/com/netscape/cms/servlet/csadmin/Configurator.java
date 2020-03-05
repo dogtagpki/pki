@@ -906,17 +906,6 @@ public class Configurator {
         }
     }
 
-    public boolean isAuditSigningCert(String name) throws EPropertyNotFound, EBaseException {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        String nickname = preopConfig.getString("cert.audit_signing.nickname");
-
-        if (nickname.equals(name))
-            return true;
-
-        return false;
-    }
-
     public void setupDatabase(DatabaseSetupRequest request) throws Exception {
         reinitSubsystems();
     }
