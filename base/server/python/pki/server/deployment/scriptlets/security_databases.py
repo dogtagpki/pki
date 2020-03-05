@@ -309,28 +309,27 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.configuration_file.req_ski
 
         if subsystem.type == 'KRA':
-            if deployer.configuration_file.clone:
 
-                storage_nickname = subsystem.config['kra.storage.nickname']
-                storage_token = subsystem.config['kra.storage.tokenname']
+            storage_nickname = subsystem.config['kra.storage.nickname']
+            storage_token = subsystem.config['kra.storage.tokenname']
 
-                if pki.nssdb.normalize_token(storage_token):
-                    subsystem.config['kra.storageUnit.hardware'] = storage_token
-                    subsystem.config['kra.storageUnit.nickName'] = \
-                        storage_token + ':' + storage_nickname
-                else:
-                    subsystem.config['kra.storageUnit.nickName'] = \
-                        storage_nickname
+            if pki.nssdb.normalize_token(storage_token):
+                subsystem.config['kra.storageUnit.hardware'] = storage_token
+                subsystem.config['kra.storageUnit.nickName'] = \
+                    storage_token + ':' + storage_nickname
+            else:
+                subsystem.config['kra.storageUnit.nickName'] = \
+                    storage_nickname
 
-                transport_nickname = subsystem.config['kra.transport.nickname']
-                transport_token = subsystem.config['kra.transport.tokenname']
+            transport_nickname = subsystem.config['kra.transport.nickname']
+            transport_token = subsystem.config['kra.transport.tokenname']
 
-                if pki.nssdb.normalize_token(transport_token):
-                    subsystem.config['kra.transportUnit.nickName'] = \
-                        transport_token + ':' + transport_nickname
-                else:
-                    subsystem.config['kra.transportUnit.nickName'] = \
-                        transport_nickname
+            if pki.nssdb.normalize_token(transport_token):
+                subsystem.config['kra.transportUnit.nickName'] = \
+                    transport_token + ':' + transport_nickname
+            else:
+                subsystem.config['kra.transportUnit.nickName'] = \
+                    transport_nickname
 
         if subsystem.type == 'OCSP':
 

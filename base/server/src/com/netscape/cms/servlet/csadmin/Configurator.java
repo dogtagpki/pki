@@ -1476,26 +1476,6 @@ public class Configurator {
 
         String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
 
-        // if KRA, hardware token needs param "kra.storageUnit.hardware" in CS.cfg
-        String cstype = cs.getType();
-        cstype = cstype.toLowerCase();
-        if (cstype.equals("kra")) {
-            if (!CryptoUtil.isInternalToken(token)) {
-                if (certTag.equals("storage")) {
-                    cs.putString(subsystem + ".storageUnit.hardware", token);
-                    cs.putString(subsystem + ".storageUnit.nickName", token + ":" + nickname);
-                } else if (certTag.equals("transport")) {
-                    cs.putString(subsystem + ".transportUnit.nickName", token + ":" + nickname);
-                }
-            } else { // software token
-                if (certTag.equals("storage")) {
-                    cs.putString(subsystem + ".storageUnit.nickName", nickname);
-                } else if (certTag.equals("transport")) {
-                    cs.putString(subsystem + ".transportUnit.nickName", nickname);
-                }
-            }
-        }
-
         if (certTag.equals("audit_signing")) {
             if (!CryptoUtil.isInternalToken(token)) {
                 cs.putString("log.instance.SignedAudit.signedAuditCertNickname",
