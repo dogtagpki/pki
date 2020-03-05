@@ -21,11 +21,13 @@ import java.util.Arrays;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.cmscore.apps.CMS;
 
+import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
@@ -414,7 +416,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
 
     private synchronized boolean getEntries() {
 
-        logger.debug("DBVirtualList.getEntries()");
+        logger.info("DBVirtualList: Searching " + mBase);
 
         // Specify necessary controls for vlist
         // LDAPSearchConstraints cons = mConn.getSearchConstraints();
@@ -425,12 +427,15 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
             cons.setServerControls(mPageControls);
             //System.out.println( "setting vlist control" );
         }
+
         // Empty the buffer
         mEntries.removeAllElements();
-        // Do a search
+
         try {
             //what happen if there is no matching?
             String ldapFilter = mRegistry.getFilter(mFilter);
+            logger.info("DBVirtualList: filter: " + ldapFilter);
+
             String ldapAttrs[] = null;
             LDAPSearchResults result;
 
@@ -461,20 +466,28 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
                             LDAPConnection.SCOPE_ONE, ldapFilter, null,
                             false, cons);
             }
+
             if (result == null) {
                 return false;
             }
+
             int damageCounter = 0;
 
             while (result.hasMoreElements()) {
                 LDAPEntry entry = (LDAPEntry) result.nextElement();
+                logger.info("DBVirtualList: dn: " + entry.getDN());
 
                 try {
-                    //maintain mEntries as vector of LDAPEntry
+                    LDAPAttributeSet attrs = entry.getAttributeSet();
+
+                    IDBObj record = mRegistry.createObject(attrs);
+                    logger.debug("DBVirtualList: record: " + (record == null ? null : record.getClass()));
+
                     @SuppressWarnings("unchecked")
-                    E o = (E) mRegistry.createObject(entry.getAttributeSet());
+                    E o = (E) record;
 
                     mEntries.addElement(o);
+
                 } catch (Exception e) {
 
                     String message = CMS.getLogMessage("CMSCORE_DBS_VL_ADD", e.getMessage());
@@ -495,6 +508,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
                     }
                 }
             }
+
         } catch (Exception e) {
 
             /*LogDoc
@@ -505,9 +519,9 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
              */
             String message = CMS.getLogMessage("OPERATION_ERROR", e.getMessage());
             logger.error(message, e);
+
+            throw new RuntimeException(e);
         }
-        //System.out.println( "Returning " + mEntries.size() +
-        //       " entries" );
 
         logger.debug("DBVirtualList: entries: " + mEntries.size());
 
