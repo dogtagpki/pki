@@ -1275,7 +1275,7 @@ public class Configurator {
             sign_clone_sslserver_cert_using_master = true;
         }
 
-        updateConfig(certObj);
+        cs.commit(false);
 
         if (caType.equals("remote")) {
 
@@ -1463,21 +1463,6 @@ public class Configurator {
         }
 
         return CertUtil.createLocalCert(cs, signingPrivateKey, x509key, certTag, caType);
-    }
-
-    public void updateConfig(Cert cert)
-            throws EBaseException, IOException {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String certTag = cert.getCertTag();
-        String token = cert.getTokenname();
-        String nickname = cert.getNickname();
-
-        String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
-
-        cs.commit(false);
-        logger.debug("updateConfig() done");
     }
 
     public String getNickname(String certTag) throws EBaseException {
