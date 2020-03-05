@@ -20,17 +20,18 @@ package com.netscape.certsrv.dbs.keydb;
 import java.math.BigInteger;
 import java.util.Date;
 
+import org.mozilla.jss.netscape.security.util.WrappingParams;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
-
-import org.mozilla.jss.netscape.security.util.WrappingParams;
+import com.netscape.certsrv.dbs.IDBObj;
 
 /**
  * An interface contains constants for key record.
  *
  * @version $Revision$, $Date$
  */
-public interface IKeyRecord {
+public interface IKeyRecord extends IDBObj {
     public static final String ATTR_ID = "keySerialNumber";
     public static final String ATTR_STATE = "keyState";
     public static final String ATTR_ALGORITHM = "algorithm";
