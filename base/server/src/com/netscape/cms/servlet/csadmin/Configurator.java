@@ -980,33 +980,6 @@ public class Configurator {
         return false;
     }
 
-    public ArrayList<String> getMasterCertKeyList() throws EBaseException {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        ArrayList<String> list = new ArrayList<String>();
-
-        String certList = preopConfig.getString("cert.list", "");
-        StringTokenizer st = new StringTokenizer(certList, ",");
-
-        logger.debug("Master certs:");
-        while (st.hasMoreTokens()) {
-            String s = st.nextToken();
-
-            if (s.equals("sslserver"))
-                continue;
-
-            String nickname = preopConfig.getString("cert." + s + ".nickname");
-            list.add(nickname);
-
-            String dn = preopConfig.getString("cert." + s + ".dn");
-            list.add(dn);
-
-            logger.debug("- " + s + ": " + dn);
-        }
-
-        return list;
-    }
-
     public byte[] getX509Cert(String nickname, Vector<Vector<Object>> cert_collection)
             throws CertificateException {
         for (int i = 0; i < cert_collection.size(); i++) {
