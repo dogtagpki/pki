@@ -517,7 +517,7 @@ public class DBSSession implements IDBSSession {
     /**
      * Retrieves a list of objects.
      */
-    public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[]) throws EBaseException {
 
         logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
@@ -529,7 +529,7 @@ public class DBSSession implements IDBSSession {
     /**
      * Retrieves a list of objects.
      */
-    public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey[]) throws EBaseException {
 
         logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
@@ -541,45 +541,45 @@ public class DBSSession implements IDBSSession {
     /**
      * Retrieves a list of objects.
      */
-    public IDBVirtualList<?> createVirtualList(String base, String filter,
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey) throws EBaseException {
 
         logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<Object>(mDBSystem.getRegistry(), mConn, base,
+        return new DBVirtualList<T>(mDBSystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey);
     }
 
     /**
      * Retrieves a list of objects.
      */
-    public IDBVirtualList<?> createVirtualList(String base, String filter,
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey[], int pageSize) throws EBaseException {
 
         logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<Object>(mDBSystem.getRegistry(), mConn, base,
+        return new DBVirtualList<T>(mDBSystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey, pageSize);
     }
 
     /**
      * Retrieves a list of objects.
      */
-    public IDBVirtualList<Object> createVirtualList(String base, String filter,
+    public  <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey, int pageSize) throws EBaseException {
 
         logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<Object>(mDBSystem.getRegistry(), mConn, base,
+        return new DBVirtualList<T>(mDBSystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey, pageSize);
     }
 
-    public IDBVirtualList<Object> createVirtualList(String base, String filter,
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String startFrom, String sortKey, int pageSize) throws EBaseException {
 
         logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<Object>(mDBSystem.getRegistry(), mConn, base,
+        return new DBVirtualList<T>(mDBSystem.getRegistry(), mConn, base,
                 filter, attrs, startFrom, sortKey, pageSize);
 
     }

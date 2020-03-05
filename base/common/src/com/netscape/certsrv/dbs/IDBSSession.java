@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
-import netscape.ldap.LDAPSearchResults;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
+
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * An interface represents the database session. Operations
@@ -192,7 +192,7 @@ public interface IDBSSession extends AutoCloseable {
      * @return search results in virtual list
      * @exception EBaseException failed to search
      */
-    public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[]) throws EBaseException;
 
     /**
@@ -221,7 +221,7 @@ public interface IDBSSession extends AutoCloseable {
      * @return search results in virtual list
      * @exception EBaseException failed to search
      */
-    public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey, int pageSize)
             throws EBaseException;
 
@@ -236,7 +236,7 @@ public interface IDBSSession extends AutoCloseable {
      * @return search results in virtual list
      * @exception EBaseException failed to search
      */
-    public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKeys[], int pageSize)
             throws EBaseException;
 
@@ -252,7 +252,7 @@ public interface IDBSSession extends AutoCloseable {
      * @return search results in virtual list
      * @exception EBaseException failed to search
      */
-    public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String startFrom,
             String sortKey, int pageSize)
             throws EBaseException;

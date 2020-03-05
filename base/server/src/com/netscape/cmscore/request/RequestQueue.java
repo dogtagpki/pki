@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
@@ -538,7 +539,7 @@ public class RequestQueue
     public IRequestVirtualList
             getPagedRequestsByFilter(RequestId from, boolean jumpToEnd, String filter, int pageSize,
                     String sortKey) {
-        IDBVirtualList<Object> results = null;
+        IDBVirtualList<IDBObj> results = null;
         IDBSSession dbs = null;
 
         try {
@@ -720,11 +721,11 @@ class ListEnumeration
 
     }
 
-    ListEnumeration(RequestQueue queue, IDBVirtualList<Object> list) {
+    ListEnumeration(RequestQueue queue, IDBVirtualList<IDBObj> list) {
         mQueue = queue;
         mList = list;
     }
 
     protected RequestQueue mQueue;
-    protected IDBVirtualList<Object> mList;
+    protected IDBVirtualList<IDBObj> mList;
 }

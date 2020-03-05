@@ -1,7 +1,5 @@
 package com.netscape.cmscore.dbs;
 
-import netscape.ldap.LDAPSearchResults;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.EDBException;
@@ -10,6 +8,8 @@ import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.ModificationSet;
+
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * A default stub ojbect for tests to extend.
@@ -56,7 +56,7 @@ public class DBSSessionDefaultStub implements IDBSSession {
         return null;
     }
 
-    public <T> IDBVirtualList<T> createVirtualList(String base, String filter, String attrs[]) throws EBaseException {
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter, String attrs[]) throws EBaseException {
         return null;
     }
 
@@ -67,17 +67,17 @@ public class DBSSessionDefaultStub implements IDBSSession {
     public void abandon(LDAPSearchResults results) throws EBaseException {
     }
 
-    public <T> IDBVirtualList<T> createVirtualList(String base, String filter, String attrs[], String sortKey, int pageSize)
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter, String attrs[], String sortKey, int pageSize)
             throws EBaseException {
         return null;
     }
 
-    public <T> IDBVirtualList<T> createVirtualList(String base, String filter, String attrs[], String sortKeys[], int pageSize)
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter, String attrs[], String sortKeys[], int pageSize)
             throws EBaseException {
         return null;
     }
 
-    public <T> IDBVirtualList<T> createVirtualList(String base, String filter, String attrs[], String startFrom,
+    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter, String attrs[], String startFrom,
             String sortKey, int pageSize) throws EBaseException {
         return null;
     }
