@@ -716,8 +716,7 @@ public class Configurator {
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("op", "get");
-        content.putSingle("names", "cloning.token,"
-                + "internaldb.ldapauth.password,internaldb.replication.password" + c1);
+        content.putSingle("names", "internaldb.ldapauth.password,internaldb.replication.password" + c1);
         content.putSingle("substores", s1.toString());
         content.putSingle("xmlOutput", "true");
         content.putSingle("sessionID", sessionID);
