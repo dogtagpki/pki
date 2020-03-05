@@ -239,6 +239,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             tokenname = deployer.mdict['pki_%s_token' % deploy_tag]
             subsystem.config['%s.%s.tokenname' % (subsystem.name, config_tag)] = tokenname
 
+            fullname = nickname
+            if pki.nssdb.normalize_token(tokenname):
+                fullname = tokenname + ':' + nickname
+
+            subsystem.config['%s.cert.%s.nickname' % (subsystem.name, config_tag)] = fullname
+
             # store subject DN
             subject_dn = deployer.mdict['pki_%s_subject_dn' % deploy_tag]
             subsystem.config['preop.cert.%s.dn' % config_tag] = subject_dn

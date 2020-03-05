@@ -1522,9 +1522,6 @@ public class Configurator {
             }
         }
 
-        cs.putString(subsystem + "." + certTag + ".nickname", nickname);
-        cs.putString(subsystem + "." + certTag + ".tokenname", StringUtils.defaultString(token));
-
         if (certTag.equals("audit_signing")) {
             if (!CryptoUtil.isInternalToken(token)) {
                 cs.putString("log.instance.SignedAudit.signedAuditCertNickname",
@@ -1533,14 +1530,6 @@ public class Configurator {
                 cs.putString("log.instance.SignedAudit.signedAuditCertNickname",
                         nickname);
             }
-        }
-
-        // for system certs verification
-        if (!CryptoUtil.isInternalToken(token)) {
-            cs.putString(subsystem + ".cert." + certTag + ".nickname",
-                    token + ":" + nickname);
-        } else {
-            cs.putString(subsystem + ".cert." + certTag + ".nickname", nickname);
         }
 
         cs.commit(false);
