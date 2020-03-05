@@ -46,7 +46,6 @@ import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.UserCertConflictException;
 import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
@@ -979,44 +978,6 @@ public class Configurator {
             return true;
 
         return false;
-    }
-
-    public void deleteExistingCerts() throws NotInitializedException, EBaseException, TokenException {
-
-        logger.debug("Deleting existing certificates:");
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        CryptoManager cm = CryptoManager.getInstance();
-        CryptoToken ct = cm.getInternalKeyStorageToken();
-        CryptoStore store = ct.getCryptoStore();
-
-        String list = preopConfig.getString("cert.list", "");
-        StringTokenizer st = new StringTokenizer(list, ",");
-
-        while (st.hasMoreTokens()) {
-            String s = st.nextToken();
-
-            if (s.equals("sslserver"))
-                continue;
-
-            String nickname = preopConfig.getString("cert." + s + ".nickname", "");
-            logger.debug("- Certificate " + nickname);
-
-            X509Certificate cert;
-            try {
-                cert = cm.findCertByNickname(nickname);
-            } catch (ObjectNotFoundException ee) {
-                logger.warn("  Certificate nickname " + nickname + " not found");
-                continue;
-            }
-
-            try {
-                store.deleteCert(cert);
-            } catch (NoSuchItemOnTokenException ee) {
-                logger.warn("  Certificate object " + nickname + " not found");
-            }
-        }
     }
 
     public ArrayList<String> getMasterCertKeyList() throws EBaseException {
