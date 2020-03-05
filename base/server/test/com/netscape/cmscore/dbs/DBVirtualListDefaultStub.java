@@ -18,6 +18,7 @@
 package com.netscape.cmscore.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.IElementProcessor;
 
@@ -29,7 +30,7 @@ import com.netscape.certsrv.dbs.IElementProcessor;
  *
  * Do not put any behaviour in this class.
  */
-public class DBVirtualListDefaultStub<T> implements IDBVirtualList<T> {
+public class DBVirtualListDefaultStub<T extends IDBObj> implements IDBVirtualList<T> {
 
     public void setPageSize(int size) {
     }

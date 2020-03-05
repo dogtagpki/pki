@@ -25,7 +25,7 @@ import com.netscape.certsrv.base.EBaseException;
  *
  * @version $Revision$, $Date$
  */
-public interface IDBVirtualList<E> {
+public interface IDBVirtualList<E extends IDBObj> {
 
     /**
      * Sets the paging size of this virtual list.

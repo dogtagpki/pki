@@ -17,13 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.cmscore.test.CMSBaseTestCase;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class CertRecordListTest extends CMSBaseTestCase {
 
@@ -58,7 +59,7 @@ public class CertRecordListTest extends CMSBaseTestCase {
         assertEquals(7, dbList.lastIndexGetElementAtCalledWith);
     }
 
-    public static class DBVirtualListStub<T> extends DBVirtualListDefaultStub<T> {
+    public static class DBVirtualListStub<T extends IDBObj> extends DBVirtualListDefaultStub<T> {
         public int size = 0;
         public int getElementAtCallCount = 0;
         public int lastIndexGetElementAtCalledWith = 0;

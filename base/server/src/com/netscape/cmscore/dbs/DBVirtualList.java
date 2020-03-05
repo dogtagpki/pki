@@ -45,7 +45,7 @@ import netscape.ldap.controls.LDAPVirtualListResponse;
  * @author mzhao
  * @version $Revision$, $Date$
  */
-public class DBVirtualList<E> implements IDBVirtualList<E> {
+public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBVirtualList.class);
 
