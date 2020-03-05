@@ -71,11 +71,8 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
-import org.mozilla.jss.pkcs11.PK11Store;
-import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
-import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -872,130 +869,6 @@ public class Configurator {
 
             } catch (ObjectNotFoundException e) {
                 throw new Exception("Missing system certificate: " + nickname, e);
-            }
-        }
-    }
-
-    public void importKeyCert(
-            Password password,
-            Vector<Vector<Object>> pkeyinfo_collection,
-            Vector<Vector<Object>> cert_collection
-            ) throws Exception {
-
-        logger.debug("Configurator.importKeyCert()");
-        CryptoManager cm = CryptoManager.getInstance();
-        CryptoToken token = cm.getInternalKeyStorageToken();
-        CryptoStore store = token.getCryptoStore();
-
-        deleteExistingCerts();
-
-        ArrayList<String> masterList = getMasterCertKeyList();
-
-        logger.debug("Importing new keys:");
-        for (int i = 0; i < pkeyinfo_collection.size(); i++) {
-            Vector<Object> pkeyinfo_v = pkeyinfo_collection.elementAt(i);
-            byte[] epki = (byte[]) pkeyinfo_v.elementAt(0);
-            String nickname = (String) pkeyinfo_v.elementAt(1);
-            logger.debug("- Key: " + nickname);
-
-            if (!importRequired(masterList, nickname)) {
-                logger.debug("  Key not in master list, ignore key");
-                continue;
-            }
-
-            logger.debug("  Find cert with subject DN " + nickname);
-            // TODO: use better mechanism to find the cert
-            byte[] x509cert = getX509Cert(nickname, cert_collection);
-            if (x509cert == null) {
-                logger.debug("  Certificate is missing/removed, ignore key");
-                continue;
-            }
-
-            X509Certificate cert = cm.importCACertPackage(x509cert);
-            logger.debug("  Imported cert " + cert.getSerialNumber());
-
-            // get public key
-            PublicKey publicKey = cert.getPublicKey();
-
-            // delete the cert again
-            try {
-                store.deleteCert(cert);
-            } catch (NoSuchItemOnTokenException e) {
-                // this is OK
-            }
-
-            try {
-                // first true without BMPString-encoding the passphrase.
-                store.importEncryptedPrivateKeyInfo(
-                    null, password, nickname, publicKey, epki);
-            } catch (Exception e) {
-                // if that failed, try again with BMPString-encoded
-                // passphrase.  This is required for PKCS #12 PBE
-                // schemes and for PKCS #12 files using PBES2 generated
-                // by NSS < 3.31
-                store.importEncryptedPrivateKeyInfo(
-                    new PasswordConverter(), password, nickname, publicKey, epki);
-            }
-        }
-
-        logger.debug("Importing new certificates:");
-        for (int i = 0; i < cert_collection.size(); i++) {
-
-            Vector<Object> cert_v = cert_collection.elementAt(i);
-            byte[] cert = (byte[]) cert_v.elementAt(0);
-
-            if (cert_v.size() > 1) {
-                String name = (String) cert_v.elementAt(1);
-                logger.debug("- Certificate: " + name);
-
-                if (!masterList.contains(name)) {
-                    logger.debug("  Certificate not in master list, ignore certificate");
-                    continue;
-                }
-
-                // we need to delete the trusted CA certificate if it is
-                // the same as the ca signing certificate
-                boolean isCASigningCert = isCASigningCert(name);
-                logger.debug("  CA signing cert: " + isCASigningCert);
-
-                if (isCASigningCert) {
-                    X509Certificate certchain = getX509CertFromToken(cert);
-                    if (certchain != null) {
-                        if (store instanceof PK11Store) {
-                            try {
-                                logger.debug("  Deleting trusted CA cert");
-                                PK11Store pk11store = (PK11Store) store;
-                                pk11store.deleteCertOnly(certchain);
-                            } catch (Exception e) {
-                                logger.warn("Unable to delete trusted CA cert: " + e);
-                            }
-                        }
-                    }
-                }
-
-                X509Certificate xcert = cm.importUserCACertPackage(cert, name);
-                logger.debug("  Imported cert " + xcert.getSerialNumber());
-                InternalCertificate icert = (InternalCertificate) xcert;
-
-                if (isCASigningCert) {
-                    // set trust flags to CT,C,C
-                    icert.setSSLTrust(InternalCertificate.TRUSTED_CA
-                            | InternalCertificate.TRUSTED_CLIENT_CA
-                            | InternalCertificate.VALID_CA);
-                    icert.setEmailTrust(InternalCertificate.TRUSTED_CA
-                            | InternalCertificate.VALID_CA);
-                    icert.setObjectSigningTrust(InternalCertificate.TRUSTED_CA
-                            | InternalCertificate.VALID_CA);
-
-                } else if (isAuditSigningCert(name)) {
-                    // set trust flags to u,u,Pu
-                    icert.setObjectSigningTrust(InternalCertificate.USER
-                            | InternalCertificate.VALID_PEER
-                            | InternalCertificate.TRUSTED_PEER);
-                }
-
-            } else {
-                cm.importCACertPackage(cert);
             }
         }
     }
