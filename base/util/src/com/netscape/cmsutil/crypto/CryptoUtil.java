@@ -1265,54 +1265,6 @@ public class CryptoUtil {
     /**
      * Creates a Certificate template.
      */
-    public static X509CertInfo createX509CertInfo(KeyPair pair,
-            int serialno, String issuername, String subjname,
-            Date notBefore, Date notAfter)
-            throws IOException,
-                CertificateException,
-                InvalidKeyException {
-        return createX509CertInfo(createX509Key(pair.getPublic()),
-                serialno, issuername, subjname, notBefore, notAfter);
-    }
-
-    public static X509CertInfo createX509CertInfo(PublicKey publickey,
-            int serialno, String issuername, String subjname,
-            Date notBefore, Date notAfter)
-            throws IOException,
-                CertificateException,
-                InvalidKeyException {
-        return createX509CertInfo(createX509Key(publickey), serialno,
-                issuername, subjname, notBefore, notAfter);
-    }
-
-    public static X509CertInfo createX509CertInfo(X509Key x509key,
-            BigInteger serialno, String issuername, String subjname,
-            Date notBefore, Date notAfter)
-            throws IOException,
-                CertificateException,
-                InvalidKeyException {
-        // set default; use the other call with "alg" to set algorithm
-        String alg = "SHA256withRSA";
-        try {
-            return createX509CertInfo(x509key, serialno, issuername, subjname, notBefore, notAfter, alg);
-        } catch (NoSuchAlgorithmException ex) {
-            // for those that calls the old call without alg
-            throw new CertificateException("createX509CertInfo old call should not be here");
-        }
-    }
-
-    public static X509CertInfo createX509CertInfo(X509Key x509key,
-            BigInteger serialno, String issuername, String subjname,
-            Date notBefore, Date notAfter, String alg)
-            throws IOException,
-            CertificateException,
-            InvalidKeyException,
-            NoSuchAlgorithmException {
-            CertificateIssuerName issuernameObj =
-                    new CertificateIssuerName(new X500Name(issuername));
-            return createX509CertInfo(x509key, serialno, issuernameObj, subjname, notBefore, notAfter, alg);
-    }
-
     public static X509CertInfo createX509CertInfo(
             X509Key x509key,
             BigInteger serialno,
