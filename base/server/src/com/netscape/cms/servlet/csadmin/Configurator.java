@@ -702,7 +702,7 @@ public class Configurator {
         }
 
         if (!cstype.equals("ca")) {
-            c1.append(",cloning.ca.hostname,cloning.ca.pkcs7,cloning.ca.type");
+            c1.append(",cloning.ca.hostname,cloning.ca.type");
         }
 
         if (cstype.equals("ca")) {
@@ -2641,11 +2641,6 @@ public class Configurator {
             String val = preopConfig.getString("ca.hostname", "");
             if (val.length() > 0) {
                 cs.putString("cloning.ca.hostname", val);
-            }
-
-            val = preopConfig.getString("ca.pkcs7", "");
-            if (val.length() != 0) {
-                cs.putString("cloning.ca.pkcs7", val);
             }
 
             val = preopConfig.getString("ca.type", "");
