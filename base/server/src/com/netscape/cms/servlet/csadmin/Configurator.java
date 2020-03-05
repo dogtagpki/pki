@@ -925,24 +925,6 @@ public class Configurator {
         return null;
     }
 
-    public boolean isCASigningCert(String name) throws EBaseException {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        try {
-            String nickname = preopConfig.getString("cert.signing.nickname");
-            logger.debug("Property preop.cert.signing.nickname: " + nickname);
-            if (nickname.equals(name)) return true;
-
-        } catch (EPropertyNotFound e) {
-            logger.warn("Property preop.cert.signing.nickname not found -> cert " + name + " is not CA signing cert");
-            // nickname may not exist if this is not cloning a CA
-        };
-
-        return false;
-    }
-
-
     public boolean isAuditSigningCert(String name) throws EPropertyNotFound, EBaseException {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
