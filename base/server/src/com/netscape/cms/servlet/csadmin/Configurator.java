@@ -25,14 +25,12 @@ import java.net.URI;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -134,7 +132,6 @@ import com.netscape.cmsutil.xml.XMLObject;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPDN;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
@@ -955,20 +952,6 @@ public class Configurator {
             return true;
 
         return false;
-    }
-
-    public byte[] getX509Cert(String nickname, Vector<Vector<Object>> cert_collection)
-            throws CertificateException {
-        for (int i = 0; i < cert_collection.size(); i++) {
-            Vector<Object> v = cert_collection.elementAt(i);
-            byte[] b = (byte[]) v.elementAt(0);
-            X509CertImpl impl = null;
-            impl = new X509CertImpl(b);
-            Principal subjectdn = impl.getSubjectDN();
-            if (LDAPDN.equals(subjectdn.toString(), nickname))
-                return b;
-        }
-        return null;
     }
 
     public void setupDatabase(DatabaseSetupRequest request) throws Exception {
