@@ -93,7 +93,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.CloneSetupRequest;
@@ -1476,13 +1475,6 @@ public class Configurator {
         String nickname = cert.getNickname();
 
         String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
-
-        logger.debug("Configurator: updateConfig() for certTag " + certTag);
-        if (certTag.equals("signing") || certTag.equals("ocsp_signing")) {
-            logger.debug("Configurator: setting signing nickname=" + nickname);
-            cs.putString(subsystem + "." + certTag + "." + ISigningUnit.PROP_CA_CERT_NICKNAME, nickname);
-            cs.putString(subsystem + "." + certTag + ".certnickname", nickname);
-        }
 
         // if KRA, hardware token needs param "kra.storageUnit.hardware" in CS.cfg
         String cstype = cs.getType();

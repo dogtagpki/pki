@@ -286,6 +286,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # configuration step.
 
         if subsystem.type == 'CA':
+
+            signing_nickname = subsystem.config['ca.signing.nickname']
+            subsystem.config['ca.signing.certnickname'] = signing_nickname
+            subsystem.config['ca.signing.cacertnickname'] = signing_nickname
+
+            ocsp_signing_nickname = subsystem.config['ca.ocsp_signing.nickname']
+            subsystem.config['ca.ocsp_signing.certnickname'] = ocsp_signing_nickname
+            subsystem.config['ca.ocsp_signing.cacertnickname'] = ocsp_signing_nickname
+
             if deployer.configuration_file.add_req_ext:
 
                 subsystem.config['preop.cert.signing.ext.oid'] = \
@@ -320,6 +329,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         storage_nickname
                     subsystem.config['%s.transportUnit.nickName' % storage_subsystem] = \
                         transport_nickname
+
+        if subsystem.type == 'OCSP':
+
+            signing_nickname = subsystem.config['ocsp.signing.nickname']
+            subsystem.config['ocsp.signing.certnickname'] = signing_nickname
+            subsystem.config['ocsp.signing.cacertnickname'] = signing_nickname
 
         if deployer.configuration_file.clone:
 
