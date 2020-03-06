@@ -684,7 +684,6 @@ public class Configurator {
         StringBuffer c1 = new StringBuffer();
         StringBuffer s1 = new StringBuffer();
 
-        String token = preopConfig.getString("module.token", "");
         String value = preopConfig.getString("cert.list");
         String[] certList = value.split(",");
 
@@ -725,23 +724,6 @@ public class Configurator {
                 "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content);
 
         preopConfig.putString("clone.configuration", "true");
-
-        logger.debug("Configurator: configuring cert nicknames");
-
-        for (String tag : certList) {
-
-            if (tag.equals("sslserver")) {
-                continue;
-            }
-
-            String nickname = preopConfig.getString("cert." + tag + ".nickname", "");
-            if (!CryptoUtil.isInternalToken(token))
-                nickname = token + ":" + nickname;
-
-            // TODO : remove this when we eliminate the extraneous nicknames
-            // needed for self tests
-            cs.putString(cstype + ".cert." + tag + ".nickname", nickname);
-        }
 
         cs.commit(false);
     }
