@@ -2252,15 +2252,11 @@ public class Configurator {
 
         String c = null;
         if (useClientAuth) {
-            String nickname = preopConfig.getString("cert.subsystem.nickname", "");
-            String tokenname = preopConfig.getString("module.token", "");
+            String subsystem = cs.getType().toLowerCase();
+            String fullname = cs.getString(subsystem + ".cert.subsystem.nickname");
 
-            if (!CryptoUtil.isInternalToken(tokenname)) {
-                nickname = tokenname + ":" + nickname;
-            }
-            logger.debug("updateDomainXML() nickname=" + nickname);
-
-            c = post(hostname, port, https, servlet, content, nickname, null);
+            logger.debug("Configurator: Updating security domain with " + fullname);
+            c = post(hostname, port, https, servlet, content, fullname, null);
 
         } else {
             c = post(hostname, port, https, servlet, content, null, null);
