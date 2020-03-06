@@ -208,18 +208,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
             if (!generateServerCert && tag.equals("sslserver")) {
                 logger.info("SystemConfigService: not generating " + tag + " certificate");
-                updateConfiguration(certData, "sslserver");
                 return null;
             }
 
             boolean generateSubsystemCert = request.getGenerateSubsystemCert();
             if (!generateSubsystemCert && tag.equals("subsystem")) {
                 logger.info("SystemConfigService: not generating " + tag + " certificate");
-
-                // update the details for the shared subsystem cert here.
-                updateConfiguration(certData, "subsystem");
-
-                // get parameters needed for cloning
                 updateCloneConfiguration(certData, "subsystem");
                 return null;
             }
@@ -602,27 +596,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
         X509Certificate cert = cryptoManager.findCertByNickname(nickname);
         PublicKey pubk = cert.getPublicKey();
-    }
-
-    private void updateConfiguration(SystemCertData cdata, String tag) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String tokenName = cdata.getToken();
-        if (StringUtils.isEmpty(tokenName)) {
-            tokenName = preopConfig.getString("module.token", null);
-        }
-
-        if (CryptoUtil.isInternalToken(tokenName)) {
-            cs.putString(csSubsystem + ".cert." + tag + ".nickname", cdata.getNickname());
-        } else {
-            cs.putString(csSubsystem + ".cert." + tag + ".nickname", tokenName +
-                    ":" + cdata.getNickname());
-        }
-
-        cs.putString(csSubsystem + "." + tag + ".nickname", cdata.getNickname());
-        cs.putString(csSubsystem + "." + tag + ".tokenname", StringUtils.defaultString(tokenName));
-        cs.putString(csSubsystem + "." + tag + ".dn", cdata.getSubjectDN());
     }
 
     private void validatePin(String pin) throws Exception {
