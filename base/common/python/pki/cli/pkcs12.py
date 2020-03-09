@@ -216,7 +216,8 @@ class PKCS12ImportCLI(pki.cli.CLI):
                     main_cli.database,
                     token=main_cli.token,
                     password=main_cli.password,
-                    password_file=main_cli.password_file)
+                    password_file=main_cli.password_file,
+                    password_conf=main_cli.password_conf)
 
                 for cert_info in certs:
 

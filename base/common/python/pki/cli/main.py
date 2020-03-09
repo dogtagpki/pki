@@ -46,7 +46,7 @@ class PKICLI(pki.cli.CLI):
         self.database = None
         self.password = None
         self.password_file = None
-        self.password_config = None
+        self.password_conf = None
         self.token = None
         self.ignore_banner = False
 
@@ -118,8 +118,8 @@ class PKICLI(pki.cli.CLI):
         if self.password_file:
             cmd.extend(['-C', self.password_file])
 
-        if self.password_config:
-            cmd.extend(['-f', self.password_config])
+        if self.password_conf:
+            cmd.extend(['-f', self.password_conf])
 
         if pki.nssdb.normalize_token(self.token):
             cmd.extend(['--token', self.token])
@@ -185,7 +185,7 @@ class PKICLI(pki.cli.CLI):
 
             # get database password config path
             elif args[i] == '-f':
-                self.password_config = args[i + 1]
+                self.password_conf = args[i + 1]
                 pki_options.append(args[i])
                 pki_options.append(args[i + 1])
                 i = i + 2
