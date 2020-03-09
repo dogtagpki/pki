@@ -84,6 +84,7 @@ class KRAClonePrepareCLI(pki.cli.CLI):
         print('      --pkcs12-file <path>           PKCS #12 file to store certificates and keys.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  File containing the PKCS #12 password.')
+        print('      --no-key                       Do not include private key.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -94,6 +95,7 @@ class KRAClonePrepareCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
+                'no-key',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -104,6 +106,7 @@ class KRAClonePrepareCLI(pki.cli.CLI):
         instance_name = 'pki-tomcat'
         pkcs12_file = None
         pkcs12_password = None
+        no_key = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -118,6 +121,9 @@ class KRAClonePrepareCLI(pki.cli.CLI):
             elif o == '--pkcs12-password-file':
                 with io.open(a, 'rb') as f:
                     pkcs12_password = f.read()
+
+            elif o == '--no-key':
+                no_key = True
 
             elif o == '--debug':
                 logging.getLogger().setLevel(logging.DEBUG)
@@ -163,13 +169,13 @@ class KRAClonePrepareCLI(pki.cli.CLI):
                 f.write(pkcs12_password)
 
             subsystem.export_system_cert(
-                'subsystem', pkcs12_file, pkcs12_password_file)
+                'subsystem', pkcs12_file, pkcs12_password_file, no_key=no_key)
             subsystem.export_system_cert(
-                'transport', pkcs12_file, pkcs12_password_file, append=True)
+                'transport', pkcs12_file, pkcs12_password_file, no_key=no_key, append=True)
             subsystem.export_system_cert(
-                'storage', pkcs12_file, pkcs12_password_file, append=True)
+                'storage', pkcs12_file, pkcs12_password_file, no_key=no_key, append=True)
             subsystem.export_system_cert(
-                'audit_signing', pkcs12_file, pkcs12_password_file, append=True)
+                'audit_signing', pkcs12_file, pkcs12_password_file, no_key=no_key, append=True)
             instance.export_external_certs(
                 pkcs12_file, pkcs12_password_file, append=True)
 
