@@ -237,30 +237,25 @@ class PKISubsystem(object):
             cert_id,
             pkcs12_file,
             pkcs12_password_file,
+            no_key=False,
             append=False):
 
         cert = self.get_subsystem_cert(cert_id)
         nickname = cert['nickname']
         token = pki.nssdb.normalize_token(cert['token'])
 
-        nssdb_password = self.instance.get_token_password(token)
+        if token:
+            nickname = token + ':' + nickname
 
         tmpdir = tempfile.mkdtemp()
 
         try:
-            nssdb_password_file = os.path.join(tmpdir, 'password.txt')
-            with open(nssdb_password_file, 'w') as f:
-                f.write(nssdb_password)
-
             # add the certificate, key, and chain
             cmd = [
                 'pki',
                 '-d', self.instance.nssdb_dir,
-                '-C', nssdb_password_file
+                '-f', self.instance.password_conf
             ]
-
-            if token:
-                cmd.extend(['--token', token])
 
             cmd.extend([
                 'pkcs12-cert-import',
@@ -268,8 +263,17 @@ class PKISubsystem(object):
                 '--pkcs12-password-file', pkcs12_password_file,
             ])
 
+            if no_key:
+                cmd.extend(['--no-key'])
+
             if append:
                 cmd.extend(['--append'])
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('-v')
 
             cmd.extend([
                 nickname
