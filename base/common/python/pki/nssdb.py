@@ -183,7 +183,8 @@ class NSSDatabase(object):
                  password_file=None,
                  internal_password=None,
                  internal_password_file=None,
-                 passwords=None):
+                 passwords=None,
+                 password_conf=None):
 
         if not directory:
             directory = os.path.join(
@@ -221,6 +222,7 @@ class NSSDatabase(object):
             self.internal_password_file = self.password_file
 
         self.passwords = passwords
+        self.password_conf = password_conf
 
     def create(self, enable_trust_policy=False):
 
@@ -1506,7 +1508,10 @@ class NSSDatabase(object):
                 '-d', self.directory
             ]
 
-            if self.password_file:
+            if self.password_conf:
+                cmd.extend(['-f', self.password_conf])
+
+            elif self.password_file:
                 cmd.extend(['-C', self.password_file])
 
             if self.token:
@@ -1526,6 +1531,12 @@ class NSSDatabase(object):
 
             if overwrite:
                 cmd.extend(['--overwrite'])
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('-v')
 
             logger.debug('Command: %s', ' '.join(map(str, cmd)))
             subprocess.check_call(cmd)
