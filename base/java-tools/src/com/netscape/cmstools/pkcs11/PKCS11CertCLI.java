@@ -38,6 +38,7 @@ public class PKCS11CertCLI extends CLI {
         super("cert", "PKCS #11 certificate management commands", pkcs11CLI);
         this.pkcs11CLI = pkcs11CLI;
 
+        addModule(new PKCS11CertExportCLI(this));
         addModule(new PKCS11CertFindCLI(this));
         addModule(new PKCS11CertShowCLI(this));
         addModule(new PKCS11CertRemoveCLI(this));
