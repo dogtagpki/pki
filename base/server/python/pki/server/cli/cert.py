@@ -274,17 +274,14 @@ class CertShowCLI(pki.cli.CLI):
         CertCLI.print_system_cert(cert, show_all)
 
         if pretty_print:
+
+            print()
+
             nssdb = instance.open_nssdb()
             try:
-                output = nssdb.get_cert(
+                nssdb.show_cert(
                     nickname=cert['nickname'],
-                    token=cert['token'],
-                    output_format='pretty-print',
-                    output_text=True)
-
-                print()
-                print(output)
-
+                    token=cert['token'])
             finally:
                 nssdb.close()
 

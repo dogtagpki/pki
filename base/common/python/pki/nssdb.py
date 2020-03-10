@@ -1145,6 +1145,54 @@ class NSSDatabase(object):
         logger.debug('Command: %s', ' '.join(map(str, cmd)))
         subprocess.check_call(cmd)
 
+    def show_cert(self, nickname, token=None):
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            token = self.get_effective_token(token)
+            password_file = self.get_password_file(tmpdir, token)
+
+            cmd = [
+                'certutil',
+                '-L',
+                '-d', self.directory
+            ]
+
+            fullname = nickname
+
+            if token:
+                cmd.extend(['-h', token])
+                fullname = token + ':' + fullname
+
+            if password_file:
+                cmd.extend(['-f', password_file])
+
+            cmd.extend(['-n', fullname])
+
+            logger.debug('Command: %s', ' '.join(map(str, cmd)))
+
+            p = subprocess.Popen(cmd,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+
+            output, error = p.communicate()
+
+            if error:
+                # certutil returned an error
+                # raise exception unless its not cert not found
+                if error.startswith(b'certutil: Could not find cert: '):
+                    return None
+
+                raise Exception('Could not find certificate: %s: %s' % (fullname, error.strip()))
+
+            if p.returncode != 0:
+                logger.warning('certutil returned non-zero exit code (bug #1539996)')
+
+            print(output.decode('ascii'))
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def get_cert(self, nickname, token=None, output_format='pem',
                  output_text=False):
 
