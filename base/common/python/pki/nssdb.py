@@ -1266,10 +1266,9 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def get_cert_info(self, nickname):
+    def get_cert_info(self, nickname, token=None):
 
-        cert_pem = self.get_cert(
-            nickname=nickname)
+        cert_pem = self.get_cert(nickname=nickname, token=token)
 
         if not cert_pem:
             return None

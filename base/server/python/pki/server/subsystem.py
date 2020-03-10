@@ -200,9 +200,9 @@ class PKISubsystem(object):
         nickname = self.config.get('%s.%s.nickname' % (self.name, cert_id))
         token = self.config.get('%s.%s.tokenname' % (self.name, cert_id))
 
-        nssdb = self.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb()
         try:
-            return nssdb.get_cert_info(nickname)
+            return nssdb.get_cert_info(nickname, token=token)
         finally:
             nssdb.close()
 
