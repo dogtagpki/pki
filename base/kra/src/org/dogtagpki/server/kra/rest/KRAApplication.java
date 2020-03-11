@@ -13,6 +13,7 @@ import org.dogtagpki.server.rest.GroupService;
 import org.dogtagpki.server.rest.KRAInfoService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.PKIExceptionMapper;
+import org.dogtagpki.server.rest.SecurityDomainHostService;
 import org.dogtagpki.server.rest.SecurityDomainService;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
@@ -48,6 +49,7 @@ public class KRAApplication extends Application {
             boolean standalone = cs.getBoolean("kra.standalone", false);
             if (standalone) {
                 classes.add(SecurityDomainService.class);
+                classes.add(SecurityDomainHostService.class);
             }
         } catch (EBaseException e) {
             logger.error("KRAApplication: " + e.getMessage(), e);

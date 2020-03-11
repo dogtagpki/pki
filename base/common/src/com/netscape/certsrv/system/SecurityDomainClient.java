@@ -18,7 +18,9 @@
 package com.netscape.certsrv.system;
 
 import java.net.URISyntaxException;
+import java.util.Collection;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
@@ -31,6 +33,7 @@ import com.netscape.certsrv.client.PKIClient;
 public class SecurityDomainClient extends Client {
 
     private SecurityDomainResource securityDomainClient;
+    private SecurityDomainHostResource securityDomainHostClient;
 
     public SecurityDomainClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "securitydomain");
@@ -39,6 +42,7 @@ public class SecurityDomainClient extends Client {
 
     public void init() throws URISyntaxException {
         securityDomainClient = createProxy(SecurityDomainResource.class);
+        securityDomainHostClient = createProxy(SecurityDomainHostResource.class);
     }
 
     public InstallToken getInstallToken(String hostname, String subsystem) throws Exception {
@@ -49,5 +53,11 @@ public class SecurityDomainClient extends Client {
     public DomainInfo getDomainInfo() throws Exception {
         Response response = securityDomainClient.getDomainInfo();
         return client.getEntity(response, DomainInfo.class);
+    }
+
+    public Collection<SecurityDomainHost> getHosts() throws Exception {
+        Response response = securityDomainHostClient.getHosts();
+        GenericType<Collection<SecurityDomainHost>> type = new GenericType<Collection<SecurityDomainHost>>() {};
+        return client.getEntity(response, type);
     }
 }

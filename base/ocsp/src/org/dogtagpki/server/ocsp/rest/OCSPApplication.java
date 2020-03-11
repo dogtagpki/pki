@@ -12,6 +12,7 @@ import org.dogtagpki.server.rest.AuthMethodInterceptor;
 import org.dogtagpki.server.rest.GroupService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.PKIExceptionMapper;
+import org.dogtagpki.server.rest.SecurityDomainHostService;
 import org.dogtagpki.server.rest.SecurityDomainService;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
@@ -47,6 +48,7 @@ public class OCSPApplication extends Application {
             boolean standalone = cs.getBoolean("ocsp.standalone", false);
             if (standalone) {
                 classes.add(SecurityDomainService.class);
+                classes.add(SecurityDomainHostService.class);
             }
         } catch (EBaseException e) {
             logger.error("OCSPApplication: " + e.getMessage(), e);
