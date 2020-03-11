@@ -22,6 +22,7 @@ public class SecurityDomainHostCLI extends CLI {
         this.parent = parent;
 
         addModule(new SecurityDomainHostFindCLI(this));
+        addModule(new SecurityDomainHostShowCLI(this));
     }
 
     public SecurityDomainClient getSecurityDomainClient() throws Exception {

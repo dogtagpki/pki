@@ -11,6 +11,7 @@ import java.util.Collection;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainHostResource;
@@ -48,5 +49,30 @@ public class SecurityDomainHostService extends PKIService implements SecurityDom
                 new GenericEntity<Collection<SecurityDomainHost>>(hosts) {};
 
         return createOKResponse(entity);
+    }
+
+    @Override
+    public Response getHost(String hostID) throws Exception {
+
+        logger.info("SecurityDomainService: Getting security domain host \"" + hostID + "\"");
+
+        SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
+
+        DomainInfo domainInfo = processor.getDomainInfo();
+        logger.debug("SecurityDomainService: domain: " + domainInfo.getName());
+
+        for (SecurityDomainSubsystem subsystem : domainInfo.getSubsystems().values()) {
+            for (SecurityDomainHost host : subsystem.getHosts().values()) {
+
+                logger.debug("SecurityDomainService: - " + host.getId());
+
+                if (host.getId().equals(hostID)) {
+                    logger.debug("SecurityDomainService: Found security domain host " + hostID);
+                    return createOKResponse(host);
+                }
+            }
+        }
+
+        throw new ResourceNotFoundException("Security domain host not found: " + hostID);
     }
 }

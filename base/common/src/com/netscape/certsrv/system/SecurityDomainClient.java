@@ -60,4 +60,9 @@ public class SecurityDomainClient extends Client {
         GenericType<Collection<SecurityDomainHost>> type = new GenericType<Collection<SecurityDomainHost>>() {};
         return client.getEntity(response, type);
     }
+
+    public SecurityDomainHost getHost(String hostID) throws Exception {
+        Response response = securityDomainHostClient.getHost(hostID);
+        return client.getEntity(response, SecurityDomainHost.class);
+    }
 }
