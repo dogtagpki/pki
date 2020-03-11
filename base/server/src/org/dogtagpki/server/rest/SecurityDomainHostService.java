@@ -153,4 +153,37 @@ public class SecurityDomainHostService extends PKIService implements SecurityDom
 
         return createNoContentResponse();
     }
+
+    @Override
+    public Response removeHost(String hostID) throws Exception {
+
+        logger.info("SecurityDomainService: Removing security domain host \"" + hostID + "\"");
+
+        // Host ID: <type> <hostname> <port>
+        Pattern pattern = Pattern.compile("^(\\S+) (\\S+) (\\d+)$");
+        Matcher matcher = pattern.matcher(hostID);
+
+        if (!matcher.find()) {
+            throw new BadRequestException("Invalid security domain host: " + hostID);
+        }
+
+        String type = matcher.group(1);
+        logger.debug("SecurityDomainService: type: " + type);
+
+        String hostname = matcher.group(2);
+        logger.debug("SecurityDomainService: hostname: " + hostname);
+
+        String port = matcher.group(3);
+        logger.debug("SecurityDomainService: port: " + port);
+
+        SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
+        String status = processor.removeHost(type, hostname, port);
+        logger.debug("SecurityDomainService: status: " + status);
+
+        if (!SecurityDomainProcessor.SUCCESS.equals(status)) {
+            throw new PKIException("Unable to remove security domain host: " + hostID);
+        }
+
+        return createNoContentResponse();
+    }
 }

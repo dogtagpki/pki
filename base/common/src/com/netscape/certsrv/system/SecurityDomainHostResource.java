@@ -5,6 +5,7 @@
 //
 package com.netscape.certsrv.system;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -29,4 +30,9 @@ public interface SecurityDomainHostResource {
     @PUT
     @ACLMapping("securityDomain.modify")
     public Response addHost(SecurityDomainHost host) throws Exception;
+
+    @DELETE
+    @Path("{hostID}")
+    @ACLMapping("securityDomain.modify")
+    public Response removeHost(@PathParam("hostID") String hostID) throws Exception;
 }

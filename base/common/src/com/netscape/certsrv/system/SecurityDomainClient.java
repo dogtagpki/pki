@@ -70,4 +70,9 @@ public class SecurityDomainClient extends Client {
         Response response = securityDomainHostClient.addHost(host);
         client.getEntity(response, Void.class);
     }
+
+    public void removeHost(String hostID) throws Exception {
+        Response response = securityDomainHostClient.removeHost(hostID);
+        client.getEntity(response, Void.class);
+    }
 }
