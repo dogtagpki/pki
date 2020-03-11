@@ -2360,7 +2360,7 @@ class SecurityDomain:
         self.mdict = deployer.mdict
         self.password = deployer.password
 
-    def deregister(self, install_token, critical_failure=False):
+    def deregister(self, critical_failure=False):
         # process this PKI subsystem instance's 'CS.cfg'
         cs_cfg = PKIConfigParser.read_simple_configuration_file(
             self.mdict['pki_target_cs_cfg'])
@@ -2420,33 +2420,9 @@ class SecurityDomain:
                  "&agentsport=" + str(agentsport) + \
                  "&operation=remove"
 
-        if install_token:
-            try:
-                # first try install token-based servlet
-                params += "&sessionID=" + str(install_token)
-                admin_update_url = "/ca/admin/ca/updateDomainXML"
-                command = ["/usr/bin/sslget",
-                           "-p", str(123456),
-                           "-d", self.mdict['pki_server_database_path'],
-                           "-e", params,
-                           "-v",
-                           "-r", admin_update_url,
-                           sechost + ":" + str(secadminport)]
-                output = subprocess.check_output(
-                    command,
-                    stderr=subprocess.STDOUT)
-                output = output.decode('utf-8')
-            except subprocess.CalledProcessError:
-                logger.warning(
-                    log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
-                    secname)
-                output = self.update_domain_using_agent_port(
-                    typeval, secname, params, update_url, sechost, secagentport,
-                    critical_failure)
-        else:
-            output = self.update_domain_using_agent_port(
-                typeval, secname, params, update_url, sechost, secagentport,
-                critical_failure)
+        output = self.update_domain_using_agent_port(
+            typeval, secname, params, update_url, sechost, secagentport,
+            critical_failure)
 
         if not output:
             if critical_failure:

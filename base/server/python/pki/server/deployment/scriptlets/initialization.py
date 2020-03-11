@@ -214,11 +214,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             #            tightly-coupled shared instance.
             #
 
-            # Previously we obtained the token through a command line interface
-            # no longer supported. Thus we assume no token and the deregister op will
-            # take place without the token using an alternate method.
-
-            deployer.security_domain.deregister(None)
+            deployer.security_domain.deregister()
 
         except Exception as e:  # pylint: disable=broad-except
             logger.error(str(e))
