@@ -41,6 +41,7 @@ public class SecurityDomainCLI extends CLI {
         this.mainCLI = mainCLI;
 
         addModule(new SecurityDomainShowCLI(this));
+        addModule(new SecurityDomainHostCLI(this));
     }
 
     public String getFullName() {
