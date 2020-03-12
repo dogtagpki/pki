@@ -704,7 +704,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem.config['securitydomain.httpsadminport'] = securePort
 
         subsystem.config['service.securityDomainPort'] = securePort
-        subsystem.config['securitydomain.store'] = 'ldap'
 
         hierarchy = subsystem.config.get('hierarchy.select')
         if not (subsystem.type == 'CA' and hierarchy == 'Root'):

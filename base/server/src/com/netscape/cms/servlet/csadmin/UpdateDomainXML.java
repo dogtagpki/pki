@@ -17,11 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Vector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -29,10 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -182,150 +176,61 @@ public class UpdateDomainXML extends CMSServlet {
         }
 
         String basedn = null;
-        String secstore = null;
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         try {
             basedn = ldapConfig.getBaseDN();
-            secstore = cs.getString("securitydomain.store");
         } catch (Exception e) {
             logger.warn("Unable to determine security domain name or basedn. Please run the domaininfo migration script: " + e.getMessage(), e);
         }
 
         SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(cmsReq.getHttpReq()));
 
-        if ((basedn != null) && (secstore != null) && (secstore.equals("ldap"))) {
-            // update in ldap
+        LDAPEntry entry = null;
+        String listName = type + "List";
+        String cn = host + ":";
 
-            LDAPEntry entry = null;
-            String listName = type + "List";
-            String cn = host + ":";
-
-            if ((adminsport != null) && (adminsport != "")) {
-                cn += adminsport;
-            } else {
-                cn += sport;
-            }
-
-            String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + basedn;
-            logger.debug("UpdateDomainXML: updating LDAP entry: " + dn);
-
-            LDAPAttributeSet attrs = null;
-            attrs = new LDAPAttributeSet();
-            attrs.add(new LDAPAttribute("objectclass", "top"));
-            attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
-            attrs.add(new LDAPAttribute("cn", cn));
-            attrs.add(new LDAPAttribute("Host", host));
-            attrs.add(new LDAPAttribute("SecurePort", sport));
-
-            if ((agentsport != null) && (!agentsport.equals(""))) {
-                attrs.add(new LDAPAttribute("SecureAgentPort", agentsport));
-            }
-            if ((adminsport != null) && (!adminsport.equals(""))) {
-                attrs.add(new LDAPAttribute("SecureAdminPort", adminsport));
-            }
-            if ((httpport != null) && (!httpport.equals(""))) {
-                attrs.add(new LDAPAttribute("UnSecurePort", httpport));
-            }
-            if ((eecaport != null) && (!eecaport.equals(""))) {
-                attrs.add(new LDAPAttribute("SecureEEClientAuthPort", eecaport));
-            }
-            if ((domainmgr != null) && (!domainmgr.equals(""))) {
-                attrs.add(new LDAPAttribute("DomainManager", domainmgr.toUpperCase()));
-            }
-            attrs.add(new LDAPAttribute("clone", clone.toUpperCase()));
-            attrs.add(new LDAPAttribute("SubsystemName", name));
-            entry = new LDAPEntry(dn, attrs);
-
-            if ((operation != null) && (operation.equals("remove"))) {
-                status = processor.removeHost(dn, type, host, sport, agentsport);
-            } else {
-                status = processor.addEntry(entry);
-            }
+        if ((adminsport != null) && (adminsport != "")) {
+            cn += adminsport;
         } else {
-            // update the domain.xml file
-            String path = cs.getInstanceDir() + "/conf/domain.xml";
+            cn += sport;
+        }
 
-            logger.debug("UpdateDomainXML: got path=" + path);
+        String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + basedn;
+        logger.debug("UpdateDomainXML: updating LDAP entry: " + dn);
 
-            try {
-                // using domain.xml file
-                logger.debug("UpdateDomainXML: Inserting new domain info");
-                XMLObject parser = new XMLObject(new FileInputStream(path));
-                Node n = parser.getContainer(list);
-                int count = 0;
+        LDAPAttributeSet attrs = null;
+        attrs = new LDAPAttributeSet();
+        attrs.add(new LDAPAttribute("objectclass", "top"));
+        attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
+        attrs.add(new LDAPAttribute("cn", cn));
+        attrs.add(new LDAPAttribute("Host", host));
+        attrs.add(new LDAPAttribute("SecurePort", sport));
 
-                if ((operation != null) && (operation.equals("remove"))) {
-                    // delete node
-                    Document doc = parser.getDocument();
-                    NodeList nodeList = doc.getElementsByTagName(type);
-                    int len = nodeList.getLength();
+        if ((agentsport != null) && (!agentsport.equals(""))) {
+            attrs.add(new LDAPAttribute("SecureAgentPort", agentsport));
+        }
+        if ((adminsport != null) && (!adminsport.equals(""))) {
+            attrs.add(new LDAPAttribute("SecureAdminPort", adminsport));
+        }
+        if ((httpport != null) && (!httpport.equals(""))) {
+            attrs.add(new LDAPAttribute("UnSecurePort", httpport));
+        }
+        if ((eecaport != null) && (!eecaport.equals(""))) {
+            attrs.add(new LDAPAttribute("SecureEEClientAuthPort", eecaport));
+        }
+        if ((domainmgr != null) && (!domainmgr.equals(""))) {
+            attrs.add(new LDAPAttribute("DomainManager", domainmgr.toUpperCase()));
+        }
+        attrs.add(new LDAPAttribute("clone", clone.toUpperCase()));
+        attrs.add(new LDAPAttribute("SubsystemName", name));
+        entry = new LDAPEntry(dn, attrs);
 
-                    for (int i = 0; i < len; i++) {
-                        Node nn = nodeList.item(i);
-                        Vector<String> v_name = parser.getValuesFromContainer(nn, "SubsystemName");
-                        Vector<String> v_host = parser.getValuesFromContainer(nn, "Host");
-                        Vector<String> v_adminport = parser.getValuesFromContainer(nn, "SecureAdminPort");
-                        if ((v_name.elementAt(0).equals(name)) && (v_host.elementAt(0).equals(host))
-                                && (v_adminport.elementAt(0).equals(adminsport))) {
-                            Node parent = nn.getParentNode();
-                            parent.removeChild(nn);
-                            count--;
-                            break;
-                        }
-                    }
-                } else {
-                    // add node
-                    Node parent = parser.createContainer(n, type);
-                    parser.addItemToContainer(parent, "SubsystemName", name);
-                    parser.addItemToContainer(parent, "Host", host);
-                    parser.addItemToContainer(parent, "SecurePort", sport);
-                    parser.addItemToContainer(parent, "SecureAgentPort", agentsport);
-                    parser.addItemToContainer(parent, "SecureAdminPort", adminsport);
-                    parser.addItemToContainer(parent, "SecureEEClientAuthPort", eecaport);
-                    parser.addItemToContainer(parent, "UnSecurePort", httpport);
-                    parser.addItemToContainer(parent, "DomainManager", domainmgr.toUpperCase());
-                    parser.addItemToContainer(parent, "Clone", clone.toUpperCase());
-                    count++;
-                }
-                //update count
-
-                String countS = "";
-                NodeList nlist = n.getChildNodes();
-                Node countnode = null;
-                for (int i = 0; i < nlist.getLength(); i++) {
-                    Element nn = (Element) nlist.item(i);
-                    String tagname = nn.getTagName();
-                    if (tagname.equals("SubsystemCount")) {
-                        countnode = nn;
-                        NodeList nlist1 = nn.getChildNodes();
-                        Node nn1 = nlist1.item(0);
-                        countS = nn1.getNodeValue();
-                        break;
-                    }
-                }
-
-                logger.debug("UpdateDomainXML process: SubsystemCount=" + countS);
-                try {
-                    count += Integer.parseInt(countS);
-                } catch (Exception ee) {
-                }
-
-                n.removeChild(countnode);
-                parser.addItemToContainer(n, "SubsystemCount", "" + count);
-
-                // recreate domain.xml
-                logger.debug("UpdateDomainXML: Recreating domain.xml");
-                byte[] b = parser.toByteArray();
-                FileOutputStream fos = new FileOutputStream(path);
-                fos.write(b);
-                fos.close();
-            } catch (Exception e) {
-                logger.error("Failed to update domain.xml file" + e.getMessage(), e);
-                status = FAILED;
-            }
-
+        if ((operation != null) && (operation.equals("remove"))) {
+            status = processor.removeHost(dn, type, host, sport, agentsport);
+        } else {
+            status = processor.addEntry(entry);
         }
 
         if (status.equals(SUCCESS)) {
