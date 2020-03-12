@@ -35,7 +35,7 @@ public interface SecurityDomainResource {
 
     @GET
     @Path("installToken")
-    @ACLMapping("securityDomain.installToken")
+    @ACLMapping("securityDomain.read")
     @AuthMethodMapping("securityDomain.installToken")
     @ClientResponseType(entityType=InstallToken.class)
     public Response getInstallToken(
