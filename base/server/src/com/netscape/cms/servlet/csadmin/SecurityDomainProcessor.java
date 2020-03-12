@@ -387,9 +387,7 @@ public class SecurityDomainProcessor extends Processor {
     public String removeHost(
             String type,
             String hostname,
-            String securePort,
-            String adminSecurePort,
-            String agentSecurePort)
+            String securePort)
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -399,13 +397,7 @@ public class SecurityDomainProcessor extends Processor {
         String baseDN = ldapConfig.getBaseDN();
 
         String listName = type + "List";
-        String cn = hostname + ":";
-
-        if (StringUtils.isNotEmpty(adminSecurePort)) {
-            cn += adminSecurePort;
-        } else {
-            cn += securePort;
-        }
+        String cn = hostname + ":" + securePort;
 
         String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + baseDN;
         logger.info("SecurityDomainProcessor: Removing host " + dn);
@@ -418,12 +410,7 @@ public class SecurityDomainProcessor extends Processor {
             return status;
         }
 
-        String adminUserDN;
-        if (agentSecurePort != null && !agentSecurePort.equals("")) {
-            adminUserDN = "uid=" + type + "-" + hostname + "-" + agentSecurePort + ",ou=People," + baseDN;
-        } else {
-            adminUserDN = "uid=" + type + "-" + hostname + "-" + securePort + ",ou=People," + baseDN;
-        }
+        String adminUserDN = "uid=" + type + "-" + hostname + "-" + securePort + ",ou=People," + baseDN;
 
         logger.info("SecurityDomainProcessor: Removing admin " + adminUserDN);
 
@@ -494,13 +481,7 @@ public class SecurityDomainProcessor extends Processor {
         String baseDN = ldapConfig.getBaseDN();
 
         String listName = type + "List";
-        String cn = hostname + ":";
-
-        if (StringUtils.isNotEmpty(adminSecurePort)) {
-            cn += adminSecurePort;
-        } else {
-            cn += securePort;
-        }
+        String cn = hostname + ":" + securePort;
 
         String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + baseDN;
         logger.info("SecurityDomainProcessor: Adding entry " + dn);

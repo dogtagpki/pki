@@ -184,12 +184,7 @@ public class UpdateDomainXML extends CMSServlet {
         SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(cmsReq.getHttpReq()));
 
         if ((operation != null) && (operation.equals("remove"))) {
-            status = processor.removeHost(
-                    type,
-                    host,
-                    sport,
-                    adminsport,
-                    agentsport);
+            status = processor.removeHost(type, host, sport);
 
         } else {
             status = processor.addHost(
