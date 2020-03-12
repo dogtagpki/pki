@@ -31,6 +31,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -463,19 +464,73 @@ public class SecurityDomainProcessor extends Processor {
         return SUCCESS;
     }
 
-    public String addEntry(LDAPEntry entry) {
+    public String addHost(
+            String name,
+            String type,
+            String hostname,
+            String securePort,
+            String unsecurePort,
+            String eeCAPort,
+            String adminSecurePort,
+            String agentSecurePort,
+            String domainManager,
+            String clone) throws EBaseException {
 
-        logger.info("SecurityDomainProcessor: Adding entry " + entry.getDN());
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
+        String baseDN = ldapConfig.getBaseDN();
+
+        String listName = type + "List";
+        String cn = hostname + ":";
+
+        if (StringUtils.isNotEmpty(adminSecurePort)) {
+            cn += adminSecurePort;
+        } else {
+            cn += securePort;
+        }
+
+        String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + baseDN;
+        logger.info("SecurityDomainProcessor: Adding entry " + dn);
+
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        attrs.add(new LDAPAttribute("objectclass", "top"));
+        attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
+        attrs.add(new LDAPAttribute("cn", cn));
+        attrs.add(new LDAPAttribute("Host", hostname));
+        attrs.add(new LDAPAttribute("SecurePort", securePort));
+
+        if (StringUtils.isNotEmpty(agentSecurePort)) {
+            attrs.add(new LDAPAttribute("SecureAgentPort", agentSecurePort));
+        }
+
+        if (StringUtils.isNotEmpty(adminSecurePort)) {
+            attrs.add(new LDAPAttribute("SecureAdminPort", adminSecurePort));
+        }
+
+        if (StringUtils.isNotEmpty(unsecurePort)) {
+            attrs.add(new LDAPAttribute("UnSecurePort", unsecurePort));
+        }
+
+        if (StringUtils.isNotEmpty(eeCAPort)) {
+            attrs.add(new LDAPAttribute("SecureEEClientAuthPort", eeCAPort));
+        }
+
+        if (StringUtils.isNotEmpty(domainManager)) {
+            attrs.add(new LDAPAttribute("DomainManager", domainManager.toUpperCase()));
+        }
+
+        attrs.add(new LDAPAttribute("clone", clone.toUpperCase()));
+        attrs.add(new LDAPAttribute("SubsystemName", name));
+
+        LDAPEntry entry = new LDAPEntry(dn, attrs);
 
         String status = SUCCESS;
         LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
         try {
-            LDAPConfig ldapConfig = cs.getInternalDBConfig();
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
             connFactory.init(cs, ldapConfig, engine.getPasswordStore());
 

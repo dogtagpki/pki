@@ -43,10 +43,6 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmsutil.xml.XMLObject;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPEntry;
-
 public class UpdateDomainXML extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDomainXML.class);
@@ -187,7 +183,6 @@ public class UpdateDomainXML extends CMSServlet {
 
         SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(cmsReq.getHttpReq()));
 
-        LDAPEntry entry = null;
         String listName = type + "List";
         String cn = host + ":";
 
@@ -200,37 +195,20 @@ public class UpdateDomainXML extends CMSServlet {
         String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + basedn;
         logger.debug("UpdateDomainXML: updating LDAP entry: " + dn);
 
-        LDAPAttributeSet attrs = null;
-        attrs = new LDAPAttributeSet();
-        attrs.add(new LDAPAttribute("objectclass", "top"));
-        attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
-        attrs.add(new LDAPAttribute("cn", cn));
-        attrs.add(new LDAPAttribute("Host", host));
-        attrs.add(new LDAPAttribute("SecurePort", sport));
-
-        if ((agentsport != null) && (!agentsport.equals(""))) {
-            attrs.add(new LDAPAttribute("SecureAgentPort", agentsport));
-        }
-        if ((adminsport != null) && (!adminsport.equals(""))) {
-            attrs.add(new LDAPAttribute("SecureAdminPort", adminsport));
-        }
-        if ((httpport != null) && (!httpport.equals(""))) {
-            attrs.add(new LDAPAttribute("UnSecurePort", httpport));
-        }
-        if ((eecaport != null) && (!eecaport.equals(""))) {
-            attrs.add(new LDAPAttribute("SecureEEClientAuthPort", eecaport));
-        }
-        if ((domainmgr != null) && (!domainmgr.equals(""))) {
-            attrs.add(new LDAPAttribute("DomainManager", domainmgr.toUpperCase()));
-        }
-        attrs.add(new LDAPAttribute("clone", clone.toUpperCase()));
-        attrs.add(new LDAPAttribute("SubsystemName", name));
-        entry = new LDAPEntry(dn, attrs);
-
         if ((operation != null) && (operation.equals("remove"))) {
             status = processor.removeHost(dn, type, host, sport, agentsport);
         } else {
-            status = processor.addEntry(entry);
+            status = processor.addHost(
+                    name,
+                    type,
+                    host,
+                    sport,
+                    httpport,
+                    eecaport,
+                    adminsport,
+                    agentsport,
+                    domainmgr,
+                    clone);
         }
 
         if (status.equals(SUCCESS)) {
