@@ -183,20 +183,14 @@ public class UpdateDomainXML extends CMSServlet {
 
         SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(cmsReq.getHttpReq()));
 
-        String listName = type + "List";
-        String cn = host + ":";
-
-        if ((adminsport != null) && (adminsport != "")) {
-            cn += adminsport;
-        } else {
-            cn += sport;
-        }
-
-        String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + basedn;
-        logger.debug("UpdateDomainXML: updating LDAP entry: " + dn);
-
         if ((operation != null) && (operation.equals("remove"))) {
-            status = processor.removeHost(dn, type, host, sport, agentsport);
+            status = processor.removeHost(
+                    type,
+                    host,
+                    sport,
+                    adminsport,
+                    agentsport);
+
         } else {
             status = processor.addHost(
                     name,

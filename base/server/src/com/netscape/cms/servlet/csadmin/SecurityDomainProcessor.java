@@ -385,21 +385,32 @@ public class SecurityDomainProcessor extends Processor {
     }
 
     public String removeHost(
-            String dn,
             String type,
             String hostname,
             String securePort,
+            String adminSecurePort,
             String agentSecurePort)
             throws EBaseException {
 
+        CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
+        String baseDN = ldapConfig.getBaseDN();
+
+        String listName = type + "List";
+        String cn = hostname + ":";
+
+        if (StringUtils.isNotEmpty(adminSecurePort)) {
+            cn += adminSecurePort;
+        } else {
+            cn += securePort;
+        }
+
+        String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + baseDN;
         logger.info("SecurityDomainProcessor: Removing host " + dn);
 
         String auditSubjectID = auditSubjectID();
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-        LDAPConfig ldapConfig = cs.getInternalDBConfig();
-        String baseDN = ldapConfig.getBaseDN();
 
         String status = removeEntry(dn);
 
