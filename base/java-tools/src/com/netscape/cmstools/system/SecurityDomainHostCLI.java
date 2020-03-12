@@ -23,6 +23,7 @@ public class SecurityDomainHostCLI extends CLI {
 
         addModule(new SecurityDomainHostFindCLI(this));
         addModule(new SecurityDomainHostShowCLI(this));
+        addModule(new SecurityDomainHostAddCLI(this));
     }
 
     public SecurityDomainClient getSecurityDomainClient() throws Exception {
