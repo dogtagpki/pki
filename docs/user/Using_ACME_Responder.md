@@ -20,28 +20,56 @@ so the examples below are executed over insecure HTTP connections.
 
 ## Certificate Enrollment
 
+The PKI ACME responder supports certificate enrollment using certbot.
+The certificate enrollment can be done with either of the following domain validations:
+* HTTP-01
+* DNS-01
+
+When enrolling a certificate, certbot will try to create an ACME account on the responder,
+unless an account was already created previously.
+
+If a new account is required, enter an email address when asked by certbot
+(or specify a `-m <email address>` parameter) and also accept the terms of service
+(or specify a `--agree-tos` parameter).
+
 ### Certificate enrollment with HTTP-01
 
-To request a certificate with automatic http-01 validation, execute the following command:
+To enroll a certificate with automatic HTTP-01 validation, execute the following command:
 
 ```
 $ certbot certonly --standalone \
     --server http://$HOSTNAME:8080/acme/directory \
-    -d $HOSTNAME \
-    --preferred-challenges http \
-    -m user@example.com
+    -d server.example.com \
+    --preferred-challenges http
 ```
 
-### Certificate enrollment with DNS-01
-
-To request a certificate with manual dns-01 validation, execute the following command:
+To enroll a certificate with manual HTTP-01 validation, execute the following command:
 
 ```
 $ certbot certonly --manual \
     --server http://$HOSTNAME:8080/acme/directory \
     -d server.example.com \
-    --preferred-challenges dns \
-    -m user@example.com
+    --preferred-challenges http
+```
+
+Configure the challenge response on a web server as instructed by certbot,
+then check with the following command:
+
+```
+$ curl http://server.example.com/.well-known/acme-challenge/<token>
+```
+
+Once the challenge response is configured properly, complete the enrollment using certbot.
+
+### Certificate enrollment with DNS-01
+
+To enroll a certificate with manual DNS-01 validation, execute the following command:
+
+```
+$ certbot certonly --manual \
+    --server http://$HOSTNAME:8080/acme/directory \
+    -d server.example.com \
+    --preferred-challenges dns
 ```
 
 Create a TXT record in the DNS server as instructed by certbot.
@@ -53,16 +81,35 @@ $ dig _acme-challenge.server.example.com TXT
 
 Once the TXT record is propagated properly, complete the enrollment using certbot.
 
+## Certificate Revocation
+
+To revoke a certificate owned by the ACME account:
+
+```
+$ certbot revoke \
+    --server http://$HOSTNAME:8080/acme/directory \
+    --cert-path /etc/letsencrypt/live/server.example.com/cert.pem
+```
+
+To revoke a certificate associated with a private key:
+
+```
+$ certbot revoke \
+    --server http://$HOSTNAME:8080/acme/directory \
+    --cert-path /etc/letsencrypt/live/server.example.com/cert.pem \
+    --key-path /etc/letsencrypt/live/server.example.com/privkey.pem
+```
+
 ## Account Management
 
 ### Creating an account
 
-To create an ACME account:
+To create an ACME account without certificate enrollment:
 
 ```
 $ certbot register \
     --server http://$HOSTNAME:8080/acme/directory \
-    -m user@example.com \
+    -m <email address> \
     --agree-tos
 ```
 
@@ -73,7 +120,7 @@ To update an ACME account:
 ```
 $ certbot update_account \
     --server http://$HOSTNAME:8080/acme/directory \
-    -m user@example.com
+    -m <new email address>
 ```
 
 ### Deactivating an account
@@ -86,4 +133,5 @@ $ certbot unregister --server http://$HOSTNAME:8080/acme/directory
 
 ## See Also
 
+* [certbot](https://certbot.eff.org)
 * [Installing ACME Responder](../installation/Installing_ACME_Responder.md)
