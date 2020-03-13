@@ -8,6 +8,7 @@ package org.dogtagpki.acme.database;
 import java.util.Collection;
 import java.util.Date;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMENonce;
@@ -70,6 +71,24 @@ public abstract class ACMEDatabase {
 
     public abstract ACMEAuthorization getAuthorization(String authzID) throws Exception;
     public abstract ACMEAuthorization getAuthorizationByChallenge(String challengeID) throws Exception;
+
+    /**
+     * This method returns all valid and non-expired authorization records
+     * owned by the account which can be used to validate certificate
+     * revocation.
+     *
+     * The authorization records may be purged by the server at some point,
+     * so these records are not guaranteed to be available.
+     *
+     * @param accountID The ID of the account.
+     * @param time The time to check whether the authorization has expired.
+     * @return The authorization records owned by the provided account.
+     * @throws Exception
+     */
+    public Collection<ACMEAuthorization> getRevocationAuthorizations(String accountID, Date time) throws Exception {
+        throw new NotImplementedException();
+    }
+
     public abstract void addAuthorization(ACMEAuthorization authorization) throws Exception;
     public abstract void updateAuthorization(ACMEAuthorization authorization) throws Exception;
 }

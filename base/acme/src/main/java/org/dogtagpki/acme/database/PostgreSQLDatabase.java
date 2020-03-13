@@ -690,6 +690,50 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return authorization;
     }
 
+    public Collection<ACMEAuthorization> getRevocationAuthorizations(String accountID, Date time) throws Exception {
+
+        logger.info("Getting authorizations for account " + accountID);
+
+        String sql = statements.getProperty("getRevocationAuthorizations");
+        logger.info("SQL: " + sql);
+
+        Collection<ACMEAuthorization> authorizations = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, accountID);
+            ps.setTimestamp(2, new Timestamp(time.getTime()));
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+
+                    ACMEAuthorization authorization = new ACMEAuthorization();
+
+                    authorization.setID(rs.getString("id"));
+                    authorization.setAccountID(accountID);
+                    authorization.setStatus(rs.getString("status"));
+
+                    Timestamp expires = rs.getTimestamp("expires");
+                    authorization.setExpirationTime(new Date(expires.getTime()));
+
+                    ACMEIdentifier identifier = new ACMEIdentifier();
+                    identifier.setType(rs.getString("identifier_type"));
+                    identifier.setValue(rs.getString("identifier_value"));
+                    authorization.setIdentifier(identifier);
+
+                    boolean wildcard = rs.getBoolean("wildcard");
+                    authorization.setWildcard(wildcard ? true : null);
+
+                    getAuthorizationChallenges(authorization);
+
+                    authorizations.add(authorization);
+                }
+            }
+        }
+
+        return authorizations;
+    }
+
     public void getAuthorizationChallenges(ACMEAuthorization authorization) throws Exception {
 
         String authzID = authorization.getID();
