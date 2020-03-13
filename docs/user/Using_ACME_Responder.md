@@ -29,7 +29,7 @@ $ certbot certonly --standalone \
     --server http://$HOSTNAME:8080/acme/directory \
     -d $HOSTNAME \
     --preferred-challenges http \
-    --m user@example.com
+    -m user@example.com
 ```
 
 ### Certificate enrollment with DNS-01
@@ -41,7 +41,7 @@ $ certbot certonly --manual \
     --server http://$HOSTNAME:8080/acme/directory \
     -d server.example.com \
     --preferred-challenges dns \
-    --m user@example.com
+    -m user@example.com
 ```
 
 Create a TXT record in the DNS server as instructed by certbot.
