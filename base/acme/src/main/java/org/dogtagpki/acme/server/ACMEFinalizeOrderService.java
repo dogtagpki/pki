@@ -99,8 +99,8 @@ public class ACMEFinalizeOrderService {
         ACMENonce nonce = engine.createNonce();
         builder.header("Replay-Nonce", nonce.getValue());
 
-        URI index = uriInfo.getBaseUriBuilder().path("directory").build();
-        builder.link(index, "index");
+        URI indexURL = uriInfo.getBaseUriBuilder().path("directory").build();
+        builder.link(indexURL, "index");
 
         builder.entity(order);
 
