@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.acme.database;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -112,6 +113,34 @@ public class InMemoryDatabase extends ACMEDatabase {
         }
 
         return null;
+    }
+
+    public Collection<ACMEAuthorization> getRevocationAuthorizations(String accountID, Date time) throws Exception {
+
+        Collection<ACMEAuthorization> results = new ArrayList<>();
+
+        for (ACMEAuthorization authorization : authorizations.values()) {
+
+            if (!authorization.getAccountID().equals(accountID)) {
+                continue;
+            }
+
+            String status = authorization.getStatus();
+            if (!"valid".equals(status)) {
+                logger.info("Authorization " + authorization.getID() + " is " + status);
+                continue;
+            }
+
+            Date expirationTime = authorization.getExpirationTime();
+            if (!expirationTime.after(time)) {
+                logger.info("Authorization " + authorization.getID() + " has expired");
+                continue;
+            }
+
+            results.add(authorization);
+        }
+
+        return results;
     }
 
     public void addAuthorization(ACMEAuthorization authorization) throws Exception {
