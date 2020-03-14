@@ -923,7 +923,7 @@ public class CryptoUtil {
             NotInitializedException,
             NoSuchAlgorithmException {
         X509Key x509key = createX509Key(publicKey);
-        PrivateKey prik = findPrivateKeyFromID(prikdata);
+        java.security.PrivateKey prik = findPrivateKeyFromID(prikdata);
         PKCS10 pkcs10 = createCertificationRequest(dn, x509key, prik, alg);
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(bs);
@@ -1378,7 +1378,7 @@ public class CryptoUtil {
      * Creates a PKCS#10 request.
      */
     public static PKCS10 createCertificationRequest(String subjectName,
-            X509Key pubk, PrivateKey prik)
+            X509Key pubk, java.security.PrivateKey prik)
             throws NoSuchAlgorithmException, NoSuchProviderException,
                 InvalidKeyException, IOException, CertificateException,
                 SignatureException {
@@ -1391,7 +1391,7 @@ public class CryptoUtil {
     }
 
     public static PKCS10 createCertificationRequest(String subjectName,
-            X509Key pubk, PrivateKey prik, String alg)
+            X509Key pubk, java.security.PrivateKey prik, String alg)
             throws NoSuchAlgorithmException, NoSuchProviderException,
                 InvalidKeyException, IOException, CertificateException,
                 SignatureException {
@@ -1401,8 +1401,10 @@ public class CryptoUtil {
     /*
      * This createCertificationRequest() allows extensions to be added to the CSR
      */
-    public static PKCS10 createCertificationRequest(String subjectName,
-            KeyPair keyPair, Extensions exts)
+    public static PKCS10 createCertificationRequest(
+            String subjectName,
+            KeyPair keyPair,
+            Extensions exts)
             throws NoSuchAlgorithmException, NoSuchProviderException,
             InvalidKeyException, IOException, CertificateException,
             SignatureException {
@@ -1411,6 +1413,7 @@ public class CryptoUtil {
         String alg = "SHA256withRSA";
         PublicKey pubk = keyPair.getPublic();
         X509Key key = createX509Key(pubk);
+
         if (pubk instanceof RSAPublicKey) {
             alg = "SHA256withRSA";
         } else if (isECCKey(key)) {
@@ -1420,12 +1423,16 @@ public class CryptoUtil {
         }
 
         return createCertificationRequest(
-                subjectName, key, (org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate(),
+                subjectName, key, keyPair.getPrivate(),
                 alg, exts);
     }
 
-    public static PKCS10 createCertificationRequest(String subjectName,
-            X509Key pubk, PrivateKey prik, String alg, Extensions exts)
+    public static PKCS10 createCertificationRequest(
+            String subjectName,
+            X509Key pubk,
+            java.security.PrivateKey prik,
+            String alg,
+            Extensions exts)
             throws NoSuchAlgorithmException, NoSuchProviderException,
             InvalidKeyException, IOException, CertificateException,
             SignatureException {
@@ -1449,6 +1456,7 @@ public class CryptoUtil {
         } else {
             pkcs10 = new PKCS10(key);
         }
+
         X500Name name = new X500Name(subjectName);
         X500Signer signer = new X500Signer(sig, name);
 

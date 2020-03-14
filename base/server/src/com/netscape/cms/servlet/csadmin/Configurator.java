@@ -1188,7 +1188,7 @@ public class Configurator {
             String kid = CryptoUtil.encodeKeyID(id);
 
             // try to locate the private key
-            org.mozilla.jss.crypto.PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
+            java.security.PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
             if (privk == null) {
                 logger.debug("Found bad ECC key id " + kid);
                 pair = null;
@@ -1210,7 +1210,7 @@ public class Configurator {
             String kid = CryptoUtil.encodeKeyID(id);
 
             // try to locate the private key
-            org.mozilla.jss.crypto.PrivateKey privk =
+            java.security.PrivateKey privk =
                     CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
 
             if (privk == null) {
@@ -1498,7 +1498,7 @@ public class Configurator {
 
         PublicKey publicKey = keyPair.getPublic();
         X509Key x509key = CryptoUtil.createX509Key(publicKey);
-        PrivateKey privk = (PrivateKey) keyPair.getPrivate();
+        java.security.PrivateKey privk = keyPair.getPrivate();
 
         // construct cert request
         String caDN = preopConfig.getString("cert." + certTag + ".dn");

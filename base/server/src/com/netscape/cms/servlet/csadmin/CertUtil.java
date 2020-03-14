@@ -137,7 +137,7 @@ public class CertUtil {
 
         PublicKey publicKey = keyPair.getPublic();
         X509Key x509key = CryptoUtil.createX509Key(publicKey);
-        PrivateKey privateKey = (PrivateKey) keyPair.getPrivate();
+        java.security.PrivateKey privateKey = keyPair.getPrivate();
 
         String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
 
