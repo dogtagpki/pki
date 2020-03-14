@@ -22,8 +22,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.PublicKey;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
@@ -40,7 +38,6 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -121,33 +118,6 @@ public class CertUtil {
             throw new Exception("Missing CA response");
         }
     }
-
-    public static PKCS10 getPKCS10(
-            EngineConfig config,
-            KeyPair keyPair,
-            Cert certObj) throws Exception {
-
-        PreOpConfig preopConfig = config.getPreOpConfig();
-
-        String certTag = certObj.getCertTag();
-        logger.info("CertUtil: Generating CSR for " + certTag);
-
-        String dn = preopConfig.getString("cert." + certTag + ".dn");
-        logger.debug("CertUtil: subject: " + dn);
-
-        PublicKey publicKey = keyPair.getPublic();
-        X509Key x509key = CryptoUtil.createX509Key(publicKey);
-        java.security.PrivateKey privateKey = keyPair.getPrivate();
-
-        String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
-
-        return CryptoUtil.createCertificationRequest(
-                dn,
-                x509key,
-                privateKey,
-                algorithm);
-    }
-
 
     // Dynamically inject the SubjectAlternativeName extension to a
     // local/self-signed master CA's request for its SSL Server Certificate.

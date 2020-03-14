@@ -1279,7 +1279,21 @@ public class Configurator {
 
         if (caType.equals("remote")) {
 
-            PKCS10 pkcs10 = CertUtil.getPKCS10(cs, keyPair, certObj);
+            logger.info("CertUtil: Generating CSR for " + certTag);
+
+            String dn = preopConfig.getString("cert." + certTag + ".dn");
+            logger.debug("CertUtil: subject: " + dn);
+
+            String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
+            logger.debug("CertUtil: algorithm: " + algorithm);
+
+            X509Key key = CryptoUtil.createX509Key(keyPair.getPublic());
+            PKCS10 pkcs10 = CryptoUtil.createCertificationRequest(
+                    dn,
+                    key,
+                    keyPair.getPrivate(),
+                    algorithm);
+
             byte[] binRequest = pkcs10.toByteArray();
             String b64Request = CryptoUtil.base64Encode(binRequest);
             certObj.setRequest(binRequest);
