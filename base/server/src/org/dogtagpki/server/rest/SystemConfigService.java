@@ -552,10 +552,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // generate and configure other system certificate
         logger.info("SystemConfigService: generating new " + tag + " certificate");
-        configurator.configCert(request, keyPair, cert);
+        X509CertImpl certImpl = configurator.configCert(request, keyPair, cert);
 
-        String certStr = cs.getString(subsystem + "." + tag + ".cert" );
-        cert.setCert(CryptoUtil.base64Decode(certStr));
+        byte[] certBin = certImpl.getEncoded();
+        String certStr = CryptoUtil.base64Encode(certBin);
+        cert.setCert(certBin);
+
+        String subsystemName = preopConfig.getString("cert." + tag + ".subsystem");
+        cs.putString(subsystemName + "." + tag + ".cert", certStr);
+        cs.commit(false);
 
         logger.debug("SystemConfigService: cert: " + certStr);
 

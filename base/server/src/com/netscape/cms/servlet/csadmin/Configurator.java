@@ -1222,13 +1222,12 @@ public class Configurator {
         return pair;
     }
 
-    public void configCert(CertificateSetupRequest request, KeyPair keyPair, Cert certObj) throws Exception {
+    public X509CertImpl configCert(CertificateSetupRequest request, KeyPair keyPair, Cert certObj) throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String caType = certObj.getType();
         logger.debug("configCert: caType is " + caType);
-        X509CertImpl cert = null;
         String certTag = certObj.getCertTag();
 
         String csType = cs.getType();
@@ -1303,7 +1302,7 @@ public class Configurator {
 
             String session_id = request.getInstallToken().getToken();
 
-            cert = configRemoteCert(
+            X509CertImpl cert = configRemoteCert(
                     session_id,
                     b64Request,
                     certTag,
@@ -1318,9 +1317,11 @@ public class Configurator {
                 preopConfig.putString("cert.sslserver.profile", preop_cert_sslserver_profile);
             }
 
+            return cert;
+
         } else { // not remote CA, ie, self-signed or local
 
-            cert = configLocalCert(keyPair, certObj, caType, certTag);
+            X509CertImpl cert = configLocalCert(keyPair, certObj, caType, certTag);
 
             if (cert != null) {
                 if (certTag.equals("subsystem")) {
@@ -1329,17 +1330,8 @@ public class Configurator {
                 }
             }
 
-        } // done self-signed or local
-
-        if (cert != null) {
-            byte[] certb = cert.getEncoded();
-            String certs = CryptoUtil.base64Encode(certb);
-
-            certObj.setCert(certb);
-            String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
-            cs.putString(subsystem + "." + certTag + ".cert", certs);
+            return cert;
         }
-        cs.commit(false);
     }
 
     private X509CertImpl configRemoteCert(
