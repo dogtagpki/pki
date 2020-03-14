@@ -1320,7 +1320,7 @@ public class Configurator {
 
         } else { // not remote CA, ie, self-signed or local
 
-            cert = configLocalCert(keyPair, certObj, caType, cert, certTag);
+            cert = configLocalCert(keyPair, certObj, caType, certTag);
 
             if (cert != null) {
                 if (certTag.equals("subsystem")) {
@@ -1453,7 +1453,6 @@ public class Configurator {
             KeyPair keyPair,
             Cert certObj,
             String caType,
-            X509CertImpl cert,
             String certTag)
             throws Exception {
 
