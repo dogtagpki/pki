@@ -1279,11 +1279,19 @@ public class Configurator {
 
         if (caType.equals("remote")) {
 
+            PKCS10 pkcs10 = CertUtil.getPKCS10(cs, keyPair, certObj);
+            byte[] binRequest = pkcs10.toByteArray();
+            String b64Request = CryptoUtil.base64Encode(binRequest);
+            certObj.setRequest(binRequest);
+
+            String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
+            cs.putString(subsystem + "." + certTag + ".certreq", b64Request);
+
+            String session_id = request.getInstallToken().getToken();
+
             cert = configRemoteCert(
-                    request,
-                    keyPair,
-                    certObj,
-                    cert,
+                    session_id,
+                    b64Request,
                     certTag,
                     sign_clone_sslserver_cert_using_master);
 
@@ -1321,30 +1329,22 @@ public class Configurator {
     }
 
     private X509CertImpl configRemoteCert(
-            CertificateSetupRequest request,
-            KeyPair keyPair,
-            Cert certObj,
-            X509CertImpl cert,
+            String session_id,
+            String b64Request,
             String certTag,
             boolean sign_clone_sslserver_cert_using_master)
             throws Exception {
 
+        logger.info("Configurator: Creating remote " + certTag + " certificate");
+
+        X509CertImpl cert = null;
+
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String caType = preopConfig.getString("ca.type", "");
-
-        logger.debug("configCert: remote CA");
-        logger.debug("confgCert: tag: " + certTag);
-        PKCS10 pkcs10 = CertUtil.getPKCS10(cs, keyPair, certObj);
-        byte[] binRequest = pkcs10.toByteArray();
-        String b64Request = CryptoUtil.base64Encode(binRequest);
-        certObj.setRequest(binRequest);
-
-        String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
-        cs.putString(subsystem + "." + certTag + ".certreq", b64Request);
+        logger.debug("Configurator: preop.ca.type: " + caType);
 
         String profileId = preopConfig.getString("cert." + certTag + ".profile");
-        String session_id = request.getInstallToken().getToken();
         String sysType = cs.getType();
         String machineName = cs.getHostname();
         String securePort = cs.getString("service.securePort", "");
