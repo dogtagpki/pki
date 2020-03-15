@@ -390,50 +390,32 @@ public class CertUtil {
     }
 
     public static X509CertInfo createCertInfo(
-            EngineConfig config,
+            String dn,
+            String issuerdn,
+            String keyAlgorithm,
             X509Key x509key,
-            String certTag,
             String type) throws Exception {
 
-        logger.info("CertUtil: Creating " + certTag + " certificate locally");
+        logger.info("CertUtil: Creating certificate info for " + dn);
 
-        PreOpConfig preopConfig = config.getPreOpConfig();
-
-        String dn = preopConfig.getString("cert." + certTag + ".dn");
-        logger.info("CertUtil: DN: " + dn);
-
-        String keyAlgorithm = null;
         Date date = new Date();
-
-        if (certTag.equals("admin")) {
-            String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
-            String profileFile = config.getString("profile.caAdminCert.config");
-            String defaultSigningAlgsAllowed = config.getString(
-                    "ca.profiles.defaultSigningAlgsAllowed", "SHA256withRSA,SHA256withEC,SHA1withDSA");
-            keyAlgorithm = getAdminProfileAlgorithm(caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
-        } else {
-            keyAlgorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
-        }
 
         CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICertificateRepository cr = ca.getCertificateRepository();
+        BigInteger serialNo = cr.getNextSerialNumber();
 
         X509CertInfo info;
-        BigInteger serialNo = cr.getNextSerialNumber();
 
         if (type.equals("selfsign")) {
 
             logger.debug("CertUtil: Creating self-signed certificate");
-
             CertificateIssuerName issuerdnObj = new CertificateIssuerName(new X500Name(dn));
             info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
 
         } else {
 
             logger.debug("CertUtil: Creating CA-signed certificate");
-
-            String issuerdn = preopConfig.getString("cert.signing.dn", "");
             CertificateIssuerName issuerdnObj = ca.getIssuerObj();
 
             if (issuerdnObj == null) {
@@ -449,7 +431,7 @@ public class CertUtil {
             }
         }
 
-        logger.info("CertUtil: Cert:\n" + info);
+        logger.info("CertUtil: Cert info:\n" + info);
         return info;
     }
 

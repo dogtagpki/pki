@@ -1461,7 +1461,11 @@ public class Configurator {
         PublicKey publicKey = keyPair.getPublic();
         X509Key x509key = CryptoUtil.createX509Key(publicKey);
 
-        X509CertInfo info = CertUtil.createCertInfo(cs, x509key, certTag, caType);
+        String dn = preopConfig.getString("cert." + certTag + ".dn");
+        String issuerdn = preopConfig.getString("cert.signing.dn", "");
+        String keyAlgorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
+
+        X509CertInfo info = CertUtil.createCertInfo(dn, issuerdn, keyAlgorithm, x509key, caType);
 
         java.security.PrivateKey signingPrivateKey;
         if (caType.equals("selfsign")) {
@@ -1886,7 +1890,17 @@ public class Configurator {
 
         String caType = preopConfig.getString("cert.admin.type", "local");
 
-        X509CertInfo info = CertUtil.createCertInfo(cs, x509key, "admin", caType);
+        String dn = preopConfig.getString("cert.admin.dn");
+        String issuerdn = preopConfig.getString("cert.signing.dn", "");
+
+        String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
+        String profileFile = cs.getString("profile.caAdminCert.config");
+        String defaultSigningAlgsAllowed = cs.getString(
+                "ca.profiles.defaultSigningAlgsAllowed", "SHA256withRSA,SHA256withEC,SHA1withDSA");
+        String keyAlgorithm = CertUtil.getAdminProfileAlgorithm(
+                caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
+
+        X509CertInfo info = CertUtil.createCertInfo(dn, issuerdn, keyAlgorithm, x509key, caType);
 
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         java.security.PrivateKey signingPrivateKey = ca.getSigningUnit().getPrivateKey();
