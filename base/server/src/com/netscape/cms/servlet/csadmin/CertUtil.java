@@ -455,6 +455,7 @@ public class CertUtil {
 
     public static X509CertImpl createLocalCert(
             EngineConfig config,
+            CertInfoProfile profile,
             X509CertInfo info,
             java.security.PrivateKey signingPrivateKey,
             X509Key x509key,
@@ -462,13 +463,6 @@ public class CertUtil {
             String type) throws Exception {
 
         PreOpConfig preopConfig = config.getPreOpConfig();
-        String instanceRoot = config.getInstanceDir();
-        String configurationRoot = config.getString("configurationRoot");
-
-        String profileName = preopConfig.getString("cert." + certTag + ".profile");
-        logger.debug("CertUtil: profile: " + profileName);
-
-        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
 
         CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);

@@ -1448,6 +1448,8 @@ public class Configurator {
             String certTag)
             throws Exception {
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
         if (ca == null) {
@@ -1459,16 +1461,23 @@ public class Configurator {
         PublicKey publicKey = keyPair.getPublic();
         X509Key x509key = CryptoUtil.createX509Key(publicKey);
 
-        java.security.PrivateKey signingPrivateKey;
+        X509CertInfo info = CertUtil.createCertInfo(cs, x509key, certTag, caType);
 
+        java.security.PrivateKey signingPrivateKey;
         if (caType.equals("selfsign")) {
             signingPrivateKey = keyPair.getPrivate();
         } else {
             signingPrivateKey = ca.getSigningUnit().getPrivateKey();
         }
 
-        X509CertInfo info = CertUtil.createCertInfo(cs, x509key, certTag, caType);
-        return CertUtil.createLocalCert(cs, info, signingPrivateKey, x509key, certTag, caType);
+        String instanceRoot = cs.getInstanceDir();
+        String configurationRoot = cs.getString("configurationRoot");
+        String profileName = preopConfig.getString("cert." + certTag + ".profile");
+        logger.debug("CertUtil: profile: " + profileName);
+
+        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
+
+        return CertUtil.createLocalCert(cs, profile, info, signingPrivateKey, x509key, certTag, caType);
     }
 
     public String getNickname(String certTag) throws EBaseException {
@@ -1845,11 +1854,19 @@ public class Configurator {
 
         String caType = preopConfig.getString("cert.admin.type", "local");
 
+        X509CertInfo info = CertUtil.createCertInfo(cs, x509key, "admin", caType);
+
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         java.security.PrivateKey signingPrivateKey = ca.getSigningUnit().getPrivateKey();
 
-        X509CertInfo info = CertUtil.createCertInfo(cs, x509key, "admin", caType);
-        X509CertImpl impl = CertUtil.createLocalCert(cs, info, signingPrivateKey, x509key, "admin", caType);
+        String instanceRoot = cs.getInstanceDir();
+        String configurationRoot = cs.getString("configurationRoot");
+        String profileName = preopConfig.getString("cert.admin.profile");
+        logger.debug("CertUtil: profile: " + profileName);
+
+        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
+
+        X509CertImpl impl = CertUtil.createLocalCert(cs, profile, info, signingPrivateKey, x509key, "admin", caType);
 
         String reqId = preopConfig.getString("cert.admin.reqId", null);
         if (reqId == null) {
