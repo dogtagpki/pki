@@ -36,7 +36,6 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
-import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
@@ -390,9 +389,8 @@ public class CertUtil {
                (signingKeyType.equals("dsa") && algorithm.contains("DSA")));
     }
 
-    public static X509CertImpl createLocalCert(
+    public static X509CertInfo createCertInfo(
             EngineConfig config,
-            java.security.PrivateKey signingPrivateKey,
             X509Key x509key,
             String certTag,
             String type) throws Exception {
@@ -452,7 +450,18 @@ public class CertUtil {
         }
 
         logger.info("CertUtil: Cert:\n" + info);
+        return info;
+    }
 
+    public static X509CertImpl createLocalCert(
+            EngineConfig config,
+            X509CertInfo info,
+            java.security.PrivateKey signingPrivateKey,
+            X509Key x509key,
+            String certTag,
+            String type) throws Exception {
+
+        PreOpConfig preopConfig = config.getPreOpConfig();
         String instanceRoot = config.getInstanceDir();
         String configurationRoot = config.getString("configurationRoot");
 
@@ -460,6 +469,9 @@ public class CertUtil {
         logger.debug("CertUtil: profile: " + profileName);
 
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
+
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
         // cfu - create request to enable renewal
         IRequestQueue queue = ca.getRequestQueue();

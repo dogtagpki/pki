@@ -1467,7 +1467,8 @@ public class Configurator {
             signingPrivateKey = ca.getSigningUnit().getPrivateKey();
         }
 
-        return CertUtil.createLocalCert(cs, signingPrivateKey, x509key, certTag, caType);
+        X509CertInfo info = CertUtil.createCertInfo(cs, x509key, certTag, caType);
+        return CertUtil.createLocalCert(cs, info, signingPrivateKey, x509key, certTag, caType);
     }
 
     public String getNickname(String certTag) throws EBaseException {
@@ -1847,7 +1848,8 @@ public class Configurator {
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         java.security.PrivateKey signingPrivateKey = ca.getSigningUnit().getPrivateKey();
 
-        X509CertImpl impl = CertUtil.createLocalCert(cs, signingPrivateKey, x509key, "admin", caType);
+        X509CertInfo info = CertUtil.createCertInfo(cs, x509key, "admin", caType);
+        X509CertImpl impl = CertUtil.createLocalCert(cs, info, signingPrivateKey, x509key, "admin", caType);
 
         String reqId = preopConfig.getString("cert.admin.reqId", null);
         if (reqId == null) {
