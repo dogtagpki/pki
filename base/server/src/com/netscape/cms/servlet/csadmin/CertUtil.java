@@ -455,31 +455,17 @@ public class CertUtil {
 
     public static X509CertImpl createLocalCert(
             EngineConfig config,
+            IRequest req,
             CertInfoProfile profile,
             X509CertInfo info,
             java.security.PrivateKey signingPrivateKey,
             X509Key x509key,
-            String certTag,
             String type) throws Exception {
 
         PreOpConfig preopConfig = config.getPreOpConfig();
 
         CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-
-        // cfu - create request to enable renewal
-        IRequestQueue queue = ca.getRequestQueue();
-
-        IRequest req = createLocalRequest(
-                config,
-                queue,
-                certTag,
-                profile,
-                info,
-                x509key);
-
-        RequestId reqId = req.getRequestId();
-        preopConfig.putString("cert." + certTag + ".reqId", reqId.toString());
 
         profile.populate(req, info);
 
@@ -504,9 +490,6 @@ public class CertUtil {
 
         // update request with cert
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
-
-        // store request in db
-        queue.updateRequest(req);
 
         return cert;
     }

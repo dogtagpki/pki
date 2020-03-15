@@ -1477,7 +1477,26 @@ public class Configurator {
 
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
 
-        return CertUtil.createLocalCert(cs, profile, info, signingPrivateKey, x509key, certTag, caType);
+        // cfu - create request to enable renewal
+        IRequestQueue queue = ca.getRequestQueue();
+
+        IRequest req = CertUtil.createLocalRequest(
+                cs,
+                queue,
+                certTag,
+                profile,
+                info,
+                x509key);
+
+        RequestId reqId = req.getRequestId();
+        preopConfig.putString("cert." + certTag + ".reqId", reqId.toString());
+
+        X509CertImpl cert = CertUtil.createLocalCert(cs, req, profile, info, signingPrivateKey, x509key, caType);
+
+        // store request in db
+        queue.updateRequest(req);
+
+        return cert;
     }
 
     public String getNickname(String certTag) throws EBaseException {
@@ -1866,16 +1885,27 @@ public class Configurator {
 
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
 
-        X509CertImpl impl = CertUtil.createLocalCert(cs, profile, info, signingPrivateKey, x509key, "admin", caType);
+        // cfu - create request to enable renewal
+        IRequestQueue queue = ca.getRequestQueue();
 
-        String reqId = preopConfig.getString("cert.admin.reqId", null);
-        if (reqId == null) {
-            logger.warn("Configurator: cert has no request record");
+        IRequest req = CertUtil.createLocalRequest(
+                cs,
+                queue,
+                "admin",
+                profile,
+                info,
+                x509key);
 
-        } else {
-            // update the locally created request for renewal
-            CertUtil.updateLocalRequest(reqId, binRequest, certRequestType, subject);
-        }
+        RequestId reqId = req.getRequestId();
+        preopConfig.putString("cert.admin.reqId", reqId.toString());
+
+        X509CertImpl impl = CertUtil.createLocalCert(cs, req, profile, info, signingPrivateKey, x509key, caType);
+
+        // store request in db
+        queue.updateRequest(req);
+
+        // update the locally created request for renewal
+        CertUtil.updateLocalRequest(reqId.toString(), binRequest, certRequestType, subject);
 
         if (ca != null) {
             PKCS7 pkcs7 = createPKCS7(impl);
