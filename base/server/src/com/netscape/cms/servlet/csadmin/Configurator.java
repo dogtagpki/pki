@@ -1491,7 +1491,20 @@ public class Configurator {
         RequestId reqId = req.getRequestId();
         preopConfig.putString("cert." + certTag + ".reqId", reqId.toString());
 
-        X509CertImpl cert = CertUtil.createLocalCert(cs, req, profile, info, signingPrivateKey, x509key, caType);
+        String caSigningKeyAlgo;
+        if (caType.equals("selfsign")) {
+            caSigningKeyAlgo = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
+        } else {
+            caSigningKeyAlgo = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
+        }
+        logger.debug("Configurator: CA signing key algorithm: " + caSigningKeyAlgo);
+
+        X509CertImpl cert = CertUtil.createLocalCert(
+                req,
+                profile,
+                info,
+                signingPrivateKey,
+                caSigningKeyAlgo);
 
         // store request in db
         queue.updateRequest(req);
@@ -1899,7 +1912,20 @@ public class Configurator {
         RequestId reqId = req.getRequestId();
         preopConfig.putString("cert.admin.reqId", reqId.toString());
 
-        X509CertImpl impl = CertUtil.createLocalCert(cs, req, profile, info, signingPrivateKey, x509key, caType);
+        String caSigningKeyAlgo;
+        if (caType.equals("selfsign")) {
+            caSigningKeyAlgo = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
+        } else {
+            caSigningKeyAlgo = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
+        }
+        logger.debug("Configurator: CA signing key algorithm: " + caSigningKeyAlgo);
+
+        X509CertImpl impl = CertUtil.createLocalCert(
+                req,
+                profile,
+                info,
+                signingPrivateKey,
+                caSigningKeyAlgo);
 
         // store request in db
         queue.updateRequest(req);

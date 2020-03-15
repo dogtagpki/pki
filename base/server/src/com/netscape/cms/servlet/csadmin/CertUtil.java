@@ -454,36 +454,14 @@ public class CertUtil {
     }
 
     public static X509CertImpl createLocalCert(
-            EngineConfig config,
             IRequest req,
             CertInfoProfile profile,
             X509CertInfo info,
             java.security.PrivateKey signingPrivateKey,
-            X509Key x509key,
-            String type) throws Exception {
-
-        PreOpConfig preopConfig = config.getPreOpConfig();
-
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+            String caSigningKeyAlgo) throws Exception {
 
         profile.populate(req, info);
 
-        String keyAlgo = x509key.getAlgorithm();
-        logger.debug("key algorithm is " + keyAlgo);
-
-        String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
-        logger.debug("CA Signing Key type " + caSigningKeyType);
-
-        String caSigningKeyAlgo;
-        if (type.equals("selfsign")) {
-            caSigningKeyAlgo = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-        } else {
-            caSigningKeyAlgo = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
-        }
-        logger.debug("CA Signing Key algorithm " + caSigningKeyAlgo);
-
-        logger.debug("CertUtil: signing certificate: " + info.getName());
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, caSigningKeyAlgo);
 
         createCertRecord(req, profile, cert);
