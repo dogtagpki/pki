@@ -1296,7 +1296,8 @@ public class CryptoUtil {
         return info;
     }
 
-    public static X509CertImpl signECCCert(PrivateKey privateKey,
+    public static X509CertImpl signECCCert(
+            java.security.PrivateKey privateKey,
             X509CertInfo certInfo)
             throws NoSuchTokenException,
                 NotInitializedException,
@@ -1315,8 +1316,10 @@ public class CryptoUtil {
     /**
      * Signs certificate.
      */
-    public static X509CertImpl signCert(PrivateKey privateKey,
-            X509CertInfo certInfo, String alg)
+    public static X509CertImpl signCert(
+            java.security.PrivateKey privateKey,
+            X509CertInfo certInfo,
+            String alg)
             throws NoSuchTokenException,
                 NotInitializedException,
                 NoSuchAlgorithmException,
@@ -1330,8 +1333,10 @@ public class CryptoUtil {
                  Cert.mapAlgorithmToJss(alg));
     }
 
-    public static X509CertImpl signCert(PrivateKey privateKey,
-            X509CertInfo certInfo, SignatureAlgorithm sigAlg)
+    public static X509CertImpl signCert(
+            java.security.PrivateKey privateKey,
+            X509CertInfo certInfo,
+            SignatureAlgorithm sigAlg)
             throws NoSuchTokenException,
                 NotInitializedException,
                 NoSuchAlgorithmException,
@@ -1348,7 +1353,7 @@ public class CryptoUtil {
         certInfo.set(X509CertInfo.ALGORITHM_ID,
                 new CertificateAlgorithmId(aid));
 
-        org.mozilla.jss.crypto.PrivateKey priKey = privateKey;
+        PrivateKey priKey = (PrivateKey) privateKey;
         CryptoToken token = priKey.getOwningToken();
 
         DerOutputStream tmp = new DerOutputStream();

@@ -430,7 +430,7 @@ public class CertUtil {
 
     public static X509CertImpl createLocalCert(
             EngineConfig config,
-            PrivateKey signingPrivateKey,
+            java.security.PrivateKey signingPrivateKey,
             X509Key x509key,
             String certTag,
             String type) throws Exception {

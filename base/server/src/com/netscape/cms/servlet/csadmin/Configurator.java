@@ -1454,12 +1454,12 @@ public class Configurator {
         PublicKey publicKey = keyPair.getPublic();
         X509Key x509key = CryptoUtil.createX509Key(publicKey);
 
-        PrivateKey signingPrivateKey;
+        java.security.PrivateKey signingPrivateKey;
 
         if (caType.equals("selfsign")) {
-            signingPrivateKey = (PrivateKey) keyPair.getPrivate();
+            signingPrivateKey = keyPair.getPrivate();
         } else {
-            signingPrivateKey = (PrivateKey) ca.getSigningUnit().getPrivateKey();
+            signingPrivateKey = ca.getSigningUnit().getPrivateKey();
         }
 
         return CertUtil.createLocalCert(cs, signingPrivateKey, x509key, certTag, caType);
@@ -1833,7 +1833,7 @@ public class Configurator {
         String caType = preopConfig.getString("cert.admin.type", "local");
 
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        PrivateKey signingPrivateKey = (PrivateKey) ca.getSigningUnit().getPrivateKey();
+        java.security.PrivateKey signingPrivateKey = ca.getSigningUnit().getPrivateKey();
 
         X509CertImpl impl = CertUtil.createLocalCert(cs, signingPrivateKey, x509key, "admin", caType);
 
