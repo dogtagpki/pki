@@ -326,12 +326,13 @@ public class CertUtil {
      * @throws FileNotFoundException
      */
 
-    public static String getAdminProfileAlgorithm(EngineConfig config) throws Exception {
-        PreOpConfig preopConfig = config.getPreOpConfig();
-        String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
-        String pfile = config.getString("profile.caAdminCert.config");
+    public static String getAdminProfileAlgorithm(
+            String caSigningKeyType,
+            String profileFilename,
+            String defaultSigningAlgsAllowed) throws Exception {
+
         Properties props = new Properties();
-        props.load(new FileInputStream(pfile));
+        props.load(new FileInputStream(profileFilename));
 
         Set<String> keys = props.stringPropertyNames();
         Iterator<String> iter = keys.iterator();
@@ -349,8 +350,7 @@ public class CertUtil {
         }
 
         if (algsAllowed == null) { //algsAllowed not defined in profile, use a global setting
-            algsAllowed = StringUtils.split(config.getString("ca.profiles.defaultSigningAlgsAllowed",
-                    "SHA256withRSA,SHA256withEC,SHA1withDSA"), ",");
+            algsAllowed = StringUtils.split(defaultSigningAlgsAllowed, ",");
         }
 
         if (ArrayUtils.isEmpty(algsAllowed)) {
@@ -408,7 +408,11 @@ public class CertUtil {
         Date date = new Date();
 
         if (certTag.equals("admin")) {
-            keyAlgorithm = getAdminProfileAlgorithm(config);
+            String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
+            String profileFile = config.getString("profile.caAdminCert.config");
+            String defaultSigningAlgsAllowed = config.getString(
+                    "ca.profiles.defaultSigningAlgsAllowed", "SHA256withRSA,SHA256withEC,SHA1withDSA");
+            keyAlgorithm = getAdminProfileAlgorithm(caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
         } else {
             keyAlgorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
         }
