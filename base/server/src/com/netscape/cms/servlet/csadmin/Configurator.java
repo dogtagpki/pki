@@ -1686,9 +1686,16 @@ public class Configurator {
 
         importCert(subsystem, certTag, tokenname, nickname, impl);
 
-        //update requests in request queue for local certs to allow renewal
         if ((cert.getType().equals("local")) || (cert.getType().equals("selfsign"))) {
-            CertUtil.updateLocalRequest(cs, certTag, cert.getRequest(), "pkcs10", null);
+
+            String reqId = preopConfig.getString("cert." + certTag + ".reqId", null);
+            if (reqId == null) {
+                logger.warn("Configurator: cert has no request record");
+
+            } else {
+                // update requests in request queue for local certs to allow renewal
+                CertUtil.updateLocalRequest(reqId, cert.getRequest(), "pkcs10", null);
+            }
         }
     }
 
@@ -1842,8 +1849,14 @@ public class Configurator {
 
         X509CertImpl impl = CertUtil.createLocalCert(cs, signingPrivateKey, x509key, "admin", caType);
 
-        // update the locally created request for renewal
-        CertUtil.updateLocalRequest(cs, "admin", binRequest, certRequestType, subject);
+        String reqId = preopConfig.getString("cert.admin.reqId", null);
+        if (reqId == null) {
+            logger.warn("Configurator: cert has no request record");
+
+        } else {
+            // update the locally created request for renewal
+            CertUtil.updateLocalRequest(reqId, binRequest, certRequestType, subject);
+        }
 
         if (ca != null) {
             PKCS7 pkcs7 = createPKCS7(impl);

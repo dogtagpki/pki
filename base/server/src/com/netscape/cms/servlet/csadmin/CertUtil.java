@@ -277,21 +277,13 @@ public class CertUtil {
      * @throws EPropertyNotFound
      */
     public static void updateLocalRequest(
-            EngineConfig config,
-            String certTag,
+            String reqId,
             byte[] certReq,
             String reqType,
             String subjectName
             ) throws Exception {
 
-        logger.debug("CertUtil: updateLocalRequest(" + certTag + ")");
-
-        PreOpConfig preopConfig = config.getPreOpConfig();
-        String reqId = preopConfig.getString("cert." + certTag + ".reqId", null);
-        if (reqId == null) {
-            logger.warn("CertUtil: cert has no request record");
-            return;
-        }
+        logger.debug("CertUtil: updateLocalRequest(" + reqId + ")");
 
         CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
