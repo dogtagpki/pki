@@ -525,16 +525,8 @@ public class CertUtil {
         }
         logger.debug("CA Signing Key algorithm " + caSigningKeyAlgo);
 
-        X509CertImpl cert;
-        if (caSigningKeyType.equals("ecc")) {
-            logger.debug("CA signing cert is ECC");
-            cert = CryptoUtil.signECCCert(signingPrivateKey, info, caSigningKeyAlgo);
-        } else {
-            logger.debug("CA signing cert is not ecc");
-            cert = CryptoUtil.signCert(signingPrivateKey, info, caSigningKeyAlgo);
-        }
-
-        logger.debug("CertUtil createLocalCert: got cert signed");
+        logger.debug("CertUtil: signing certificate: " + info.getName());
+        X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, caSigningKeyAlgo);
 
         createCertRecord(req, profile, cert);
 

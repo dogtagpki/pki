@@ -1309,22 +1309,7 @@ public class CryptoUtil {
                 CertificateException {
         // set default; use the other call with "alg" to specify algorithm
         String alg = "SHA256withEC";
-        return signECCCert(privateKey, certInfo, alg);
-    }
-
-    public static X509CertImpl signECCCert(PrivateKey privateKey,
-            X509CertInfo certInfo, String alg)
-            throws NoSuchTokenException,
-                NotInitializedException,
-                NoSuchAlgorithmException,
-                NoSuchTokenException,
-                TokenException,
-                InvalidKeyException,
-                SignatureException,
-                IOException,
-                CertificateException {
-        return signCert(privateKey, certInfo,
-                Cert.mapAlgorithmToJss(alg));
+        return signCert(privateKey, certInfo, alg);
     }
 
     /**
