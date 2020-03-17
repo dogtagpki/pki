@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
@@ -64,6 +66,7 @@ import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -761,8 +764,7 @@ public class ACMEEngine implements ServletContextListener {
         // -  an account that holds authorizations for all of the identifiers in
         //    the certificate.
 
-        // Case 1: validate using order information (if it still exists)
-
+        Date now = new Date();
         String certBase64 = revocation.getCertificate();
         byte[] certData = Utils.base64decode(certBase64);
 
@@ -773,6 +775,8 @@ public class ACMEEngine implements ServletContextListener {
         }
 
         String certID = backend.getCertificateID(cert);
+
+        // Case 1: validate using order record (if available)
 
         logger.info("Finding order that issued the certificate");
         ACMEOrder order = database.getOrderByCertificate(certID);
@@ -789,15 +793,99 @@ public class ACMEEngine implements ServletContextListener {
             // No need to check order status since it's guaranteed to be valid.
             // No need to check order expiration since it's irrelevant for revocation.
 
-            logger.info("Account authorized to revoke certificate");
+            logger.info("Account issued the certificate");
             return;
         }
 
-        logger.info("Order not found");
+        // Case 2: validate using authorization records (if available)
 
-        // TODO: Case 2: validate using cert identifiers authorizations
+        logger.info("Getting certificate identifiers");
+        Collection<ACMEIdentifier> identifiers = getCertIdentifiers(cert);
 
-        // TODO: generate proper exception
-        throw new Exception("Account unauthorized to revoke certificate");
+        try {
+            for (ACMEIdentifier identifier : identifiers) {
+
+                logger.info("Checking revocation authorization for " + identifier);
+
+                if (!database.hasRevocationAuthorization(account.getID(), now, identifier)) {
+                    logger.info("Account has no authorizations for " + identifier);
+
+                    // TODO: generate proper exception
+                    throw new Exception("Account has no authorizations for " + identifier);
+                }
+            }
+
+        } catch (NotImplementedException e) {
+
+            logger.info("Getting revocation authorizations");
+            Collection<ACMEAuthorization> authzs = database.getRevocationAuthorizations(account.getID(), now);
+
+            for (ACMEAuthorization authz : authzs) {
+
+                // remove authorized identifier from the list
+                // TODO: handle wildcard
+
+                ACMEIdentifier identifier = authz.getIdentifier();
+                identifiers.remove(identifier);
+            }
+
+            if (!identifiers.isEmpty()) {
+                logger.info("Account has no authorizations for:");
+                for (ACMEIdentifier identifier : identifiers) {
+                    logger.info("- " + identifier.getType() + ": " + identifier.getValue());
+                 }
+
+                // TODO: generate proper exception
+                throw new Exception("Account has no authorizations for " + identifiers);
+            }
+        }
+
+        logger.info("Account has authorizations for all identifiers");
+    }
+
+    public Collection<ACMEIdentifier> getCertIdentifiers(X509Certificate cert) throws Exception {
+
+        // use HashSet to store cert identifiers without duplicates
+        Collection<ACMEIdentifier> identifiers = new HashSet<>();
+
+        X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
+        X500Name subjectDN = certImpl.getSubjectObj().getX500Name();
+        logger.info("Subject DN: " + subjectDN);
+
+        String cn;
+        try {
+            cn = subjectDN.getCommonName();
+
+        } catch (NullPointerException e) {
+            // X500Name.getCommonName() throws NPE if subject DN is blank
+            // TODO: fix X500Name.getCommonName() to return null
+            cn = null;
+        }
+
+        if (cn != null) {
+            ACMEIdentifier identifier = new ACMEIdentifier("dns", cn.toLowerCase());
+            identifiers.add(identifier);
+        }
+
+        logger.info("SAN extensions:");
+        Collection<List<?>> sanExtensions = cert.getSubjectAlternativeNames();
+
+        if (sanExtensions != null) {
+            for (List<?> sanExtension : sanExtensions) {
+                Integer type = (Integer) sanExtension.get(0);
+                Object value = sanExtension.get(1);
+                logger.info("- " + value);
+
+                if (type == 2) {
+                    String dnsName = (String) value;
+                    ACMEIdentifier identifier = new ACMEIdentifier("dns", dnsName);
+                    identifiers.add(identifier);
+                }
+
+                // TODO: support other identifier types
+            }
+        }
+
+        return identifiers;
     }
 }
