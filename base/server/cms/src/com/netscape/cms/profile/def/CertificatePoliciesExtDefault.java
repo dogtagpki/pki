@@ -24,6 +24,15 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
+
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.CPSuri;
 import netscape.security.x509.CertificatePoliciesExtension;
@@ -36,15 +45,6 @@ import netscape.security.x509.PolicyQualifiers;
 import netscape.security.x509.Qualifier;
 import netscape.security.x509.UserNotice;
 import netscape.security.x509.X509CertInfo;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.property.Descriptor;
-import com.netscape.certsrv.property.EPropertyException;
-import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
 
 /**
  * This class implements an enrollment default policy
@@ -75,7 +75,6 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
     private static final String SEPARATOR = ".";
     private static final int DEF_NUM_POLICIES = 5;
     private static final int DEF_NUM_QUALIFIERS = 1;
-    private static final int MAX_NUM_POLICIES = 20;
     private static final String POLICY_ID_ENABLE = "Enable";
     private static final String POLICY_ID = "Policy Id";
     private static final String POLICY_QUALIFIER_CPSURI_ENABLE = "CPSuri Enable";
@@ -101,8 +100,6 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             }
         }
 
-        if (num >= MAX_NUM_POLICIES)
-            num = DEF_NUM_POLICIES;
         return num;
     }
 
@@ -133,7 +130,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             try {
                 num = Integer.parseInt(value);
 
-                if (num >= MAX_NUM_POLICIES || num < 0) {
+                if (num < 0) {
                     throw new EPropertyException(CMS.getUserMessage(
                             "CMS_INVALID_PROPERTY", CONFIG_POLICY_NUM));
                 }
@@ -736,7 +733,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
     }
 
     private netscape.security.x509.PolicyQualifierInfo createUserNotice(String organization,
-            String noticeText, String noticeNums) throws EPropertyException {
+            String noticeNums, String noticeText) throws EPropertyException {
 
         if ((organization == null || organization.length() == 0) &&
                 (noticeNums == null || noticeNums.length() == 0) &&
