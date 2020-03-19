@@ -130,7 +130,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             try {
                 num = Integer.parseInt(value);
 
-                if (num < 0) {
+                if (num < 1) {
                     throw new EPropertyException(CMS.getUserMessage(
                             "CMS_INVALID_PROPERTY", CONFIG_POLICY_NUM));
                 }
