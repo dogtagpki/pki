@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
+import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 
@@ -141,6 +142,40 @@ public class InMemoryDatabase extends ACMEDatabase {
         }
 
         return results;
+    }
+
+    public boolean hasRevocationAuthorization(String accountID, Date time, ACMEIdentifier identifier) throws Exception {
+
+        for (ACMEAuthorization authorization : authorizations.values()) {
+
+            if (!authorization.getAccountID().equals(accountID)) {
+                continue;
+            }
+
+            String status = authorization.getStatus();
+            if (!"valid".equals(status)) {
+                logger.info("Authorization " + authorization.getID() + " is " + status);
+                continue;
+            }
+
+            Date expirationTime = authorization.getExpirationTime();
+            if (!expirationTime.after(time)) {
+                logger.info("Authorization " + authorization.getID() + " has expired");
+                continue;
+            }
+
+            // Compare authorization's identifier against provided identifier
+            // TODO: handle wildcard
+
+            if (!authorization.getIdentifier().equals(identifier)) {
+                logger.info("Authorization " + authorization.getID() + " does not match " + identifier);
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public void addAuthorization(ACMEAuthorization authorization) throws Exception {
