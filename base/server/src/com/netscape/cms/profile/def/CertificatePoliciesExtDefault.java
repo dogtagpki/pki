@@ -77,7 +77,6 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
     private static final String SEPARATOR = ".";
     private static final int DEF_NUM_POLICIES = 5;
     private static final int DEF_NUM_QUALIFIERS = 1;
-    private static final int MAX_NUM_POLICIES = 20;
     private static final String POLICY_ID_ENABLE = "Enable";
     private static final String POLICY_ID = "Policy Id";
     private static final String POLICY_QUALIFIER_CPSURI_ENABLE = "CPSuri Enable";
@@ -103,8 +102,6 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             }
         }
 
-        if (num >= MAX_NUM_POLICIES)
-            num = DEF_NUM_POLICIES;
         return num;
     }
 
@@ -133,7 +130,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             try {
                 num = Integer.parseInt(value);
 
-                if (num >= MAX_NUM_POLICIES || num < 0) {
+                if (num < 1) {
                     throw new EPropertyException(CMS.getUserMessage(
                             "CMS_INVALID_PROPERTY", CONFIG_POLICY_NUM));
                 }
@@ -763,7 +760,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
     }
 
     private org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo createUserNotice(String organization,
-            String noticeText, String noticeNums) throws EPropertyException {
+            String noticeNums, String noticeText) throws EPropertyException {
 
         if ((organization == null || organization.length() == 0) &&
                 (noticeNums == null || noticeNums.length() == 0) &&
