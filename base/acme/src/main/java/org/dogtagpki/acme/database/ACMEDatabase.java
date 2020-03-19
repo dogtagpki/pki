@@ -11,6 +11,7 @@ import java.util.Date;
 import org.apache.commons.lang.NotImplementedException;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
+import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 
@@ -86,6 +87,25 @@ public abstract class ACMEDatabase {
      * @throws Exception
      */
     public Collection<ACMEAuthorization> getRevocationAuthorizations(String accountID, Date time) throws Exception {
+        throw new NotImplementedException();
+    }
+
+    /**
+     * This method returns true if the account has a valid and non-expired
+     * authorization record for the identifier which can be used to validate
+     * certificate revocation.
+     *
+     * The authorization records may be purged by the server at some point,
+     * so these records are not guaranteed to be available.
+     *
+     * @param accountID The ID of the account.
+     * @param time The time to check whether the authorization has expired.
+     * @param identifier An identifier in the certificate being revoked.
+     * @return True if the account has a valid and non-expired authorization
+     *         record for the identifier.
+     * @throws Exception
+     */
+    public boolean hasRevocationAuthorization(String accountID, Date time, ACMEIdentifier identifier) throws Exception {
         throw new NotImplementedException();
     }
 
