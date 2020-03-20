@@ -38,8 +38,12 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.CertBag;
 import org.mozilla.jss.pkcs12.PFX;
@@ -85,8 +89,7 @@ import netscape.security.x509.X509Key;
  * End Entity recovery will send RA or CA a response where stores the recovered key.
  *
  * @author thomask (original)
- * @author cfu (non-RSA keys; private keys secure handling);
- * @version $Revision$, $Date$
+ * @author cfu (non-RSA keys; private keys secure handling; server-side keygen enrollment);
  */
 public class RecoveryService implements IService {
 
@@ -139,15 +142,69 @@ public class RecoveryService implements IService {
         String tokName = "";
         CryptoToken ct = null;
         Boolean allowEncDecrypt_recovery = false;
+        boolean isSSKeygen = false;
+        String serverKeygenP12Pass = null;
 
+        X509Certificate transportCert =
+                request.getExtDataInCert(ATTR_TRANSPORT_CERT);
+        String transportCertNick = null;
         try {
             cm = CryptoManager.getInstance();
             config = CMS.getConfigStore();
             tokName = config.getString("kra.storageUnit.hardware", CryptoUtil.INTERNAL_TOKEN_NAME);
+
+            // default to "KRA transport certificate" would require one to
+            // change the nickname for existing KRA transport cert
+            transportCertNick = config.getString("kra.cert.transport.nickname", "KRA transport certificate");
+            CMS.debug("RecoveryService: serviceRequest: KRA transport cert nickname: " + transportCertNick);
             CMS.debug("RecoveryService: serviceRequest: token: " + tokName);
             ct = CryptoUtil.getCryptoToken(tokName);
 
             allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
+
+            String isSSKeygenStr = request.getExtDataInString("isServerSideKeygen");
+            if (isSSKeygenStr != null && isSSKeygenStr.equalsIgnoreCase("true")) {
+                CMS.debug("RecoveryService: serviceRequest: isSSKengen=" + isSSKeygenStr);
+                isSSKeygen = true;
+                CryptoToken token = CryptoUtil.getKeyStorageToken("internal");
+
+                // serverKeygenP12Pass = request.getExtDataInString("serverSideKeygenP12Passwd");
+                byte[] sessionWrappedPassphrase = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdEnc");
+                byte[] transWrappedSessionKey = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdTransSession");
+
+                // unwrap session key
+                /* TODO: get nickname from config */
+                org.mozilla.jss.crypto.X509Certificate transCert =
+                        cm.findCertByNickname(transportCertNick);
+                PrivateKey transPrivateKey =
+                        (org.mozilla.jss.crypto.PrivateKey) cm.findPrivKeyByCert(transCert);
+                if (transPrivateKey != null)
+                    CMS.debug("RecoveryService: serviceRequest: found private key");
+
+                // key size and alg must match with serverKeygenUserKeyDefault.java
+
+                SymmetricKey unwrappedSessionKey =
+                        CryptoUtil.unwrap(token,  SymmetricKey.AES, 128,
+                        SymmetricKey.Usage.UNWRAP,
+                        transPrivateKey,
+                        transWrappedSessionKey,
+                        KeyWrapAlgorithm.RSA);
+
+                if (unwrappedSessionKey == null)
+                    CMS.debug("RecoveryService: serviceRequest: unwrappedSessionKey null");
+
+                // decrypt p12 passphrase
+                EncryptionAlgorithm encryptAlgorithm =
+                        EncryptionAlgorithm.AES_128_CBC_PAD;
+                byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+                IVParameterSpec ivps = new IVParameterSpec(iv);
+                byte[] passphrase = CryptoUtil.decryptUsingSymmetricKey(token,
+                        ivps, sessionWrappedPassphrase, unwrappedSessionKey,
+                        encryptAlgorithm);
+                serverKeygenP12Pass = new String(passphrase, "UTF-8");
+                // TODO: do this after it's done being used later:
+                // CryptoUtil.obscureBytes(serverKeygenP12Pass, "random");
+            }
         } catch (Exception e) {
             CMS.debug("RecoveryService exception: use internal token :"
                     + e.toString());
@@ -173,8 +230,14 @@ public class RecoveryService implements IService {
                 request.getRequestId());
 
         if (params == null) {
-            // possibly we are in recovery mode
-            return true;
+            //cfu
+            if (isSSKeygen) {
+                params = new Hashtable<String, Object>();
+                params.put(RecoveryService.ATTR_TRANSPORT_PWD, serverKeygenP12Pass);
+            } else {
+                // possibly we are in recovery mode
+                return true;
+            }
         }
 
         // retrieve based on serial no
@@ -185,6 +248,7 @@ public class RecoveryService implements IService {
             statsSub.startTiming("get_key");
         }
         KeyRecord keyRecord = (KeyRecord) mStorage.readKeyRecord(serialno);
+
         if (statsSub != null) {
             statsSub.endTiming("get_key");
         }
@@ -221,8 +285,6 @@ public class RecoveryService implements IService {
 
         // Unwrap the archived private key
         byte privateKeyData[] = null;
-        X509Certificate transportCert =
-                request.getExtDataInCert(ATTR_TRANSPORT_CERT);
 
         if (transportCert == null) {
             if (statsSub != null) {
@@ -313,6 +375,14 @@ public class RecoveryService implements IService {
             if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
                 mKRA.getStorageKeyUnit().logout();
             }
+        }
+
+        // cfu
+        if (isSSKeygen) {
+            CMS.debug("RecoveryService: putting p12 in request");
+            byte[] p12b = (byte[])params.get(ATTR_PKCS12);
+            // IEnrollProfile.REQUEST_ISSUED_P12
+            request.setExtData("req_issued_p12" /*ATTR_PKCS12*/, p12b);
         }
         mKRA.log(ILogger.LL_INFO, "key " +
                 serialno.toString() +
@@ -540,7 +610,7 @@ public class RecoveryService implements IService {
                     pass,
                     /* NSS has a bug that causes any AES CBC encryption
                      * to use AES-256, but AlgorithmID contains chosen
-                     * alg.  To avoid mismatch, use AES_256_CBC. */
+                     * alg.  To avoid mismatch, use AES_128_CBC. */
                     EncryptionAlgorithm.AES_256_CBC,
                     0 /* iterations (use default) */,
                     priKey);

@@ -28,6 +28,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
+import java.util.Hashtable;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -62,6 +63,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+//import com.netscape.kra.RecoveryService;
 
 import netscape.security.x509.CRLExtensions;
 import netscape.security.x509.CRLReasonExtension;
@@ -81,7 +83,7 @@ import netscape.security.x509.X509CertInfo;
  * process requests from remote authority -
  * service request or return status.
  *
- * @version $Revision$, $Date$
+ * @author cfu - Server-Side Keygen Enrollment implementation
  */
 public class ConnectorServlet extends CMSServlet {
 
@@ -506,8 +508,27 @@ public class ConnectorServlet extends CMSServlet {
                 }
             }
 
-            // if not found process request.
+/*
+            // cfu: let's find out what's in the request
+            Enumeration<String> ereq = thisreq.getExtDataKeys();
+
+            while (ereq.hasMoreElements()) {
+                String reqKey = ereq.nextElement();
+                String reqVal = thisreq.getExtDataInString(reqKey);
+                if (reqVal != null) {
+                    CMS.debug("ConnectorServlet: - " + reqKey + ": " + reqVal);
+                } else {
+                    CMS.debug("ConnectorServlet: - " + reqKey + ": no value");
+                }
+            }
+*/
+
             thisreq = queue.newRequest(msg.getReqType());
+            // if not found process request.
+/*cfu
+            CMS.debug("ConnectorServlet: created reqType=" +msg.getReqType()+
+                   " requestId=" + thisreq.getRequestId().toString() + " requestStatus=" + thisreq.getRequestStatus().toString());
+*/
             CMS.debug("ConnectorServlet: created requestId=" +
                     thisreq.getRequestId().toString());
             thisreq.setSourceId(srcid);
@@ -519,6 +540,29 @@ public class ConnectorServlet extends CMSServlet {
             //        then this code does NOT need to be contained within its
             //        own special try/catch block.
             msg.toRequest(thisreq);
+
+            boolean isSSKeygen = false;
+            String isSSKeygenStr = thisreq.getExtDataInString("isServerSideKeygen");
+            if ((isSSKeygenStr != null) && isSSKeygenStr.equalsIgnoreCase("true")) {
+                String method = "ConnectorServlet:isServerSideKeygen: ";
+                CMS.debug("ConnectorServlet:isServerSideKeygen = true");
+                isSSKeygen = true;
+                String sskKeygenStage = thisreq.getExtDataInString(IRequest.SSK_STAGE);
+                if (sskKeygenStage!= null && sskKeygenStage.equalsIgnoreCase(IRequest.SSK_STAGE_KEYGEN)) {
+                    CMS.debug(method + "Stage=" + sskKeygenStage);
+                    thisreq.setRequestType("asymkeyGenRequest"); //IRequest.ASYMKEY_GENERATION_REQUEST
+                } else if (sskKeygenStage.equalsIgnoreCase(IRequest.SSK_STAGE_KEY_RETRIEVE)) {
+                    CMS.debug(method + "Stage=" + sskKeygenStage);
+                    thisreq.setRequestType("recovery"); //IRequest.KEYRECOVERY_REQUEST
+                }
+                String clientKeyId = thisreq.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
+                if (clientKeyId != null)
+                    CMS.debug(method + "clientKeyId = " + clientKeyId);
+                else
+                    CMS.debug(method + "clientKeyId not found");
+            } else {
+                CMS.debug("ConnectorServlet:isServerSideKeygen = false");
+            }
 
             if (isProfileRequest(thisreq)) {
                 X509CertInfo info =

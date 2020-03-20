@@ -18,6 +18,8 @@
 package com.netscape.cms.servlet.profile;
 
 import java.util.Locale;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -46,6 +48,8 @@ import com.netscape.certsrv.template.ArgString;
 import com.netscape.cms.servlet.cert.RequestProcessor;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
+
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This servlet approves profile-based request.
@@ -170,7 +174,32 @@ public class ProfileProcessServlet extends ProfileServlet {
             args.set(ARG_OUTPUT_LIST, outputlist);
         }
 
-        outputTemplate(request, response, args);
+        try { //cfu
+            CMS.debug("ProfileProcessServlet:cfu: p12 output process begins");
+            String p12Str = req.getExtDataInString("req_issued_p12");
+            if (p12Str == null) {
+                // not server-side keygen
+                CMS.debug("ProfileProcessServlet:cfu: no p12; not server-side keygen");
+                outputTemplate(request, response, args);
+            } else {
+                // found pkcs12 blob
+                byte[] p12blob = null;
+                HttpServletResponse p12_response = cmsReq.getHttpResp();
+                CMS.debug("ProfileProcessServlet:cfu: found p12 =" +
+                    p12Str/*ing.toString()*/);
+                p12blob = Utils.base64decode(p12Str/*ing.toString()*/);
+                OutputStream bos = p12_response.getOutputStream();
+                p12_response.setContentType("application/x-pkcs12");
+                p12_response.setContentLength(p12blob.length);
+                bos.write(p12blob);
+                bos.flush();
+                bos.close();
+            }
+        } catch (IOException e) {
+            CMS.debug(e);
+            setError(args, e.getMessage(), request, response);
+            return;
+        }
     }
 
     private void setError(ArgSet args, String reason, HttpServletRequest request, HttpServletResponse response)

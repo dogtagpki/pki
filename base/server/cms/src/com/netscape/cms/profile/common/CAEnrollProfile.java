@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.common;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.cert.CertificateException;
 import java.util.Enumeration;
 
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
@@ -40,7 +43,9 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
+import netscape.security.x509.CertificateX509Key;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
@@ -49,7 +54,7 @@ import netscape.security.x509.X509CertInfo;
  * This class implements a Certificate Manager enrollment
  * profile.
  *
- * @version $Revision$, $Date$
+ * @author cfu - Server-Side Keygen Enrollment implementation
  */
 public class CAEnrollProfile extends EnrollProfile {
 
@@ -77,7 +82,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
     public void execute(IRequest request)
             throws EProfileException, ERejectException {
-
+        String method = "CAEnrollProfile: execute: ";
         long startTime = CMS.getCurrentDate().getTime();
 
         if (!isEnable()) {
@@ -99,12 +104,78 @@ public class CAEnrollProfile extends EnrollProfile {
             throw new EProfileException("No CA Service");
         }
 
+        //cfu: if isServerSideKeygen, send keygen request to KRA
+        boolean isSSKeygen = false;
+        String isSSKeygenStr = request.getExtDataInString("isServerSideKeygen");
+        if (isSSKeygenStr != null && isSSKeygenStr.equalsIgnoreCase("true")) {
+            CMS.debug(method + "isServerSideKeygen = true");
+            isSSKeygen = true;
+        } else {
+            CMS.debug(method + "isServerSideKeygen = false");
+        }
+
         // if PKI Archive Option present, send this request
         // to DRM
         byte optionsData[] = request.getExtDataInByteArray(REQUEST_ARCHIVE_OPTIONS);
+        if (isSSKeygen) { // cfu
+            request.setExtData(IRequest.SSK_STAGE, IRequest.SSK_STAGE_KEYGEN);
+            try {
+                IConnector kraConnector = caService.getKRAConnector();
 
-        // do not archive keys for renewal requests
-        if ((optionsData != null) && (!request.getRequestType().equals(IRequest.RENEWAL_REQUEST))) {
+                if (kraConnector == null) {
+                    String message = "KRA connector not configured";
+                    CMS.debug(method + message);
+                } else {
+                    CMS.debug(method + "request");
+                    kraConnector.send(request);
+
+                    // check response
+                    if (!request.isSuccess()) {
+                        String message = "serverSide Keygen request failed";
+                        CMS.debug(method + message);
+
+                        if (getLocale(request) != null &&
+                                request.getError(getLocale(request)) != null) {
+
+                            if ((request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) { //Todo
+                                CMS.debug(method + "set request status: REJECTED");
+                                request.setRequestStatus(RequestStatus.REJECTED);
+                                ca.getRequestQueue().updateRequest(request);
+                            }
+                            throw new ERejectException(
+                                    request.getError(getLocale(request)));
+                        } else {
+                            throw new ERejectException(CMS.getUserMessage("CMS_CA_SEND_KRA_REQUEST")+ " check KRA log for detail");
+                        }
+                    }
+/*
+                        signedAuditLogger.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
+                                auditSubjectID,
+                                auditRequesterID,
+                                requestId,
+                                null));
+*/
+                }
+            } catch (Exception e) {
+
+                CMS.debug(method + e);
+
+/*
+                    signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
+                            auditSubjectID,
+                            auditRequesterID,
+                            requestId,
+                            null,
+                            e));
+*/
+
+                if (e instanceof ERejectException) {
+                    throw (ERejectException) e;
+                }
+                throw new EProfileException(e);
+            }
+        } else if ((optionsData != null) && (!request.getRequestType().equals(IRequest.RENEWAL_REQUEST))) {
+            // do not archive keys for renewal requests
             PKIArchiveOptions options = toPKIArchiveOptions(optionsData);
 
             if (options != null) {
@@ -184,6 +255,29 @@ public class CAEnrollProfile extends EnrollProfile {
 
         // process certificate issuance
         X509CertInfo info = request.getExtDataInCertInfo(REQUEST_CERTINFO);
+
+        if (isSSKeygen) { // cfu
+            try {
+                String pubKeyStr = request.getExtDataInString("public_key");
+                CMS.debug(method + "pubKeyStr = " + pubKeyStr);
+                byte[] pubKeyB = CryptoUtil.base64Decode(pubKeyStr);
+                CertificateX509Key certKey = new CertificateX509Key(
+                    new ByteArrayInputStream(pubKeyB));
+                Object oj = info.get(X509CertInfo.KEY);
+                if (oj != null) {
+                    info.delete(X509CertInfo.KEY);
+                    CMS.debug(method + " fake key deleted");
+                }
+                info.set(X509CertInfo.KEY, certKey);
+            } catch (IOException e) {
+                CMS.debug(method + e);
+                throw new EProfileException(e);
+            } catch (CertificateException e) {
+                CMS.debug(method + e);
+                throw new EProfileException(e);
+            }
+        }
+
         // #615460 - added audit log (transaction)
         SessionContext sc = SessionContext.getExistingContext();
         sc.put("profileId", getId());
@@ -208,6 +302,75 @@ public class CAEnrollProfile extends EnrollProfile {
         }
 
         request.setExtData(REQUEST_ISSUED_CERT, theCert);
+
+        //cfu: cert issued, now retrieve p12
+        if (isSSKeygen) {
+            CMS.debug(method + "onto SSK_STAGE_KEY_RETRIEVE");
+            request.setExtData(IRequest.SSK_STAGE, IRequest.SSK_STAGE_KEY_RETRIEVE);
+            request.setExtData("requestType", "recovery");
+            request.setExtData("cert", theCert); //recognized by kra
+            try {
+                IConnector kraConnector = caService.getKRAConnector();
+
+                if (kraConnector == null) {
+                    String message = "KRA connector not configured";
+                    CMS.debug(method + message);
+                } else {
+                    CMS.debug(method + "request");
+                    kraConnector.send(request);
+
+                    // check response
+                    if (!request.isSuccess()) {
+                        String message = "serverSide Keygen request failed";
+                        CMS.debug(method + message);
+
+                        if (getLocale(request) != null &&
+                                request.getError(getLocale(request)) != null) {
+
+                            if ((request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) { //Todo
+                                CMS.debug(method + "set request status: REJECTED");
+                                request.setRequestStatus(RequestStatus.REJECTED);
+                                ca.getRequestQueue().updateRequest(request);
+                            }
+                            throw new ERejectException(
+                                    request.getError(getLocale(request)));
+                        } else {
+                            throw new ERejectException(CMS.getUserMessage("CMS_CA_SEND_KRA_REQUEST")+ " check KRA log for detail");
+                        }
+                    }
+/*
+                        signedAuditLogger.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
+                                auditSubjectID,
+                                auditRequesterID,
+                                requestId,
+                                null));
+*/
+                }
+            } catch (Exception e) {
+
+                CMS.debug(method + e);
+/*
+                    signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
+                            auditSubjectID,
+                            auditRequesterID,
+                            requestId,
+                            null,
+                            e));
+*/
+
+                if (e instanceof ERejectException) {
+                    throw (ERejectException) e;
+                }
+                throw new EProfileException(e);
+            }
+            CMS.debug(method + "isSSKeygen: response received from KRA");
+            byte p12bytes[] = request.getExtDataInByteArray("pkcs12");
+            if (p12bytes != null) {
+                CMS.debug(method + "p12bytes not null");
+            } else {
+                CMS.debug(method + "p12bytes null");
+            }
+        }
 
         long endTime = CMS.getCurrentDate().getTime();
 

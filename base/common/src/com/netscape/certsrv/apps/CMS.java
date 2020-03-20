@@ -1550,6 +1550,7 @@ public final class CMS {
                 name.equalsIgnoreCase("uPasswd") ||
                 name.equalsIgnoreCase("PASSWORD_CACHE_ADD") ||
                 name.startsWith("p12Password") ||
+                name.startsWith("serverSideKeygenP12Passwd") ||
                 name.equalsIgnoreCase("host_challenge") ||
                 name.equalsIgnoreCase("card_challenge") ||
                 name.equalsIgnoreCase("card_cryptogram") ||

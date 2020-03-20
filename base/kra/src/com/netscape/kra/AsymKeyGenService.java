@@ -19,6 +19,7 @@ package com.netscape.kra;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
+import java.util.Enumeration;
 
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -42,6 +43,7 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.security.util.WrappingParams;
 
@@ -72,8 +74,24 @@ public class AsymKeyGenService implements IService {
 
     @Override
     public boolean serviceRequest(IRequest request) throws EBaseException {
+        String method = "AsymKeyGenService:serviceRequest: ";
         IConfigStore configStore = CMS.getConfigStore();
+
+        boolean isSSKeygen = false;
+        String isSSKeygenStr = request.getExtDataInString("isServerSideKeygen");
+        if ((isSSKeygenStr != null) && isSSKeygenStr.equalsIgnoreCase("true")) {
+            CMS.debug(method + "isServerSideKeygen = true");
+            isSSKeygen = true;
+        } else {
+            CMS.debug(method + "isServerSideKeygen = false");
+        }
+
         String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
+        if (clientKeyId != null)
+            CMS.debug(method + "clientKeyId = " + clientKeyId);
+        else
+            CMS.debug(method + "clientKeyId not found");
+
         String algorithm = request.getExtDataInString(IRequest.KEY_GEN_ALGORITHM);
 
         String keySizeStr = request.getExtDataInString(IRequest.KEY_GEN_SIZE);
@@ -159,6 +177,35 @@ public class AsymKeyGenService implements IService {
             throw new EBaseException("Failed to generate asymmetric key!");
         }
 
+        if (isSSKeygen) {
+            byte[] publicKeyData = null;
+            String pubKeyStr = "";
+            try {
+                publicKeyData = kp.getPublic().getEncoded();
+                if (publicKeyData == null) {
+                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    CMS.debug(method + " failed getting publickey encoded");
+                    return false;
+                } else {
+                    //CMS.debug(method + "public key binary length ="+ publicKeyData.length);
+                    if (algorithm.equals("EC")) {
+                        /* url encode */
+                        pubKeyStr = com.netscape.cmsutil.util.Utils.SpecialEncode(publicKeyData);
+                        CMS.debug(method + " EC pubKeyStr special encoded");
+                    } else {
+                        pubKeyStr = CryptoUtil.base64Encode(publicKeyData);
+                    }
+
+                    //CMS.debug(method + "public key length =" + pubKeyStr.length());
+                    request.setExtData("public_key", pubKeyStr);
+                }
+            } catch (Exception e) {
+                CMS.debug(method + e);
+                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                return false;
+            }
+        }
+
         byte[] privateSecurityData = null;
         WrappingParams params = null;
 
@@ -194,6 +241,7 @@ public class AsymKeyGenService implements IService {
         record.set(KeyRecord.ATTR_STATUS, STATUS_ACTIVE);
         record.set(KeyRecord.ATTR_KEY_SIZE, keySize);
         request.setExtData(ATTR_KEY_RECORD, serialNo);
+        request.setExtData("serialNumber", serialNo);
 
         if (realm != null) {
             record.set(KeyRecord.ATTR_REALM, realm);
@@ -212,7 +260,28 @@ public class AsymKeyGenService implements IService {
         auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
                 clientKeyId, new KeyId(serialNo), "None");
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+
+        if (isSSKeygen) {
+
+            Enumeration<String> ereq = request.getExtDataKeys();
+
+            /* cfu
+            CMS.debug(method + "let's find out what's in the request");
+            while (ereq.hasMoreElements()) {
+                String reqKey = ereq.nextElement();
+                String reqVal = request.getExtDataInString(reqKey);
+                if (reqVal != null) {
+                    CMS.debug(method + reqKey + ": " + reqVal);
+                } else {
+                    CMS.debug(method + reqKey + ": no value");
+                }
+            }
+            */
+
+            request.setExtData("delayLDAPCommit", "false");
+        }
         kra.getRequestQueue().updateRequest(request);
+
         return true;
     }
 
