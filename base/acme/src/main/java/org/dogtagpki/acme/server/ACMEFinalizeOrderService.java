@@ -5,7 +5,6 @@
 //
 package org.dogtagpki.acme.server;
 
-import java.math.BigInteger;
 import java.net.URI;
 
 import javax.ws.rs.POST;
@@ -18,7 +17,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEHeader;
 import org.dogtagpki.acme.ACMENonce;
@@ -78,9 +76,7 @@ public class ACMEFinalizeOrderService {
         engine.validateCSR(account, order, csr);
 
         ACMEBackend backend = engine.getBackend();
-        BigInteger serialNumber = backend.issueCertificate(csr);
-        String certID = Base64.encodeBase64URLSafeString(serialNumber.toByteArray());
-
+        String certID = backend.issueCertificate(csr);
         logger.info("Certificate issued: " + certID);
 
         order.setStatus("valid");

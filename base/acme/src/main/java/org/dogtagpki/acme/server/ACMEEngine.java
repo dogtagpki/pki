@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.acme.server;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -13,6 +14,8 @@ import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Collection;
 import java.util.Date;
@@ -61,7 +64,6 @@ import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -762,13 +764,15 @@ public class ACMEEngine implements ServletContextListener {
         // Case 1: validate using order information (if it still exists)
 
         String certBase64 = revocation.getCertificate();
-        byte[] certBytes = Utils.base64decode(certBase64);
-        X509CertImpl cert = new X509CertImpl(certBytes);
+        byte[] certData = Utils.base64decode(certBase64);
 
-        BigInteger serialNumber = cert.getSerialNumber();
-        logger.info("Serial Number: 0x" + serialNumber.toString(16));
+        X509Certificate cert;
+        try (ByteArrayInputStream is = new ByteArrayInputStream(certData)) {
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            cert = (X509Certificate) cf.generateCertificate(is);
+        }
 
-        String certID = Base64.encodeBase64URLSafeString(serialNumber.toByteArray());
+        String certID = backend.getCertificateID(cert);
 
         logger.info("Finding order that issued the certificate");
         ACMEOrder order = database.getOrderByCertificate(certID);
