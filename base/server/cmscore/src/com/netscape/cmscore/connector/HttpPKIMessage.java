@@ -75,6 +75,11 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         reqStatus = r.getRequestStatus().toString();
         reqRealm = r.getRealm();
 
+/*
+        CMS.debug("HttpPKIMessage.fromRequest:" + "requestType= " + reqType +
+                " requestId=" + r.getRequestId().toString() +
+                " requestStatus=" + reqStatus + " instance=" + r);
+*/
         CMS.debug("HttpPKIMessage.fromRequest: requestId="
                 + r.getRequestId().toString() + " requestStatus=" + reqStatus + " instance=" + r);
 

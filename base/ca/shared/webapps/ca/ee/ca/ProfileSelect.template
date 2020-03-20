@@ -109,6 +109,15 @@ if (isNaN(majorVersion)) {
    majorVersion = parseInt(navigator.appVersion, 10);
 }
 
+function passwdValidate()
+{
+
+    if (document.forms[0].serverSideKeygenP12Passwd.value != document.forms[0].p12PasswordAgain.value) {
+        alert("Passwords do not match");
+        return false;
+    }
+    return true;
+}
 
 function isIE() {
    if ( "ActiveXObject" in window ) {
@@ -535,7 +544,7 @@ function setCRMFRequest()
   } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
     document.writeln('<form name="ReqForm" onSubmit="return validate();" method="post" action="' + uri + '">');
   } else {
-    document.writeln('<form name="ReqForm" method="post" action="' + uri + '">');
+    document.writeln('<form name="ReqForm" method="post" onSubmit="return passwdValidate()" action="' + uri + '">');
    }
 </script>
 
@@ -741,6 +750,20 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
     document.writeln('<td>');
     if (inputListSet[n].inputSyntax == 'string') {
       document.writeln('<input type=text name=' + inputListSet[n].inputId + '>');
+    } else if (inputListSet[n].inputSyntax == 'server_side_keygen_request_type') {
+        // get PKCS#12 password
+        document.writeln('<tr>');
+        document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">PKCS #12 Password:</font></td>');
+        document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password name="serverSideKeygenP12Passwd" value="" AutoComplete=off ></font></td>');
+        document.writeln('</tr>');
+
+        document.writeln('<tr>');
+        document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">PKCS #12 Password again:</font></td>');
+        document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password name="p12PasswordAgain" value="" AutoComplete=off ></font></td>');
+        document.writeln('<SELECT NAME="keyType">'+getKeyTypesOptionsForKeyGen()+'</SELECT>&nbsp;&nbsp;<SELECT NAME=\"cryptprovider\"></SELECT>');
+        document.writeln('<SELECT NAME="keySize">'+keyLengthsCurvesOptions("")+'</SELECT>&nbsp;&nbsp;<SELECT NAME=\"cryptprovider\"></SELECT>');
+        document.writeln('</tr>');
+
     } else if (inputListSet[n].inputSyntax == 'cert_request') {
       document.writeln('<textarea cols=60 rows=10 name=' + inputListSet[n].inputId + '></textarea>');
     } else if (inputListSet[n].inputSyntax == 'cert_request_type') {

@@ -148,6 +148,12 @@ public interface IEnrollProfile extends IProfile {
     public static final String REQUEST_ISSUED_CERT = "req_issued_cert";
 
     /**
+     * Name of request attribute that stores the issued P12 from server-side keygen.
+     * <p>
+     */
+    public static final String REQUEST_ISSUED_P12 = "req_issued_p12";
+
+    /**
      * Name of request attribute that stores the transport certificate.
      * <p>
      * The value is of type String including base64 encoded certificate.
