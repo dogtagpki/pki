@@ -6,11 +6,11 @@
 ### Absolute path to this script
 SCRIPT="$(realpath "${BASH_SOURCE[0]}")"
 SCRIPTPATH="$(dirname "$SCRIPT")"
-CERTPATH="$SCRIPTPATH/certs"
-NSSDBPATH="$SCRIPTPATH/dbs"
+CERTPATH="$SCRIPTPATH/../resources/certs"
+NSSDBPATH="$SCRIPTPATH/../resources/dbs"
 
 ### Absolute path to the PKICertImport script.
-PCI="$(realpath "$SCRIPTPATH/../../PKICertImport.bash")"
+PCI="$(realpath "$SCRIPTPATH/../../main/shell/PKICertImport.bash")"
 
 ## 0.1 Names of Certificates
 CA_ROOT="CA Root - A"
@@ -266,7 +266,7 @@ function create_nssdb() {(
     local copy_root="$2"
     local copy_sub="$3"
 
-    local new_db="$SCRIPTPATH/dbs/$name"
+    local new_db="$NSSDBPATH/$name"
 
     rm -rf "$new_db"
     mkdir -p "$new_db"
