@@ -27,34 +27,5 @@
 <script src="/pki/js/backbone.js"></script>
 <script src="/pki/js/pki.js"></script>
 <script src="/pki/js/pki-banner.js"></script>
-<SCRIPT language="VBScript">
-<!--
-                Dim pkcs7
-
-                On Error Resume Next
-
-                'Convert the cert to PKCS7 format
-                pkcs7 = result.header.pkcs7
-                If (IsEmpty(pkcs7) OR theError <> 0) Then
-                    ret = MsgBox("Could not convert certificate to PKCS7 format", 0, "Import Cert")
-                End If
-
-                'Import the PKCS7 object
-                Enroll.DeleteRequestCert = FALSE
-                Enroll.WriteCertToCSP = true
-                Enroll.acceptPKCS7(pkcs7)
-                if err.number <> 0 then
-                        Enroll.WriteCertToCSP = false
-                end if
-                err.clear
-                Enroll.acceptPKCS7(pkcs7)
-                if err.number = 0 then
-                    MsgBox "Certificate has been successfully imported."
-                else
-                    sz = "Error in acceptPKCS7. Error Number " & Hex(err.number) & "occurred."
-                    MsgBox sz
-                end if
--->
-</SCRIPT>
 </head>
 </HTML>

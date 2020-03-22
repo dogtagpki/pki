@@ -155,55 +155,6 @@ if (navigator.appName == "Microsoft Internet Explorer") {
 //-->
 </SCRIPT>
 
-<SCRIPT LANGUAGE=VBS>
-<!--
-'========================================================
-'
-' In VBS, there are several ways in which the event handler for the
-' click event can be bound to the right control. We use one of the
-' methods here, which indicates the binding by appending the
-' event name to the control name with an intervening '_'.
-'
-'========================================================
-
-	'Sub ImportCertificate
-	Sub ImportCertificate (pkcs7)
-		'Dim pkcs7
-                Dim res
-
-		On Error Resume Next
-                 
-		'Convert the cert to PKCS7 format
-		'pkcs7 = result.header.pkcs7ChainBase64
-		'ret = MsgBox(pkcs7, 0, "Import PKCS7 Cert")
-		If (IsEmpty(pkcs7) OR theError <> 0) Then
-			ret = MsgBox("Could not convert certificate to PKCS7 format", 0, "Import Cert")
-			Exit Sub
-		End If
-
-                Dim enrollObj
-
-                Set enrollObj = g_objClassFactory.CreateObject("X509Enrollment.CX509Enrollment")
-                If IsObject(enrollObj) =  False Then
-                  res = MsgBox("Can't create Enroll Object!")
-                  Exit Sub
-                End If
-
-                enrollObj.Initialize(1)
-                enrollObj.InstallResponse 0,pkcs7,6,""
-
-                If Err.number <> 0 Then
-                  sz = "Error in InstallResponse. Error Number " & Hex(err.number) & " occurred."
-                  res =MsgBox(sz & Err.description)
-                else
-                  res = MsgBox("Certificate has been successfully imported.")
-                End If
-	End Sub
-
-	'ImportCertificate()
--->
-</SCRIPT>
-
 <SCRIPT LANGUAGE="JavaScript">
 //<!--
 if (navigator.appName == "Microsoft Internet Explorer") {

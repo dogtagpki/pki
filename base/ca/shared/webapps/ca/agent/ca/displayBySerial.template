@@ -220,51 +220,6 @@ if (result.header.noCertImport != null && result.header.noCertImport == false) {
 //-->
 </SCRIPT>
 
-<SCRIPT LANGUAGE=VBS>
-<!--
-'========================================================
-'
-' In VBS, there are several ways in which the event handler for the
-' click event can be bound to the right control. We use one of the
-' methods here, which indicates the binding by appending the
-' event name to the control name with an intervening '_'.
-'
-'========================================================
-    Sub ImportCertificate_OnClick
-
-		Dim pkcs7
-
-		On Error Resume Next
-
-		'Convert the cert to PKCS7 format
-		pkcs7 = result.header.pkcs7ChainBase64
-		If (IsEmpty(pkcs7) OR theError <> 0) Then
-			ret = MsgBox("Could not convert certificate to PKCS7 format", 0, "Import Cert")
-			Exit Sub
-		End If
-
-		'Import the PKCS7 object
-		Enroll.DeleteRequestCert = FALSE
-		Enroll.WriteCertToCSP = true
-		Enroll.acceptPKCS7(pkcs7)
-		if err.number <> 0 then
-			Enroll.WriteCertToCSP = false
-		end if
-		err.clear
-		Enroll.acceptPKCS7(pkcs7)
-		if err.number = 0 then
-			MsgBox "Certificate has been successfully imported."
-		else 
-			sz = "Error in acceptPKCS7. Error Number " & Hex(err.number) & "occurred."
-			MsgBox sz
-		end if
-
-		Exit Sub
-
-	End Sub
--->
-</SCRIPT>
-
 <SCRIPT type="text/javascript">
 document.write("<center>");
 var loc = 'getBySerial?serialNumber='+ result.header.serialNumber;
