@@ -484,84 +484,61 @@ public class CertUtil {
         cr.addCertificateRecord(record);
     }
 
-    public static void addUserCertificate(X509CertImpl cert) {
+    public static void addUserCertificate(X509CertImpl cert) throws Exception {
+
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         PreOpConfig preopConfig = cs.getPreOpConfig();
-        int num = 0;
-        try {
-            num = preopConfig.getInteger("subsystem.count", 0);
-        } catch (Exception e) {
-            logger.warn("Unable to retrieve server configuration: " + e, e);
-        }
 
-        UGSubsystem system = engine.getUGSubsystem();
-        String id = "user" + num;
+        String sysType = cs.getType();
+        String machineName = cs.getHostname();
+        String securePort = cs.getString("service.securePort", "");
 
-        try {
-            String sysType = cs.getType();
-            String machineName = cs.getHostname();
-            String securePort = cs.getString("service.securePort", "");
-            id = sysType + "-" + machineName + "-" + securePort;
-        } catch (Exception e) {
-            logger.warn("Unable to retrieve server configuration: " + e, e);
-        }
-
+        int num = preopConfig.getInteger("subsystem.count", 0);
         num++;
         preopConfig.putInteger("subsystem.count", num);
         cs.putInteger("subsystem.count", num);
+        cs.commit(false);
 
-        try {
-            cs.commit(false);
-        } catch (Exception e) {
-            logger.warn("Unable to store server configuration: " + e, e);
-        }
-
-        IUser user = null;
-        X509CertImpl[] certs = new X509CertImpl[1];
-        logger.debug("CertUtil addUserCertificate starts");
-        try {
-            user = system.createUser(id);
-            user.setFullName(id);
-            user.setEmail("");
-            user.setPassword("");
-            user.setUserType("agentType");
-            user.setState("1");
-            user.setPhone("");
-            system.addUser(user);
-            logger.debug("CertUtil addUserCertificate: successfully add the user");
-
-        } catch (ConflictingOperationException e) {
-            logger.warn("CertUtil addUserCertificate: " + e, e);
-
-        } catch (Exception e) {
-            logger.warn("CertUtil addUserCertificate addUser: " + e, e);
-        }
-
-        try {
-            user = system.getUser(id);
-            certs[0] = cert;
-            user.setX509Certificates(certs);
-
-            system.addUserCert(user);
-            logger.debug("CertUtil addUserCertificate: successfully add the user certificate");
-
-        } catch (Exception e) {
-            logger.warn("CertUtil addUserCertificate: " + e, e);
-        }
-
-        IGroup group = null;
+        String id = sysType + "-" + machineName + "-" + securePort;
         String groupName = "Subsystem Group";
 
+        UGSubsystem system = engine.getUGSubsystem();
+
+        IUser user = system.createUser(id);
+        user.setFullName(id);
+        user.setEmail("");
+        user.setPassword("");
+        user.setUserType("agentType");
+        user.setState("1");
+        user.setPhone("");
+
         try {
-            group = system.getGroupFromName(groupName);
-            if (!group.isMember(id)) {
-                group.addMemberName(id);
-                system.modifyGroup(group);
-                logger.debug("CertUtil addUserCertificate: update: successfully added the user to the group.");
-            }
-        } catch (Exception e) {
-            logger.warn("CertUtil addUserCertificate update: modifyGroup: " + e, e);
+            logger.info("Configurator: Adding user: " + id);
+            system.addUser(user);
+        } catch (ConflictingOperationException e) {
+            // ignore exception
+            logger.warn("Configurator: User already exists: " + id);
+        }
+
+        X509CertImpl[] certs = new X509CertImpl[1];
+        certs[0] = cert;
+        user.setX509Certificates(certs);
+
+        try {
+            logger.info("Configurator: Adding user certificate: " + cert.getSubjectDN());
+            system.addUserCert(user);
+        } catch (ConflictingOperationException e) {
+            // ignore exception
+            logger.warn("Configurator: User certificate already exists: " + cert.getSubjectDN());
+        }
+
+        IGroup group = system.getGroupFromName(groupName);
+
+        if (!group.isMember(id)) {
+            logger.info("Configurator: Adding user to group: " + groupName);
+            group.addMemberName(id);
+            system.modifyGroup(group);
         }
     }
 
