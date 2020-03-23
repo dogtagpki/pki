@@ -1331,59 +1331,6 @@ public class CryptoUtil {
         }
     }
 
-    /**
-     * Creates a PKCS#10 request.
-     */
-    public static PKCS10 createCertificationRequest(String subjectName,
-            X509Key pubk, java.security.PrivateKey prik)
-            throws NoSuchAlgorithmException, NoSuchProviderException,
-                InvalidKeyException, IOException, CertificateException,
-                SignatureException {
-        // give default
-        String alg = "SHA256withRSA";
-        if (isECCKey(pubk)) {
-            alg = "SHA256withEC";
-        }
-        return createCertificationRequest(subjectName, pubk, prik, alg);
-    }
-
-    public static PKCS10 createCertificationRequest(String subjectName,
-            X509Key pubk, java.security.PrivateKey prik, String alg)
-            throws NoSuchAlgorithmException, NoSuchProviderException,
-                InvalidKeyException, IOException, CertificateException,
-                SignatureException {
-        return createCertificationRequest(subjectName, pubk, prik, alg, null);
-    }
-
-    /*
-     * This createCertificationRequest() allows extensions to be added to the CSR
-     */
-    public static PKCS10 createCertificationRequest(
-            String subjectName,
-            KeyPair keyPair,
-            Extensions exts)
-            throws NoSuchAlgorithmException, NoSuchProviderException,
-            InvalidKeyException, IOException, CertificateException,
-            SignatureException {
-        String method = "CryptoUtil: createCertificationRequest: ";
-
-        String alg = "SHA256withRSA";
-        PublicKey pubk = keyPair.getPublic();
-        X509Key key = createX509Key(pubk);
-
-        if (pubk instanceof RSAPublicKey) {
-            alg = "SHA256withRSA";
-        } else if (isECCKey(key)) {
-            alg = "SHA256withEC";
-        } else {
-            throw new NoSuchAlgorithmException(method + alg);
-        }
-
-        return createCertificationRequest(
-                subjectName, key, keyPair.getPrivate(),
-                alg, exts);
-    }
-
     public static PKCS10 createCertificationRequest(
             String subjectName,
             X509Key pubk,

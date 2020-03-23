@@ -1291,7 +1291,8 @@ public class Configurator {
                     dn,
                     key,
                     keyPair.getPrivate(),
-                    algorithm);
+                    algorithm,
+                    null);
 
             byte[] binRequest = pkcs10.toByteArray();
             String b64Request = CryptoUtil.base64Encode(binRequest);

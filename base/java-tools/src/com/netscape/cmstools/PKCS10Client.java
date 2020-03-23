@@ -22,6 +22,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.InitializationValues;
@@ -38,6 +41,7 @@ import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
@@ -302,9 +306,20 @@ public class PKCS10Client {
                 extns.add(extn);
             }
 
+            String algorithm = "SHA256withRSA";
+            PublicKey publicKey = pair.getPublic();
+            X509Key key = CryptoUtil.createX509Key(publicKey);
+
+            if (publicKey instanceof RSAPublicKey) {
+                algorithm = "SHA256withRSA";
+            } else if (CryptoUtil.isECCKey(key)) {
+                algorithm = "SHA256withEC";
+            } else {
+                throw new NoSuchAlgorithmException("Unsupported algorithm: " + publicKey.getAlgorithm());
+            }
 
             PKCS10 certReq = CryptoUtil.createCertificationRequest(
-                    subjectName, pair, extns);
+                    subjectName, key, pair.getPrivate(), algorithm, extns);
 
             if (certReq == null) {
                 System.out.println("PKCS10Client: Unable to create certificate request");
