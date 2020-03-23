@@ -2358,8 +2358,8 @@ public class Configurator {
         UGSubsystem system = engine.getUGSubsystem();
         String id = "";
 
-        String b64 = getSubsystemCert(host, port, true);
-        if (b64 != null) {
+        X509CertImpl cert = getSubsystemCert(host, port);
+        if (cert != null) {
             int num = preopConfig.getInteger("subsystem.count", 0);
             id = "CA-" + host + "-" + port;
             num++;
@@ -2374,7 +2374,7 @@ public class Configurator {
             user.setState("1");
             user.setPhone("");
             X509CertImpl[] certs = new X509CertImpl[1];
-            certs[0] = new X509CertImpl(Utils.base64decode(b64));
+            certs[0] = cert;
             user.setX509Certificates(certs);
             try {
                 logger.debug("setupClientAuthUser: adding user: " + id);
@@ -2403,27 +2403,28 @@ public class Configurator {
 
     }
 
-    public String getSubsystemCert(String host, int port, boolean https)
-            throws Exception {
+    public X509CertImpl getSubsystemCert(String host, int port) throws Exception {
 
-        logger.debug("getSubsystemCert() start");
+        String url = "https://" + host + ":" + port + "/ca/admin/ca/getSubsystemCert";
+        logger.info("Configurator: Calling " + url);
 
-        String c = get(host, port, https, "/ca/admin/ca/getSubsystemCert", null, null);
-
-        if (c != null) {
-            ByteArrayInputStream bis =
-                    new ByteArrayInputStream(c.getBytes());
-            XMLObject parser = new XMLObject(bis);
-            String status = parser.getValue("Status");
-            if (status.equals(SUCCESS)) {
-                String s = parser.getValue("Cert");
-                return s;
-            } else {
-                return null;
-            }
+        String c = get(host, port, true, "/ca/admin/ca/getSubsystemCert", null, null);
+        if (c == null) {
+            logger.warn("Configurator: No response from " + url);
+            return null;
         }
 
-        return null;
+        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        XMLObject parser = new XMLObject(bis);
+
+        String status = parser.getValue("Status");
+        if (!status.equals(SUCCESS)) {
+            logger.warn("Configurator: Unable to get subsystem certificate from " + url);
+            return null;
+        }
+
+        String b64 = parser.getValue("Cert");
+        return new X509CertImpl(Utils.base64decode(b64));
     }
 
     public void setupDatabaseUser() throws Exception {
