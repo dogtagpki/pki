@@ -1553,8 +1553,15 @@ public class Configurator {
             createBasicCAExtensions(exts);
         }
 
-        logger.debug("generateCertRequest: generating generic extensions");
-        createGenericExtensions(certTag, exts);
+        String extOID = preopConfig.getString("cert." + certTag + ".ext.oid", null);
+        String extData = preopConfig.getString("cert." + certTag + ".ext.data", null);
+
+        if (extOID != null && extData != null) {
+            logger.debug("Configurator: Creating generic extension");
+            boolean extCritical = preopConfig.getBoolean("cert." + certTag + ".ext.critical");
+            Extension ext = createGenericExtension(extOID, extData, extCritical);
+            exts.add(ext);
+        }
 
         logger.debug("generateCertRequest: generating PKCS #10 request");
         PKCS10 certReq = CryptoUtil.createCertificationRequest(caDN, x509key, privk, algorithm, exts);
@@ -1605,39 +1612,17 @@ public class Configurator {
         */
     }
 
-    private void createGenericExtensions(String tag, Extensions exts) throws Exception {
+    private Extension createGenericExtension(String oid, String data, boolean critical) throws Exception {
 
-        logger.debug("Configurator: createGenericExtensions: begins");
+        try (DerOutputStream out = new DerOutputStream()) {
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
+            byte[] bytes = CryptoUtil.hexString2Bytes(data);
+            out.putOctetString(bytes);
 
-        // if specified, add a generic extension
-        try {
-            String oidString = preopConfig.getString("cert." + tag + ".ext.oid");
-            String dataString = preopConfig.getString("cert." + tag + ".ext.data");
-
-            if (oidString != null && dataString != null) {
-                logger.debug("Configurator: createGenericExtensions: adding generic extension for " + tag);
-                boolean critical = preopConfig.getBoolean("cert." + tag + ".ext.critical");
-                ObjectIdentifier oid = new ObjectIdentifier(oidString);
-
-                byte data[] = CryptoUtil.hexString2Bytes(dataString);
-                DerOutputStream out = new DerOutputStream();
-                out.putOctetString(data);
-
-                Extension genExt = new Extension(oid, critical, out.toByteArray());
-                out.close();
-
-                exts.add(genExt);
-                logger.debug("Configurator: createGenericExtensions: generic extension added: " + oidString);
-            }
-
-        } catch (EPropertyNotFound e) {
-            // generic extension not specified, ignore
-
-        } catch (EBaseException e) {
-            logger.error("Configurator: createGenericExtensions: Unable to add generic extension: " + e);
-            throw new BadRequestException("Unable to add generic certificate extension: " + e, e);
+            return new Extension(
+                    new ObjectIdentifier(oid),
+                    critical,
+                    out.toByteArray());
         }
     }
 
