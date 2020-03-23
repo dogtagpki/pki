@@ -112,36 +112,6 @@ public class CertUtil {
         }
     }
 
-    // Dynamically inject the SubjectAlternativeName extension to a
-    // local/self-signed master CA's request for its SSL Server Certificate.
-    //
-    // Since this information may vary from instance to
-    // instance, obtain the necessary information from the
-    // 'service.sslserver.san' value(s) in the instance's
-    // CS.cfg, process these values converting each item into
-    // its individual SubjectAlternativeName components, and
-    // inject these values into the local request.
-    //
-    public static void injectSANextensionIntoRequest(IConfigStore config,
-                           IRequest req) throws Exception {
-        logger.debug("CertUtil: injectSANextensionIntoRequest() - injecting SAN " +
-                  "entries into request . . .");
-        int i = 0;
-        if (config == null || req == null) {
-            throw new EBaseException("injectSANextensionIntoRequest: parameters config and req cannot be null");
-        }
-        String sanHostnames = config.getString("service.sslserver.san");
-        String sans[] = StringUtils.split(sanHostnames, ",");
-        for (String san : sans) {
-            logger.debug("CertUtil: injectSANextensionIntoRequest() injecting " +
-                      "SAN hostname: " + san);
-            req.setExtData("req_san_pattern_" + i, san);
-            i++;
-        }
-        logger.debug("CertUtil: injectSANextensionIntoRequest() " + "injected " +
-                  i + " SAN entries into request.");
-    }
-
     // Dynamically apply the SubjectAlternativeName extension to a
     // remote PKI instance's request for its SSL Server Certificate.
     //
@@ -229,7 +199,28 @@ public class CertUtil {
         logger.debug("createLocalCert: inject SAN: " + injectSAN);
 
         if (tag.equals("sslserver") && injectSAN) {
-            injectSANextensionIntoRequest(cs, req);
+
+            logger.info("CertUtil: Injecting SAN extension:");
+
+            // Dynamically inject the SubjectAlternativeName extension to a
+            // local/self-signed master CA's request for its SSL Server Certificate.
+            //
+            // Since this information may vary from instance to
+            // instance, obtain the necessary information from the
+            // 'service.sslserver.san' value(s) in the instance's
+            // CS.cfg, process these values converting each item into
+            // its individual SubjectAlternativeName components, and
+            // inject these values into the local request.
+
+            String value = cs.getString("service.sslserver.san");
+            String[] sanHostnames = StringUtils.split(value, ",");
+
+            int i = 0;
+            for (String sanHostname : sanHostnames) {
+                logger.info("CertUtil: - " + sanHostname);
+                req.setExtData("req_san_pattern_" + i, sanHostname);
+                i++;
+            }
         }
 
         req.setExtData("req_key", x509key.toString());
