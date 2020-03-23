@@ -1530,15 +1530,6 @@ public class Configurator {
         return nickname;
     }
 
-    public byte[] loadCertRequest(String subsystem, String tag) throws Exception {
-
-        logger.debug("Configurator.loadCertRequest(" + tag + ")");
-
-        // the CSR must exist in the second step of external CA scenario
-        String certreq = cs.getString(subsystem + "." + tag + ".certreq");
-        return CryptoUtil.base64Decode(certreq);
-    }
-
     public void generateCertRequest(String certTag, KeyPair keyPair, Cert cert) throws Exception {
 
         logger.debug("generateCertRequest: getting public key for certificate " + certTag);

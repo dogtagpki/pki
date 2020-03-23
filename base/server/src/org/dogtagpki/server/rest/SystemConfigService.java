@@ -500,7 +500,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 || "kra".equals(subsystem) && (request.isExternal() || request.getStandAlone())
                 || "ocsp".equals(subsystem) && (request.isExternal()  || request.getStandAlone())) {
 
-            logger.info("SystemConfigService: loading existing " + tag + " certificate");
+            logger.info("SystemConfigService: Loading existing " + tag + " certificate");
 
             byte[] bytes = x509Cert.getEncoded();
             String b64 = CryptoUtil.base64Encode(bytes);
@@ -511,13 +511,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             cs.commit(false);
 
-            logger.debug("SystemConfigService: loading existing cert request");
-            byte[] binRequest = configurator.loadCertRequest(subsystem, tag);
-            String b64Request = CryptoUtil.base64Encode(binRequest);
+            logger.info("SystemConfigService: Loading existing " + tag + " cert request");
 
-            logger.debug("SystemConfigService: request: " + b64Request);
+            String certreqStr = cs.getString(subsystem + "." + tag + ".certreq");
+            logger.debug("SystemConfigService: request: " + certreqStr);
 
-            cert.setRequest(binRequest);
+            byte[] certreqBytes = CryptoUtil.base64Decode(certreqStr);
+            cert.setRequest(certreqBytes);
 
             // When importing existing self-signed CA certificate, create a
             // certificate record to reserve the serial number. Otherwise it
