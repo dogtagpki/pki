@@ -48,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
@@ -59,14 +58,9 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.apps.PreOpConfig;
-import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -482,64 +476,6 @@ public class CertUtil {
 
         ICertRecord record = cr.createCertRecord(cert.getSerialNumber(), cert, meta);
         cr.addCertificateRecord(record);
-    }
-
-    public static void addUserCertificate(X509CertImpl cert) throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String sysType = cs.getType();
-        String machineName = cs.getHostname();
-        String securePort = cs.getString("service.securePort", "");
-
-        int num = preopConfig.getInteger("subsystem.count", 0);
-        num++;
-        preopConfig.putInteger("subsystem.count", num);
-        cs.putInteger("subsystem.count", num);
-        cs.commit(false);
-
-        String id = sysType + "-" + machineName + "-" + securePort;
-        String groupName = "Subsystem Group";
-
-        UGSubsystem system = engine.getUGSubsystem();
-
-        IUser user = system.createUser(id);
-        user.setFullName(id);
-        user.setEmail("");
-        user.setPassword("");
-        user.setUserType("agentType");
-        user.setState("1");
-        user.setPhone("");
-
-        try {
-            logger.info("Configurator: Adding user: " + id);
-            system.addUser(user);
-        } catch (ConflictingOperationException e) {
-            // ignore exception
-            logger.warn("Configurator: User already exists: " + id);
-        }
-
-        X509CertImpl[] certs = new X509CertImpl[1];
-        certs[0] = cert;
-        user.setX509Certificates(certs);
-
-        try {
-            logger.info("Configurator: Adding user certificate: " + cert.getSubjectDN());
-            system.addUserCert(user);
-        } catch (ConflictingOperationException e) {
-            // ignore exception
-            logger.warn("Configurator: User certificate already exists: " + cert.getSubjectDN());
-        }
-
-        IGroup group = system.getGroupFromName(groupName);
-
-        if (!group.isMember(id)) {
-            logger.info("Configurator: Adding user to group: " + groupName);
-            group.addMemberName(id);
-            system.modifyGroup(group);
-        }
     }
 
     /*

@@ -1326,7 +1326,7 @@ public class Configurator {
             if (cert != null) {
                 if (certTag.equals("subsystem")) {
                     logger.debug("configCert: creating subsystem user");
-                    CertUtil.addUserCertificate(cert);
+                    setupSubsystemUser(cert);
                 }
             }
 
@@ -2347,6 +2347,26 @@ public class Configurator {
         }
     }
 
+    public void setupSubsystemUser(X509CertImpl cert) throws Exception {
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String sysType = cs.getType();
+        String machineName = cs.getHostname();
+        String securePort = cs.getString("service.securePort", "");
+
+        int num = preopConfig.getInteger("subsystem.count", 0);
+        num++;
+        preopConfig.putInteger("subsystem.count", num);
+        cs.putInteger("subsystem.count", num);
+        cs.commit(false);
+
+        String id = sysType + "-" + machineName + "-" + securePort;
+        String groupName = "Subsystem Group";
+
+        setupUser(id, cert, groupName);
+    }
+
     public void setupClientAuthUser() throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -2370,6 +2390,11 @@ public class Configurator {
 
         String id = "CA-" + host + "-" + port;
         String groupName = "Trusted Managers";
+
+        setupUser(id, cert, groupName);
+    }
+
+    public void setupUser(String id, X509CertImpl cert, String groupName) throws Exception {
 
         UGSubsystem system = engine.getUGSubsystem();
 
