@@ -1484,13 +1484,23 @@ public class Configurator {
         // cfu - create request to enable renewal
         IRequestQueue queue = ca.getRequestQueue();
 
+        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+        String[] sanHostnames = null;
+
+        if (certTag.equals("sslserver") && injectSAN) {
+            String value = cs.getString("service.sslserver.san");
+            sanHostnames = StringUtils.split(value, ",");
+        }
+
+        boolean installAdjustValidity = !certTag.equals("signing");
+
         IRequest req = CertUtil.createLocalRequest(
-                cs,
                 queue,
-                certTag,
                 profile,
                 info,
-                x509key);
+                x509key,
+                sanHostnames,
+                installAdjustValidity);
 
         RequestId reqId = req.getRequestId();
         preopConfig.putString("cert." + certTag + ".reqId", reqId.toString());
@@ -1656,13 +1666,23 @@ public class Configurator {
         ICertificateRepository cr = ca.getCertificateRepository();
         IRequestQueue queue = ca.getRequestQueue();
 
+        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+        String[] sanHostnames = null;
+
+        if (tag.equals("sslserver") && injectSAN) {
+            String value = cs.getString("service.sslserver.san");
+            sanHostnames = StringUtils.split(value, ",");
+        }
+
+        boolean installAdjustValidity = !tag.equals("signing");
+
         IRequest req = CertUtil.createLocalRequest(
-                cs,
                 queue,
-                tag,
                 profile,
                 info,
-                x509key);
+                x509key,
+                sanHostnames,
+                installAdjustValidity);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, x509CertImpl);
         req.setExtData("cert_request", cert.getRequest());
@@ -1892,12 +1912,12 @@ public class Configurator {
         IRequestQueue queue = ca.getRequestQueue();
 
         IRequest req = CertUtil.createLocalRequest(
-                cs,
                 queue,
-                "admin",
                 profile,
                 info,
-                x509key);
+                x509key,
+                null /* sanHostnames */,
+                true /* installAdjustValidity */);
 
         RequestId reqId = req.getRequestId();
         preopConfig.putString("cert.admin.reqId", reqId.toString());

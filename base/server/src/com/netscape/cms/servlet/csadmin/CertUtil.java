@@ -162,19 +162,19 @@ public class CertUtil {
      * create requests so renewal can work on these initial certs
      */
     public static IRequest createLocalRequest(
-            IConfigStore cs,
             IRequestQueue queue,
-            String tag,
             CertInfoProfile profile,
             X509CertInfo info,
-            X509Key x509key)
+            X509Key x509key,
+            String[] sanHostnames,
+            boolean installAdjustValidity)
             throws Exception {
 
         //        RequestId rid = new RequestId(serialNum);
         // just need a request, no need to get into a queue
         //        IRequest r = new EnrollmentRequest(rid);
 
-        logger.debug("CertUtil: createLocalRequest(" + tag + ")");
+        logger.info("CertUtil: Creating local request");
 
         IRequest req = queue.newRequest("enrollment");
 
@@ -195,10 +195,7 @@ public class CertUtil {
         req.setExtData("isencryptioncert", "false");
         req.setExtData("profileapprovedby", "system");
 
-        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        logger.debug("createLocalCert: inject SAN: " + injectSAN);
-
-        if (tag.equals("sslserver") && injectSAN) {
+        if (sanHostnames != null) {
 
             logger.info("CertUtil: Injecting SAN extension:");
 
@@ -211,9 +208,6 @@ public class CertUtil {
             // CS.cfg, process these values converting each item into
             // its individual SubjectAlternativeName components, and
             // inject these values into the local request.
-
-            String value = cs.getString("service.sslserver.san");
-            String[] sanHostnames = StringUtils.split(value, ",");
 
             int i = 0;
             for (String sanHostname : sanHostnames) {
@@ -238,7 +232,7 @@ public class CertUtil {
         req.setExtData("profileid", profile.getProfileIDMapping());
         req.setExtData("profilesetid", profile.getProfileSetIDMapping());
 
-        if (!tag.equals("signing")) {
+        if (installAdjustValidity) {
             /*
              * (applies to non-CA-signing cert only)
              * installAdjustValidity tells ValidityDefault to adjust the
