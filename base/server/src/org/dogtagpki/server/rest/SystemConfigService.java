@@ -27,8 +27,11 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +50,7 @@ import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Cert;
+import com.netscape.cms.servlet.csadmin.CertInfoProfile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.apps.CMS;
@@ -545,7 +549,21 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             logger.debug("SystemConfigService: cert issued by existing CA, create record");
-            configurator.createCertRecord(cert);
+
+            String profileName = preopConfig.getString("cert." + tag + ".profile");
+            logger.debug("SystemConfigService: profile: " + profileName);
+
+            String instanceRoot = cs.getInstanceDir();
+            String configurationRoot = cs.getString("configurationRoot");
+            CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
+
+            PKCS10 pkcs10 = new PKCS10(certreqBytes);
+            X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
+
+            X509CertImpl certImpl = new X509CertImpl(bytes);
+            X509CertInfo info = certImpl.getInfo();
+
+            configurator.createCertRecord(tag, profile, x509key, info, certImpl, cert);
 
             return cert;
         }

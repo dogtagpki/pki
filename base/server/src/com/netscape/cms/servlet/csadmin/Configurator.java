@@ -1637,30 +1637,17 @@ public class Configurator {
         }
     }
 
-    public void createCertRecord(Cert cert) throws Exception {
+    public void createCertRecord(
+            String tag,
+            CertInfoProfile profile,
+            X509Key x509key,
+            X509CertInfo info,
+            X509CertImpl x509CertImpl,
+            Cert cert) throws Exception {
 
-        String tag = cert.getCertTag();
         logger.debug("Configurator.createCertRecord(" + tag + ")");
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        // parsing cert data
-        X509CertImpl x509CertImpl = new X509CertImpl(cert.getCert());
-        X509CertInfo info = x509CertImpl.getInfo();
-
-        // parsing cert request
-        String certreq = cs.getString("ca." + tag + ".certreq");
-        byte[] b = Utils.base64decode(certreq);
-        PKCS10 pkcs10 = new PKCS10(b);
-        X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
-
-        // loading cert profile
-        String profileName = preopConfig.getString("cert." + tag + ".profile");
-        logger.debug("Configurator: profile: " + profileName);
-
-        String instanceRoot = cs.getInstanceDir();
-        String configurationRoot = cs.getString("configurationRoot");
-        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
 
         // creating cert request record
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
