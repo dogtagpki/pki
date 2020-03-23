@@ -2351,56 +2351,63 @@ public class Configurator {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        String host = preopConfig.getString("ca.hostname", "");
-        int port = preopConfig.getInteger("ca.httpsadminport", -1);
+        String host = preopConfig.getString("ca.hostname");
+        int port = preopConfig.getInteger("ca.httpsadminport");
+        String url = "https://" + host + ":" + port;
 
-        // retrieve CA subsystem certificate from the CA
-        UGSubsystem system = engine.getUGSubsystem();
-        String id = "";
+        logger.info("Configurator: Retrieving subsystem certificate from " + url);
 
         X509CertImpl cert = getSubsystemCert(host, port);
-        if (cert != null) {
-            int num = preopConfig.getInteger("subsystem.count", 0);
-            id = "CA-" + host + "-" + port;
-            num++;
-            preopConfig.putInteger("subsystem.count", num);
-            cs.putInteger("subsystem.count", num);
-
-            IUser user = system.createUser(id);
-            user.setFullName(id);
-            user.setEmail("");
-            user.setPassword("");
-            user.setUserType("agentType");
-            user.setState("1");
-            user.setPhone("");
-            X509CertImpl[] certs = new X509CertImpl[1];
-            certs[0] = cert;
-            user.setX509Certificates(certs);
-            try {
-                logger.debug("setupClientAuthUser: adding user: " + id);
-                system.addUser(user);
-            } catch (ConflictingOperationException e) {
-                // ignore exception
-                logger.warn("setupClientAuthUser: User already exists: " + e);
-            }
-            try {
-                logger.debug("setupClientAuthUser: Adding cert to user: " + id);
-                system.addUserCert(user);
-            } catch (ConflictingOperationException e) {
-                // ignore exception
-                logger.warn("setupClientAuthUser: Cert already added: " + e);
-            }
-            cs.commit(false);
+        if (cert == null) {
+            throw new Exception("Unable to retrieve subsystem certificate from " + url);
         }
 
+        int num = preopConfig.getInteger("subsystem.count", 0);
+        num++;
+        preopConfig.putInteger("subsystem.count", num);
+        cs.putInteger("subsystem.count", num);
+        cs.commit(false);
+
+        String id = "CA-" + host + "-" + port;
         String groupName = "Trusted Managers";
+
+        UGSubsystem system = engine.getUGSubsystem();
+
+        IUser user = system.createUser(id);
+        user.setFullName(id);
+        user.setEmail("");
+        user.setPassword("");
+        user.setUserType("agentType");
+        user.setState("1");
+        user.setPhone("");
+
+        try {
+            logger.info("Configurator: Adding user: " + id);
+            system.addUser(user);
+        } catch (ConflictingOperationException e) {
+            // ignore exception
+            logger.warn("Configurator: User already exists: " + id);
+        }
+
+        X509CertImpl[] certs = new X509CertImpl[1];
+        certs[0] = cert;
+        user.setX509Certificates(certs);
+
+        try {
+            logger.info("Configurator: Adding user certificate: " + cert.getSubjectDN());
+            system.addUserCert(user);
+        } catch (ConflictingOperationException e) {
+            // ignore exception
+            logger.warn("Configurator: User certificate already exists: " + cert.getSubjectDN());
+        }
+
         IGroup group = system.getGroupFromName(groupName);
+
         if (!group.isMember(id)) {
-            logger.debug("setupClientAuthUser: adding user to the " + groupName + " group.");
+            logger.info("Configurator: Adding user to group: " + groupName);
             group.addMemberName(id);
             system.modifyGroup(group);
         }
-
     }
 
     public X509CertImpl getSubsystemCert(String host, int port) throws Exception {
