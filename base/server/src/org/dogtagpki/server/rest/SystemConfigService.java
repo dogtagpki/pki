@@ -37,6 +37,9 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
@@ -48,9 +51,11 @@ import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.CertInfoProfile;
+import com.netscape.cms.servlet.csadmin.CertUtil;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.apps.CMS;
@@ -550,6 +555,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             logger.debug("SystemConfigService: cert issued by existing CA, create record");
 
+            CMSEngine engine = CMS.getCMSEngine();
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+
             String profileName = preopConfig.getString("cert." + tag + ".profile");
             logger.debug("SystemConfigService: profile: " + profileName);
 
@@ -563,7 +571,19 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             X509CertImpl certImpl = new X509CertImpl(bytes);
             X509CertInfo info = certImpl.getInfo();
 
-            configurator.createCertRecord(tag, profile, x509key, info, certImpl, cert);
+            IRequest req = configurator.createRequest(tag, profile, x509key, info);
+
+            req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, certImpl);
+            req.setExtData("cert_request", certreqBytes);
+            req.setExtData("cert_request_type", "pkcs10");
+
+            IRequestQueue queue = ca.getRequestQueue();
+            queue.updateRequest(req);
+
+            RequestId reqId = req.getRequestId();
+            preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
+
+            CertUtil.createCertRecord(req, profile, certImpl);
 
             return cert;
         }

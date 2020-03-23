@@ -83,12 +83,10 @@ import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.PKIConnection;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -107,7 +105,6 @@ import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -1637,21 +1634,15 @@ public class Configurator {
         }
     }
 
-    public void createCertRecord(
+    public IRequest createRequest(
             String tag,
             CertInfoProfile profile,
             X509Key x509key,
-            X509CertInfo info,
-            X509CertImpl x509CertImpl,
-            Cert cert) throws Exception {
+            X509CertInfo info) throws Exception {
 
-        logger.debug("Configurator.createCertRecord(" + tag + ")");
+        logger.debug("Configurator.createRequest(" + tag + ")");
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        // creating cert request record
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        ICertificateRepository cr = ca.getCertificateRepository();
         IRequestQueue queue = ca.getRequestQueue();
 
         Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
@@ -1664,33 +1655,13 @@ public class Configurator {
 
         boolean installAdjustValidity = !tag.equals("signing");
 
-        IRequest req = CertUtil.createLocalRequest(
+        return CertUtil.createLocalRequest(
                 queue,
                 profile,
                 info,
                 x509key,
                 sanHostnames,
                 installAdjustValidity);
-
-        req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, x509CertImpl);
-        req.setExtData("cert_request", cert.getRequest());
-        req.setExtData("cert_request_type", "pkcs10");
-
-        queue.updateRequest(req);
-
-        RequestId reqId = req.getRequestId();
-        logger.debug("Configurator: request: " + reqId);
-
-        preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
-
-        BigInteger serialNo = x509CertImpl.getSerialNumber();
-
-        MetaInfo meta = new MetaInfo();
-        meta.set(ICertRecord.META_REQUEST_ID, req.getRequestId().toString());
-        meta.set(ICertRecord.META_PROFILE_ID, profile.getProfileIDMapping());
-
-        ICertRecord record = cr.createCertRecord(serialNo, x509CertImpl, meta);
-        cr.addCertificateRecord(record);
     }
 
     public void handleCert(Cert cert) throws Exception {
