@@ -888,49 +888,6 @@ public class CryptoUtil {
         return result.toString();
     }
 
-    public static String getPKCS10FromKey(
-            String dn,
-            PublicKey publicKey,
-            byte prikdata[])
-            throws IOException,
-            InvalidKeyException,
-            TokenException,
-            NoSuchProviderException,
-            CertificateException,
-            SignatureException,
-            NotInitializedException,
-            NoSuchAlgorithmException {
-        X509Key x509key = createX509Key(publicKey);
-        PrivateKey prik = findPrivateKeyFromID(prikdata);
-        PKCS10 pkcs10 = createCertificationRequest(dn, x509key, prik);
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(bs);
-        pkcs10.print(ps);
-        return bs.toString();
-    }
-
-    public static String getPKCS10FromKey(
-            String dn,
-            PublicKey publicKey,
-            byte prikdata[],
-            String alg)
-            throws IOException,
-            InvalidKeyException,
-            TokenException,
-            NoSuchProviderException,
-            CertificateException,
-            SignatureException,
-            NotInitializedException,
-            NoSuchAlgorithmException {
-        X509Key x509key = createX509Key(publicKey);
-        java.security.PrivateKey prik = findPrivateKeyFromID(prikdata);
-        PKCS10 pkcs10 = createCertificationRequest(dn, x509key, prik, alg);
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(bs);
-        pkcs10.print(ps);
-        return bs.toString();
-    }
-
     /*
      * formats a cert
      */
