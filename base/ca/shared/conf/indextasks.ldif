@@ -30,3 +30,10 @@ nsIndexAttribute: issuername:eq,pres,sub
 nsIndexAttribute: requestsourceid:eq,pres,sub
 nsIndexAttribute: revInfo:eq,pres,sub
 nsIndexAttribute: extension:eq,pres,sub
+nsIndexAttribute: acmeExpires:eq
+nsIndexAttribute: acmeAccountId:eq
+nsIndexAttribute: acmeStatus:eq
+nsIndexAttribute: acmeAuthorizationId:eq
+nsIndexAttribute: acmeIdentifier:eq
+nsIndexAttribute: acmeCertificateId:eq
+nsIndexAttribute: acmeAuthorizationWildcard:eq,pres

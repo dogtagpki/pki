@@ -205,3 +205,53 @@ nsindexType: pres
 nsindexType: sub
 nsSystemindex: false
 cn: extension
+
+dn: cn=acmeExpires,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: acmeExpires
+
+dn: cn=acmeAccountId,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: acmeAccountId
+
+dn: cn=acmeStatus,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: acmeStatus
+
+dn: cn=acmeAuthorizationId,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: acmeAuthorizationId
+
+dn: cn=acmeIdentifier,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: acmeIdentifier
+
+dn: cn=acmeCertificateId,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: acmeCertificateId
+
+dn: cn=acmeAuthorizationWildcard,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: pres
+nsindexType: eq
+nsSystemindex: false
+cn: acmeAuthorizationWildcard
