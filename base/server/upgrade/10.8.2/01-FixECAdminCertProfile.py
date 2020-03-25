@@ -28,30 +28,28 @@ class FixECAdminCertProfile(pki.server.upgrade.PKIServerUpgradeScriptlet):
         self.backup(subsystem.cs_conf)
 
         path = subsystem.config.get('profile.caECAdminCert.config')
-        logger.info('Current path: %s', path)
-
         if path is None:
-            # The attribute is missing. Patch the missing attribute
-            logger.info('profile.caECAdminCert.config missing in CS.cfg')
+            # Add missing path
+            logger.info('Missing profile.caECAdminCert.config')
 
-            path = "{0}/profiles/{1}/caAdminCert.cfg".format(
+            path = "{0}/profiles/{1}/caECAdminCert.cfg".format(
                 subsystem.base_dir, subsystem.name)
 
-            subsystem.config['profile.caECAdminCert.class_id'] = 'caEnrollImpl'
-            subsystem.config['profile.caECAdminCert.config'] = path
+        else:
+            # Fix existing path
+            logger.info("Fixing profile.caECAdminCert.config")
+            dirname = os.path.dirname(path)
+            path = os.path.join(dirname, 'caECAdminCert.cfg')
 
-            logger.info('Patched path: %s', path)
-
-            # check if caECAdminCert is part of profile.list
-            profile_list = subsystem.config['profile.list'].split(',')
-            if 'caECAdminCert' not in profile_list:
-                profile_list.append('caECAdminCert')
-                subsystem.config['profile.list'] = ','.join(profile_list)
-
-        dirname = os.path.dirname(path)
-
-        path = os.path.join(dirname, 'caECAdminCert.cfg')
         logger.info('New path: %s', path)
-
         subsystem.config['profile.caECAdminCert.config'] = path
+
+        subsystem.config['profile.caECAdminCert.class_id'] = 'caEnrollImpl'
+
+        # check if caECAdminCert is part of profile.list
+        profile_list = subsystem.config['profile.list'].split(',')
+        if 'caECAdminCert' not in profile_list:
+            profile_list.append('caECAdminCert')
+            subsystem.config['profile.list'] = ','.join(profile_list)
+
         subsystem.save()
