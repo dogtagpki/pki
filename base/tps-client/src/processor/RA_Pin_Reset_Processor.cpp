@@ -406,7 +406,7 @@ TPS_PUBLIC RA_Status RA_Pin_Reset_Processor::Process(RA_Session *session, NameVa
         PR_snprintf((char *)configname, 256, "%s.%s.update.symmetricKeys.requiredVersion", OP_PREFIX, tokenType);
         int v = RA::GetConfigStore()->GetConfigAsInt(configname, 0x00);
         Buffer curKeyInfo = channel->GetKeyInfoData();
-        BYTE nv[2] = { v, 0x01 };
+        BYTE nv[2] = { static_cast<BYTE>(v), 0x01 };
         Buffer newVersion(nv, 2);
         PR_snprintf((char *)configname,  256,"%s.%s.tks.conn", OP_PREFIX, tokenType);
         connid = RA::GetConfigStore()->GetConfigAsString(configname);

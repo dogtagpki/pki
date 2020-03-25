@@ -1769,7 +1769,7 @@ bool RA_Enroll_Processor::CheckAndUpgradeSymKeys(
 
 			// Assemble the Buffer with the version information
 			// The second byte is the key offset, which is always 1
-			BYTE nv[2] = { requiredV, 0x01 };
+			BYTE nv[2] = { static_cast<BYTE>(requiredV), 0x01 };
 			Buffer newVersion(nv, 2);
 
 			// GetKeyInfoData will return a buffer which is bytes 11,12 of
