@@ -198,14 +198,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            PreOpConfig preopConfig = cs.getPreOpConfig();
-
-            boolean enable = preopConfig.getBoolean("cert." + tag + ".enable", true);
-            if (!enable) {
-                logger.info("SystemConfigService: " + tag + " certificate is disabled");
-                return null;
-            }
-
             SystemCertData certData = request.getSystemCert();
 
             if (certData == null) {

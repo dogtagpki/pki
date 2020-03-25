@@ -510,17 +510,6 @@ public class Configurator {
         String csType = cs.getType();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        String value = preopConfig.getString("cert.list");
-        String[] certList = value.split(",");
-
-        for (String tag : certList) {
-            if (tag.equals("sslserver")) {
-                preopConfig.putBoolean("cert." + tag + ".enable", true);
-            } else {
-                preopConfig.putBoolean("cert." + tag + ".enable", false);
-            }
-        }
-
         String sessionID = request.getInstallToken().getToken();
 
         String cloneUri = request.getCloneUri();
@@ -1627,10 +1616,6 @@ public class Configurator {
 
         String subsystem = cert.getSubsystem();
         String nickname = cert.getNickname();
-
-        boolean enable = preopConfig.getBoolean("cert." + certTag + ".enable", true);
-        if (!enable)
-            return;
 
         logger.debug("Configurator: cert type: " + cert.getType());
 

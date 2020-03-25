@@ -332,6 +332,10 @@ class PKIDeployer:
         request.tag = tag
         self.config_client.set_system_cert_info(request, tag)
 
+        if tag != 'sslserver' and request.clone:
+            logger.info('%s certificate is already set up', tag)
+            return None
+
         return client.setupCert(request)
 
     def setup_admin(self, client):
