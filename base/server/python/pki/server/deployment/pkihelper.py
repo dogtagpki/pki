@@ -3029,15 +3029,11 @@ class ConfigClient:
 
             if self.standalone and self.external_step_two:
 
-                data.generateSubsystemCert = "true"
                 # Stand-alone PKI (Step 2)
                 cert4 = self.create_system_cert("subsystem")
                 data.systemCert = cert4
 
             elif len(system_list) >= 2:
-
-                # Existing PKI Instance
-                data.generateSubsystemCert = "false"
 
                 for subsystem in system_list:
 
@@ -3054,7 +3050,6 @@ class ConfigClient:
                 # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
                 # Subordinate CA, or External CA
 
-                data.generateSubsystemCert = "true"
                 cert4 = self.create_system_cert("subsystem")
                 data.systemCert = cert4
 

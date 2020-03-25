@@ -342,6 +342,10 @@ class PKIDeployer:
             logger.info('sslserver certificate is already set up')
             return None
 
+        if tag == 'subsystem' and len(system_list) > 1:
+            logger.info('subsystem certificate is already set up')
+            return None
+
         return client.setupCert(request)
 
     def setup_admin(self, client):

@@ -48,9 +48,6 @@ public class CertificateSetupRequest {
     @XmlElement
     protected Boolean standAlone;
 
-    @XmlElement(defaultValue="true")
-    protected String generateSubsystemCert;
-
     @XmlElement(defaultValue="false")
     protected Boolean clone;
 
@@ -106,14 +103,6 @@ public class CertificateSetupRequest {
         this.standAlone = standAlone;
     }
 
-    public boolean getGenerateSubsystemCert() {
-        return generateSubsystemCert != null && generateSubsystemCert.equalsIgnoreCase("true");
-    }
-
-    public void setGenerateSubsystemCert(String generateSubsystemCert) {
-        this.generateSubsystemCert = generateSubsystemCert;
-    }
-
     public Boolean isClone() {
         return clone;
     }
@@ -129,7 +118,6 @@ public class CertificateSetupRequest {
                ", systemCert=" + systemCert +
                ", external=" + external +
                ", standAlone=" + standAlone +
-               ", generateSubsystemCert=" + generateSubsystemCert +
                ", clone=" + clone +
                "]";
     }

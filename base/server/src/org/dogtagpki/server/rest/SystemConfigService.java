@@ -205,12 +205,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("Missing certificate: " + tag);
             }
 
-            boolean generateSubsystemCert = request.getGenerateSubsystemCert();
-            if (!generateSubsystemCert && tag.equals("subsystem")) {
-                logger.info("SystemConfigService: not generating " + tag + " certificate");
-                return null;
-            }
-
             KeyPair keyPair = processKeyPair(certData);
 
             Cert cert = processCert(request, keyPair, certData);
