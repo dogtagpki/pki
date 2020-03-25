@@ -1479,26 +1479,7 @@ public class Configurator {
 
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
 
-        // cfu - create request to enable renewal
-        IRequestQueue queue = ca.getRequestQueue();
-
-        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        String[] sanHostnames = null;
-
-        if (certTag.equals("sslserver") && injectSAN) {
-            String value = cs.getString("service.sslserver.san");
-            sanHostnames = StringUtils.split(value, ",");
-        }
-
-        boolean installAdjustValidity = !certTag.equals("signing");
-
-        IRequest req = CertUtil.createLocalRequest(
-                queue,
-                profile,
-                info,
-                x509key,
-                sanHostnames,
-                installAdjustValidity);
+        IRequest req = createRequest(certTag, profile, x509key, info);
 
         RequestId reqId = req.getRequestId();
         preopConfig.putString("cert." + certTag + ".reqId", reqId.toString());
@@ -1518,7 +1499,7 @@ public class Configurator {
                 signingPrivateKey,
                 caSigningKeyAlgo);
 
-        // store request in db
+        IRequestQueue queue = ca.getRequestQueue();
         queue.updateRequest(req);
 
         return cert;
