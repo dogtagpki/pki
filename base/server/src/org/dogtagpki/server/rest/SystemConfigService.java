@@ -19,7 +19,6 @@ package org.dogtagpki.server.rest;
 
 import java.security.KeyPair;
 import java.security.Principal;
-import java.security.PublicKey;
 
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.ca.ICertificateAuthority;
@@ -223,7 +222,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             boolean generateSubsystemCert = request.getGenerateSubsystemCert();
             if (!generateSubsystemCert && tag.equals("subsystem")) {
                 logger.info("SystemConfigService: not generating " + tag + " certificate");
-                updateCloneConfiguration(certData, "subsystem");
                 return null;
             }
 
@@ -606,39 +604,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         configurator.generateCertRequest(tag, keyPair, cert);
 
         return cert;
-    }
-
-    private void updateCloneConfiguration(
-            SystemCertData cdata,
-            String tag) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String tokenName = cdata.getToken();
-        if (StringUtils.isEmpty(tokenName)) {
-            tokenName = preopConfig.getString("module.token", null);
-        }
-
-        // TODO - some of these parameters may only be valid for RSA
-        CryptoManager cryptoManager = CryptoManager.getInstance();
-        String nickname;
-        if (!CryptoUtil.isInternalToken(tokenName)) {
-            logger.debug("SystemConfigService:updateCloneConfiguration: tokenName=" + tokenName);
-            nickname = tokenName + ":" + cdata.getNickname();
-        } else {
-            logger.debug("SystemConfigService:updateCloneConfiguration: tokenName empty; using internal");
-            nickname = cdata.getNickname();
-        }
-
-        boolean isECC = false;
-        String keyType = preopConfig.getString("cert." + tag + ".keytype");
-
-        logger.debug("SystemConfigService:updateCloneConfiguration: keyType: " + keyType);
-        if("ecc".equalsIgnoreCase(keyType)) {
-            isECC = true;
-        }
-        X509Certificate cert = cryptoManager.findCertByNickname(nickname);
-        PublicKey pubk = cert.getPublicKey();
     }
 
     private void validatePin(String pin) throws Exception {
