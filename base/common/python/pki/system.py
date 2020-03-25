@@ -326,7 +326,6 @@ class DatabaseSetupRequest(object):
 class CertificateSetupRequest(object):
     def __init__(self):
         self.installToken = None
-        self.generateServerCert = "true"
         self.clone = 'false'
 
 

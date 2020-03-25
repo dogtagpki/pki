@@ -3001,9 +3001,6 @@ class ConfigClient:
 
         elif len(system_list) >= 2:
 
-            # Existing PKI Instance
-            data.generateServerCert = "false"
-
             for subsystem in system_list:
 
                 dst = self.mdict['pki_instance_path'] + '/conf/' + \

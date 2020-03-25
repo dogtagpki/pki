@@ -48,9 +48,6 @@ public class CertificateSetupRequest {
     @XmlElement
     protected Boolean standAlone;
 
-    @XmlElement(defaultValue = "true")
-    protected String generateServerCert;
-
     @XmlElement(defaultValue="true")
     protected String generateSubsystemCert;
 
@@ -109,14 +106,6 @@ public class CertificateSetupRequest {
         this.standAlone = standAlone;
     }
 
-    public String getGenerateServerCert() {
-        return generateServerCert;
-    }
-
-    public void setGenerateServerCert(String generateServerCert) {
-        this.generateServerCert = generateServerCert;
-    }
-
     public boolean getGenerateSubsystemCert() {
         return generateSubsystemCert != null && generateSubsystemCert.equalsIgnoreCase("true");
     }
@@ -138,7 +127,6 @@ public class CertificateSetupRequest {
         return "CertificateSetupRequest [pin=XXXX" +
                ", tag=" + tag +
                ", systemCert=" + systemCert +
-               ", generateServerCert=" + generateServerCert +
                ", external=" + external +
                ", standAlone=" + standAlone +
                ", generateSubsystemCert=" + generateSubsystemCert +
