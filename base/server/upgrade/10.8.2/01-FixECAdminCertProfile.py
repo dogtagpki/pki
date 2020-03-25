@@ -30,6 +30,24 @@ class FixECAdminCertProfile(pki.server.upgrade.PKIServerUpgradeScriptlet):
         path = subsystem.config.get('profile.caECAdminCert.config')
         logger.info('Current path: %s', path)
 
+        if path is None:
+            # The attribute is missing. Patch the missing attribute
+            logger.info('profile.caECAdminCert.config missing in CS.cfg')
+
+            path = "{0}/profiles/{1}/caAdminCert.cfg".format(
+                subsystem.base_dir, subsystem.name)
+
+            subsystem.config['profile.caECAdminCert.class_id'] = 'caEnrollImpl'
+            subsystem.config['profile.caECAdminCert.config'] = path
+
+            logger.info('Patched path: %s', path)
+
+            # check if caECAdminCert is part of profile.list
+            profile_list = subsystem.config['profile.list'].split(',')
+            if 'caECAdminCert' not in profile_list:
+                profile_list.append('caECAdminCert')
+                subsystem.config['profile.list'] = ','.join(profile_list)
+
         dirname = os.path.dirname(path)
 
         path = os.path.join(dirname, 'caECAdminCert.cfg')
