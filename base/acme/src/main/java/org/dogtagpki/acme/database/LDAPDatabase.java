@@ -98,6 +98,7 @@ public class LDAPDatabase extends ACMEDatabase {
 
     static final List<String> IDENTIFIER_TYPES = Arrays.asList(IDENTIFIER_TYPE_DNS);
 
+    // The LDAP Generalized Time syntax
     static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssZ");
 
     enum LoadChallenges { DoLoad , DontLoad };
@@ -587,6 +588,21 @@ public class LDAPDatabase extends ACMEDatabase {
         //    searches to reload the authz and challenge objects.
     }
 
+    @Override
+    public boolean hasRevocationAuthorization(
+            String accountID, Date time, ACMEIdentifier identifier)
+            throws Exception {
+        List<LDAPEntry> entries = ldapSearch(
+            RDN_AUTHORIZATION + "," + basedn,
+            "(&(" + ATTR_OBJECTCLASS + "=" + OBJ_AUTHORIZATION
+                + ")(" + ATTR_ACCOUNT_ID + "=" + accountID
+                + ")(!(" + ATTR_EXPIRES + "<=" + dateFormat.format(time) + ")"
+                + ")(" + ATTR_STATUS + "=valid"
+                + ")(" + ATTR_IDENTIFIER + ";" + identifier.getType() + "=" + identifier.getValue()
+                + "))"
+        );
+        return !entries.isEmpty();
+    }
 
 
     /* LOW LEVEL LDAP METHODS */
