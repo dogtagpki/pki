@@ -1,5 +1,5 @@
 {
-    "class": "org.dogtagpki.acme.backend.PKIBackend",
+    "class": "org.dogtagpki.acme.issuer.PKIIssuer",
     "parameters": {
         "url": "https://localhost:8443",
         "profile": "acmeServerCert",

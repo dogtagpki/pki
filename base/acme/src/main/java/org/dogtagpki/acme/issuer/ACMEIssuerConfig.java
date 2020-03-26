@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-package org.dogtagpki.acme.backend;
+package org.dogtagpki.acme.issuer;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ACMEBackendConfig {
+public class ACMEIssuerConfig {
 
     @JsonProperty("class")
     private String className;
@@ -66,9 +66,9 @@ public class ACMEBackendConfig {
         return mapper.writeValueAsString(this);
     }
 
-    public static ACMEBackendConfig fromJSON(String json) throws Exception {
+    public static ACMEIssuerConfig fromJSON(String json) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ACMEBackendConfig.class);
+        return mapper.readValue(json, ACMEIssuerConfig.class);
     }
 
     public String toString() {
