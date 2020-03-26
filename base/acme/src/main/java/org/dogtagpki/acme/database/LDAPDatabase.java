@@ -162,7 +162,7 @@ public class LDAPDatabase extends ACMEDatabase {
         String[] attrs = {"1.1"};  // suppress attrs for performance; we only need DN
         List<LDAPEntry> entries = ldapSearch(
             RDN_NONCE + "," + basedn,
-            "(" + ATTR_EXPIRES + ">=" + dateFormat.format(currentTime) + ")",
+            "(" + ATTR_EXPIRES + "<=" + dateFormat.format(currentTime) + ")",
             attrs
         );
         for (LDAPEntry entry : entries) {
