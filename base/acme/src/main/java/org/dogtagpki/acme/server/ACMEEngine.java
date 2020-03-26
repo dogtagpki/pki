@@ -46,10 +46,10 @@ import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.ACMERevocation;
 import org.dogtagpki.acme.JWK;
 import org.dogtagpki.acme.JWS;
-import org.dogtagpki.acme.backend.ACMEBackend;
-import org.dogtagpki.acme.backend.ACMEBackendConfig;
 import org.dogtagpki.acme.database.ACMEDatabase;
 import org.dogtagpki.acme.database.ACMEDatabaseConfig;
+import org.dogtagpki.acme.issuer.ACMEIssuer;
+import org.dogtagpki.acme.issuer.ACMEIssuerConfig;
 import org.dogtagpki.acme.validator.ACMEValidator;
 import org.dogtagpki.acme.validator.ACMEValidatorConfig;
 import org.dogtagpki.acme.validator.ACMEValidatorsConfig;
@@ -90,8 +90,8 @@ public class ACMEEngine implements ServletContextListener {
     private ACMEValidatorsConfig validatorsConfig;
     private Map<String, ACMEValidator> validators = new HashMap<>();
 
-    private ACMEBackendConfig backendConfig;
-    private ACMEBackend backend;
+    private ACMEIssuerConfig issuerConfig;
+    private ACMEIssuer issuer;
 
     public static ACMEEngine getInstance() {
         return INSTANCE;
@@ -145,20 +145,20 @@ public class ACMEEngine implements ServletContextListener {
         validators.put(name, validator);
     }
 
-    public ACMEBackendConfig getBackendConfig() {
-        return backendConfig;
+    public ACMEIssuerConfig getIssuerConfig() {
+        return issuerConfig;
     }
 
-    public void setBackendConfig(ACMEBackendConfig backendConfig) {
-        this.backendConfig = backendConfig;
+    public void setIssuerConfig(ACMEIssuerConfig issuerConfig) {
+        this.issuerConfig = issuerConfig;
     }
 
-    public ACMEBackend getBackend() {
-        return backend;
+    public ACMEIssuer getIssuer() {
+        return issuer;
     }
 
-    public void setBackend(ACMEBackend backend) {
-        this.backend = backend;
+    public void setIssuer(ACMEIssuer issuer) {
+        this.issuer = issuer;
     }
 
     public void loadMetadata(String filename) throws Exception {
@@ -251,36 +251,36 @@ public class ACMEEngine implements ServletContextListener {
         }
     }
 
-    public void loadBackendConfig(String filename) throws Exception {
+    public void loadIssuerConfig(String filename) throws Exception {
 
-        File backendConfigFile = new File(filename);
+        File issuerConfigFile = new File(filename);
 
-        if (backendConfigFile.exists()) {
-            logger.info("Loading ACME backend config from " + backendConfigFile);
-            String content = new String(Files.readAllBytes(backendConfigFile.toPath()));
-            backendConfig = ACMEBackendConfig.fromJSON(content);
+        if (issuerConfigFile.exists()) {
+            logger.info("Loading ACME issuer config from " + issuerConfigFile);
+            String content = new String(Files.readAllBytes(issuerConfigFile.toPath()));
+            issuerConfig = ACMEIssuerConfig.fromJSON(content);
 
         } else {
-            logger.info("Loading default ACME backend config");
-            backendConfig = new ACMEBackendConfig();
+            logger.info("Loading default ACME issuer config");
+            issuerConfig = new ACMEIssuerConfig();
         }
     }
 
-    public void initBackend() throws Exception {
+    public void initIssuer() throws Exception {
 
-        logger.info("Initializing ACME backend");
+        logger.info("Initializing ACME issuer");
 
-        String className = backendConfig.getClassName();
-        Class<ACMEBackend> backendClass = (Class<ACMEBackend>) Class.forName(className);
+        String className = issuerConfig.getClassName();
+        Class<ACMEIssuer> issuerClass = (Class<ACMEIssuer>) Class.forName(className);
 
-        backend = backendClass.newInstance();
-        backend.setConfig(backendConfig);
-        backend.init();
+        issuer = issuerClass.newInstance();
+        issuer.setConfig(issuerConfig);
+        issuer.init();
     }
 
-    public void shutdownBackend() throws Exception {
-        if (backend != null)
-            backend.close();
+    public void shutdownIssuer() throws Exception {
+        if (issuer != null)
+            issuer.close();
     }
 
     public void contextInitialized(ServletContextEvent event) {
@@ -309,8 +309,8 @@ public class ACMEEngine implements ServletContextListener {
             loadValidatorsConfig(acmeConfDir + File.separator + "validators.json");
             initValidators();
 
-            loadBackendConfig(acmeConfDir + File.separator + "backend.json");
-            initBackend();
+            loadIssuerConfig(acmeConfDir + File.separator + "issuer.json");
+            initIssuer();
 
         } catch (Exception e) {
             logger.error("Unable to initialize ACME engine: " + e.getMessage(), e);
@@ -323,7 +323,7 @@ public class ACMEEngine implements ServletContextListener {
         logger.info("Shutting down ACME engine");
 
         try {
-            shutdownBackend();
+            shutdownIssuer();
             shutdownValidators();
             shutdownDatabase();
 
@@ -774,7 +774,7 @@ public class ACMEEngine implements ServletContextListener {
             cert = (X509Certificate) cf.generateCertificate(is);
         }
 
-        String certID = backend.getCertificateID(cert);
+        String certID = issuer.getCertificateID(cert);
 
         // Case 1: validate using order record (if available)
 

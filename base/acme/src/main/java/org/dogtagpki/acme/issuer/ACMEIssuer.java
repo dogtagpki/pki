@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-package org.dogtagpki.acme.backend;
+package org.dogtagpki.acme.issuer;
 
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
@@ -15,15 +15,15 @@ import org.dogtagpki.acme.ACMERevocation;
 /**
  * @author Endi S. Dewata
  */
-public class ACMEBackend {
+public class ACMEIssuer {
 
-    protected ACMEBackendConfig config;
+    protected ACMEIssuerConfig config;
 
-    public ACMEBackendConfig getConfig() {
+    public ACMEIssuerConfig getConfig() {
         return config;
     }
 
-    public void setConfig(ACMEBackendConfig config) {
+    public void setConfig(ACMEIssuerConfig config) {
         this.config = config;
     }
 
@@ -37,7 +37,7 @@ public class ACMEBackend {
      * This method generates a unique ID for a certificate.
      *
      * By default this method will return the base64-encoded serial number
-     * of the certificate. This method may be overridden to generate a backend-
+     * of the certificate. This method may be overridden to generate a issuer-
      * specific unique ID for the certificate.
      *
      * @param cert Certificate.

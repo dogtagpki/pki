@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.acme.ACMENonce;
-import org.dogtagpki.acme.backend.ACMEBackend;
+import org.dogtagpki.acme.issuer.ACMEIssuer;
 
 /**
  * @author Endi S. Dewata
@@ -48,8 +48,8 @@ public class ACMECertificateService {
         logger.info("Retrieving certificate " + certID);
 
         ACMEEngine engine = ACMEEngine.getInstance();
-        ACMEBackend backend = engine.getBackend();
-        String certChain = backend.getCertificateChain(certID);
+        ACMEIssuer issuer = engine.getIssuer();
+        String certChain = issuer.getCertificateChain(certID);
 
         ResponseBuilder builder = Response.ok();
 

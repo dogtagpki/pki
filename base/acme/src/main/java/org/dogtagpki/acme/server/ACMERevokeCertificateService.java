@@ -22,7 +22,7 @@ import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMERevocation;
 import org.dogtagpki.acme.JWK;
 import org.dogtagpki.acme.JWS;
-import org.dogtagpki.acme.backend.ACMEBackend;
+import org.dogtagpki.acme.issuer.ACMEIssuer;
 
 /**
  * @author Endi S. Dewata
@@ -92,8 +92,8 @@ public class ACMERevokeCertificateService {
             throw new Exception("Invalid revocation request");
         }
 
-        ACMEBackend backend = engine.getBackend();
-        backend.revokeCert(revocation);
+        ACMEIssuer issuer = engine.getIssuer();
+        issuer.revokeCert(revocation);
 
         logger.info("Certificate revoked");
 

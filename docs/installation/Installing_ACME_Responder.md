@@ -64,7 +64,7 @@ The command will create the initial configuration files in /etc/pki/pki-tomcat/a
 
 See also [pki-server-acme(8)](../manuals/man8/pki-server-acme.8.md).
 
-## Configuring ACME Responder Database
+## Configuring ACME Database
 
 The database configuration for the ACME responder is located at /etc/pki/pki-tomcat/acme/database.json.
 
@@ -87,23 +87,23 @@ Currently there are no parameters to configure for in-memory database.
 
 See also [Configuring ACME Responder](https://www.dogtagpki.org/wiki/Configuring_ACME_Responder).
 
-## Configuring ACME Responder Backend
+## Configuring ACME Issuer
 
-The backend configuration for the ACME responder is located at /etc/pki/pki-tomcat/acme/backend.json.
+The issuer configuration for the ACME responder is located at /etc/pki/pki-tomcat/acme/issuer.json.
 
-To use the CA subsystem as the backend for the ACME responder,
+To use the CA subsystem as the issuer for the ACME responder,
 copy the sample configuration with the following command:
 
 ```
-$ cp /usr/share/pki/acme/conf/backend/pki/backend.json \
-    /etc/pki/pki-tomcat/acme/backend.json
+$ cp /usr/share/pki/acme/conf/issuer/pki/issuer.json \
+    /etc/pki/pki-tomcat/acme/issuer.json
 ```
 
 Alternatively, edit the file as follows:
 
 ```
 {
-    "class": "org.dogtagpki.acme.backend.PKIBackend",
+    "class": "org.dogtagpki.acme.issuer.PKIIssuer",
     "parameters": {
         "url": "https://localhost:8443",
         "profile": "acmeServerCert",

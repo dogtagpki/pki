@@ -22,7 +22,7 @@ import org.dogtagpki.acme.ACMEHeader;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWS;
-import org.dogtagpki.acme.backend.ACMEBackend;
+import org.dogtagpki.acme.issuer.ACMEIssuer;
 
 /**
  * @author Endi S. Dewata
@@ -75,8 +75,8 @@ public class ACMEFinalizeOrderService {
         logger.info("CSR: " + csr);
         engine.validateCSR(account, order, csr);
 
-        ACMEBackend backend = engine.getBackend();
-        String certID = backend.issueCertificate(csr);
+        ACMEIssuer issuer = engine.getIssuer();
+        String certID = issuer.issueCertificate(csr);
         logger.info("Certificate issued: " + certID);
 
         order.setStatus("valid");

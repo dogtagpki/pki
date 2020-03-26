@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-package org.dogtagpki.acme.backend;
+package org.dogtagpki.acme.issuer;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -40,9 +40,9 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 /**
  * @author Endi S. Dewata
  */
-public class PKIBackend extends ACMEBackend {
+public class PKIIssuer extends ACMEIssuer {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIBackend.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIIssuer.class);
 
     private ClientConfig clientConfig = new ClientConfig();
     private String profile;
@@ -59,7 +59,7 @@ public class PKIBackend extends ACMEBackend {
 
     public void init() throws Exception {
 
-        logger.info("Initializing PKI backend");
+        logger.info("Initializing PKI issuer");
 
         String url = config.getParameter("url");
         logger.info("- URL: " + url);
