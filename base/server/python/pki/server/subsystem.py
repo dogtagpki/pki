@@ -22,9 +22,7 @@
 from __future__ import absolute_import
 
 import functools
-import io
 import logging
-import operator
 import os
 import pwd
 import re
@@ -36,7 +34,6 @@ import xml.etree.ElementTree as ET
 
 import ldap
 import ldap.filter
-import six
 
 import pki
 import pki.nssdb
@@ -116,28 +113,11 @@ class PKISubsystem(object):
 
     def load(self):
 
-        logger.info('Loading subsystem: %s', self.name)
-
         self.config.clear()
 
         if os.path.exists(self.cs_conf):
-
             logger.info('Loading subsystem config: %s', self.cs_conf)
-
-            lines = open(self.cs_conf).read().splitlines()
-
-            for index, line in enumerate(lines):
-
-                if not line or line.startswith('#'):
-                    continue
-
-                parts = line.split('=', 1)
-                if len(parts) < 2:
-                    raise Exception('Missing delimiter in %s line %d' % (self.cs_conf, index + 1))
-
-                name = parts[0]
-                value = parts[1]
-                self.config[name] = value
+            pki.util.load_properties(self.cs_conf, self.config)
 
             self.type = self.config['cs.type']
             self.prefix = self.type.lower()
@@ -351,18 +331,9 @@ class PKISubsystem(object):
             shutil.rmtree(tmpdir)
 
     def save(self):
-        sorted_config = sorted(self.config.items(), key=operator.itemgetter(0))
-        with io.open(self.cs_conf, 'w') as f:
-            for key, value in sorted_config:
-                if value is None:
-                    # write None as empty value
-                    f.write(u'{0}=\n'.format(key))
-                elif isinstance(value, six.string_types):
-                    f.write(u'{0}={1}\n'.format(key, value))
-                elif isinstance(value, six.integer_types):
-                    f.write(u'{0}={1:d}\n'.format(key, value))
-                else:
-                    raise TypeError((key, value, type(value)))
+
+        logger.info('Storing subsystem config: %s', self.cs_conf)
+        pki.util.store_properties(self.cs_conf, self.config)
 
     def is_valid(self):
         return os.path.exists(self.conf_dir)

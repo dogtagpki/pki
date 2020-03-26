@@ -26,7 +26,9 @@ Module containing utility functions and classes for the Dogtag python code
 from __future__ import absolute_import
 import fileinput
 import functools
+import io
 import logging
+import operator
 import os
 import re
 import shutil
@@ -369,11 +371,24 @@ def load_properties(filename, properties):
 
 def store_properties(filename, properties):
 
-    with open(filename, 'w') as f:
+    sorted_props = sorted(properties.items(), key=operator.itemgetter(0))
 
-        for name, value in properties.items():
-            line = '%s=%s\n' % (name, value)
-            f.write(line)
+    with io.open(filename, 'w') as f:
+
+        for name, value in sorted_props:
+
+            if value is None:
+                # write None as empty value
+                f.write(u'{0}=\n'.format(name))
+
+            elif isinstance(value, six.string_types):
+                f.write(u'{0}={1}\n'.format(name, value))
+
+            elif isinstance(value, six.integer_types):
+                f.write(u'{0}={1:d}\n'.format(name, value))
+
+            else:
+                raise TypeError((name, value, type(value)))
 
 
 def copytree(src, dst, symlinks=False, ignore=None):
