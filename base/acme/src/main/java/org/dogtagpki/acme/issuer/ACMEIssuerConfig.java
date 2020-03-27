@@ -8,6 +8,8 @@ package org.dogtagpki.acme.issuer;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -69,6 +71,26 @@ public class ACMEIssuerConfig {
     public static ACMEIssuerConfig fromJSON(String json) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(json, ACMEIssuerConfig.class);
+    }
+
+    public static ACMEIssuerConfig fromProperties(Properties props) throws Exception {
+
+        ACMEIssuerConfig config = new ACMEIssuerConfig();
+
+        for (Entry<Object, Object> entry : props.entrySet()) {
+
+            String key = entry.getKey().toString();
+            String value = entry.getValue().toString();
+
+            if (key.equals("class")) {
+                config.setClassName(value);
+
+            } else {
+                config.setParameter(key, value);
+            }
+        }
+
+        return config;
     }
 
     public String toString() {

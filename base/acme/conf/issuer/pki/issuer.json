@@ -1,9 +1,0 @@
-{
-    "class": "org.dogtagpki.acme.issuer.PKIIssuer",
-    "parameters": {
-        "url": "https://localhost:8443",
-        "profile": "acmeServerCert",
-        "username": "caadmin",
-        "password": "Secret.123"
-    }
-}

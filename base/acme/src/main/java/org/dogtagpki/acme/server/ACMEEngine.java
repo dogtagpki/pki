@@ -7,8 +7,8 @@ package org.dogtagpki.acme.server;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.math.BigInteger;
-import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.PublicKey;
@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.ServletContextEvent;
@@ -167,8 +168,11 @@ public class ACMEEngine implements ServletContextListener {
 
         if (metadataConfigFile.exists()) {
             logger.info("Loading ACME metadata from " + metadataConfigFile);
-            String content = new String(Files.readAllBytes(metadataConfigFile.toPath()));
-            metadata = ACMEMetadata.fromJSON(content);
+            Properties props = new Properties();
+            try (FileReader reader = new FileReader(metadataConfigFile)) {
+                props.load(reader);
+            }
+            metadata = ACMEMetadata.fromProperties(props);
 
         } else {
             logger.info("Loading default ACME metadata");
@@ -182,8 +186,11 @@ public class ACMEEngine implements ServletContextListener {
 
         if (databaseConfigFile.exists()) {
             logger.info("Loading ACME database config from " + databaseConfigFile);
-            String content = new String(Files.readAllBytes(databaseConfigFile.toPath()));
-            databaseConfig = ACMEDatabaseConfig.fromJSON(content);
+            Properties props = new Properties();
+            try (FileReader reader = new FileReader(databaseConfigFile)) {
+                props.load(reader);
+            }
+            databaseConfig = ACMEDatabaseConfig.fromProperties(props);
 
         } else {
             logger.info("Loading default ACME database config");
@@ -214,8 +221,11 @@ public class ACMEEngine implements ServletContextListener {
 
         if (validatorsConfigFile.exists()) {
             logger.info("Loading ACME validators config from " + validatorsConfigFile);
-            String content = new String(Files.readAllBytes(validatorsConfigFile.toPath()));
-            validatorsConfig = ACMEValidatorsConfig.fromJSON(content);
+            Properties props = new Properties();
+            try (FileReader reader = new FileReader(validatorsConfigFile)) {
+                props.load(reader);
+            }
+            validatorsConfig = ACMEValidatorsConfig.fromProperties(props);
 
         } else {
             logger.info("Loading default ACME validators config");
@@ -257,8 +267,11 @@ public class ACMEEngine implements ServletContextListener {
 
         if (issuerConfigFile.exists()) {
             logger.info("Loading ACME issuer config from " + issuerConfigFile);
-            String content = new String(Files.readAllBytes(issuerConfigFile.toPath()));
-            issuerConfig = ACMEIssuerConfig.fromJSON(content);
+            Properties props = new Properties();
+            try (FileReader reader = new FileReader(issuerConfigFile)) {
+                props.load(reader);
+            }
+            issuerConfig = ACMEIssuerConfig.fromProperties(props);
 
         } else {
             logger.info("Loading default ACME issuer config");
@@ -301,15 +314,15 @@ public class ACMEEngine implements ServletContextListener {
         logger.info("ACME configuration directory: " + acmeConfDir);
 
         try {
-            loadMetadata(acmeConfDir + File.separator + "metadata.json");
+            loadMetadata(acmeConfDir + File.separator + "metadata.conf");
 
-            loadDatabaseConfig(acmeConfDir + File.separator + "database.json");
+            loadDatabaseConfig(acmeConfDir + File.separator + "database.conf");
             initDatabase();
 
-            loadValidatorsConfig(acmeConfDir + File.separator + "validators.json");
+            loadValidatorsConfig(acmeConfDir + File.separator + "validators.conf");
             initValidators();
 
-            loadIssuerConfig(acmeConfDir + File.separator + "issuer.json");
+            loadIssuerConfig(acmeConfDir + File.separator + "issuer.conf");
             initIssuer();
 
         } catch (Exception e) {
