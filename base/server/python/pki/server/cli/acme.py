@@ -103,23 +103,23 @@ class ACMECreateCLI(pki.cli.CLI):
 
         acme_share_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'acme')
 
-        metadata_template = os.path.join(acme_share_dir, 'conf', 'metadata.json')
-        metadata_conf = os.path.join(acme_conf_dir, 'metadata.json')
+        metadata_template = os.path.join(acme_share_dir, 'conf', 'metadata.conf')
+        metadata_conf = os.path.join(acme_conf_dir, 'metadata.conf')
         logging.info('Creating %s', metadata_conf)
         instance.copy(metadata_template, metadata_conf, force=force)
 
-        database_template = os.path.join(acme_share_dir, 'conf', 'database.json')
-        database_conf = os.path.join(acme_conf_dir, 'database.json')
+        database_template = os.path.join(acme_share_dir, 'conf', 'database.conf')
+        database_conf = os.path.join(acme_conf_dir, 'database.conf')
         logging.info('Creating %s', database_conf)
         instance.copy(database_template, database_conf, force=force)
 
-        validators_template = os.path.join(acme_share_dir, 'conf', 'validators.json')
-        validators_conf = os.path.join(acme_conf_dir, 'validators.json')
+        validators_template = os.path.join(acme_share_dir, 'conf', 'validators.conf')
+        validators_conf = os.path.join(acme_conf_dir, 'validators.conf')
         logging.info('Creating %s', validators_conf)
         instance.copy(validators_template, validators_conf, force=force)
 
-        issuer_template = os.path.join(acme_share_dir, 'conf', 'issuer.json')
-        issuer_conf = os.path.join(acme_conf_dir, 'issuer.json')
+        issuer_template = os.path.join(acme_share_dir, 'conf', 'issuer.conf')
+        issuer_conf = os.path.join(acme_conf_dir, 'issuer.conf')
         logging.info('Creating %s', issuer_conf)
         instance.copy(issuer_template, issuer_conf, force=force)
 
