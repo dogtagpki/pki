@@ -14,26 +14,6 @@ It assumes that the CA was [installed](Installing_CA.md) with the default instan
 * The API, configuration, or the database may change in the future.
 * There may be no easy upgrade path to the future version.
 
-## Installing SANToCNDefault Policy
-
-The SANToCNDefault is a certificate profile policy which generates
-a default subject DN for the certificate in case the CSR does not provide one.
-The subject DN will be generated from the first DNS name in the the SAN extension.
-
-This policy is needed by the ACME profile, but currently it is not installed by default in the CA,
-so it has to be added manually.
-
-To add the policy, edit /etc/pki/pki-tomcat/ca/registry.cfg as follows:
-
-```
-defaultPolicy.ids=...,sanToCNDefaultImpl
-defaultPolicy.sanToCNDefaultImpl.class=com.netscape.cms.profile.def.SANToCNDefault
-defaultPolicy.sanToCNDefaultImpl.desc=SAN to CN Default
-defaultPolicy.sanToCNDefaultImpl.name=SAN to CN Default
-```
-
-**Note:** Restart the server to enable the policy.
-
 ## Installing ACME Profile
 
 The acmeServerCert.cfg is a sample profile for generating server certificates via ACME responder.
