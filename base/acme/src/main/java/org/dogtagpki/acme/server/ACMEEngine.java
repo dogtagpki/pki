@@ -785,16 +785,14 @@ public class ACMEEngine implements ServletContextListener {
             logger.info("Order ID: " + order.getID());
 
             // check order ownership
-            if (!order.getAccountID().equals(account.getID())) {
-                // TODO: generate proper exception
-                throw new Exception("Account did not issue the certificate");
+            if (order.getAccountID().equals(account.getID())) {
+                // No need to check order status since it's guaranteed to be valid.
+                // No need to check order expiration since it's irrelevant for revocation.
+                logger.info("Account issued the certificate; revocation OK");
+                return;
+            } else {
+                logger.info("Account did not issue the certificate");
             }
-
-            // No need to check order status since it's guaranteed to be valid.
-            // No need to check order expiration since it's irrelevant for revocation.
-
-            logger.info("Account issued the certificate");
-            return;
         }
 
         // Case 2: validate using authorization records (if available)
