@@ -52,7 +52,7 @@ class ACMECreateCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'database=', 'backend=',
+                'instance=', 'database=', 'issuer=',
                 'force',
                 'verbose', 'debug', 'help'])
 
@@ -118,10 +118,10 @@ class ACMECreateCLI(pki.cli.CLI):
         logging.info('Creating %s', validators_conf)
         instance.copy(validators_template, validators_conf, force=force)
 
-        backend_template = os.path.join(acme_share_dir, 'conf', 'backend.json')
-        backend_conf = os.path.join(acme_conf_dir, 'backend.json')
-        logging.info('Creating %s', backend_conf)
-        instance.copy(backend_template, backend_conf, force=force)
+        issuer_template = os.path.join(acme_share_dir, 'conf', 'issuer.json')
+        issuer_conf = os.path.join(acme_conf_dir, 'issuer.json')
+        logging.info('Creating %s', issuer_conf)
+        instance.copy(issuer_template, issuer_conf, force=force)
 
 
 class ACMERemoveCLI(pki.cli.CLI):
