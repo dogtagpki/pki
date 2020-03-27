@@ -60,8 +60,11 @@ class PKISubsystem(object):
 
         self.conf_dir = os.path.join(self.base_dir, 'conf')
         self.cs_conf = os.path.join(self.conf_dir, 'CS.cfg')
+        self.registry_conf = os.path.join(self.conf_dir, 'registry.cfg')
 
         self.config = {}
+        self.registry = {}
+
         self.type = None  # e.g. CA, KRA
         self.prefix = None  # e.g. ca, kra
 
@@ -121,6 +124,12 @@ class PKISubsystem(object):
 
             self.type = self.config['cs.type']
             self.prefix = self.type.lower()
+
+        self.registry.clear()
+
+        if os.path.exists(self.registry_conf):
+            logger.info('Loading subsystem registry: %s', self.registry_conf)
+            pki.util.load_properties(self.registry_conf, self.registry)
 
     def find_system_certs(self):
 
@@ -334,6 +343,9 @@ class PKISubsystem(object):
 
         logger.info('Storing subsystem config: %s', self.cs_conf)
         pki.util.store_properties(self.cs_conf, self.config)
+
+        logger.info('Storing registry config: %s', self.registry_conf)
+        pki.util.store_properties(self.registry_conf, self.registry)
 
     def is_valid(self):
         return os.path.exists(self.conf_dir)
@@ -962,14 +974,6 @@ class CASubsystem(PKISubsystem):
 
     def __init__(self, instance):
         super(CASubsystem, self).__init__(instance, 'ca')
-
-    def load_profile_registry(self):
-
-        registry = {}
-        registry_conf = os.path.join(self.conf_dir, 'registry.cfg')
-        pki.util.load_properties(registry_conf, registry)
-
-        return registry
 
     def get_profile_configs(self):
 
