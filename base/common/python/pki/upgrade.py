@@ -486,12 +486,14 @@ class PKIUpgrader(object):
             scriptlet.upgrader = self
             scriptlet.version = version
             scriptlet.index = index
-            scriptlet.last = index == len(filenames)
 
             scriptlets.append(scriptlet)
 
         # sort scriptlets based on index
         scriptlets.sort()
+
+        if scriptlets:
+            scriptlets[-1].last = True
 
         return scriptlets
 
