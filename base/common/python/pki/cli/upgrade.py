@@ -42,7 +42,6 @@ def interrupt_handler(event, frame):
 def usage():
     print('Usage: pki-upgrade [OPTIONS]')
     print()
-    print('  --silent                       Upgrade in silent mode.')
     print('  --status                       Show upgrade status only. Do not perform upgrade.')
     print('  --revert                       Revert the last version.')
     print('  --validate                     Validate upgrade status.')
@@ -72,7 +71,7 @@ def main(argv):
     try:
         opts, _ = getopt.getopt(argv[1:], 'hi:s:t:vX', [
             'scriptlet-version=', 'scriptlet-index=',
-            'silent', 'status', 'revert', 'validate',
+            'status', 'revert', 'validate',
             'remove-tracker', 'reset-tracker', 'set-tracker=',
             'verbose', 'debug', 'help'])
 
@@ -84,7 +83,6 @@ def main(argv):
     scriptlet_version = None
     scriptlet_index = None
 
-    silent = False
     status = False
     revert = False
     validate = False
@@ -100,9 +98,6 @@ def main(argv):
 
         elif o == '--scriptlet-index':
             scriptlet_index = int(a)
-
-        elif o == '--silent':
-            silent = True
 
         elif o == '--status':
             status = True
@@ -149,8 +144,7 @@ def main(argv):
 
     upgrader = pki.upgrade.PKIUpgrader(
         version=scriptlet_version,
-        index=scriptlet_index,
-        silent=silent)
+        index=scriptlet_index)
 
     if status:
         upgrader.status()

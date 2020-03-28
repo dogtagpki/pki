@@ -913,7 +913,7 @@ then
 else
     # On RPM upgrade run system upgrade
     echo "Upgrading PKI system configuration at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
-    /sbin/pki-upgrade --silent >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+    /sbin/pki-upgrade >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
     echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
 fi
 
@@ -936,7 +936,7 @@ fi
 ##        PKI deployment process
 
 echo "Upgrading PKI server configuration on `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
-/sbin/pki-server upgrade --silent >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+/sbin/pki-server upgrade >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 
 # Reload systemd daemons on upgrade only

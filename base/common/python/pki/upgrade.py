@@ -248,15 +248,7 @@ class PKIUpgradeScriptlet(object):
                 logger.error(e)
 
             message = 'Failed upgrading system.'
-            if self.upgrader.silent:
-                print(message)
-            else:
-                result = pki.util.read_text(
-                    message + ' Continue (Yes/No)',
-                    options=['Y', 'N'], default='Y', delimiter='?',
-                    case_sensitive=False).lower()
-                if result == 'y':
-                    return
+            print(message)
 
             raise pki.PKIException('Upgrade failed: %s' % e, e)
 
@@ -379,14 +371,11 @@ class PKIUpgradeScriptlet(object):
 
 class PKIUpgrader(object):
 
-    def __init__(self, upgrade_dir=UPGRADE_DIR, version=None, index=None,
-                 silent=False):
+    def __init__(self, upgrade_dir=UPGRADE_DIR, version=None, index=None):
 
         self.upgrade_dir = upgrade_dir
         self.version = version
         self.index = index
-
-        self.silent = silent
 
         if version and not os.path.exists(self.version_dir(version)):
             raise pki.PKIException(
@@ -569,19 +558,7 @@ class PKIUpgrader(object):
         for scriptlet in scriptlets:
 
             message = str(scriptlet.index) + '. ' + scriptlet.message
-
-            if self.silent:
-                print(message)
-
-            else:
-                result = pki.util.read_text(
-                    message + ' (Yes/No)',
-                    options=['Y', 'N'],
-                    default='Y',
-                    case_sensitive=False).lower()
-
-                if result == 'n':
-                    raise pki.PKIException('Upgrade canceled.')
+            print(message)
 
             try:
                 scriptlet.init()
@@ -635,18 +612,7 @@ class PKIUpgrader(object):
         for scriptlet in scriptlets:
 
             message = str(scriptlet.index) + '. ' + scriptlet.message
-
-            if self.silent:
-                print(message)
-
-            else:
-                result = pki.util.read_text(
-                    message + ' (Yes/No)',
-                    options=['Y', 'N'], default='Y',
-                    case_sensitive=False).lower()
-
-                if result == 'n':
-                    raise pki.PKIException('Revert canceled.')
+            print(message)
 
             try:
                 scriptlet.revert()

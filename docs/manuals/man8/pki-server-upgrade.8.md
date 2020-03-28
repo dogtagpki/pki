@@ -65,9 +65,6 @@ The file stores the current configuration version and the last successful script
 
 ### General options
 
-**--silent**  
-    Upgrade in silent mode.
-
 **--status**  
     Show upgrade status only **without** performing the upgrade.
 
@@ -117,31 +114,17 @@ scriptlet order or changing the tracker information.
 
 ## OPERATIONS
 
-### Interactive mode
+### Upgrade process
 
-By default, **pki-server upgrade** will run interactively to upgrade all server instances and subsystems on the machine.
-It will ask for a confirmation before executing each scriptlet.
+To start the upgrade process:
 
 ```
 $ pki-server upgrade
 ```
 
-If there is an error, it will stop and show the error.
+### Upgrade status
 
-### Silent mode
-
-The upgrade process can also be done silently without user interaction:
-
-```
-$ pki-server upgrade --silent
-```
-
-If there is an error, the upgrade process will stop for that particular instance/subsystem.
-Other instances/subsystems will continue to be upgraded.
-
-### Checking upgrade status
-
-It is possible to check the status of a running upgrade process.
+To check the upgrade status:
 
 ```
 $ pki-server upgrade --status

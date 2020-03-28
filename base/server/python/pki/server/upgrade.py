@@ -96,15 +96,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                     logger.error(e)
 
                 message = 'Failed upgrading ' + str(instance) + ' instance.'
-                if self.upgrader.silent:
-                    print(message)
-                else:
-                    result = pki.util.read_text(
-                        message + ' Continue (Yes/No)',
-                        options=['Y', 'N'], default='Y',
-                        delimiter='?', case_sensitive=False).lower()
-                    if result == 'y':
-                        continue
+                print(message)
 
                 raise pki.server.PKIServerException(
                     'Upgrade failed in %s: %s' % (instance, e), e, instance)
@@ -132,15 +124,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                     logger.error(e)
 
                 message = 'Failed upgrading ' + str(subsystem) + ' subsystem.'
-                if self.upgrader.silent:
-                    print(message)
-                else:
-                    result = pki.util.read_text(
-                        message + ' Continue (Yes/No)',
-                        options=['Y', 'N'], default='Y',
-                        delimiter='?', case_sensitive=False).lower()
-                    if result == 'y':
-                        continue
+                print(message)
 
                 raise pki.server.PKIServerException(
                     'Upgrade failed in %s: %s' % (subsystem, e),
@@ -159,9 +143,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def __init__(self, instanceName=None, instance_version=None,  # noqa: N803
                  subsystemName=None, upgrade_dir=UPGRADE_DIR,  # noqa: N803
-                 version=None, index=None, silent=False):
+                 version=None, index=None):
         super(PKIServerUpgrader, self).__init__(
-            upgrade_dir, version, index, silent)
+            upgrade_dir, version, index)
 
         if subsystemName and not instanceName:
             raise pki.PKIException(
