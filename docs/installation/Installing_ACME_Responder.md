@@ -14,24 +14,6 @@ It assumes that the CA was [installed](Installing_CA.md) with the default instan
 * The API, configuration, or the database may change in the future.
 * There may be no easy upgrade path to the future version.
 
-## Installing ACME Profile
-
-The acmeServerCert.cfg is a sample profile for generating server certificates via ACME responder.
-
-This profile is currently not installed by default in the CA, so it needs to be added and enabled manually.
-
-To add the profile, execute the following command:
-
-```
-$ pki -u caadmin -w Secret.123 ca-profile-add /usr/share/pki/ca/profiles/acmeServerCert.cfg --raw
-```
-
-To enable the profile, execute the following command:
-
-```
-$ pki -u caadmin -w Secret.123 ca-profile-enable acmeServerCert
-```
-
 ## Installing ACME Responder
 
 To install the ACME responder on PKI server, execute the following command:
