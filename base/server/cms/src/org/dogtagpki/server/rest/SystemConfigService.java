@@ -279,6 +279,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("No data for '" + tag + "' was found!");
             }
 
+            CMS.debug("=== Processing SystemCertData.keyAlgorithm: " + certData.getKeyAlgorithm() + " SystemCertData.signingAlgorithm: " + certData.getSigningAlgorithm());
+
             String tokenName = certData.getToken() != null ? certData.getToken() : token;
 
             if (!generateServerCert && tag.equals("sslserver")) {
@@ -326,6 +328,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         String tag = certData.getTag();
         CMS.debug("SystemConfigService.processKeyPair(" + tag + ")");
+        CMS.debug("SystemConfigService.processKeyPair: keyalgorithm: " + certData.getKeyAlgorithm() + " signingalgorithm: " + certData.getSigningAlgorithm());
 
         String keytype = certData.getKeyType() != null ? certData.getKeyType() : "rsa";
 

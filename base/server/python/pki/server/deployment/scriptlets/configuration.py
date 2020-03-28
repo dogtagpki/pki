@@ -1294,8 +1294,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 PKISPAWN_STARTUP_TIMEOUT_SECONDS, secure_connection=False)
 
         else:
+            # must for now have non secure conn in case of PSS signature
             status = deployer.instance.wait_for_startup(
-                PKISPAWN_STARTUP_TIMEOUT_SECONDS, secure_connection=True)
+                PKISPAWN_STARTUP_TIMEOUT_SECONDS, secure_connection=False)
 
         if not status:
             config.pki_log.error(

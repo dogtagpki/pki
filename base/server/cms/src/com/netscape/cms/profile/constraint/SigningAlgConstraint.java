@@ -21,10 +21,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
@@ -38,6 +34,10 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.SigningAlgDefault;
 import com.netscape.cms.profile.def.UserSigningAlgDefault;
+
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements the signing algorithm constraint.
@@ -114,6 +114,7 @@ public class SigningAlgConstraint extends EnrollConstraint {
 
         try {
             algId = (CertificateAlgorithmId) info.get(X509CertInfo.ALGORITHM_ID);
+            CMS.debug("validate: algId: " + algId);
             AlgorithmId id = (AlgorithmId)
                     algId.get(CertificateAlgorithmId.ALGORITHM);
 
@@ -123,11 +124,11 @@ public class SigningAlgConstraint extends EnrollConstraint {
 
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
-
                 mCache.addElement(token);
             }
 
-            if (!mCache.contains(id.toString())) {
+            if (!mCache.contains(id.getName())) {
+                CMS.debug("validate: id.toString: " + id.toString());
                 throw new ERejectException(CMS.getUserMessage(
                             getLocale(request),
                             "CMS_PROFILE_SIGNING_ALGORITHM_NOT_MATCHED", id.toString()));

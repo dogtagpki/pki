@@ -2970,6 +2970,8 @@ public class ConfigurationUtils {
         String pubKeyType = config.getString(PCERT_PREFIX + certTag + ".keytype");
         String algorithm = config.getString(PCERT_PREFIX + certTag + ".keyalgorithm");
 
+        CMS.debug("generateCertRequest: signing alg: " + algorithm);
+
         X509Key pubk;
         if (pubKeyType.equals("rsa")) {
             pubk = getRSAX509Key(config, certTag);

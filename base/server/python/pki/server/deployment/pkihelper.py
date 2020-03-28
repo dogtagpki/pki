@@ -3968,6 +3968,14 @@ class ConfigClient:
             else:
                 data.isClone = "false"
 
+        # Set suggestion to use PSS for RSA signuature
+
+        data.usePSSForRSASigningAlg = \
+            self.mdict['pki_use_pss_rsa_signing_algorithm']
+            
+        if data.usePSSForRSASigningAlg == "True":
+            self.set_signing_algs_for_pss(data)
+            
         # Hierarchy
         self.set_hierarchy_parameters(data)
 
@@ -4151,6 +4159,8 @@ class ConfigClient:
             cert3 = self.create_system_cert("sslserver")
             # Load the Stand-alone PKI 'SSL Server Certificate' (Step 2)
             self.load_system_cert(nssdb, cert3)
+            cert3.signingAlgorithm = \
+                self.mdict['pki_sslserver_signing_algorithm']
             systemCerts.append(cert3)
         elif len(system_list) >= 2:
             # Existing PKI Instance
@@ -4160,6 +4170,8 @@ class ConfigClient:
                     subsystem.lower() + '/CS.cfg'
                 if subsystem != self.subsystem and os.path.exists(dst):
                     cert3 = self.retrieve_existing_server_cert(dst)
+                    cert3.signingAlgorithm = \
+                        self.mdict['pki_sslserver_signing_algorithm']
                     systemCerts.append(cert3)
                     break
         else:
@@ -4167,6 +4179,8 @@ class ConfigClient:
             # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone,
             # Subordinate CA, or External CA
             cert3 = self.create_system_cert("sslserver")
+            cert3.signingAlgorithm = \
+                self.mdict['pki_sslserver_signing_algorithm'] 
             systemCerts.append(cert3)
 
         # Create 'Subsystem Certificate'
@@ -4177,6 +4191,8 @@ class ConfigClient:
                 cert4 = self.create_system_cert("subsystem")
                 # Load the Stand-alone PKI 'Subsystem Certificate' (Step 2)
                 self.load_system_cert(nssdb, cert4)
+                cert4.signingAlgorithm = \
+                    self.mdict['pki_subsystem_signing_algorithm']
                 systemCerts.append(cert4)
             elif len(system_list) >= 2:
                 # Existing PKI Instance
@@ -4186,6 +4202,8 @@ class ConfigClient:
                         subsystem.lower() + '/CS.cfg'
                     if subsystem != self.subsystem and os.path.exists(dst):
                         cert4 = self.retrieve_existing_subsystem_cert(dst)
+                        cert4.signingAlgorithm = \
+                            self.mdict['pki_subsystem_signing_algorithm']
                         systemCerts.append(cert4)
                         break
             else:
@@ -4193,6 +4211,8 @@ class ConfigClient:
                 # Subordinate CA, or External CA
                 data.generateSubsystemCert = "true"
                 cert4 = self.create_system_cert("subsystem")
+                cert4.signingAlgorithm = \
+                    self.mdict['pki_subsystem_signing_algorithm']
                 systemCerts.append(cert4)
 
         # Create 'Audit Signing Certificate'
@@ -4220,18 +4240,28 @@ class ConfigClient:
                 cert6 = self.create_system_cert("transport")
                 # Load the Stand-alone PKI KRA 'Transport Certificate' (Step 2)
                 self.load_system_cert(nssdb, cert6)
+                cert6.signingAlgorithm = \
+                    self.mdict['pki_transport_signing_algorithm']
                 systemCerts.append(cert6)
                 # Stand-alone PKI KRA Storage Certificate (Step 2)
                 cert7 = self.create_system_cert("storage")
                 # Load the Stand-alone PKI KRA 'Storage Certificate' (Step 2)
                 self.load_system_cert(nssdb, cert7)
+                cert7.signingAlgorithm = \
+                    self.mdict['pki_storage_signing_algorithm']
+
                 systemCerts.append(cert7)
             elif self.subsystem == "KRA":
                 # PKI KRA Transport Certificate
                 cert6 = self.create_system_cert("transport")
+                cert6.signingAlgorithm = \
+                    self.mdict['pki_transport_signing_algorithm']
+
                 systemCerts.append(cert6)
                 # PKI KRA Storage Certificate
                 cert7 = self.create_system_cert("storage")
+                cert7.signingAlgorithm = \
+                    self.mdict['pki_storage_signing_algorithm']
                 systemCerts.append(cert7)
 
         data.systemCerts = systemCerts
@@ -4487,6 +4517,88 @@ class ConfigClient:
             cert.san_for_server_cert = \
                 self.mdict['pki_san_for_server_cert']
         return cert
+    
+    def set_signing_algs_for_pss(self,data):
+        #We know that the use pss flag is true.
+        #Only modify SHAXXXwithRSA series of algs for PSS.
+        if ('pki_admin_key_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_admin_key_algorithm'] and
+                'PSS' not in self.mdict['pki_admin_key_algorithm']):
+                self.mdict['pki_admin_key_algorithm'] = \
+                    self.mdict['pki_admin_key_algorithm'] + '/PSS'
+        if ('pki_audit_signing_key_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_audit_signing_key_algorithm'] and
+                'PSS' not in self.mdict['pki_audit_signing_key_algorithm']):
+                self.mdict['pki_audit_signing_key_algorithm'] = \
+                    self.mdict['pki_audit_signing_key_algorithm'] + '/PSS'
+        if ('pki_audit_signing_signing_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_audit_signing_signing_algorithm'] and
+                'PSS' not in self.mdict['pki_audit_signing_signing_algorithm']):
+                self.mdict['pki_audit_signing_signing_algorithm'] = \
+                    self.mdict['pki_audit_signing_signing_algorithm'] + '/PSS'
+        if ('pki_ca_signing_key_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_ca_signing_key_algorithm'] and
+                'PSS' not in self.mdict['pki_ca_signing_key_algorithm']):
+                self.mdict['pki_ca_signing_key_algorithm'] = \
+                    self.mdict['pki_ca_signing_key_algorithm'] + '/PSS'
+        if ('pki_ca_signing_signing_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_ca_signing_signing_algorithm'] and
+                'PSS' not in self.mdict['pki_ca_signing_signing_algorithm']):
+                self.mdict['pki_ca_signing_signing_algorithm'] = \
+                    self.mdict['pki_ca_signing_signing_algorithm'] + '/PSS'
+        if ('pki_ocsp_signing_key_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_ocsp_signing_key_algorithm'] and
+                'PSS' not in self.mdict['pki_ocsp_signing_key_algorithm']):
+                self.mdict['pki_ocsp_signing_key_algorithm'] = \
+                    self.mdict['pki_ocsp_signing_key_algorithm'] + '/PSS'
+        if ('pki_ocsp_signing_signing_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_ocsp_signing_signing_algorithm'] and
+                'PSS' not in self.mdict['pki_ocsp_signing_signing_algorithm']):
+                self.mdict['pki_ocsp_signing_signing_algorithm'] = \
+                    self.mdict['pki_ocsp_signing_signing_algorithm'] + '/PSS'
+        if ('pki_transport_signing_algorithm' in self.mdict):
+            if ('pki_transport_signing_algorithm' in self.mdict):
+                if ('RSA' in self.mdict['pki_transport_signing_algorithm'] and
+                    'PSS' not in self.mdict['pki_transport_signing_algorithm']):
+                    self.mdict['pki_transport_signing_algorithm'] = \
+                        self.mdict['pki_transport_signing_algorithm'] + '/PSS'
+        if ('pki_transport_key_algorithm' in self.mdict):
+            if ('pki_transport_key_algorithm' in self.mdict):
+                if ('RSA' in self.mdict['pki_transport_key_algorithm'] and
+                    'PSS' not in self.mdict['pki_transport_key_algorithm']):
+                    self.mdict['pki_transport_key_algorithm'] = \
+                        self.mdict['pki_transport_key_algorithm'] + '/PSS'
+        if ('pki_sslserver_key_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_sslserver_key_algorithm'] and
+                'PSS' not in self.mdict['pki_sslserver_key_algorithm']):
+                self.mdict['pki_sslserver_key_algorithm'] = \
+                    self.mdict['pki_sslserver_key_algorithm'] + '/PSS'
+        if ('pki_sslserver_signing_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_sslserver_signing_algorithm'] and
+                'PSS' not in self.mdict['pki_sslserver_signing_algorithm']):
+                self.mdict['pki_sslserver_signing_algorithm'] = \
+                    self.mdict['pki_sslserver_signing_algorithm'] + '/PSS'
+        if ('pki_storage_signing_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_storage_signing_algorithm'] and
+                'PSS' not in self.mdict['pki_storage_signing_algorithm']):
+                self.mdict['pki_storage_signing_algorithm'] = \
+                    self.mdict['pki_storage_signing_algorithm'] + '/PSS'
+        if ('pki_storage_key_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_storage_key_algorithm'] and
+                'PSS' not in self.mdict['pki_storage_key_algorithm']):
+                self.mdict['pki_storage_key_algorithm'] = \
+                    self.mdict['pki_storage_key_algorithm'] + '/PSS'
+        if ('pki_subsystem_key_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_subsystem_key_algorithm'] and
+                'PSS' not in self.mdict['pki_subsystem_key_algorithm']):
+                self.mdict['pki_subsystem_key_algorithm'] = \
+                    self.mdict['pki_subsystem_key_algorithm'] + '/PSS'
+        if ('pki_subsystem_signing_algorithm' in self.mdict):
+            if ('RSA' in self.mdict['pki_subsystem_signing_algorithm'] and
+                'PSS' not in self.mdict['pki_subsystem_signing_algorithm']):
+                self.mdict[''] = \
+                    self.mdict['pki_subsystem_signing_algorithm'] + '/PSS'
+                    
 
     def retrieve_existing_server_cert(self, cfg_file):
         cs_cfg = PKIConfigParser.read_simple_configuration_file(cfg_file)

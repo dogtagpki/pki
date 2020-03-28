@@ -22,6 +22,10 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.AlgorithmParameters;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.spec.InvalidParameterSpecException;
+import java.security.spec.MGF1ParameterSpec;
+import java.security.spec.PSSParameterSpec;
 
 import netscape.security.util.DerEncoder;
 import netscape.security.util.DerInputStream;
@@ -63,7 +67,9 @@ public class AlgorithmId implements Serializable, DerEncoder {
     private ObjectIdentifier algid = null;
 
     // The (parsed) parameters
-    private AlgorithmParameters algParams;
+    private AlgorithmParameters algParams = null;
+    // Use this for the various flavors of the RSA PSS alg.
+    private String cachedAlgName = null;
 
     /**
      * Parameters for this algorithm. These are stored in unparsed
@@ -97,11 +103,13 @@ public class AlgorithmId implements Serializable, DerEncoder {
     public static AlgorithmId get(String algname)
             throws NoSuchAlgorithmException {
         ObjectIdentifier oid = algOID(algname);
-
         if (oid == null)
             throw new NoSuchAlgorithmException("unrecognized algorithm name: " + algname);
-
-        return new AlgorithmId(oid);
+        try {
+            return new AlgorithmId(oid,algname);
+        } catch (Exception e) {
+            throw new NoSuchAlgorithmException(e);
+        }
     }
 
     /**
@@ -150,7 +158,11 @@ public class AlgorithmId implements Serializable, DerEncoder {
                 !algid.equals(sha512WithEC_oid)) {
             alg = new AlgorithmId(algid, params);
         } else {
-            alg = new AlgorithmId(algid);
+            try {
+                alg = new AlgorithmId(algid);
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
         }
         if (params != null)
             alg.decodeParams();
@@ -177,12 +189,83 @@ public class AlgorithmId implements Serializable, DerEncoder {
     }
 
     /**
-     * Constructs a parameterless algorithm ID.
+     * Constructs an algorithm ID with a fully encoded params object
+     * @ param oid the identifier for the algorithm
+     * @ param params the fully encoded AlgorithmIdentifier Object
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     */
+    public AlgorithmId(ObjectIdentifier oid, AlgorithmParameters params)
+        throws IOException, NoSuchAlgorithmException {
+        algid = oid;
+        algParams = params;
+
+        if(algParams == null) {
+            throw new NoSuchAlgorithmException("AlgorithmId: unsupported Alg Params.");
+        }
+        this.params = new DerValue(algParams.getEncoded());
+    }
+
+    /**
+     * Constructor that takes the oid and name, so the name can be cachedf or laster use.
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     *
+     */
+    public AlgorithmId(ObjectIdentifier oid, String algName) 
+        throws  IOException, NoSuchAlgorithmException {
+        algid = oid;
+        cachedAlgName = algName;
+        /* Create the params if our algorithm is RSA PSS related */
+        if (algName != null && algName.contains("PSS")) {
+            this.algParams = getPSSParams(algName);
+            this.params = new DerValue(this.algParams.getEncoded());
+        }
+    }
+
+    /**
+     * Constructs an  algorithm ID with possible RSAPSS params.
      *
      * @param oid the identifier for the algorithm
      */
     public AlgorithmId(ObjectIdentifier oid) {
         algid = oid;
+        String algName = algName();
+
+        /* Create the params if our algorithm is RSA PSS related */
+        if (algName != null && algName.contains("PSS")) {
+            try {
+                this.algParams = getPSSParams(algName);
+
+                if (this.algParams != null) {
+                    try {
+                        this.params = new DerValue(this.algParams.getEncoded());
+                    } catch (IOException e) {
+                        throw new IOException(e);
+                    }
+                }
+            } catch (Exception e) {
+                //Preserve original signature...
+                System.out.println("Unable to create pssPrams in Algorithmid(ObjectIdentifier oid");
+                this.algParams = null;
+            }
+        }
+    }
+
+    private AlgorithmParameters getPSSParams(String algName)
+            throws NoSuchAlgorithmException, IOException {
+        cachedAlgName = algName;
+
+        AlgorithmParameters ret = null;
+        /* Create the params if our algorithm is RSA PSS related */
+        try {
+            ret = createPSSAlgorithmParameters(algName);
+        } catch (Exception e) {
+            throw new NoSuchAlgorithmException(e);
+        }
+
+        return ret;
+
     }
 
     private AlgorithmId(ObjectIdentifier oid, DerValue params)
@@ -204,8 +287,17 @@ public class AlgorithmId implements Serializable, DerEncoder {
 
     protected void decodeParams() throws IOException {
         try {
-            this.algParams = AlgorithmParameters.getInstance
-                    (this.algid.toString());
+
+            if (algid.equals(AlgorithmId.rsaPSS_oid)) {
+                try {
+                    this.algParams = createPSSAlgorithmParametersFromData(this.params.toByteArray());
+                    return;
+                } catch (Exception e) {
+                    throw new IOException(e);
+                }
+            } else {
+                this.algParams = AlgorithmParameters.getInstance(this.algid.toString());
+            }
         } catch (NoSuchAlgorithmException e) {
             /*
              * This algorithm parameter type is not supported, so we cannot
@@ -229,7 +321,6 @@ public class AlgorithmId implements Serializable, DerEncoder {
     /**
      * DER encode this object onto an output stream.
      * Implements the <code>DerEncoder</code> interface.
-     *
      * @param out
      *            the output stream on which to write the DER encoding.
      *
@@ -255,6 +346,47 @@ public class AlgorithmId implements Serializable, DerEncoder {
             out.write(tmp.toByteArray());
         }
     }
+
+    /**
+     * DER encode this object onto an output stream.
+     * Implements the <code>DerEncoder</code> interface.
+     *
+     * @param out
+     *            the output stream on which to write the DER encoding params,using context value.
+     *
+     * @exception IOException on encoding error.
+     */
+    public void derEncodeWithContext(OutputStream out,int contextVal) throws IOException {
+        try (DerOutputStream tmp = new DerOutputStream()) {
+            DerOutputStream bytes = new DerOutputStream();
+            bytes.putOID(algid);
+
+            byte val = (byte) contextVal;
+            // omit parameter field for ECDSA
+            if (!algid.equals(sha224WithEC_oid) &&
+                    !algid.equals(sha256WithEC_oid) &&
+                    !algid.equals(sha384WithEC_oid) &&
+                    !algid.equals(sha512WithEC_oid)) {
+                if (params == null) {
+                    bytes.putNull();
+                } else
+                    bytes.putDerValue(params);
+            }
+
+            DerOutputStream seq = new DerOutputStream();
+
+            seq.write(DerValue.tag_Sequence, bytes);
+
+            tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT,
+                                             true, val), seq);
+
+
+
+            out.write(tmp.toByteArray());
+        }
+    }
+
+
 
     // XXXX cleaning required
     /**
@@ -369,6 +501,8 @@ public class AlgorithmId implements Serializable, DerEncoder {
         if (name.equals("SHAwithDSA") || name.equals("SHA1withDSA")
                 || name.equals("SHA/DSA") || name.equals("SHA1/DSA"))
             return AlgorithmId.sha1WithDSA_oid;
+        if (name.equals("SHA256withRSA/PSS") || name.equals("SHA384withRSA/PSS") || name.equals("SHA512withRSA/PSS"))
+            return AlgorithmId.rsaPSS_oid;
 
         return null;
     }
@@ -385,7 +519,6 @@ public class AlgorithmId implements Serializable, DerEncoder {
      */
     private String algName() {
         // Common message digest algorithms
-
         if (algid.equals(AlgorithmId.MD5_oid))
             return "MD5"; // RFC 1423
         if (algid.equals(AlgorithmId.MD2_oid))
@@ -398,6 +531,28 @@ public class AlgorithmId implements Serializable, DerEncoder {
             return "SHA384";
         if (algid.equals(AlgorithmId.SHA512_oid))
             return "SHA512";
+
+        if (algid.equals(AlgorithmId.rsaPSS_oid)) {
+            if (cachedAlgName != null) {
+                return cachedAlgName;
+            }
+            // Get alg variant from params info
+            String paramStr = paramsToString();
+            if (paramStr != null && paramStr.contains("HashAlg: SHA-")) {
+                if (paramStr.contains("HashAlg: SHA-256"))
+                    cachedAlgName = "SHA256withRSA/PSS";
+                else if (paramStr.contains("HashAlg: SHA-384"))
+                    cachedAlgName = "SHA384withRSA/PSS";
+                else if (paramStr.contains("HashAlg: SHA-512"))
+                    cachedAlgName = "SHA512withRSA/PSS";
+                else
+                    cachedAlgName = "SHA256withRSA/PSS";
+
+                return cachedAlgName;
+            }
+            cachedAlgName = "SHA256withRSA/PSS";
+            return cachedAlgName;
+        }
 
         // Common key types
 
@@ -472,7 +627,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * Returns a string describing the algorithm and its parameters.
      */
     public String toString() {
-        return (algName() + paramsToString());
+        return (algName() + " " + paramsToString());
     }
 
     /**
@@ -552,7 +707,64 @@ public class AlgorithmId implements Serializable, DerEncoder {
         return algid.equals(id);
     }
 
+    public static AlgorithmParameters createPSSAlgorithmParametersFromData(byte[] der) throws Exception {
+        if (der == null) {
+            throw new Exception("Invalid input data.");
+        }
+        AlgorithmParameters pssParams = null;
+        try {
+            pssParams = AlgorithmParameters.getInstance("RSAPSSAlgorithmParameters", "Mozilla-JSS");
+        } catch (NoSuchProviderException e) {
+            throw new Exception(e);
+        }
 
+        try {
+            pssParams.init(der);
+        } catch (IOException e) {
+            throw new Exception("Error intializing RSAPSS parameters: " + e);
+        }
+        return pssParams;
+    }
+    /* Used to create the PSS algorithm params needed for RSA PSS signatures
+     * for now only support the RSAPSS algoritm with the SHA256 digest
+     * this can be extended to support SHA384 and 512 PSS digests.
+    */
+    public static AlgorithmParameters createPSSAlgorithmParameters(String algName) throws Exception {
+        if (algName == null) {
+            throw new Exception("Invalid Algorithm name input.");
+        }
+        AlgorithmParameters pssParams = null;
+        PSSParameterSpec pssSpec = null;
+        // Make sure we are in the RSA PSS family
+        
+        if (!algName.contains("PSS")) {
+           throw new Exception("PSS Algorithm name not supported.");
+        }
+
+        //Only support for now RSAPSS with SHA256 , 384, and 512
+        //Resulting in different PSSParameterSpec values
+        if ("SHA256withRSA/PSS".equals(algName)) {
+            // Support the most often used SHA-256 hash alg version .
+            pssSpec = new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1);
+        } else if ("SHA384withRSA/PSS".equals(algName)) {
+            pssSpec = new PSSParameterSpec("SHA-384", "MGF1", MGF1ParameterSpec.SHA384, 48, 1);
+
+        } else if ("SHA384withRSA/PSS".equals(algName)) {
+            pssSpec = new PSSParameterSpec("SHA-512", "MGF1", MGF1ParameterSpec.SHA512, 64, 1);
+        }
+        try {
+            pssParams = AlgorithmParameters.getInstance("RSAPSSAlgorithmParameters", "Mozilla-JSS");
+        } catch (NoSuchProviderException e) {
+            throw new Exception(e);
+        }
+        try {
+            pssParams.init(pssSpec);
+        } catch (InvalidParameterSpecException e) {
+            throw new Exception("Error intializing RSAPSS parameters: " + e);
+        }
+
+        return pssParams;
+    }
 
     /*****************************************************************/
 
@@ -566,7 +778,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
     private static final int SHA256_data[] = { 2, 16, 840, 1, 101, 3, 4, 2, 1 };
     private static final int SHA384_data[] = { 2, 16, 840, 1, 101, 3, 4, 2, 2 };
     private static final int SHA512_data[] = { 2, 16, 840, 1, 101, 3, 4, 2, 3 };
-
+    private static final int MGF1_data[] = { 1,2,840,113549,1,1,8 };
     /**
      * Algorithm ID for the MD2 Message Digest Algorthm, from RFC 1319.
      * OID = 1.2.840.113549.2.2
@@ -592,6 +804,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
 
     public static final ObjectIdentifier SHA512_oid = new ObjectIdentifier(SHA512_data);
 
+    public static final ObjectIdentifier MGF1_oid = new ObjectIdentifier(MGF1_data);
     /*
      * COMMON PUBLIC KEY TYPES
      */
@@ -702,6 +915,10 @@ public class AlgorithmId implements Serializable, DerEncoder {
     private static final int dsaWithSHA1_PKIX_data[] =
                                    { 1, 2, 840, 10040, 4, 3 };
 
+    private static final int rsaPSS_data[] =
+                                   { 1, 2, 840, 113549, 1, 1, 10 };
+
+
     public static final ObjectIdentifier sha1WithEC_oid = new
             ObjectIdentifier(sha1WithEC_data);
 
@@ -716,6 +933,10 @@ public class AlgorithmId implements Serializable, DerEncoder {
 
     public static final ObjectIdentifier sha512WithEC_oid = new
             ObjectIdentifier(sha512WithEC_data);
+
+
+    public static final ObjectIdentifier rsaPSS_oid = new
+            ObjectIdentifier(rsaPSS_data);
 
     /**
      * Identifies a signing algorithm where an MD2 digest is encrypted
@@ -798,7 +1019,8 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * Supported signing algorithms for a RSA key.
      */
     public static final String[] RSA_SIGNING_ALGORITHMS = new String[]
-    { "SHA256withRSA", "SHA384withRSA", "SHA512withRSA", "SHA1withRSA" };
+    { "SHA256withRSA", "SHA384withRSA", "SHA512withRSA", "SHA1withRSA","SHA256withRSA/PSS","SHA384withRSA/PSS","SHA512withRSA/PSS"
+    };
 
     public static final String[] EC_SIGNING_ALGORITHMS = new String[]
     { "SHA256withEC", "SHA384withEC", "SHA512withEC", "SHA1withEC" };
@@ -808,7 +1030,24 @@ public class AlgorithmId implements Serializable, DerEncoder {
      */
     public static final String[] ALL_SIGNING_ALGORITHMS = new String[]
     {
-            "SHA256withRSA", "SHA384withRSA", "SHA512withRSA", "SHA1withRSA",
+            "SHA256withRSA", "SHA384withRSA", "SHA512withRSA", "SHA1withRSA","SHA256withRSA/PSS","SHA384withRSA/PSS","SHA5121withRSA/PSS",
             "SHA256withEC", "SHA384withEC", "SHA512withEC", "SHA1withEC" };
 
+    public static void dumpBytes(byte[] data)
+    {
+        String newLine = System.getProperty("line.separator");
+        System.out.println(newLine + "Byte Array Contents: " + newLine);
+        String line = "";
+        for (int i = 0; i < data.length; i++) {
+            int val = data[i] & 0xff;
+            line += Integer.toHexString(val) + " ";
+            if (((i % 8) == 7)) {
+                System.out.println(line);
+                line = "";
+                System.out.println(newLine);
+            }
+        }
+        System.out.println(line);
+        System.out.println(newLine);
+    }
 }

@@ -186,6 +186,7 @@ public class CertUtils {
             BigInteger serialno, String alg, String issuerName,
             Date notBefore, Date notAfter) throws EBaseException {
         try {
+            CMS.debug("createCertInfo: alg: " + alg);
             X509CertInfo info = new X509CertInfo();
 
             info.set(X509CertInfo.VERSION, new CertificateVersion(ver));
