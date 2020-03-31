@@ -119,9 +119,14 @@ public class SigningAlgDefault extends EnrollDefault {
         }
         if (name.equals(VAL_ALGORITHM)) {
             try {
+                String newValue = value;
+                if(newValue != null) {
+                    newValue = newValue.trim();
+                }
+                CMS.debug("SigningAlgDefault: setValue value: " + newValue);
                 info.set(X509CertInfo.ALGORITHM_ID,
                         new CertificateAlgorithmId(
-                                AlgorithmId.get(value)));
+                                AlgorithmId.get(newValue)));
             } catch (Exception e) {
                 CMS.debug("SigningAlgDefault: setValue " + e.toString());
                 throw new EPropertyException(CMS.getUserMessage(
