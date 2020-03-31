@@ -5,10 +5,13 @@
 //
 package org.dogtagpki.acme.issuer;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
+import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.acme.ACMERevocation;
@@ -77,8 +80,33 @@ public class PKIIssuer extends ACMEIssuer {
             clientConfig.setUsername(username);
         }
 
-        String password = config.getParameter("password");
-        clientConfig.setPassword(password);
+        String password = null;
+        String passwordFilename = config.getParameter("passwordFile");
+        if (passwordFilename != null) {
+            // read password from file
+            File passwordFile = new File(passwordFilename);
+
+            logger.info("Loading password file " + passwordFilename);
+            Properties props = new Properties();
+            try (FileReader reader = new FileReader(passwordFile)) {
+                props.load(reader);
+            }
+            password = props.getProperty("acmeUserPassword");
+            if (password == null) {
+                throw new RuntimeException(
+                    "PKIIssuer: 'acmeUserPassword' property not present in file "
+                    + passwordFilename
+                );
+            }
+        } else {
+            password = config.getParameter("password");
+        }
+
+        // password might be null if we are using certificate authn;
+        // we only need to set it in the client config if != null
+        if (password != null) {
+            clientConfig.setPassword(password);
+        }
 
         profile = config.getParameter("profile");
         logger.info("- profile: " + profile);
