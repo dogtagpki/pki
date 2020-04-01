@@ -397,7 +397,7 @@ public class CertUtil {
             logger.debug("CertUtil: Creating CA-signed certificate");
             CertificateIssuerName issuerdnObj = ca.getIssuerObj();
 
-            if (issuerdnObj == null) {
+            if (issuerdnObj != null) {
 
                 logger.debug("CertUtil: Reusing CA's CertificateIssuerName to preserve the DN encoding");
                 info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
