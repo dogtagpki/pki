@@ -81,12 +81,4 @@ after_script:
   - docker rm ${CONTAINER}
 
 after_failure:
-    - >
-      echo "Archiving CI logs";
-        tar --ignore-failed-read -cJf var_log.tar.xz /var/log
-        transfer_url=$(
-          curl --upload-file \
-          ./var_log.tar.xz \
-          https://transfer.sh/${LOG_ARCHIVE}) &&
-          echo "Download log archive from ${transfer_url}" ||
-          echo "Failed to upload log archive!";
+  - echo "IT FAILED!"
