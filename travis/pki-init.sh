@@ -42,7 +42,7 @@ then
 fi
 
 # Enable pki related COPR repo
-dnf copr enable -y ${COPR_REPO}
+# dnf copr enable -y ${COPR_REPO}
 
 # update, container might be outdated
 dnf update -y --best --allowerasing
