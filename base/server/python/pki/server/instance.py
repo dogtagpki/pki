@@ -181,7 +181,12 @@ class PKIInstance(pki.server.PKIServer):
     def unit_file(self):
         return PKIInstance.TARGET_WANTS + '/%s.service' % self.service_name
 
-    def execute(self, command, jdb=False, as_current_user=False, gdb=False):
+    def execute(
+            self, command,
+            as_current_user=False,
+            with_jdb=False,
+            with_gdb=False,
+            with_valgrind=False):
 
         if command == 'start':
 
@@ -213,9 +218,12 @@ class PKIInstance(pki.server.PKIServer):
 
             subprocess.run(cmd, env=self.config, check=True)
 
-        return super(PKIInstance, self).execute(command, jdb=jdb,
-                                                as_current_user=as_current_user,
-                                                gdb=gdb)
+        return super(PKIInstance, self).execute(
+            command,
+            as_current_user=as_current_user,
+            with_jdb=with_jdb,
+            with_gdb=with_gdb,
+            with_valgrind=with_valgrind)
 
     def create(self, force=False):
 

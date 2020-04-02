@@ -261,11 +261,27 @@ class PKIServer(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def run(self, command='start', jdb=False, as_current_user=False, gdb=False):
-        p = self.execute(command, jdb=jdb, as_current_user=as_current_user, gdb=gdb)
+    def run(self, command='start',
+            as_current_user=False,
+            with_jdb=False,
+            with_gdb=False,
+            with_valgrind=False):
+
+        p = self.execute(
+            command,
+            as_current_user=as_current_user,
+            with_jdb=with_jdb,
+            with_gdb=with_gdb,
+            with_valgrind=with_valgrind)
+
         p.wait()
 
-    def execute(self, command, jdb=False, as_current_user=False, gdb=False):
+    def execute(
+            self, command,
+            as_current_user=False,
+            with_jdb=False,
+            with_gdb=False,
+            with_valgrind=False):
 
         logger.debug('Environment variables:')
         for name in self.config:
@@ -293,10 +309,14 @@ class PKIServer(object):
         ]
 
         cmd = prefix
-        if gdb:
+
+        if with_valgrind:
+            cmd.extend(['valgrind', '--trace-children=yes', '--tool=massif'])
+
+        if with_gdb:
             cmd.extend(['gdb', '--args'])
 
-        if jdb:
+        if with_jdb:
             cmd.extend(['jdb'])
 
         else:
@@ -328,6 +348,9 @@ class PKIServer(object):
 
         if java_opts:
             cmd.extend(java_opts.split())
+
+        if with_valgrind:
+            cmd.extend(['-Djava.compiler=NONE'])
 
         cmd.extend(['org.apache.catalina.startup.Bootstrap', command])
 
