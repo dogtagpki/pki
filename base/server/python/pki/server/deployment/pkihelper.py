@@ -934,7 +934,7 @@ class Directory:
         self.identity = deployer.identity
 
     def create(self, name, uid=None, gid=None,
-               perms=config.PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS,
+               perms=pki.server.DEFAULT_DIR_MODE,
                acls=None, critical_failure=True):
 
         logger.info('Creating directory %s', name)
@@ -980,7 +980,7 @@ class Directory:
         return
 
     def modify(self, name, uid=None, gid=None,
-               perms=config.PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS,
+               perms=pki.server.DEFAULT_DIR_MODE,
                acls=None, silent=False, critical_failure=True):
 
         if not silent:
@@ -1075,7 +1075,7 @@ class Directory:
 
     def set_mode(
             self, name, uid=None, gid=None,
-            dir_perms=config.PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS,
+            dir_perms=pki.server.DEFAULT_DIR_MODE,
             file_perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
             symlink_perms=config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS,
             dir_acls=None, file_acls=None, symlink_acls=None,
@@ -1179,7 +1179,7 @@ class Directory:
                 raise
 
     def copy(self, old_name, new_name, uid=None, gid=None,
-             dir_perms=config.PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS,
+             dir_perms=pki.server.DEFAULT_DIR_MODE,
              file_perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
              symlink_perms=config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS,
              dir_acls=None, file_acls=None, symlink_acls=None,

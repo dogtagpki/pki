@@ -52,6 +52,8 @@ LIB_SYSTEMD_DIR = '/lib/systemd'
 
 SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 
+DEFAULT_DIR_MODE = 0o0770
+
 logger = logging.getLogger(__name__)
 
 parser = etree.XMLParser(remove_blank_text=True)

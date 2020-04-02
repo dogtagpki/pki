@@ -106,7 +106,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
         os.chmod(
             deployer.mdict['pki_server_database_path'],
-            config.PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS)
+            pki.server.DEFAULT_DIR_MODE)
 
         # import system certificates before starting the server
 
