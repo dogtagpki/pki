@@ -1076,7 +1076,7 @@ class Directory:
     def set_mode(
             self, name, uid=None, gid=None,
             dir_perms=pki.server.DEFAULT_DIR_MODE,
-            file_perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
+            file_perms=pki.server.DEFAULT_FILE_MODE,
             symlink_perms=config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS,
             dir_acls=None, file_acls=None, symlink_acls=None,
             recursive_flag=True, critical_failure=True):
@@ -1180,7 +1180,7 @@ class Directory:
 
     def copy(self, old_name, new_name, uid=None, gid=None,
              dir_perms=pki.server.DEFAULT_DIR_MODE,
-             file_perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
+             file_perms=pki.server.DEFAULT_FILE_MODE,
              symlink_perms=config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS,
              dir_acls=None, file_acls=None, symlink_acls=None,
              recursive_flag=True, overwrite_flag=False, critical_failure=True,
@@ -1246,7 +1246,7 @@ class File:
         self.identity = deployer.identity
 
     def create(self, name, uid=None, gid=None,
-               perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
+               perms=pki.server.DEFAULT_FILE_MODE,
                acls=None, critical_failure=True):
         try:
             if not os.path.exists(name):
@@ -1288,7 +1288,7 @@ class File:
         return
 
     def modify(self, name, uid=None, gid=None,
-               perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
+               perms=pki.server.DEFAULT_FILE_MODE,
                acls=None, silent=False, critical_failure=True):
 
         if not silent:
@@ -1368,7 +1368,8 @@ class File:
             raise
 
     def copy(self, old_name, new_name, uid=None, gid=None,
-             perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS, acls=None,
+             perms=pki.server.DEFAULT_FILE_MODE,
+             acls=None,
              overwrite_flag=False, critical_failure=True):
 
         logger.info('Creating file %s', new_name)
@@ -1419,7 +1420,7 @@ class File:
 
     def copy_with_slot_substitution(
             self, old_name, new_name, uid=None, gid=None,
-            perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
+            perms=pki.server.DEFAULT_FILE_MODE,
             acls=None, overwrite_flag=False,
             critical_failure=True):
 
@@ -2677,8 +2678,7 @@ class ConfigClient:
 
         self.save_admin_cert(admin_cert, admin_cert_file,
                              self.mdict['pki_subsystem_name'])
-        os.chmod(admin_cert_file,
-                 config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
+        os.chmod(admin_cert_file, pki.server.DEFAULT_FILE_MODE)
 
         logger.info('Importing admin certificate into %s',
                     self.mdict['pki_client_database_dir'])

@@ -53,6 +53,7 @@ LIB_SYSTEMD_DIR = '/lib/systemd'
 SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 
 DEFAULT_DIR_MODE = 0o0770
+DEFAULT_FILE_MODE = 0o0660
 
 logger = logging.getLogger(__name__)
 
