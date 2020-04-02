@@ -671,8 +671,9 @@ class RunCLI(pki.cli.CLI):
         print('Usage: pki-server run [OPTIONS] [<instance ID>]')
         print()
         print('      --as-current-user         Run as current user.')
-        print('      --gdb                     Run under the GNU Debugger.')
-        print('      --jdb                     Run under the Java Debugger.')
+        print('      --with-jdb                Run with Java debugger.')
+        print('      --with-gdb                Run with GNU debugger.')
+        print('      --with-valgrind           Run with Valgrind.')
         print('  -v, --verbose                 Run in verbose mode.')
         print('      --debug                   Run in debug mode.')
         print('      --help                    Show help message.')
@@ -682,7 +683,8 @@ class RunCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
-                'as-current-user', 'jdb',
+                'as-current-user',
+                'with-jdb', 'with-gdb', 'with-valgrind',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -692,18 +694,22 @@ class RunCLI(pki.cli.CLI):
 
         instance_name = 'pki-tomcat'
         as_current_user = False
-        jdb = False
-        gdb = False
+        with_jdb = False
+        with_gdb = False
+        with_valgrind = False
 
         for o, _ in opts:
             if o == '--as-current-user':
                 as_current_user = True
 
-            elif o == '--gdb':
-                gdb = True
+            elif o == '--with-jdb':
+                with_jdb = True
 
-            elif o == '--jdb':
-                jdb = True
+            elif o == '--with-gdb':
+                with_gdb = True
+
+            elif o == '--with-valgrind':
+                with_valgrind = True
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -732,7 +738,11 @@ class RunCLI(pki.cli.CLI):
         instance.load()
 
         try:
-            instance.run(gdb=gdb, jdb=jdb, as_current_user=as_current_user)
+            instance.run(
+                as_current_user=as_current_user,
+                with_jdb=with_jdb,
+                with_gdb=with_gdb,
+                with_valgrind=with_valgrind)
 
         except KeyboardInterrupt:
             logging.debug('Server stopped')
