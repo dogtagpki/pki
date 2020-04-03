@@ -96,10 +96,9 @@ if __name__ == "__main__":
     for t in range(number_of_threads):
         t1 = threading.Thread(target=run_test, args=("testuser{}".format(t), number_of_tests_per_thread))
         t1.start()
-    threads.append(t1)
+        threads.append(t1)
 
-# wait for all threads to complete
-# (not sure if this is needed since Python probably won’t exit until all threads are complete)
-for t in threads:
-    t.join()
-
+    # wait for all threads to complete
+    # (not sure if this is needed since Python probably won’t exit until all threads are complete)
+    for t in threads:
+        t.join()
