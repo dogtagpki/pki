@@ -21,7 +21,7 @@ import threading
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--url", help="<CA hostname>")
+parser.add_argument("--hostname", help="<CA hostname>")
 parser.add_argument("--port", help="<CA Port Number>")
 parser.add_argument("--client-cert", help="path for admin.pem certificate")
 parser.add_argument("--number-of-threads", help="Number of thread", type=int)
@@ -30,7 +30,7 @@ parser.add_argument("--number-of-tests-per-thread", help="Number of test per thr
 args = parser.parse_args()
 
 # Create a PKIConnection object that stores the details of the CA.
-connection = PKIConnection('https', args.url,args.port,'ca')
+connection = PKIConnection('https', args.hostname, args.port,'ca')
 
 # The pem file used for authentication. Created from a p12 file using the
 # command -
