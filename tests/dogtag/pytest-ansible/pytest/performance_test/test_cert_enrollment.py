@@ -30,7 +30,7 @@ parser.add_argument("--number-of-tests-per-thread", help="Number of test per thr
 args = parser.parse_args()
 
 # Create a PKIConnection object that stores the details of the CA.
-connection = PKIConnection('https', args.hostname, args.port,'ca')
+connection = PKIConnection('https', args.hostname, args.port)
 
 # The pem file used for authentication. Created from a p12 file using the
 # command -
