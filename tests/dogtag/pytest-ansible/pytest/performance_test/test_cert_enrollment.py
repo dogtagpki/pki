@@ -51,8 +51,6 @@ class cert_enroll(object):
         Constructor
         """
         # Enrolling an user certificate
-        print('Enrolling an user certificate')
-        print('-----------------------------')
 
         inputs = dict()
         inputs['cert_request_type'] = 'pkcs10'
