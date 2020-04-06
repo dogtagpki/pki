@@ -74,9 +74,6 @@ The file stores the current configuration version and the last successful script
 **-i**, **--instance** *instance*  
     Upgrade a specific instance only.
 
-**-s**, **--subsystem** *subsystem*  
-    Upgrade a specific subsystem in an instance only.
-
 **-X**  
     Show advanced options.
 
@@ -130,10 +127,10 @@ If necessary, the upgrade can be run in verbose mode:
 $ pki-server upgrade --verbose
 ```
 
-It is possible to rerun a failed script by itself, specifying the instance and subsystem:
+It is possible to rerun a failed upgrade for a specific instance:
 
 ```
-$ pki-server upgrade --instance pki-tomcat --subsystem ca
+$ pki-server upgrade --instance pki-tomcat
 ```
 
 ### Reverting an upgrade

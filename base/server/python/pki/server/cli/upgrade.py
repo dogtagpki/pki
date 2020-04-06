@@ -42,7 +42,6 @@ class UpgradeCLI(pki.cli.CLI):
         print('  --validate                     Validate upgrade status.')
         print()
         print('  -i, --instance <instance>      Upgrade a specific instance only.')
-        print('  -s, --subsystem <subsystem>    Upgrade a specific subsystem in an instance only.')
         print()
         print('  -X                             Show advanced options.')
         print('  -v, --verbose                  Run in verbose mode.')
@@ -61,7 +60,7 @@ class UpgradeCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.getopt(argv, 'hi:s:t:vX', [
-                'instance=', 'subsystem=',
+                'instance=',
                 'status', 'revert', 'validate',
                 'remove-tracker', 'reset-tracker', 'set-tracker=',
                 'verbose', 'debug', 'help'])
@@ -72,7 +71,6 @@ class UpgradeCLI(pki.cli.CLI):
             sys.exit(1)
 
         instanceName = None
-        subsystemName = None
 
         status = False
         revert = False
@@ -86,9 +84,6 @@ class UpgradeCLI(pki.cli.CLI):
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instanceName = a
-
-            elif o in ('-s', '--subsystem'):
-                subsystemName = a
 
             elif o == '--status':
                 status = True
@@ -131,14 +126,7 @@ class UpgradeCLI(pki.cli.CLI):
         if len(args) > 0:
             instanceName = args[0]
 
-        if subsystemName and not instanceName:
-            print('ERROR: --subsystem requires --instance')
-            self.usage()
-            sys.exit(1)
-
-        upgrader = pki.server.upgrade.PKIServerUpgrader(
-            instanceName=instanceName,
-            subsystemName=subsystemName)
+        upgrader = pki.server.upgrade.PKIServerUpgrader(instanceName=instanceName)
 
         if status:
             upgrader.status()
