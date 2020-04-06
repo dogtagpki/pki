@@ -143,9 +143,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def __init__(self, instanceName=None, instance_version=None,  # noqa: N803
                  subsystemName=None, upgrade_dir=UPGRADE_DIR,  # noqa: N803
-                 version=None, index=None):
+                 version=None):
         super(PKIServerUpgrader, self).__init__(
-            upgrade_dir, version, index)
+            upgrade_dir, version)
 
         if subsystemName and not instanceName:
             raise pki.PKIException(

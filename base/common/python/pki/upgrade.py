@@ -372,11 +372,10 @@ class PKIUpgradeScriptlet(object):
 
 class PKIUpgrader(object):
 
-    def __init__(self, upgrade_dir=UPGRADE_DIR, version=None, index=None):
+    def __init__(self, upgrade_dir=UPGRADE_DIR, version=None):
 
         self.upgrade_dir = upgrade_dir
         self.version = version
-        self.index = index
 
         if version and not os.path.exists(self.version_dir(version)):
             raise pki.PKIException(
@@ -470,9 +469,6 @@ class PKIUpgrader(object):
 
             index = int(match.group(1))
             classname = match.group(2)
-
-            if self.index and index != self.index:
-                continue
 
             # load scriptlet class
             variables = {}

@@ -56,7 +56,6 @@ class UpgradeCLI(pki.cli.CLI):
         print('WARNING: These options may render the system unusable.')
         print()
         print('  --scriptlet-version <version>  Run scriptlets for a specific version only.')
-        print('  --scriptlet-index <index>      Run a specific scriptlet only.')
         print()
         print('  --remove-tracker               Remove tracker.')
         print('  --reset-tracker                Reset tracker to match package version.')
@@ -67,7 +66,7 @@ class UpgradeCLI(pki.cli.CLI):
         try:
             opts, args = getopt.getopt(argv, 'hi:s:t:vX', [
                 'instance=', 'subsystem=', 'instance-type=',
-                'scriptlet-version=', 'scriptlet-index=',
+                'scriptlet-version=',
                 'status', 'revert', 'validate',
                 'remove-tracker', 'reset-tracker', 'set-tracker=',
                 'verbose', 'debug', 'help'])
@@ -82,7 +81,6 @@ class UpgradeCLI(pki.cli.CLI):
         instance_version = None
 
         scriptlet_version = None
-        scriptlet_index = None
 
         status = False
         revert = False
@@ -105,9 +103,6 @@ class UpgradeCLI(pki.cli.CLI):
 
             elif o == '--scriptlet-version':
                 scriptlet_version = a
-
-            elif o == '--scriptlet-index':
-                scriptlet_index = int(a)
 
             elif o == '--status':
                 status = True
@@ -155,17 +150,11 @@ class UpgradeCLI(pki.cli.CLI):
             self.usage()
             sys.exit(1)
 
-        if scriptlet_index and not scriptlet_version:
-            print('ERROR: --scriptlet-index requires --scriptlet-version')
-            self.usage()
-            sys.exit(1)
-
         upgrader = pki.server.upgrade.PKIServerUpgrader(
             instanceName=instanceName,
             subsystemName=subsystemName,
             instance_version=instance_version,
-            version=scriptlet_version,
-            index=scriptlet_index)
+            version=scriptlet_version)
 
         if status:
             upgrader.status()

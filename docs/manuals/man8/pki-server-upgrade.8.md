@@ -100,9 +100,6 @@ scriptlet order or changing the tracker information.
 **--scriptlet-version** *version*  
     Run scriptlets for a specific version only.
 
-**--scriptlet-index** *index*  
-    Run a specific scriptlet only.
-
 **--remove-tracker**  
     Remove the tracker.
 
@@ -141,10 +138,10 @@ If necessary, the upgrade can be run in verbose mode:
 $ pki-server upgrade --verbose
 ```
 
-It is possible to rerun a failed script by itself, specifying the instance and subsystem, version, and scriptlet index:
+It is possible to rerun a failed script by itself, specifying the instance, subsystem, and version:
 
 ```
-$ pki-server upgrade --instance pki-tomcat --subsystem ca --scriptlet-version 10.0.1 --scriptlet-index 1
+$ pki-server upgrade --instance pki-tomcat --subsystem ca --scriptlet-version 10.0.1
 ```
 
 ### Reverting an upgrade
