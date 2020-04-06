@@ -578,17 +578,7 @@ class PKIUpgrader(object):
                 else:
                     logger.error(e)
 
-                print()
-
-                result = pki.util.read_text(
-                    'Continue (Yes/No)',
-                    options=['Y', 'N'],
-                    default='Y',
-                    delimiter='?',
-                    case_sensitive=False).lower()
-
-                if result == 'n':
-                    raise pki.PKIException(message, e)
+                raise pki.PKIException(message, e)
 
     def upgrade(self):
 
@@ -631,14 +621,7 @@ class PKIUpgrader(object):
                 else:
                     logger.error(e)
 
-                print()
-
-                result = pki.util.read_text(
-                    'Continue (Yes/No)', options=['Y', 'N'],
-                    default='Y', delimiter='?', case_sensitive=False).lower()
-
-                if result == 'n':
-                    raise pki.PKIException(message, e)
+                raise pki.PKIException(message, e)
 
         self.set_tracker(version)
 
