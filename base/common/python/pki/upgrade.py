@@ -324,7 +324,8 @@ class PKIUpgradeScriptlet(object):
             sourceparent = os.path.dirname(path)
             destparent = os.path.dirname(dest)
 
-            pki.util.copydirs(sourceparent, destparent, force=True)
+            if not os.path.exists(destparent):
+                pki.util.copydirs(sourceparent, destparent, force=True)
 
             if os.path.isfile(path):
                 logger.info('Saving %s', path)
