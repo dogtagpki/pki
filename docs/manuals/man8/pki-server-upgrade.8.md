@@ -77,10 +77,6 @@ The file stores the current configuration version and the last successful script
 **-s**, **--subsystem** *subsystem*  
     Upgrade a specific subsystem in an instance only.
 
-**-t**, **--instance-type** *type*  
-    Upgrade a specific instance type, by the major version number of the Dogtag instance.
-    For example, use 9 for Dogtag 9 instances and 10 for Dogtag 10.
-
 **-X**  
     Show advanced options.
 

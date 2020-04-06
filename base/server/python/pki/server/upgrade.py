@@ -141,7 +141,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
 class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
-    def __init__(self, instanceName=None, instance_version=None,  # noqa: N803
+    def __init__(self, instanceName=None,  # noqa: N803
                  subsystemName=None, upgrade_dir=UPGRADE_DIR):  # noqa: N803
         super(PKIServerUpgrader, self).__init__(upgrade_dir)
 
@@ -151,44 +151,28 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 ', Instance not defined')
 
         self.instanceName = instanceName
-        self.instance_version = instance_version
         self.subsystemName = subsystemName
 
         self.instance_trackers = {}
         self.subsystem_trackers = {}
 
     def instances(self):
-        if self.instanceName and self.instance_version:
-            instance = pki.server.instance.PKIInstance(
-                self.instanceName,
-                self.instance_version)
+        if self.instanceName:
+            instance = pki.server.instance.PKIInstance(self.instanceName)
             instance.validate()
             instance.load()
             return [instance]
 
         instance_list = []
 
-        if not self.instance_version or self.instance_version >= 10:
-            if os.path.exists(os.path.join(pki.server.PKIServer.REGISTRY_DIR, 'tomcat')):
-                for instanceName in os.listdir(pki.server.PKIServer.BASE_DIR):
-                    if not self.instanceName or \
-                            self.instanceName == instanceName:
-                        instance = pki.server.instance.PKIInstance(instanceName)
-                        instance.validate()
-                        instance.load()
-                        instance_list.append(instance)
-
-        if not self.instance_version or self.instance_version == 9:
-            for s in pki.server.SUBSYSTEM_TYPES:
-                if os.path.exists(os.path.join(pki.server.PKIServer.REGISTRY_DIR, s)):
-                    for instanceName in os.listdir(
-                            os.path.join(pki.server.PKIServer.REGISTRY_DIR, s)):
-                        if not self.instanceName or \
-                                self.instanceName == instanceName:
-                            instance = pki.server.instance.PKIInstance(instanceName, version=9)
-                            instance.validate()
-                            instance.load()
-                            instance_list.append(instance)
+        if os.path.exists(os.path.join(pki.server.PKIServer.REGISTRY_DIR, 'tomcat')):
+            for instanceName in os.listdir(pki.server.PKIServer.BASE_DIR):
+                if not self.instanceName or \
+                        self.instanceName == instanceName:
+                    instance = pki.server.instance.PKIInstance(instanceName)
+                    instance.validate()
+                    instance.load()
+                    instance_list.append(instance)
 
         instance_list.sort()
 
