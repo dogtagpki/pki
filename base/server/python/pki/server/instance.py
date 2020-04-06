@@ -186,7 +186,8 @@ class PKIInstance(pki.server.PKIServer):
             as_current_user=False,
             with_jdb=False,
             with_gdb=False,
-            with_valgrind=False):
+            with_valgrind=False,
+            agentpath=None):
 
         if command == 'start':
 
@@ -223,7 +224,8 @@ class PKIInstance(pki.server.PKIServer):
             as_current_user=as_current_user,
             with_jdb=with_jdb,
             with_gdb=with_gdb,
-            with_valgrind=with_valgrind)
+            with_valgrind=with_valgrind,
+            agentpath=agentpath)
 
     def create(self, force=False):
 

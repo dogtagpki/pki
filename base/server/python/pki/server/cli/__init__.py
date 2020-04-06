@@ -674,6 +674,7 @@ class RunCLI(pki.cli.CLI):
         print('      --with-jdb                Run with Java debugger.')
         print('      --with-gdb                Run with GNU debugger.')
         print('      --with-valgrind           Run with Valgrind.')
+        print('      --agentpath <value>       Java agent path.')
         print('  -v, --verbose                 Run in verbose mode.')
         print('      --debug                   Run in debug mode.')
         print('      --help                    Show help message.')
@@ -685,6 +686,7 @@ class RunCLI(pki.cli.CLI):
             opts, args = getopt.gnu_getopt(argv, 'v', [
                 'as-current-user',
                 'with-jdb', 'with-gdb', 'with-valgrind',
+                'agentpath=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -697,8 +699,9 @@ class RunCLI(pki.cli.CLI):
         with_jdb = False
         with_gdb = False
         with_valgrind = False
+        agentpath = None
 
-        for o, _ in opts:
+        for o, a in opts:
             if o == '--as-current-user':
                 as_current_user = True
 
@@ -710,6 +713,9 @@ class RunCLI(pki.cli.CLI):
 
             elif o == '--with-valgrind':
                 with_valgrind = True
+
+            elif o == '--agentpath':
+                agentpath = a
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -742,7 +748,8 @@ class RunCLI(pki.cli.CLI):
                 as_current_user=as_current_user,
                 with_jdb=with_jdb,
                 with_gdb=with_gdb,
-                with_valgrind=with_valgrind)
+                with_valgrind=with_valgrind,
+                agentpath=agentpath)
 
         except KeyboardInterrupt:
             logging.debug('Server stopped')

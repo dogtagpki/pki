@@ -265,14 +265,16 @@ class PKIServer(object):
             as_current_user=False,
             with_jdb=False,
             with_gdb=False,
-            with_valgrind=False):
+            with_valgrind=False,
+            agentpath=None):
 
         p = self.execute(
             command,
             as_current_user=as_current_user,
             with_jdb=with_jdb,
             with_gdb=with_gdb,
-            with_valgrind=with_valgrind)
+            with_valgrind=with_valgrind,
+            agentpath=agentpath)
 
         p.wait()
 
@@ -281,7 +283,8 @@ class PKIServer(object):
             as_current_user=False,
             with_jdb=False,
             with_gdb=False,
-            with_valgrind=False):
+            with_valgrind=False,
+            agentpath=None):
 
         logger.debug('Environment variables:')
         for name in self.config:
@@ -325,10 +328,13 @@ class PKIServer(object):
             else:
                 cmd.extend(['java'])
 
-            if os.path.exists('/usr/lib/abrt-java-connector/libabrt-java-connector.so'):
-                cmd.extend([
-                    '-agentpath:/usr/lib/abrt-java-connector/libabrt-java-connector.so=abrt=on,'
-                ])
+        if agentpath:
+            cmd.extend(['-agentpath:%s' % agentpath])
+
+        elif os.path.exists('/usr/lib/abrt-java-connector/libabrt-java-connector.so'):
+            cmd.extend([
+                '-agentpath:/usr/lib/abrt-java-connector/libabrt-java-connector.so=abrt=on,'
+            ])
 
         cmd.extend([
             '-classpath', os.pathsep.join(classpath),
