@@ -1,0 +1,28 @@
+FROM fedora:30
+
+# Install generic dependencies to build pki-core
+RUN true \
+        && dnf update -y --refresh \
+        && dnf install -y dnf-plugins-core gcc make rpm-build \
+        && dnf copr -y enable ${PKI_REPO:-@pki/master} \
+        && dnf build-dep -y pki-core \
+        && mkdir -p /home/sandbox \
+        && dnf clean -y all \
+        && true
+
+# Link in the current version of pki from the git repository
+WORKDIR /home/sandbox
+COPY . /home/sandbox/pki
+
+# Install dependencies from the spec file in case they've changed
+# since the last release on this platform.
+RUN true \
+        && dnf build-dep -y --spec /home/sandbox/pki/pki.spec \
+        && true
+
+# Perform the actual RPM build
+WORKDIR /home/sandbox/pki
+CMD true \
+        && bash ./build.sh --with-timestamp --with-commit-id rpm \
+        && dnf install -y /root/build/pki/RPMS/*.rpm \
+        && true
