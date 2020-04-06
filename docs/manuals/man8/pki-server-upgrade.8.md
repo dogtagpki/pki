@@ -92,13 +92,9 @@ The file stores the current configuration version and the last successful script
 
 ### Advanced options
 
-The advanced options circumvent the normal component tracking process by changing the
-scriptlet order or changing the tracker information.
+The advanced options circumvent the normal upgrade process by changing the tracker information.
 
 **WARNING:** These options may render the system unusable.
-
-**--scriptlet-version** *version*  
-    Run scriptlets for a specific version only.
 
 **--remove-tracker**  
     Remove the tracker.
@@ -138,10 +134,10 @@ If necessary, the upgrade can be run in verbose mode:
 $ pki-server upgrade --verbose
 ```
 
-It is possible to rerun a failed script by itself, specifying the instance, subsystem, and version:
+It is possible to rerun a failed script by itself, specifying the instance and subsystem:
 
 ```
-$ pki-server upgrade --instance pki-tomcat --subsystem ca --scriptlet-version 10.0.1
+$ pki-server upgrade --instance pki-tomcat --subsystem ca
 ```
 
 ### Reverting an upgrade

@@ -56,8 +56,6 @@ def advancedOptions():
     print()
     print('WARNING: These options may render the system unusable.')
     print()
-    print('  --scriptlet-version <version>  Run scriptlets for a specific version only.')
-    print()
     print('  --remove-tracker               Remove tracker.')
     print('  --reset-tracker                Reset tracker to match package version.')
     print('  --set-tracker <version>        Set tracker to a specific version.')
@@ -69,7 +67,6 @@ def main(argv):
 
     try:
         opts, _ = getopt.getopt(argv[1:], 'hi:s:t:vX', [
-            'scriptlet-version=',
             'status', 'revert', 'validate',
             'remove-tracker', 'reset-tracker', 'set-tracker=',
             'verbose', 'debug', 'help'])
@@ -78,8 +75,6 @@ def main(argv):
         print('ERROR: %s' % e)
         usage()
         sys.exit(1)
-
-    scriptlet_version = None
 
     status = False
     revert = False
@@ -91,10 +86,7 @@ def main(argv):
     tracker_version = None
 
     for o, a in opts:
-        if o == '--scriptlet-version':
-            scriptlet_version = a
-
-        elif o == '--status':
+        if o == '--status':
             status = True
 
         elif o == '--revert':
@@ -132,7 +124,7 @@ def main(argv):
             usage()
             sys.exit(1)
 
-    upgrader = pki.upgrade.PKIUpgrader(version=scriptlet_version)
+    upgrader = pki.upgrade.PKIUpgrader()
 
     if status:
         upgrader.status()

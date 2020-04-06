@@ -372,15 +372,9 @@ class PKIUpgradeScriptlet(object):
 
 class PKIUpgrader(object):
 
-    def __init__(self, upgrade_dir=UPGRADE_DIR, version=None):
+    def __init__(self, upgrade_dir=UPGRADE_DIR):
 
         self.upgrade_dir = upgrade_dir
-        self.version = version
-
-        if version and not os.path.exists(self.version_dir(version)):
-            raise pki.PKIException(
-                'Invalid scriptlet version: ' + str(version))
-
         self.system_tracker = None
 
     def version_dir(self, version):
@@ -443,11 +437,7 @@ class PKIUpgrader(object):
             else:
                 version.next = target_version
 
-            # if no scriptlet version is specified, add all versions to the list
-            # if scriptlet version is specified, add only that version to the
-            # list
-            if not self.version or str(version) == self.version:
-                versions.append(version)
+            versions.append(version)
 
         return versions
 

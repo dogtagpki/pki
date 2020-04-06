@@ -55,8 +55,6 @@ class UpgradeCLI(pki.cli.CLI):
         print()
         print('WARNING: These options may render the system unusable.')
         print()
-        print('  --scriptlet-version <version>  Run scriptlets for a specific version only.')
-        print()
         print('  --remove-tracker               Remove tracker.')
         print('  --reset-tracker                Reset tracker to match package version.')
         print('  --set-tracker <version>        Set tracker to a specific version.')
@@ -66,7 +64,6 @@ class UpgradeCLI(pki.cli.CLI):
         try:
             opts, args = getopt.getopt(argv, 'hi:s:t:vX', [
                 'instance=', 'subsystem=', 'instance-type=',
-                'scriptlet-version=',
                 'status', 'revert', 'validate',
                 'remove-tracker', 'reset-tracker', 'set-tracker=',
                 'verbose', 'debug', 'help'])
@@ -79,8 +76,6 @@ class UpgradeCLI(pki.cli.CLI):
         instanceName = None
         subsystemName = None
         instance_version = None
-
-        scriptlet_version = None
 
         status = False
         revert = False
@@ -100,9 +95,6 @@ class UpgradeCLI(pki.cli.CLI):
 
             elif o in ('-t', '--instance-type'):
                 instance_version = int(a)
-
-            elif o == '--scriptlet-version':
-                scriptlet_version = a
 
             elif o == '--status':
                 status = True
@@ -153,8 +145,7 @@ class UpgradeCLI(pki.cli.CLI):
         upgrader = pki.server.upgrade.PKIServerUpgrader(
             instanceName=instanceName,
             subsystemName=subsystemName,
-            instance_version=instance_version,
-            version=scriptlet_version)
+            instance_version=instance_version)
 
         if status:
             upgrader.status()

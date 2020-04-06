@@ -142,10 +142,8 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def __init__(self, instanceName=None, instance_version=None,  # noqa: N803
-                 subsystemName=None, upgrade_dir=UPGRADE_DIR,  # noqa: N803
-                 version=None):
-        super(PKIServerUpgrader, self).__init__(
-            upgrade_dir, version)
+                 subsystemName=None, upgrade_dir=UPGRADE_DIR):  # noqa: N803
+        super(PKIServerUpgrader, self).__init__(upgrade_dir)
 
         if subsystemName and not instanceName:
             raise pki.PKIException(
