@@ -50,20 +50,6 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
         return self.version == tracker.get_version() and \
             self.index == tracker.get_index() + 1
 
-    def update_server_tracker(self, instance, subsystem=None):
-        # Increment the index in the tracker. If it's the last scriptlet
-        # in this version, update the tracker version.
-
-        tracker = self.upgrader.get_server_tracker(instance, subsystem)
-        self.backup(tracker.filename)
-
-        if not self.last:
-            tracker.set_index(self.index)
-
-        else:
-            tracker.remove_index()
-            tracker.set_version(self.version.next)
-
     def upgrade_subsystem(self, instance, subsystem):
         # Callback method to upgrade a subsystem.
         pass
@@ -163,7 +149,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 logger.info('Upgrading %s instance', instance)
 
                 scriptlet.upgrade_instance(instance)
-                scriptlet.update_server_tracker(instance)
+                self.update_server_tracker(scriptlet, instance)
 
             except Exception as e:
 
@@ -191,7 +177,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
             try:
                 logger.info('Upgrading %s subsystem', subsystem)
                 scriptlet.upgrade_subsystem(instance, subsystem)
-                scriptlet.update_server_tracker(instance, subsystem)
+                self.update_server_tracker(scriptlet, instance, subsystem)
 
             except Exception as e:
 
@@ -230,6 +216,20 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 tracker.set(version)
 
         print('Tracker has been set to version ' + str(version) + '.')
+
+    def update_server_tracker(self, scriptlet, instance, subsystem=None):
+        # Increment the index in the tracker. If it's the last scriptlet
+        # in this version, update the tracker version.
+
+        tracker = self.get_server_tracker(instance, subsystem)
+        scriptlet.backup(tracker.filename)
+
+        if not scriptlet.last:
+            tracker.set_index(scriptlet.index)
+
+        else:
+            tracker.remove_index()
+            tracker.set_version(scriptlet.version.next)
 
     def remove_tracker(self):
         for instance in self.instances:
