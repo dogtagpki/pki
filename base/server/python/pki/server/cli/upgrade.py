@@ -70,7 +70,7 @@ class UpgradeCLI(pki.cli.CLI):
             self.usage()
             sys.exit(1)
 
-        instanceName = None
+        instance_name = None
 
         status = False
         revert = False
@@ -83,7 +83,7 @@ class UpgradeCLI(pki.cli.CLI):
 
         for o, a in opts:
             if o in ('-i', '--instance'):
-                instanceName = a
+                instance_name = a
 
             elif o == '--status':
                 status = True
@@ -124,9 +124,21 @@ class UpgradeCLI(pki.cli.CLI):
                 sys.exit(1)
 
         if len(args) > 0:
-            instanceName = args[0]
+            instance_name = args[0]
 
-        upgrader = pki.server.upgrade.PKIServerUpgrader(instanceName=instanceName)
+        if instance_name:
+            instance = pki.server.instance.PKIInstance(instance_name)
+
+            if not instance.is_valid():
+                raise Exception('Invalid instance: %s' % instance_name)
+
+            instance.load()
+            instances = [instance]
+
+        else:
+            instances = pki.server.instance.PKIInstance.instances()
+
+        upgrader = pki.server.upgrade.PKIServerUpgrader(instances=instances)
 
         if status:
             upgrader.status()

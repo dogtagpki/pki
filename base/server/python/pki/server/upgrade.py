@@ -21,13 +21,11 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import logging
-import os
 
 import pki
 import pki.upgrade
 import pki.util
 import pki.server
-import pki.server.instance
 
 UPGRADE_DIR = pki.SHARE_DIR + '/server/upgrade'
 BACKUP_DIR = pki.LOG_DIR + '/server/upgrade'
@@ -68,7 +66,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
     def upgrade(self):
 
-        for instance in self.upgrader.instances():
+        for instance in self.upgrader.instances:
 
             logging.info('Upgrading %s instance', instance.name)
 
@@ -137,36 +135,14 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
 class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
-    def __init__(self, instanceName=None,  # noqa: N803
-                 upgrade_dir=UPGRADE_DIR):
+    def __init__(self, instances, upgrade_dir=UPGRADE_DIR):
+
         super(PKIServerUpgrader, self).__init__(upgrade_dir)
 
-        self.instanceName = instanceName
+        self.instances = instances
 
         self.instance_trackers = {}
         self.subsystem_trackers = {}
-
-    def instances(self):
-        if self.instanceName:
-            instance = pki.server.instance.PKIInstance(self.instanceName)
-            instance.validate()
-            instance.load()
-            return [instance]
-
-        instance_list = []
-
-        if os.path.exists(os.path.join(pki.server.PKIServer.REGISTRY_DIR, 'tomcat')):
-            for instanceName in os.listdir(pki.server.PKIServer.BASE_DIR):
-                if not self.instanceName or \
-                        self.instanceName == instanceName:
-                    instance = pki.server.instance.PKIInstance(instanceName)
-                    instance.validate()
-                    instance.load()
-                    instance_list.append(instance)
-
-        instance_list.sort()
-
-        return instance_list
 
     def subsystems(self, instance):
 
@@ -227,7 +203,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
     def get_current_version(self):
         current_version = None
 
-        for instance in self.instances():
+        for instance in self.instances:
 
             # check the instance version
             tracker = self.get_server_tracker(instance)
@@ -262,7 +238,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
             raise Exception('Upgrade incomplete: see %s' % log_file)
 
     def show_tracker(self):
-        for instance in self.instances():
+        for instance in self.instances:
 
             tracker = self.get_server_tracker(instance)
             tracker.show()
@@ -273,7 +249,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 tracker.show()
 
     def set_tracker(self, version):
-        for instance in self.instances():
+        for instance in self.instances:
 
             tracker = self.get_server_tracker(instance)
             tracker.set(version)
@@ -286,7 +262,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         print('Tracker has been set to version ' + str(version) + '.')
 
     def remove_tracker(self):
-        for instance in self.instances():
+        for instance in self.instances:
 
             tracker = self.get_server_tracker(instance)
             tracker.remove()
