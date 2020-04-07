@@ -184,20 +184,9 @@ class PKIUpgradeScriptlet(object):
         self.last = False
 
         self.message = None
-        self.upgrader = None
 
     def get_backup_dir(self):
         return BACKUP_DIR + '/' + str(self.version) + '/' + str(self.index)
-
-    def can_upgrade(self):
-
-        # A scriptlet can run if the version matches the tracker and
-        # the index is the next to be executed.
-
-        tracker = self.upgrader.get_tracker()
-
-        return self.version == tracker.get_version() and \
-            self.index == tracker.get_index() + 1
 
     def upgrade_system(self):
         # Callback method to upgrade the system.
@@ -421,7 +410,6 @@ class PKIUpgrader(object):
             # create scriptlet object
             scriptlet = variables[classname]()
 
-            scriptlet.upgrader = self
             scriptlet.version = version
             scriptlet.index = index
 
@@ -528,10 +516,20 @@ class PKIUpgrader(object):
         logger.debug('Command: mkdir -p %s', backup_dir)
         os.makedirs(backup_dir)
 
+    def can_upgrade(self, scriptlet):
+
+        # A scriptlet can run if the version matches the tracker and
+        # the index is the next to be executed.
+
+        tracker = self.get_tracker()
+
+        return scriptlet.version == tracker.get_version() and \
+            scriptlet.index == tracker.get_index() + 1
+
     def run_scriptlet(self, scriptlet):
 
         try:
-            if not scriptlet.can_upgrade():
+            if not self.can_upgrade(scriptlet):
                 logger.info('Skipping system')
                 return
 
