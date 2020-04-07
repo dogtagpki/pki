@@ -218,17 +218,6 @@ class PKIUpgradeScriptlet(object):
         # Callback method to upgrade the system.
         pass
 
-    def init(self):
-
-        backup_dir = self.get_backup_dir()
-
-        if os.path.exists(backup_dir):
-            # remove old backup dir
-            shutil.rmtree(backup_dir)
-
-        # create backup dir
-        os.makedirs(backup_dir)
-
     def revert(self):
 
         backup_dir = self.get_backup_dir()
@@ -527,7 +516,7 @@ class PKIUpgrader(object):
             print(message)
 
             try:
-                scriptlet.init()
+                self.init_scriptlet(scriptlet)
                 self.run_scriptlet(scriptlet)
 
             except Exception as e:  # pylint: disable=W0703
@@ -542,6 +531,17 @@ class PKIUpgrader(object):
                     logger.error(e)
 
                 raise pki.PKIException(message, e)
+
+    def init_scriptlet(self, scriptlet):
+
+        backup_dir = scriptlet.get_backup_dir()
+
+        if os.path.exists(backup_dir):
+            logger.debug('Command: rm -rf %s', backup_dir)
+            shutil.rmtree(backup_dir)
+
+        logger.debug('Command: mkdir -p %s', backup_dir)
+        os.makedirs(backup_dir)
 
     def run_scriptlet(self, scriptlet):
 
