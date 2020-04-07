@@ -199,21 +199,6 @@ class PKIUpgradeScriptlet(object):
         return self.version == tracker.get_version() and \
             self.index == tracker.get_index() + 1
 
-    def update_tracker(self):
-
-        # Increment the index in the tracker. If it's the last scriptlet
-        # in this version, update the tracker version.
-
-        tracker = self.upgrader.get_tracker()
-        self.backup(tracker.filename)
-
-        if not self.last:
-            tracker.set_index(self.index)
-
-        else:
-            tracker.remove_index()
-            tracker.set_version(self.version.next)
-
     def upgrade_system(self):
         # Callback method to upgrade the system.
         pass
@@ -552,7 +537,7 @@ class PKIUpgrader(object):
 
             logger.info('Upgrading system')
             scriptlet.upgrade_system()
-            scriptlet.update_tracker()
+            self.update_tracker(scriptlet)
 
         except Exception as e:
 
@@ -650,6 +635,21 @@ class PKIUpgrader(object):
         tracker.set(version)
 
         print('Tracker has been set to version ' + str(version) + '.')
+
+    def update_tracker(self, scriptlet):
+
+        # Increment the index in the tracker. If it's the last scriptlet
+        # in this version, update the tracker version.
+
+        tracker = self.get_tracker()
+        scriptlet.backup(tracker.filename)
+
+        if not scriptlet.last:
+            tracker.set_index(scriptlet.index)
+
+        else:
+            tracker.remove_index()
+            tracker.set_version(scriptlet.version.next)
 
     def reset_tracker(self):
 
