@@ -229,29 +229,6 @@ class PKIUpgradeScriptlet(object):
         # create backup dir
         os.makedirs(backup_dir)
 
-    def upgrade(self):
-
-        try:
-            if not self.can_upgrade():
-                logger.info('Skipping system')
-                return
-
-            logger.info('Upgrading system')
-            self.upgrade_system()
-            self.update_tracker()
-
-        except Exception as e:
-
-            if logger.isEnabledFor(logging.INFO):
-                logger.exception(e)
-            else:
-                logger.error(e)
-
-            message = 'Failed upgrading system.'
-            print(message)
-
-            raise pki.PKIException('Upgrade failed: %s' % e, e)
-
     def revert(self):
 
         backup_dir = self.get_backup_dir()
@@ -551,7 +528,7 @@ class PKIUpgrader(object):
 
             try:
                 scriptlet.init()
-                scriptlet.upgrade()
+                self.run_scriptlet(scriptlet)
 
             except Exception as e:  # pylint: disable=W0703
 
@@ -565,6 +542,29 @@ class PKIUpgrader(object):
                     logger.error(e)
 
                 raise pki.PKIException(message, e)
+
+    def run_scriptlet(self, scriptlet):
+
+        try:
+            if not scriptlet.can_upgrade():
+                logger.info('Skipping system')
+                return
+
+            logger.info('Upgrading system')
+            scriptlet.upgrade_system()
+            scriptlet.update_tracker()
+
+        except Exception as e:
+
+            if logger.isEnabledFor(logging.INFO):
+                logger.exception(e)
+            else:
+                logger.error(e)
+
+            message = 'Failed upgrading system.'
+            print(message)
+
+            raise pki.PKIException('Upgrade failed: %s' % e, e)
 
     def upgrade(self):
 
