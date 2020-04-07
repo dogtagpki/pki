@@ -100,6 +100,7 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 %package_option console
 %package_option theme
 %package_option meta
+%package_option tests
 %package_option debug
 
 %if ! %{with debug}
@@ -775,6 +776,20 @@ This PKI Console Theme Package contains
 # with theme
 %endif
 
+%if %{with tests}
+################################################################################
+%package -n       pki-tests
+################################################################################
+
+Summary:          PKI Tests
+BuildArch:        noarch
+
+%description -n   pki-tests
+This package contains PKI test suite.
+
+# with tests
+%endif
+
 ################################################################################
 %prep
 ################################################################################
@@ -1304,6 +1319,16 @@ fi
 %{_javadir}/pki/pki-console-theme.jar
 
 # with theme
+%endif
+
+%if %{with tests}
+################################################################################
+%files -n pki-tests
+################################################################################
+
+%{_datadir}/pki/tests/
+
+# with tests
 %endif
 
 ################################################################################
