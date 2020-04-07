@@ -41,15 +41,6 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
     def get_backup_dir(self):
         return BACKUP_DIR + '/' + str(self.version) + '/' + str(self.index)
 
-    def can_upgrade_server(self, instance, subsystem=None):
-        # A scriptlet can run if the version matches the tracker and
-        # the index is the next to be executed.
-
-        tracker = self.upgrader.get_server_tracker(instance, subsystem)
-
-        return self.version == tracker.get_version() and \
-            self.index == tracker.get_index() + 1
-
     def upgrade_subsystem(self, instance, subsystem):
         # Callback method to upgrade a subsystem.
         pass
@@ -141,7 +132,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
             self.upgrade_subsystems(scriptlet, instance)
 
-            if not scriptlet.can_upgrade_server(instance):
+            if not self.can_upgrade_server(scriptlet, instance):
                 logger.info('Skipping %s instance', instance)
                 continue
 
@@ -170,7 +161,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
             logging.info('Upgrading %s subsystem', subsystem.name)
 
-            if not scriptlet.can_upgrade_server(instance, subsystem):
+            if not self.can_upgrade_server(scriptlet, instance, subsystem):
                 logger.info('Skipping %s subsystem', subsystem)
                 continue
 
@@ -216,6 +207,15 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 tracker.set(version)
 
         print('Tracker has been set to version ' + str(version) + '.')
+
+    def can_upgrade_server(self, scriptlet, instance, subsystem=None):
+        # A scriptlet can run if the version matches the tracker and
+        # the index is the next to be executed.
+
+        tracker = self.get_server_tracker(instance, subsystem)
+
+        return scriptlet.version == tracker.get_version() and \
+            scriptlet.index == tracker.get_index() + 1
 
     def update_server_tracker(self, scriptlet, instance, subsystem=None):
         # Increment the index in the tracker. If it's the last scriptlet
