@@ -94,6 +94,8 @@ public class ACMEEngine implements ServletContextListener {
     private ACMEIssuerConfig issuerConfig;
     private ACMEIssuer issuer;
 
+    private boolean enabled = true;
+
     public static ACMEEngine getInstance() {
         return INSTANCE;
     }
@@ -160,6 +162,36 @@ public class ACMEEngine implements ServletContextListener {
 
     public void setIssuer(ACMEIssuer issuer) {
         this.issuer = issuer;
+    }
+
+    /**
+     * Whether the whole ACME service is enabled or not.
+     */
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    private void setEnabled(boolean b) {
+        this.enabled = b;
+    }
+
+    public void loadEngineConfig(String filename) throws Exception {
+        logger.info("Loading ACME engine config " + filename);
+        File f = new File(filename);
+        if (f.exists()) {
+            Properties props = new Properties();
+            try (FileReader reader = new FileReader(f)) {
+                props.load(reader);
+            }
+
+            // set whether ACME service is enabled
+            String s = props.getProperty("enabled");
+            if ("0".equals(s) || "false".equalsIgnoreCase(s)) {
+                this.enabled = false;
+                logger.info("ACME service is DISABLED by configuration");
+            }
+
+        } // else proceed with default config systems and settings
     }
 
     public void loadMetadata(String filename) throws Exception {
@@ -314,6 +346,8 @@ public class ACMEEngine implements ServletContextListener {
         logger.info("ACME configuration directory: " + acmeConfDir);
 
         try {
+            loadEngineConfig(acmeConfDir + File.separator + "engine.conf");
+
             loadMetadata(acmeConfDir + File.separator + "metadata.conf");
 
             loadDatabaseConfig(acmeConfDir + File.separator + "database.conf");
