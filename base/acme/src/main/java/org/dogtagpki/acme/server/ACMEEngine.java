@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -82,6 +83,8 @@ public class ACMEEngine implements ServletContextListener {
     public static ACMEEngine INSTANCE;
 
     private String name;
+
+    private ACMEEngineConfigSource engineConfigSource = null;
 
     private ACMEMetadata metadata;
 
@@ -175,23 +178,34 @@ public class ACMEEngine implements ServletContextListener {
         this.enabled = b;
     }
 
-    public void loadEngineConfig(String filename) throws Exception {
-        logger.info("Loading ACME engine config " + filename);
-        File f = new File(filename);
-        if (f.exists()) {
-            Properties props = new Properties();
-            try (FileReader reader = new FileReader(f)) {
-                props.load(reader);
-            }
+    public void loadEngineConfig(Properties cfg) throws Exception {
+        // the default class just sends the default config values
+        Class<? extends ACMEEngineConfigSource> configSourceClass
+            = ACMEEngineConfigDefaultSource.class;
 
-            // set whether ACME service is enabled
-            String s = props.getProperty("enabled");
-            if ("0".equals(s) || "false".equalsIgnoreCase(s)) {
-                this.enabled = false;
-                logger.info("ACME service is DISABLED by configuration");
-            }
+        String className = cfg.getProperty("engine.class");
+        if (className != null && !className.isEmpty()) {
+            configSourceClass =
+                (Class<ACMEEngineConfigSource>) Class.forName(className);
+        }
+        engineConfigSource = configSourceClass.newInstance();
 
-        } // else proceed with default config systems and settings
+        // We pass to the ConfigSource only the callbacks needed to set
+        // the configuration (Consumer<T>).  This abstraction ensures the
+        // ConfigSource has no direct access to the ACMEEngine instance.
+        engineConfigSource.init(
+            cfg,
+            new Consumer<Boolean>() {
+                @Override public void accept(Boolean b) {
+                    setEnabled(b);
+                    logger.info(
+                        "ACME service is "
+                        + (b ? "enabled" : "DISABLED")
+                        + " by configuration"
+                    );
+                }
+            }
+        );
     }
 
     public void loadMetadata(String filename) throws Exception {
@@ -346,7 +360,23 @@ public class ACMEEngine implements ServletContextListener {
         logger.info("ACME configuration directory: " + acmeConfDir);
 
         try {
-            loadEngineConfig(acmeConfDir + File.separator + "engine.conf");
+            // load config source configuration
+            Properties monitorCfg = new Properties();
+            String monitorCfgFilename = acmeConfDir + File.separator + "configsources.conf";
+            logger.info("Loading ACME engine config from " + monitorCfgFilename);
+            File f = new File(monitorCfgFilename);
+            if (f.exists()) {
+                try (FileReader reader = new FileReader(f)) {
+                    monitorCfg.load(reader);
+                }
+            } else {
+                logger.info(
+                    "  '" + monitorCfgFilename + "' does not exist; "
+                    + "proceeding with default config sources"
+                );
+            }
+
+            loadEngineConfig(monitorCfg);
 
             loadMetadata(acmeConfDir + File.separator + "metadata.conf");
 
@@ -368,6 +398,11 @@ public class ACMEEngine implements ServletContextListener {
     public void contextDestroyed(ServletContextEvent event) {
 
         logger.info("Shutting down ACME engine");
+
+        if (engineConfigSource != null) {
+            engineConfigSource.shutdown();
+            engineConfigSource = null;
+        }
 
         try {
             shutdownIssuer();
