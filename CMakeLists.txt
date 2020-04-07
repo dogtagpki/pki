@@ -154,6 +154,8 @@ if (NOT "${THEME}" STREQUAL "")
     add_subdirectory(themes)
 endif ()
 
+add_subdirectory(tests)
+
 install(
     FILES
         pom.xml

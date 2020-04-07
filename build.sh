@@ -46,7 +46,7 @@ usage() {
     echo "    --help                 Show help message."
     echo
     echo "Packages:"
-    echo "    base, server, ca, kra, ocsp, tks, tps, javadoc, console, theme, meta, debug"
+    echo "    base, server, ca, kra, ocsp, tks, tps, javadoc, console, theme, meta, tests, debug"
     echo
     echo "Target:"
     echo "    src    Generate RPM sources."
