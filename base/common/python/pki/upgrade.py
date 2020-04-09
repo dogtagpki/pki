@@ -85,8 +85,6 @@ class PKIUpgradeTracker(object):
         if index > 0:
             print('  Last completed scriptlet: ' + str(index))
 
-        print()
-
     def get_index(self):
 
         self.properties.read()
@@ -529,15 +527,8 @@ class PKIUpgrader(object):
     def upgrade(self):
 
         versions = self.versions()
-        first = True
 
         for version in versions:
-
-            if first:
-                first = False
-            else:
-                print()
-
             self.upgrade_version(version)
 
     def revert_version(self, version):
@@ -583,12 +574,6 @@ class PKIUpgrader(object):
 
         self.show_tracker()
 
-        if self.is_complete():
-            print('Upgrade complete.')
-
-        else:
-            print('Upgrade incomplete.')
-
     def set_tracker(self, version):
 
         tracker = self.get_tracker()
@@ -618,5 +603,3 @@ class PKIUpgrader(object):
 
         tracker = self.get_tracker()
         tracker.remove()
-
-        print('Tracker has been removed.')

@@ -138,7 +138,20 @@ class UpgradeCLI(pki.cli.CLI):
         else:
             instances = pki.server.instance.PKIInstance.instances()
 
-        upgrader = pki.server.upgrade.PKIServerUpgrader(instances=instances)
+        for instance in instances:
+            self.upgrade(
+                instance,
+                status,
+                revert,
+                validate,
+                remove_tracker,
+                reset_tracker,
+                tracker_version)
+
+    def upgrade(self, instance, status, revert, validate,
+                remove_tracker, reset_tracker, tracker_version):
+
+        upgrader = pki.server.upgrade.PKIServerUpgrader(instance=instance)
 
         if status:
             upgrader.status()
@@ -163,5 +176,5 @@ class UpgradeCLI(pki.cli.CLI):
             upgrader.set_tracker(tracker_version)
 
         else:
-            logging.info('Upgrading PKI server')
+            print('Upgrading %s instance' % instance)
             upgrader.upgrade()

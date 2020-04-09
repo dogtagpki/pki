@@ -51,11 +51,11 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
 class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
-    def __init__(self, instances, upgrade_dir=UPGRADE_DIR):
+    def __init__(self, instance, upgrade_dir=UPGRADE_DIR):
 
         super(PKIServerUpgrader, self).__init__(upgrade_dir)
 
-        self.instances = instances
+        self.instances = [instance]
 
         self.instance_trackers = {}
 
@@ -169,8 +169,6 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
             tracker = self.get_server_tracker(instance)
             tracker.set(version)
 
-        print('Tracker has been set to version ' + str(version) + '.')
-
     def update_server_tracker(self, scriptlet, instance):
 
         # Increment the index in the tracker. If it's the last scriptlet
@@ -191,5 +189,3 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
             tracker = self.get_server_tracker(instance)
             tracker.remove()
-
-        print('Tracker has been removed.')
