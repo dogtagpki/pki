@@ -57,6 +57,9 @@ class PKIUpgradeTracker(object):
 
         self.properties = pki.PropertyFile(filename, delimiter)
 
+        # run all scriptlets for each upgrade version
+        self.remove_index()
+
     def remove(self):
 
         logger.info('Removing %s tracker', self.name)
