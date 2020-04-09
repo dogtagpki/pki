@@ -318,7 +318,7 @@ class PKIUpgrader(object):
     def __init__(self, upgrade_dir=UPGRADE_DIR):
 
         self.upgrade_dir = upgrade_dir
-        self.system_tracker = None
+        self.tracker = None
 
     def version_dir(self, version):
 
@@ -428,19 +428,17 @@ class PKIUpgrader(object):
 
     def get_tracker(self):
 
-        if self.system_tracker:
-            tracker = self.system_tracker
+        if self.tracker:
+            return self.tracker
 
-        else:
-            tracker = PKIUpgradeTracker(
-                'system',
-                SYSTEM_TRACKER,
-                delimiter=': ',
-                version_key='Configuration-Version',
-                index_key='Scriptlet-Index')
-            self.system_tracker = tracker
+        self.tracker = PKIUpgradeTracker(
+            'system',
+            SYSTEM_TRACKER,
+            delimiter=': ',
+            version_key='Configuration-Version',
+            index_key='Scriptlet-Index')
 
-        return tracker
+        return self.tracker
 
     def get_current_version(self):
 

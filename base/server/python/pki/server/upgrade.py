@@ -56,29 +56,24 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         super(PKIServerUpgrader, self).__init__(upgrade_dir)
 
         self.instance = instance
+        self.tracker = None
 
-        self.instance_trackers = {}
+    def get_tracker(self):
 
-    def get_server_tracker(self, instance):
+        if self.tracker:
+            return self.tracker
 
-        name = instance.name
+        self.tracker = pki.upgrade.PKIUpgradeTracker(
+            '%s instance' % self.instance,
+            INSTANCE_TRACKER % self.instance.conf_dir,
+            version_key='PKI_VERSION',
+            index_key='PKI_UPGRADE_INDEX')
 
-        try:
-            tracker = self.instance_trackers[name]
-        except KeyError:
-            tracker = pki.upgrade.PKIUpgradeTracker(
-                name + ' instance',
-                INSTANCE_TRACKER % instance.conf_dir,
-                version_key='PKI_VERSION',
-                index_key='PKI_UPGRADE_INDEX')
-            self.instance_trackers[name] = tracker
-
-        return tracker
+        return self.tracker
 
     def get_current_version(self):
 
-        tracker = self.get_server_tracker(self.instance)
-        current_version = tracker.get_version()
+        current_version = self.get_tracker().get_version()
 
         if not current_version:
             current_version = self.get_target_version()
@@ -103,7 +98,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
             logger.info('Upgrading %s instance', self.instance)
 
             scriptlet.upgrade_instance(self.instance)
-            self.update_server_tracker(scriptlet, self.instance)
+            self.update_tracker(scriptlet)
 
         except Exception as e:
 
@@ -147,20 +142,20 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def show_tracker(self):
 
-        tracker = self.get_server_tracker(self.instance)
+        tracker = self.get_tracker()
         tracker.show()
 
     def set_tracker(self, version):
 
-        tracker = self.get_server_tracker(self.instance)
+        tracker = self.get_tracker()
         tracker.set(version)
 
-    def update_server_tracker(self, scriptlet, instance):
+    def update_tracker(self, scriptlet):
 
         # Increment the index in the tracker. If it's the last scriptlet
         # in this version, update the tracker version.
 
-        tracker = self.get_server_tracker(instance)
+        tracker = self.get_tracker()
         scriptlet.backup(tracker.filename)
 
         if not scriptlet.last:
@@ -172,5 +167,5 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def remove_tracker(self):
 
-        tracker = self.get_server_tracker(self.instance)
+        tracker = self.get_tracker()
         tracker.remove()
