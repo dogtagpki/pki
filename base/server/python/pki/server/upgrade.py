@@ -63,9 +63,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def get_server_tracker(self, instance, subsystem=None):
         if subsystem:
-            name = str(subsystem)
+            name = instance.name + '/' + subsystem.name
             try:
-                tracker = self.subsystem_trackers[instance]
+                tracker = self.subsystem_trackers[name]
             except KeyError:
                 tracker = pki.upgrade.PKIUpgradeTracker(
                     name + ' subsystem',
@@ -75,15 +75,16 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 self.subsystem_trackers[name] = tracker
 
         else:
+            name = instance.name
             try:
-                tracker = self.instance_trackers[str(instance)]
+                tracker = self.instance_trackers[name]
             except KeyError:
                 tracker = pki.upgrade.PKIUpgradeTracker(
-                    str(instance) + ' instance',
+                    name + ' instance',
                     INSTANCE_TRACKER % instance.conf_dir,
                     version_key='PKI_VERSION',
                     index_key='PKI_UPGRADE_INDEX')
-                self.instance_trackers[str(instance)] = tracker
+                self.instance_trackers[name] = tracker
 
         return tracker
 
