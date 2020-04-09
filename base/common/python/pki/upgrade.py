@@ -493,22 +493,8 @@ class PKIUpgrader(object):
             message = str(scriptlet.index) + '. ' + scriptlet.message
             print(message)
 
-            try:
-                self.init_scriptlet(scriptlet)
-                self.run_scriptlet(scriptlet)
-
-            except Exception as e:  # pylint: disable=W0703
-
-                print()
-
-                message = 'Upgrade failed: %s' % e
-
-                if logger.isEnabledFor(logging.INFO):
-                    logger.exception(e)
-                else:
-                    logger.error(e)
-
-                raise pki.PKIException(message, e)
+            self.init_scriptlet(scriptlet)
+            self.run_scriptlet(scriptlet)
 
     def init_scriptlet(self, scriptlet):
 
@@ -557,17 +543,16 @@ class PKIUpgrader(object):
     def upgrade(self):
 
         versions = self.versions()
+        first = True
 
         for version in versions:
+
+            if first:
+                first = False
+            else:
+                print()
+
             self.upgrade_version(version)
-            print()
-
-        if self.is_complete():
-            print('Upgrade complete.')
-
-        else:
-            self.show_tracker()
-            print('Upgrade incomplete.')
 
     def revert_version(self, version):
 
