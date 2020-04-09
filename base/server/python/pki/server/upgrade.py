@@ -31,7 +31,6 @@ UPGRADE_DIR = pki.SHARE_DIR + '/server/upgrade'
 BACKUP_DIR = pki.LOG_DIR + '/server/upgrade'
 
 INSTANCE_TRACKER = '%s/tomcat.conf'
-SUBSYSTEM_TRACKER = '%s/CS.cfg'
 
 logger = logging.getLogger(__name__)
 
@@ -59,32 +58,20 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         self.instances = instances
 
         self.instance_trackers = {}
-        self.subsystem_trackers = {}
 
-    def get_server_tracker(self, instance, subsystem=None):
-        if subsystem:
-            name = instance.name + '/' + subsystem.name
-            try:
-                tracker = self.subsystem_trackers[name]
-            except KeyError:
-                tracker = pki.upgrade.PKIUpgradeTracker(
-                    name + ' subsystem',
-                    SUBSYSTEM_TRACKER % subsystem.conf_dir,
-                    version_key='cms.product.version',
-                    index_key='cms.upgrade.index')
-                self.subsystem_trackers[name] = tracker
+    def get_server_tracker(self, instance):
 
-        else:
-            name = instance.name
-            try:
-                tracker = self.instance_trackers[name]
-            except KeyError:
-                tracker = pki.upgrade.PKIUpgradeTracker(
-                    name + ' instance',
-                    INSTANCE_TRACKER % instance.conf_dir,
-                    version_key='PKI_VERSION',
-                    index_key='PKI_UPGRADE_INDEX')
-                self.instance_trackers[name] = tracker
+        name = instance.name
+
+        try:
+            tracker = self.instance_trackers[name]
+        except KeyError:
+            tracker = pki.upgrade.PKIUpgradeTracker(
+                name + ' instance',
+                INSTANCE_TRACKER % instance.conf_dir,
+                version_key='PKI_VERSION',
+                index_key='PKI_UPGRADE_INDEX')
+            self.instance_trackers[name] = tracker
 
         return tracker
 
