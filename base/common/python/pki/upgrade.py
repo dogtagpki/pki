@@ -507,23 +507,9 @@ class PKIUpgrader(object):
         logger.debug('Command: mkdir -p %s', backup_dir)
         os.makedirs(backup_dir)
 
-    def can_upgrade(self, scriptlet):
-
-        # A scriptlet can run if the version matches the tracker and
-        # the index is the next to be executed.
-
-        tracker = self.get_tracker()
-
-        return scriptlet.version == tracker.get_version() and \
-            scriptlet.index == tracker.get_index() + 1
-
     def run_scriptlet(self, scriptlet):
 
         try:
-            if not self.can_upgrade(scriptlet):
-                logger.info('Skipping system')
-                return
-
             logger.info('Upgrading system')
             scriptlet.upgrade_system()
             self.update_tracker(scriptlet)

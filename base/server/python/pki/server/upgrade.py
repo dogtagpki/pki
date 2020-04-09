@@ -133,10 +133,6 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
             self.upgrade_subsystems(scriptlet, instance)
 
-            if not self.can_upgrade_server(scriptlet, instance):
-                logger.info('Skipping %s instance', instance)
-                continue
-
             try:
                 logger.info('Upgrading %s instance', instance)
 
@@ -161,10 +157,6 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         for subsystem in instance.subsystems:
 
             logging.info('Upgrading %s subsystem', subsystem.name)
-
-            if not self.can_upgrade_server(scriptlet, instance, subsystem):
-                logger.info('Skipping %s subsystem', subsystem)
-                continue
 
             try:
                 # reload subsystem configuration to synchronize tracker changes
@@ -211,15 +203,6 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 tracker.set(version)
 
         print('Tracker has been set to version ' + str(version) + '.')
-
-    def can_upgrade_server(self, scriptlet, instance, subsystem=None):
-        # A scriptlet can run if the version matches the tracker and
-        # the index is the next to be executed.
-
-        tracker = self.get_server_tracker(instance, subsystem)
-
-        return scriptlet.version == tracker.get_version() and \
-            scriptlet.index == tracker.get_index() + 1
 
     def update_server_tracker(self, scriptlet, instance, subsystem=None):
         # Increment the index in the tracker. If it's the last scriptlet
