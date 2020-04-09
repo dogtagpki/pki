@@ -15,6 +15,7 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -28,6 +29,9 @@ class ACMEEngineConfigFileSource
 
     String filename;
     Thread monitorThread = null;
+
+    // cached config values, so we only send values that actually changed
+    Optional<Boolean> cacheEnabled = Optional.empty();
 
     public void init(
             Properties cfg,
@@ -49,6 +53,10 @@ class ACMEEngineConfigFileSource
     }
 
     void loadFile() throws IOException {
+        // default values
+        Boolean enabled = true;
+
+        // read values
         File f = new File(filename);
         if (f.exists()) {
             Properties props = new Properties();
@@ -56,11 +64,17 @@ class ACMEEngineConfigFileSource
                 props.load(reader);
             }
 
-            // set whether ACME service is enabled
             String s = props.getProperty("enabled");
-            setEnabled.accept(!("0".equals(s) || "false".equalsIgnoreCase(s)));
-        } else {
-            setEnabled.accept(true); // enabled by default
+            if (s != null) {
+                enabled = !("0".equals(s) || "false".equalsIgnoreCase(s));
+            }
+        }
+
+        // send changed values and update cache
+        Optional<Boolean> v = Optional.of(enabled);
+        if (!cacheEnabled.equals(v)) {
+            setEnabled.accept(enabled);
+            cacheEnabled = v;
         }
     }
 
