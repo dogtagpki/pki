@@ -55,7 +55,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
         super(PKIServerUpgrader, self).__init__(upgrade_dir)
 
-        self.instances = [instance]
+        self.instance = instance
 
         self.instance_trackers = {}
 
@@ -77,19 +77,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def get_current_version(self):
 
-        current_version = None
+        tracker = self.get_server_tracker(self.instance)
+        current_version = tracker.get_version()
 
-        for instance in self.instances:
-
-            # check the instance version
-            tracker = self.get_server_tracker(instance)
-            version = tracker.get_version()
-
-            # if instance version is older, use instance version
-            if not current_version or version < current_version:
-                current_version = version
-
-        # if no instances defined, no upgrade required
         if not current_version:
             current_version = self.get_target_version()
 
@@ -105,30 +95,28 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def run_scriptlet(self, scriptlet):
 
-        for instance in self.instances:
+        logging.info('Upgrading subsystems in %s instance', self.instance)
 
-            logging.info('Upgrading %s instance', instance.name)
+        self.upgrade_subsystems(scriptlet, self.instance)
 
-            self.upgrade_subsystems(scriptlet, instance)
+        try:
+            logger.info('Upgrading %s instance', self.instance)
 
-            try:
-                logger.info('Upgrading %s instance', instance)
+            scriptlet.upgrade_instance(self.instance)
+            self.update_server_tracker(scriptlet, self.instance)
 
-                scriptlet.upgrade_instance(instance)
-                self.update_server_tracker(scriptlet, instance)
+        except Exception as e:
 
-            except Exception as e:
+            if logger.isEnabledFor(logging.INFO):
+                logger.exception(e)
+            else:
+                logger.error(e)
 
-                if logger.isEnabledFor(logging.INFO):
-                    logger.exception(e)
-                else:
-                    logger.error(e)
+            message = 'Failed upgrading %s instance.' % self.instance
+            print(message)
 
-                message = 'Failed upgrading ' + str(instance) + ' instance.'
-                print(message)
-
-                raise pki.server.PKIServerException(
-                    'Upgrade failed in %s: %s' % (instance, e), e, instance)
+            raise pki.server.PKIServerException(
+                'Upgrade failed in %s: %s' % (self.instance, e), e, self.instance)
 
     def upgrade_subsystems(self, scriptlet, instance):
 
@@ -158,16 +146,14 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                     e, instance, subsystem)
 
     def show_tracker(self):
-        for instance in self.instances:
 
-            tracker = self.get_server_tracker(instance)
-            tracker.show()
+        tracker = self.get_server_tracker(self.instance)
+        tracker.show()
 
     def set_tracker(self, version):
-        for instance in self.instances:
 
-            tracker = self.get_server_tracker(instance)
-            tracker.set(version)
+        tracker = self.get_server_tracker(self.instance)
+        tracker.set(version)
 
     def update_server_tracker(self, scriptlet, instance):
 
@@ -185,7 +171,6 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
             tracker.set_version(scriptlet.version.next)
 
     def remove_tracker(self):
-        for instance in self.instances:
 
-            tracker = self.get_server_tracker(instance)
-            tracker.remove()
+        tracker = self.get_server_tracker(self.instance)
+        tracker.remove()
