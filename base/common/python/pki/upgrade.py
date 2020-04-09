@@ -443,6 +443,10 @@ class PKIUpgrader(object):
     def get_current_version(self):
 
         current_version = self.get_tracker().get_version()
+
+        if not current_version:
+            current_version = self.get_target_version()
+
         logging.debug('Current version: %s', current_version)
 
         return current_version
