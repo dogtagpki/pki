@@ -90,31 +90,6 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def run_scriptlet(self, scriptlet):
 
-        logging.info('Upgrading subsystems in %s instance', self.instance)
-
-        self.upgrade_subsystems(scriptlet)
-
-        try:
-            logger.info('Upgrading %s instance', self.instance)
-
-            scriptlet.upgrade_instance(self.instance)
-            self.update_tracker(scriptlet)
-
-        except Exception as e:
-
-            if logger.isEnabledFor(logging.INFO):
-                logger.exception(e)
-            else:
-                logger.error(e)
-
-            message = 'Failed upgrading %s instance.' % self.instance
-            print(message)
-
-            raise pki.server.PKIServerException(
-                'Upgrade failed in %s: %s' % (self.instance, e), e, self.instance)
-
-    def upgrade_subsystems(self, scriptlet):
-
         for subsystem in self.instance.subsystems:
 
             logging.info('Upgrading %s subsystem', subsystem)
@@ -123,6 +98,10 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
             subsystem.load()
 
             scriptlet.upgrade_subsystem(self.instance, subsystem)
+
+        logger.info('Upgrading %s instance', self.instance)
+        scriptlet.upgrade_instance(self.instance)
+        self.update_tracker(scriptlet)
 
     def show_tracker(self):
 

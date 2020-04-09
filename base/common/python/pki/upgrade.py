@@ -505,22 +505,9 @@ class PKIUpgrader(object):
 
     def run_scriptlet(self, scriptlet):
 
-        try:
-            logger.info('Upgrading system')
-            scriptlet.upgrade_system()
-            self.update_tracker(scriptlet)
-
-        except Exception as e:
-
-            if logger.isEnabledFor(logging.INFO):
-                logger.exception(e)
-            else:
-                logger.error(e)
-
-            message = 'Failed upgrading system.'
-            print(message)
-
-            raise pki.PKIException('Upgrade failed: %s' % e, e)
+        logger.info('Upgrading system')
+        scriptlet.upgrade_system()
+        self.update_tracker(scriptlet)
 
     def upgrade(self):
 
