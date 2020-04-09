@@ -491,6 +491,7 @@ class PKIUpgrader(object):
 
             self.init_scriptlet(scriptlet)
             self.run_scriptlet(scriptlet)
+            self.update_tracker(scriptlet)
 
     def init_scriptlet(self, scriptlet):
 
@@ -507,7 +508,6 @@ class PKIUpgrader(object):
 
         logger.info('Upgrading system')
         scriptlet.upgrade_system()
-        self.update_tracker(scriptlet)
 
     def upgrade(self):
 

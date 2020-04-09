@@ -101,34 +101,3 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
         logger.info('Upgrading %s instance', self.instance)
         scriptlet.upgrade_instance(self.instance)
-        self.update_tracker(scriptlet)
-
-    def show_tracker(self):
-
-        tracker = self.get_tracker()
-        tracker.show()
-
-    def set_tracker(self, version):
-
-        tracker = self.get_tracker()
-        tracker.set(version)
-
-    def update_tracker(self, scriptlet):
-
-        # Increment the index in the tracker. If it's the last scriptlet
-        # in this version, update the tracker version.
-
-        tracker = self.get_tracker()
-        scriptlet.backup(tracker.filename)
-
-        if not scriptlet.last:
-            tracker.set_index(scriptlet.index)
-
-        else:
-            tracker.remove_index()
-            tracker.set_version(scriptlet.version.next)
-
-    def remove_tracker(self):
-
-        tracker = self.get_tracker()
-        tracker.remove()
