@@ -167,6 +167,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 continue
 
             try:
+                # reload subsystem configuration to synchronize tracker changes
+                subsystem.load()
+
                 logger.info('Upgrading %s subsystem', subsystem)
                 scriptlet.upgrade_subsystem(instance, subsystem)
                 self.update_server_tracker(scriptlet, instance, subsystem)
