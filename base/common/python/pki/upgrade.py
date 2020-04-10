@@ -566,21 +566,7 @@ class PKIUpgrader(object):
             message = str(scriptlet.index) + '. ' + scriptlet.message
             print(message)
 
-            try:
-                scriptlet.revert()
-
-            except Exception as e:  # pylint: disable=W0703
-
-                print()
-
-                message = 'Revert failed: %s' % e
-
-                if logger.isEnabledFor(logging.INFO):
-                    logger.exception(e)
-                else:
-                    logger.error(e)
-
-                raise pki.PKIException(message, e)
+            scriptlet.revert()
 
         self.set_tracker(version)
 
@@ -621,8 +607,6 @@ class PKIUpgrader(object):
 
         tracker = self.get_tracker()
         tracker.set(version)
-
-        print('Tracker has been set to version ' + str(version) + '.')
 
     def update_tracker(self, scriptlet):
 
