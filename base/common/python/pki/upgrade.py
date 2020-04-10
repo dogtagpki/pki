@@ -271,9 +271,10 @@ class PKIUpgradeScriptlet(object):
                 pki.util.copydirs(sourceparent, destparent, force=True)
 
             if os.path.isfile(path):
-                logger.info('Saving %s', path)
-                # do not overwrite initial backup
-                pki.util.copyfile(path, dest, force=False)
+
+                if not os.path.exists(dest):
+                    logger.info('Saving %s', path)
+                    pki.util.copyfile(path, dest)
 
             else:
                 for sourcepath, _, filenames in os.walk(path):
@@ -281,16 +282,17 @@ class PKIUpgradeScriptlet(object):
                     relpath = sourcepath[len(path):]
                     destpath = dest + relpath
 
-                    logger.info('Saving %s', sourcepath)
-                    pki.util.copydirs(sourcepath, destpath, force=True)
+                    if not os.path.exists(destpath):
+                        logger.info('Saving %s', sourcepath)
+                        pki.util.copydirs(sourcepath, destpath, force=True)
 
                     for filename in filenames:
                         sourcefile = os.path.join(sourcepath, filename)
                         targetfile = os.path.join(destpath, filename)
 
-                        logger.info('Saving %s', sourcefile)
-                        # do not overwrite initial backup
-                        pki.util.copyfile(sourcefile, targetfile, force=False)
+                        if not os.path.exists(targetfile):
+                            logger.info('Saving %s', sourcefile)
+                            pki.util.copyfile(sourcefile, targetfile)
 
         else:
 
