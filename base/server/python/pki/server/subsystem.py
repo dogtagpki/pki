@@ -888,6 +888,29 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
+    def update_database(
+            self,
+            issuer_dn,
+            update_crl_vlv_indexes=False,
+            as_current_user=False):
+
+        if self.name != 'ca':
+            return
+        cmd = [self.name + '-db-upgrade']
+        if update_crl_vlv_indexes:
+            cmd.extend(['--action', 'update-vlv-indexes'])
+            cmd.extend(['--vlv-file', 'crlcaissuer.ldif'])
+            cmd.extend(['--vlv-tasks-file', 'crlcaissuertasks.ldif'])
+            cmd.extend(['--issuer-dn', issuer_dn])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def empty_database(self, force=False, as_current_user=False):
 
         cmd = [self.name + '-db-empty']

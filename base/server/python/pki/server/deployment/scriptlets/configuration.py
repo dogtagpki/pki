@@ -802,6 +802,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             setup_db_manager=setup_db_manager,
             setup_vlv_indexes=setup_vlv_indexes)
 
+        update_crl_vlv_indexes = (subsystem.type == 'CA')
+        if update_crl_vlv_indexes:
+            subsystem.update_database(
+                issuer_dn=deployer.mdict['pki_ca_signing_subject_dn'],
+                update_crl_vlv_indexes=update_crl_vlv_indexes)
+
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger
         # (e. g. - 'eclipse'):
