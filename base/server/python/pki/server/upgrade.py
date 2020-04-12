@@ -27,7 +27,6 @@ import pki.util
 import pki.server
 
 UPGRADE_DIR = pki.SHARE_DIR + '/server/upgrade'
-BACKUP_DIR = pki.LOG_DIR + '/server/upgrade'
 
 INSTANCE_TRACKER = '%s/tomcat.conf'
 
@@ -36,8 +35,12 @@ logger = logging.getLogger(__name__)
 
 class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
+    def __init__(self):
+        super(PKIServerUpgradeScriptlet, self).__init__()
+        self.instance = None
+
     def get_backup_dir(self):
-        return BACKUP_DIR + '/' + str(self.version) + '/' + str(self.index)
+        return self.instance.log_dir + '/backup/' + str(self.version) + '/' + str(self.index)
 
     def upgrade_subsystem(self, instance, subsystem):
         # Callback method to upgrade a subsystem.
@@ -85,6 +88,10 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def copyfile(self, source, dest, force=False):
         self.instance.copyfile(source, dest, force=force)
+
+    def init_scriptlet(self, scriptlet):
+        scriptlet.instance = self.instance
+        super(PKIServerUpgrader, self).init_scriptlet(scriptlet)
 
     def run_scriptlet(self, scriptlet):
 

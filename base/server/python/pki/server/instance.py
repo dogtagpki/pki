@@ -199,7 +199,7 @@ class PKIInstance(pki.server.PKIServer):
                 if current_user != self.user:
                     prefix.extend(['sudo', '-u', self.user])
 
-            cmd = prefix + ['/usr/sbin/pki-server', 'upgrade', '--validate', self.name]
+            cmd = prefix + ['/usr/sbin/pki-server', 'upgrade', self.name]
 
             if logger.isEnabledFor(logging.DEBUG):
                 cmd.extend(['--debug'])

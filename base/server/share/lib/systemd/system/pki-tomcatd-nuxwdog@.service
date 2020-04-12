@@ -13,7 +13,7 @@ EnvironmentFile=-/etc/sysconfig/%i
 
 ExecStartPre=+/usr/bin/setfacl -m u:pkiuser:wx /run/systemd/ask-password
 ExecStartPre=/usr/bin/pki-server-nuxwdog
-ExecStartPre=/usr/sbin/pki-server upgrade --validate %i
+ExecStartPre=/usr/sbin/pki-server upgrade %i
 ExecStartPre=/usr/sbin/pki-server migrate %i
 ExecStartPre=/usr/bin/pkidaemon start %i
 ExecStartPost=+/usr/bin/setfacl -x u:pkiuser /run/systemd/ask-password
