@@ -212,7 +212,6 @@ def main(argv):
 
     pkilogging.enable_pki_logger(config.pki_log_dir,
                                  config.pki_log_name,
-                                 config.pki_log_level,
                                  "pkidestroy")
 
     # Read the specified PKI configuration file.

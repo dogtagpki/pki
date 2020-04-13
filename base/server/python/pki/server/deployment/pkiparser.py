@@ -190,23 +190,15 @@ class PKIConfigParser:
         self.mdict = deployer.mdict
         self.slots_dict = deployer.slots
 
-    # PKI Deployment Helper Functions
     def process_command_line_arguments(self):
 
-        # Parse command-line options
         args = self.arg_parser.parse_args()
 
-        # Process 'Mandatory' command-line options
-
-        # Process 'Optional' command-line options
-        #    '-v'
         if args.pki_verbosity == 1:
-            config.pki_log_level = logging.INFO
+            logging.getLogger().setLevel(logging.INFO)
+
         elif args.pki_verbosity >= 2:
-            config.pki_log_level = logging.DEBUG
-        else:
-            # Set default log levels
-            config.pki_log_level = logging.WARNING
+            logging.getLogger().setLevel(logging.DEBUG)
 
         return args
 

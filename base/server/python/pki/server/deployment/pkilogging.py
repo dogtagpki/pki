@@ -45,7 +45,7 @@ def log_format(given_dict):
 
 
 # PKI Deployment Logging Functions
-def enable_pki_logger(log_dir, log_name, log_level, name):
+def enable_pki_logger(log_dir, log_name, name):
 
     if not os.path.isdir(log_dir):
         os.makedirs(log_dir)
@@ -82,6 +82,5 @@ def enable_pki_logger(log_dir, log_name, log_level, name):
 
     for module in modules:
         logger = logging.getLogger(module)
-        logger.setLevel(log_level)
         logger.addHandler(console)
         logger.addHandler(log_file)
