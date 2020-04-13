@@ -202,17 +202,14 @@ def main(argv):
     parser.validate()
     parser.init_config(pki_instance_name=config.pki_deployed_instance_name)
 
-    # Enable 'pkidestroy' logging.
-    config.pki_log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
+    log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
     log_name = "pki" + "-" +\
                deployer.subsystem_name.lower() +\
                "-" + "destroy" + "." +\
                deployer.log_timestamp + "." + "log"
-    print('Uninstallation log: %s/%s' % (config.pki_log_dir, log_name))
+    print('Uninstallation log: %s/%s' % (log_dir, log_name))
 
-    pkilogging.enable_pki_logger(config.pki_log_dir,
-                                 log_name,
-                                 "pkidestroy")
+    pkilogging.enable_pki_logger(log_dir, log_name, 'pkidestroy')
 
     # Read the specified PKI configuration file.
     rv = parser.read_pki_configuration_file()

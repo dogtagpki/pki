@@ -500,17 +500,14 @@ def main(argv):
               deployer.subsystem_name.lower())
         sys.exit(1)
 
-    # Enable 'pkispawn' logging.
-    config.pki_log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
+    log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
     log_name = "pki" + "-" + \
                deployer.subsystem_name.lower() + \
                "-" + "spawn" + "." + \
                deployer.log_timestamp + "." + "log"
-    print('Installation log: %s/%s' % (config.pki_log_dir, log_name))
+    print('Installation log: %s/%s' % (log_dir, log_name))
 
-    pkilogging.enable_pki_logger(config.pki_log_dir,
-                                 log_name,
-                                 "pkispawn")
+    pkilogging.enable_pki_logger(log_dir, log_name, 'pkispawn')
 
     # Read the specified PKI configuration file.
     rv = parser.read_pki_configuration_file()
@@ -565,7 +562,7 @@ def main(argv):
         if e.output:
             print(e.output)
         print()
-        print('Please check pkispawn logs in %s/%s' % (config.pki_log_dir, log_name))
+        print('Please check pkispawn logs in %s/%s' % (log_dir, log_name))
         sys.exit(1)
 
     except requests.HTTPError as e:
