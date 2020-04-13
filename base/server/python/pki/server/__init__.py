@@ -369,7 +369,11 @@ class PKIServer(object):
 
     def makedirs(self, path, force=False):
         pki.util.makedirs(
-            path, uid=self.uid, gid=self.gid, force=force)
+            path,
+            uid=self.uid,
+            gid=self.gid,
+            mode=DEFAULT_DIR_MODE,
+            force=force)
 
     def symlink(self, source, dest, force=False):
         pki.util.symlink(
