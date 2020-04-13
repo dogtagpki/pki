@@ -385,8 +385,14 @@ class PKIServer(object):
 
     def copyfile(self, source, dest, slots=None, params=None, force=False):
         pki.util.copyfile(
-            source, dest, slots=slots, params=params,
-            uid=self.uid, gid=self.gid, force=force)
+            source,
+            dest,
+            slots=slots,
+            params=params,
+            uid=self.uid,
+            gid=self.gid,
+            mode=DEFAULT_FILE_MODE,
+            force=force)
 
     def create(self, force=False):
 

@@ -168,7 +168,7 @@ def copy(source, dest, uid=-1, gid=-1, force=False):
                 copyfile(sourcefile, targetfile, uid=uid, gid=gid, force=force)
 
 
-def copyfile(source, dest, slots=None, params=None, uid=None, gid=None, perms=None, force=False):
+def copyfile(source, dest, slots=None, params=None, uid=None, gid=None, mode=None, force=False):
     """
     Copy a file or link while preserving its attributes.
     """
@@ -224,10 +224,10 @@ def copyfile(source, dest, slots=None, params=None, uid=None, gid=None, perms=No
 
     os.chown(dest, uid, gid)
 
-    if perms is None:
-        perms = stat.st_mode
+    if mode is None:
+        mode = stat.st_mode
 
-    os.chmod(dest, perms)
+    os.chmod(dest, mode)
 
 
 def copydirs(source, dest, uid=-1, gid=-1, force=False):
@@ -278,19 +278,19 @@ def chown(path, uid, gid):
         chown(itempath, uid, gid)
 
 
-def chmod(path, perms):
+def chmod(path, mode):
     """
     Change permissions of a file, link, or folder recursively.
     """
 
-    os.chmod(path, perms)
+    os.chmod(path, mode)
 
     if not os.path.isdir(path):
         return
 
     for item in os.listdir(path):
         itempath = os.path.join(path, item)
-        chmod(itempath, perms)
+        chmod(itempath, mode)
 
 
 def remove(path, force=False):

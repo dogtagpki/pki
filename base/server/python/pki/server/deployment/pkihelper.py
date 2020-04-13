@@ -1445,7 +1445,7 @@ class File:
                 params=self.mdict,
                 uid=uid,
                 gid=gid,
-                perms=perms,
+                mode=perms,
                 force=overwrite_flag)
 
             # Store record in installation manifest
