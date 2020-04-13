@@ -179,9 +179,9 @@ class PKIConfigParser:
             dest='help', action='help',
             help='show this help message and exit')
         self.optional.add_argument(
-            '-v',
+            '-v', '--verbose',
             dest='pki_verbosity', action='count', default=0,
-            help='display verbose information (details below)')
+            help='Run in verbose mode')
 
         self.indent = 0
         self.authdb_connection = None

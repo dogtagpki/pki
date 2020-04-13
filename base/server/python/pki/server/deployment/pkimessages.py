@@ -42,17 +42,6 @@ PKI_DICTIONARY_WEB_SERVER = '''
 # NEVER print out 'sensitive' data dictionary!!!
 
 
-# PKI Deployment Log Messages
-PKI_VERBOSITY = '''
-VERBOSITY FLAGS    CONSOLE MESSAGE LEVEL       LOG MESSAGE LEVEL
-=======================================================================
-  NONE             error|warning               error|warning|info|debug
-  -v               error|warning|info          error|warning|info|debug
-  -vv              error|warning|info|debug    error|warning|info|debug
-
-'''
-
-
 # PKI Deployment Error Messages
 PKI_BADZIPFILE_ERROR_1 = "zipfile.BadZipFile:  %s!"
 PKI_RUN_INSTALLATION_STEP_TWO = '''
@@ -124,7 +113,7 @@ REMINDER:
     Finally, if an optional '-p <prefix>' is defined, this value WILL be
     prepended to the default PKI instance path which is placed in front
     of the specified '-i <instance>' parameter.
-''' + PKI_VERBOSITY
+'''
 PKISPAWN_BEGIN_MESSAGE_2 = \
     "BEGIN spawning %s subsystem in %s instance"
 PKISPAWN_END_MESSAGE_2 = \
@@ -141,7 +130,7 @@ REMINDER:
 
     Finally, if an optional '-p <prefix>' is defined, this value WILL NOT
     be prepended in front of the mandatory '-f <configuration_file>'.
-""" + PKI_VERBOSITY
+"""
 PKISPAWN_INTERACTIVE_INSTALLATION = '''
 IMPORTANT:
 
