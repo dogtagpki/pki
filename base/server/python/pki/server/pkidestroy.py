@@ -211,6 +211,10 @@ def main(argv):
 
     pkilogging.enable_pki_logger(log_dir, log_name, 'pkidestroy')
 
+    if args.pki_verbosity > 1:
+        logger.warning('The -%s option has been deprecated. Use --debug instead.',
+                       'v' * args.pki_verbosity)
+
     # Read the specified PKI configuration file.
     rv = parser.read_pki_configuration_file()
     if rv != 0:

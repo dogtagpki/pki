@@ -182,6 +182,10 @@ class PKIConfigParser:
             '-v', '--verbose',
             dest='pki_verbosity', action='count', default=0,
             help='Run in verbose mode')
+        self.optional.add_argument(
+            '--debug',
+            dest='debug', action='store_true',
+            help='Run in debug mode')
 
         self.indent = 0
         self.authdb_connection = None
@@ -194,7 +198,10 @@ class PKIConfigParser:
 
         args = self.arg_parser.parse_args()
 
-        if args.pki_verbosity == 1:
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.pki_verbosity == 1:
             logging.getLogger().setLevel(logging.INFO)
 
         elif args.pki_verbosity >= 2:
