@@ -104,7 +104,7 @@ class WebappFindCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
 
         webapps = instance.get_webapps()
@@ -184,7 +184,7 @@ class WebappDeployCLI(pki.cli.CLI):
 
         webapp_id = args[0]
 
-        if not instance.is_valid():
+        if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
 
         instance.deploy_webapp(webapp_id, descriptor, doc_base)
@@ -244,7 +244,7 @@ class WebappUndeployCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
 
         instance.undeploy_webapp(webapp_id)

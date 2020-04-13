@@ -129,7 +129,7 @@ class UpgradeCLI(pki.cli.CLI):
         if instance_name:
             instance = pki.server.instance.PKIInstance(instance_name)
 
-            if not instance.is_valid():
+            if not instance.exists():
                 raise Exception('Invalid instance: %s' % instance_name)
 
             instance.load()

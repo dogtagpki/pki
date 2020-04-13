@@ -208,7 +208,7 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: invalid instance: %s' % instance_name)
             sys.exit(1)
 
@@ -298,7 +298,7 @@ class HTTPConnectorDeleteCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: Invalid instance: %s' % instance_name)
             sys.exit(1)
 
@@ -358,7 +358,7 @@ class HTTPConnectorFindCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: Invalid instance: %s' % instance_name)
             sys.exit(1)
 
@@ -436,7 +436,7 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: Invalid instance: %s' % instance_name)
             sys.exit(1)
 
@@ -569,7 +569,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: invalid instance: %s' % instance_name)
             sys.exit(1)
 
@@ -736,7 +736,7 @@ class SSLHostAddCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: invalid instance: %s' % instance_name)
             sys.exit(1)
 
@@ -821,7 +821,7 @@ class SSLHostDeleteCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: Invalid instance: %s' % instance_name)
             sys.exit(1)
 
@@ -888,7 +888,7 @@ class SSLHostFindCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: Invalid instance: %s' % instance_name)
             sys.exit(1)
 
@@ -1044,7 +1044,7 @@ class SSLCertAddCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: invalid instance: %s' % instance_name)
             sys.exit(1)
 
@@ -1141,7 +1141,7 @@ class SSLCertDeleteCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: Invalid instance: %s' % instance_name)
             sys.exit(1)
 
@@ -1217,7 +1217,7 @@ class SSLCertFindLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: Invalid instance: %s' % instance_name)
             sys.exit(1)
 

@@ -145,7 +145,7 @@ class CACertChainExportCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -247,7 +247,7 @@ class CACertRequestFindCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -332,7 +332,7 @@ class CACertRequestShowCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -443,7 +443,7 @@ class CAClonePrepareCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 

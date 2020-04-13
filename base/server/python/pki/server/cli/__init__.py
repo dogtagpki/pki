@@ -363,7 +363,7 @@ class CreateCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not force and instance.is_valid():
+        if not force and instance.exists():
             logger.error('Instance already exists: %s', instance_name)
             sys.exit(1)
 
@@ -426,7 +426,7 @@ class RemoveCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not force and not instance.is_valid():
+        if not force and not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -483,7 +483,7 @@ class StatusCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -539,7 +539,7 @@ class StartCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -597,7 +597,7 @@ class StopCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -655,7 +655,7 @@ class RestartCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -737,7 +737,7 @@ class RunCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 

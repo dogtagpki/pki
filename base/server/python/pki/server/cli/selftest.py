@@ -89,7 +89,7 @@ class EnableSelfTestCLI(pki.cli.CLI):
         # Load instance
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: Invalid instance %s.' % instance_name)
             sys.exit(1)
 
@@ -169,7 +169,7 @@ class DisableSelftestCLI(pki.cli.CLI):
         # Load instance
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print('ERROR: Invalid instance %s.' % instance_name)
             sys.exit(1)
 

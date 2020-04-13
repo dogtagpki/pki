@@ -146,7 +146,7 @@ class TPSClonePrepareCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
         instance.load()
@@ -261,7 +261,7 @@ class TPSDBVLVFindCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
         instance.load()
@@ -378,7 +378,7 @@ class TPSDBVLVAddCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
         instance.load()
@@ -493,7 +493,7 @@ class TPSDBVLVDeleteCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
         instance.load()
@@ -629,7 +629,7 @@ class TPSDBVLVReindexCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
         instance.load()

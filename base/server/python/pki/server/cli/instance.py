@@ -165,7 +165,7 @@ class InstanceCertExportCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -302,7 +302,7 @@ class InstanceShowCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -360,7 +360,7 @@ class InstanceStartCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -423,7 +423,7 @@ class InstanceStopCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -500,7 +500,7 @@ class InstanceMigrateCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -566,7 +566,7 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -629,7 +629,7 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -723,7 +723,7 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -822,7 +822,7 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 

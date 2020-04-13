@@ -102,7 +102,7 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
         instance.load()
@@ -204,7 +204,7 @@ class DBUpgradeCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -344,7 +344,7 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -490,7 +490,7 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -615,7 +615,7 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -694,7 +694,7 @@ class SubsystemDBEmptyCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -775,7 +775,7 @@ class SubsystemDBRemoveCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -856,7 +856,7 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logging.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 

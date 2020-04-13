@@ -26,7 +26,7 @@ class DogtagCertsConfigCheck(CSPlugin):
     """
     @duration
     def check(self):
-        if not self.instance.is_valid():
+        if not self.instance.exists():
             logging.debug('Invalid instance: %s', self.instance.name)
             yield Result(self, constants.CRITICAL,
                          msg='Invalid PKI instance: %s' % self.instance.name)

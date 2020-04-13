@@ -93,7 +93,7 @@ class PasswordFindCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
 
         instance.load()
@@ -170,7 +170,7 @@ class PasswordAddCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
 
         instance.load()
@@ -236,7 +236,7 @@ class PasswordRemoveCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
 
         instance.load()

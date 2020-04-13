@@ -88,7 +88,7 @@ class JSSEnableCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print("ERROR: Invalid instance: %s" % instance_name)
             sys.exit(1)
 
@@ -154,7 +154,7 @@ class JSSDisableCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             print("ERROR: Invalid instance: %s" % instance_name)
             sys.exit(1)
 

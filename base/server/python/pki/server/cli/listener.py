@@ -95,7 +95,7 @@ class ListenerFindCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
 
         server_config = instance.get_server_config()

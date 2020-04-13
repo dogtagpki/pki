@@ -108,7 +108,7 @@ class SubsystemFindCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -182,7 +182,7 @@ class SubsystemShowCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -256,7 +256,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -354,7 +354,7 @@ class SubsystemDisableCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -483,7 +483,7 @@ class SubsystemCertFindCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -582,7 +582,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -711,7 +711,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -853,7 +853,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -998,7 +998,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 

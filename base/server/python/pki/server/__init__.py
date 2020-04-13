@@ -227,10 +227,13 @@ class PKIServer(object):
         return os.path.join(self.conf_dir, 'jss.conf')
 
     def is_valid(self):
+        return self.exists()
+
+    def exists(self):
         return os.path.exists(self.base_dir)
 
     def validate(self):
-        if not self.is_valid():
+        if not self.exists():
             raise pki.PKIException('Invalid instance: ' + self.name, None)
 
     def is_active(self):

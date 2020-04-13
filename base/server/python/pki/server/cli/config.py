@@ -83,7 +83,7 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logging.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -151,7 +151,7 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
         name = args[0]
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logging.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -230,7 +230,7 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
         value = args[1]
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logging.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
@@ -298,7 +298,7 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
         name = args[0]
 
         instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.is_valid():
+        if not instance.exists():
             logging.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 

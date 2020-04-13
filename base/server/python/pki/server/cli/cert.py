@@ -150,7 +150,7 @@ class CertFindCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -250,7 +250,7 @@ class CertShowCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -342,7 +342,7 @@ class CertUpdateCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -571,7 +571,7 @@ class CertCreateCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -656,7 +656,7 @@ class CertImportCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -813,7 +813,7 @@ class CertExportCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -979,7 +979,7 @@ class CertRemoveCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
@@ -1103,7 +1103,7 @@ class CertFixCLI(pki.cli.CLI):
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
-        if not instance.is_valid():
+        if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
