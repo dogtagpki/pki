@@ -689,9 +689,6 @@ def create_master_dictionary(parser):
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
 
-    parser.mdict['pki_spawn_log'] = \
-        config.pki_log_dir + "/" + config.pki_log_name
-
     logger.debug(log.PKI_DICTIONARY_MASTER)
     logger.debug(pkilogging.log_format(parser.mdict))
 

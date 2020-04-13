@@ -225,9 +225,6 @@ def main(argv):
     parser.compose_pki_master_dictionary()
     deployer.init()
 
-    parser.mdict['pki_destroy_log'] = \
-        config.pki_log_dir + "/" + config.pki_log_name
-
     # Add force_destroy to master dictionary
     parser.mdict['pki_force_destroy'] = force_destroy
 
