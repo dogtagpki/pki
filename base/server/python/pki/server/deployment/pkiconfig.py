@@ -142,7 +142,6 @@ def wait_to_attach_an_external_java_debugger():
 
 # PKI Deployment Logger Variables
 pki_log_dir = None
-pki_log_name = None
 
 # PKI HSM Constants
 PKI_HSM_LUNASA_LIB = "/usr/safenet/lunaclient/lib/libCryptoki2_64.so"

@@ -204,14 +204,14 @@ def main(argv):
 
     # Enable 'pkidestroy' logging.
     config.pki_log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
-    config.pki_log_name = "pki" + "-" +\
-                          deployer.subsystem_name.lower() +\
-                          "-" + "destroy" + "." +\
-                          deployer.log_timestamp + "." + "log"
-    print('Uninstallation log: %s/%s' % (config.pki_log_dir, config.pki_log_name))
+    log_name = "pki" + "-" +\
+               deployer.subsystem_name.lower() +\
+               "-" + "destroy" + "." +\
+               deployer.log_timestamp + "." + "log"
+    print('Uninstallation log: %s/%s' % (config.pki_log_dir, log_name))
 
     pkilogging.enable_pki_logger(config.pki_log_dir,
-                                 config.pki_log_name,
+                                 log_name,
                                  "pkidestroy")
 
     # Read the specified PKI configuration file.
