@@ -132,7 +132,14 @@ def symlink(source, dest, uid=-1, gid=-1, force=False):
     os.lchown(dest, uid, gid)
 
 
-def copy(source, dest, uid=-1, gid=-1, force=False):
+def copy(
+        source,
+        dest,
+        uid=-1,
+        gid=-1,
+        dir_mode=None,
+        file_mode=None,
+        force=False):
     """
     Copy a file or a folder and its contents.
     """
@@ -147,25 +154,30 @@ def copy(source, dest, uid=-1, gid=-1, force=False):
     destparent = os.path.dirname(dest)
 
     if not os.path.exists(destparent):
-        copydirs(sourceparent, destparent, uid=uid, gid=gid, force=force)
+        # if parent directory doesn't exist, create it first
+        copydirs(sourceparent, destparent, uid=uid, gid=gid, mode=dir_mode, force=force)
 
     if os.path.isfile(source):
-        copyfile(source, dest, uid=uid, gid=gid, force=force)
+        # if it's a file, copy the file
+        copyfile(source, dest, uid=uid, gid=gid, mode=file_mode, force=force)
+        return
 
-    else:
-        for sourcepath, _, filenames in os.walk(source):
+    # it's a directory tree, go through each directory in the tree
+    for sourcepath, _, filenames in os.walk(source):
 
-            relpath = sourcepath[len(source):]
-            destpath = dest + relpath
-            if destpath == '':
-                destpath = '/'
+        relpath = sourcepath[len(source):]
+        destpath = dest + relpath
+        if destpath == '':
+            destpath = '/'
 
-            copydirs(sourcepath, destpath, uid=uid, gid=gid, force=force)
+        # copy the directory itself
+        copydirs(sourcepath, destpath, uid=uid, gid=gid, mode=dir_mode, force=force)
 
-            for filename in filenames:
-                sourcefile = os.path.join(sourcepath, filename)
-                targetfile = os.path.join(destpath, filename)
-                copyfile(sourcefile, targetfile, uid=uid, gid=gid, force=force)
+        # copy the contents
+        for filename in filenames:
+            sourcefile = os.path.join(sourcepath, filename)
+            targetfile = os.path.join(destpath, filename)
+            copyfile(sourcefile, targetfile, uid=uid, gid=gid, mode=file_mode, force=force)
 
 
 def copyfile(source, dest, slots=None, params=None, uid=None, gid=None, mode=None, force=False):
@@ -230,16 +242,17 @@ def copyfile(source, dest, slots=None, params=None, uid=None, gid=None, mode=Non
     os.chmod(dest, mode)
 
 
-def copydirs(source, dest, uid=-1, gid=-1, force=False):
+def copydirs(source, dest, uid=-1, gid=-1, mode=None, force=False):
     """
-    Copy a folder and its parents while preserving their attributes.
+    Copy a folder and its parents (without the contents) while
+    preserving their attributes.
     """
 
     destparent = os.path.dirname(dest)
 
     if not os.path.exists(destparent):
         sourceparent = os.path.dirname(source)
-        copydirs(sourceparent, destparent, uid=uid, gid=gid, force=force)
+        copydirs(sourceparent, destparent, uid=uid, gid=gid, mode=mode, force=force)
 
     logger.debug('Command: mkdir %s', dest)
 
@@ -256,8 +269,12 @@ def copydirs(source, dest, uid=-1, gid=-1, force=False):
         gid = stat.st_gid
 
     os.utime(dest, (stat.st_atime, stat.st_mtime))
-    os.chmod(dest, stat.st_mode)
     os.chown(dest, uid, gid)
+
+    if mode is None:
+        mode = stat.st_mode
+
+    os.chmod(dest, mode)
 
 
 def chown(path, uid, gid):
