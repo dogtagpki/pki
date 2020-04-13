@@ -27,6 +27,7 @@ import grp
 import inspect
 import logging
 import os
+import pathlib
 import pwd
 import re
 import shutil
@@ -369,6 +370,10 @@ class PKIServer(object):
         logger.debug('Command: %s', ' '.join(cmd))
 
         return subprocess.Popen(cmd, env=self.config)
+
+    def touch(self, path):
+        pathlib.Path(path).touch(mode=DEFAULT_FILE_MODE)
+        os.chown(path, self.uid, self.gid)
 
     def makedirs(self, path, force=False):
         pki.util.makedirs(
