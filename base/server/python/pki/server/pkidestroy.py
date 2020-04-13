@@ -18,34 +18,21 @@
 # All rights reserved.
 #
 
-# System Imports
 from __future__ import absolute_import
 from __future__ import print_function
 import logging
+import os
 import sys
 import signal
 import subprocess
+import traceback
 
-if not hasattr(sys, "hexversion") or sys.hexversion < 0x020700f0:
-    print("Python version %s.%s.%s is too old." % sys.version_info[:3])
-    print("Please upgrade to at least Python 2.7.0.")
-    sys.exit(1)
-try:
-    import os
-    import traceback
-    import pki
-    from pki.server.deployment import pkiconfig as config
-    from pki.server.deployment.pkiparser import PKIConfigParser
-    from pki.server.deployment import pkilogging
-    from pki.server.deployment import pkimessages as log
-except ImportError:
-    print("""\
-There was a problem importing one of the required Python modules. The
-error was:
+import pki
 
-    %s
-""" % sys.exc_info()[1], file=sys.stderr)
-    sys.exit(1)
+from pki.server.deployment import pkiconfig as config
+from pki.server.deployment.pkiparser import PKIConfigParser
+from pki.server.deployment import pkilogging
+from pki.server.deployment import pkimessages as log
 
 logger = logging.getLogger('pkidestroy')
 
