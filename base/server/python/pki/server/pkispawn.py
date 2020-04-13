@@ -500,7 +500,18 @@ def main(argv):
               deployer.subsystem_name.lower())
         sys.exit(1)
 
-    start_logging()
+    # Enable 'pkispawn' logging.
+    config.pki_log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
+    config.pki_log_name = "pki" + "-" + \
+                          deployer.subsystem_name.lower() + \
+                          "-" + "spawn" + "." + \
+                          deployer.log_timestamp + "." + "log"
+    print('Installation log: %s/%s' % (config.pki_log_dir, config.pki_log_name))
+
+    pkilogging.enable_pki_logger(config.pki_log_dir,
+                                 config.pki_log_name,
+                                 config.pki_log_level,
+                                 "pkispawn")
 
     # Read the specified PKI configuration file.
     rv = parser.read_pki_configuration_file()
@@ -664,21 +675,6 @@ def sanitize_user_deployment_cfg(cfg):
                 sys.stderr.write("'%s' contains an invalid section "
                                  "heading called '%s'!\n" % (cfg, line))
         print(line)
-
-
-def start_logging():
-    # Enable 'pkispawn' logging.
-    config.pki_log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
-    config.pki_log_name = "pki" + "-" + \
-                          deployer.subsystem_name.lower() + \
-                          "-" + "spawn" + "." + \
-                          deployer.log_timestamp + "." + "log"
-    print('Installation log: %s/%s' % (config.pki_log_dir, config.pki_log_name))
-
-    pkilogging.enable_pki_logger(config.pki_log_dir,
-                                 config.pki_log_name,
-                                 config.pki_log_level,
-                                 "pkispawn")
 
 
 def create_master_dictionary(parser):
