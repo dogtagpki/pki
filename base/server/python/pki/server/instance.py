@@ -229,13 +229,17 @@ class PKIInstance(pki.server.PKIServer):
         super(PKIInstance, self).create(force=force)
 
         conf_link = os.path.join(self.base_dir, 'conf')
+        logger.info('Creating %s', conf_link)
         self.symlink(self.conf_dir, conf_link, force=force)
 
         logs_link = os.path.join(self.base_dir, 'logs')
+        logger.info('Creating %s', logs_link)
         self.symlink(self.log_dir, logs_link, force=force)
 
+        logger.info('Creating %s', self.registry_dir)
         self.makedirs(self.registry_dir, force=force)
 
+        logger.info('Creating %s', self.registry_file)
         self.copyfile(
             PKIInstance.REGISTRY_FILE,
             self.registry_file,
@@ -248,6 +252,7 @@ class PKIInstance(pki.server.PKIServer):
                 'TOMCAT_PIDFILE': '/var/run/pki/tomcat/' + self.name + '.pid'
             })
 
+        logger.info('Creating %s', self.unit_file)
         self.symlink(PKIInstance.UNIT_FILE, self.unit_file, force=force)
 
     def create_libs(self, force=False):
@@ -288,8 +293,13 @@ class PKIInstance(pki.server.PKIServer):
 
         dependencies = project.findall('{%s}dependencies/{%s}dependency' % (xmlns, xmlns))
 
+        logger.info('Creating %s', self.lib_dir)
         self.makedirs(self.lib_dir, force=force)
+
+        logger.info('Creating %s', self.common_dir)
         self.makedirs(self.common_dir, force=force)
+
+        logger.info('Creating %s', self.common_lib_dir)
         self.makedirs(self.common_lib_dir, force=force)
 
         for dependency in dependencies:
@@ -335,8 +345,7 @@ class PKIInstance(pki.server.PKIServer):
         super(PKIInstance, self).create_nssdb(force=force)
 
         nssdb_link = os.path.join(self.base_dir, 'alias')
-        logger.info('Creating NSS database link: %s', nssdb_link)
-
+        logger.info('Creating %s', nssdb_link)
         self.symlink(self.nssdb_dir, nssdb_link, force=force)
 
     def load(self):
@@ -368,24 +377,31 @@ class PKIInstance(pki.server.PKIServer):
 
     def remove(self, force=False):
 
+        logger.info('Removing %s', self.unit_file)
         pki.util.unlink(self.unit_file, force=force)
+
+        logger.info('Removing %s', self.registry_file)
         pki.util.remove(self.registry_file, force=force)
+
+        logger.info('Removing %s', self.registry_dir)
         pki.util.rmtree(self.registry_dir, force=force)
 
         logs_link = os.path.join(self.base_dir, 'logs')
+        logger.info('Removing %s', logs_link)
         pki.util.unlink(logs_link, force=force)
 
         conf_link = os.path.join(self.base_dir, 'conf')
+        logger.info('Removing %s', conf_link)
         pki.util.unlink(conf_link, force=force)
 
         super(PKIInstance, self).remove(force=force)
 
     def remove_libs(self, force=False):
 
-        # remove <instance>/common which is always a folder
+        logger.info('Removing %s', self.common_dir)
         pki.util.rmtree(self.common_dir, force=force)
 
-        # remove <instance>/lib which could be a link or a folder
+        logger.info('Removing %s', self.lib_dir)
         if os.path.islink(self.lib_dir):
             pki.util.unlink(self.lib_dir, force=force)
         else:
@@ -394,8 +410,7 @@ class PKIInstance(pki.server.PKIServer):
     def remove_nssdb(self, force=False):
 
         nssdb_link = os.path.join(self.base_dir, 'alias')
-        logger.info('Removing NSS database link: %s', nssdb_link)
-
+        logger.info('Removing %s', nssdb_link)
         pki.util.unlink(nssdb_link, force=force)
 
         super(PKIInstance, self).remove_nssdb(force=force)
