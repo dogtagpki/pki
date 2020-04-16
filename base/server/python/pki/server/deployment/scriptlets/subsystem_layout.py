@@ -191,40 +191,52 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Removing %s subsystem', deployer.mdict['pki_subsystem'])
 
-        # remove instance-based subsystem base
         if deployer.mdict['pki_subsystem'] == "CA":
+
+            logger.info('Removing %s', deployer.mdict['pki_subsystem_emails_path'])
             pki.util.rmtree(
                 path=deployer.mdict['pki_subsystem_emails_path'],
                 force=deployer.mdict['pki_force_destroy']
             )
+
+            logger.info('Removing %s', deployer.mdict['pki_subsystem_profiles_path'])
             pki.util.rmtree(
                 path=deployer.mdict['pki_subsystem_profiles_path'],
                 force=deployer.mdict['pki_force_destroy']
             )
+
+        logger.info('Removing %s', deployer.mdict['pki_subsystem_path'])
         pki.util.rmtree(path=deployer.mdict['pki_subsystem_path'],
                         force=deployer.mdict['pki_force_destroy'])
 
         # remove instance-based subsystem logs only if --remove-logs flag is specified
         if deployer.mdict['pki_remove_logs']:
+
+            logger.info('Removing %s', deployer.mdict['pki_subsystem_signed_audit_log_path'])
             pki.util.rmtree(
                 path=deployer.mdict['pki_subsystem_signed_audit_log_path'],
                 force=deployer.mdict['pki_force_destroy']
             )
+
+            logger.info('Removing %s', deployer.mdict['pki_subsystem_archive_log_path'])
             pki.util.rmtree(
                 path=deployer.mdict['pki_subsystem_archive_log_path'],
                 force=deployer.mdict['pki_force_destroy']
             )
+
+            logger.info('Removing %s', deployer.mdict['pki_subsystem_log_path'])
             pki.util.rmtree(
                 path=deployer.mdict['pki_subsystem_log_path'],
                 force=deployer.mdict['pki_force_destroy']
             )
 
-        # remove instance-based subsystem configuration
+        logger.info('Removing %s', deployer.mdict['pki_subsystem_configuration_path'])
         pki.util.rmtree(
             path=deployer.mdict['pki_subsystem_configuration_path'],
             force=deployer.mdict['pki_force_destroy']
         )
-        # remove instance-based subsystem registry
+
+        logger.info('Removing %s', deployer.mdict['pki_subsystem_registry_path'])
         pki.util.rmtree(
             path=deployer.mdict['pki_subsystem_registry_path'],
             force=deployer.mdict['pki_force_destroy']
