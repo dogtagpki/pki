@@ -45,8 +45,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Skipping NSS database creation')
             return
 
-        logger.info('Creating NSS database')
-
         instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
 
@@ -68,6 +66,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.file.modify(deployer.mdict['pki_shared_password_conf'])
 
         if not os.path.isdir(deployer.mdict['pki_server_database_path']):
+            logger.info('Creating %s', deployer.mdict['pki_server_database_path'])
             instance.makedirs(deployer.mdict['pki_server_database_path'], force=True)
 
         nssdb = pki.nssdb.NSSDatabase(
@@ -76,6 +75,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         try:
             if not nssdb.exists():
+                logger.info('Creating NSS database: %s',
+                            deployer.mdict['pki_server_database_path'])
                 nssdb.create()
         finally:
             nssdb.close()
