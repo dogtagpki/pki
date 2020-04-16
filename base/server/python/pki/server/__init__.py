@@ -397,6 +397,15 @@ class PKIServer(object):
             file_mode=DEFAULT_FILE_MODE,
             force=force)
 
+    def copydirs(self, source, dest, force=False):
+        pki.util.copydirs(
+            source,
+            dest,
+            uid=self.uid,
+            gid=self.gid,
+            mode=DEFAULT_DIR_MODE,
+            force=force)
+
     def copyfile(self, source, dest, slots=None, params=None, force=False):
         pki.util.copyfile(
             source,
