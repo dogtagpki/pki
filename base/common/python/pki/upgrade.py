@@ -185,6 +185,7 @@ class PKIUpgradeScriptlet(object):
         self.last = False
 
         self.message = None
+        self.upgrader = None
 
     def get_backup_dir(self):
         return BACKUP_DIR + '/' + str(self.version) + '/' + str(self.index)
@@ -246,59 +247,7 @@ class PKIUpgradeScriptlet(object):
                     shutil.rmtree(path)
 
     def backup(self, path):
-
-        backup_dir = self.get_backup_dir()
-
-        if not os.path.exists(backup_dir):
-            os.makedirs(backup_dir)
-
-        if os.path.exists(path):
-
-            # if path exists, keep a copy
-
-            oldfiles = backup_dir + '/oldfiles'
-            if not os.path.exists(oldfiles):
-                os.mkdir(oldfiles)
-
-            dest = oldfiles + path
-
-            sourceparent = os.path.dirname(path)
-            destparent = os.path.dirname(dest)
-
-            if not os.path.exists(destparent):
-                pki.util.copydirs(sourceparent, destparent, force=True)
-
-            if os.path.isfile(path):
-
-                if not os.path.exists(dest):
-                    logger.info('Saving %s', path)
-                    pki.util.copyfile(path, dest)
-
-            else:
-                for sourcepath, _, filenames in os.walk(path):
-
-                    relpath = sourcepath[len(path):]
-                    destpath = dest + relpath
-
-                    if not os.path.exists(destpath):
-                        logger.info('Saving %s', sourcepath)
-                        pki.util.copydirs(sourcepath, destpath, force=True)
-
-                    for filename in filenames:
-                        sourcefile = os.path.join(sourcepath, filename)
-                        targetfile = os.path.join(destpath, filename)
-
-                        if not os.path.exists(targetfile):
-                            logger.info('Saving %s', sourcefile)
-                            pki.util.copyfile(sourcefile, targetfile)
-
-        else:
-
-            # otherwise, record the name
-
-            logger.info('Recording %s', path)
-            with open(backup_dir + '/newfiles', 'a') as f:
-                f.write(path + '\n')
+        self.upgrader.backup(self, path)
 
     def __eq__(self, other):
         return self.version == other.version and self.index == other.index
@@ -471,6 +420,76 @@ class PKIUpgrader(object):
             log_file = '/var/log/pki/pki-upgrade-%s.log' % self.get_target_version()
             raise Exception('Upgrade incomplete: see %s' % log_file)
 
+    def makedirs(self, path):
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+    def copydirs(self, source, dest, force=False):
+        pki.util.copydirs(source, dest, force=force)
+
+    def copyfile(self, source, dest):
+        pki.util.copyfile(source, dest)
+
+    def record(self, scriptlet, path):
+
+        backup_dir = scriptlet.get_backup_dir()
+        with open(backup_dir + '/newfiles', 'a') as f:
+            f.write(path + '\n')
+
+    def backup(self, scriptlet, path):
+
+        backup_dir = scriptlet.get_backup_dir()
+
+        self.makedirs(backup_dir)
+
+        if not os.path.exists(path):
+
+            # if path does not exists, record the name
+            logger.info('Recording %s', path)
+            self.record(scriptlet, path)
+            return
+
+        # otherwise, keep a copy
+
+        oldfiles = backup_dir + '/oldfiles'
+        self.makedirs(oldfiles)
+
+        dest = oldfiles + path
+
+        sourceparent = os.path.dirname(path)
+        destparent = os.path.dirname(dest)
+
+        if not os.path.exists(destparent):
+            self.copydirs(sourceparent, destparent, force=True)
+
+        if os.path.isfile(path):
+
+            # backup file
+            if not os.path.exists(dest):
+                logger.info('Saving %s', path)
+                self.copyfile(path, dest)
+
+            return
+
+        # backup folder
+
+        for sourcepath, _, filenames in os.walk(path):
+
+            relpath = sourcepath[len(path):]
+            destpath = dest + relpath
+
+            if not os.path.exists(destpath):
+                logger.info('Saving %s', sourcepath)
+                self.copydirs(sourcepath, destpath, force=True)
+
+            for filename in filenames:
+                sourcefile = os.path.join(sourcepath, filename)
+                targetfile = os.path.join(destpath, filename)
+
+                if not os.path.exists(targetfile):
+                    logger.info('Saving %s', sourcefile)
+                    self.copyfile(sourcefile, targetfile)
+
     def upgrade_version(self, version):
 
         if version == version.next:
@@ -499,6 +518,7 @@ class PKIUpgrader(object):
 
     def init_scriptlet(self, scriptlet):
 
+        scriptlet.upgrader = self
         backup_dir = scriptlet.get_backup_dir()
 
         if os.path.exists(backup_dir):
