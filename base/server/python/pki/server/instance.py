@@ -40,8 +40,6 @@ import pki.nssdb
 import pki.util
 import pki.server
 
-SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
-
 logger = logging.getLogger(__name__)
 
 parser = etree.XMLParser(remove_blank_text=True)
@@ -67,7 +65,6 @@ class PKIInstance(pki.server.PKIServer):
         self.version = version
 
         self.external_certs = []
-        self.subsystems = []
 
         self.default_root_doc_base = os.path.join(
             pki.SHARE_DIR,
@@ -365,17 +362,6 @@ class PKIInstance(pki.server.PKIServer):
 
         self.load_external_certs(self.external_certs_conf)
 
-        # load subsystems
-        for subsystem_name in SUBSYSTEM_TYPES:
-
-            subsystem_dir = os.path.join(self.base_dir, subsystem_name)
-            if not os.path.exists(subsystem_dir):
-                continue
-
-            subsystem = pki.server.subsystem.PKISubsystemFactory.create(self, subsystem_name)
-            subsystem.load()
-            self.subsystems.append(subsystem)
-
     def load_external_certs(self, conf_file):
         for external_cert in PKIInstance.read_external_certs(conf_file):
             self.external_certs.append(external_cert)
@@ -529,12 +515,6 @@ class PKIInstance(pki.server.PKIServer):
         sslcert = server_config.get_sslcert(sslhost)
         sslcert.set('certificateKeyAlias', nickname)
         server_config.save()
-
-    def get_subsystem(self, name):
-        for subsystem in self.subsystems:
-            if name == subsystem.name:
-                return subsystem
-        return None
 
     def banner_installed(self):
         return os.path.exists(self.banner_file)

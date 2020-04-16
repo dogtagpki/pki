@@ -114,6 +114,7 @@ class PKIServer(object):
 
         self.config = {}
         self.passwords = {}
+        self.subsystems = []
 
     def __repr__(self):
         return self.name
@@ -728,6 +729,7 @@ class PKIServer(object):
 
         self.load_config()
         self.load_passwords()
+        self.load_subsystems()
 
     def load_config(self):
 
@@ -762,6 +764,24 @@ class PKIServer(object):
 
         pki.util.store_properties(self.password_conf, self.passwords)
         pki.util.chown(self.password_conf, self.uid, self.gid)
+
+    def load_subsystems(self):
+
+        for subsystem_name in SUBSYSTEM_TYPES:
+
+            subsystem_dir = os.path.join(self.base_dir, subsystem_name)
+            if not os.path.exists(subsystem_dir):
+                continue
+
+            subsystem = pki.server.subsystem.PKISubsystemFactory.create(self, subsystem_name)
+            subsystem.load()
+            self.subsystems.append(subsystem)
+
+    def get_subsystem(self, name):
+        for subsystem in self.subsystems:
+            if name == subsystem.name:
+                return subsystem
+        return None
 
     def load_jss_config(self):
 
