@@ -55,7 +55,7 @@ public class PolicyPredicateParser {
     /**
      * Parse the predicate expression and return a vector of expressions.
      *
-     * @param predicateExp The predicate expression as read from the config file.
+     * @param predicateExpression The predicate expression as read from the config file.
      * @return expVector The vector of expressions.
      */
     public static IExpression parse(String predicateExpression)

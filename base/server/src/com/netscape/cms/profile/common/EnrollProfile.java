@@ -379,7 +379,7 @@ public abstract class EnrollProfile extends Profile {
      * @param request profile-based certificate request.
      * @exception EProfileException failed to set the X509CertInfo.
      */
-    public void setDefaultCertInfo(IRequest req) throws EProfileException {
+    public void setDefaultCertInfo(IRequest request) throws EProfileException {
         // create an empty certificate template so that
         // default plugins that store stuff
         X509CertInfo info = new X509CertInfo();
@@ -434,7 +434,7 @@ public abstract class EnrollProfile extends Profile {
             logger.error("Unable to create X509CertInfo: " + e.getMessage(), e);
             throw new EProfileException(e);
         }
-        req.setExtData(REQUEST_CERTINFO, info);
+        request.setExtData(REQUEST_CERTINFO, info);
     }
 
     public IRequest createEnrollmentRequest()

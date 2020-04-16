@@ -374,12 +374,12 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     /**
      * Apply policies on the given request.
      *
-     * @param IRequest The given request
+     * @param request The given request
      * @return The policy result object.
      */
-    public PolicyResult apply(IRequest req) {
+    public PolicyResult apply(IRequest request) {
         IPolicySet rules = null;
-        String op = req.getRequestType();
+        String op = request.getRequestType();
 
         logger.debug("GenericPolicyProcessor: apply begins");
         if (op == null) {
@@ -390,9 +390,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             // on the request.
             return PolicyResult.ACCEPTED;
         }
-        if (isProfileRequest(req)) {
+        if (isProfileRequest(request)) {
             logger.debug("GenericPolicyProcessor: Profile-base Request " +
-                    req.getRequestId().toString());
+                    request.getRequestId().toString());
             return PolicyResult.ACCEPTED;
         }
         logger.debug("GenericPolicyProcessor: apply not ProfileRequest. op=" + op);
@@ -431,7 +431,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         // request must be up to date or can't process it.
         PolicyResult res = PolicyResult.ACCEPTED;
         String mVersion = ARequestQueue.REQUEST_VERSION;
-        String vers = req.getRequestVersion();
+        String vers = request.getRequestVersion();
 
         if (vers == null || !vers.equals(mVersion)) {
             if (vers == null || vers.length() == 0)
@@ -444,7 +444,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
         logger.debug("GenericPolicyProcessor: apply: calling rules.apply()");
         // Apply the policy rules.
-        return rules.apply(req);
+        return rules.apply(request);
     }
 
     public void printPolicies() {

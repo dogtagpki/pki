@@ -435,8 +435,8 @@ public abstract class Profile {
      * @param id output policy id
      * @return output policy instance
      */
-    public ProfileOutput getProfileOutput(String name) {
-        return mOutputs.get(name);
+    public ProfileOutput getProfileOutput(String id) {
+        return mOutputs.get(id);
     }
 
     /**
@@ -454,8 +454,8 @@ public abstract class Profile {
      * @param id input policy id
      * @return input policy instance
      */
-    public ProfileInput getProfileInput(String name) {
-        return mInputs.get(name);
+    public ProfileInput getProfileInput(String id) {
+        return mInputs.get(id);
     }
 
     public void addInputName(String name) {
@@ -696,15 +696,15 @@ public abstract class Profile {
      * Creates a output policy.
      *
      * @param id output policy id
-     * @param outputClassId id of the registered output implementation
-     * @param nvp default parameters
+     * @param outputID id of the registered output implementation
+     * @param nvps default parameters
      * @return output policy
      * @exception EProfileException failed to create
      */
-    public ProfileOutput createProfileOutput(String id, String outputId,
+    public ProfileOutput createProfileOutput(String id, String outputID,
             NameValuePairs nvps)
             throws EProfileException {
-        return createProfileOutput(id, outputId, nvps, true);
+        return createProfileOutput(id, outputID, nvps, true);
     }
 
     public ProfileOutput createProfileOutput(String id, String outputId,
@@ -799,15 +799,15 @@ public abstract class Profile {
      * Creates a input policy.
      *
      * @param id input policy id
-     * @param inputClassId id of the registered input implementation
-     * @param nvp default parameters
+     * @param inputID id of the registered input implementation
+     * @param nvps default parameters
      * @return input policy
      * @exception EProfileException failed to create
      */
-    public ProfileInput createProfileInput(String id, String inputId,
+    public ProfileInput createProfileInput(String id, String inputID,
             NameValuePairs nvps)
             throws EProfileException {
-        return createProfileInput(id, inputId, nvps, true);
+        return createProfileInput(id, inputID, nvps, true);
     }
 
     public ProfileInput createProfileInput(String id, String inputId,
