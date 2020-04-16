@@ -57,15 +57,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # and save a copy of this file
         #
         # The top level directories should exist and be owned by the rpm.
+
         deployer.directory.create(deployer.mdict['pki_instance_registry_path'])
-        deployer.directory.create(
-            deployer.mdict['pki_subsystem_registry_path'])
+
+        deployer.directory.create(deployer.mdict['pki_subsystem_registry_path'])
+
         deployer.file.copy(
             deployer.mdict['pki_default_deployment_cfg'],
             deployer.mdict['pki_default_deployment_cfg_replica'])
-
-        logger.info('Storing deployment configuration into %s',
-                    deployer.mdict['pki_user_deployment_cfg_replica'])
 
         # Archive the user deployment configuration excluding the sensitive
         # parameters
@@ -76,9 +75,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             for k in sensitive_parameters:
                 deployer.user_config.remove_option(s, k)
 
-        deployer.file.create(
-            deployer.mdict['pki_user_deployment_cfg_replica']
-        )
+        deployer.file.create(deployer.mdict['pki_user_deployment_cfg_replica'])
 
         with open(deployer.mdict['pki_user_deployment_cfg_replica'], 'w') as f:
             deployer.user_config.write(f)
@@ -87,16 +84,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # base directories and create the "registry" symbolic link that
         # the "pkidestroy" executable relies upon
         if deployer.mdict['pki_path'] != "/var/lib/pki":
-            # create relocated top-level infrastructure base
+            logger.info('Creating %s', deployer.mdict['pki_path'])
             deployer.directory.create(deployer.mdict['pki_path'])
 
-        logger.info('Creating instance directory %s', deployer.mdict['pki_instance_path'])
         deployer.directory.create(deployer.mdict['pki_instance_path'])
 
-        logger.info('Creating subsystem directory %s', deployer.mdict['pki_subsystem_path'])
         deployer.directory.create(deployer.mdict['pki_subsystem_path'])
 
-        logger.info('Creating registry link %s', deployer.mdict['pki_subsystem_registry_link'])
         deployer.symlink.create(
             deployer.mdict['pki_instance_registry_path'],
             deployer.mdict['pki_subsystem_registry_link'])
@@ -123,20 +117,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Cleaning up infrastructure')
 
         if deployer.mdict['pki_path'] != "/var/lib/pki":
-            # remove relocated top-level infrastructure base
-            pki.util.rmtree(deployer.mdict['pki_path'],
-                            deployer.mdict['pki_force_destroy'])
+            logger.info('Removing %s', deployer.mdict['pki_path'])
+            pki.util.rmtree(deployer.mdict['pki_path'], deployer.mdict['pki_force_destroy'])
 
         # do NOT remove top-level infrastructure logs
         # since it now stores 'pkispawn'/'pkidestroy' logs
         # deployer.directory.delete(deployer.mdict['pki_log_path'])
         # remove top-level infrastructure configuration
 
-        if deployer.directory.is_empty(
-                deployer.mdict['pki_configuration_path']) and \
+        if deployer.directory.is_empty(deployer.mdict['pki_configuration_path']) and \
             deployer.mdict['pki_configuration_path'] != \
                 config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
 
+            logger.info('Removing %s', deployer.mdict['pki_configuration_path'])
             pki.util.rmtree(
                 deployer.mdict['pki_configuration_path'],
                 deployer.mdict['pki_force_destroy'])
