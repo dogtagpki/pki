@@ -289,7 +289,7 @@ class PKIDeployer:
         hostname = self.mdict['pki_hostname']
         subsystem = self.mdict['pki_subsystem']
 
-        logger.info('Getting token for installing %s on %s', subsystem, hostname)
+        logger.info('Getting install token')
 
         sd_client = pki.system.SecurityDomainClient(self.sd_connection)
         self.install_token = sd_client.get_install_token(hostname, subsystem)
