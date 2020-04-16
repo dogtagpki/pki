@@ -1701,6 +1701,8 @@ public class ConfigurationUtils {
             EBaseException {
         IConfigStore cs = CMS.getConfigStore();
 
+        String caIssuerName = null;
+
         CMS.debug("importLDIFS: param=" + param);
         String v = cs.getString(param);
 
@@ -1711,6 +1713,11 @@ public class ConfigurationUtils {
         String cstype = cs.getString("cs.type");
         String dbuser = cs.getString("preop.internaldb.dbuser",
                 "uid=" + DBUSER + ",ou=people," + baseDN);
+
+        if("ca".equalsIgnoreCase(cstype)) {
+            caIssuerName = cs.getString("preop.cert.signing.dn", null);
+            CMS.debug("importLDIFS(): ca issuer name = " + caIssuerName);
+        }
 
         String configDir = instancePath + File.separator + cstype.toLowerCase() + File.separator + "conf";
 
@@ -1755,6 +1762,10 @@ public class ConfigurationUtils {
                             ps.print(database);
                         } else if (tok.equals("dbuser")) {
                             ps.print(dbuser);
+                        } else if (tok.equals("caIssuerDN") ) {
+                            if(caIssuerName != null) {
+                                ps.print(caIssuerName); 
+                            }
                         }
                         if ((s.length() + 1) == n1) {
                             endOfline = true;
