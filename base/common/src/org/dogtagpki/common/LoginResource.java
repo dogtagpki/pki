@@ -22,8 +22,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 /**
  * @author Endi S. Dewata
  */
@@ -31,6 +29,5 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 public interface LoginResource {
 
     @POST
-    @ClientResponseType(entityType=Void.class)
     public Response login() throws Exception;
 }

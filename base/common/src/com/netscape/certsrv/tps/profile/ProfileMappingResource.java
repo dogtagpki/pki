@@ -25,8 +25,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.base.PATCH;
@@ -41,7 +39,6 @@ import com.netscape.certsrv.base.PATCH;
 public interface ProfileMappingResource {
 
     @GET
-    @ClientResponseType(entityType=ProfileMappingCollection.class)
     public Response findProfileMappings(
             @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
@@ -49,18 +46,15 @@ public interface ProfileMappingResource {
 
     @GET
     @Path("{profileMappingID}")
-    @ClientResponseType(entityType=ProfileMappingData.class)
     public Response getProfileMapping(@PathParam("profileMappingID") String profileMappingID);
 
     @POST
     @ACLMapping("profile-mappings.add")
-    @ClientResponseType(entityType=ProfileMappingData.class)
     public Response addProfileMapping(ProfileMappingData profileMappingData);
 
     @PATCH
     @Path("{profileMappingID}")
     @ACLMapping("profile-mappings.modify")
-    @ClientResponseType(entityType=ProfileMappingData.class)
     public Response updateProfileMapping(
             @PathParam("profileMappingID") String profileMappingID,
             ProfileMappingData profileMappingData);
@@ -68,14 +62,12 @@ public interface ProfileMappingResource {
     @POST
     @Path("{profileMappingID}")
     @ACLMapping("profiles-mappings.change-status")
-    @ClientResponseType(entityType=ProfileMappingData.class)
     public Response changeStatus(
             @PathParam("profileMappingID") String profileMappingID,
             @QueryParam("action") String action);
 
     @DELETE
     @Path("{profileMappingID}")
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("profile-mappings.remove")
     public Response removeProfileMapping(@PathParam("profileMappingID") String profileMappingID);
 }

@@ -24,8 +24,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 
@@ -39,31 +37,26 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 public interface SelfTestResource {
 
     @GET
-    @ClientResponseType(entityType=SelfTestCollection.class)
     public Response findSelfTests(
             @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @POST
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("selftests.execute")
     public Response executeSelfTests(@QueryParam("action") String action);
 
     @POST
     @Path("run")
-    @ClientResponseType(entityType=SelfTestResults.class)
     @ACLMapping("selftests.execute")
     public Response runSelfTests();
 
     @GET
     @Path("{selfTestID}")
-    @ClientResponseType(entityType=SelfTestData.class)
     public Response getSelfTest(@PathParam("selfTestID") String selfTestID);
 
     @POST
     @Path("{selfTestID}/run")
-    @ClientResponseType(entityType=SelfTestResult.class)
     @ACLMapping("selftests.execute")
     public Response runSelfTest(@PathParam("selfTestID") String selfTestID);
 }

@@ -26,8 +26,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.base.PATCH;
@@ -41,34 +39,28 @@ import com.netscape.certsrv.base.PATCH;
 public interface GroupResource {
 
     @GET
-    @ClientResponseType(entityType=GroupCollection.class)
     public Response findGroups(
             @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @POST
-    @ClientResponseType(entityType=GroupData.class)
     public Response addGroup(GroupData groupData);
 
     @GET
     @Path("{groupID}")
-    @ClientResponseType(entityType=GroupData.class)
     public Response getGroup(@PathParam("groupID") String groupID);
 
     @PATCH
     @Path("{groupID}")
-    @ClientResponseType(entityType=GroupData.class)
     public Response modifyGroup(@PathParam("groupID") String groupID, GroupData groupData);
 
     @DELETE
     @Path("{groupID}")
-    @ClientResponseType(entityType=Void.class)
     public Response removeGroup(@PathParam("groupID") String groupID);
 
     @GET
     @Path("{groupID}/members")
-    @ClientResponseType(entityType=GroupMemberCollection.class)
     public Response findGroupMembers(
             @PathParam("groupID") String groupID,
             @QueryParam("filter") String filter,
@@ -77,16 +69,13 @@ public interface GroupResource {
 
     @POST
     @Path("{groupID}/members")
-    @ClientResponseType(entityType=GroupMemberData.class)
     public Response addGroupMember(@PathParam("groupID") String groupID, GroupMemberData groupMemberData);
 
     @GET
     @Path("{groupID}/members/{memberID}")
-    @ClientResponseType(entityType=GroupMemberData.class)
     public Response getGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
 
     @DELETE
     @Path("{groupID}/members/{memberID}")
-    @ClientResponseType(entityType=Void.class)
     public Response removeGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
 }

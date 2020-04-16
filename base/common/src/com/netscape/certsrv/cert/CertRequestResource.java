@@ -24,11 +24,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
-import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.certsrv.request.RequestId;
 
 @Path("")
@@ -36,7 +33,6 @@ public interface CertRequestResource {
 
     @POST
     @Path("certrequests")
-    @ClientResponseType(entityType=CertRequestInfos.class)
     public Response enrollCert(
         CertEnrollmentRequest data,
         @QueryParam("issuer-id") String caIDString,
@@ -47,7 +43,6 @@ public interface CertRequestResource {
      */
     @GET
     @Path("certrequests/{id}")
-    @ClientResponseType(entityType=CertRequestInfo.class)
     public Response getRequestInfo(@PathParam("id") RequestId id);
 
     /**
@@ -55,7 +50,6 @@ public interface CertRequestResource {
      */
     @GET
     @Path("agent/certrequests")
-    @ClientResponseType(entityType=CertRequestInfos.class)
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response listRequests(@QueryParam("requestState") String requestState,
@@ -67,68 +61,58 @@ public interface CertRequestResource {
 
     @GET
     @Path("agent/certrequests/{id}")
-    @ClientResponseType(entityType=CertReviewResponse.class)
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response reviewRequest(@PathParam("id") RequestId id);
 
     @GET
     @Path("certrequests/profiles")
-    @ClientResponseType(entityType=ProfileDataInfos.class)
     public Response listEnrollmentTemplates(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @GET
     @Path("certrequests/profiles/{id}")
-    @ClientResponseType(entityType=CertEnrollmentRequest.class)
     public Response getEnrollmentTemplate(@PathParam("id") String id);
 
     @POST
     @Path("agent/certrequests/{id}/approve")
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response approveRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/reject")
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response rejectRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/cancel")
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response cancelRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/update")
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response updateRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/validate")
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response validateRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/unassign")
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response unassignRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/assign")
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response assignRequest(@PathParam("id") RequestId id, CertReviewResponse data);

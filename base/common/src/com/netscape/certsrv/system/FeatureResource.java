@@ -22,8 +22,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 /**
  * @author alee
  */
@@ -31,13 +29,11 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 public interface FeatureResource {
 
     @GET
-    @ClientResponseType(entityType=Feature.class)
     // @ACLMapping("features.list")
     public Response listFeatures();
 
     @GET
     @Path("{id}")
-    @ClientResponseType(entityType=Feature.class)
     // @ACLMapping("feature.read")
     public Response getFeature(@PathParam("id") String id);
 

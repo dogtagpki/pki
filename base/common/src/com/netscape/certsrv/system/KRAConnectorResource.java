@@ -23,8 +23,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 
@@ -38,21 +36,17 @@ public interface KRAConnectorResource {
 
     @POST
     @Path("add")
-    @ClientResponseType(entityType=Void.class)
     public Response addConnector(KRAConnectorInfo info);
 
     @POST
     @Path("remove")
-    @ClientResponseType(entityType=Void.class)
     public Response removeConnector(@QueryParam("host") String host, @QueryParam("port") String port);
 
     @POST
     @Path("addHost")
-    @ClientResponseType(entityType=Void.class)
     public Response addHost(@QueryParam("host") String host, @QueryParam("port") String port);
 
     @GET
-    @ClientResponseType(entityType = KRAConnectorInfo.class)
     public Response getConnectorInfo();
 
 }

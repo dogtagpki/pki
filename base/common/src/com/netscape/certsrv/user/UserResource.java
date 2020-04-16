@@ -27,8 +27,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.base.PATCH;
@@ -45,39 +43,32 @@ public interface UserResource {
     public static final String ALL_PROFILES = "All Profiles";
 
     @GET
-    @ClientResponseType(entityType=UserCollection.class)
     public Response findUsers(
             @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @POST
-    @ClientResponseType(entityType=UserData.class)
     public Response addUser(UserData userData);
 
     @GET
     @Path("{userID}")
-    @ClientResponseType(entityType=UserData.class)
     public Response getUser(@PathParam("userID") String userID);
 
     @PUT
     @Path("{userID}")
-    @ClientResponseType(entityType=UserData.class)
     public Response replaceUser(@PathParam("userID") String userID, UserData userData);
 
     @PATCH
     @Path("{userID}")
-    @ClientResponseType(entityType=UserData.class)
     public Response modifyUser(@PathParam("userID") String userID, UserData userData);
 
     @DELETE
     @Path("{userID}")
-    @ClientResponseType(entityType=Void.class)
     public Response removeUser(@PathParam("userID") String userID);
 
     @GET
     @Path("{userID}/certs")
-    @ClientResponseType(entityType=UserCertCollection.class)
     public Response findUserCerts(
             @PathParam("userID") String userID,
             @QueryParam("start") Integer start,
@@ -86,22 +77,18 @@ public interface UserResource {
 
     @POST
     @Path("{userID}/certs")
-    @ClientResponseType(entityType=UserCertData.class)
     public Response addUserCert(@PathParam("userID") String userID, UserCertData userCertData);
 
     @GET
     @Path("{userID}/certs/{certID}")
-    @ClientResponseType(entityType=UserCertData.class)
     public Response getUserCert(@PathParam("userID") String userID, @PathParam("certID") String certID);
 
     @DELETE
     @Path("{userID}/certs/{certID}")
-    @ClientResponseType(entityType=Void.class)
     public Response removeUserCert(@PathParam("userID") String userID, @PathParam("certID") String certID);
 
     @GET
     @Path("{userID}/memberships")
-    @ClientResponseType(entityType=UserMembershipCollection.class)
     public Response findUserMemberships(
             @PathParam("userID") String userID,
             @QueryParam("filter") String filter,
@@ -110,11 +97,9 @@ public interface UserResource {
 
     @POST
     @Path("{userID}/memberships")
-    @ClientResponseType(entityType=UserMembershipData.class)
     public Response addUserMembership(@PathParam("userID") String userID, String groupID);
 
     @DELETE
     @Path("{userID}/memberships/{groupID}")
-    @ClientResponseType(entityType=Void.class)
     public Response removeUserMembership(@PathParam("userID") String userID, @PathParam("groupID") String groupID);
 }

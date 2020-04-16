@@ -25,9 +25,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-
-import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
@@ -42,31 +39,26 @@ import com.netscape.certsrv.base.PATCH;
 public interface AuditResource {
 
     @GET
-    @ClientResponseType(entityType=AuditConfig.class)
     @ACLMapping("audit.read")
     public Response getAuditConfig();
 
     @PATCH
-    @ClientResponseType(entityType=AuditConfig.class)
     @ACLMapping("audit.modify")
     public Response updateAuditConfig(AuditConfig configData);
 
     @POST
-    @ClientResponseType(entityType=AuditConfig.class)
     @ACLMapping("audit.modify")
     public Response changeAuditStatus(
             @QueryParam("action") String action);
 
     @GET
     @Path("files")
-    @ClientResponseType(entityType=AuditFileCollection.class)
     @ACLMapping("audit-log.read")
     public Response findAuditFiles();
 
     @GET
     @Path("files/{filename}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @ClientResponseType(entityType=StreamingOutput.class)
     @ACLMapping("audit-log.read")
     public Response getAuditFile(@PathParam("filename") String filename);
 }

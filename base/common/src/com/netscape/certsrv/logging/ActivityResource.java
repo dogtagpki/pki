@@ -23,8 +23,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 
 /**
  * @author Endi S. Dewata
@@ -33,7 +31,6 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 public interface ActivityResource {
 
     @GET
-    @ClientResponseType(entityType=ActivityCollection.class)
     public Response findActivities(
             @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
@@ -41,6 +38,5 @@ public interface ActivityResource {
 
     @GET
     @Path("{activityID}")
-    @ClientResponseType(entityType=ActivityData.class)
     public Response getActivity(@PathParam("activityID") String activityID);
 }

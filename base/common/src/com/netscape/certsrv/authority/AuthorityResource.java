@@ -10,8 +10,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 
@@ -34,35 +32,29 @@ public interface AuthorityResource {
 
     @GET
     @Path("{id}")
-    @ClientResponseType(entityType=AuthorityData.class)
     public Response getCA(@PathParam("id") String caIDString);
 
     @GET
     @Path("{id}/cert")
     @Produces("application/pkix-cert")
-    @ClientResponseType(entityType=byte[].class)
     public Response getCert(@PathParam("id") String caIDString);
 
     @GET
     @Path("{id}/cert")
     @Produces("application/x-pem-file")
-    @ClientResponseType(entityType=String.class)
     public Response getCertPEM(@PathParam("id") String caIDString);
 
     @GET
     @Path("{id}/chain")
     @Produces("application/pkcs7-mime")
-    @ClientResponseType(entityType=byte[].class)
     public Response getChain(@PathParam("id") String caIDString);
 
     @GET
     @Path("{id}/chain")
     @Produces("application/x-pem-file")
-    @ClientResponseType(entityType=String.class)
     public Response getChainPEM(@PathParam("id") String caIDString);
 
     @POST
-    @ClientResponseType(entityType=AuthorityData.class)
     @AuthMethodMapping("authorities")
     @ACLMapping("authorities.create")
     public Response createCA(AuthorityData data);
@@ -79,7 +71,6 @@ public interface AuthorityResource {
      */
     @PUT
     @Path("{id}")
-    @ClientResponseType(entityType=AuthorityData.class)
     @AuthMethodMapping("authorities")
     @ACLMapping("authorities.modify")
     public Response modifyCA(
@@ -88,28 +79,24 @@ public interface AuthorityResource {
 
     @POST
     @Path("{id}/enable")
-    @ClientResponseType(entityType=AuthorityData.class)
     @AuthMethodMapping("authorities")
     @ACLMapping("authorities.modify")
     public Response enableCA(@PathParam("id") String caIDString);
 
     @POST
     @Path("{id}/disable")
-    @ClientResponseType(entityType=AuthorityData.class)
     @AuthMethodMapping("authorities")
     @ACLMapping("authorities.modify")
     public Response disableCA(@PathParam("id") String caIDString);
 
     @POST
     @Path("{id}/renew")
-    @ClientResponseType(entityType=AuthorityData.class)
     @AuthMethodMapping("authorities")
     @ACLMapping("authorities.modify")
     public Response renewCA(@PathParam("id") String caIDString);
 
     @DELETE
     @Path("{id}")
-    @ClientResponseType(entityType=Void.class)
     @AuthMethodMapping("authorities")
     @ACLMapping("authorities.delete")
     public Response deleteCA(@PathParam("id") String caIDString);

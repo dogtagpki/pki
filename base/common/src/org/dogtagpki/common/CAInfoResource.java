@@ -22,8 +22,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 /**
  * @author Ade Lee
  */
@@ -31,7 +29,6 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 public interface CAInfoResource {
 
     @GET
-    @ClientResponseType(entityType=CAInfo.class)
     public Response getInfo() throws Exception;
 }
 

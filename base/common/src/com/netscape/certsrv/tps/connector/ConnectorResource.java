@@ -25,8 +25,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.base.PATCH;
@@ -41,7 +39,6 @@ import com.netscape.certsrv.base.PATCH;
 public interface ConnectorResource {
 
     @GET
-    @ClientResponseType(entityType=ConnectorCollection.class)
     public Response findConnectors(
             @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
@@ -49,18 +46,15 @@ public interface ConnectorResource {
 
     @GET
     @Path("{connectorID}")
-    @ClientResponseType(entityType=ConnectorData.class)
     public Response getConnector(@PathParam("connectorID") String connectorID);
 
     @POST
     @ACLMapping("connectors.add")
-    @ClientResponseType(entityType=ConnectorData.class)
     public Response addConnector(ConnectorData connectorData);
 
     @PATCH
     @Path("{connectorID}")
     @ACLMapping("connectors.modify")
-    @ClientResponseType(entityType=ConnectorData.class)
     public Response updateConnector(
             @PathParam("connectorID") String connectorID,
             ConnectorData connectorData);
@@ -68,14 +62,12 @@ public interface ConnectorResource {
     @POST
     @Path("{connectorID}")
     @ACLMapping("connectors.change-status")
-    @ClientResponseType(entityType=ConnectorData.class)
     public Response changeStatus(
             @PathParam("connectorID") String connectorID,
             @QueryParam("action") String action);
 
     @DELETE
     @Path("{connectorID}")
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("connectors.remove")
     public Response removeConnector(@PathParam("connectorID") String connectorID);
 }

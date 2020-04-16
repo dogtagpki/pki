@@ -23,8 +23,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 
 /**
  * @author Endi S. Dewata
@@ -33,7 +31,6 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 public interface TPSCertResource {
 
     @GET
-    @ClientResponseType(entityType=TPSCertCollection.class)
     public Response findCerts(
             @QueryParam("filter") String filter,
             @QueryParam("tokenID") String tokenID,
@@ -42,6 +39,5 @@ public interface TPSCertResource {
 
     @GET
     @Path("{certID}")
-    @ClientResponseType(entityType=TPSCertData.class)
     public Response getCert(@PathParam("certID") String certID);
 }

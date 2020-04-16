@@ -22,8 +22,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 /**
  * @author Ade Lee
  */
@@ -34,7 +32,6 @@ public interface KRAInfoResource {
     String KEYWRAP_MECHANISM = "keywrap";
 
     @GET
-    @ClientResponseType(entityType=KRAInfo.class)
     public Response getInfo() throws Exception;
 }
 

@@ -25,8 +25,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.base.PATCH;
@@ -41,7 +39,6 @@ import com.netscape.certsrv.base.PATCH;
 public interface AuthenticatorResource {
 
     @GET
-    @ClientResponseType(entityType=AuthenticatorCollection.class)
     public Response findAuthenticators(
             @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
@@ -49,18 +46,15 @@ public interface AuthenticatorResource {
 
     @GET
     @Path("{authenticatorID}")
-    @ClientResponseType(entityType=AuthenticatorData.class)
     public Response getAuthenticator(@PathParam("authenticatorID") String authenticatorID);
 
     @POST
     @ACLMapping("authenticators.add")
-    @ClientResponseType(entityType=AuthenticatorData.class)
     public Response addAuthenticator(AuthenticatorData authenticatorData);
 
     @PATCH
     @Path("{authenticatorID}")
     @ACLMapping("authenticators.modify")
-    @ClientResponseType(entityType=AuthenticatorData.class)
     public Response updateAuthenticator(
             @PathParam("authenticatorID") String authenticatorID,
             AuthenticatorData authenticatorData);
@@ -68,14 +62,12 @@ public interface AuthenticatorResource {
     @POST
     @Path("{authenticatorID}")
     @ACLMapping("authenticators.change-status")
-    @ClientResponseType(entityType=AuthenticatorData.class)
     public Response changeStatus(
             @PathParam("authenticatorID") String authenticatorID,
             @QueryParam("action") String action);
 
     @DELETE
     @Path("{authenticatorID}")
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("authenticators.remove")
     public Response removeAuthenticator(@PathParam("authenticatorID") String authenticatorID);
 }

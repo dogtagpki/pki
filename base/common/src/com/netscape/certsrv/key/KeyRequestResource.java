@@ -10,8 +10,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.base.ResourceMessage;
@@ -44,7 +42,6 @@ public interface KeyRequestResource {
      * Used to generate list of key requests based on the search parameters
      */
     @GET
-    @ClientResponseType(entityType=KeyRequestInfoCollection.class)
     public Response listRequests(@QueryParam("requestState") String requestState,
                                             @QueryParam("requestType") String requestType,
                                             @QueryParam("clientKeyID") String clientKeyID,
@@ -55,12 +52,10 @@ public interface KeyRequestResource {
                                             @QueryParam("realm") String realm);
 
     @POST
-    @ClientResponseType(entityType=KeyRequestResponse.class)
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
     public Response submitRequest(MultivaluedMap<String, String> form) throws Exception;
 
     @POST
-    @ClientResponseType(entityType=KeyRequestResponse.class)
     public Response submitRequest(ResourceMessage data) throws Exception;
 
     /**
@@ -68,21 +63,17 @@ public interface KeyRequestResource {
      */
     @GET
     @Path("{id}")
-    @ClientResponseType(entityType=KeyRequestInfo.class)
     public Response getRequestInfo(@PathParam("id") RequestId id);
 
     @POST
     @Path("{id}/approve")
-    @ClientResponseType(entityType=Void.class)
     public Response approveRequest(@PathParam("id") RequestId id);
 
     @POST
     @Path("{id}/reject")
-    @ClientResponseType(entityType=Void.class)
     public Response rejectRequest(@PathParam("id") RequestId id);
 
     @POST
     @Path("{id}/cancel")
-    @ClientResponseType(entityType=Void.class)
     public Response cancelRequest(@PathParam("id") RequestId id);
 }

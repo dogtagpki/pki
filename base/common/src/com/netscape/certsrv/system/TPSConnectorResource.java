@@ -26,11 +26,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
-import com.netscape.certsrv.key.KeyData;
 
 /**
  * @author Ade Lee
@@ -39,7 +36,6 @@ import com.netscape.certsrv.key.KeyData;
 @AuthMethodMapping("tpsconnectors")
 public interface TPSConnectorResource {
     @GET
-    @ClientResponseType(entityType=TPSConnectorCollection.class)
     public Response findConnectors(
             @QueryParam("host") String host,
             @QueryParam("port") String port,
@@ -48,50 +44,41 @@ public interface TPSConnectorResource {
 
     @GET
     @Path("{id}")
-    @ClientResponseType(entityType=TPSConnectorData.class)
     public Response getConnector(@PathParam("id") String id);
 
     @POST
-    @ClientResponseType(entityType=TPSConnectorData.class)
     public Response createConnector(@QueryParam("host") String host,
             @QueryParam("port") String port);
 
     @POST
     @Path("{id}")
-    @ClientResponseType(entityType=TPSConnectorData.class)
     public Response modifyConnector(@PathParam("id") String id, TPSConnectorData data);
 
     @DELETE
     @Path("{id}")
-    @ClientResponseType(entityType=Void.class)
     public Response deleteConnector(@PathParam("id") String id);
 
     @POST
     @Path("{id}/shared-secret")
-    @ClientResponseType(entityType=KeyData.class)
     @ACLMapping("admin.sharedsecret")
     public Response createSharedSecret(@PathParam("id") String id);
 
     @PUT
     @Path("{id}/shared-secret")
-    @ClientResponseType(entityType=KeyData.class)
     @ACLMapping("admin.sharedsecret")
     public Response replaceSharedSecret(@PathParam("id") String id);
 
     @DELETE
     @Path("{id}/shared-secret")
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("admin.sharedsecret")
     public Response deleteSharedSecret(@PathParam("id") String id);
 
     @DELETE
-    @ClientResponseType(entityType=Void.class)
     public Response deleteConnector(@QueryParam("host") String host,
             @QueryParam("port") String port);
 
     @GET
     @Path("{id}/shared-secret")
-    @ClientResponseType(entityType=KeyData.class)
     @ACLMapping("admin.sharedsecret")
     public Response getSharedSecret(@PathParam("id") String id);
 }

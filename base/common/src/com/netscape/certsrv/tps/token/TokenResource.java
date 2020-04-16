@@ -26,8 +26,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.base.PATCH;
@@ -42,7 +40,6 @@ import com.netscape.certsrv.base.PATCH;
 public interface TokenResource {
 
     @GET
-    @ClientResponseType(entityType=TokenCollection.class)
     public Response findTokens(
             @QueryParam("filter") String filter,
             @QueryParam("tokenID") String tokenID,
@@ -54,17 +51,14 @@ public interface TokenResource {
 
     @GET
     @Path("{tokenID}")
-    @ClientResponseType(entityType=TokenData.class)
     public Response getToken(@PathParam("tokenID") String tokenID);
 
     @POST
-    @ClientResponseType(entityType=TokenData.class)
     @ACLMapping("tokens.add")
     public Response addToken(TokenData tokenData);
 
     @PUT
     @Path("{tokenID}")
-    @ClientResponseType(entityType=TokenData.class)
     @ACLMapping("tokens.modify")
     public Response replaceToken(
             @PathParam("tokenID") String tokenID,
@@ -72,7 +66,6 @@ public interface TokenResource {
 
     @PATCH
     @Path("{tokenID}")
-    @ClientResponseType(entityType=TokenData.class)
     @ACLMapping("tokens.modify")
     public Response modifyToken(
             @PathParam("tokenID") String tokenID,
@@ -80,7 +73,6 @@ public interface TokenResource {
 
     @POST
     @Path("{tokenID}")
-    @ClientResponseType(entityType=TokenData.class)
     @ACLMapping("tokens.modify")
     public Response changeTokenStatus(
             @PathParam("tokenID") String tokenID,
@@ -88,7 +80,6 @@ public interface TokenResource {
 
     @DELETE
     @Path("{tokenID}")
-    @ClientResponseType(entityType=Void.class)
     @ACLMapping("tokens.remove")
     public Response removeToken(@PathParam("tokenID") String tokenID);
 }

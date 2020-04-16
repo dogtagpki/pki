@@ -22,8 +22,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.ClientResponseType;
-
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 
@@ -37,13 +35,11 @@ public interface SecurityDomainResource {
     @Path("installToken")
     @ACLMapping("securityDomain.read")
     @AuthMethodMapping("securityDomain.installToken")
-    @ClientResponseType(entityType=InstallToken.class)
     public Response getInstallToken(
             @QueryParam("hostname") String hostname,
             @QueryParam("subsystem") String subsystem);
 
     @GET
     @Path("domainInfo")
-    @ClientResponseType(entityType=DomainInfo.class)
     public Response getDomainInfo();
 }
