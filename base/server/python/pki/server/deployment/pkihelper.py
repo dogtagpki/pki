@@ -937,7 +937,7 @@ class Directory:
                perms=pki.server.DEFAULT_DIR_MODE,
                acls=None, critical_failure=True):
 
-        logger.info('Creating directory %s', name)
+        logger.info('Creating %s', name)
 
         try:
             if not os.path.exists(name):
@@ -1186,7 +1186,7 @@ class Directory:
              recursive_flag=True, overwrite_flag=False, critical_failure=True,
              ignore_cb=None):
 
-        logger.info('Creating directory %s', new_name)
+        logger.info('Creating %s', new_name)
 
         try:
 
@@ -1292,7 +1292,7 @@ class File:
                acls=None, silent=False, critical_failure=True):
 
         if not silent:
-            logger.info('Updating file %s', name)
+            logger.info('Updating %s', name)
 
         try:
             if os.path.exists(name):
@@ -1340,7 +1340,7 @@ class File:
 
     def delete(self, name, critical_failure=True):
 
-        logger.info('Removing file %s', name)
+        logger.info('Removing %s', name)
 
         try:
             if not os.path.exists(name) or not os.path.isfile(name):
@@ -1372,7 +1372,7 @@ class File:
              acls=None,
              overwrite_flag=False, critical_failure=True):
 
-        logger.info('Creating file %s', new_name)
+        logger.info('Creating %s', new_name)
 
         try:
             if not os.path.exists(old_name) or not os.path.isfile(old_name):
@@ -1424,7 +1424,7 @@ class File:
             acls=None, overwrite_flag=False,
             critical_failure=True):
 
-        logger.info('Customizing %s into %s', old_name, new_name)
+        logger.info('Creating %s', new_name)
 
         try:
             if not os.path.exists(old_name) or not os.path.isfile(old_name):
@@ -1478,7 +1478,7 @@ class Symlink:
     def create(self, name, link, uid=None, gid=None,
                acls=None, allow_dangling_symlink=False, critical_failure=True):
 
-        logger.info('Creating symlink %s', link)
+        logger.info('Creating %s', link)
 
         try:
             if not os.path.exists(link):
@@ -1785,7 +1785,7 @@ class Certutil:
                                   password_file=None, prefix=None,
                                   critical_failure=True):
 
-        logger.info('Creating NSS database in %s', path)
+        logger.info('Creating %s', path)
 
         cert_db, key_db, secmod_db = self._get_dbfiles(path)
         try:
