@@ -53,7 +53,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Creating %s', instance_conf_path)
         instance.makedirs(instance_conf_path, force=True)
 
-        logger.info('Creating password config %s', deployer.mdict['pki_shared_password_conf'])
+        logger.info('Creating %s', deployer.mdict['pki_shared_password_conf'])
 
         # Configuring internal token password
 
@@ -121,7 +121,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Installing %s instance', deployer.mdict['pki_instance_name'])
             return
 
-        # establish instance logs
         deployer.directory.create(deployer.mdict['pki_instance_log_path'])
 
         shared_conf_path = deployer.mdict['pki_source_server_path']
@@ -132,7 +131,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             os.path.join(shared_conf_path, 'tomcat.conf'),
             os.path.join(instance_conf_path, 'tomcat.conf'))
 
-        logger.info('Creating %s', deployer.mdict['pki_target_server_xml'])
         # Copy /usr/share/pki/server/conf/server.xml
         # to /etc/pki/<instance>/server.xml.
         deployer.file.copy_with_slot_substitution(
@@ -142,6 +140,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /etc/pki/<instance>/catalina.properties
         # to /usr/share/pki/server/conf/catalina.properties.
+        logger.info('Creating %s', os.path.join(instance_conf_path, 'catalina.properties'))
         instance.symlink(
             os.path.join(shared_conf_path, 'catalina.properties'),
             os.path.join(instance_conf_path, 'catalina.properties'),
@@ -149,6 +148,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /etc/pki/<instance>/ciphers.info
         # to /usr/share/pki/server/conf/ciphers.info.
+        logger.info('Creating %s', os.path.join(instance_conf_path, 'ciphers.info'))
         instance.symlink(
             os.path.join(shared_conf_path, 'ciphers.info'),
             os.path.join(instance_conf_path, 'ciphers.info'),
@@ -156,24 +156,24 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /etc/pki/<instance>/context.xml
         # to /usr/share/tomcat/conf/context.xml.
+        logger.info('Creating %s', instance.context_xml)
         context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
         instance.symlink(context_xml, instance.context_xml, force=True)
 
         # Link /etc/pki/<instance>/logging.properties
         # to /usr/share/pki/server/conf/logging.properties.
+        logger.info('Creating %s', os.path.join(instance_conf_path, 'logging.properties'))
         instance.symlink(
             os.path.join(shared_conf_path, 'logging.properties'),
             os.path.join(instance_conf_path, 'logging.properties'),
             force=True)
 
-        logger.info('Creating %s', deployer.mdict['pki_target_tomcat_conf_instance_id'])
         # create /etc/sysconfig/<instance>
         deployer.file.copy_with_slot_substitution(
             deployer.mdict['pki_source_tomcat_conf'],
             deployer.mdict['pki_target_tomcat_conf_instance_id'],
             overwrite_flag=True)
 
-        logger.info('Creating %s', deployer.mdict['pki_target_tomcat_conf'])
         # create /var/lib/pki/<instance>/conf/tomcat.conf
         deployer.file.copy_with_slot_substitution(
             deployer.mdict['pki_source_tomcat_conf'],
@@ -182,6 +182,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /etc/pki/<instance>/web.xml
         # to /usr/share/tomcat/conf/web.xml.
+        logger.info('Creating %s', instance.web_xml)
         web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
         instance.symlink(web_xml, instance.web_xml, force=True)
 
@@ -219,27 +220,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.directory.create(deployer.mdict['pki_tomcat_tmpdir_path'])
 
         deployer.directory.create(deployer.mdict['pki_tomcat_work_path'])
-        deployer.directory.create(
-            deployer.mdict['pki_tomcat_work_catalina_path'])
-        deployer.directory.create(
-            deployer.mdict['pki_tomcat_work_catalina_host_path'])
-        deployer.directory.create(
-            deployer.mdict['pki_tomcat_work_catalina_host_run_path'])
-        deployer.directory.create(
-            deployer.mdict['pki_tomcat_work_catalina_host_subsystem_path'])
+        deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_path'])
+        deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_host_path'])
+        deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_host_run_path'])
+        deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_host_subsystem_path'])
+
         # establish Tomcat instance logs
         # establish Tomcat instance registry
         # establish Tomcat instance convenience symbolic links
+
         deployer.symlink.create(
             deployer.mdict['pki_tomcat_bin_path'],
             deployer.mdict['pki_tomcat_bin_link'])
 
-        logger.info('Creating %s', deployer.mdict['pki_instance_systemd_link'])
         # create systemd links
         deployer.symlink.create(
             deployer.mdict['pki_tomcat_systemd'],
             deployer.mdict['pki_instance_systemd_link'],
             uid=0, gid=0)
+
         user = deployer.mdict['pki_user']
         group = deployer.mdict['pki_group']
         if user != 'pkiuser' or group != 'pkiuser':
@@ -253,6 +252,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.symlink.create(
             instance_conf_path,
             deployer.mdict['pki_instance_conf_link'])
+
         deployer.symlink.create(
             deployer.mdict['pki_instance_log_path'],
             deployer.mdict['pki_instance_logs_link'])
@@ -276,40 +276,45 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Removing %s instance', deployer.mdict['pki_instance_name'])
 
-        # remove Tomcat instance systemd service link
+        logger.info('Removing %s', deployer.systemd.systemd_link)
         pki.util.unlink(link=deployer.systemd.systemd_link,
                         force=deployer.mdict['pki_force_destroy'])
 
-        # delete systemd override directories
         if deployer.directory.exists(deployer.systemd.base_override_dir):
+            logger.info('Removing %s', deployer.systemd.base_override_dir)
             pki.util.rmtree(path=deployer.systemd.base_override_dir,
                             force=deployer.mdict['pki_force_destroy'])
+
         if deployer.directory.exists(deployer.systemd.nuxwdog_override_dir):
+            logger.info('Removing %s', deployer.systemd.nuxwdog_override_dir)
             pki.util.rmtree(path=deployer.systemd.nuxwdog_override_dir,
                             force=deployer.mdict['pki_force_destroy'])
 
         deployer.systemd.daemon_reload()
 
-        # remove Tomcat instance base
+        logger.info('Removing %s', deployer.mdict['pki_instance_path'])
         pki.util.rmtree(path=deployer.mdict['pki_instance_path'],
                         force=deployer.mdict['pki_force_destroy'])
 
         # remove Tomcat instance logs only if --remove-logs is specified
         if deployer.mdict['pki_remove_logs']:
+            logger.info('Removing %s', deployer.mdict['pki_instance_log_path'])
             pki.util.rmtree(path=deployer.mdict['pki_instance_log_path'],
                             force=deployer.mdict['pki_force_destroy'])
 
-        # remove Tomcat instance configuration
+        logger.info('Removing %s', deployer.mdict['pki_instance_configuration_path'])
         pki.util.rmtree(
             path=deployer.mdict['pki_instance_configuration_path'],
             force=deployer.mdict['pki_force_destroy']
         )
-        # remove PKI 'tomcat.conf' instance file
+
+        logger.info('Removing %s', deployer.mdict['pki_target_tomcat_conf_instance_id'])
         pki.util.remove(
             path=deployer.mdict['pki_target_tomcat_conf_instance_id'],
             force=deployer.mdict['pki_force_destroy']
         )
-        # remove Tomcat instance registry
+
+        logger.info('Removing %s', deployer.mdict['pki_instance_registry_path'])
         pki.util.rmtree(
             path=deployer.mdict['pki_instance_registry_path'],
             force=deployer.mdict['pki_force_destroy']
