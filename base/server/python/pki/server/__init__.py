@@ -420,44 +420,61 @@ class PKIServer(object):
 
     def create(self, force=False):
 
+        logger.info('Creating %s', self.base_dir)
         self.makedirs(self.base_dir, force=force)
 
+        logger.info('Creating %s', self.bin_dir)
         bin_dir = os.path.join(Tomcat.SHARE_DIR, 'bin')
         self.symlink(bin_dir, self.bin_dir, force=force)
 
+        logger.info('Creating %s', self.conf_dir)
         self.makedirs(self.conf_dir, force=force)
 
+        logger.info('Creating %s', self.catalina_policy)
         catalina_policy = os.path.join(Tomcat.CONF_DIR, 'catalina.policy')
         self.copy(catalina_policy, self.catalina_policy, force=force)
 
+        logger.info('Creating %s', self.catalina_properties)
         catalina_properties = os.path.join(
             PKIServer.SHARE_DIR, 'server', 'conf', 'catalina.properties')
         self.symlink(catalina_properties, self.catalina_properties, force=force)
 
+        logger.info('Creating %s', self.context_xml)
         context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
         self.symlink(context_xml, self.context_xml, force=force)
 
+        logger.info('Creating %s', self.logging_properties)
         logging_properties = os.path.join(Tomcat.CONF_DIR, 'logging.properties')
         self.copy(logging_properties, self.logging_properties, force=force)
 
         self.create_server_xml()
 
+        logger.info('Creating %s', self.tomcat_conf)
         self.copy(Tomcat.TOMCAT_CONF, self.tomcat_conf, force=force)
 
         with open(self.tomcat_conf, 'a') as f:
             f.write('\nPKI_VERSION=%s\n' % pki.specification_version())
 
+        logger.info('Creating %s', self.web_xml)
         web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
         self.symlink(web_xml, self.web_xml, force=force)
 
         conf_d_dir = os.path.join(self.conf_dir, 'conf.d')
+        logger.info('Creating %s', conf_d_dir)
         self.makedirs(conf_d_dir, force=force)
 
         self.create_libs(force=force)
 
+        logger.info('Creating %s', self.temp_dir)
         self.makedirs(self.temp_dir, force=force)
+
+        logger.info('Creating %s', self.webapps_dir)
         self.makedirs(self.webapps_dir, force=force)
+
+        logger.info('Creating %s', self.work_dir)
         self.makedirs(self.work_dir, force=force)
+
+        logger.info('Creating %s', self.log_dir)
         self.makedirs(self.log_dir, force=force)
 
         document = etree.parse(self.server_xml, parser)
@@ -465,14 +482,19 @@ class PKIServer(object):
 
         for engine in server.findall('Service/Engine'):
             engine_name = engine.get('name')
+
             engine_dir = os.path.join(self.conf_dir, engine_name)
+            logger.info('Creating %s', engine_dir)
             self.makedirs(engine_dir, force=force)
 
             for host in engine.findall('Host'):
                 host_name = host.get('name')
+
                 host_dir = os.path.join(engine_dir, host_name)
+                logger.info('Creating %s', host_dir)
                 self.makedirs(host_dir, force=force)
 
+        logger.info('Creating %s', self.service_conf)
         service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
         self.copy(service_conf, self.service_conf, force=force)
 
@@ -487,6 +509,7 @@ class PKIServer(object):
         self.remove_lockout_realm(document)
         self.remove_default_user_database(document)
 
+        logger.info('Creating %s', self.server_xml)
         with open(self.server_xml, 'wb') as f:
             document.write(f, pretty_print=True, encoding='utf-8')
 
@@ -550,20 +573,19 @@ class PKIServer(object):
     def create_libs(self, force=False):
 
         logger.info('Creating %s', self.lib_dir)
-
         lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'lib')
         self.symlink(lib_dir, self.lib_dir, force=force)
 
-        logger.info('Creating %s', self.common_lib_dir)
-
+        logger.info('Creating %s', self.common_dir)
         self.makedirs(self.common_dir, force=force)
 
+        logger.info('Creating %s', self.common_lib_dir)
         common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
         self.symlink(common_lib_dir, self.common_lib_dir, force=force)
 
     def create_nssdb(self, force=False):
 
-        logger.info('Creating NSS database: %s', self.nssdb_dir)
+        logger.info('Creating %s', self.nssdb_dir)
 
         if force and os.path.exists(self.nssdb_dir):
             logger.warning('NSS database already exists: %s', self.nssdb_dir)
@@ -678,7 +700,7 @@ class PKIServer(object):
             context = document.getroot()
             context.set('docBase', doc_base)
 
-        # write deployment descriptor
+        logger.info('Creating %s', context_xml)
         with open(context_xml, 'wb') as f:
             # xml as UTF-8 encoded bytes
             document.write(f, pretty_print=True, encoding='utf-8')
@@ -695,32 +717,51 @@ class PKIServer(object):
             'localhost',
             webapp_id + '.xml')
 
+        logger.info('Removing %s', context_xml)
         pki.util.remove(context_xml, force=force)
 
     def remove(self, force=False):
 
+        logger.info('Removing %s', self.service_conf)
         pki.util.remove(self.service_conf, force=force)
+
+        logger.info('Removing %s', self.log_dir)
         pki.util.rmtree(self.log_dir, force=force)
+
+        logger.info('Removing %s', self.work_dir)
         pki.util.rmtree(self.work_dir, force=force)
+
+        logger.info('Removing %s', self.webapps_dir)
         pki.util.rmtree(self.webapps_dir, force=force)
+
+        logger.info('Removing %s', self.temp_dir)
         pki.util.rmtree(self.temp_dir, force=force)
 
         self.remove_libs(force=force)
 
+        logger.info('Removing %s', self.conf_dir)
         pki.util.rmtree(self.conf_dir, force=force)
+
+        logger.info('Removing %s', self.bin_dir)
         pki.util.unlink(self.bin_dir, force=force)
+
+        logger.info('Removing %s', self.base_dir)
         pki.util.rmtree(self.base_dir, force=force)
 
     def remove_libs(self, force=False):
 
+        logger.info('Removing %s', self.common_lib_dir)
         pki.util.unlink(self.common_lib_dir, force=force)
+
+        logger.info('Removing %s', self.common_dir)
         pki.util.rmtree(self.common_dir, force=force)
+
+        logger.info('Removing %s', self.lib_dir)
         pki.util.unlink(self.lib_dir, force=force)
 
     def remove_nssdb(self, force=False):
 
-        logger.info('Removing NSS database: %s', self.nssdb_dir)
-
+        logger.info('Removing %s', self.nssdb_dir)
         pki.util.rmtree(self.nssdb_dir, force=force)
 
     def load(self):
