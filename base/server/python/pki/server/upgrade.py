@@ -78,7 +78,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def run_scriptlet(self, scriptlet):
 
-        for subsystem in self.instance.subsystems:
+        for subsystem in self.instance.get_subsystems():
 
             logging.info('Upgrading %s subsystem', subsystem)
 

@@ -140,7 +140,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
 
     def get_conf_file(self, instance):
         # return the path to the first instance
-        subsystem = instance.subsystems[0]
+        subsystem = instance.get_subsystems()[0]
         return os.path.join(subsystem.conf_dir, 'CS.cfg')
 
     def enable_nuxwdog_server_xml(self, filename, instance):
@@ -212,7 +212,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
     def modify_password_class_in_cs_cfg(self, instance):
         pclass = "com.netscape.cmsutil.password.NuxwdogPasswordStore"
 
-        for subsystem in instance.subsystems:
+        for subsystem in instance.get_subsystems():
             cs_cfg = os.path.join(subsystem.conf_dir, 'CS.cfg')
             for line in fileinput.input(cs_cfg, inplace=1):
                 match = re.search("^passwordClass=(.*)", line)
@@ -345,7 +345,7 @@ class NuxwdogDisableCLI(pki.cli.CLI):
     def modify_password_class_in_cs_cfg(self, instance):
         pclass = "com.netscape.cmsutil.password.PlainPasswordFile"
 
-        for subsystem in instance.subsystems:
+        for subsystem in instance.get_subsystems():
             cs_cfg = os.path.join(subsystem.conf_dir, 'CS.cfg')
             for line in fileinput.input(cs_cfg, inplace=1):
                 match = re.search("^passwordClass=(.*)", line)

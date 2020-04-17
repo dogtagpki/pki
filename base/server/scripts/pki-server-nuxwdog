@@ -92,7 +92,7 @@ instance_name = os.getenv('NAME', 'pki-tomcat')
 instance = pki.server.instance.PKIInstance(instance_name)
 instance.load()
 
-subsystems = instance.subsystems
+subsystems = instance.get_subsystems()
 
 tags.add('internal')
 

@@ -107,7 +107,7 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
             sys.exit(1)
         instance.load()
 
-        if not instance.subsystems:
+        if not instance.get_subsystems():
             logger.error('No subsystem in instance %s', instance_name)
             sys.exit(1)
 
@@ -115,7 +115,7 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
             bind_password = getpass.getpass(prompt='Enter password: ')
 
         try:
-            self.update_schema(instance.subsystems[0], bind_dn, bind_password)
+            self.update_schema(instance.get_subsystems()[0], bind_dn, bind_password)
 
         except subprocess.CalledProcessError as e:
             logger.error('Unable to update schema: %s', e)
@@ -211,7 +211,7 @@ class DBUpgradeCLI(pki.cli.CLI):
         instance.load()
 
         # upgrade all subsystems
-        for subsystem in instance.subsystems:
+        for subsystem in instance.get_subsystems():
 
             cmd = [subsystem.name + '-db-upgrade']
 

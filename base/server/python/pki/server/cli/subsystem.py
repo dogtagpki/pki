@@ -114,10 +114,10 @@ class SubsystemFindCLI(pki.cli.CLI):
 
         instance.load()
 
-        self.print_message('%s entries matched' % len(instance.subsystems))
+        self.print_message('%s entries matched' % len(instance.get_subsystems()))
 
         first = True
-        for subsystem in instance.subsystems:
+        for subsystem in instance.get_subsystems():
             if first:
                 first = False
             else:
@@ -263,7 +263,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
         instance.load()
 
         if all_subsystems:
-            for subsystem in instance.subsystems:
+            for subsystem in instance.get_subsystems():
                 if not subsystem.is_enabled():
                     subsystem.enable()
 
@@ -361,7 +361,7 @@ class SubsystemDisableCLI(pki.cli.CLI):
         instance.load()
 
         if all_subsystems:
-            for subsystem in instance.subsystems:
+            for subsystem in instance.get_subsystems():
                 if subsystem.is_enabled():
                     subsystem.disable()
 

@@ -818,6 +818,9 @@ class PKIServer(object):
             subsystem.load()
             self.subsystems.append(subsystem)
 
+    def get_subsystems(self):
+        return self.subsystems
+
     def get_subsystem(self, name):
         for subsystem in self.subsystems:
             if name == subsystem.name:

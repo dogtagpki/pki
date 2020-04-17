@@ -159,7 +159,7 @@ class CertFindCLI(pki.cli.CLI):
         first = True
         results = []
 
-        for subsystem in instance.subsystems:
+        for subsystem in instance.get_subsystems():
 
             # Retrieve the subsystem's system certificate
             certs = subsystem.find_system_certs()
@@ -260,7 +260,7 @@ class CertShowCLI(pki.cli.CLI):
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
-            subsystem_name = instance.subsystems[0].name
+            subsystem_name = instance.get_subsystems()[0].name
 
         subsystem = instance.get_subsystem(subsystem_name)
 
@@ -352,7 +352,7 @@ class CertUpdateCLI(pki.cli.CLI):
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
-            subsystem_name = instance.subsystems[0].name
+            subsystem_name = instance.get_subsystems()[0].name
 
         subsystem = instance.get_subsystem(subsystem_name)
 
@@ -823,7 +823,7 @@ class CertExportCLI(pki.cli.CLI):
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
-            subsystem_name = instance.subsystems[0].name
+            subsystem_name = instance.get_subsystems()[0].name
 
         subsystem = instance.get_subsystem(subsystem_name)
 
@@ -1120,7 +1120,7 @@ class CertFixCLI(pki.cli.CLI):
         # 1. Make a list of certs to fix OR use the list provided through CLI options
         if all_certs:
             # TODO: Identify only certs that are EXPIRED or ALMOST EXPIRED
-            for subsystem in instance.subsystems:
+            for subsystem in instance.get_subsystems():
                 # Retrieve the subsystem's system certificate
                 certs = subsystem.find_system_certs()
 
@@ -1166,7 +1166,7 @@ class CertFixCLI(pki.cli.CLI):
             if 'sslserver' in fix_certs or 'subsystem' in fix_certs:
                 # If the cert is either sslserver/subsystem, disable selftest for all
                 # subsystems since all subsystems use these 2 certs.
-                target_subsys = set(instance.subsystems)
+                target_subsys = set(instance.get_subsystems())
 
             else:
                 for cert_id in fix_certs:

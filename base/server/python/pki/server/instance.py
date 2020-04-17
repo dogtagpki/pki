@@ -556,7 +556,7 @@ class PKIInstance(pki.server.PKIServer):
         subsystem_name, cert_tag = pki.server.PKIServer.split_cert_id(cert_id)
 
         if not subsystem_name:
-            subsystem_name = self.subsystems[0].name
+            subsystem_name = self.get_subsystems()[0].name
 
         subsystem = self.get_subsystem(subsystem_name)
 
@@ -592,7 +592,7 @@ class PKIInstance(pki.server.PKIServer):
         # store cert data and request in CS.cfg
         if cert_id == 'sslserver' or cert_id == 'subsystem':
             # Update for all subsystems
-            for subsystem in self.subsystems:
+            for subsystem in self.get_subsystems():
                 subsystem.update_subsystem_cert(cert)
                 subsystem.save()
         else:
@@ -634,7 +634,7 @@ class PKIInstance(pki.server.PKIServer):
         subsystem_name, cert_tag = pki.server.PKIServer.split_cert_id(cert_id)
 
         if not subsystem_name:
-            subsystem_name = self.subsystems[0].name
+            subsystem_name = self.get_subsystems()[0].name
 
         subsystem = self.get_subsystem(subsystem_name)
 
@@ -762,7 +762,7 @@ class PKIInstance(pki.server.PKIServer):
 
                 subsystem_name, cert_tag = pki.server.PKIServer.split_cert_id(cert_id)
                 if not subsystem_name:
-                    subsystem_name = self.subsystems[0].name
+                    subsystem_name = self.get_subsystems()[0].name
                 subsystem = self.get_subsystem(subsystem_name)
 
                 if serial is None:

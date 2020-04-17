@@ -482,7 +482,7 @@ class MigrateCLI(pki.cli.CLI):
             certificate.set('certificateKeyAlias', full_name)
 
     def migrate_subsystems(self, instance, tomcat_version):
-        for subsystem in instance.subsystems:
+        for subsystem in instance.get_subsystems():
             self.migrate_subsystem(subsystem, tomcat_version)
 
     def migrate_subsystem(self, subsystem, tomcat_version):

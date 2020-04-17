@@ -100,7 +100,7 @@ class EnableSelfTestCLI(pki.cli.CLI):
 
         # Load subsystem or subsystems
         if not subsystems:
-            for subsys in instance.subsystems:
+            for subsys in instance.get_subsystems():
                 target_subsystems.append(subsys)
         else:
             for subsys in subsystems:
@@ -180,7 +180,7 @@ class DisableSelftestCLI(pki.cli.CLI):
 
         # Load subsystem or subsystems
         if not subsystems:
-            for subsys in instance.subsystems:
+            for subsys in instance.get_subsystems():
                 target_subsystems.append(subsys)
         else:
             for subsys in subsystems:
