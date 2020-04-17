@@ -183,6 +183,7 @@ public class KRAConnectorProcessor extends CAProcessor {
             }
         }
 
+        CMS.debug("KRAConnectorInfo: " + info);
         // connector does not exist, or existing connector is the same host/port and we are replacing it
         cs.putString(PREFIX + ".host", info.getHost());
         cs.putString(PREFIX + ".port", info.getPort());
@@ -191,6 +192,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         cs.putString(PREFIX + ".timeout", info.getTimeout() != null ?  info.getTimeout() : "30");
         cs.putString(PREFIX + ".uri", info.getUri() != null ? info.getUri() : "/kra/agent/kra/connector");
         cs.putString(PREFIX + ".transportCert", info.getTransportCert());
+        cs.putString(PREFIX + ".transportCertNickname", info.getTransportCertNickname());
 
         String nickname = cs.getString("ca.subsystem.nickname", "");
         String tokenname = cs.getString("ca.subsystem.tokenname", "");
@@ -219,6 +221,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         info.setTimeout(cs.getString(PREFIX + ".timeout"));
         info.setUri(cs.getString(PREFIX + ".uri"));
         info.setTransportCert(cs.getString(PREFIX + ".transportCert"));
+        info.setTransportCertNickname(cs.getString(PREFIX + ".transportCertNickname"));
 
         return info;
     }

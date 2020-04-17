@@ -36,6 +36,7 @@ public class KRAConnectorInfo {
     private static final String HOST = "host";
     private static final String PORT = "port";
     private static final String TRANSPORT_CERT= "transportCert";
+    private static final String TRANSPORT_CERT_NICKNAME="transportCertNickname";
     private static final String URI = "uri";
     private static final String TIMEOUT = "timeout";
     private static final String LOCAL = "local";
@@ -49,6 +50,9 @@ public class KRAConnectorInfo {
 
     @XmlElement
     String transportCert;
+
+    @XmlElement
+    String transportCertNickname;
 
     @XmlElement
     String uri;
@@ -74,6 +78,7 @@ public class KRAConnectorInfo {
         timeout = form.getFirst(TIMEOUT);
         local = form.getFirst(LOCAL);
         enable = form.getFirst(ENABLE);
+        transportCertNickname = form.getFirst(TRANSPORT_CERT_NICKNAME);
     }
 
     public String getHost() {
@@ -98,6 +103,14 @@ public class KRAConnectorInfo {
 
     public void setTransportCert(String transportCert) {
         this.transportCert = transportCert;
+    }
+
+    public void setTransportCertNickname(String transportCertNickname) {
+        this.transportCertNickname = transportCertNickname;
+    }
+
+    public String getTransportCertNickname() {
+       return transportCertNickname;
     }
 
     public String getUri() {
@@ -156,6 +169,7 @@ public class KRAConnectorInfo {
         info.setPort("8443");
         info.setTimeout("30");
         info.setUri("");
+        info.setTransportCertNickname("KRA Transport Certificate");
         info.setTransportCert(
             "MIIDnDCCAoSgAwIBAgIBDzANBgkqhkiG9w0BAQsFADBGMSMwIQYDVQQKExpyZWRo" +
             "YXQuY29tIFNlY3VyaXR5IERvbWFpbjEfMB0GA1UEAxMWQ0EgU2lnbmluZyBDZXJ0" +

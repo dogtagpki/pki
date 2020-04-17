@@ -71,6 +71,7 @@ public class UpdateConnector extends CMSServlet {
         info.setPort(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".port"));
         info.setTimeout(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".timeout"));
         info.setTransportCert(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".transportCert"));
+        info.setTransportCertNickname(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".transportCertNickname"));
         info.setUri(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".uri"));
         info.setLocal(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".local"));
         info.setEnable(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".enable"));
