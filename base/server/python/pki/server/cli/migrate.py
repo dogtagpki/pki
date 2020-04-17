@@ -119,8 +119,6 @@ class MigrateCLI(pki.cli.CLI):
         self.migrate_tomcat(instance, tomcat_version)
         self.migrate_subsystems(instance, tomcat_version)
 
-        self.print_message('%s instance migrated' % instance.name)
-
     def migrate_nssdb(self, instance):
 
         if not os.path.exists(instance.nssdb_dir):
