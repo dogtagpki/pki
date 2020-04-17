@@ -114,7 +114,7 @@ class PKIServer(object):
 
         self.config = {}
         self.passwords = {}
-        self.subsystems = []
+        self.subsystems = {}
 
     def __repr__(self):
         return self.name
@@ -816,16 +816,13 @@ class PKIServer(object):
 
             subsystem = pki.server.subsystem.PKISubsystemFactory.create(self, subsystem_name)
             subsystem.load()
-            self.subsystems.append(subsystem)
+            self.subsystems[subsystem_name] = subsystem
 
     def get_subsystems(self):
-        return self.subsystems
+        return self.subsystems.values()
 
-    def get_subsystem(self, name):
-        for subsystem in self.subsystems:
-            if name == subsystem.name:
-                return subsystem
-        return None
+    def get_subsystem(self, subsystem_name):
+        return self.subsystems.get(subsystem_name)
 
     def load_jss_config(self):
 
