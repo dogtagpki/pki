@@ -315,6 +315,10 @@ function keyLengthsCurvesOptions (keyPurpose)
               if (keyPurpose.length == 0 || (keyPurpose.length > 0 && policySetListSet[i].setId.indexOf(keyPurpose) > -1)) {
                 keyType = policySetListSet[i].policySet[j].constraintSet[k].value;
               }
+            } else {
+              if (document.getElementById("keyTypeId").value != "undefined") {
+                keyType = document.getElementById("keyTypeId").value;
+              }
             }
           }
 
@@ -346,6 +350,8 @@ function keyLengthsCurvesOptions (keyPurpose)
                  value != "nistp256" && value != "nistp384" && value != "nistp521" &&
                  value != "ECDSA_P256" && value != "ECDSA_P384" && value != "ECDSA_P521") {
           included = false;
+      } else if (keyType == "EC" && isNumeric(value)) {
+        included = false;
       }
 
       if (included) {
@@ -375,6 +381,18 @@ function keyLengthsCurvesOptions (keyPurpose)
   //alert("options="+options);
 
   return options;
+}
+
+function updateKeyLengthsCurvesOptions() {
+  // get the keySize select element via its known id
+  var cSelect = document.getElementById("keySizeId");
+
+  // remove the current options from the select tag
+  var len=cSelect.options.length;
+  while (cSelect.options.length > 0) {
+    cSelect.remove(0);
+  }
+  cSelect.innerHTML = keyLengthsCurvesOptions("");
 }
 
 function isNumeric(sText)
@@ -753,17 +771,18 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
     } else if (inputListSet[n].inputSyntax == 'server_side_keygen_request_type') {
         // get PKCS#12 password
         document.writeln('<tr>');
-        document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">PKCS #12 Password:</font></td>');
-        document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password name="serverSideKeygenP12Passwd" value="" AutoComplete=off ></font></td>');
+        document.writeln('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">PKCS #12 Password:</font></td>');
+        document.writeln('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password name="serverSideKeygenP12Passwd" value="" AutoComplete=off ></font></td>');
         document.writeln('</tr>');
 
         document.writeln('<tr>');
-        document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">PKCS #12 Password again:</font></td>');
-        document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password name="p12PasswordAgain" value="" AutoComplete=off ></font></td>');
-        document.writeln('<SELECT NAME="keyType">'+getKeyTypesOptionsForKeyGen()+'</SELECT>&nbsp;&nbsp;<SELECT NAME=\"cryptprovider\"></SELECT>');
-        document.writeln('<SELECT NAME="keySize">'+keyLengthsCurvesOptions("")+'</SELECT>&nbsp;&nbsp;<SELECT NAME=\"cryptprovider\"></SELECT>');
+        document.writeln('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">PKCS #12 Password again:</font></td>');
+        document.writeln('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><input type=password name="p12PasswordAgain" value="" AutoComplete=off ></font></td>');
         document.writeln('</tr>');
-
+    } else if (inputListSet[n].inputSyntax == 'server_side_keygen_key_type') {
+      document.writeln('<SELECT NAME="keyType" ID="keyTypeId" onChange=\"updateKeyLengthsCurvesOptions()\">'+getKeyTypesOptionsForKeyGen() + '</SELECT>&nbsp');
+    } else if (inputListSet[n].inputSyntax == 'server_side_keygen_key_size') {
+      document.writeln('<SELECT NAME="keySize" ID="keySizeId">'+keyLengthsCurvesOptions("")+'</SELECT>&nbsp');
     } else if (inputListSet[n].inputSyntax == 'cert_request') {
       document.writeln('<textarea cols=60 rows=10 name=' + inputListSet[n].inputId + '></textarea>');
     } else if (inputListSet[n].inputSyntax == 'cert_request_type') {
