@@ -873,9 +873,6 @@ backup_instance_configuration_files()
 
             # Always create 'CS.cfg.bak' by linking to this archived file
             ln -s ${archived_file} ${backup_file}
-
-            # Report that 'CS.cfg' has been successfully archived
-            echo "SUCCESS:  Successfully archived '${archived_file}'"
         fi
 
         # Check that a non-empty 'CS.cfg.bak' symlink or regular file exists
@@ -884,9 +881,6 @@ backup_instance_configuration_files()
             echo "WARNING:  Failed to backup '${pki_instance_configuration_file}' to '${backup_file}'!"
             ((backup_errors++))
             continue
-        else
-            # Report that 'CS.cfg' has been successfully backed up
-            echo "SUCCESS:  Successfully backed up '${backup_file}'"
         fi
 
         # Since 'CS.cfg' was backed up successfully, remove 'CS.cfg.bak.saved'
