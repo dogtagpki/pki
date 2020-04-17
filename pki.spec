@@ -927,9 +927,9 @@ then
 
 else
     # On RPM upgrade run system upgrade
-    echo "Upgrading PKI system configuration at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
-    /sbin/pki-upgrade >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
-    echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+    echo "Upgrading PKI system configuration at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log
+    /sbin/pki-upgrade 2>&1 | tee -a /var/log/pki/pki-upgrade-%{version}.log
+    echo >> /var/log/pki/pki-upgrade-%{version}.log
 fi
 
 %postun -n pki-base
@@ -950,9 +950,9 @@ fi
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
 
-echo "Upgrading PKI server configuration on `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
-/sbin/pki-server upgrade >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
-echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+echo "Upgrading PKI server configuration on `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{version}.log
+/sbin/pki-server upgrade 2>&1 | tee -a /var/log/pki/pki-server-upgrade-%{version}.log
+echo >> /var/log/pki/pki-server-upgrade-%{version}.log
 
 # Reload systemd daemons on upgrade only
 if [ "$1" == "2" ]
