@@ -20,7 +20,6 @@
 #
 
 from __future__ import absolute_import
-from __future__ import print_function
 import functools
 import logging
 import os
@@ -76,14 +75,14 @@ class PKIUpgradeTracker(object):
 
     def show(self):
 
-        print(self.name + ':')
+        logger.info('%s:', self.name)
 
         version = self.get_version()
-        print('  Configuration version: ' + str(version))
+        logger.info('  Configuration version: %s', version)
 
         index = self.get_index()
         if index > 0:
-            print('  Last completed scriptlet: ' + str(index))
+            logger.info('  Last completed scriptlet: %s', index)
 
     def get_index(self):
 
@@ -492,16 +491,9 @@ class PKIUpgrader(object):
 
     def upgrade_version(self, version):
 
-        if version == version.next:
-            print('Upgrading version %s:' % version)
-        else:
-            print('Upgrading from version %s to %s:' % (version, version.next))
-
         scriptlets = self.scriptlets(version)
 
         if len(scriptlets) == 0:
-
-            print('No upgrade scriptlets.')
 
             self.set_tracker(version.next)
             return
@@ -509,8 +501,7 @@ class PKIUpgrader(object):
         # execute scriptlets
         for scriptlet in scriptlets:
 
-            message = str(scriptlet.index) + '. ' + scriptlet.message
-            print(message)
+            logger.info('Running %s-%s: %s', version, scriptlet.index, scriptlet.message)
 
             self.init_scriptlet(scriptlet)
             self.run_scriptlet(scriptlet)
@@ -542,15 +533,12 @@ class PKIUpgrader(object):
 
     def revert_version(self, version):
 
-        print('Reverting to version ' + str(version) + ':')
-
         scriptlets = self.scriptlets(version)
         scriptlets.reverse()
 
         for scriptlet in scriptlets:
 
-            message = str(scriptlet.index) + '. ' + scriptlet.message
-            print(message)
+            logger.info('Reverting %s-%s: %s', version, scriptlet.index, scriptlet.message)
 
             scriptlet.revert()
 
@@ -572,7 +560,7 @@ class PKIUpgrader(object):
             self.revert_version(version)
             return
 
-        print('Unable to revert from version ' + str(current_version) + '.')
+        logger.info('Unable to revert from version %s.', current_version)
 
     def show_tracker(self):
 

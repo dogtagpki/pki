@@ -22,21 +22,13 @@ from __future__ import absolute_import
 from __future__ import print_function
 import getopt
 import logging
-import signal
 import sys
 
 import pki
 import pki.upgrade
 import pki.util
 
-# pylint: disable=W0613
-
-
-def interrupt_handler(event, frame):
-    print()
-    print()
-    print('Upgrade canceled.')
-    sys.exit(1)
+logger = logging.getLogger(__name__)
 
 
 def usage():
@@ -63,16 +55,14 @@ def advancedOptions():
 
 def main(argv):
 
-    signal.signal(signal.SIGINT, interrupt_handler)
-
     try:
-        opts, _ = getopt.getopt(argv[1:], 'hi:s:t:vX', [
+        opts, _ = getopt.getopt(argv, 'hi:s:t:vX', [
             'status', 'revert', 'validate',
             'remove-tracker', 'reset-tracker', 'set-tracker=',
             'verbose', 'debug', 'help'])
 
     except getopt.GetoptError as e:
-        print('ERROR: %s' % e)
+        logger.error(e)
         usage()
         sys.exit(1)
 
@@ -120,7 +110,7 @@ def main(argv):
             sys.exit()
 
         else:
-            print('ERROR: unknown option ' + o)
+            logger.error('Unknown option: %s', o)
             usage()
             sys.exit(1)
 
@@ -145,9 +135,10 @@ def main(argv):
         upgrader.set_tracker(tracker_version)
 
     else:
+        logger.info('Upgrading PKI system')
         upgrader.upgrade()
 
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s: %(message)s')
-    main(sys.argv)
+    main(sys.argv[1:])

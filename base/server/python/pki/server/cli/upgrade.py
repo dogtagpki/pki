@@ -28,6 +28,8 @@ import pki.cli
 import pki.upgrade
 import pki.server.upgrade
 
+logger = logging.getLogger(__name__)
+
 
 class UpgradeCLI(pki.cli.CLI):
 
@@ -66,7 +68,7 @@ class UpgradeCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+            logger.error(e)
             self.usage()
             sys.exit(1)
 
@@ -119,7 +121,7 @@ class UpgradeCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Unknown option: %s', o)
                 self.usage()
                 sys.exit(1)
 
@@ -157,24 +159,20 @@ class UpgradeCLI(pki.cli.CLI):
             upgrader.status()
 
         elif revert:
-            logging.info('Reverting PKI server last upgrade')
             upgrader.revert()
 
         elif validate:
             upgrader.validate()
 
         elif remove_tracker:
-            logging.info('Removing PKI server upgrade tracker')
             upgrader.remove_tracker()
 
         elif reset_tracker:
-            logging.info('Resetting PKI server upgrade tracker')
             upgrader.reset_tracker()
 
         elif tracker_version is not None:
-            logging.info('Setting PKI server upgrade tracker')
             upgrader.set_tracker(tracker_version)
 
         else:
-            print('Upgrading %s instance' % instance)
+            logger.info('Upgrading PKI server %s', instance)
             upgrader.upgrade()
