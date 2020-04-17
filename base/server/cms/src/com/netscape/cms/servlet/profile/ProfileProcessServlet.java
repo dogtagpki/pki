@@ -191,6 +191,7 @@ public class ProfileProcessServlet extends ProfileServlet {
                 OutputStream bos = p12_response.getOutputStream();
                 p12_response.setContentType("application/x-pkcs12");
                 p12_response.setContentLength(p12blob.length);
+                p12_response.setHeader("Content-disposition", "attachment; filename="+  "serverKeyGenCert.p12");
                 bos.write(p12blob);
                 bos.flush();
                 bos.close();

@@ -93,7 +93,8 @@ public class KRAInstallerService extends SystemConfigService {
         String kraPort = CMS.getAgentPort();
         String transportCert = cs.getString("kra.transport.cert", "");
         String sessionId = CMS.getConfigSDSessionId();
-
+        String transportCertNickname = cs.getString("kra.cert.transport.nickname");
+        CMS.debug("KRAInstallerService: transportCert nickname: " + transportCertNickname);
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("ca.connector.KRA.enable", "true");
         content.putSingle("ca.connector.KRA.local", "false");
@@ -102,8 +103,10 @@ public class KRAInstallerService extends SystemConfigService {
         content.putSingle("ca.connector.KRA.host", kraHost);
         content.putSingle("ca.connector.KRA.port", kraPort);
         content.putSingle("ca.connector.KRA.transportCert", transportCert);
+        content.putSingle("ca.connector.KRA.transportCertNickname",transportCertNickname);
         content.putSingle("sessionID", sessionId);
 
+        CMS.debug("KRAnstallerService: content: " + content);
         String c = ConfigurationUtils.post(caHost, caPort, true, "/ca/admin/ca/updateConnector", content, null, null);
         if (c == null || c.equals("")) {
             CMS.debug("KRAInstallerService: Unable to configure KRA connector: No response from CA");
