@@ -25,6 +25,7 @@ class AbstractBasePkiScriptlet(object):
 
     def __init__(self):
         self.deployer = None
+        self.instance = None
 
     # pylint: disable=W0613
     def spawn(self, deployer):

@@ -31,6 +31,8 @@ import subprocess
 import traceback
 
 import pki
+import pki.server
+import pki.server.instance
 
 from pki.server.deployment import pkiconfig as config
 from pki.server.deployment import pkimanifest as manifest
@@ -530,6 +532,11 @@ def main(argv):
     create_master_dictionary(parser)
     deployer.init()
 
+    instance = pki.server.instance.PKIInstance(
+        deployer.mdict['pki_instance_name'],
+        user=deployer.mdict['pki_user'],
+        group=deployer.mdict['pki_group'])
+
     if not interactive and \
             not config.str2bool(parser.mdict['pki_skip_configuration']):
         check_ds()
@@ -557,6 +564,7 @@ def main(argv):
 
             scriptlet = scriptlet_module.PkiScriptlet()
             scriptlet.deployer = deployer
+            scriptlet.instance = instance
             scriptlet.spawn(deployer)
 
     except subprocess.CalledProcessError as e:

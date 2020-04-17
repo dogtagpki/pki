@@ -45,7 +45,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Preparing %s instance', deployer.mdict['pki_instance_name'])
 
-        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance = self.instance
         instance.load()
 
         instance_conf_path = deployer.mdict['pki_instance_configuration_path']

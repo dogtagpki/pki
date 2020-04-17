@@ -44,7 +44,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Deploying /%s web application', deployer.mdict['pki_subsystem'].lower())
 
-        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance = self.instance
         instance.load()
 
         # Create subsystem webapps folder to store custom webapps:

@@ -28,6 +28,8 @@ import subprocess
 import traceback
 
 import pki
+import pki.server
+import pki.server.instance
 
 from pki.server.deployment import pkiconfig as config
 from pki.server.deployment.pkiparser import PKIConfigParser
@@ -225,6 +227,11 @@ def main(argv):
     parser.compose_pki_master_dictionary()
     deployer.init()
 
+    instance = pki.server.instance.PKIInstance(
+        deployer.mdict['pki_instance_name'],
+        user=deployer.mdict['pki_user'],
+        group=deployer.mdict['pki_group'])
+
     # Add force_destroy to master dictionary
     parser.mdict['pki_force_destroy'] = force_destroy
 
@@ -249,6 +256,7 @@ def main(argv):
 
             scriptlet = scriptlet_module.PkiScriptlet()
             scriptlet.deployer = deployer
+            scriptlet.instance = instance
             scriptlet.destroy(deployer)
 
     except subprocess.CalledProcessError as e:

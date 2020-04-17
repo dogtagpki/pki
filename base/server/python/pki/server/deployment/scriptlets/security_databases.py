@@ -45,7 +45,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Skipping NSS database creation')
             return
 
-        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance = self.instance
         instance.load()
 
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())

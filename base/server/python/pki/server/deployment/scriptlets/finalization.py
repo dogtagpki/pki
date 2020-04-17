@@ -21,9 +21,6 @@
 from __future__ import absolute_import
 import logging
 
-import pki.server
-import pki.server.instance
-
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from .. import pkimessages as log
@@ -48,7 +45,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Finalizing subsystem creation')
 
-        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance = self.instance
         instance.load()
 
         # Optionally, programmatically 'enable' the configured PKI instance
@@ -80,7 +77,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Finalizing subsystem removal')
 
-        instance = pki.server.instance.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance = self.instance
         instance.load()
 
         # If this is the last remaining PKI instance, ALWAYS remove the
