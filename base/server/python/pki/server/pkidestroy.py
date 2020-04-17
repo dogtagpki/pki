@@ -204,15 +204,6 @@ def main(argv):
     parser.validate()
     parser.init_config(pki_instance_name=config.pki_deployed_instance_name)
 
-    log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
-    log_name = "pki" + "-" +\
-               deployer.subsystem_name.lower() +\
-               "-" + "destroy" + "." +\
-               deployer.log_timestamp + "." + "log"
-    print('Uninstallation log: %s/%s' % (log_dir, log_name))
-
-    pkilogging.enable_pki_logger(log_dir, log_name, 'pkidestroy')
-
     if args.pki_verbosity > 1:
         logger.warning('The -%s option has been deprecated. Use --debug instead.',
                        'v' * args.pki_verbosity)
@@ -231,6 +222,16 @@ def main(argv):
         deployer.mdict['pki_instance_name'],
         user=deployer.mdict['pki_user'],
         group=deployer.mdict['pki_group'])
+
+    log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
+    log_name = "pki" + "-" +\
+               deployer.subsystem_name.lower() +\
+               "-" + "destroy" + "." +\
+               deployer.log_timestamp + "." + "log"
+    log_file = os.path.join(log_dir, log_name)
+    print('Uninstallation log: %s' % log_file)
+
+    pkilogging.enable_pki_logger(log_file, 'pkidestroy')
 
     # Add force_destroy to master dictionary
     parser.mdict['pki_force_destroy'] = force_destroy

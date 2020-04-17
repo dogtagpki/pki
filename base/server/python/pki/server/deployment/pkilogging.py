@@ -21,7 +21,6 @@
 # System Imports
 from __future__ import absolute_import
 import logging
-import os
 import pprint
 
 sensitive_parameters = []
@@ -45,10 +44,7 @@ def log_format(given_dict):
 
 
 # PKI Deployment Logging Functions
-def enable_pki_logger(log_dir, log_name, name):
-
-    if not os.path.isdir(log_dir):
-        os.makedirs(log_dir)
+def enable_pki_logger(filename, name):
 
     # Configure console handler
     console = logging.StreamHandler()
@@ -56,7 +52,7 @@ def enable_pki_logger(log_dir, log_name, name):
     console.setFormatter(console_format)
 
     # Configure file handler
-    log_file = logging.FileHandler(log_dir + "/" + log_name, 'w')
+    log_file = logging.FileHandler(filename, 'w')
     file_format = logging.Formatter('%(asctime)s %(levelname)s: %(message)s',
                                     '%Y-%m-%d %H:%M:%S')
     log_file.setFormatter(file_format)

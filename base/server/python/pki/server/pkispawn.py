@@ -502,15 +502,6 @@ def main(argv):
               deployer.subsystem_name.lower())
         sys.exit(1)
 
-    log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
-    log_name = "pki" + "-" + \
-               deployer.subsystem_name.lower() + \
-               "-" + "spawn" + "." + \
-               deployer.log_timestamp + "." + "log"
-    print('Installation log: %s/%s' % (log_dir, log_name))
-
-    pkilogging.enable_pki_logger(log_dir, log_name, 'pkispawn')
-
     if args.pki_verbosity > 1:
         logger.warning('The -%s option has been deprecated. Use --debug instead.',
                        'v' * args.pki_verbosity)
@@ -536,6 +527,16 @@ def main(argv):
         deployer.mdict['pki_instance_name'],
         user=deployer.mdict['pki_user'],
         group=deployer.mdict['pki_group'])
+
+    log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
+    log_name = "pki" + "-" + \
+               deployer.subsystem_name.lower() + \
+               "-" + "spawn" + "." + \
+               deployer.log_timestamp + "." + "log"
+    log_file = os.path.join(log_dir, log_name)
+    print('Installation log: %s' % log_file)
+
+    pkilogging.enable_pki_logger(log_file, 'pkispawn')
 
     if not interactive and \
             not config.str2bool(parser.mdict['pki_skip_configuration']):
@@ -574,7 +575,7 @@ def main(argv):
         if e.output:
             print(e.output)
         print()
-        print('Please check pkispawn logs in %s/%s' % (log_dir, log_name))
+        print('Please check pkispawn logs in %s' % log_file)
         sys.exit(1)
 
     except requests.HTTPError as e:
