@@ -556,7 +556,7 @@ def main(argv):
                 fromlist=[scriptlet_name])
 
             scriptlet = scriptlet_module.PkiScriptlet()
-
+            scriptlet.deployer = deployer
             scriptlet.spawn(deployer)
 
     except subprocess.CalledProcessError as e:

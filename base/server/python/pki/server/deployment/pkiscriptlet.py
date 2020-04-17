@@ -18,23 +18,24 @@
 # All rights reserved.
 #
 
-# System Imports
 from __future__ import absolute_import
-import abc
-import six
 
 
-# PKI Deployment Abstract Base PKI Scriptlet
-class AbstractBasePkiScriptlet(six.with_metaclass(abc.ABCMeta, object)):
-    @abc.abstractmethod
+class AbstractBasePkiScriptlet(object):
+
+    def __init__(self):
+        self.deployer = None
+
+    # pylint: disable=W0613
     def spawn(self, deployer):
-        """Retrieve data from the specified PKI dictionary and
-           use it to install a new PKI instance."""
+        '''
+        Create a new PKI subsystem.
+        '''
         return
 
     # pylint: disable=W0613
-    @abc.abstractmethod
     def destroy(self, deployer):
-        """Retrieve data from the specified PKI dictionary and
-           use it to destroy an existing PKI instance."""
+        '''
+        Remove a PKI subsystem.
+        '''
         return
