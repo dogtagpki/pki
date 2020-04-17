@@ -39,17 +39,17 @@ import com.netscape.certsrv.profile.IProfileInput;
 public class ServerKeygenInput extends EnrollInput implements IProfileInput {
 
     public static final String P12PASSWORD = "serverSideKeygenP12Passwd";
-/*
+
     public static final String KEY_TYPE = "keyType";
     public static final String KEY_SIZE = "keySize";
-*/
+
 
     public ServerKeygenInput() {
         addValueName(P12PASSWORD);
-/*
+
         addValueName(KEY_TYPE);
         addValueName(KEY_SIZE);
-*/
+
     }
 
     /**
@@ -99,16 +99,14 @@ public class ServerKeygenInput extends EnrollInput implements IProfileInput {
             return new Descriptor(IDescriptor.SERVER_SIDE_KEYGEN_REQUEST_TYPE, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_SERVER_KEYGEN_P12PASSWD"));
-/*
         } else if (name.equals(KEY_TYPE)) {
-            return new Descriptor(IDescriptor.STRING, null,
+            return new Descriptor(IDescriptor.SERVER_SIDE_KEYGEN_KEY_TYPE, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_SERVER_KEYGEN_KEY_TYPE"));
         } else if (name.equals(KEY_SIZE)) {
-            return new Descriptor(IDescriptor.STRING, null,
+            return new Descriptor(IDescriptor.SERVER_SIDE_KEYGEN_KEY_SIZE, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_SERVER_KEYGEN_KEY_SIZE"));
-*/
         }
         return null;
     }

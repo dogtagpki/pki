@@ -336,22 +336,61 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             request.setExtData("isServerSideKeygen", "true");
             CryptoToken token = cm.getInternalKeyStorageToken();
 
-            String keySizeStr = request.getExtDataInString("keySize");
-            int keySize = 1024;
-            if (keySizeStr != null) {
-                CMS.debug("ServerKeygenUserKeyDefault: populate: keySize in request: " + keySizeStr);
-                keySize = Integer.parseInt(keySizeStr);
+            String keyTypeStr = request.getExtDataInString("keyType");
+            String keyType = "RSA";
+            int keySize = 2048;
+            String curveName = "nistp521";
+
+            // Populate the keyType and keySize/keyCurve
+
+            if (keyTypeStr != null && !keyTypeStr.isEmpty()) {
+                CMS.debug("ServerKeygenUserKeyDefault: populate: keyType in request: " + keyTypeStr);
+                keyType = keyTypeStr;
             } else {
-                CMS.debug("ServerKeygenUserKeyDefault: populate: keySize in request null;  default to 2048");
+                CMS.debug("ServerKeygenUserKeyDefault: populate: keyType in request null; default to RSA");
             }
-            request.setExtData(IRequest.KEY_GEN_ALGORITHM, "RSA");
-            request.setExtData(IRequest.KEY_GEN_SIZE, keySize);
+
+            String keySizeCurveStr = request.getExtDataInString("keySize");
+
+            if (keyType.contentEquals("RSA")) {
+                if (keySizeCurveStr != null && !keySizeCurveStr.isEmpty()) {
+                    CMS.debug("ServerKeygenUserKeyDefault: populate: keySize in request: " + keySizeCurveStr);
+                    keySize = Integer.parseInt(keySizeCurveStr);
+                } else {
+                    CMS.debug("ServerKeygenUserKeyDefault: populate: keySize in request null;  default to" + keySize);
+                }
+                // Do things when RSA is selected
+            } else if (keyType.contentEquals("EC")) {
+                // TODO: dmoluguw: Fix the following to generate right Key ECC keys
+
+                if (keySizeCurveStr != null && !keySizeCurveStr.isEmpty()) {
+                    CMS.debug("ServerKeygenUserKeyDefault: populate: keyCurve in request: " + keySizeCurveStr);
+                    curveName = keySizeCurveStr;
+                } else {
+                    CMS.debug("ServerKeygenUserKeyDefault: populate: keySize in request null;  default to" + curveName);
+                }
+                // Do things when EC is selected
+            } else {
+                throw new Exception("Unsupported keyType: " + keyType);
+            }
+            request.setExtData(IRequest.KEY_GEN_ALGORITHM, keyType);
+            if(keyType.contentEquals("RSA")) {
+                request.setExtData(IRequest.KEY_GEN_SIZE, keySize);
+            }
+            else if (keyType.contentEquals("EC")) {
+                // TODO: Check whether IRequest.KEY_GEN_SIZE can accept string value
+                request.setExtData(IRequest.KEY_GEN_SIZE, curveName);
+            }
 
             /*
              * it is necessary to  put in a static fake key here to prevent
              * issue; The fake key will be replaced later once KRA generates
              * the real keys
              */
+
+            // dmoluguw: TODO: The below values seem to be for development purposes,
+            // and will probably work only with keyType="RSA"
+
             String pubKeyStr = "";
             switch (keySize) {
                 case 1024:
