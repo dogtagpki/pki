@@ -193,58 +193,6 @@ class PKIUpgradeScriptlet(object):
         # Callback method to upgrade the system.
         pass
 
-    def revert(self):
-
-        backup_dir = self.get_backup_dir()
-
-        if not os.path.exists(backup_dir):
-            return
-
-        oldfiles = backup_dir + '/oldfiles'
-        if os.path.exists(oldfiles):
-
-            # restore all backed up files
-            for sourcepath, _, filenames in os.walk(oldfiles):
-                # unused item _ for dirnames
-
-                destpath = sourcepath[len(oldfiles):]
-                if destpath == '':
-                    destpath = '/'
-
-                if not os.path.isdir(destpath):
-                    logger.info('Restoring %s', destpath)
-                    pki.util.copydirs(sourcepath, destpath, force=True)
-
-                for filename in filenames:
-                    sourcefile = os.path.join(sourcepath, filename)
-                    targetfile = os.path.join(destpath, filename)
-
-                    logger.info('Restoring %s', targetfile)
-                    pki.util.copyfile(sourcefile, targetfile, force=True)
-
-        newfiles = backup_dir + '/newfiles'
-        if os.path.exists(newfiles):
-
-            # get paths that did not exist before upgrade
-            paths = []
-            with open(newfiles, 'r') as f:
-                for path in f:
-                    path = path.strip('\n')
-                    paths.append(path)
-
-            # remove paths in reverse order
-            paths.reverse()
-            for path in paths:
-
-                if not os.path.exists(path):
-                    continue
-                logger.info('Deleting %s', path)
-
-                if os.path.isfile(path):
-                    os.remove(path)
-                else:
-                    shutil.rmtree(path)
-
     def backup(self, path):
         self.upgrader.backup(self, path)
 
@@ -501,7 +449,7 @@ class PKIUpgrader(object):
         # execute scriptlets
         for scriptlet in scriptlets:
 
-            logger.info('Running %s-%s: %s', version, scriptlet.index, scriptlet.message)
+            logger.info('Running %s: %s. %s', version, scriptlet.index, scriptlet.message)
 
             self.init_scriptlet(scriptlet)
             self.run_scriptlet(scriptlet)
@@ -531,6 +479,60 @@ class PKIUpgrader(object):
         for version in versions:
             self.upgrade_version(version)
 
+    def revert_scriptlet(self, scriptlet):
+
+        backup_dir = scriptlet.get_backup_dir()
+
+        if not os.path.exists(backup_dir):
+            return
+
+        oldfiles = backup_dir + '/oldfiles'
+        if os.path.exists(oldfiles):
+
+            # restore all backed up files
+            for sourcepath, _, filenames in os.walk(oldfiles):
+                # unused item _ for dirnames
+
+                destpath = sourcepath[len(oldfiles):]
+                if destpath == '':
+                    destpath = '/'
+
+                if not os.path.isdir(destpath):
+                    logger.info('Restoring %s', destpath)
+                    self.copydirs(sourcepath, destpath, force=True)
+
+                for filename in filenames:
+                    sourcefile = os.path.join(sourcepath, filename)
+                    targetfile = os.path.join(destpath, filename)
+
+                    logger.info('Restoring %s', targetfile)
+                    self.copyfile(sourcefile, targetfile, force=True)
+
+        newfiles = backup_dir + '/newfiles'
+        if os.path.exists(newfiles):
+
+            # get paths that did not exist before upgrade
+            paths = []
+
+            with open(newfiles, 'r') as f:
+                for path in f:
+                    path = path.strip('\n')
+                    paths.append(path)
+
+            # remove paths in reverse order
+            paths.reverse()
+
+            for path in paths:
+
+                if not os.path.exists(path):
+                    continue
+
+                logger.info('Deleting %s', path)
+                if os.path.isfile(path):
+                    os.remove(path)
+                else:
+                    shutil.rmtree(path)
+
     def revert_version(self, version):
 
         scriptlets = self.scriptlets(version)
@@ -538,9 +540,8 @@ class PKIUpgrader(object):
 
         for scriptlet in scriptlets:
 
-            logger.info('Reverting %s-%s: %s', version, scriptlet.index, scriptlet.message)
-
-            scriptlet.revert()
+            logger.info('Reverting %s: %s. %s', version, scriptlet.index, scriptlet.message)
+            self.revert_scriptlet(scriptlet)
 
         self.set_tracker(version)
 
