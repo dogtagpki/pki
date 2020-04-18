@@ -573,7 +573,6 @@ public abstract class CMSServlet extends HttpServlet {
 
     protected void outputArgBlockAsXML(XMLObject xmlObj, Node parent,
                                        String argBlockName, IArgBlock argBlock) {
-        CMS.debug("CMSServlet:outputArgBlockAsXML: begins");
         Node argBlockContainer = xmlObj.createContainer(parent, argBlockName);
 
         if (argBlock != null) {
@@ -585,11 +584,9 @@ public abstract class CMSServlet extends HttpServlet {
                 xmlObj.addItemToContainer(argBlockContainer, name, val);
             }
         }
-        CMS.debug("CMSServlet:outputArgBlockAsXML: ends");
     }
 
     protected void outputXML(HttpServletResponse httpResp, CMSTemplateParams params) {
-        CMS.debug("CMSServlet:outputXML: begins");
         XMLObject xmlObj = null;
         try {
             xmlObj = new XMLObject();
@@ -616,7 +613,6 @@ public abstract class CMSServlet extends HttpServlet {
         } catch (Exception e) {
             CMS.debug("failed in outputing XML " + e);
         }
-        CMS.debug("CMSServlet:outputXML: ends");
     }
 
     protected void renderTemplate(

@@ -568,10 +568,12 @@ public abstract class ARequestQueue
 
         // by default, write request to LDAP
         if (delayLDAPCommit == null || !delayLDAPCommit.equals("true")) {
+            CMS.debug("ARequestQueue: updateRequest(): delayLDAPCommit is false");
             // TODO: use a state flag to determine whether to call
             // addRequest or modifyRequest (see newRequest as well)
             modifyRequest(r);
-        } // else: delay the write to ldap
+        }  else //: delay the write to ldap
+            CMS.debug("ARequestQueue: updateRequest(): delayLDAPCommit is true");
     }
 
     // PRIVATE functions

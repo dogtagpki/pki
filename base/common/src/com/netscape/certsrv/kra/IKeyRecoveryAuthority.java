@@ -354,4 +354,6 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      */
     public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
             PQGParams pqg, KeyPairGeneratorSpi.Usage[] usageList) throws EBaseException;
+    public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
+            PQGParams pqg, KeyPairGeneratorSpi.Usage[] usageList, boolean temporary) throws EBaseException;
 }

@@ -20,6 +20,7 @@ package com.netscape.cms.profile.def;
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.security.interfaces.DSAParams;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 import java.security.KeyPair;
@@ -29,6 +30,8 @@ import netscape.security.provider.DSAPublicKey;
 import netscape.security.provider.RSAPublicKey;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
@@ -54,6 +57,8 @@ import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
 
+import com.netscape.certsrv.logging.ILogger;
+
 /**
  * This class implements an enrollment default policy
  * for Server-Side keygen enrollment.
@@ -68,10 +73,14 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
     public static final String VAL_LEN = "LEN";
     public static final String VAL_TYPE = "TYPE";
 
-    private static final String TEMP_PUBKEY_1024 = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDBz6H2rT2r1RpHdr3JyYr7thSjfwWPbIJ6U09NziHSekLsNZQKsjdLS/LPCfe/aXkhpzPztlx++tkPucpt/xT0exp08feAPIE+Y6gVoyXzEw+Ztz+Zez9Y1cQWxAyp7z11flytjL+4zBGDXmEoe3ZlQvij9DGypPjBC9PhWm0lBwIDAQAB";
-    private static final String TEMP_PUBKEY_2048 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4Ha+CxWDPAHEl9+u57U3UCw8bfG/ZN3cVTrQgj/p8ak12NYUWt0ZI/xCcLj7gKwFPbNMTDwzizRPZuxKJT7fHgW8a1BQDUL2VGfx7O0A7KlLqcpVc6VKsQx5caP3hrB38Q5xnTKeVee9cBrd8An+veZ2QV6mHLEU8iMCN2No/t1oO+aYje42XloNRblXVQAOYW+3aMCam2kIKWUqLvA3Sbf2BPR2x5SSZRPHJt3hQCheara5j+nHLQ8paRvVlT+ghgyX5N3BwiPmvC+e9iUaaofj+DxrGX3cTo5hehG2b71sY3xdC5OIhEGRfkAqIAEw6eaU6a/ymNsByRgVByfQaQIDAQAB";
-    private static final String TEMP_PUBKEY_3072 = "MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAm0yQ0y+8YOTWkye5qFuqNI/qC4wtjEjNnoZaqSZUOJLg6ZRDlsZoOiblJpw65rPjaPcSp/inqYfCCA5mISYaqfcoB80LCnw1+DAv8tcvwUtytQYXHVj2gbyuVHaBgD4n4j/wFV80sF3OTQcPKYmeTfWRtv2xZQMK9rYfa8Le+DAZyOWPk4+RtTIRPa5R9arLqE+ONgUcrD3NvewOdsCrT7flJnFdx8TGl5ftxVWYlHRSg+wEB8pQZlw0BSDlQGHXIRjBKT2+iCkYzuKPWpMbu42PnBaQTcvjD3cl8MjLQcZp6v39bU1Du0C0LYunhvIWidwKnCOGOYu+a0VKuHxH8odjFdPoWGmP+orllkwSZzhWayYJxGpJJQlWcM05uD6qDF67WQnuYsliVH4LNiSjf/iPSpr0tzDXOtdeVsiQgO9wYYlnooBtd1xfTmkILwt3j9ZXeBtmt4lLYxbLo2ZCzkFqCCdu5FfcFgxjPaRaW0bQHKuP1woGk0rDUUbuqr+PAgMBAAE=";
-    private static final String TEMP_PUBKEY_4096 = "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAs3xoddtoCQrDpPK/45DpN/wPHO/6qrsbEDnwEnSkcLz51WHb7+CEUP9oxuE8vPn9JXcLdZkgPcmfMVibSUEJVUCXPibGTqAJ/7RAAm+/FhdL02N57hpgLzbIPbIaTP00z/jbTqR4a0uV49fnEPqrhA/KoUmOn3eoiAPAB5xNSauFOmMZXv2gr4akNxvSiZ/59ddYF+DBEFSs4ufCqIqBWYAMMo78eskgm/ZUyv7OZzG+8c1nncdnrNk/JtXauANu8NUQXX2qllmEOioY6gnalpR26fwOscjkvHDTvRQmSIqceWdd5P6OMHJwzTVG8d4b0f150o1RTzU3gvg9/qXvbOGcnH2TXZjYi02mhyXgPrimZepKyDr2LjeAEZbfAAXecaMhjrDZEkDZNFWe4eoG2JuE34TODeiCLMBql6VTgOvCFW3to32aBwNLpCV4hi5rKLnPMlf8Tz0zYvGqDeCp4zzy6C9tosiYfHIkVU/AVqK9PoY0RsLnBzHOV7Jl2VgHr8Ro+C66+leajssAemK8swcj2AZEOuVLlsdCvguUn6XUyDqI3tIfnoLK690hG1znuIWzFZzzivZ5ZwgfxguCly9zDArc7i6YHxOR2lcUrM0VfHmyHpE9JNfarEgAPS59ASG7y14LOvp4yYKNz10TtetwkSfpcjqiuWHtIDi9sjMCAwEAAQ==";
+    //  DO NOT REMOVE
+    private static final String TEMP_PUBKEY_RSA_1024 = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDBz6H2rT2r1RpHdr3JyYr7thSjfwWPbIJ6U09NziHSekLsNZQKsjdLS/LPCfe/aXkhpzPztlx++tkPucpt/xT0exp08feAPIE+Y6gVoyXzEw+Ztz+Zez9Y1cQWxAyp7z11flytjL+4zBGDXmEoe3ZlQvij9DGypPjBC9PhWm0lBwIDAQAB";
+    private static final String TEMP_PUBKEY_RSA_2048 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4Ha+CxWDPAHEl9+u57U3UCw8bfG/ZN3cVTrQgj/p8ak12NYUWt0ZI/xCcLj7gKwFPbNMTDwzizRPZuxKJT7fHgW8a1BQDUL2VGfx7O0A7KlLqcpVc6VKsQx5caP3hrB38Q5xnTKeVee9cBrd8An+veZ2QV6mHLEU8iMCN2No/t1oO+aYje42XloNRblXVQAOYW+3aMCam2kIKWUqLvA3Sbf2BPR2x5SSZRPHJt3hQCheara5j+nHLQ8paRvVlT+ghgyX5N3BwiPmvC+e9iUaaofj+DxrGX3cTo5hehG2b71sY3xdC5OIhEGRfkAqIAEw6eaU6a/ymNsByRgVByfQaQIDAQAB";
+    private static final String TEMP_PUBKEY_RSA_3072 = "MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAm0yQ0y+8YOTWkye5qFuqNI/qC4wtjEjNnoZaqSZUOJLg6ZRDlsZoOiblJpw65rPjaPcSp/inqYfCCA5mISYaqfcoB80LCnw1+DAv8tcvwUtytQYXHVj2gbyuVHaBgD4n4j/wFV80sF3OTQcPKYmeTfWRtv2xZQMK9rYfa8Le+DAZyOWPk4+RtTIRPa5R9arLqE+ONgUcrD3NvewOdsCrT7flJnFdx8TGl5ftxVWYlHRSg+wEB8pQZlw0BSDlQGHXIRjBKT2+iCkYzuKPWpMbu42PnBaQTcvjD3cl8MjLQcZp6v39bU1Du0C0LYunhvIWidwKnCOGOYu+a0VKuHxH8odjFdPoWGmP+orllkwSZzhWayYJxGpJJQlWcM05uD6qDF67WQnuYsliVH4LNiSjf/iPSpr0tzDXOtdeVsiQgO9wYYlnooBtd1xfTmkILwt3j9ZXeBtmt4lLYxbLo2ZCzkFqCCdu5FfcFgxjPaRaW0bQHKuP1woGk0rDUUbuqr+PAgMBAAE=";
+    private static final String TEMP_PUBKEY_RSA_4096 = "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAs3xoddtoCQrDpPK/45DpN/wPHO/6qrsbEDnwEnSkcLz51WHb7+CEUP9oxuE8vPn9JXcLdZkgPcmfMVibSUEJVUCXPibGTqAJ/7RAAm+/FhdL02N57hpgLzbIPbIaTP00z/jbTqR4a0uV49fnEPqrhA/KoUmOn3eoiAPAB5xNSauFOmMZXv2gr4akNxvSiZ/59ddYF+DBEFSs4ufCqIqBWYAMMo78eskgm/ZUyv7OZzG+8c1nncdnrNk/JtXauANu8NUQXX2qllmEOioY6gnalpR26fwOscjkvHDTvRQmSIqceWdd5P6OMHJwzTVG8d4b0f150o1RTzU3gvg9/qXvbOGcnH2TXZjYi02mhyXgPrimZepKyDr2LjeAEZbfAAXecaMhjrDZEkDZNFWe4eoG2JuE34TODeiCLMBql6VTgOvCFW3to32aBwNLpCV4hi5rKLnPMlf8Tz0zYvGqDeCp4zzy6C9tosiYfHIkVU/AVqK9PoY0RsLnBzHOV7Jl2VgHr8Ro+C66+leajssAemK8swcj2AZEOuVLlsdCvguUn6XUyDqI3tIfnoLK690hG1znuIWzFZzzivZ5ZwgfxguCly9zDArc7i6YHxOR2lcUrM0VfHmyHpE9JNfarEgAPS59ASG7y14LOvp4yYKNz10TtetwkSfpcjqiuWHtIDi9sjMCAwEAAQ==";
+    private static final String TEMP_PUBKEY_EC_NISTP256 = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEw67JdXDj1J3wwvLTYtzpyUArev/Ra2QEsHo+q5P3VcDrr0HqJGXsj5/vH7bPe4WG5OkgxmL5BiBpKpTmJMxNLg==";
+    private static final String TEMP_PUBKEY_EC_NISTP384 = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEdjuCVoP3qykxs97Wjk2k/cEE6fza0N0Y8JRzLYNrFtOti4zKNpvYcteaYTWLKYGOUEgGuOBV9lWjEbZSH5n+AqKf+JLaTu+Qytsr9OnBu3L4r18yNdWQQo/LlaLkr5on";
+    private static final String TEMP_PUBKEY_EC_NISTP521 = "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQAnGS6GRhXMwgKu+0G7BHWbu99h4KoZi4vzKvJ+QmoApZbaU0A83ayHhKp6c5mubgZY7Vq1/msGxju89QqOf25nNwBOl9Y0IYG+/LMSjtSR1rU+MI00iyrjx3GgnC0lbxZD6KiPqMNlx5h4oyiy6d+xYfIweSF+QYVm53s4Q4OWVEhz54=";
 
     public ServerKeygenUserKeyDefault() {
         super();
@@ -254,11 +263,10 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             throws EProfileException {
         CertificateX509Key certKey = null;
         String method = "ServerKeygenUserKeyDefault: populate: ";
-        CMS.debug(method + "in here");
+        CMS.debug(method + "begins");
 
         // trigger serverSide keygen enrollment
         try {
-            // Todo: remove debug test print; encrypt the passwd
             String p12passwd = request.getExtDataInString("serverSideKeygenP12Passwd");
             if (p12passwd == null || p12passwd.length() == 0) {
                 CMS.debug(method + "p12passwd not found");
@@ -270,7 +278,8 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             CryptoManager cm = CryptoManager.getInstance();
             org.mozilla.jss.crypto.X509Certificate transCert = null;
             try {
-                transCert = cm.findCertByNickname("KRA Transport Certificate");
+                String transportNickname = CMS.getConfigStore().getString("ca.connector.KRA.transportCertNickname", "KRA Transport Certificate");
+                transCert = cm.findCertByNickname(transportNickname);
             } catch (Exception e) {
                 CMS.debug(method + "'KRA transport certificate' not found in nssdb; need to be manually setup for Server-Side keygen enrollment");
                 throw new EPropertyException(CMS.getUserMessage("CMS_MISSING_KRA_TRANSPORT_CERT_IN_CA_NSSDB"));
@@ -323,7 +332,17 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                         wrapAlgorithm);
                 CMS.debug(method + " transWrappedSessionKey.length =" +transWrappedSessionKey.length);
 
+                CertificateSubjectName reqSubj =
+                        request.getExtDataInCertSubjectName(IEnrollProfile.REQUEST_SUBJECT_NAME);
+                String subj = "unknown serverKeyGenUser";
+                if (reqSubj != null) {
+                    X500Name xN = reqSubj.getX500Name();
+                    subj = xN.toString();
+                    CMS.debug(method + "subj = " + subj);
+                }
                 // store in request to pass to kra
+                request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID,
+                        subj);
                 request.setExtData("serverSideKeygenP12PasswdEnc",
                         sessionWrappedPassphrase);
                 request.setExtData("serverSideKeygenP12PasswdTransSession",
@@ -339,7 +358,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             String keyTypeStr = request.getExtDataInString("keyType");
             String keyType = "RSA";
             int keySize = 2048;
-            String curveName = "nistp521";
+            String curveName = "nistp256";
 
             // Populate the keyType and keySize/keyCurve
 
@@ -350,6 +369,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                 CMS.debug("ServerKeygenUserKeyDefault: populate: keyType in request null; default to RSA");
             }
 
+            boolean isEC = false;
             String keySizeCurveStr = request.getExtDataInString("keySize");
 
             if (keyType.contentEquals("RSA")) {
@@ -361,6 +381,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                 }
                 // Do things when RSA is selected
             } else if (keyType.contentEquals("EC")) {
+                isEC = true;
                 // TODO: dmoluguw: Fix the following to generate right Key ECC keys
 
                 if (keySizeCurveStr != null && !keySizeCurveStr.isEmpty()) {
@@ -383,31 +404,49 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             }
 
             /*
-             * it is necessary to  put in a static fake key here to prevent
-             * issue; The fake key will be replaced later once KRA generates
-             * the real keys
+             * DO NOT REMOVE
+             * currently, it is necessary to  put in a static placeholder fake
+             * key here to prevent issue; The fake key will be replaced later
+             * once KRA generates the real keys
+             *
+             * TODO: perhaps find out how to get around not breaking
+             * the code without fake keys
              */
 
-            // dmoluguw: TODO: The below values seem to be for development purposes,
-            // and will probably work only with keyType="RSA"
-
             String pubKeyStr = "";
-            switch (keySize) {
+            if (!isEC) {
+              switch (keySize) {
                 case 1024:
-                    pubKeyStr = TEMP_PUBKEY_1024;
+                    pubKeyStr = TEMP_PUBKEY_RSA_1024;
                     break;
                 case 2048:
-                    pubKeyStr = TEMP_PUBKEY_2048;
+                    pubKeyStr = TEMP_PUBKEY_RSA_2048;
                     break;
                 case 3072:
-                    pubKeyStr = TEMP_PUBKEY_3072;
+                    pubKeyStr = TEMP_PUBKEY_RSA_3072;
                     break;
                 case 4096:
-                    pubKeyStr = TEMP_PUBKEY_4096;
+                    pubKeyStr = TEMP_PUBKEY_RSA_4096;
                     break;
                 default:
                     CMS.debug("ServerKeygenUserKeyDefault: populate: unsupported keySize: " + keySize);
                     break;
+              }
+            } else {
+              switch (curveName) {
+                case "nistp256":
+                    pubKeyStr = TEMP_PUBKEY_EC_NISTP256;
+                    break;
+                case "nistp384":
+                    pubKeyStr = TEMP_PUBKEY_EC_NISTP384;
+                    break;
+                case "nistp521":
+                    pubKeyStr = TEMP_PUBKEY_EC_NISTP521;
+                    break;
+                default:
+                    CMS.debug("ServerKeygenUserKeyDefault: populate: unsupported cureveName: " + curveName);
+                    break;
+              }
             }
             byte[] certKeyData = CryptoUtil.base64Decode(pubKeyStr);
             if (certKeyData != null) {

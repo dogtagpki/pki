@@ -1728,6 +1728,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
             PQGParams pqg, KeyPairGeneratorSpi.Usage[] usageList) throws EBaseException {
+        return generateKeyPair(alg, keySize, keyCurve, pqg, usageList, false);
+    }
+    public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
+            PQGParams pqg, KeyPairGeneratorSpi.Usage[] usageList, boolean temp) throws EBaseException {
         KeyPairAlgorithm kpAlg = null;
 
         if (alg.equals("RSA"))
@@ -1738,7 +1742,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             kpAlg = KeyPairAlgorithm.DSA;
 
         try {
-            KeyPair kp = generateKeyPair(kpAlg, keySize, keyCurve, pqg, usageList);
+            KeyPair kp = generateKeyPair(kpAlg, keySize, keyCurve, pqg, usageList, temp);
 
             return kp;
         } catch (InvalidParameterException e) {
@@ -1761,6 +1765,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             KeyPairGeneratorSpi.Usage[] usageList )
             throws NoSuchAlgorithmException, TokenException, InvalidAlgorithmParameterException,
             InvalidParameterException, PQGParamGenException {
+        return generateKeyPair(kpAlg, keySize, keyCurve, pqg, usageList, true);
+    }
+    public KeyPair generateKeyPair(
+            KeyPairAlgorithm kpAlg, int keySize, String keyCurve, PQGParams pqg,
+            KeyPairGeneratorSpi.Usage[] usageList, boolean temp)
+            throws NoSuchAlgorithmException, TokenException, InvalidAlgorithmParameterException,
+            InvalidParameterException, PQGParamGenException {
 
         CryptoToken token = getKeygenToken();
 
@@ -1780,7 +1791,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         KeyPairGenerator kpGen = token.getKeyPairGenerator(kpAlg);
         IConfigStore config = CMS.getConfigStore();
         IConfigStore kgConfig = config.getSubStore("kra.keygen");
-        boolean tp = false;
+        boolean tp = temp;
         boolean sp = false;
         boolean ep = false;
         if ((kgConfig != null) && (!kgConfig.equals(""))) {
