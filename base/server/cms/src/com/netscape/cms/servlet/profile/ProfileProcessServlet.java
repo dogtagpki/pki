@@ -179,15 +179,14 @@ public class ProfileProcessServlet extends ProfileServlet {
             String p12Str = req.getExtDataInString("req_issued_p12");
             if (p12Str == null) {
                 // not server-side keygen
-                CMS.debug("ProfileProcessServlet:cfu: no p12; not server-side keygen");
+                // CMS.debug("ProfileProcessServlet:cfu: no p12; not server-side keygen");
                 outputTemplate(request, response, args);
             } else {
                 // found pkcs12 blob
+                CMS.debug("ProfileProcessServlet: found p12 " /* + p12Str*/);
                 byte[] p12blob = null;
                 HttpServletResponse p12_response = cmsReq.getHttpResp();
-                CMS.debug("ProfileProcessServlet:cfu: found p12 =" +
-                    p12Str/*ing.toString()*/);
-                p12blob = Utils.base64decode(p12Str/*ing.toString()*/);
+                p12blob = Utils.base64decode(p12Str);
                 OutputStream bos = p12_response.getOutputStream();
                 p12_response.setContentType("application/x-pkcs12");
                 p12_response.setContentLength(p12blob.length);

@@ -170,7 +170,13 @@ public class RecoveryService implements IService {
 
                 // serverKeygenP12Pass = request.getExtDataInString("serverSideKeygenP12Passwd");
                 byte[] sessionWrappedPassphrase = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdEnc");
+                if (sessionWrappedPassphrase == null) {
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "Server-Side Keygen Enroll Key Retrieval: sessionWrappedPassphrase not found in Request"));
+                }
                 byte[] transWrappedSessionKey = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdTransSession");
+                if (transWrappedSessionKey == null) {
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "Server-Side Keygen Enroll Key Retrieval: transWrappedSessionKey not found in Request"));
+                }
 
                 // unwrap session key
                 /* TODO: get nickname from config */
@@ -190,8 +196,10 @@ public class RecoveryService implements IService {
                         transWrappedSessionKey,
                         KeyWrapAlgorithm.RSA);
 
-                if (unwrappedSessionKey == null)
+                if (unwrappedSessionKey == null) {
                     CMS.debug("RecoveryService: serviceRequest: unwrappedSessionKey null");
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "Server-Side Keygen Enroll Key Retrieval: CryptoUtil.unwrap failed on unwrappedSessionKey"));
+                }
 
                 // decrypt p12 passphrase
                 EncryptionAlgorithm encryptAlgorithm =
@@ -230,7 +238,6 @@ public class RecoveryService implements IService {
                 request.getRequestId());
 
         if (params == null) {
-            //cfu
             if (isSSKeygen) {
                 params = new Hashtable<String, Object>();
                 params.put(RecoveryService.ATTR_TRANSPORT_PWD, serverKeygenP12Pass);
@@ -671,6 +678,16 @@ public class RecoveryService implements IService {
             }
         }
 
+        /* TODO
+        if (isSSKeygen) {
+            signedAuditLogger.log(new ServerSideKeygenEnrollKeyRetrievalProcessedEvent(
+                        auditSubjectID,
+                        "Success",
+                        request.getRequestId(),
+                        clientKeyId,
+                        null));
+        }
+        */
         // update request
         mKRA.getRequestQueue().updateRequest(request);
     }

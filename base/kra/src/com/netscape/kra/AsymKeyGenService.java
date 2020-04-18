@@ -36,6 +36,7 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.AsymKeyGenerationProcessedEvent;
+import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeygenProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
@@ -55,6 +56,7 @@ import netscape.security.util.WrappingParams;
  * The public key is stored in the publicKeyData attribute of the record.
  *
  * @author akoneru
+ * @author cfu Server-Side Keygen Enrollment support
  *
  */
 public class AsymKeyGenService implements IService {
@@ -77,6 +79,8 @@ public class AsymKeyGenService implements IService {
         String method = "AsymKeyGenService:serviceRequest: ";
         IConfigStore configStore = CMS.getConfigStore();
 
+        String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
+        String auditSubjectID = owner;
         boolean isSSKeygen = false;
         String isSSKeygenStr = request.getExtDataInString("isServerSideKeygen");
         if ((isSSKeygenStr != null) && isSSKeygenStr.equalsIgnoreCase("true")) {
@@ -93,9 +97,37 @@ public class AsymKeyGenService implements IService {
             CMS.debug(method + "clientKeyId not found");
 
         String algorithm = request.getExtDataInString(IRequest.KEY_GEN_ALGORITHM);
-
         String keySizeStr = request.getExtDataInString(IRequest.KEY_GEN_SIZE);
-        int keySize = Integer.valueOf(keySizeStr);
+        int keySize = 2048;
+        boolean isEC = false;
+        String errmsg ="";
+
+        if (algorithm.toUpperCase().equals("RSA"))
+            keySize = Integer.valueOf(keySizeStr);
+        else {
+            isEC = true;
+            switch (keySizeStr) {
+               case "nistp256":
+                    keySize = 256;
+                    break;
+                case "nistp384":
+                    keySize = 384;
+                    break;
+                case "nistp521":
+                    keySize = 521;
+                    break;
+                default:
+                    CMS.debug(method + "unknown EC key curve name: " + keySizeStr);
+                    errmsg = "unknown EC key curve name: " + keySizeStr;
+                    signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        errmsg));
+                    throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + errmsg);
+            }
+        }
 
         String realm = request.getRealm();
 
@@ -149,8 +181,6 @@ public class AsymKeyGenService implements IService {
         CMS.debug("AsymKeyGenService.serviceRequest. Request id: " + request.getRequestId());
         CMS.debug("AsymKeyGenService.serviceRequest algorithm: " + algorithm);
 
-        String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
-        String auditSubjectID = owner;
 
         // Generating the asymmetric keys
         KeyPair kp = null;
@@ -159,22 +189,44 @@ public class AsymKeyGenService implements IService {
             kp = kra.generateKeyPair(
                     algorithm.toUpperCase(),
                     keySize,
-                    null, // keyCurve for ECC, not yet supported
+                    isEC? keySizeStr:null, // keyCurve for ECC
                     null, // PQG not yet supported
-                    usageList
+                    usageList,
+                    true /* temporary */
                  );
 
         } catch (EBaseException e) {
             CMS.debugStackTrace();
-            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Failed to generate asymmetric key: " + e.getMessage());
-            throw new EBaseException("Errors in generating Asymmetric key: " + e, e);
+            if (isSSKeygen) {
+                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        e.getMessage()));
+                throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + e, e);
+            } else {
+                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                        clientKeyId, null, "Failed to generate asymmetric key: " + e.getMessage());
+                throw new EBaseException("Errors in generating Asymmetric key: " + e, e);
+            }
         }
 
         if (kp == null) {
-            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Failed to generate asymmetric key");
-            throw new EBaseException("Failed to generate asymmetric key!");
+            if (isSSKeygen) {
+                errmsg = "key generation failure";
+                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        errmsg));
+                throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: "+ errmsg);
+            } else {
+                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                        clientKeyId, null, "Failed to generate asymmetric key");
+                throw new EBaseException("Failed to generate asymmetric key!");
+            }
         }
 
         if (isSSKeygen) {
@@ -184,17 +236,18 @@ public class AsymKeyGenService implements IService {
                 publicKeyData = kp.getPublic().getEncoded();
                 if (publicKeyData == null) {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-                    CMS.debug(method + " failed getting publickey encoded");
-                    return false;
+                    errmsg = " failed getting publickey encoded";
+                    CMS.debug(method + errmsg);
+                    signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        errmsg));
+                    throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: "+ errmsg);
                 } else {
                     //CMS.debug(method + "public key binary length ="+ publicKeyData.length);
-                    if (algorithm.equals("EC")) {
-                        /* url encode */
-                        pubKeyStr = com.netscape.cmsutil.util.Utils.SpecialEncode(publicKeyData);
-                        CMS.debug(method + " EC pubKeyStr special encoded");
-                    } else {
-                        pubKeyStr = CryptoUtil.base64Encode(publicKeyData);
-                    }
+                    pubKeyStr = CryptoUtil.base64Encode(publicKeyData);
 
                     //CMS.debug(method + "public key length =" + pubKeyStr.length());
                     request.setExtData("public_key", pubKeyStr);
@@ -202,7 +255,13 @@ public class AsymKeyGenService implements IService {
             } catch (Exception e) {
                 CMS.debug(method + e);
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-                return false;
+                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        e.getMessage()));
+                throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + e, e);
             }
         }
 
@@ -214,23 +273,46 @@ public class AsymKeyGenService implements IService {
             privateSecurityData = storageUnit.wrap((PrivateKey) kp.getPrivate(), params);
         } catch (Exception e) {
             CMS.debug("Failed to generate security data to archive: " + e);
-            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+            if (isSSKeygen) {
+                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        e.getMessage()));
+                throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + e, e);
+            } else {
+                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
-            throw new EBaseException("Failed to generate security data to archive!", e);
+                throw new EBaseException("Failed to generate security data to archive!", e);
+            }
         }
 
+        if (owner == null)
+            owner = request.getExtDataInString("auth_token-userdn");
         KeyRecord record = new KeyRecord(null, kp.getPublic().getEncoded(), privateSecurityData,
-                owner, algorithm, owner);
+                isSSKeygen? clientKeyId:owner, algorithm, owner);
 
         IKeyRepository storage = kra.getKeyRepository();
         BigInteger serialNo = storage.getNextSerialNumber();
 
         if (serialNo == null) {
-            kra.log(ILogger.LL_FAILURE,
+            if (isSSKeygen) {
+                errmsg = "Failed to get next Key ID";
+                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        errmsg));
+                throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: "+ errmsg);
+            } else {
+                kra.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
-            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to get next Key ID");
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
+                throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
+            }
         }
 
         // Storing the public key and private key.
@@ -250,36 +332,37 @@ public class AsymKeyGenService implements IService {
         try {
             record.setWrappingParams(params, allowEncDecrypt_archival);
         } catch (Exception e) {
-            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+            if (isSSKeygen) {
+                errmsg = "Failed to store wrapping params";
+                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        e.getMessage() + errmsg));
+                throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + errmsg, e);
+            } else {
+                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to store wrapping params");
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
+                throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
+            }
         }
 
         storage.addKeyRecord(record);
 
-        auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
+        if (isSSKeygen) {
+            signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Success",
+                        request.getRequestId(),
+                        clientKeyId,
+                        null));
+        } else {
+            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
                 clientKeyId, new KeyId(serialNo), "None");
+        }
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
 
-        if (isSSKeygen) {
-
-            Enumeration<String> ereq = request.getExtDataKeys();
-
-            /* cfu
-            CMS.debug(method + "let's find out what's in the request");
-            while (ereq.hasMoreElements()) {
-                String reqKey = ereq.nextElement();
-                String reqVal = request.getExtDataInString(reqKey);
-                if (reqVal != null) {
-                    CMS.debug(method + reqKey + ": " + reqVal);
-                } else {
-                    CMS.debug(method + reqKey + ": no value");
-                }
-            }
-            */
-
-            request.setExtData("delayLDAPCommit", "false");
-        }
         kra.getRequestQueue().updateRequest(request);
 
         return true;

@@ -450,17 +450,20 @@ public class ConnectorServlet extends CMSServlet {
         try {
             IRequestQueue queue = mAuthority.getRequestQueue();
             String srcid = source + ":" + msg.getReqId();
+            CMS.debug("ConnectorServlet:processRequest: srcid =" + srcid);
 
             // find request in request queue and return result.
             RequestId thisreqid = queue.findRequestBySourceId(srcid);
             IRequest thisreq = null;
 
             if (thisreqid != null) {
+                CMS.debug("ConnectorServlet:processRequest: thisreqid not null:" + thisreqid);
                 thisreq = queue.findRequest(thisreqid);
                 if (thisreq == null) {
                     // strange case.
                     String errormsg = "Cannot find request in request queue " +
                             thisreqid;
+                    CMS.debug("ConnectorServlet:processRequest: " + errormsg);
 
                     mAuthority.log(ILogger.LL_FAILURE,
                             CMS.getLogMessage(
@@ -484,8 +487,18 @@ public class ConnectorServlet extends CMSServlet {
 
                     throw new EBaseException(errormsg);
                 } else {
-                    mAuthority.log(ILogger.LL_INFO,
-                            "Found request " + thisreqid + " for " + srcid);
+                    String errormsg = "Found request " + thisreqid + " for " + srcid;
+                    // for Server-Side Keygen, it could be the 2nd trip
+                    // where stage was Request.SSK_STAGE_KEYGEN going on
+                    // IRequest.SSK_STAGE_KEY_RETRIEVE
+                    String sskKeygenStage = thisreq.getExtDataInString(IRequest.SSK_STAGE);
+                    if (sskKeygenStage!= null && sskKeygenStage.equalsIgnoreCase(IRequest.SSK_STAGE_KEYGEN)) {
+                        CMS.debug("ConnectorServlet:processRequest: Stage=" + sskKeygenStage);
+                    } else {
+
+                    mAuthority.log(ILogger.LL_INFO, errormsg);
+                    CMS.debug("ConnectorServlet:processRequest: " + errormsg);
+
                     replymsg = CMS.getHttpPKIMessage();
                     replymsg.fromRequest(thisreq);
 
@@ -505,13 +518,14 @@ public class ConnectorServlet extends CMSServlet {
                     //        does not yet matter at this point!
 
                     return replymsg;
+                    }
                 }
             }
 
-/*
-            // cfu: let's find out what's in the request
+            thisreq = queue.newRequest(msg.getReqType());
+            /* cfu: let's find out what's in the request
+            CMS.debug("ConnectorServlet: cfu see what's in request");
             Enumeration<String> ereq = thisreq.getExtDataKeys();
-
             while (ereq.hasMoreElements()) {
                 String reqKey = ereq.nextElement();
                 String reqVal = thisreq.getExtDataInString(reqKey);
@@ -521,14 +535,9 @@ public class ConnectorServlet extends CMSServlet {
                     CMS.debug("ConnectorServlet: - " + reqKey + ": no value");
                 }
             }
-*/
+            */
 
-            thisreq = queue.newRequest(msg.getReqType());
             // if not found process request.
-/*cfu
-            CMS.debug("ConnectorServlet: created reqType=" +msg.getReqType()+
-                   " requestId=" + thisreq.getRequestId().toString() + " requestStatus=" + thisreq.getRequestStatus().toString());
-*/
             CMS.debug("ConnectorServlet: created requestId=" +
                     thisreq.getRequestId().toString());
             thisreq.setSourceId(srcid);
@@ -540,6 +549,24 @@ public class ConnectorServlet extends CMSServlet {
             //        then this code does NOT need to be contained within its
             //        own special try/catch block.
             msg.toRequest(thisreq);
+            // reset CA's request dbStatus and requestStatus got inadvertantly
+            // transferred over
+            thisreq.setExtData("dbStatus", "NOT_UPDATED");
+            thisreq.setExtData(IRequest.REQ_STATUS, "begin");
+
+            /* cfu: let's find out what's in the request again
+            CMS.debug("ConnectorServlet: cfu see again what's in request");
+            ereq = thisreq.getExtDataKeys();
+            while (ereq.hasMoreElements()) {
+                String reqKey = ereq.nextElement();
+                String reqVal = thisreq.getExtDataInString(reqKey);
+                if (reqVal != null) {
+                    CMS.debug("ConnectorServlet: - " + reqKey + ": " + reqVal);
+                } else {
+                    CMS.debug("ConnectorServlet: - " + reqKey + ": no value");
+                }
+            }
+            */
 
             boolean isSSKeygen = false;
             String isSSKeygenStr = thisreq.getExtDataInString("isServerSideKeygen");
