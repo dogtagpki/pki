@@ -426,8 +426,8 @@ class PKIUpgrader(object):
     def copydirs(self, source, dest, force=False):
         pki.util.copydirs(source, dest, force=force)
 
-    def copyfile(self, source, dest):
-        pki.util.copyfile(source, dest)
+    def copyfile(self, source, dest, force=False):
+        pki.util.copyfile(source, dest, force=force)
 
     def record(self, scriptlet, path):
 
