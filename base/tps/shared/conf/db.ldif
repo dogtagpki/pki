@@ -41,6 +41,12 @@ objectClass: groupOfUniqueNames
 cn: Administrators
 description: Administrators for TPS
 
+dn: cn=Auditors,ou=Groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Auditors
+description: People who can read the signed audit logs for TPS
+
 dn: cn=TPS Operators,ou=Groups,{rootSuffix}
 objectClass: top
 objectClass: groupOfUniqueNames
