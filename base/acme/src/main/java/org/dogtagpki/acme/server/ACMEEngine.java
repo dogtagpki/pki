@@ -657,6 +657,11 @@ public class ACMEEngine implements ServletContextListener {
             // TODO: support other identifier types
 
             if ("dns".equals(type)) {
+
+                if (authz.getWildcard()) {
+                    value = "*." + value; // add *. prefix
+                }
+
                 // store normalized authorized DNS names
                 authorizedDNSNames.add(value.toLowerCase());
             }
@@ -811,6 +816,7 @@ public class ACMEEngine implements ServletContextListener {
         // Case 2: validate using authorization records (if available)
 
         logger.info("Getting certificate identifiers");
+        // The identifiers obtained from the certificate may contain wildcards.
         Collection<ACMEIdentifier> identifiers = getCertIdentifiers(cert);
 
         try {
@@ -831,13 +837,23 @@ public class ACMEEngine implements ServletContextListener {
             logger.info("Getting revocation authorizations");
             Collection<ACMEAuthorization> authzs = database.getRevocationAuthorizations(account.getID(), now);
 
+            // remove authorized identifiers from the list
             for (ACMEAuthorization authz : authzs) {
 
-                // remove authorized identifier from the list
-                // TODO: handle wildcard
+                ACMEIdentifier authzIdentifier = authz.getIdentifier();
+                String type = authzIdentifier.getType();
 
-                ACMEIdentifier identifier = authz.getIdentifier();
-                identifiers.remove(identifier);
+                if ("dns".equals(type) && authz.getWildcard()) {
+
+                    // append *. prefix so the identifiers can be compared
+                    String value = "*." + authzIdentifier.getValue();
+
+                    authzIdentifier = new ACMEIdentifier();
+                    authzIdentifier.setType(type);
+                    authzIdentifier.setValue(value);
+                }
+
+                identifiers.remove(authzIdentifier);
             }
 
             if (!identifiers.isEmpty()) {
