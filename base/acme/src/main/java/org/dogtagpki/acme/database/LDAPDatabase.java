@@ -592,6 +592,9 @@ public class LDAPDatabase extends ACMEDatabase {
     public boolean hasRevocationAuthorization(
             String accountID, Date time, ACMEIdentifier identifier)
             throws Exception {
+
+        // TODO: handle wildcard
+
         List<LDAPEntry> entries = ldapSearch(
             RDN_AUTHORIZATION + "," + basedn,
             "(&(" + ATTR_OBJECTCLASS + "=" + OBJ_AUTHORIZATION

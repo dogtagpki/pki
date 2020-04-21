@@ -165,9 +165,21 @@ public class InMemoryDatabase extends ACMEDatabase {
             }
 
             // Compare authorization's identifier against provided identifier
-            // TODO: handle wildcard
 
-            if (!authorization.getIdentifier().equals(identifier)) {
+            ACMEIdentifier authzIdentifier = authorization.getIdentifier();
+            String type = authzIdentifier.getType();
+
+            if ("dns".equals(type) && authorization.getWildcard()) {
+
+                // append *. prefix so the identifiers can be compared
+                String value = "*." + authzIdentifier.getValue();
+
+                authzIdentifier = new ACMEIdentifier();
+                authzIdentifier.setType(type);
+                authzIdentifier.setValue(value);
+            }
+
+            if (!authzIdentifier.equals(identifier)) {
                 logger.info("Authorization " + authorization.getID() + " does not match " + identifier);
                 continue;
             }

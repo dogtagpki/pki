@@ -72,11 +72,20 @@ $ certbot certonly --manual \
     --preferred-challenges dns
 ```
 
+To enroll a wildcard certificate with manual DNS-01 validation, execute the following command:
+
+```
+$ certbot certonly --manual \
+    --server http://$HOSTNAME:8080/acme/directory \
+    -d *.example.com \
+    --preferred-challenges dns
+```
+
 Create a TXT record in the DNS server as instructed by certbot.
 Check the TXT record propagation with the following command:
 
 ```
-$ dig _acme-challenge.server.example.com TXT
+$ dig _acme-challenge.<DNS name> TXT
 ```
 
 Once the TXT record is propagated properly, complete the enrollment using certbot.

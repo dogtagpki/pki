@@ -67,7 +67,35 @@ public class ACMENewOrderService {
         logger.info("Generating authorization for each identifiers");
         for (ACMEIdentifier identifier : request.getIdentifiers()) {
 
-            logger.info("Identifier " + identifier.getType() + ": " + identifier.getValue());
+            String type = identifier.getType();
+            String value = identifier.getValue();
+            logger.info("Identifier " + type + ": " + value);
+
+            // RFC 8555 Section 7.1.3: Order Objects
+            //
+            // Any identifier of type "dns" in a newOrder request MAY have a
+            // wildcard domain name as its value.  A wildcard domain name consists
+            // of a single asterisk character followed by a single full stop
+            // character ("*.") followed by a domain name as defined for use in the
+            // Subject Alternate Name Extension by [RFC5280].  An authorization
+            // returned by the server for a wildcard domain name identifier MUST NOT
+            // include the asterisk and full stop ("*.") prefix in the authorization
+            // identifier value.  The returned authorization MUST include the
+            // optional "wildcard" field, with a value of true.
+
+            boolean wildcard;
+            if ("dns".equals(type) && value.startsWith("*.")) {
+                wildcard = true;
+                value = value.substring(2); // remove *. prefix
+
+            } else {
+                wildcard = false;
+            }
+
+            // store identifier for authorization without *. prefix
+            identifier = new ACMEIdentifier();
+            identifier.setType(type);
+            identifier.setValue(value);
 
             String authzID = ACME.randomAlphanumeric(10);
             logger.info("- authorization ID: " + authzID);
@@ -76,6 +104,7 @@ public class ACMENewOrderService {
             authorization.setID(authzID);
             authorization.setStatus("pending");
             authorization.setIdentifier(identifier);
+            authorization.setWildcard(wildcard);
 
             engine.addAuthorization(account, authorization);
 
