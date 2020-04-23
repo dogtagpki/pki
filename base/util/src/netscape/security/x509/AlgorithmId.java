@@ -1030,7 +1030,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
      */
     public static final String[] ALL_SIGNING_ALGORITHMS = new String[]
     {
-            "SHA256withRSA", "SHA384withRSA", "SHA512withRSA", "SHA1withRSA","SHA256withRSA/PSS","SHA384withRSA/PSS","SHA5121withRSA/PSS",
+            "SHA256withRSA", "SHA384withRSA", "SHA512withRSA", "SHA1withRSA","SHA256withRSA/PSS","SHA384withRSA/PSS","SHA512withRSA/PSS",
             "SHA256withEC", "SHA384withEC", "SHA512withEC", "SHA1withEC" };
 
     public static void dumpBytes(byte[] data)
