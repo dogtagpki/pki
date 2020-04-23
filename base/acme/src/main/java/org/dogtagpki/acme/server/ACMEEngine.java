@@ -819,6 +819,15 @@ public class ACMEEngine implements ServletContextListener {
         // The identifiers obtained from the certificate may contain wildcards.
         Collection<ACMEIdentifier> identifiers = getCertIdentifiers(cert);
 
+        if (identifiers.isEmpty()) {
+            /* Protect against vacuous authorisation.  If there are no
+             * identifiers, it could be e.g. a user or CA certificate.
+             * Without this check that there are at least /some/ identifiers
+             * to authorise, every account would be vacuously authorised
+             * to revoke it.  */
+            throw new Exception("Certificate has no ACME identifiers.");
+        }
+
         try {
             for (ACMEIdentifier identifier : identifiers) {
 
