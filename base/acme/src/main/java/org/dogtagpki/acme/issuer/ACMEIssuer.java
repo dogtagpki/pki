@@ -78,6 +78,25 @@ public class ACMEIssuer {
         throw new NotImplementedException();
     }
 
+    /**
+     * Revoke the certificate.
+     *
+     * This will be invoked after the ACMEEngine has performed revocation
+     * authorisation checks; i.e. either the request was signed by the
+     * certificate key, or it was signed by an account key and that account
+     * has authorisations for all identifiers in the certificate.
+     *
+     * The engine DOES NOT cryptographically verify the certificate, nor
+     * does it check that the certificate actually came from the ACME
+     * issuer.
+     *
+     * Therefore ACMEIssuer implementations before revoking a cert MUST check
+     * that the certificate to be revoked really was issued by the ACME issuer
+     * and has not been tampered with.  Otherwise, a client could present a
+     * certificate from a different issuer or an altered certificate, causing
+     * an arbitrary (or targeted) certificate to be revoked.
+     *
+     */
     public void revokeCert(ACMERevocation revocation) throws Exception {
         throw new NotImplementedException();
     }
