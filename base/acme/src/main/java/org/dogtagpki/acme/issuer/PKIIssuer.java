@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
@@ -229,6 +230,23 @@ public class PKIIssuer extends ACMEIssuer {
         logger.info("Reviewing certificate");
         CACertClient certClient = new CACertClient(caClient);
         CertData certData = certClient.reviewCert(certID);
+
+        // Compare cert in request to cert retrieved from PKI.
+        // This prevents DOS attacks against certificates from this issuer,
+        // where the presented certificate was from a different issuer or
+        // has been modified (we don't validate it cryptographically).
+        //
+        String certFromIssuerPEM = certData.getEncoded();
+        if (null == certFromIssuerPEM) {
+            throw new Exception(
+                "Unable to revoke certificate: failed to retrieve cert from PKI");
+        }
+        byte[] certFromIssuerDER = Cert.parseCertificate(certFromIssuerPEM);
+        if (!Arrays.equals(certBytes, certFromIssuerDER)) {
+            throw new Exception(
+                "Unable to revoke certificate: cert in request was not issued by this PKI");
+            // TODO better exception (400?)
+        }
 
         CertRevokeRequest request = new CertRevokeRequest();
         request.setReason(RevocationReason.valueOf(reason));
