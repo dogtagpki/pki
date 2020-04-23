@@ -592,15 +592,44 @@ public class LDAPDatabase extends ACMEDatabase {
             String accountID, Date time, ACMEIdentifier identifier)
             throws Exception {
 
-        // TODO: handle wildcard
+        boolean wildcard = false;
+        String ident = identifier.getValue();
+        if (IDENTIFIER_TYPE_DNS.equals(identifier.getType()) && ident.startsWith("*.")) {
+            wildcard = true;
+            ident = ident.substring(2);  // strip wildcard
+        }
 
+        /* RFC 8555 is unclear about whether wildcard revocations
+         * authorise non-wildcard identifiers, or vice-versa.
+         *
+         * This implementation matches strictly, i.e.:
+         *
+         * AUTHZ-ID    WILDCARD   ID-TO-REVOKE  AUTHORISED?
+         *
+         * foo.example.com  Y    *.foo.example.com  Y
+         * foo.example.com  N    *.foo.example.com  N
+         *
+         * foo.example.com  Y      foo.example.com  N
+         * foo.example.com  N      foo.example.com  Y
+         *
+         * foo.example.com  Y  bar.foo.example.com  N
+         * foo.example.com  N  bar.foo.example.com  N
+         *
+         * In terms of the filter, this means:
+         *
+         * - assert an exact match for the "base identifier"
+         *
+         * - set acmeAuthorizationWildcard=TRUE|FALSE depending on
+         *   whether the identifier began with "*." or not.
+         */
         List<LDAPEntry> entries = ldapSearch(
             RDN_AUTHORIZATION + "," + basedn,
             "(&(" + ATTR_OBJECTCLASS + "=" + OBJ_AUTHORIZATION
                 + ")(" + ATTR_ACCOUNT_ID + "=" + accountID
                 + ")(!(" + ATTR_EXPIRES + "<=" + dateFormat.format(time) + ")"
                 + ")(" + ATTR_STATUS + "=valid"
-                + ")(" + ATTR_IDENTIFIER + ";" + identifier.getType() + "=" + identifier.getValue()
+                + ")(" + ATTR_IDENTIFIER + ";" + identifier.getType() + "=" + ident
+                + ")(" + ATTR_AUTHORIZATION_WILDCARD + "=" + (wildcard ? "TRUE" : "FALSE")
                 + "))"
         );
         return !entries.isEmpty();
