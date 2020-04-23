@@ -658,7 +658,8 @@ public class ACMEEngine implements ServletContextListener {
 
             if ("dns".equals(type)) {
 
-                if (authz.getWildcard()) {
+                Boolean b = authz.getWildcard();
+                if (null != b && b) {
                     value = "*." + value; // add *. prefix
                 }
 
