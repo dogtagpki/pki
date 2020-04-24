@@ -372,7 +372,10 @@ public class TPSTokendb {
     private boolean isCertOnToken(TPSCertRecord cert, String cuid) {
         String method = "TPSTokendb: isCertOnToken: ";
         boolean result = false;
-        String filter = cuid;
+
+        Map<String, String> attributes = new HashMap<String, String>();
+        attributes.put("tokenID", cuid);
+
         Iterator<TPSCertRecord> records;
         if (cert == null) {
             logger.warn(method + "input param cert null");
@@ -387,7 +390,7 @@ public class TPSTokendb {
                 "cert serial = " + cert.getSerialNumber() +
                 "; token cuid = " + cuid);
         try {
-            records = tps.certDatabase.findRecords(filter).iterator();
+            records = tps.certDatabase.findRecords(null, attributes).iterator();
         } catch (Exception e) {
             logger.warn(method + ":" + e.getMessage(), e);
             return false;
@@ -432,10 +435,13 @@ public class TPSTokendb {
             throw new Exception(method + ": cuid null");
 
         logger.debug(method + ":" + " begins for cuid =" + cuid);
-        String filter = cuid;
+
+        Map<String, String> attributes = new HashMap<String, String>();
+        attributes.put("tokenID", cuid);
+
         Iterator<TPSCertRecord> records;
         try {
-            records = tps.certDatabase.findRecords(filter).iterator();
+            records = tps.certDatabase.findRecords(null, attributes).iterator();
         } catch (Exception e) {
             logger.error(method + ":" + e.getMessage(), e);
             throw new Exception(method + ":" + e);
