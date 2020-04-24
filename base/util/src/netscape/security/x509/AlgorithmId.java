@@ -624,10 +624,24 @@ public class AlgorithmId implements Serializable, DerEncoder {
     }
 
     /**
-     * Returns a string describing the algorithm and its parameters.
+     * Returns a string describing only the algorithm without parameters.
+     *
+     * Use toStringWithParams() for algorithm name and paramaters, or
+     * paramsToString() for just parameters.
      */
     public String toString() {
-        return (algName() + " " + paramsToString());
+        return algName();
+    }
+
+    /**
+     * Returns a string describing the algorithm and its parameters.
+     */
+    public String toStringWithParams() {
+        if (params == null) {
+            return algName();
+        }
+
+        return algName() + " " + paramsToString();
     }
 
     /**
@@ -1030,7 +1044,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
      */
     public static final String[] ALL_SIGNING_ALGORITHMS = new String[]
     {
-            "SHA256withRSA", "SHA384withRSA", "SHA512withRSA", "SHA1withRSA","SHA256withRSA/PSS","SHA384withRSA/PSS","SHA5121withRSA/PSS",
+            "SHA256withRSA", "SHA384withRSA", "SHA512withRSA", "SHA1withRSA","SHA256withRSA/PSS","SHA384withRSA/PSS","SHA512withRSA/PSS",
             "SHA256withEC", "SHA384withEC", "SHA512withEC", "SHA1withEC" };
 
     public static void dumpBytes(byte[] data)
