@@ -376,12 +376,13 @@ class PKIServer(object):
         pathlib.Path(path).touch(mode=DEFAULT_FILE_MODE)
         os.chown(path, self.uid, self.gid)
 
-    def makedirs(self, path, force=False):
+    def makedirs(self, path, exist_ok=None, force=False):
         pki.util.makedirs(
             path,
+            mode=DEFAULT_DIR_MODE,
+            exist_ok=exist_ok,
             uid=self.uid,
             gid=self.gid,
-            mode=DEFAULT_DIR_MODE,
             force=force)
 
     def symlink(self, source, dest, force=False):

@@ -97,27 +97,25 @@ def replace_params(line, params=None):
 
 def makedirs(
         path,
+        mode=0o777,
+        exist_ok=False,
         uid=-1,
         gid=-1,
-        mode=None,
         force=False):
-
-    logger.debug('Command: mkdir -p %s', path)
 
     parent = os.path.dirname(path)
 
     if not os.path.exists(parent):
-        makedirs(parent, uid=uid, gid=gid, mode=mode, force=force)
+        makedirs(parent, mode=mode, exist_ok=exist_ok, uid=uid, gid=gid, force=force)
 
     if force and os.path.exists(path):
         logger.warning('Directory already exists: %s', path)
         return
 
-    os.makedirs(path)
-    os.chown(path, uid, gid)
+    logger.debug('Command: mkdir %s', path)
 
-    if mode is not None:
-        os.chmod(path, mode)
+    os.makedirs(path, mode=mode, exist_ok=exist_ok)
+    os.chown(path, uid, gid)
 
 
 def symlink(source, dest, uid=-1, gid=-1, force=False):
