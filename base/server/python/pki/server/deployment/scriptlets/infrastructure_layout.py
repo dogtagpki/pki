@@ -91,10 +91,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.directory.create(deployer.mdict['pki_subsystem_path'])
 
-        deployer.symlink.create(
-            deployer.mdict['pki_instance_registry_path'],
-            deployer.mdict['pki_subsystem_registry_link'])
-        #
         # NOTE:  If "infrastructure_layout" scriptlet execution has been
         #        successfully executed to this point, the "pkidestroy" command
         #        may always be utilized to remove the entire infrastructure.
