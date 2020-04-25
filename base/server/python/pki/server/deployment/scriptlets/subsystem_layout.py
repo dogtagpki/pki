@@ -85,6 +85,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             slots=deployer.slots,
             params=deployer.mdict)
 
+        # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
+        # to /etc/pki/<instance>/<subsystem>/registry.cfg
+        logger.info('Creating %s', deployer.mdict['pki_target_registry_cfg'])
+        instance.copy(
+            deployer.mdict['pki_source_registry_cfg'],
+            deployer.mdict['pki_target_registry_cfg'])
+
         if deployer.mdict['pki_subsystem'] == "CA":
 
             # Copy /usr/share/pki/ca/emails
@@ -107,13 +114,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.copy(
                 deployer.mdict['pki_source_flatfile_txt'],
                 deployer.mdict['pki_target_flatfile_txt'])
-
-            # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
-            # to /etc/pki/<instance>/<subsystem>/registry.cfg
-            logger.info('Creating %s', deployer.mdict['pki_target_registry_cfg'])
-            instance.copy(
-                deployer.mdict['pki_source_registry_cfg'],
-                deployer.mdict['pki_target_registry_cfg'])
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>AdminCert.profile
             # to /etc/pki/<instance>/<subsystem>/adminCert.profile

@@ -669,6 +669,12 @@ class PKIConfigParser:
                     self.mdict['pki_tomcat_webapps_subsystem_path'],
                     "WEB-INF",
                     "web.xml.orig")
+
+            self.mdict['pki_target_registry_cfg'] = \
+                os.path.join(
+                    self.mdict['pki_subsystem_configuration_path'],
+                    "registry.cfg")
+
             # subystem-specific slot substitution name/value pairs
             if self.mdict['pki_subsystem'] == "CA":
                 self.mdict['pki_target_flatfile_txt'] = \
@@ -679,10 +685,6 @@ class PKIConfigParser:
                     os.path.join(
                         self.mdict['pki_subsystem_configuration_path'],
                         "proxy.conf")
-                self.mdict['pki_target_registry_cfg'] = \
-                    os.path.join(
-                        self.mdict['pki_subsystem_configuration_path'],
-                        "registry.cfg")
                 # '*.profile'
                 self.mdict['pki_target_admincert_profile'] = \
                     os.path.join(
