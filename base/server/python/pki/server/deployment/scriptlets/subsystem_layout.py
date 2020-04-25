@@ -43,91 +43,151 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Creating %s subsystem', deployer.mdict['pki_subsystem'])
 
-        # establish instance-based subsystem logs
+        # Create /var/log/pki/<instance>/<subsystem>
+        logger.info('Creating %s', deployer.mdict['pki_subsystem_log_path'])
         deployer.directory.create(deployer.mdict['pki_subsystem_log_path'])
+
+        # Create /var/log/pki/<instance>/<subsystem>/archive
+        logger.info('Creating %s', deployer.mdict['pki_subsystem_archive_log_path'])
         deployer.directory.create(
             deployer.mdict['pki_subsystem_archive_log_path'])
+
+        # Create /var/log/pki/<instance>/<subsystem>/signedAudit
+        logger.info('Creating %s', deployer.mdict['pki_subsystem_signed_audit_log_path'])
         deployer.directory.create(
             deployer.mdict['pki_subsystem_signed_audit_log_path'])
 
-        # create /var/lib/pki/<instance>/<subsystem>/conf
+        # Create /etc/pki/<instance>/<subsystem>
         logger.info('Creating %s', deployer.mdict['pki_subsystem_configuration_path'])
         deployer.directory.create(
             deployer.mdict['pki_subsystem_configuration_path'])
 
+        # Copy /usr/share/pki/<subsystem_type>/conf
+        # to /etc/pki/<instance>/<subsystem>
+        # logger.info('Creating %s', deployer.mdict['pki_subsystem_configuration_path'])
         # deployer.directory.copy(
         #   deployer.mdict['pki_source_conf_path'],
         #   deployer.mdict['pki_subsystem_configuration_path'])
 
-        # create /var/lib/pki/<instance>/<subsystem>/conf/CS.cfg
+        # Copy /usr/share/pki/<subsystem>/conf/CS.cfg
+        # to /etc/pki/<instance>/<subsystem>/CS.cfg
         logger.info('Creating %s', deployer.mdict['pki_target_cs_cfg'])
         deployer.file.copy_with_slot_substitution(
             deployer.mdict['pki_source_cs_cfg'],
             deployer.mdict['pki_target_cs_cfg'])
 
-        # establish instance-based Tomcat specific subsystems
-
-        # establish instance-based Tomcat PKI subsystem base
         if deployer.mdict['pki_subsystem'] == "CA":
 
+            # Copy /usr/share/pki/ca/emails
+            # to /var/lib/pki/<instance>/<subsystem>/emails
             logger.info('Creating %s', deployer.mdict['pki_subsystem_emails_path'])
             deployer.directory.copy(
                 deployer.mdict['pki_source_emails'],
                 deployer.mdict['pki_subsystem_emails_path'])
 
+            # Copy /usr/share/pki/ca/profiles/ca
+            # to /var/lib/pki/<instance>/<subsystem>/profiles/ca
             logger.info('Creating %s', deployer.mdict['pki_subsystem_profiles_path'])
             deployer.directory.copy(
                 deployer.mdict['pki_source_profiles'],
                 deployer.mdict['pki_subsystem_profiles_path'])
 
+            # Copy /usr/share/pki/<subsystem>/conf/flatfile.txt
+            # to /etc/pki/<instance>/<subsystem>/flatfile.txt
             logger.info('Creating %s', deployer.mdict['pki_target_flatfile_txt'])
             deployer.file.copy(
                 deployer.mdict['pki_source_flatfile_txt'],
                 deployer.mdict['pki_target_flatfile_txt'])
 
+            # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
+            # to /etc/pki/<instance>/<subsystem>/registry.cfg
             logger.info('Creating %s', deployer.mdict['pki_target_registry_cfg'])
             deployer.file.copy(
                 deployer.mdict['pki_source_registry_cfg'],
                 deployer.mdict['pki_target_registry_cfg'])
 
-            logger.info('Creating bootstrap profiles')
+            # Copy /usr/share/pki/<subsystem>/conf/<type>AdminCert.profile
+            # to /etc/pki/<instance>/<subsystem>/adminCert.profile
+            logger.info('Creating %s', deployer.mdict['pki_target_admincert_profile'])
             deployer.file.copy(
                 deployer.mdict['pki_source_admincert_profile'],
                 deployer.mdict['pki_target_admincert_profile'])
+
+            # Copy /usr/share/pki/<subsystem>/conf/caAuditSigningCert.profile
+            # to /etc/pki/<instance>/<subsystem>/caAuditSigningCert.profile
+            logger.info('Creating %s', deployer.mdict['pki_target_caauditsigningcert_profile'])
             deployer.file.copy(
                 deployer.mdict['pki_source_caauditsigningcert_profile'],
                 deployer.mdict['pki_target_caauditsigningcert_profile'])
+
+            # Copy /usr/share/pki/<subsystem>/conf/caCert.profile
+            # to /etc/pki/<instance>/<subsystem>/caCert.profile
+            logger.info('Creating %s', deployer.mdict['pki_target_cacert_profile'])
             deployer.file.copy(
                 deployer.mdict['pki_source_cacert_profile'],
                 deployer.mdict['pki_target_cacert_profile'])
+
+            # Copy /usr/share/pki/<subsystem>/conf/caOCSPCert.profile
+            # to /etc/pki/<instance>/<subsystem>/caOCSPCert.profile
+            logger.info('Creating %s', deployer.mdict['pki_target_caocspcert_profile'])
             deployer.file.copy(
                 deployer.mdict['pki_source_caocspcert_profile'],
                 deployer.mdict['pki_target_caocspcert_profile'])
+
+            # Copy /usr/share/pki/<subsystem>/conf/<type>ServerCert.profile
+            # to /etc/pki/<instance>/<subsystem>/serverCert.profile
+            logger.info('Creating %s', deployer.mdict['pki_target_servercert_profile'])
             deployer.file.copy(
                 deployer.mdict['pki_source_servercert_profile'],
                 deployer.mdict['pki_target_servercert_profile'])
+
+            # Copy /usr/share/pki/<subsystem>/conf/<type>SubsystemCert.profile
+            # to /etc/pki/<instance>/<subsystem>/subsystemCert.profile
+            logger.info('Creating %s', deployer.mdict['pki_target_subsystemcert_profile'])
             deployer.file.copy(
                 deployer.mdict['pki_source_subsystemcert_profile'],
                 deployer.mdict['pki_target_subsystemcert_profile'])
+
+            # Copy /usr/share/pki/<subsystem>/conf/proxy.conf
+            # to /etc/pki/<instance>/<subsystem>/proxy.conf
+            logger.info('Creating %s', deployer.mdict['pki_target_proxy_conf'])
             deployer.file.copy_with_slot_substitution(
                 deployer.mdict['pki_source_proxy_conf'],
                 deployer.mdict['pki_target_proxy_conf'])
 
         elif deployer.mdict['pki_subsystem'] == "TPS":
+
+            # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
+            # to /etc/pki/<instance>/<subsystem>/registry.cfg
+            logger.info('Creating %s', deployer.mdict['pki_target_registry_cfg'])
             deployer.file.copy_with_slot_substitution(
                 deployer.mdict['pki_source_registry_cfg'],
                 deployer.mdict['pki_target_registry_cfg'])
+
+            # Copy /usr/share/pki/<subsystem>/conf/phoneHome.xml
+            # to /etc/pki/<instance>/<subsystem>/phoneHome.xml
+            logger.info('Creating %s', deployer.mdict['pki_target_phone_home_xml'])
             deployer.file.copy_with_slot_substitution(
                 deployer.mdict['pki_source_phone_home_xml'],
                 deployer.mdict['pki_target_phone_home_xml'])
 
-        # establish instance-based subsystem convenience symbolic links
+        # Link /var/lib/pki/<instance>/<subsystem>/conf
+        # to /etc/pki/<instance>/<subsystem>
+        logger.info('Creating %s', deployer.mdict['pki_subsystem_conf_link'])
         deployer.symlink.create(
             deployer.mdict['pki_subsystem_configuration_path'],
             deployer.mdict['pki_subsystem_conf_link'])
+
+        # Link /var/lib/pki/<instance>/<subsystem>/logs
+        # to /var/log/pki/<instance>/<subsystem>
+        logger.info('Creating %s', deployer.mdict['pki_subsystem_logs_link'])
         deployer.symlink.create(
             deployer.mdict['pki_subsystem_log_path'],
             deployer.mdict['pki_subsystem_logs_link'])
+
+        # Link /var/lib/pki/<instance>/<subsystem>/registry
+        # to /etc/sysconfig/pki/tomcat/<instance>
+        logger.info('Creating %s', deployer.mdict['pki_subsystem_registry_link'])
         deployer.symlink.create(
             deployer.mdict['pki_instance_registry_path'],
             deployer.mdict['pki_subsystem_registry_link'])
