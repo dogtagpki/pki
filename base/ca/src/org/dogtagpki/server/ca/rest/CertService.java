@@ -37,7 +37,6 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.catalina.realm.GenericPrincipal;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -52,6 +51,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
@@ -93,7 +93,7 @@ public class CertService extends PKIService implements CertResource {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertService.class);
 
-    ICertificateAuthority authority;
+    CertificateAuthority authority;
     ICertificateRepository repo;
     SecureRandom random;
 
@@ -105,7 +105,7 @@ public class CertService extends PKIService implements CertResource {
         CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        authority = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        authority = (CertificateAuthority) engine.getSubsystem(CertificateAuthority.ID);
         if (authority.noncesEnabled()) {
             random = jssSubsystem.getRandomNumberGenerator();
         }
