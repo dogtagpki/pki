@@ -608,39 +608,31 @@ public class CertService extends PKIService implements CertResource {
     private String getCertChainData(X509CertImpl x509cert) throws Exception {
 
         X509Certificate[] mCACerts = authority.getCACertChain().getChain();
-        X509CertImpl[] certsInChain = new X509CertImpl[1];
 
-        int mCACertsLength = 0;
         boolean certAlreadyInChain = false;
-        int certsInChainLength = 0;
-
-        if (mCACerts != null) {
-            mCACertsLength = mCACerts.length;
-            for (int i = 0; i < mCACertsLength; i++) {
-                if (x509cert.equals(mCACerts[i])) {
-                    certAlreadyInChain = true;
-                    break;
-                }
+        int mCACertsLength = mCACerts.length;
+        for (int i = 0; i < mCACertsLength; i++) {
+            if (x509cert.equals(mCACerts[i])) {
+                certAlreadyInChain = true;
+                break;
             }
-
-            if (certAlreadyInChain == true) {
-                certsInChainLength = mCACertsLength;
-            } else {
-                certsInChainLength = mCACertsLength + 1;
-            }
-
-            certsInChain = new X509CertImpl[certsInChainLength];
         }
 
+        int certsInChainLength;
+        if (certAlreadyInChain) {
+            certsInChainLength = mCACertsLength;
+        } else {
+            certsInChainLength = mCACertsLength + 1;
+        }
+
+        X509CertImpl[] certsInChain = new X509CertImpl[certsInChainLength];
         certsInChain[0] = x509cert;
 
-        if (mCACerts != null) {
-            int curCount = 1;
-            for (int i = 0; i < mCACertsLength; i++) {
-                if (!x509cert.equals(mCACerts[i])) {
-                    certsInChain[curCount] = (X509CertImpl) mCACerts[i];
-                    curCount++;
-                }
+        int curCount = 1;
+        for (int i = 0; i < mCACertsLength; i++) {
+            if (!x509cert.equals(mCACerts[i])) {
+                certsInChain[curCount] = (X509CertImpl) mCACerts[i];
+                curCount++;
             }
         }
 
