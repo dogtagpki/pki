@@ -26,7 +26,6 @@ import java.security.InvalidKeyException;
 import java.security.Principal;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -139,11 +138,11 @@ public class CertService extends PKIService implements CertResource {
 
         try {
             certData = getCert(data, generateNonce);
+
         } catch (EDBRecordNotFoundException e) {
             throw new CertNotFoundException(id);
-        } catch (EBaseException e) {
-            throw new PKIException(e.getMessage(), e);
-        } catch (CertificateEncodingException e) {
+
+        } catch (Exception e) {
             throw new PKIException(e.getMessage(), e);
         }
 
@@ -500,7 +499,7 @@ public class CertService extends PKIService implements CertResource {
         return createOKResponse(infos);
     }
 
-    public CertData getCert(CertRetrievalRequest data, boolean generateNonce) throws EBaseException, CertificateEncodingException {
+    public CertData getCert(CertRetrievalRequest data, boolean generateNonce) throws Exception {
         CertId certId = data.getCertId();
 
         //find the cert in question
@@ -606,24 +605,15 @@ public class CertService extends PKIService implements CertResource {
         return info;
     }
 
-    private String getCertChainData(X509CertImpl x509cert) {
-        X509Certificate mCACerts[];
+    private String getCertChainData(X509CertImpl x509cert) throws Exception {
 
-        if (x509cert == null) {
-            return null;
-        }
-
-        try {
-            mCACerts = authority.getCACertChain().getChain();
-        } catch (Exception e) {
-            mCACerts = null;
-        }
-
+        X509Certificate[] mCACerts = authority.getCACertChain().getChain();
         X509CertImpl[] certsInChain = new X509CertImpl[1];
 
         int mCACertsLength = 0;
         boolean certAlreadyInChain = false;
         int certsInChainLength = 0;
+
         if (mCACerts != null) {
             mCACertsLength = mCACerts.length;
             for (int i = 0; i < mCACertsLength; i++) {
@@ -640,7 +630,6 @@ public class CertService extends PKIService implements CertResource {
             }
 
             certsInChain = new X509CertImpl[certsInChainLength];
-
         }
 
         certsInChain[0] = x509cert;
@@ -652,27 +641,18 @@ public class CertService extends PKIService implements CertResource {
                     certsInChain[curCount] = (X509CertImpl) mCACerts[i];
                     curCount++;
                 }
-
             }
         }
 
-        String p7Str;
+        PKCS7 p7 = new PKCS7(new AlgorithmId[0],
+                new ContentInfo(new byte[0]),
+                certsInChain,
+                new SignerInfo[0]);
 
-        try {
-            PKCS7 p7 = new PKCS7(new AlgorithmId[0],
-                    new ContentInfo(new byte[0]),
-                    certsInChain,
-                    new SignerInfo[0]);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        p7.encodeSignedData(bos, false);
+        byte[] p7Bytes = bos.toByteArray();
 
-            p7.encodeSignedData(bos, false);
-            byte[] p7Bytes = bos.toByteArray();
-
-            p7Str = Utils.base64encode(p7Bytes, true);
-        } catch (Exception e) {
-            p7Str = null;
-        }
-
-        return p7Str;
+        return Utils.base64encode(p7Bytes, true);
     }
 }
