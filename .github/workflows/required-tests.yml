@@ -138,11 +138,11 @@ jobs:
             path: pki-logs.tar.gz
 
     # Test job
-    ipa-tests:
+    ipa-ca-tests:
       # This job depends on the 'build' job and waits till it completes.
       # This job needs container to be started manually, as Github provided
       # container **does not** use /usr/bin/init as its ENTRYPOINT.
-      name: Test IPA
+      name: Test IPA CA
       needs: build
       runs-on: ubuntu-latest
       env:
@@ -151,7 +151,7 @@ jobs:
         PKIDIR: /tmp/workdir/pki
         LOGS: ${GITHUB_WORKSPACE}/logs.txt
         COPR_REPO: "@pki/master"
-        test_set: "test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_ca_plugin.py test_vault_plugin.py"
+        test_set: "test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_ca_plugin.py"
       strategy:
         matrix:
           os: ['30', '31']
@@ -185,7 +185,7 @@ jobs:
         - name: Install newly built PKI packages
           run: docker exec -i ${CONTAINER} bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
 
-        - name: Run IPA tests
+        - name: Run IPA CA tests
           run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/ipa-test.sh
 
         - name: Extract PKI related journalctl logs
@@ -193,11 +193,76 @@ jobs:
 
         - name: Compress PKI and IPA related logs
           if: always()
-          run: docker exec -i ${CONTAINER} bash -c "tar -czf ${PKIDIR}/ipa-logs.tar.gz /var/log/ipa* /var/log/pki*"
+          run: docker exec -i ${CONTAINER} bash -c "tar -czf ${PKIDIR}/ipa-ca-logs.tar.gz /var/log/ipa* /var/log/pki*"
 
         - name: Upload compressed log
           if: always()
           uses: actions/upload-artifact@v1
           with:
-            name: ipa-logs-${{ matrix.os }}
-            path: ipa-logs.tar.gz
+            name: ipa-ca-logs-${{ matrix.os }}
+            path: ipa-ca-logs.tar.gz
+
+    # Test job
+    ipa-vault-tests:
+      # This job depends on the 'build' job and waits till it completes.
+      # This job needs container to be started manually, as Github provided
+      # container **does not** use /usr/bin/init as its ENTRYPOINT.
+      name: Test IPA Vault
+      needs: build
+      runs-on: ubuntu-latest
+      env:
+        CONTAINER: pkitest
+        BUILDDIR: /tmp/workdir
+        PKIDIR: /tmp/workdir/pki
+        LOGS: ${GITHUB_WORKSPACE}/logs.txt
+        COPR_REPO: "@pki/master"
+        test_set: "test_vault_plugin.py"
+      strategy:
+        matrix:
+          os: ['30', '31']
+      steps:
+        - name: Clone the repository
+          uses: actions/checkout@v2
+
+        - name: Setup required test environment
+          run: IMAGE=fedora:${{ matrix.os }} travis/runner-init.sh
+
+        - name: Download PKI binaries from Build job
+          uses: actions/download-artifact@v1
+          with:
+            name: pki-build-${{ matrix.os }}
+
+        - name: Extract tar.gz for rpms
+          run: tar -xzf pki-build-${{ matrix.os }}/pki-rpms.tar.gz
+
+        - name: Install required packages
+          run: docker exec -i ${CONTAINER} dnf install -y  findutils dnf-plugins-core
+
+        - name: Enable freeipa nightly COPR
+          run: docker exec -i ${CONTAINER} dnf copr enable -y @freeipa/freeipa-master-nightly
+
+        #- name: Enable PKI COPR repo
+        #  run: docker exec -i ${CONTAINER} dnf copr enable -y ${COPR_REPO}
+
+        - name: Install FreeIPA packages
+          run: docker exec -i ${CONTAINER} dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests
+
+        - name: Install newly built PKI packages
+          run: docker exec -i ${CONTAINER} bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
+
+        - name: Run IPA Vault tests
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/ipa-test.sh
+
+        - name: Extract PKI related journalctl logs
+          run: docker exec -i ${CONTAINER} bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
+
+        - name: Compress PKI and IPA related logs
+          if: always()
+          run: docker exec -i ${CONTAINER} bash -c "tar -czf ${PKIDIR}/ipa-vault-logs.tar.gz /var/log/ipa* /var/log/pki*"
+
+        - name: Upload compressed log
+          if: always()
+          uses: actions/upload-artifact@v1
+          with:
+            name: ipa-vault-logs-${{ matrix.os }}
+            path: ipa-vault-logs.tar.gz
