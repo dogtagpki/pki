@@ -419,6 +419,10 @@ class PKIServer(object):
             mode=DEFAULT_FILE_MODE,
             force=force)
 
+    def store_properties(self, filename, properties):
+        pki.util.store_properties(filename, properties)
+        pki.util.chown(filename, self.uid, self.gid)
+
     def create(self, force=False):
 
         logger.info('Creating %s', self.base_dir)
@@ -803,9 +807,7 @@ class PKIServer(object):
             pki.util.load_properties(self.password_conf, self.passwords)
 
     def store_passwords(self):
-
-        pki.util.store_properties(self.password_conf, self.passwords)
-        pki.util.chown(self.password_conf, self.uid, self.gid)
+        self.store_properties(self.password_conf, self.passwords)
 
     def load_subsystems(self):
 
@@ -836,9 +838,7 @@ class PKIServer(object):
         return jss_config
 
     def store_jss_config(self, jss_config):
-
-        pki.util.store_properties(self.jss_conf, jss_config)
-        pki.util.chown(self.jss_conf, self.uid, self.gid)
+        self.store_properties(self.jss_conf, jss_config)
 
     def get_server_config(self):
         server_config = ServerConfiguration(self.server_xml)

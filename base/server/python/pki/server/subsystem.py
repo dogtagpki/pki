@@ -342,10 +342,10 @@ class PKISubsystem(object):
     def save(self):
 
         logger.info('Storing subsystem config: %s', self.cs_conf)
-        pki.util.store_properties(self.cs_conf, self.config)
+        self.instance.store_properties(self.cs_conf, self.config)
 
         logger.info('Storing registry config: %s', self.registry_conf)
-        pki.util.store_properties(self.registry_conf, self.registry)
+        self.instance.store_properties(self.registry_conf, self.registry)
 
     def is_valid(self):
         return os.path.exists(self.conf_dir)
