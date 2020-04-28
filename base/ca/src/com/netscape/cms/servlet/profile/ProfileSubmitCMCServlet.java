@@ -70,8 +70,8 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.IProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -1082,6 +1082,10 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 template.createFullResponse(response, reqs, cert_request_type,
                         error_codes);
             }
+
+        } catch (Exception e) {
+            throw new EBaseException(e);
+
         } finally {
             SessionContext.releaseContext();
         }

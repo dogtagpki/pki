@@ -78,36 +78,32 @@ public class CAEngine extends CMSEngine {
         }
     }
 
-    public byte[] getPKCS7(Locale locale, IRequest req) {
-        try {
-            X509CertImpl cert = req.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+    public byte[] getPKCS7(Locale locale, IRequest req) throws Exception {
 
-            if (cert == null) {
-                return null;
-            }
+        X509CertImpl cert = req.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
 
-            ICertificateAuthority ca = (ICertificateAuthority) getSubsystem(ICertificateAuthority.ID);
-            CertificateChain cachain = ca.getCACertChain();
-            X509Certificate[] cacerts = cachain.getChain();
-
-            X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
-            userChain[0] = cert;
-            for (int n = 0; n < cacerts.length; n++) {
-                userChain[n + 1] = (X509CertImpl) cacerts[n];
-            }
-
-            PKCS7 p7 = new PKCS7(new AlgorithmId[0],
-                    new ContentInfo(new byte[0]),
-                    userChain,
-                    new SignerInfo[0]);
-
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            p7.encodeSignedData(bos);
-            return bos.toByteArray();
-
-        } catch (Exception e) {
+        if (cert == null) {
             return null;
         }
+
+        ICertificateAuthority ca = (ICertificateAuthority) getSubsystem(ICertificateAuthority.ID);
+        CertificateChain cachain = ca.getCACertChain();
+        X509Certificate[] cacerts = cachain.getChain();
+
+        X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
+        userChain[0] = cert;
+        for (int n = 0; n < cacerts.length; n++) {
+            userChain[n + 1] = (X509CertImpl) cacerts[n];
+        }
+
+        PKCS7 p7 = new PKCS7(new AlgorithmId[0],
+                new ContentInfo(new byte[0]),
+                userChain,
+                new SignerInfo[0]);
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        p7.encodeSignedData(bos);
+        return bos.toByteArray();
     }
 
     public void startupSubsystems() throws EBaseException {
