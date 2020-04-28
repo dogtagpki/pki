@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
@@ -41,7 +42,11 @@ import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.asn1.UTF8String;
+import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkix.cmc.LraPopWitness;
 import org.mozilla.jss.pkix.cmc.OtherInfo;
@@ -1057,7 +1062,18 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             if (cert_request_type.equals("pkcs10") || cert_request_type.equals("crmf")) {
 
                 if (outputFormat != null && outputFormat.equals("pkcs7")) {
-                    byte[] pkcs7 = engine.getPKCS7(locale, reqs[0]);
+                    X509CertImpl cert = reqs[0].getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+                    X509Certificate[] certChain = engine.getCertChain(cert);
+
+                    PKCS7 p7 = new PKCS7(new AlgorithmId[0],
+                            new ContentInfo(new byte[0]),
+                            certChain,
+                            new SignerInfo[0]);
+
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    p7.encodeSignedData(bos);
+                    byte[] pkcs7 = bos.toByteArray();
+
                     response.setContentType("application/pkcs7-mime");
                     response.setContentLength(pkcs7.length);
                     try {

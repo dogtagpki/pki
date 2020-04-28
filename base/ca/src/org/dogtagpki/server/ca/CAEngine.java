@@ -18,22 +18,14 @@
 
 package org.dogtagpki.server.ca;
 
-import java.io.ByteArrayOutputStream;
 import java.security.cert.X509Certificate;
-import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
-import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -78,13 +70,7 @@ public class CAEngine extends CMSEngine {
         }
     }
 
-    public byte[] getPKCS7(Locale locale, IRequest req) throws Exception {
-
-        X509CertImpl cert = req.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
-
-        if (cert == null) {
-            return null;
-        }
+    public X509Certificate[] getCertChain(X509CertImpl cert) throws Exception {
 
         ICertificateAuthority ca = (ICertificateAuthority) getSubsystem(ICertificateAuthority.ID);
         CertificateChain cachain = ca.getCACertChain();
@@ -96,14 +82,7 @@ public class CAEngine extends CMSEngine {
             userChain[n + 1] = (X509CertImpl) cacerts[n];
         }
 
-        PKCS7 p7 = new PKCS7(new AlgorithmId[0],
-                new ContentInfo(new byte[0]),
-                userChain,
-                new SignerInfo[0]);
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        p7.encodeSignedData(bos);
-        return bos.toByteArray();
+        return userChain;
     }
 
     public void startupSubsystems() throws EBaseException {
