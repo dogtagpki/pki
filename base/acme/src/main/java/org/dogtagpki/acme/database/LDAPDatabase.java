@@ -513,9 +513,8 @@ public class LDAPDatabase extends ACMEDatabase {
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
 
         Boolean wildcard = authorization.getWildcard();
-        if (wildcard != null && wildcard == true) {
-            attrSet.add(new LDAPAttribute(ATTR_AUTHORIZATION_WILDCARD, "TRUE"));
-        }
+        String wildcardValue = wildcard != null && wildcard == true ? "TRUE" : "FALSE";
+        attrSet.add(new LDAPAttribute(ATTR_AUTHORIZATION_WILDCARD, wildcardValue));
 
         String dn = ATTR_AUTHORIZATION_ID + "=" + authorization.getID()
                         + "," + RDN_AUTHORIZATION + "," + basedn;
