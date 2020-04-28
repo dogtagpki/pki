@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
@@ -229,14 +228,14 @@ public class GetBySerial extends CMSServlet {
                 userChain[0] = cert;
                 PKCS7 p7 = new PKCS7(new AlgorithmId[0],
                         new ContentInfo(new byte[0]), userChain, new SignerInfo[0]);
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
+                byte[] p7Bytes;
                 try {
-                    p7.encodeSignedData(bos);
-                } catch (Exception eee) {
+                    p7Bytes = p7.getBytes();
+                } catch (Exception e) {
+                    throw new EBaseException(e);
                 }
 
-                byte[] p7Bytes = bos.toByteArray();
                 String p7Str = Utils.base64encode(p7Bytes, true);
 
                 header.addStringValue("pkcs7", CryptoUtil.normalizeCertStr(p7Str));

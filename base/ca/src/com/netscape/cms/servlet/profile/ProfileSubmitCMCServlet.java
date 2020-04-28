@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
@@ -1070,9 +1069,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                             certChain,
                             new SignerInfo[0]);
 
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    p7.encodeSignedData(bos);
-                    byte[] pkcs7 = bos.toByteArray();
+                    byte[] pkcs7 = p7.getBytes();
 
                     response.setContentType("application/pkcs7-mime");
                     response.setContentLength(pkcs7.length);

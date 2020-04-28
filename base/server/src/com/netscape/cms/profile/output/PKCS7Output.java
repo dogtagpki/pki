@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.output;
 
-import java.io.ByteArrayOutputStream;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Map;
@@ -133,10 +132,8 @@ public class PKCS7Output extends EnrollOutput {
                         new ContentInfo(new byte[0]),
                         userChain,
                         new SignerInfo[0]);
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-                p7.encodeSignedData(bos);
-                byte[] p7Bytes = bos.toByteArray();
+                byte[] p7Bytes = p7.getBytes();
                 String p7Str = Utils.base64encode(p7Bytes, true);
 
                 return p7Str;

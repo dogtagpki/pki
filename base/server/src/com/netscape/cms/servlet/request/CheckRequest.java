@@ -388,11 +388,8 @@ public class CheckRequest extends CMSServlet {
                                             new org.mozilla.jss.netscape.security.pkcs.ContentInfo(new byte[0]),
                                             certsInChain,
                                             new org.mozilla.jss.netscape.security.pkcs.SignerInfo[0]);
-                                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-                                    p7.encodeSignedData(bos);
-                                    byte[] p7Bytes = bos.toByteArray();
-
+                                    byte[] p7Bytes = p7.getBytes();
                                     p7Str = Utils.base64encode(p7Bytes, true);
 
                                     StringTokenizer tokenizer = null;

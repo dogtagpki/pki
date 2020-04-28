@@ -221,11 +221,9 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
                     new ContentInfo(new byte[0]),
                     userChain,
                     new SignerInfo[0]);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-            p7.encodeSignedData(bos);
-            byte[] p7Bytes = bos.toByteArray();
-            //		String p7Str = encoder.encodeBuffer(p7Bytes);
+            byte[] p7Bytes = p7.getBytes();
+            // String p7Str = encoder.encodeBuffer(p7Bytes);
             String p7Str = Utils.base64encode(p7Bytes, true);
 
             header.set(PKCS7_RESP, p7Str);
@@ -299,13 +297,11 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
                         new ContentInfo(new byte[0]),
                         certsInChain,
                         new SignerInfo[0]);
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-                p7.encodeSignedData(bos);
-                byte[] p7Bytes = bos.toByteArray();
-
+                byte[] p7Bytes = p7.getBytes();
                 //p7Str = encoder.encodeBuffer(p7Bytes);
                 p7Str = Utils.base64encode(p7Bytes, true);
+
                 repeat.addStringValue("pkcs7ChainBase64", p7Str);
             } catch (Exception ex) {
                 //p7Str = "PKCS#7 B64 Encoding error - " + ex.toString()
