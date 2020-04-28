@@ -22,7 +22,6 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -70,19 +69,19 @@ public class CAEngine extends CMSEngine {
         }
     }
 
-    public X509Certificate[] getCertChain(X509CertImpl cert) throws Exception {
+    public X509Certificate[] getCertChain(X509Certificate cert) throws Exception {
 
-        ICertificateAuthority ca = (ICertificateAuthority) getSubsystem(ICertificateAuthority.ID);
-        CertificateChain cachain = ca.getCACertChain();
-        X509Certificate[] cacerts = cachain.getChain();
+        CertificateAuthority ca = (CertificateAuthority) getSubsystem(CertificateAuthority.ID);
+        CertificateChain caChain = ca.getCACertChain();
+        X509Certificate[] caCerts = caChain.getChain();
 
-        X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
-        userChain[0] = cert;
-        for (int n = 0; n < cacerts.length; n++) {
-            userChain[n + 1] = (X509CertImpl) cacerts[n];
+        X509Certificate[] certChain = new X509Certificate[caCerts.length + 1];
+        certChain[0] = cert;
+        for (int n = 0; n < caCerts.length; n++) {
+            certChain[n + 1] = caCerts[n];
         }
 
-        return userChain;
+        return certChain;
     }
 
     public void startupSubsystems() throws EBaseException {
