@@ -522,7 +522,19 @@ public class CertService extends PKIService implements CertResource {
         CertPrettyPrint print = new CertPrettyPrint(cert);
         certData.setPrettyPrint(print.toString(getLocale(headers)));
 
-        String p7Str = getCertChainData(cert);
+        X509Certificate[] certChain = getCertChain(cert);
+
+        PKCS7 pkcs7 = new PKCS7(
+                new AlgorithmId[0],
+                new ContentInfo(new byte[0]),
+                certChain,
+                new SignerInfo[0]);
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        pkcs7.encodeSignedData(bos, false);
+        byte[] p7Bytes = bos.toByteArray();
+
+        String p7Str = Utils.base64encode(p7Bytes, true);
         certData.setPkcs7CertChain(p7Str);
 
         Date notBefore = cert.getNotBefore();
@@ -605,7 +617,7 @@ public class CertService extends PKIService implements CertResource {
         return info;
     }
 
-    private String getCertChainData(X509CertImpl x509cert) throws Exception {
+    private X509Certificate[] getCertChain(X509CertImpl x509cert) throws Exception {
 
         X509Certificate[] mCACerts = authority.getCACertChain().getChain();
 
@@ -636,15 +648,6 @@ public class CertService extends PKIService implements CertResource {
             }
         }
 
-        PKCS7 p7 = new PKCS7(new AlgorithmId[0],
-                new ContentInfo(new byte[0]),
-                certsInChain,
-                new SignerInfo[0]);
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        p7.encodeSignedData(bos, false);
-        byte[] p7Bytes = bos.toByteArray();
-
-        return Utils.base64encode(p7Bytes, true);
+        return certsInChain;
     }
 }
