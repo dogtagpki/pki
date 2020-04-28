@@ -63,8 +63,8 @@ objectClasses: ( acmeOrder-oid NAME 'acmeOrder'
   MAY ( acmeError $ acmeCertificateId $ acmeExpires ) )
 objectClasses: ( acmeAuthorization-oid NAME 'acmeAuthorization'
   STRUCTURAL
-  MUST ( acmeAuthorizationId $ acmeAccountId $ acmeIdentifier $ acmeStatus )
-  MAY ( acmeExpires $ acmeAuthorizationWildcard ) )
+  MUST ( acmeAuthorizationId $ acmeAccountId $ acmeIdentifier $ acmeAuthorizationWildcard $ acmeStatus )
+  MAY acmeExpires )
 # Why have seperate object classes for different challenge types?
 # the dns-01 and http-01 challenge types both only store a 'token'.
 # But challenge types could involve storing other data.  So we
