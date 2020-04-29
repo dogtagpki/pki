@@ -31,6 +31,7 @@ public class PKCS7CLI extends CLI {
         this.mainCLI = mainCLI;
 
         addModule(new PKCS7CertCLI(this));
+        addModule(new PKCS7ImportCLI(this));
     }
 
     public String getFullName() {
