@@ -25,7 +25,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.ca.CASystemCertClient;
 import org.dogtagpki.cli.CommandCLI;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
@@ -57,6 +59,8 @@ public class CACertSigningExportCLI extends CommandCLI {
         option = new Option(null, "output-file", true, "Output file");
         option.setArgName("file");
         options.addOption(option);
+
+        options.addOption(null, "pkcs7", false, "Export PKCS #7 certificate chain");
     }
 
     public void execute(CommandLine cmd) throws Exception {
@@ -73,14 +77,34 @@ public class CACertSigningExportCLI extends CommandCLI {
         String cert = null;
         byte[] bytes = null;
 
-        if (outputFormat == null || "PEM".equalsIgnoreCase(outputFormat)) {
-            cert = certData.getEncoded();
+        if (cmd.hasOption("pkcs7")) {
 
-        } else if ("DER".equalsIgnoreCase(outputFormat)) {
-            bytes = Cert.parseCertificate(certData.getEncoded());
+            String certChain = certData.getPkcs7CertChain();
+            logger.info("Cert chain:\n" + certChain);
+
+            PKCS7 pkcs7 = new PKCS7(Utils.base64decode(certChain));
+
+            if (outputFormat == null || "PEM".equalsIgnoreCase(outputFormat)) {
+                cert = pkcs7.toPEMString();
+
+            } else if ("DER".equalsIgnoreCase(outputFormat)) {
+                bytes = pkcs7.getBytes();
+
+            } else {
+                throw new Exception("Unsupported format: " + outputFormat);
+            }
 
         } else {
-            throw new Exception("Unsupported format: " + outputFormat);
+
+            if (outputFormat == null || "PEM".equalsIgnoreCase(outputFormat)) {
+                cert = certData.getEncoded();
+
+            } else if ("DER".equalsIgnoreCase(outputFormat)) {
+                bytes = Cert.parseCertificate(certData.getEncoded());
+
+            } else {
+                throw new Exception("Unsupported format: " + outputFormat);
+            }
         }
 
         String outputFile = cmd.getOptionValue("output-file");
