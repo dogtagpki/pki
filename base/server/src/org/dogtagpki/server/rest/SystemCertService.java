@@ -36,7 +36,7 @@ public class SystemCertService extends PKIService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SystemCertService.class);
 
-    public CertData createCertificateData(X509CertImpl cert) throws Exception {
+    public CertData createCertificateData(X509CertImpl cert, byte[] pkcs7bytes) throws Exception {
 
         CertData data = new CertData();
 
@@ -48,14 +48,17 @@ public class SystemCertService extends PKIService {
         Principal subjectDN = cert.getSubjectDN();
         if (subjectDN != null) data.setSubjectDN(subjectDN.toString());
 
-        String b64 = Cert.HEADER + "\n" + Utils.base64encodeMultiLine(cert.getEncoded()) + Cert.FOOTER + "\n";
-        data.setEncoded(b64);
-
         Date notBefore = cert.getNotBefore();
         if (notBefore != null) data.setNotBefore(notBefore.toString());
 
         Date notAfter = cert.getNotAfter();
         if (notAfter != null) data.setNotAfter(notAfter.toString());
+
+        String b64 = Cert.HEADER + "\n" + Utils.base64encodeMultiLine(cert.getEncoded()) + Cert.FOOTER + "\n";
+        data.setEncoded(b64);
+
+        String pkcs7str = Utils.base64encodeSingleLine(pkcs7bytes);
+        data.setPkcs7CertChain(pkcs7str);
 
         return data;
     }
