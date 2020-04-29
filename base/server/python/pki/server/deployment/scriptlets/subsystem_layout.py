@@ -20,6 +20,8 @@
 
 from __future__ import absolute_import
 import logging
+import random
+import string
 
 import pki.server
 import pki.server.instance
@@ -42,6 +44,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return
 
         logger.info('Creating %s subsystem', deployer.mdict['pki_subsystem'])
+
+        # If pki_one_time_pin is not specified, generate a new one
+        if 'pki_one_time_pin' not in deployer.mdict:
+            pin = ''.join(random.choice(string.ascii_letters + string.digits)
+                          for x in range(20))
+            deployer.mdict['pki_one_time_pin'] = pin
+            deployer.mdict['PKI_RANDOM_NUMBER_SLOT'] = pin
 
         instance = self.instance
 

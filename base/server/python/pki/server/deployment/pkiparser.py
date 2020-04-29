@@ -26,11 +26,9 @@ import getpass
 import ldap
 import logging
 import os
-import random
-import string
 import xml.etree.ElementTree as ET
 
-from six.moves import input, range  # pylint: disable=W0622,F0401
+from six.moves import input  # pylint: disable=W0622,F0401
 from six.moves import configparser  # pylint: disable=F0401
 from six.moves.urllib.parse import urlparse  # pylint: disable=F0401,E0611
 
@@ -613,36 +611,6 @@ class PKIConfigParser:
                     self.mdict['pki_subsystem_configuration_path'],
                     "CS.cfg")
 
-            if config.str2bool(self.mdict['pki_external_step_two']) or\
-               config.str2bool(self.mdict['pki_skip_installation']):
-                # For CA (External CA Step 2) and Stand-alone PKI (Step 2),
-                # use the 'pki_one_time_pin' established during the setup
-                # of (Step 1)
-                #
-                # Similarly, if the only code being processed is for
-                # configuration, re-use the 'pki_one_time_pin' generated
-                # during the installation phase
-                #
-                if os.path.exists(self.mdict['pki_target_cs_cfg'])\
-                   and\
-                   os.path.isfile(self.mdict['pki_target_cs_cfg']):
-                    cs_cfg = self.read_simple_configuration_file(
-                        self.mdict['pki_target_cs_cfg'])
-                    self.mdict['pki_one_time_pin'] = \
-                        cs_cfg.get('preop.pin')
-                else:
-                    logger.error(
-                        log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                        self.mdict['pki_target_cs_cfg'])
-                    raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1)
-            else:
-                # Generate a one-time pin to be used prior to configuration
-                # and add this to the "sensitive" key value pairs read in from
-                # the configuration file
-                self.mdict['pki_one_time_pin'] = \
-                    ''.join(random.choice(string.ascii_letters + string.digits)
-                            for x in range(20))
-
             self.mdict['pki_target_server_xml'] = \
                 os.path.join(
                     self.mdict['pki_instance_configuration_path'],
@@ -832,8 +800,6 @@ class PKIConfigParser:
                     "<!--"
             self.mdict['PKI_TMPDIR_SLOT'] = \
                 self.mdict['pki_tomcat_tmpdir_path']
-            self.mdict['PKI_RANDOM_NUMBER_SLOT'] = \
-                self.mdict['pki_one_time_pin']
             self.mdict['PKI_SECURE_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
             self.mdict['PKI_SECURE_PORT_CONNECTOR_NAME_SLOT'] = \

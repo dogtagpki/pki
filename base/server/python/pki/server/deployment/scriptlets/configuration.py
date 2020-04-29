@@ -848,6 +848,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             connection,
             subsystem=deployer.mdict['pki_subsystem_type'])
 
+        # If pki_one_time_pin is not already defined, load from CS.cfg
+        if 'pki_one_time_pin' not in deployer.mdict:
+            deployer.mdict['pki_one_time_pin'] = subsystem.config['preop.pin']
+
         logger.info('Configuring %s subsystem', subsystem.type)
 
         request = deployer.config_client.create_config_request()
