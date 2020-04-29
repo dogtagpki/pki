@@ -28,7 +28,6 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
@@ -37,6 +36,7 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.catalina.realm.GenericPrincipal;
+import org.dogtagpki.server.ca.CAEngine;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -501,6 +501,9 @@ public class CertService extends PKIService implements CertResource {
     }
 
     public CertData getCert(CertRetrievalRequest data, boolean generateNonce) throws Exception {
+
+        CAEngine engine = CAEngine.getInstance();
+
         CertId certId = data.getCertId();
 
         //find the cert in question
@@ -523,7 +526,7 @@ public class CertService extends PKIService implements CertResource {
         CertPrettyPrint print = new CertPrettyPrint(cert);
         certData.setPrettyPrint(print.toString(getLocale(headers)));
 
-        X509Certificate[] certChain = getCertChain(cert);
+        X509Certificate[] certChain = engine.getCertChain(cert);
 
         PKCS7 pkcs7 = new PKCS7(
                 new AlgorithmId[0],
@@ -616,21 +619,5 @@ public class CertService extends PKIService implements CertResource {
         info.setLink(new Link("self", uri));
 
         return info;
-    }
-
-    private X509Certificate[] getCertChain(X509CertImpl x509cert) throws Exception {
-
-        X509Certificate[] mCACerts = authority.getCACertChain().getChain();
-        int mCACertsLength = mCACerts.length;
-
-        if (CertUtils.certInCertChain(mCACerts, x509cert)) {
-            return Arrays.copyOf(mCACerts, mCACerts.length);
-        }
-
-        X509CertImpl[] certsInChain = new X509CertImpl[mCACerts.length + 1];
-        certsInChain[0] = x509cert;
-        System.arraycopy(mCACerts, 0, certsInChain, 1, mCACerts.length);
-
-        return certsInChain;
     }
 }

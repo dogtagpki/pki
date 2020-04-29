@@ -19,6 +19,7 @@
 package org.dogtagpki.server.ca;
 
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
@@ -29,6 +30,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
@@ -75,11 +77,13 @@ public class CAEngine extends CMSEngine {
         CertificateChain caChain = ca.getCACertChain();
         X509Certificate[] caCerts = caChain.getChain();
 
+        if (CertUtils.certInCertChain(caCerts, cert)) {
+            return Arrays.copyOf(caCerts, caCerts.length);
+        }
+
         X509Certificate[] certChain = new X509Certificate[caCerts.length + 1];
         certChain[0] = cert;
-        for (int n = 0; n < caCerts.length; n++) {
-            certChain[n + 1] = caCerts[n];
-        }
+        System.arraycopy(caCerts, 0, certChain, 1, caCerts.length);
 
         return certChain;
     }
