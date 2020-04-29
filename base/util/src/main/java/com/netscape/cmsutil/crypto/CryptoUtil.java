@@ -1090,40 +1090,41 @@ public class CryptoUtil {
         return certs;
     }
 
-    public static void importCertificateChain(byte[] bytes)
-             throws IOException,
-                    NotInitializedException,
-                    TokenException,
-                    CertificateEncodingException,
-                    CertificateException {
+    public static X509Certificate[] importPKCS7(PKCS7 pkcs7) throws Exception {
 
         CryptoManager manager = CryptoManager.getInstance();
 
-        X509Certificate cert = null;
+        java.security.cert.X509Certificate[] pkcs7Certs = pkcs7.getCertificates();
+        X509Certificate[] nssCerts = new X509Certificate[pkcs7Certs.length];
+
+        // sort certs from root to leaf
+        pkcs7Certs = Cert.sortCertificateChain(pkcs7Certs);
+
+        // import certs one by one
+        for (int i = 0; i < pkcs7Certs.length; i++) {
+            nssCerts[i] = manager.importCACertPackage(pkcs7Certs[i].getEncoded());
+        }
+
+        return nssCerts;
+    }
+
+    public static void importCertificateChain(byte[] bytes) throws Exception {
+
+        X509Certificate rootCert;
 
         try {
             // try PKCS7 first
             PKCS7 pkcs7 = new PKCS7(bytes);
-
-            java.security.cert.X509Certificate[] certs = pkcs7.getCertificates();
-
-            if (certs != null) {
-                // import PKCS7 certs one by one
-                for (int i = 0; i < certs.length; i++) {
-                    cert = manager.importCACertPackage(certs[i].getEncoded());
-                }
-            }
+            X509Certificate[] certs = importPKCS7(pkcs7);
+            rootCert = certs[0];
 
         } catch (ParsingException e) {
             // not PKCS7
+            CryptoManager manager = CryptoManager.getInstance();
+            X509Certificate leafCert = manager.importCACertPackage(bytes);
+            X509Certificate[] certs = manager.buildCertificateChain(leafCert);
+            rootCert = certs[certs.length - 1];
         }
-
-        if (cert == null) {
-            cert = manager.importCACertPackage(bytes);
-        }
-
-        X509Certificate[] certs = manager.buildCertificateChain(cert);
-        X509Certificate rootCert = certs[certs.length - 1];
 
         trustCACert(rootCert);
     }
