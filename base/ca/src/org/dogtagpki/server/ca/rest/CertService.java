@@ -28,6 +28,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
@@ -622,23 +623,13 @@ public class CertService extends PKIService implements CertResource {
         X509Certificate[] mCACerts = authority.getCACertChain().getChain();
         int mCACertsLength = mCACerts.length;
 
-        int certsInChainLength;
         if (CertUtils.certInCertChain(mCACerts, x509cert)) {
-            certsInChainLength = mCACertsLength;
-        } else {
-            certsInChainLength = mCACertsLength + 1;
+            return Arrays.copyOf(mCACerts, mCACerts.length);
         }
 
-        X509CertImpl[] certsInChain = new X509CertImpl[certsInChainLength];
+        X509CertImpl[] certsInChain = new X509CertImpl[mCACerts.length + 1];
         certsInChain[0] = x509cert;
-
-        int curCount = 1;
-        for (int i = 0; i < mCACertsLength; i++) {
-            if (!x509cert.equals(mCACerts[i])) {
-                certsInChain[curCount] = (X509CertImpl) mCACerts[i];
-                curCount++;
-            }
-        }
+        System.arraycopy(mCACerts, 0, certsInChain, 1, mCACerts.length);
 
         return certsInChain;
     }
