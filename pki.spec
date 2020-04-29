@@ -218,8 +218,8 @@ BuildRequires:  python3-pytest-runner
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.6.0
-BuildRequires:    tomcatjss >= 7.4.1
+BuildRequires:    jss >= 4.7.0
+BuildRequires:    tomcatjss >= 7.5.0
 BuildRequires:    systemd-units
 
 %if 0%{?rhel}
@@ -335,7 +335,7 @@ Summary:          PKI Symmetric Key Package
 
 Requires:         java-1.8.0-openjdk-headless
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.6.0
+Requires:         jss >= 4.7.0
 Requires:         nss >= 3.38.0
 
 # Ensure we end up with a useful installation
@@ -413,7 +413,7 @@ Requires:         glassfish-jaxb-api
 Requires:         slf4j
 Requires:         slf4j-jdk14
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.6.0
+Requires:         jss >= 4.7.0
 Requires:         ldapjdk >= 4.21.0
 Requires:         pki-base = %{version}
 
@@ -498,7 +498,7 @@ Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
-Requires:         tomcatjss >= 7.4.1
+Requires:         tomcatjss >= 7.5.0
 
 # pki-healthcheck depends on the following library
 %if 0%{?rhel}
