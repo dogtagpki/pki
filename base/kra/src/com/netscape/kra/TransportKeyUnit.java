@@ -60,6 +60,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
     // private RSAPrivateKey mPrivateKey = null;
     private IConfigStore mConfig = null;
     private org.mozilla.jss.crypto.X509Certificate mCert = null;
+    private org.mozilla.jss.crypto.X509Certificate[] chain;
     private org.mozilla.jss.crypto.X509Certificate mNewCert = null;
     private CryptoManager mManager = null;
 
@@ -96,6 +97,8 @@ public class TransportKeyUnit extends EncryptionUnit implements
 
             mManager = CryptoManager.getInstance();
             mCert = mManager.findCertByNickname(nickname);
+            chain = mManager.buildCertificateChain(mCert);
+
             String algo = config.getString("signingAlgorithm", "SHA256withRSA");
 
             // #613795 - initialize this; otherwise JSS is not happy
@@ -202,6 +205,10 @@ public class TransportKeyUnit extends EncryptionUnit implements
      */
     public org.mozilla.jss.crypto.X509Certificate getCertificate() {
         return mCert;
+    }
+
+    public org.mozilla.jss.crypto.X509Certificate[] getChain() {
+        return chain;
     }
 
     public org.mozilla.jss.crypto.X509Certificate getNewCertificate() {
