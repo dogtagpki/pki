@@ -110,6 +110,7 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.PKCS9Attribute;
 import org.mozilla.jss.netscape.security.pkcs.ParsingException;
@@ -1615,6 +1616,17 @@ public class CryptoUtil {
         cert.setSSLTrust(flag);
         cert.setObjectSigningTrust(flag);
         cert.setEmailTrust(flag);
+    }
+
+    public static void setTrustFlags(X509Certificate cert, String trustFlags) throws Exception {
+
+        String[] flags = trustFlags.split(",", -1); // don't remove empty string
+        if (flags.length < 3) throw new Exception("Invalid trust flags: " + trustFlags);
+
+        InternalCertificate internalCert = (InternalCertificate) cert;
+        internalCert.setSSLTrust(PKCS12.decodeFlags(flags[0]));
+        internalCert.setEmailTrust(PKCS12.decodeFlags(flags[1]));
+        internalCert.setObjectSigningTrust(PKCS12.decodeFlags(flags[2]));
     }
 
     public static void trustCACert(X509Certificate cert) {

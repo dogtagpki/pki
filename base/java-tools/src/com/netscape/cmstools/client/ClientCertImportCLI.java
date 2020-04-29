@@ -32,9 +32,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -291,18 +289,6 @@ public class ClientCertImportCLI extends CommandCLI {
         }
     }
 
-    public void setTrustAttributes(X509Certificate cert, String trustAttributes)
-            throws Exception {
-
-        String[] flags = trustAttributes.split(",", -1); // don't remove empty string
-        if (flags.length < 3) throw new Exception("Invalid trust attributes: " + trustAttributes);
-
-        InternalCertificate internalCert = (InternalCertificate) cert;
-        internalCert.setSSLTrust(PKCS12.decodeFlags(flags[0]));
-        internalCert.setEmailTrust(PKCS12.decodeFlags(flags[1]));
-        internalCert.setObjectSigningTrust(PKCS12.decodeFlags(flags[2]));
-    }
-
     public void importCert(
             File dbPath,
             File dbPasswordFile,
@@ -363,7 +349,7 @@ public class ClientCertImportCLI extends CommandCLI {
 
         CryptoManager manager = CryptoManager.getInstance();
         X509Certificate cert = manager.importCACertPackage(binCert);
-        setTrustAttributes(cert, trustAttributes);
+        CryptoUtil.setTrustFlags(cert, trustAttributes);
 
         System.out.println("Imported certificate \"" + cert.getNickname() + "\"");
     }
@@ -420,7 +406,7 @@ public class ClientCertImportCLI extends CommandCLI {
 
         if (trustAttributes != null) {
             logger.info("Setting trust attributes to " + trustAttributes);
-            setTrustAttributes(cert, trustAttributes);
+            CryptoUtil.setTrustFlags(cert, trustAttributes);
         }
 
         X509Certificate[] chain = manager.buildCertificateChain(cert);
@@ -433,7 +419,7 @@ public class ClientCertImportCLI extends CommandCLI {
         X509Certificate root = chain[chain.length - 1];
         logger.info("Root certificate: " + root.getNickname());
         logger.info("Setting trust attributes to CT,C,C");
-        setTrustAttributes(root, "CT,C,C");
+        CryptoUtil.setTrustFlags(root, "CT,C,C");
 
         System.out.println("Imported certificate \"" + nickname + "\"");
     }
