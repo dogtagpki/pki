@@ -769,6 +769,19 @@ public class ACMEEngine implements ServletContextListener {
             if (generalName instanceof DNSName) {
                 String dnsName = ((DNSName) generalName).getValue();
                 dnsNames.add(dnsName.toLowerCase());
+            } else {
+                // Unrecognised identifier type
+                //
+                // We cannot allow this to pass through, otherwise a CSR
+                // with unvalidated SAN values will be passed along to the
+                // CA, and these are likely to be accepted as-is.
+                //
+                // This is also required by RFC 8555 §7.4:
+                //
+                //    The CSR MUST indicate the exact same set of requested
+                //    identifiers as the initial newOrder request.
+                //
+                throw new Exception("Unauthorized identifier: " + generalName.toString());
             }
         }
     }
