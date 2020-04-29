@@ -726,16 +726,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.config['service.securityDomainPort'] = securePort
 
         hierarchy = subsystem.config.get('hierarchy.select')
-        if not (subsystem.type == 'CA' and hierarchy == 'Root'):
+        issuing_ca = deployer.mdict['pki_issuing_ca']
 
-            issuing_ca = deployer.mdict['pki_issuing_ca']
+        if not (subsystem.type == 'CA' and hierarchy == 'Root'):
 
             if issuing_ca == 'External CA':
 
                 logger.info('Using external CA')
 
                 subsystem.config['preop.ca.type'] = 'otherca'
-                subsystem.config['preop.ca.pkcs7'] = ''
 
                 if subsystem.type == 'CA':
                     subsystem.config['preop.cert.signing.type'] = 'remote'
@@ -755,6 +754,23 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 if subsystem.type == 'CA':
                     subsystem.config['preop.cert.signing.type'] = 'remote'
                     subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
+
+        system_certs_imported = \
+            deployer.mdict['pki_server_pkcs12_path'] != '' or \
+            deployer.mdict['pki_clone_pkcs12_path'] != ''
+
+        if not (subsystem.type == 'CA' and hierarchy == 'Root'):
+
+            if issuing_ca == 'External CA':
+                subsystem.config['preop.ca.pkcs7'] = ''
+
+            elif not clone and not system_certs_imported:
+
+                logger.info('Retrieving CA certificate chain from %s', issuing_ca)
+
+                pem_chain = self.get_cert_chain(instance, issuing_ca)
+                base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
+                subsystem.config['preop.ca.pkcs7'] = base64_chain
 
         subsystem.save()
 

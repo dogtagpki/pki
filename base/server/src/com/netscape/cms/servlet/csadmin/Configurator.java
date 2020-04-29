@@ -289,12 +289,6 @@ public class Configurator {
 
             PKCS7 chain = caClient.getCertChain();
             CryptoUtil.importPKCS7(chain);
-
-            PreOpConfig preopConfig = cs.getPreOpConfig();
-            String b64chain = Utils.base64encodeSingleLine(chain.getBytes());
-            preopConfig.putString("ca.pkcs7", b64chain);
-
-            cs.commit(false);
         }
     }
 
