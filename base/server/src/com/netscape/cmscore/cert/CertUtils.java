@@ -1282,4 +1282,14 @@ public class CertUtils {
     protected void audit(LogEvent event) {
         signedAuditLogger.log(event);
     }
+
+    public static boolean certInCertChain(X509Certificate[] certChain, X509Certificate cert) {
+
+        for (X509Certificate c : certChain) {
+            if (!cert.equals(c)) continue;
+            return true;
+        }
+
+        return false;
+    }
 }

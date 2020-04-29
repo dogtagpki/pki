@@ -620,18 +620,10 @@ public class CertService extends PKIService implements CertResource {
     private X509Certificate[] getCertChain(X509CertImpl x509cert) throws Exception {
 
         X509Certificate[] mCACerts = authority.getCACertChain().getChain();
-
-        boolean certAlreadyInChain = false;
         int mCACertsLength = mCACerts.length;
-        for (int i = 0; i < mCACertsLength; i++) {
-            if (x509cert.equals(mCACerts[i])) {
-                certAlreadyInChain = true;
-                break;
-            }
-        }
 
         int certsInChainLength;
-        if (certAlreadyInChain) {
+        if (CertUtils.certInCertChain(mCACerts, x509cert)) {
             certsInChainLength = mCACertsLength;
         } else {
             certsInChainLength = mCACertsLength + 1;
