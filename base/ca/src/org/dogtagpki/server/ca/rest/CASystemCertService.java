@@ -23,11 +23,16 @@ import java.net.URI;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.ca.CASystemCertResource;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.dogtagpki.server.rest.SystemCertService;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
@@ -35,8 +40,6 @@ import com.netscape.ca.SigningUnit;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author alee
@@ -47,14 +50,22 @@ public class CASystemCertService extends SystemCertService implements CASystemCe
 
     public Response getSigningCert() throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         SigningUnit su = (SigningUnit) ca.getSigningUnit();
 
         X509Certificate signingCert = su.getCert();
         X509CertImpl cert = new X509CertImpl(signingCert.getEncoded());
+        java.security.cert.X509Certificate[] certChain = engine.getCertChain(cert);
 
-        CertData certData = createCertificateData(cert);
+        PKCS7 pkcs7 = new PKCS7(new AlgorithmId[0],
+                new ContentInfo(new byte[0]),
+                certChain,
+                new SignerInfo[0]);
+
+        byte[] pkcs7bytes = pkcs7.getBytes();
+
+        CertData certData = createCertificateData(cert, pkcs7bytes);
 
         URI uri = uriInfo.getRequestUri();
         certData.setLink(new Link("self", uri));
@@ -64,14 +75,23 @@ public class CASystemCertService extends SystemCertService implements CASystemCe
 
     public Response getTransportCert() throws Exception {
 
+        CAEngine engine = CAEngine.getInstance();
         KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
         KRAConnectorInfo info = processor.getConnectorInfo();
 
         String encodedCert = info.getTransportCert();
         byte[] bytes = Utils.base64decode(encodedCert);
         X509CertImpl cert = new X509CertImpl(bytes);
+        java.security.cert.X509Certificate[] certChain = engine.getCertChain(cert);
 
-        CertData certData = createCertificateData(cert);
+        PKCS7 pkcs7 = new PKCS7(new AlgorithmId[0],
+                new ContentInfo(new byte[0]),
+                certChain,
+                new SignerInfo[0]);
+
+        byte[] pkcs7bytes = pkcs7.getBytes();
+
+        CertData certData = createCertificateData(cert, pkcs7bytes);
 
         URI uri = uriInfo.getRequestUri();
         certData.setLink(new Link("self", uri));
