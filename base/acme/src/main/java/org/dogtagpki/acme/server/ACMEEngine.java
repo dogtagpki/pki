@@ -682,12 +682,27 @@ public class ACMEEngine implements ServletContextListener {
             logger.info("- " + dnsName);
         }
 
+        // RFC 8555 §7.4 says: The CSR MUST indicate the exact same
+        // set of requested identifiers as the initial newOrder request.
+
+        // check for unauthorized names in CSR
         Set<String> unauthorizedDNSNames = new HashSet<>(dnsNames);
         unauthorizedDNSNames.removeAll(authorizedDNSNames);
-
         if (!unauthorizedDNSNames.isEmpty()) {
             // TODO: generate proper exception
-            throw new Exception("Unauthorized DNS names: " + StringUtils.join(unauthorizedDNSNames, ", "));
+            throw new Exception(
+                "Unauthorized DNS names: "
+                + StringUtils.join(unauthorizedDNSNames, ", "));
+        }
+
+        // check for authorized names missing from CSR
+        Set<String> extraAuthorizedDNSNames = new HashSet<>(authorizedDNSNames);
+        extraAuthorizedDNSNames.removeAll(dnsNames);
+        if (!extraAuthorizedDNSNames.isEmpty()) {
+            // TODO: generate proper exception
+            throw new Exception(
+                "Missing DNS names from order: "
+                + StringUtils.join(extraAuthorizedDNSNames, ", "));
         }
 
         // TODO: validate other things in CSR
