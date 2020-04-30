@@ -275,20 +275,6 @@ public class Configurator {
         int port = url.getPort();
 
         if (!request.isClone() && !request.getSystemCertsImported()) {
-
-            logger.info("Importing certificate chain from issuing CA");
-
-            ConfigCertApprovalCallback callback = new ConfigCertApprovalCallback();
-            // Ignore untrusted/unknown issuer to get cert chain.
-            callback.ignoreError(ValidityStatus.UNTRUSTED_ISSUER);
-            callback.ignoreError(ValidityStatus.UNKNOWN_ISSUER);
-
-            String serverURL = "https://" + hostname + ":" + port;
-            PKIClient client = createClient(serverURL, null, callback);
-            CAClient caClient = new CAClient(client);
-
-            PKCS7 chain = caClient.getCertChain();
-            CryptoUtil.importPKCS7(chain);
         }
     }
 
