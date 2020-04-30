@@ -31,10 +31,12 @@ import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.net.ntp.TimeStamp;
@@ -44,6 +46,7 @@ import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -884,8 +887,8 @@ public class CAService implements ICAService, IService {
                 logger.debug(method + " About to ca.sign CT pre-cert.");
                 cert = ca.sign(certi, algname);
 
-                // compose JSON request
-                String ct_json_request = composeJSONrequest(cert);
+                // compose CTRequest
+                CTRequest ctRequest = createCTRequest(cert);
 
                 // submit to CT log(s)
                 // TODO: retrieve certTrans config and submit to designated CT logs
@@ -898,7 +901,7 @@ public class CAService implements ICAService, IService {
                     String ct_uri = "http://ct.googleapis.com/testtube/ct/v1/add-pre-chain";
 
                     respS = certTransSendReq(
-                            ct_host, ct_port, ct_uri, ct_json_request);
+                            ct_host, ct_port, ct_uri, ctRequest);
 
                     // verify the sct: TODO - not working, need to fix
                     verifySCT(CTResponse.fromJSON(respS), cert.getTBSCertificate());
@@ -1210,54 +1213,51 @@ public class CAService implements ICAService, IService {
      * @param leaf cert
      * @return JSON request in String
      */
-    String composeJSONrequest(X509CertImpl cert) {
-        String method = "CAService.composeJSONrequest";
+    CTRequest createCTRequest(X509CertImpl cert) {
+        String method = "CAService.createCTRequest";
 
-        // JSON request
-        String ct_json_request_begin = "{\"chain\":[\"";
-        String ct_json_request_end = "\"]}";
-        String ct_json_request = ct_json_request_begin;
+        CTRequest ctRequest = new CTRequest();
+
+        List<String> certChain = new ArrayList<>();
 
         // Create chain, leaf first
         ByteArrayOutputStream certOut = new ByteArrayOutputStream();
         CertificateChain caCertChain = mCA.getCACertChain();
-        X509Certificate[] cacerts = caCertChain.getChain();
+        X509Certificate[] caUnsortedCerts = caCertChain.getChain();
 
         try {
             // first, leaf cert;
             cert.encode(certOut);
             byte[] certBytes = certOut.toByteArray();
             certOut.reset();
-            ct_json_request += Utils.base64encode(certBytes, false);
+            certChain.add(Utils.base64encode(certBytes, false));
 
-            // then ca chain;
-            // TODO: need to make sure they are in order
-            //       I believe they are; should test
-            for (int n = 0; n < cacerts.length; n++) {
-                ct_json_request += "\",\"";
-                X509CertImpl caCertInChain = (X509CertImpl) cacerts[n];
+            // then add the ca chain, in order (from subCAs to root);
+            X509Certificate[] caSortedCerts = Cert.sortCertificateChain(caUnsortedCerts, true);
+            for (int n = 0; n < caSortedCerts.length; n++) {
+                X509CertImpl caCertInChain = (X509CertImpl) caSortedCerts[n];
                 caCertInChain.encode(certOut);
                 certBytes = certOut.toByteArray();
                 certOut.reset();
                 logger.debug(method + "caCertInChain " + n + " = " +
                         Utils.base64encode(certBytes, false));
-                ct_json_request += Utils.base64encode(certBytes, false);
-;
+                certChain.add(Utils.base64encode(certBytes, false));
             }
             certOut.close();
-            ct_json_request += ct_json_request_end;
-            logger.debug(method + " ct_json_request:" + ct_json_request);
+
+            ctRequest.setCerts(certChain);
+            logger.debug(method + " ct_json_request:" + ctRequest.toString());
         } catch (Exception e) {
             logger.debug(method + e.toString());
         }
-        return ct_json_request;
+        return ctRequest;
     }
 
     /**
      * (Certificate Transparency)
      * certTransSendReq connects to CT host and send ct request
      */
-    private String certTransSendReq(String ct_host, int ct_port, String ct_uri, String ctReq) {
+    private String certTransSendReq(String ct_host, int ct_port, String ct_uri, CTRequest ctReq) {
         HttpClient client = new HttpClient();
         HttpRequest req = new HttpRequest();
         HttpResponse resp = null;
@@ -1268,8 +1268,8 @@ public class CAService implements ICAService, IService {
             req.setMethod("POST");
             req.setURI(ct_uri);
             req.setHeader("Content-Type", "application/json");
-            req.setContent(ctReq);
-            req.setHeader("Content-Length", Integer.toString(ctReq.length()));
+            req.setContent(ctReq.toString());
+            req.setHeader("Content-Length", Integer.toString(ctReq.toString().length()));
 
             resp = client.send(req);
             logger.debug("version " + resp.getHttpVers());
