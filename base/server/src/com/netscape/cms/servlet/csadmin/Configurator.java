@@ -349,26 +349,6 @@ public class Configurator {
         String b64chain = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(certchain));
         preopConfig.putString(tag + ".pkcs7", b64chain);
 
-        java.security.cert.X509Certificate[] certs = CryptoUtil.getX509CertificateFromPKCS7(certchain);
-
-        if (certs == null) {
-            logger.debug("Configurator: no certificate chain");
-            preopConfig.putInteger(tag + ".certchain.size", 0);
-
-        } else {
-            preopConfig.putInteger(tag + ".certchain.size", certs.length);
-
-            logger.debug("Configurator: certificate chain:");
-            for (int i = 0; i < certs.length; i++) {
-                java.security.cert.X509Certificate cert = certs[i];
-                logger.debug("Configurator: - " + cert.getSubjectDN());
-
-                byte[] certBytes = cert.getEncoded();
-                String b64cert = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(certBytes));
-                preopConfig.putString(tag + ".certchain." + i, b64cert);
-            }
-        }
-
         cs.commit(false);
     }
 

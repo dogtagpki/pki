@@ -716,7 +716,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 subsystem.config['preop.ca.type'] = 'otherca'
                 subsystem.config['preop.ca.pkcs7'] = ''
-                subsystem.config['preop.ca.certchain.size'] = '0'
 
                 if subsystem.type == 'CA':
                     subsystem.config['preop.cert.signing.type'] = 'remote'

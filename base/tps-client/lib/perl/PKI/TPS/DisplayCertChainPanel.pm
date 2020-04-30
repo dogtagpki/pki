@@ -89,7 +89,6 @@ sub update
     my $caCert = readFile("$instanceDir/conf/caCert.txt");
 
     #store in config
-    $::config->put("preop.ca.certchain", $caCert);
     $::config->commit();
 
     # import it into the security database

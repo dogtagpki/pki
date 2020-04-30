@@ -92,7 +92,6 @@ sub update
     my $caCert = extract_cert_from_file_sans_header_and_footer("$instanceDir/conf/caCertChain2.txt");
 
     #store in config
-    $::config->put("preop.ca.certchain", $caCert);
     $::config->commit();
     # import it into the security database
     my $tmp = `p7tool -d $instanceDir/alias -p $instanceDir/conf/chain2cert -a -i $instanceDir/conf/caCertChain2.txt -o $instanceDir/conf/CAchain2_pp.txt`;
