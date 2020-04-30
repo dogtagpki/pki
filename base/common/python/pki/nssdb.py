@@ -1479,9 +1479,31 @@ class NSSDatabase(object):
     def import_pkcs7(
             self,
             pkcs7_file,
-            nickname,
+            nickname=None,
             token=None,
             trust_attributes=None):
+
+        if not nickname:
+
+            # Import certificate chain without nickname
+
+            cmd = ['pki', '-d', self.directory]
+
+            if self.internal_password_file:
+                cmd.extend(['-C', self.internal_password_file])
+
+            cmd.extend(['pkcs7-import', '--input-file', pkcs7_file])
+
+            if trust_attributes:
+                cmd.extend(['--trust-flags', trust_attributes])
+
+            logger.debug('Command: %s', ' '.join(map(str, cmd)))
+
+            subprocess.run(cmd, check=True)
+
+            return
+
+        # Import certificate chain with nickname
 
         tmpdir = tempfile.mkdtemp()
 
