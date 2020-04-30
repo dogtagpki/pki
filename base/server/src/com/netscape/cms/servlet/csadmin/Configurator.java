@@ -295,8 +295,17 @@ public class Configurator {
         int port = url.getPort();
 
         if (!request.isClone() && !request.getSystemCertsImported()) {
+
+            logger.info("Importing certificate chain from issuing CA");
+
             byte[] certchain = getCertChain(hostname, port);
-            importCertChain(certchain, "ca");
+            CryptoUtil.importCertificateChain(certchain);
+
+            PreOpConfig preopConfig = cs.getPreOpConfig();
+            String b64chain = Utils.base64encodeSingleLine(certchain);
+            preopConfig.putString("ca.pkcs7", b64chain);
+
+            cs.commit(false);
         }
     }
 
@@ -335,21 +344,6 @@ public class Configurator {
         }
 
         return CryptoUtil.base64Decode(CryptoUtil.normalizeCertStr(certchain));
-    }
-
-    public void importCertChain(byte[] certchain, String tag)
-            throws Exception {
-
-        logger.info("Importing cert chain for " + tag);
-
-        CryptoUtil.importCertificateChain(certchain);
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String b64chain = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(certchain));
-        preopConfig.putString(tag + ".pkcs7", b64chain);
-
-        cs.commit(false);
     }
 
     public String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
@@ -515,9 +509,15 @@ public class Configurator {
         preopConfig.putString("master.httpsadminport", masterAdminPort);
 
         if (csType.equals("CA") && !request.getSystemCertsImported()) {
-            logger.debug("SystemConfigService: import certificate chain from master");
+
+            logger.info("Importing certificate chain from CA master");
+
             byte[] certchain = getCertChain(masterHostname, Integer.parseInt(masterAdminPort));
-            importCertChain(certchain, "clone");
+            CryptoUtil.importCertificateChain(certchain);
+
+            String b64chain = Utils.base64encodeSingleLine(certchain);
+            preopConfig.putString("clone.pkcs7", b64chain);
+            cs.commit(false);
         }
 
         if (csType.equals("CA") || csType.equals("KRA")) {
