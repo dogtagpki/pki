@@ -471,11 +471,9 @@ public class Configurator {
 
             PKCS7 chain = caClient.getCertChain();
             CryptoUtil.importPKCS7(chain);
-
-            String b64chain = Utils.base64encodeSingleLine(chain.getBytes());
-            preopConfig.putString("clone.pkcs7", b64chain);
-            cs.commit(false);
         }
+
+        cs.commit(false);
 
         if (csType.equals("CA") || csType.equals("KRA")) {
             setupNumberRanges(sessionID, masterHost);

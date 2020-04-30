@@ -772,6 +772,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
                 subsystem.config['preop.ca.pkcs7'] = base64_chain
 
+        if subsystem.type == 'CA' and clone and not system_certs_imported:
+
+            clone_uri = deployer.mdict['pki_clone_uri']
+
+            logger.info('Retrieving CA certificate chain from %s', clone_uri)
+
+            pem_chain = self.get_cert_chain(instance, clone_uri)
+            base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
+            subsystem.config['preop.clone.pkcs7'] = base64_chain
+
         subsystem.save()
 
         if config.str2bool(deployer.mdict['pki_ds_remove_data']):
