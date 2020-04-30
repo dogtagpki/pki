@@ -25,6 +25,7 @@ from cryptography.x509.oid import NameOID
 import logging
 import os
 import shutil
+import subprocess
 import tempfile
 import urllib.parse
 
@@ -525,6 +526,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             nssdb.close()
             shutil.rmtree(tmpdir)
+
+    def get_cert_chain(self, instance, url):
+
+        cmd = [
+            'pki',
+            '-d', instance.nssdb_dir,
+            '-f', instance.password_conf,
+            '-U', url,
+            '--ignore-cert-status', 'UNTRUSTED_ISSUER',
+            'ca-cert-signing-export',
+            '--pkcs7'
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+
+        # TODO: Replace stdout/stderr with capture_output in Python 3.7.
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+
+        return result.stdout.decode()
 
     def spawn(self, deployer):
 
