@@ -28,6 +28,7 @@ except ImportError:
     import ConfigParser as configparser
 
 import errno
+import getpass
 import logging
 import sys
 import os
@@ -1714,11 +1715,8 @@ class Password:
                 token_pwd = tokens[token_name]
 
         if token_pwd is None or token_pwd == '':
-            self.deployer.parser.read_password(
-                'Password for token {}'.format(token_name),
-                self.deployer.subsystem_name,
-                'token_pwd')
-            token_pwd = self.mdict['token_pwd']
+            token_pwd = getpass.getpass('Password for token {}'.format(token_name))
+
         return token_pwd
 
 
