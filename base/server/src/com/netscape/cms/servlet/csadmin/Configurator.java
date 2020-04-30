@@ -67,7 +67,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
-import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -83,7 +82,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
@@ -441,23 +439,6 @@ public class Configurator {
         preopConfig.putString("master.hostname", masterHostname);
         preopConfig.putInteger("master.httpsport", masterPort);
         preopConfig.putString("master.httpsadminport", masterAdminPort);
-
-        if (csType.equals("CA") && !request.getSystemCertsImported()) {
-
-            logger.info("Importing certificate chain from CA master");
-
-            ConfigCertApprovalCallback callback = new ConfigCertApprovalCallback();
-            // Ignore untrusted/unknown issuer to get cert chain.
-            callback.ignoreError(ValidityStatus.UNTRUSTED_ISSUER);
-            callback.ignoreError(ValidityStatus.UNKNOWN_ISSUER);
-
-            String serverURL = "https://" + masterHostname + ":" + masterAdminPort;
-            PKIClient client = createClient(serverURL, null, callback);
-            CAClient caClient = new CAClient(client);
-
-            PKCS7 chain = caClient.getCertChain();
-            CryptoUtil.importPKCS7(chain);
-        }
 
         cs.commit(false);
 

@@ -790,6 +790,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
             subsystem.config['preop.clone.pkcs7'] = base64_chain
 
+            logger.info('Importing CA certificate chain')
+
+            nssdb = instance.open_nssdb()
+            try:
+                nssdb.import_pkcs7(pkcs7_data=pem_chain, trust_attributes='CT,C,C')
+            finally:
+                nssdb.close()
+
         subsystem.save()
 
         if config.str2bool(deployer.mdict['pki_ds_remove_data']):
