@@ -254,28 +254,6 @@ public class Configurator {
         return installToken;
     }
 
-    public void configureCACertChain(ConfigurationRequest request) throws Exception {
-
-        String csType = cs.getType();
-        String hierarchy = cs.getString("hierarchy.select", null);
-
-        if (csType.equals("CA") && hierarchy.equals("Root")) {
-            return;
-        }
-
-        String issuingCA = request.getIssuingCA();
-        if (issuingCA.equals("External CA")) {
-            return;
-        }
-
-        URL url = new URL(issuingCA);
-        String hostname = url.getHost();
-        int port = url.getPort();
-
-        if (!request.isClone() && !request.getSystemCertsImported()) {
-        }
-    }
-
     public String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
 
         String csType = cs.getType();

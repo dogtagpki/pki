@@ -118,9 +118,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.debug("=== Security Domain Configuration ===");
             configurator.configureSecurityDomain(request);
 
-            logger.debug("=== Configure CA Cert Chain ===");
-            configurator.configureCACertChain(request);
-
             cs.commit(false);
 
         } catch (PKIException e) { // normal responses
