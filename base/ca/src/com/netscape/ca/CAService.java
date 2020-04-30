@@ -31,10 +31,12 @@ import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.net.ntp.TimeStamp;
@@ -73,9 +75,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -888,8 +887,8 @@ public class CAService implements ICAService, IService {
                 logger.debug(method + " About to ca.sign CT pre-cert.");
                 cert = ca.sign(certi, algname);
 
-                // compose JSON request
-                String ct_json_request = composeJSONrequest(cert);
+                // compose CTRequest
+                CTRequest ctRequest = createCTRequest(cert);
 
                 // submit to CT log(s)
                 // TODO: retrieve certTrans config and submit to designated CT logs
@@ -902,7 +901,7 @@ public class CAService implements ICAService, IService {
                     String ct_uri = "http://ct.googleapis.com/testtube/ct/v1/add-pre-chain";
 
                     respS = certTransSendReq(
-                            ct_host, ct_port, ct_uri, ct_json_request);
+                            ct_host, ct_port, ct_uri, ctRequest);
 
                     // verify the sct: TODO - not working, need to fix
                     verifySCT(CTResponse.fromJSON(respS), cert.getTBSCertificate());
@@ -1214,26 +1213,24 @@ public class CAService implements ICAService, IService {
      * @param leaf cert
      * @return JSON request in String
      */
-    String composeJSONrequest(X509CertImpl cert) {
-        String method = "CAService.composeJSONrequest";
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayNode certChainArray = mapper.createArrayNode();
-        ObjectNode certChain = mapper.createObjectNode();
-        String ctJsonRequest = "";
+    CTRequest createCTRequest(X509CertImpl cert) {
+        String method = "CAService.createCTRequest";
+
+        CTRequest ctRequest = new CTRequest();
+
+        List<String> certChain = new ArrayList<>();
 
         // Create chain, leaf first
         ByteArrayOutputStream certOut = new ByteArrayOutputStream();
         CertificateChain caCertChain = mCA.getCACertChain();
         X509Certificate[] caUnsortedCerts = caCertChain.getChain();
 
-
         try {
             // first, leaf cert;
             cert.encode(certOut);
             byte[] certBytes = certOut.toByteArray();
             certOut.reset();
-
-            certChainArray.add(Utils.base64encode(certBytes, false));
+            certChain.add(Utils.base64encode(certBytes, false));
 
             // then add the ca chain, in order (from subCAs to root);
             X509Certificate[] caSortedCerts = Cert.sortCertificateChain(caUnsortedCerts, true);
@@ -1244,26 +1241,23 @@ public class CAService implements ICAService, IService {
                 certOut.reset();
                 logger.debug(method + "caCertInChain " + n + " = " +
                         Utils.base64encode(certBytes, false));
-                certChainArray.add(Utils.base64encode(certBytes, false));
+                certChain.add(Utils.base64encode(certBytes, false));
             }
             certOut.close();
 
-            certChain.set("chain", certChainArray);
-
-            ctJsonRequest = mapper.writeValueAsString(certChain);
-
-            logger.debug(method + " ct_json_request:" + ctJsonRequest);
+            ctRequest.setCerts(certChain);
+            logger.debug(method + " ct_json_request:" + ctRequest.toString());
         } catch (Exception e) {
             logger.debug(method + e.toString());
         }
-        return ctJsonRequest;
+        return ctRequest;
     }
 
     /**
      * (Certificate Transparency)
      * certTransSendReq connects to CT host and send ct request
      */
-    private String certTransSendReq(String ct_host, int ct_port, String ct_uri, String ctReq) {
+    private String certTransSendReq(String ct_host, int ct_port, String ct_uri, CTRequest ctReq) {
         HttpClient client = new HttpClient();
         HttpRequest req = new HttpRequest();
         HttpResponse resp = null;
@@ -1274,8 +1268,8 @@ public class CAService implements ICAService, IService {
             req.setMethod("POST");
             req.setURI(ct_uri);
             req.setHeader("Content-Type", "application/json");
-            req.setContent(ctReq);
-            req.setHeader("Content-Length", Integer.toString(ctReq.length()));
+            req.setContent(ctReq.toString());
+            req.setHeader("Content-Length", Integer.toString(ctReq.toString().length()));
 
             resp = client.send(req);
             logger.debug("version " + resp.getHttpVers());
