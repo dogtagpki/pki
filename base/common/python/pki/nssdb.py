@@ -1436,13 +1436,13 @@ class NSSDatabase(object):
                 )
 
             elif file_type == 'pkcs7':  # import PKCS #7 cert chain
-                chain, nicks = self.import_pkcs7(
+                chain = self.import_pkcs7(
                     pkcs7_file=cert_chain_file,
                     nickname=nickname,
                     token=token,
                     trust_attributes=trust_attributes,
                     output_format='base64')
-                return chain, nicks
+                return chain, [nickname]
 
             else:  # import PKCS #7 data without header/footer
                 with open(cert_chain_file, 'r') as f:
@@ -1460,13 +1460,13 @@ class NSSDatabase(object):
                 with open(tmp_cert_chain_file, 'w') as f:
                     f.write(pkcs7_data)
 
-                chain, nicks = self.import_pkcs7(
+                chain = self.import_pkcs7(
                     pkcs7_file=tmp_cert_chain_file,
                     nickname=nickname,
                     token=token,
                     trust_attributes=trust_attributes)
 
-                return base64_data, nicks
+                return base64_data, [nickname]
 
         finally:
             shutil.rmtree(tmpdir)
@@ -1526,7 +1526,7 @@ class NSSDatabase(object):
         with open(pkcs7_file, 'r') as f:
             data = f.read()
 
-        return convert_pkcs7(data, 'pem', output_format), [nickname]
+        return convert_pkcs7(data, 'pem', output_format)
 
     def import_pkcs12(self, pkcs12_file,
                       pkcs12_password=None,
