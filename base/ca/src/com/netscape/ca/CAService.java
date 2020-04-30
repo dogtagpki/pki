@@ -44,6 +44,7 @@ import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -72,6 +73,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -1212,45 +1216,47 @@ public class CAService implements ICAService, IService {
      */
     String composeJSONrequest(X509CertImpl cert) {
         String method = "CAService.composeJSONrequest";
-
-        // JSON request
-        String ct_json_request_begin = "{\"chain\":[\"";
-        String ct_json_request_end = "\"]}";
-        String ct_json_request = ct_json_request_begin;
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode certChainArray = mapper.createArrayNode();
+        ObjectNode certChain = mapper.createObjectNode();
+        String ctJsonRequest = "";
 
         // Create chain, leaf first
         ByteArrayOutputStream certOut = new ByteArrayOutputStream();
         CertificateChain caCertChain = mCA.getCACertChain();
-        X509Certificate[] cacerts = caCertChain.getChain();
+        X509Certificate[] caUnsortedCerts = caCertChain.getChain();
+
 
         try {
             // first, leaf cert;
             cert.encode(certOut);
             byte[] certBytes = certOut.toByteArray();
             certOut.reset();
-            ct_json_request += Utils.base64encode(certBytes, false);
 
-            // then ca chain;
-            // TODO: need to make sure they are in order
-            //       I believe they are; should test
-            for (int n = 0; n < cacerts.length; n++) {
-                ct_json_request += "\",\"";
-                X509CertImpl caCertInChain = (X509CertImpl) cacerts[n];
+            certChainArray.add(Utils.base64encode(certBytes, false));
+
+            // then add the ca chain, in order (from subCAs to root);
+            X509Certificate[] caSortedCerts = Cert.sortCertificateChain(caUnsortedCerts, true);
+            for (int n = 0; n < caSortedCerts.length; n++) {
+                X509CertImpl caCertInChain = (X509CertImpl) caSortedCerts[n];
                 caCertInChain.encode(certOut);
                 certBytes = certOut.toByteArray();
                 certOut.reset();
                 logger.debug(method + "caCertInChain " + n + " = " +
                         Utils.base64encode(certBytes, false));
-                ct_json_request += Utils.base64encode(certBytes, false);
-;
+                certChainArray.add(Utils.base64encode(certBytes, false));
             }
             certOut.close();
-            ct_json_request += ct_json_request_end;
-            logger.debug(method + " ct_json_request:" + ct_json_request);
+
+            certChain.set("chain", certChainArray);
+
+            ctJsonRequest = mapper.writeValueAsString(certChain);
+
+            logger.debug(method + " ct_json_request:" + ctJsonRequest);
         } catch (Exception e) {
             logger.debug(method + e.toString());
         }
-        return ct_json_request;
+        return ctJsonRequest;
     }
 
     /**
