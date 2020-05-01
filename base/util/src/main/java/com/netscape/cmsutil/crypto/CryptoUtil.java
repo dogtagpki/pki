@@ -1105,28 +1105,30 @@ public class CryptoUtil {
             nssCerts[i] = manager.importCACertPackage(pkcs7Certs[i].getEncoded());
         }
 
+        X509Certificate rootCACert = nssCerts[0];
+        trustCACert(rootCACert);
+
         return nssCerts;
     }
 
     public static void importCertificateChain(byte[] bytes) throws Exception {
 
-        X509Certificate rootCert;
-
         try {
             // try PKCS7 first
             PKCS7 pkcs7 = new PKCS7(bytes);
-            X509Certificate[] certs = importPKCS7(pkcs7);
-            rootCert = certs[0];
+            importPKCS7(pkcs7);
 
         } catch (ParsingException e) {
             // not PKCS7
+
             CryptoManager manager = CryptoManager.getInstance();
+
             X509Certificate leafCert = manager.importCACertPackage(bytes);
             X509Certificate[] certs = manager.buildCertificateChain(leafCert);
-            rootCert = certs[certs.length - 1];
-        }
 
-        trustCACert(rootCert);
+            X509Certificate rootCert = certs[certs.length - 1];
+            trustCACert(rootCert);
+        }
     }
 
     public static SEQUENCE parseCRMFMsgs(byte cert_request[])
