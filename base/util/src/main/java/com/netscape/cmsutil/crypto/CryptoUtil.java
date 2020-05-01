@@ -1090,7 +1090,7 @@ public class CryptoUtil {
         return certs;
     }
 
-    public static X509Certificate[] importPKCS7(PKCS7 pkcs7) throws Exception {
+    public static X509Certificate[] importPKCS7(PKCS7 pkcs7, String nickname) throws Exception {
 
         CryptoManager manager = CryptoManager.getInstance();
 
@@ -1102,13 +1102,32 @@ public class CryptoUtil {
 
         // import certs one by one
         for (int i = 0; i < pkcs7Certs.length; i++) {
-            nssCerts[i] = manager.importCACertPackage(pkcs7Certs[i].getEncoded());
+
+            java.security.cert.X509Certificate pkcs7Cert = pkcs7Certs[i];
+            byte[] bytes = pkcs7Cert.getEncoded();
+
+            if (i == 0) {
+                // root CA cert
+                nssCerts[i] = manager.importCACertPackage(bytes);
+
+            } else if (i < pkcs7Certs.length - 1 || nickname == null) {
+                // intermediate CA cert
+                nssCerts[i] = manager.importCACertPackage(bytes);
+
+            } else {
+                // leaf cert
+                nssCerts[i] = manager.importCertPackage(bytes, nickname);
+            }
         }
 
         X509Certificate rootCACert = nssCerts[0];
         trustCACert(rootCACert);
 
         return nssCerts;
+    }
+
+    public static X509Certificate[] importPKCS7(PKCS7 pkcs7) throws Exception {
+        return importPKCS7(pkcs7, null);
     }
 
     public static void importCertificateChain(byte[] bytes) throws Exception {
