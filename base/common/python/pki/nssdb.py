@@ -1478,7 +1478,8 @@ class NSSDatabase(object):
 
     def import_pkcs7(
             self,
-            pkcs7_file,
+            pkcs7_data=None,
+            pkcs7_file=None,
             nickname=None,
             token=None,
             trust_attributes=None):
@@ -1492,14 +1493,22 @@ class NSSDatabase(object):
             if self.internal_password_file:
                 cmd.extend(['-C', self.internal_password_file])
 
-            cmd.extend(['pkcs7-import', '--input-file', pkcs7_file])
+            cmd.extend(['pkcs7-import'])
+
+            if pkcs7_file:
+                cmd.extend(['--input-file', pkcs7_file])
 
             if trust_attributes:
                 cmd.extend(['--trust-flags', trust_attributes])
 
             logger.debug('Command: %s', ' '.join(map(str, cmd)))
 
-            subprocess.run(cmd, check=True)
+            if pkcs7_data:
+                data = pkcs7_data.encode('utf-8')
+            else:
+                data = None
+
+            subprocess.run(cmd, input=data, check=True)
 
             return
 
