@@ -1090,7 +1090,10 @@ public class CryptoUtil {
         return certs;
     }
 
-    public static X509Certificate[] importPKCS7(PKCS7 pkcs7, String nickname) throws Exception {
+    public static X509Certificate[] importPKCS7(
+            PKCS7 pkcs7,
+            String nickname,
+            String trustFlags) throws Exception {
 
         CryptoManager manager = CryptoManager.getInstance();
 
@@ -1123,11 +1126,16 @@ public class CryptoUtil {
         X509Certificate rootCACert = nssCerts[0];
         trustCACert(rootCACert);
 
+        if (trustFlags != null) {
+            X509Certificate leafCert = nssCerts[nssCerts.length - 1];
+            setTrustFlags(leafCert, trustFlags);
+        }
+
         return nssCerts;
     }
 
     public static X509Certificate[] importPKCS7(PKCS7 pkcs7) throws Exception {
-        return importPKCS7(pkcs7, null);
+        return importPKCS7(pkcs7, null, null);
     }
 
     public static void importCertificateChain(byte[] bytes) throws Exception {
