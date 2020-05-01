@@ -29,7 +29,7 @@ public class PKCS7ImportCLI extends CommandCLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...] [nickname]", options);
     }
 
     public void createOptions() {
@@ -43,6 +43,15 @@ public class PKCS7ImportCLI extends CommandCLI {
     }
 
     public void execute(CommandLine cmd) throws Exception {
+
+        String[] cmdArgs = cmd.getArgs();
+
+        String nickname;
+        if (cmdArgs.length > 0) {
+            nickname = cmdArgs[0];
+        } else {
+            nickname = null;
+        }
 
         String filename = cmd.getOptionValue("input-file");
 
@@ -59,7 +68,7 @@ public class PKCS7ImportCLI extends CommandCLI {
         PKCS7 pkcs7 = new PKCS7(str);
         X509Certificate[] certs = pkcs7.getCertificates();
 
-        org.mozilla.jss.crypto.X509Certificate[] nssCerts = CryptoUtil.importPKCS7(pkcs7);
+        org.mozilla.jss.crypto.X509Certificate[] nssCerts = CryptoUtil.importPKCS7(pkcs7, nickname, null);
         org.mozilla.jss.crypto.X509Certificate rootCert = nssCerts[0];
 
         String trustFlags = cmd.getOptionValue("trust-flags");
