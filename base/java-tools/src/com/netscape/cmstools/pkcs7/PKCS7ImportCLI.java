@@ -7,7 +7,6 @@ package com.netscape.cmstools.pkcs7;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.cert.X509Certificate;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -38,7 +37,7 @@ public class PKCS7ImportCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "trust-flags", true, "Root certificate trust flags");
+        option = new Option(null, "trust-flags", true, "Trust flags");
         option.setArgName("flags");
         options.addOption(option);
     }
@@ -55,6 +54,7 @@ public class PKCS7ImportCLI extends CommandCLI {
         }
 
         String filename = cmd.getOptionValue("input-file");
+        String trustFlags = cmd.getOptionValue("trust-flags");
 
         String input;
         if (filename == null) {
@@ -70,14 +70,6 @@ public class PKCS7ImportCLI extends CommandCLI {
         mainCLI.init();
 
         PKCS7 pkcs7 = new PKCS7(input);
-        X509Certificate[] certs = pkcs7.getCertificates();
-
-        org.mozilla.jss.crypto.X509Certificate[] nssCerts = CryptoUtil.importPKCS7(pkcs7, nickname, null);
-        org.mozilla.jss.crypto.X509Certificate rootCert = nssCerts[0];
-
-        String trustFlags = cmd.getOptionValue("trust-flags");
-        if (trustFlags != null) {
-            CryptoUtil.setTrustFlags(rootCert, trustFlags);
-        }
+        CryptoUtil.importPKCS7(pkcs7, nickname, trustFlags);
     }
 }
