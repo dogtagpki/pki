@@ -359,69 +359,11 @@ public class ClientCertImportCLI extends CommandCLI {
             String nickname,
             String trustAttributes) throws Exception {
 
-        if (nickname == null) {
-            throw new Exception("Missing certificate nickname");
-        }
-
         logger.info("Loading PKCS #7 data from " + pkcs7Path);
         String str = new String(Files.readAllBytes(Paths.get(pkcs7Path))).trim();
+
         PKCS7 pkcs7 = new PKCS7(str);
-
-        java.security.cert.X509Certificate[] certs = pkcs7.getCertificates();
-        if (certs == null || certs.length == 0) {
-            logger.info("No certificates to import");
-            return;
-        }
-
-        // sort certs from leaf to root
-        certs = CryptoUtil.sortCertificateChain(certs, true);
-
-        CryptoManager manager = CryptoManager.getInstance();
-
-        // Import certs with preferred nicknames.
-        // NOTE: JSS/NSS may assign different nickname.
-
-        List<X509Certificate> importedCerts = new ArrayList<>();
-        int i = 0;
-
-        for (java.security.cert.X509Certificate cert : certs) {
-
-            String preferredNickname = nickname + (i == 0 ? "" : " #" + (i + 1));
-            logger.info("Importing certificate " + preferredNickname + ": " + cert.getSubjectDN());
-
-            X509Certificate importedCert = manager.importCertPackage(cert.getEncoded(), preferredNickname);
-            importedCerts.add(importedCert);
-
-            String importedNickname = importedCert.getNickname();
-            logger.info("Certificate imported as " + importedNickname);
-
-            if (importedNickname.equals(preferredNickname)) {
-                // Cert was imported with preferred nickname, increment counter.
-                i++;
-            }
-        }
-
-        X509Certificate cert = importedCerts.get(0);
-        logger.info("Leaf certificate: " + cert.getNickname());
-
-        if (trustAttributes != null) {
-            logger.info("Setting trust attributes to " + trustAttributes);
-            CryptoUtil.setTrustFlags(cert, trustAttributes);
-        }
-
-        X509Certificate[] chain = manager.buildCertificateChain(cert);
-        if (chain.length == 1 && trustAttributes != null) {
-            // Cert has no parent cert and is already trusted.
-            return;
-        }
-
-        // Trust root cert.
-        X509Certificate root = chain[chain.length - 1];
-        logger.info("Root certificate: " + root.getNickname());
-        logger.info("Setting trust attributes to CT,C,C");
-        CryptoUtil.setTrustFlags(root, "CT,C,C");
-
-        System.out.println("Imported certificate \"" + nickname + "\"");
+        CryptoUtil.importPKCS7(pkcs7, nickname, trustAttributes);
     }
 
     public void importPKCS12(
