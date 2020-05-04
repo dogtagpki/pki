@@ -73,7 +73,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import com.netscape.certsrv.account.AccountClient;
@@ -84,6 +83,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
@@ -285,48 +285,17 @@ public class Configurator {
 
             String serverURL = "https://" + hostname + ":" + port;
             PKIClient client = createClient(serverURL, null, callback);
+            CAClient caClient = new CAClient(client);
 
-            byte[] certchain = getCertChain(client);
-            CryptoUtil.importCertificateChain(certchain);
+            PKCS7 chain = caClient.getCertChain();
+            CryptoUtil.importPKCS7(chain);
 
             PreOpConfig preopConfig = cs.getPreOpConfig();
-            String b64chain = Utils.base64encodeSingleLine(certchain);
+            String b64chain = Utils.base64encodeSingleLine(chain.getBytes());
             preopConfig.putString("ca.pkcs7", b64chain);
 
             cs.commit(false);
         }
-    }
-
-    public byte[] getCertChain(PKIClient client) throws Exception {
-
-        ClientConfig config = client.getConfig();
-        URL serverURL = config.getServerURL();
-        logger.info("Getting certificate chain from " + serverURL);
-
-        String c = client.get("/ca/admin/ca/getCertChain");
-        logger.debug("Response: " + c);
-
-        if (c == null) {
-            throw new IOException("Unable to get certificate chain from " + serverURL);
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-
-        XMLObject parser;
-        try {
-            parser = new XMLObject(bis);
-        } catch (SAXException e) {
-            logger.error("Unable to parse XML response: " + e, e);
-            throw e;
-        }
-
-        String certchain = parser.getValue("ChainBase64");
-
-        if (certchain == null || certchain.length() <= 0) {
-            throw new IOException("Missing certificate chain");
-        }
-
-        return CryptoUtil.base64Decode(CryptoUtil.normalizeCertStr(certchain));
     }
 
     public String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
@@ -504,11 +473,12 @@ public class Configurator {
 
             String serverURL = "https://" + masterHostname + ":" + masterAdminPort;
             PKIClient client = createClient(serverURL, null, callback);
+            CAClient caClient = new CAClient(client);
 
-            byte[] certchain = getCertChain(client);
-            CryptoUtil.importCertificateChain(certchain);
+            PKCS7 chain = caClient.getCertChain();
+            CryptoUtil.importPKCS7(chain);
 
-            String b64chain = Utils.base64encodeSingleLine(certchain);
+            String b64chain = Utils.base64encodeSingleLine(chain.getBytes());
             preopConfig.putString("clone.pkcs7", b64chain);
             cs.commit(false);
         }
