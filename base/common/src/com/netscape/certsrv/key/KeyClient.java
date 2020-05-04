@@ -81,7 +81,7 @@ public class KeyClient extends Client {
     private Version getServerVersion() {
         Version ret = null;
         try {
-            Info info = client.infoClient.getInfo();
+            Info info = client.getInfo();
             String version = info.getVersion();
             ret = new Version(version);
         } catch (Exception e) {

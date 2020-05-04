@@ -26,14 +26,17 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -53,6 +56,7 @@ public class PKIClient {
     public PKIConnection connection;
     public CryptoProvider crypto;
     public InfoClient infoClient;
+    public Info info;
 
     Collection<Integer> rejectedCertStatuses = new HashSet<Integer>();
     Collection<Integer> ignoredCertStatuses = new HashSet<Integer>();
@@ -61,17 +65,24 @@ public class PKIClient {
     Collection<Integer> statuses = new HashSet<Integer>();
 
     public PKIClient(ClientConfig config) throws URISyntaxException {
-        this(config, null);
+        this(config, null, null);
     }
 
     public PKIClient(ClientConfig config, CryptoProvider crypto) throws URISyntaxException {
+        this(config, null, null);
+    }
+
+    public PKIClient(ClientConfig config, CryptoProvider crypto, SSLCertificateApprovalCallback callback) throws URISyntaxException {
         this.config = config;
         this.crypto = crypto;
 
         connection = new PKIConnection(config);
-        connection.setCallback(new PKICertificateApprovalCallback(this));
 
-        infoClient = new InfoClient(this);
+        if (callback == null) {
+            callback = new PKICertificateApprovalCallback(this);
+        }
+
+        connection.setCallback(callback);
     }
 
     public <T> T createProxy(String subsystem, Class<T> clazz) throws URISyntaxException {
@@ -124,6 +135,22 @@ public class PKIClient {
 
     public PKIConnection getConnection() {
         return connection;
+    }
+
+    public String get(String path) throws Exception {
+        return connection.get(path, String.class);
+    }
+
+    public String post(String path, MultivaluedMap<String, String> content) throws Exception {
+        return connection.post(path, content);
+    }
+
+    public Info getInfo() throws Exception {
+        if (infoClient == null) {
+            infoClient = new InfoClient(this);
+            info = infoClient.getInfo();
+        }
+        return info;
     }
 
     public byte[] downloadCACertChain(String serverURI) throws ParserConfigurationException, SAXException, IOException {
