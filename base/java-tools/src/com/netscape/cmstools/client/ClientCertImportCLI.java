@@ -21,7 +21,6 @@ package com.netscape.cmstools.client;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -35,7 +34,6 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
@@ -223,34 +221,16 @@ public class ClientCertImportCLI extends CommandCLI {
 
         } else if (importFromCAServer) {
 
+            logger.info("Importing CA certificate from " + mainCLI.getConfig().getServerURL());
+
             PKIClient client = getClient();
-            URI serverURI = mainCLI.config.getServerURL().toURI();
-
-            String caServerURI = serverURI.getScheme() + "://" +
-                serverURI.getHost() + ":" + serverURI.getPort() + "/ca";
-
-            logger.info("Importing CA certificate from " + caServerURI);
-            byte[] bytes = client.downloadCACertChain(caServerURI);
-
-            File certFile = File.createTempFile("pki-client-cert-import-", ".crt");
-            certFile.deleteOnExit();
-
-            try (FileWriter fw = new FileWriter(certFile);
-                    PrintWriter out = new PrintWriter(fw)) {
-                out.println(PKCS7.HEADER);
-                out.print(Utils.base64encode(bytes, true));
-                out.println(PKCS7.FOOTER);
-            }
+            CAClient caClient = new CAClient(client);
+            PKCS7 chain = caClient.getCertChain();
 
             if (trustAttributes == null)
                 trustAttributes = "CT,C,C";
 
-            importCert(
-                    mainCLI.certDatabase,
-                    nssdbPasswordFile,
-                    certFile.getAbsolutePath(),
-                    nickname,
-                    trustAttributes);
+            CryptoUtil.importPKCS7(chain, nickname, trustAttributes);
 
         } else if (serialNumber != null) {
 
