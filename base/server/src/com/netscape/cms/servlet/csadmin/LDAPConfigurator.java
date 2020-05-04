@@ -76,6 +76,14 @@ public class LDAPConfigurator {
         params.put("dbuser", dbuser);
     }
 
+    public LDAPConfigurator(LDAPConnection connection, String instanceId, String caIssuerDN, LDAPConfig ldapConfig)
+            throws Exception {
+
+        this(connection,instanceId, ldapConfig);
+        params.put("caIssuerDN", caIssuerDN);
+
+    }
+
     public LDAPConnection getConnection() {
         return connection;
     }
@@ -146,6 +154,37 @@ public class LDAPConfigurator {
     public void createVLVIndexes(String subsystem) throws Exception {
         logger.info("Creating VLV indexes");
         importFile("/usr/share/pki/" + subsystem + "/conf/vlv.ldif", true);
+    }
+
+    public void createAdditionalVLVIndexes(String subsystem, String vlvLdifFileName) throws Exception {
+        logger.info("Creating additional  VLV indexes in file: ", vlvLdifFileName);
+
+        importFile("/usr/share/pki/" + subsystem + "/conf/" + vlvLdifFileName,true);
+    }
+
+    public void rebuildAdditionalVLVIndexes(String subsystem, String vlvTasksFileName) throws Exception {
+        logger.info("Rebuilding Additional VLV indexes in file: ", vlvTasksFileName);
+
+        File file = new File("/usr/share/pki/" + subsystem + "/conf/" + vlvTasksFileName);
+        File tmpFile = File.createTempFile("pki-" + subsystem + "-reindex-additional", ".ldif");
+
+        try {
+            customizeFile(file, tmpFile);
+
+            LDIF ldif = new LDIF(tmpFile.getAbsolutePath());
+            LDIFRecord record = ldif.nextRecord();
+            if (record == null)
+                return;
+
+            importLDIFRecord(record, false);
+
+            String dn = record.getDN();
+            waitForTask(dn);
+
+        } finally {
+            tmpFile.delete();
+        }
+
     }
 
     public void rebuildVLVIndexes(String subsystem) throws Exception {

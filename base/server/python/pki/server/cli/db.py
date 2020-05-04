@@ -806,6 +806,19 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
         print('Usage: pki-server %s-db-upgrade [OPTIONS]' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        if self.parent.parent.name == "ca":
+            print('      --action <action>              update-vlv-indexes or:')
+            print('                                         fix-missing-issuer-names')
+            print('                                         (default: fix-missing-issuer-names)')
+            print('      --issuer_dn <Issuer DN>        CA signing cert issuer dn')
+            print('                                         required only for update-vlv-indexes')
+            print('      --vlv-file <VLV File>          LDIF file with desired vlv indexes')
+            print('                                         required only for update-vlv-indexes')
+            print('      --vlv-tasks-file <VLV Tasks>   LDIF file with desired vlv tasks')
+            print('                                         required only for update-vlv-indexes')
+        else:
+            print('      --action <action>              fix-missing-issuer-names')
+            print('                                         (default: fix-missing-issuer-names)')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -816,7 +829,8 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'as-current-user',
+                'as-current-user', "action=", "issuer-dn=",
+                'vlv-file=', 'vlv-tasks-file=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -831,6 +845,7 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
         cmd = [subsystem_name + '-db-upgrade']
 
         for o, a in opts:
+            logging.info('opt %s', o)
             if o in ('-i', '--instance'):
                 instance_name = a
 
@@ -848,6 +863,20 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
             elif o == '--help':
                 self.print_help()
                 sys.exit()
+
+            elif o == '--issuer-dn':
+                logging.info('--issuer-dn')
+                cmd.extend(['--issuer-dn', a])
+
+            elif o == '--action':
+                logging.info('--action')
+                cmd.extend(['--action', a])
+
+            elif o == '--vlv-file':
+                cmd.extend(['--vlv-file', a])
+
+            elif o == '--vlv-tasks-file':
+                cmd.extend(['--vlv-tasks-file', a])
 
             else:
                 logging.error('Invalid option: %s', o)
@@ -868,5 +897,4 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
             logging.error('No %s subsystem in instance %s.',
                           subsystem_name.upper(), instance_name)
             sys.exit(1)
-
         subsystem.run(cmd, as_current_user=as_current_user)

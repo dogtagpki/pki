@@ -1,0 +1,15 @@
+dn: cn=allRevokedCertsByIssuer-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allRevokedCertsByIssuer-{instanceId}
+vlvBase: ou=certificateRepository,ou=ca,{rootSuffix}
+vlvScope: 1
+vlvFilter: (&(certStatus=REVOKED)(|(!(issuerName=*))(issuerName={caIssuerDN}))) 
+
+dn: cn=allRevokedCertsByIssuer-{instanceId}Index, cn=allRevokedCerts-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allRevokedCertsByIssuer-{instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0

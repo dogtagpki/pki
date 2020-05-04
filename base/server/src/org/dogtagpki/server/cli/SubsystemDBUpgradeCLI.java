@@ -117,7 +117,7 @@ public class SubsystemDBUpgradeCLI extends CommandCLI {
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 
         try {
-            upgrade(ldapConfig, conn);
+            upgrade(instanceId, ldapConfig, conn);
 
         } finally {
             conn.disconnect();
@@ -126,6 +126,6 @@ public class SubsystemDBUpgradeCLI extends CommandCLI {
         System.out.println(parent.parent.name.toUpperCase() + " database upgraded");
     }
 
-    public void upgrade(LDAPConfig ldapConfig, LdapBoundConnection conn) throws Exception {
+    public void upgrade(String instanceId,LDAPConfig ldapConfig, LdapBoundConnection conn) throws Exception {
     }
 }

@@ -1,0 +1,7 @@
+dn: cn=index1160589779, cn=index, cn=tasks, cn=config
+objectclass: top
+objectclass: extensibleObject
+cn: index1160589779
+ttl: 10
+nsinstance: {database}
+nsindexVLVAttribute: allRevokedCertsByIssuer-{instanceId}
