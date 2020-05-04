@@ -45,7 +45,6 @@ import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.common.Info;
-import org.dogtagpki.common.InfoClient;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.Level;
@@ -123,6 +122,10 @@ public class MainCLI extends CLI {
         addModule(new PKCS12CLI(this));
 
         createOptions();
+    }
+
+    public ClientConfig getConfig() {
+        return config;
     }
 
     public File getNSSDatabase() {
@@ -448,10 +451,6 @@ public class MainCLI extends CLI {
         logger.info("Message format: " + messageFormat);
     }
 
-    public ClientConfig getConfig() {
-        return config;
-    }
-
     public void convertCertStatusList(String list, Collection<Integer> statuses) throws Exception {
 
         if (list == null) return;
@@ -584,7 +583,7 @@ public class MainCLI extends CLI {
 
         if (client != null) return client;
 
-        logger.info("Initializing PKIClient");
+        logger.info("Connecting to " + config.getServerURL());
 
         client = new PKIClient(config, null);
         client.setRejectedCertStatuses(rejectedCertStatuses);
@@ -598,13 +597,15 @@ public class MainCLI extends CLI {
             connection.setOutput(file);
         }
 
-        if (!ignoreBanner) {
+        try {
+            Info info = client.getInfo();
 
-            InfoClient infoClient = new InfoClient(client);
-            Info info = infoClient.getInfo();
+            logger.info("Server Name: " + info.getName());
+            logger.info("Server Version: " + info.getVersion());
+
             String banner = info.getBanner();
 
-            if (banner != null) {
+            if (banner != null && !ignoreBanner) {
 
                 System.out.println(banner);
                 System.out.println();
@@ -618,6 +619,9 @@ public class MainCLI extends CLI {
                     throw new CLIException();
                 }
             }
+
+        } catch (Exception e) {
+            logger.warn("Unable to get server info: " + e.getMessage());
         }
 
         return client;
