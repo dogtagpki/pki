@@ -278,7 +278,15 @@ public class Configurator {
 
             logger.info("Importing certificate chain from issuing CA");
 
-            byte[] certchain = getCertChain(hostname, port);
+            ConfigCertApprovalCallback callback = new ConfigCertApprovalCallback();
+            // Ignore untrusted/unknown issuer to get cert chain.
+            callback.ignoreError(ValidityStatus.UNTRUSTED_ISSUER);
+            callback.ignoreError(ValidityStatus.UNKNOWN_ISSUER);
+
+            String serverURL = "https://" + hostname + ":" + port;
+            PKIClient client = createClient(serverURL, null, callback);
+
+            byte[] certchain = getCertChain(client);
             CryptoUtil.importCertificateChain(certchain);
 
             PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -289,17 +297,12 @@ public class Configurator {
         }
     }
 
-    public byte[] getCertChain(String host, int port) throws Exception {
+    public byte[] getCertChain(PKIClient client) throws Exception {
 
-        String serverURL = "https://" + host + ":" + port;
+        ClientConfig config = client.getConfig();
+        URL serverURL = config.getServerURL();
         logger.info("Getting certificate chain from " + serverURL);
 
-        ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
-        // Ignore untrusted/unknown issuer to get cert chain.
-        certApprovalCallback.ignoreError(ValidityStatus.UNTRUSTED_ISSUER);
-        certApprovalCallback.ignoreError(ValidityStatus.UNKNOWN_ISSUER);
-
-        PKIClient client = createClient(serverURL, null, certApprovalCallback);
         String c = client.get("/ca/admin/ca/getCertChain");
         logger.debug("Response: " + c);
 
@@ -494,7 +497,15 @@ public class Configurator {
 
             logger.info("Importing certificate chain from CA master");
 
-            byte[] certchain = getCertChain(masterHostname, Integer.parseInt(masterAdminPort));
+            ConfigCertApprovalCallback callback = new ConfigCertApprovalCallback();
+            // Ignore untrusted/unknown issuer to get cert chain.
+            callback.ignoreError(ValidityStatus.UNTRUSTED_ISSUER);
+            callback.ignoreError(ValidityStatus.UNKNOWN_ISSUER);
+
+            String serverURL = "https://" + masterHostname + ":" + masterAdminPort;
+            PKIClient client = createClient(serverURL, null, callback);
+
+            byte[] certchain = getCertChain(client);
             CryptoUtil.importCertificateChain(certchain);
 
             String b64chain = Utils.base64encodeSingleLine(certchain);
