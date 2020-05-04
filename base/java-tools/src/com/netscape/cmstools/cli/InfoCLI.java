@@ -9,7 +9,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.common.Info;
-import org.dogtagpki.common.InfoClient;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -33,21 +32,21 @@ public class InfoCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
-        ClientConfig config = client.getConfig();
-        InfoClient infoClient = new InfoClient(client);
-        Info info = infoClient.getInfo();
+        ClientConfig config = mainCLI.getConfig();
+        System.out.println("  Server URL: " + config.getServerURL());
 
-        System.out.println("  Server: " + config.getServerURL());
+        PKIClient client = mainCLI.getClient();
+        Info info = client.getInfo();
+        if (info == null) return;
 
         String name = info.getName();
         if (!StringUtils.isEmpty(name)) {
-            System.out.println("  Name: " + name);
+            System.out.println("  Server Name: " + name);
         }
 
         String version = info.getVersion();
         if (!StringUtils.isEmpty(version)) {
-            System.out.println("  Version: " + version);
+            System.out.println("  Server Version: " + version);
         }
     }
 }
