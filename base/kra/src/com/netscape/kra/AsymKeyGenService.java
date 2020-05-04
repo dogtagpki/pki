@@ -102,9 +102,7 @@ public class AsymKeyGenService implements IService {
         boolean isEC = false;
         String errmsg ="";
 
-        if (algorithm.toUpperCase().equals("RSA"))
-            keySize = Integer.valueOf(keySizeStr);
-        else {
+        if (algorithm.toUpperCase().equals("EC")) {
             isEC = true;
             switch (keySizeStr) {
                case "nistp256":
@@ -127,6 +125,8 @@ public class AsymKeyGenService implements IService {
                         errmsg));
                     throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + errmsg);
             }
+        } else {
+            keySize = Integer.valueOf(keySizeStr);
         }
 
         String realm = request.getRealm();

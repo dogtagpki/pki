@@ -168,7 +168,6 @@ public class RecoveryService implements IService {
                 isSSKeygen = true;
                 CryptoToken token = CryptoUtil.getKeyStorageToken("internal");
 
-                // serverKeygenP12Pass = request.getExtDataInString("serverSideKeygenP12Passwd");
                 byte[] sessionWrappedPassphrase = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdEnc");
                 if (sessionWrappedPassphrase == null) {
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "Server-Side Keygen Enroll Key Retrieval: sessionWrappedPassphrase not found in Request"));
@@ -210,16 +209,21 @@ public class RecoveryService implements IService {
                         ivps, sessionWrappedPassphrase, unwrappedSessionKey,
                         encryptAlgorithm);
                 serverKeygenP12Pass = new String(passphrase, "UTF-8");
-                // TODO: do this after it's done being used later:
-                // CryptoUtil.obscureBytes(serverKeygenP12Pass, "random");
+                CryptoUtil.obscureBytes(passphrase, "random");
             }
         } catch (Exception e) {
             CMS.debug("RecoveryService exception: use internal token :"
                     + e.toString());
             ct = cm.getInternalCryptoToken();
+        } finally {
+            // delete SSK items from request
+            request.setExtData("serverSideKeygenP12PasswdTransSession", "");
+            request.setExtData("serverSideKeygenP12PasswdEnc", "");
+            request.deleteExtData("serverSideKeygenP12PasswdTransSession");
+            request.deleteExtData("serverSideKeygenP12PasswdEnc");
         }
         if (ct == null) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "cannot get crypto token"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND" + "cannot get crypto token"));
         }
 
         IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
@@ -349,6 +353,7 @@ public class RecoveryService implements IService {
                 //We don't need this data any more
                 JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(privateKeyData);
+
             }
 
             if (statsSub != null) {
@@ -384,13 +389,28 @@ public class RecoveryService implements IService {
             }
         }
 
-        // cfu
         if (isSSKeygen) {
             CMS.debug("RecoveryService: putting p12 in request");
             byte[] p12b = (byte[])params.get(ATTR_PKCS12);
             // IEnrollProfile.REQUEST_ISSUED_P12
             request.setExtData("req_issued_p12" /*ATTR_PKCS12*/, p12b);
+
+            // if key archival is not enabled, delete the key record.
+            // for Server-Side keygen enrollment, key archival is determined
+            // by the enableArchival parameter in the enrollment profiile:
+            // e.g.
+            //     policyset.userCertSet.3.default.params.enableArchival
+            // Note that if the enableArchival parameter does not exist in
+            // the profile, the default value to that is set to *false*
+            // in the request in ServerKeygenUserKeyDefault
+            boolean isArchival = request.getExtDataInBoolean(IRequest.SERVER_SIDE_KEYGEN_ENROLL_ENABLE_ARCHIVAL, true);
+            if (isArchival) {
+                CMS.debug("RecoveryService: serviceRequest: Server-Side Keygen isArchival true, key record kept");
+            } else
+                mStorage.deleteKeyRecord(serialno);   
+                CMS.debug("RecoveryService: serviceRequest: Server-Side Keygen isArchival false, key record not kept");
         }
+ 
         mKRA.log(ILogger.LL_INFO, "key " +
                 serialno.toString() +
                 " recovered");

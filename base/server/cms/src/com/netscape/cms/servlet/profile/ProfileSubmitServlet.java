@@ -20,6 +20,8 @@ package com.netscape.cms.servlet.profile;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -202,8 +204,41 @@ public class ProfileSubmitServlet extends ProfileServlet {
             args.set(ARG_ERROR_CODE, "0");
             args.set(ARG_ERROR_REASON, "");
 
-            outputTemplate(request, response, args);
+            //outputTemplate(request, response, args);
+            try {
+                //CMS.debug("ProfileSubmitServlet: p12 output process begins");
+                String p12Str = reqs[0].getExtDataInString("req_issued_p12");
+                if (p12Str == null) {
+                    // not server-side keygen
+                    // CMS.debug("ProfileProcessServlet:cfu: no p12; not server-side keygen");
+                    outputTemplate(request, response, args);
+                } else {
+                    // found pkcs12 blob
+                    //CMS.debug("ProfileProcessServlet: found p12 " /* + p12Str*/);
+                    byte[] p12blob = null;
+                    HttpServletResponse p12_response = cmsReq.getHttpResp();
+                    p12blob = Utils.base64decode(p12Str);
+                    OutputStream bos = p12_response.getOutputStream();
+                    p12_response.setContentType("application/x-pkcs12");
+                    p12_response.setContentLength(p12blob.length);
+                    p12_response.setHeader("Content-disposition", "attachment; filename="+  "serverKeyGenCert.p12");
+                    bos.write(p12blob);
+                    bos.flush();
+                    bos.close();
+                }
+            } catch (IOException e) {
+                CMS.debug(e);
+                setError(args, e.getMessage(), request, response);
+                return;
+            }
         }
+    }
+
+    private void setError(ArgSet args, String reason, HttpServletRequest request, HttpServletResponse response)
+            throws EBaseException {
+        args.set(ARG_ERROR_CODE, "1");
+        args.set(ARG_ERROR_REASON, reason);
+        outputTemplate(request, response, args);
     }
 
     public HashMap<String, Object> processEnrollment(CMSRequest cmsReq) throws EBaseException {
