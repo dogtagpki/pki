@@ -131,8 +131,25 @@ public class CAEnrollProfile extends EnrollProfile {
         // if PKI Archive Option present, send this request
         // to DRM
         byte optionsData[] = request.getExtDataInByteArray(REQUEST_ARCHIVE_OPTIONS);
+        byte[] transWrappedSessionKey = null;
+        byte[] sessionWrappedPassphrase = null;
         if (isSSKeygen) { // Server-Side Keygen enrollment
             request.setExtData(IRequest.SSK_STAGE, IRequest.SSK_STAGE_KEYGEN);
+
+            /*
+             * temporarily remove the items not needed for SSK_STAGE_KEYGEN
+             * so not to pass them to KRA.
+             * They will be put back at SSK_STAGE_KEY_RETRIEVE below
+             */
+            transWrappedSessionKey = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdTransSession");
+
+            sessionWrappedPassphrase = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdEnc");
+
+            request.setExtData("serverSideKeygenP12PasswdTransSession", "");
+            request.deleteExtData("serverSideKeygenP12PasswdTransSession");
+            request.setExtData("serverSideKeygenP12PasswdEnc", "");
+            request.deleteExtData("serverSideKeygenP12PasswdEnc");
+
             try {
                 IConnector kraConnector = caService.getKRAConnector();
 
@@ -326,6 +343,11 @@ public class CAEnrollProfile extends EnrollProfile {
             request.setExtData(IRequest.REQ_STATUS, "begin");
             request.setExtData("requestType", "recovery");
             request.setExtData("cert", theCert); //recognized by kra
+
+            // putting them back
+            request.setExtData("serverSideKeygenP12PasswdEnc", sessionWrappedPassphrase);
+            request.setExtData("serverSideKeygenP12PasswdTransSession", transWrappedSessionKey);
+
             try {
                 IConnector kraConnector = caService.getKRAConnector();
 
@@ -376,6 +398,12 @@ public class CAEnrollProfile extends EnrollProfile {
                     throw (ERejectException) e;
                 }
                 throw new EProfileException(e);
+            } finally {
+                // cfu TODO: clean them 
+                    request.setExtData("serverSideKeygenP12PasswdTransSession", "");
+                    request.deleteExtData("serverSideKeygenP12PasswdTransSession");
+                    request.setExtData("serverSideKeygenP12PasswdEnc", "");
+                    request.deleteExtData("serverSideKeygenP12PasswdEnc");
             }
             CMS.debug(method + "isSSKeygen: response received from KRA");
         }

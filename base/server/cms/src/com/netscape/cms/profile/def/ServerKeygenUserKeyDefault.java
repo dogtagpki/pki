@@ -68,6 +68,7 @@ import com.netscape.certsrv.logging.ILogger;
  */
 public class ServerKeygenUserKeyDefault extends EnrollDefault {
 
+    public static final String CONFIG_ENABLE_ARCHIVAL = "enableArchival";
     public static final String CONFIG_LEN = "keySize";
     public static final String CONFIG_TYPE = "keyType";
     public static final String VAL_LEN = "LEN";
@@ -84,6 +85,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
 
     public ServerKeygenUserKeyDefault() {
         super();
+        addConfigName(CONFIG_ENABLE_ARCHIVAL);
         addConfigName(CONFIG_TYPE);
         addConfigName(CONFIG_LEN);
         addValueName(VAL_TYPE);
@@ -103,18 +105,23 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
 */
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
-        if (name.equals(CONFIG_TYPE)) {
+        if (name.equals(CONFIG_ENABLE_ARCHIVAL)) {
+            return new Descriptor(IDescriptor.BOOLEAN, null,
+                    "false",
+                    CMS.getUserMessage(locale,
+                    "CMS_PROFILE_SERVER_SIDE_KEYGEN_ENABLE_ARCHIVAL"));
+        } else if (name.equals(CONFIG_TYPE)) {
             return new Descriptor(IDescriptor.STRING,
                     null,
                     "RSA",
                     CMS.getUserMessage(locale,
-                            "CMS_PROFILE_SERVER_KEYGEN_KEYTYPE"));
+                            "CMS_PROFILE_SERVER_SIDE_KEYGEN_KEYTYPE"));
         } else if (name.equals(CONFIG_LEN)) {
             return new Descriptor(IDescriptor.STRING,
                     null,
                     "2048",
                     CMS.getUserMessage(locale,
-                            "CMS_PROFILE_SERVER_KEYGEN_KEYSIZE"));
+                            "CMS_PROFILE_SERVER_SIDE_KEYGEN_KEYSIZE"));
         } else  {
             return null;
         }
@@ -343,11 +350,14 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                 // store in request to pass to kra
                 request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID,
                         subj);
+
                 request.setExtData("serverSideKeygenP12PasswdEnc",
                         sessionWrappedPassphrase);
                 request.setExtData("serverSideKeygenP12PasswdTransSession",
                         transWrappedSessionKey);
-                // delete the plain text one
+
+                // delete
+                request.setExtData("serverSideKeygenP12Passwd", "");
                 request.deleteExtData("serverSideKeygenP12Passwd");
             }
 
@@ -455,6 +465,13 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             } else {
                 CMS.debug("ServerKeygenUserKeyDefault: populate: serverKeygen to be implemented ");
             }
+
+            // the param "enableArchival" allows the profile to decide whether
+            // to archive the keys or not; By default, it is *false*
+            boolean enableArchival = getConfigBoolean(CONFIG_ENABLE_ARCHIVAL);
+            //CMS.debug(method + "archival enabled: " + enableArchival);
+            request.setExtData(IRequest.SERVER_SIDE_KEYGEN_ENROLL_ENABLE_ARCHIVAL, enableArchival? "true":"false");
+
             info.set(X509CertInfo.KEY, certKey);
         } catch (Exception e) {
             CMS.debug("ServerKeygenUserKeyDefault: populate " + e.toString());

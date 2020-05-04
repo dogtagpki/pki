@@ -554,20 +554,6 @@ public class ConnectorServlet extends CMSServlet {
             thisreq.setExtData("dbStatus", "NOT_UPDATED");
             thisreq.setExtData(IRequest.REQ_STATUS, "begin");
 
-            /* cfu: let's find out what's in the request again
-            CMS.debug("ConnectorServlet: cfu see again what's in request");
-            ereq = thisreq.getExtDataKeys();
-            while (ereq.hasMoreElements()) {
-                String reqKey = ereq.nextElement();
-                String reqVal = thisreq.getExtDataInString(reqKey);
-                if (reqVal != null) {
-                    CMS.debug("ConnectorServlet: - " + reqKey + ": " + reqVal);
-                } else {
-                    CMS.debug("ConnectorServlet: - " + reqKey + ": no value");
-                }
-            }
-            */
-
             boolean isSSKeygen = false;
             String isSSKeygenStr = thisreq.getExtDataInString("isServerSideKeygen");
             if ((isSSKeygenStr != null) && isSSKeygenStr.equalsIgnoreCase("true")) {
