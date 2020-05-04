@@ -26,6 +26,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
@@ -99,9 +100,9 @@ public class KRAConfigurator extends Configurator {
 
         String caHost = preopConfig.getString("ca.hostname", "");
         int caPort = preopConfig.getInteger("ca.httpsadminport", -1);
+        String serverURL = "https://" + caHost + ":" + caPort;
 
-        logger.debug("KRAConfigurator: "
-                + "Configuring KRA connector in CA at https://" + caHost + ":" + caPort);
+        logger.debug("KRAConfigurator: Configuring KRA connector in CA at " + serverURL);
 
         String kraHost = engine.getAgentHost();
         String kraPort = engine.getAgentPort();
@@ -118,7 +119,9 @@ public class KRAConfigurator extends Configurator {
         content.putSingle("ca.connector.KRA.transportCert", transportCert);
         content.putSingle("sessionID", sessionId);
 
-        String c = Configurator.post(caHost, caPort, true, "/ca/admin/ca/updateConnector", content, null, null);
+        PKIClient client = createClient(serverURL, null, null);
+        String c = client.post("/ca/admin/ca/updateConnector", content);
+
         if (c == null || c.equals("")) {
             logger.error("KRAConfigurator: Unable to configure KRA connector: No response from CA");
             throw new IOException("Unable to configure KRA connector: No response from CA");

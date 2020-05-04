@@ -31,6 +31,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
@@ -215,12 +216,9 @@ public class TPSConfigurator extends Configurator {
         content.putSingle("auth_hostname", secdomainURI.getHost());
         content.putSingle("auth_port", secdomainURI.getPort() + "");
 
-        String c = post(
-                kraUri.getHost(),
-                kraUri.getPort(),
-                true,
-                "/kra/admin/kra/getTransportCert",
-                content, null, null);
+        String serverURL = "https://" + kraUri.getHost() + ":" + kraUri.getPort();
+        PKIClient client = createClient(serverURL, null, null);
+        String c = client.post("/kra/admin/kra/getTransportCert", content);
 
         if (c == null) {
             return null;
@@ -257,14 +255,11 @@ public class TPSConfigurator extends Configurator {
         content.putSingle("auth_port", secdomainURI.getPort() + "");
         content.putSingle("certificate", transportCert);
 
+        String serverURL = "https://" + targetURI.getHost() + ":" + targetURI.getPort();
         String targetURL = "/tks/admin/tks/importTransportCert";
 
-        String response = post(
-                targetURI.getHost(),
-                targetURI.getPort(),
-                true,
-                targetURL,
-                content, null, null);
+        PKIClient client = createClient(serverURL, null, null);
+        String response = client.post(targetURL, content);
 
         if (response == null || response.equals("")) {
             logger.error("TPSConfigurator: The server " + targetURI + " is not available");

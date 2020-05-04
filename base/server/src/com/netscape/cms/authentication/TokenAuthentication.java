@@ -36,6 +36,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -215,7 +216,9 @@ public class TokenAuthentication implements IAuthManager,
     private String sendAuthRequest(String authHost, int authPort, String authUrl, MultivaluedMap<String, String> content)
             throws Exception {
 
-        return Configurator.post(authHost, authPort, true, authUrl, content, null, null);
+        String serverURL = "https://" + authHost + ":" + authPort;
+        PKIClient client = Configurator.createClient(serverURL, null, null);
+        return client.post(authUrl, content);
     }
 
     /**

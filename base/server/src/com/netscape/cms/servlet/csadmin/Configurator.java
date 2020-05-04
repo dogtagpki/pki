@@ -86,7 +86,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -184,23 +183,6 @@ public class Configurator {
         if (certApprovalCallback == null) certApprovalCallback = Configurator.certApprovalCallback;
 
         return new PKIClient(config, null, certApprovalCallback);
-    }
-
-    public static String post(String hostname, int port, boolean secure,
-            String path, MultivaluedMap<String, String> content, String clientnickname,
-            SSLCertificateApprovalCallback certApprovalCallback)
-            throws Exception {
-
-        String protocol = secure ? "https" : "http";
-        ClientConfig config = new ClientConfig();
-        config.setServerURL(protocol + "://" + hostname + ":" + port);
-        config.setCertNickname(clientnickname);
-
-        logger.info("Configurator: POST " + config.getServerURL() + path);
-        PKIConnection connection = new PKIConnection(config);
-        if (certApprovalCallback == null) certApprovalCallback = Configurator.certApprovalCallback;
-        connection.setCallback(certApprovalCallback);
-        return connection.post(path, content);
     }
 
     public void setConfigStore(EngineConfig cs) {
@@ -403,8 +385,10 @@ public class Configurator {
         content.putSingle("pwd", passwd);
         content.putSingle("url", subca_url);
 
-        String body = post(sdhost, sdport, true, "/ca/admin/ca/getCookie",
-                content, null, null);
+        String serverURL = "https://" + sdhost + ":" + sdport;
+
+        PKIClient client = Configurator.createClient(serverURL, null, null);
+        String body = client.post("/ca/admin/ca/getCookie", content);
         logger.debug("Configurator: response: " + body);
 
         return getContentValue(body, "header.session_id");
@@ -583,10 +567,11 @@ public class Configurator {
         String cstype = cs.getType();
         logger.info("Getting " + type + " number range from " + cstype + " master");
 
-        cstype = cstype.toLowerCase();
-        String serverPath = "/" + cstype + "/admin/" + cstype + "/updateNumberRange";
+        String subsystem = cstype.toLowerCase();
+        String serverURL = "https://" + hostname + ":" + adminPort;
 
-        String response = post(hostname, adminPort, https, serverPath, content, null, null);
+        PKIClient client = createClient(serverURL, null, null);
+        String response = client.post("/" + subsystem + "/admin/" + subsystem + "/updateNumberRange", content);
         logger.debug("Response: " + response);
 
         if (StringUtils.isEmpty(response)) {
@@ -698,6 +683,8 @@ public class Configurator {
         String cstype = cs.getType();
         logger.info("Getting " + cstype + " master configuration entries");
 
+        String subsystem = cs.getType().toLowerCase();
+
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
@@ -706,7 +693,11 @@ public class Configurator {
         LDAPConfig replicaConfig = cs.getInternalDBConfig();
         LDAPConnectionConfig replicaConnConfig = replicaConfig.getConnectionConfig();
 
-        String response = post(hostname, port, https, servlet, content, null, null);
+        String serverURL = "https://" + hostname + ":" + port;
+
+        PKIClient client = Configurator.createClient(serverURL, null, null);
+        String response = client.post("/" + subsystem + "/admin/" + subsystem + "/getConfigEntries", content);
+
         if (response == null) {
             throw new IOException("Unable to get " + cstype + " master configuration");
         }
@@ -1982,7 +1973,10 @@ public class Configurator {
         content.putSingle("sessionID", session_id);
         content.putSingle("subject", subjectDN);
 
-        String c = post(ca_hostname, ca_port, true, "/ca/ee/ca/profileSubmit", content, null, null);
+        String serverURL = "https://" + ca_hostname + ":" + ca_port;
+
+        PKIClient client = Configurator.createClient(serverURL, null, null);
+        String c = client.post("/ca/ee/ca/profileSubmit", content);
 
         if (c == null) {
             logger.error("Unable to generate admin certificate: no response from CA");
@@ -2176,17 +2170,21 @@ public class Configurator {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        String c = null;
+        String serverURL = "https://" + hostname + ":" + port;
+        PKIClient client;
+
         if (useClientAuth) {
             String subsystem = cs.getType().toLowerCase();
             String fullname = cs.getString(subsystem + ".cert.subsystem.nickname");
 
             logger.debug("Configurator: Updating security domain with " + fullname);
-            c = post(hostname, port, https, servlet, content, fullname, null);
+            client = Configurator.createClient(serverURL, fullname, null);
 
         } else {
-            c = post(hostname, port, https, servlet, content, null, null);
+            client = Configurator.createClient(serverURL, null, null);
         }
+
+        String c = client.post(servlet, content);
 
         if (c == null || c.equals("")) {
             logger.error("Unable to update security domain: empty response");
@@ -2422,14 +2420,10 @@ public class Configurator {
         content.putSingle("certificate", getSubsystemCert());
         content.putSingle("name", subsystemName);
 
-        String targetURL = "/" + targetType + "/admin/" + targetType + "/registerUser";
+        String serverURL = "https://" + targetURI.getHost() + ":" + targetURI.getPort();
 
-        String response = post(
-                targetURI.getHost(),
-                targetURI.getPort(),
-                true,
-                targetURL,
-                content, null, null);
+        PKIClient client = Configurator.createClient(serverURL, null, null);
+        String response = client.post("/" + targetType + "/admin/" + targetType + "/registerUser", content);
 
         if (response == null || response.equals("")) {
             logger.error("registerUser: response is empty or null.");
@@ -2444,8 +2438,7 @@ public class Configurator {
             logger.debug("registerUser: status=" + status);
 
             if (status.equals(SUCCESS)) {
-                logger.debug("registerUser: Successfully added user " + uid + " to " + targetURI +
-                        " using " + targetURL);
+                logger.debug("registerUser: Successfully added user " + uid + " to " + targetURI);
 
             } else if (status.equals(AUTH_FAILURE)) {
                 throw new EAuthException(AUTH_FAILURE);

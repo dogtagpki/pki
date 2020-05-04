@@ -28,6 +28,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
@@ -152,9 +153,9 @@ public class OCSPConfigurator extends Configurator {
 
         String caHost = preopConfig.getString("ca.hostname", "");
         int caPort = preopConfig.getInteger("ca.httpsport", -1);
+        String serverURL = "https://" + caHost + ":" + caPort;
 
-        logger.debug("OCSPConfigurator: "
-                + "Updating OCSP configuration in CA at https://" + caHost + ":" + caPort);
+        logger.debug("OCSPConfigurator: Updating OCSP configuration in CA at " + serverURL);
 
         String ocspHost = engine.getAgentHost();
         int ocspPort = Integer.parseInt(engine.getAgentPort());
@@ -166,7 +167,9 @@ public class OCSPConfigurator extends Configurator {
         content.putSingle("ocsp_host", ocspHost);
         content.putSingle("ocsp_port", ocspPort + "");
 
-        String c = Configurator.post(caHost, caPort, true, "/ca/ee/ca/updateOCSPConfig", content, null, null);
+        PKIClient client = createClient(serverURL, null, null);
+        String c = client.post("/ca/ee/ca/updateOCSPConfig", content);
+
         if (c == null || c.equals("")) {
             logger.error("OCSPConfigurator: Unable to update OCSP configuration: No response from CA");
             throw new IOException("Unable to update OCSP configuration: No response from CA");
