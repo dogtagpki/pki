@@ -171,21 +171,19 @@ public class Configurator {
         this.serverXml = engine.getServerXml();
     }
 
-    public static String get(String hostname, int port, boolean secure,
-            String path, String clientnickname,
+    public static PKIClient createClient(
+            String serverURL,
+            String clientnickname,
             SSLCertificateApprovalCallback certApprovalCallback)
             throws Exception {
 
-        String protocol = secure ? "https" : "http";
         ClientConfig config = new ClientConfig();
-        config.setServerURL(protocol + "://" + hostname + ":" + port);
+        config.setServerURL(serverURL);
         config.setCertNickname(clientnickname);
 
-        logger.info("Configurator: GET " + config.getServerURL() + path);
-        PKIConnection connection = new PKIConnection(config);
         if (certApprovalCallback == null) certApprovalCallback = Configurator.certApprovalCallback;
-        connection.setCallback(certApprovalCallback);
-        return connection.get(path, String.class);
+
+        return new PKIClient(config, null, certApprovalCallback);
     }
 
     public static String post(String hostname, int port, boolean secure,
@@ -311,20 +309,20 @@ public class Configurator {
 
     public byte[] getCertChain(String host, int port) throws Exception {
 
-        String serverPath = "/ca/admin/ca/getCertChain";
-        String url = "https://" + host + ":" + port + serverPath;
-        logger.info("Getting certificate chain from " + url);
+        String serverURL = "https://" + host + ":" + port;
+        logger.info("Getting certificate chain from " + serverURL);
 
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
         // Ignore untrusted/unknown issuer to get cert chain.
         certApprovalCallback.ignoreError(ValidityStatus.UNTRUSTED_ISSUER);
         certApprovalCallback.ignoreError(ValidityStatus.UNKNOWN_ISSUER);
 
-        String c = get(host, port, true, serverPath, null, certApprovalCallback);
+        PKIClient client = createClient(serverURL, null, certApprovalCallback);
+        String c = client.get("/ca/admin/ca/getCertChain");
         logger.debug("Response: " + c);
 
         if (c == null) {
-            throw new IOException("Unable to get certificate chain from " + url);
+            throw new IOException("Unable to get certificate chain from " + serverURL);
         }
 
         ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
@@ -2311,12 +2309,14 @@ public class Configurator {
 
     public X509CertImpl getSubsystemCert(String host, int port) throws Exception {
 
-        String url = "https://" + host + ":" + port + "/ca/admin/ca/getSubsystemCert";
-        logger.info("Configurator: Calling " + url);
+        String serverURL = "https://" + host + ":" + port;
+        logger.info("Configurator: Getting subsystem certificate from " + serverURL);
 
-        String c = get(host, port, true, "/ca/admin/ca/getSubsystemCert", null, null);
+        PKIClient client = createClient(serverURL, null, null);
+        String c = client.get("/ca/admin/ca/getSubsystemCert");
+
         if (c == null) {
-            logger.warn("Configurator: No response from " + url);
+            logger.warn("Configurator: No response from " + serverURL);
             return null;
         }
 
@@ -2325,7 +2325,7 @@ public class Configurator {
 
         String status = parser.getValue("Status");
         if (!status.equals(SUCCESS)) {
-            logger.warn("Configurator: Unable to get subsystem certificate from " + url);
+            logger.warn("Configurator: Unable to get subsystem certificate from " + serverURL);
             return null;
         }
 
