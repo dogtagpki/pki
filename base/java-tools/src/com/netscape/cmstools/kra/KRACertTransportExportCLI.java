@@ -19,7 +19,6 @@
 package com.netscape.cmstools.kra;
 
 import java.io.FileOutputStream;
-import java.io.PrintStream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -73,19 +72,15 @@ public class KRACertTransportExportCLI extends CommandCLI {
         CertData certData = certClient.getTransportCert();
 
         String outputFormat = cmd.getOptionValue("output-format");
-
-        String cert = null;
-        byte[] bytes = null;
+        byte[] bytes;
 
         if (cmd.hasOption("pkcs7")) {
 
             String certChain = certData.getPkcs7CertChain();
-            logger.info("Cert chain:\n" + certChain);
-
             PKCS7 pkcs7 = new PKCS7(Utils.base64decode(certChain));
 
             if (outputFormat == null || "PEM".equalsIgnoreCase(outputFormat)) {
-                cert = pkcs7.toPEMString();
+                bytes = pkcs7.toPEMString().getBytes();
 
             } else if ("DER".equalsIgnoreCase(outputFormat)) {
                 bytes = pkcs7.getBytes();
@@ -97,7 +92,7 @@ public class KRACertTransportExportCLI extends CommandCLI {
         } else {
 
             if (outputFormat == null || "PEM".equalsIgnoreCase(outputFormat)) {
-                cert = certData.getEncoded();
+                bytes = certData.getEncoded().getBytes();
 
             } else if ("DER".equalsIgnoreCase(outputFormat)) {
                 bytes = Cert.parseCertificate(certData.getEncoded());
@@ -110,20 +105,12 @@ public class KRACertTransportExportCLI extends CommandCLI {
         String outputFile = cmd.getOptionValue("output-file");
 
         if (outputFile != null) {
-            try (PrintStream out = new PrintStream(new FileOutputStream(outputFile))) {
-                if (cert != null) {
-                    out.print(cert);
-                } else {
-                    out.write(bytes);
-                }
+            try (FileOutputStream out = new FileOutputStream(outputFile)) {
+                out.write(bytes);
             }
 
         } else {
-            if (cert != null) {
-                System.out.print(cert);
-            } else {
-                System.out.write(bytes);
-            }
+            System.out.write(bytes);
         }
     }
 }
