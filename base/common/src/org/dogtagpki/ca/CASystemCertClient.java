@@ -21,6 +21,10 @@ import java.net.URISyntaxException;
 
 import javax.ws.rs.core.Response;
 
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -29,6 +33,8 @@ import com.netscape.certsrv.client.PKIClient;
  * @author Endi S. Dewata
  */
 public class CASystemCertClient extends Client {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CASystemCertClient.class);
 
     public CASystemCertResource resource;
 
@@ -42,8 +48,31 @@ public class CASystemCertClient extends Client {
     }
 
     public CertData getSigningCert() throws Exception {
-        Response response = resource.getSigningCert();
-        return client.getEntity(response, CertData.class);
+
+        CertData certData = null;
+
+        try {
+            logger.info("Gettting CA signing certificate chain through REST service");
+
+            Response response = resource.getSigningCert();
+            certData = client.getEntity(response, CertData.class);
+
+        } catch (PKIException e) {
+            if (e.getCode() != Response.Status.NOT_FOUND.getStatusCode()) {
+                throw e;
+            }
+            logger.warn("Unable to get CA signing certificate: " + e.getMessage());
+        }
+
+        if (certData == null || certData.getPkcs7CertChain() == null) {
+            logger.info("Gettting CA signing certificate chain through legacy servlet");
+
+            CAClient caClient = new CAClient(client);
+            PKCS7 pkcs7 = caClient.getCertChain();
+            certData = CertData.fromCertChain(pkcs7);
+        }
+
+        return certData;
     }
 
     public CertData getTransportCert() throws Exception {

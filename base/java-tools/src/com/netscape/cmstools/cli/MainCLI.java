@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.ProcessingException;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -57,6 +58,7 @@ import org.mozilla.jss.ssl.SSLVersionRange;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -620,7 +622,10 @@ public class MainCLI extends CLI {
                 }
             }
 
-        } catch (Exception e) {
+        } catch (PKIException e) {
+            if (e.getCode() != Response.Status.NOT_FOUND.getStatusCode()) {
+                throw e;
+            }
             logger.warn("Unable to get server info: " + e.getMessage());
         }
 
