@@ -23,7 +23,6 @@ import java.net.URI;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.kra.KRASystemCertResource;
-import org.dogtagpki.server.rest.SystemCertService;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
@@ -34,6 +33,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.kra.KeyRecoveryAuthority;
@@ -42,7 +42,7 @@ import com.netscape.kra.TransportKeyUnit;
 /**
  * @author alee
  */
-public class KRASystemCertService extends SystemCertService implements KRASystemCertResource {
+public class KRASystemCertService extends PKIService implements KRASystemCertResource {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRASystemCertService.class);
 

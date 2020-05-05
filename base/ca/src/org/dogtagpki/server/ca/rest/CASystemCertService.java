@@ -25,7 +25,6 @@ import javax.ws.rs.core.Response;
 import org.dogtagpki.ca.CASystemCertResource;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
-import org.dogtagpki.server.rest.SystemCertService;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
@@ -40,11 +39,12 @@ import com.netscape.ca.SigningUnit;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
+import com.netscape.cms.servlet.base.PKIService;
 
 /**
  * @author alee
  */
-public class CASystemCertService extends SystemCertService implements CASystemCertResource {
+public class CASystemCertService extends PKIService implements CASystemCertResource {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CASystemCertService.class);
 
