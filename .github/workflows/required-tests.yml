@@ -10,7 +10,7 @@ jobs:
       # run the build commands. We then upload the artifact for consumption
       # by the test jobs + for the public to consume. This job **does not**
       # upload any build logs as they are visible in the log console itself.
- 
+
       name: Build PKI
       runs-on: ubuntu-latest
       container: fedora:${{ matrix.os }}
@@ -29,7 +29,7 @@ jobs:
 
           - name: Install PKI build deps
             run: |
-                  # dnf copr enable @pki/master
+                  dnf copr enable -y @pki/master
                   dnf builddep -y --allowerasing --spec ./pki.spec
 
           - name: Build PKI packages
@@ -45,7 +45,7 @@ jobs:
             with:
               name: pki-build-${{ matrix.os }}
               path: pki-rpms.tar.gz
-    
+
     # Test job
     pki-tests:
       # This job depends on the 'build' job and waits till it completes.
@@ -81,11 +81,11 @@ jobs:
         - name: Install required packages
           run: docker exec -i ${CONTAINER} dnf install -y findutils dnf-plugins-core sudo wget 389-ds-base
 
+        - name: Enable PKI COPR repo
+          run: docker exec -i ${CONTAINER} dnf copr enable -y ${COPR_REPO}
+
         - name: Install PKI packages
           run: docker exec -i ${CONTAINER} bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
-        
-        #- name: Enable PKI COPR repo
-        #  run: docker exec -i ${CONTAINER} dnf copr enable -y ${COPR_REPO}
 
         - name: Install DS
           run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ds-create.sh
@@ -176,8 +176,8 @@ jobs:
         - name: Enable freeipa nightly COPR
           run: docker exec -i ${CONTAINER} dnf copr enable -y @freeipa/freeipa-master-nightly
 
-        #- name: Enable PKI COPR repo
-        #  run: docker exec -i ${CONTAINER} dnf copr enable -y ${COPR_REPO}
+        - name: Enable PKI COPR repo
+          run: docker exec -i ${CONTAINER} dnf copr enable -y ${COPR_REPO}
 
         - name: Install FreeIPA packages
           run: docker exec -i ${CONTAINER} dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests
