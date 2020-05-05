@@ -184,7 +184,7 @@ public class ConfigurationTest {
             ClientConfig config = new ClientConfig();
             config.setServerURL(protocol + "://" + host + ":" + port);
 
-            client = new SystemConfigClient(new PKIClient(config, null), cstype);
+            client = new SystemConfigClient(new PKIClient(config), cstype);
         } catch (URISyntaxException e1) {
             e1.printStackTrace();
             System.exit(1);

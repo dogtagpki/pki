@@ -307,7 +307,7 @@ public class Configurator {
         config.setUsername(user);
         config.setPassword(passwd);
 
-        PKIClient client = new PKIClient(config, null);
+        PKIClient client = new PKIClient(config);
 
         // Ignore the "UNTRUSTED_ISSUER" validity status
         // during PKI instance creation since we are
@@ -397,7 +397,7 @@ public class Configurator {
         ClientConfig config = new ClientConfig();
         config.setServerURL("https://" + hostname + ":" + port);
 
-        PKIClient client = new PKIClient(config, null);
+        PKIClient client = new PKIClient(config);
 
         // Ignore the "UNTRUSTED_ISSUER" validity status
         // during PKI instance creation since we are

@@ -69,7 +69,7 @@ public class PKIClient {
     }
 
     public PKIClient(ClientConfig config, CryptoProvider crypto) throws URISyntaxException {
-        this(config, null, null);
+        this(config, crypto, null);
     }
 
     public PKIClient(ClientConfig config, CryptoProvider crypto, SSLCertificateApprovalCallback callback) throws URISyntaxException {

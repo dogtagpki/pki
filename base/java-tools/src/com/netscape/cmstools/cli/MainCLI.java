@@ -587,7 +587,7 @@ public class MainCLI extends CLI {
 
         logger.info("Connecting to " + config.getServerURL());
 
-        client = new PKIClient(config, null);
+        client = new PKIClient(config);
         client.setRejectedCertStatuses(rejectedCertStatuses);
         client.setIgnoredCertStatuses(ignoredCertStatuses);
 

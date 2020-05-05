@@ -163,7 +163,7 @@ public class CATest {
             config.setServerURL(protocol + "://" + host + ":" + port);
             config.setCertNickname(clientCertNickname);
 
-            client = new CAClient(new PKIClient(config, null));
+            client = new CAClient(new PKIClient(config));
             certClient = (CACertClient)client.getClient("cert");
             profileClient = (ProfileClient)client.getClient("profile");
 

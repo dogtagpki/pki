@@ -243,7 +243,7 @@ public class ClientCertImportCLI extends CommandCLI {
             URL serverURL = config.getServerURL();
             logger.info("Importing certificate " + serialNumber + " from " + serverURL);
 
-            PKIClient client = new PKIClient(config, null);
+            PKIClient client = new PKIClient(config);
             CAClient caClient = new CAClient(client);
             CACertClient certClient = new CACertClient(caClient);
 
