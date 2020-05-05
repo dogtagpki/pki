@@ -20,6 +20,8 @@ package com.netscape.certsrv.cert;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.security.Principal;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import javax.xml.bind.JAXBContext;
@@ -31,11 +33,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.util.DateAdapter;
-import org.mozilla.jss.netscape.security.util.Cert;
 
 /**
  * @author alee
@@ -310,6 +314,39 @@ public class CertData {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static CertData fromCertChain(PKCS7 pkcs7) throws Exception {
+
+        X509Certificate[] certs = pkcs7.getCertificates();
+        certs = Cert.sortCertificateChain(certs);
+
+        X509Certificate cert = certs[certs.length - 1];
+
+        CertData data = new CertData();
+
+        data.setSerialNumber(new CertId(cert.getSerialNumber()));
+
+        Principal issuerDN = cert.getIssuerDN();
+        if (issuerDN != null) data.setIssuerDN(issuerDN.toString());
+
+        Principal subjectDN = cert.getSubjectDN();
+        if (subjectDN != null) data.setSubjectDN(subjectDN.toString());
+
+        Date notBefore = cert.getNotBefore();
+        if (notBefore != null) data.setNotBefore(notBefore.toString());
+
+        Date notAfter = cert.getNotAfter();
+        if (notAfter != null) data.setNotAfter(notAfter.toString());
+
+        String b64 = Cert.HEADER + "\n" + Utils.base64encodeMultiLine(cert.getEncoded()) + Cert.FOOTER + "\n";
+        data.setEncoded(b64);
+
+        byte[] pkcs7bytes = pkcs7.getBytes();
+        String pkcs7str = Utils.base64encodeSingleLine(pkcs7bytes);
+        data.setPkcs7CertChain(pkcs7str);
+
+        return data;
     }
 
     public static void main(String args[]) throws Exception {

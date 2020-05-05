@@ -52,9 +52,6 @@ public class KRASystemCertService extends SystemCertService implements KRASystem
         KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
         TransportKeyUnit tu = (TransportKeyUnit) kra.getTransportKeyUnit();
 
-        X509Certificate transportCert = tu.getCertificate();
-        X509CertImpl cert = new X509CertImpl(transportCert.getEncoded());
-
         X509Certificate[] chain = tu.getChain();
         X509CertImpl[] chainImpl = new X509CertImpl[chain.length];
 
@@ -69,9 +66,7 @@ public class KRASystemCertService extends SystemCertService implements KRASystem
                 chainImpl,
                 new SignerInfo[0]);
 
-        byte[] pkcs7bytes = pkcs7.getBytes();
-
-        CertData certData = createCertificateData(cert, pkcs7bytes);
+        CertData certData = CertData.fromCertChain(pkcs7);
 
         URI uri = uriInfo.getRequestUri();
         certData.setLink(new Link("self", uri));

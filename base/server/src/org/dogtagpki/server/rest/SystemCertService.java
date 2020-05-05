@@ -18,15 +18,6 @@
 
 package org.dogtagpki.server.rest;
 
-import java.security.Principal;
-import java.util.Date;
-
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-
-import com.netscape.certsrv.cert.CertData;
-import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cms.servlet.base.PKIService;
 
 /**
@@ -35,31 +26,4 @@ import com.netscape.cms.servlet.base.PKIService;
 public class SystemCertService extends PKIService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SystemCertService.class);
-
-    public CertData createCertificateData(X509CertImpl cert, byte[] pkcs7bytes) throws Exception {
-
-        CertData data = new CertData();
-
-        data.setSerialNumber(new CertId(cert.getSerialNumber()));
-
-        Principal issuerDN = cert.getIssuerDN();
-        if (issuerDN != null) data.setIssuerDN(issuerDN.toString());
-
-        Principal subjectDN = cert.getSubjectDN();
-        if (subjectDN != null) data.setSubjectDN(subjectDN.toString());
-
-        Date notBefore = cert.getNotBefore();
-        if (notBefore != null) data.setNotBefore(notBefore.toString());
-
-        Date notAfter = cert.getNotAfter();
-        if (notAfter != null) data.setNotAfter(notAfter.toString());
-
-        String b64 = Cert.HEADER + "\n" + Utils.base64encodeMultiLine(cert.getEncoded()) + Cert.FOOTER + "\n";
-        data.setEncoded(b64);
-
-        String pkcs7str = Utils.base64encodeSingleLine(pkcs7bytes);
-        data.setPkcs7CertChain(pkcs7str);
-
-        return data;
-    }
 }

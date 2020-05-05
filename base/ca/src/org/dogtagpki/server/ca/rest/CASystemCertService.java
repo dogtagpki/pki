@@ -63,9 +63,7 @@ public class CASystemCertService extends SystemCertService implements CASystemCe
                 certChain,
                 new SignerInfo[0]);
 
-        byte[] pkcs7bytes = pkcs7.getBytes();
-
-        CertData certData = createCertificateData(cert, pkcs7bytes);
+        CertData certData = CertData.fromCertChain(pkcs7);
 
         URI uri = uriInfo.getRequestUri();
         certData.setLink(new Link("self", uri));
@@ -89,9 +87,7 @@ public class CASystemCertService extends SystemCertService implements CASystemCe
                 certChain,
                 new SignerInfo[0]);
 
-        byte[] pkcs7bytes = pkcs7.getBytes();
-
-        CertData certData = createCertificateData(cert, pkcs7bytes);
+        CertData certData = CertData.fromCertChain(pkcs7);
 
         URI uri = uriInfo.getRequestUri();
         certData.setLink(new Link("self", uri));
