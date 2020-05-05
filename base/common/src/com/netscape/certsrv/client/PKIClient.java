@@ -18,29 +18,18 @@
 
 package com.netscape.certsrv.client;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.util.CryptoProvider;
@@ -151,37 +140,6 @@ public class PKIClient {
             info = infoClient.getInfo();
         }
         return info;
-    }
-
-    public byte[] downloadCACertChain(String serverURI) throws ParserConfigurationException, SAXException, IOException {
-        return downloadCACertChain(serverURI, "/ee/ca/getCertChain");
-    }
-
-    public byte[] downloadCACertChain(String uri, String servletPath)
-            throws ParserConfigurationException, SAXException, IOException {
-
-        URL url = new URL(uri + servletPath);
-
-        logger.info("Retrieving CA certificate chain from " + url);
-
-        DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
-
-        Document document = documentBuilder.parse(url.openStream());
-        NodeList list = document.getElementsByTagName("ChainBase64");
-        Element element = (Element)list.item(0);
-
-        String encodedChain = element.getTextContent();
-        byte[] bytes = Utils.base64decode(encodedChain);
-
-        if (logger.isInfoEnabled()) {
-            StringBuilder sb = new StringBuilder(PKCS7.HEADER);
-            sb.append(Utils.base64encode(bytes, true));
-            sb.append(PKCS7.FOOTER);
-            logger.info(sb.toString());
-        }
-
-        return bytes;
     }
 
     public void addRejectedCertStatus(Integer rejectedCertStatus) {
