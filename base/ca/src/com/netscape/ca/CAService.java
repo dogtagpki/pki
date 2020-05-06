@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.net.ntp.TimeStamp;
+import org.dogtagpki.ct.CTRequest;
+import org.dogtagpki.ct.CTResponse;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICAService;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
