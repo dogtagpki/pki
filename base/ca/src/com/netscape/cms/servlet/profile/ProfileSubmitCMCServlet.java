@@ -899,7 +899,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                         notify.notify(reqs[k]);
                     }
 
-                    logger.warn("ProfileSubmitCMCServlet: submit " + e.getMessage(), e);
+                    logger.warn("ProfileSubmitCMCServlet: submit " + e.getMessage());
                     errorCode = "2";
                     errorReason = CMS.getUserMessage(locale,
                                 "CMS_PROFILE_DEFERRED",

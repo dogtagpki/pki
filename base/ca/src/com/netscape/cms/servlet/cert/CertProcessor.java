@@ -260,7 +260,7 @@ public class CertProcessor extends CAProcessor {
 
             } catch (EDeferException e) {
 
-                logger.warn("Certificate request deferred: " + e.getMessage(), e);
+                logger.warn("Certificate request deferred: " + e.getMessage());
 
                 req.setRequestStatus(RequestStatus.PENDING);
                 // need to notify
