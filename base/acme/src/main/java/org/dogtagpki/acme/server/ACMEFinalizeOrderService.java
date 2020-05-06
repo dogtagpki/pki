@@ -95,6 +95,16 @@ public class ACMEFinalizeOrderService {
         ACMENonce nonce = engine.createNonce();
         builder.header("Replay-Nonce", nonce.getValue());
 
+        /* This is not required by ACME protocol but mod_md has a
+         * bug[1] causing it to fail if there is no Location header
+         * in the response.  So we add it.  This is also what
+         * boulder / Let's Encrypt do.
+         *
+         * [1] https://github.com/icing/mod_md/issues/216
+         */
+        URI orderURL = uriInfo.getBaseUriBuilder().path("order").path(orderID).build();
+        builder.location(orderURL);
+
         URI indexURL = uriInfo.getBaseUriBuilder().path("directory").build();
         builder.link(indexURL, "index");
 
