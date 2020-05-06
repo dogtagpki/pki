@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
 
-package com.netscape.ca;
+package org.dogtagpki.ct;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
