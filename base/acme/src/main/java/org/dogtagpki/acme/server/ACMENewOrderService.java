@@ -24,6 +24,7 @@ import org.dogtagpki.acme.ACMEHeader;
 import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
+import org.dogtagpki.acme.ACMEPolicy;
 import org.dogtagpki.acme.JWS;
 
 /**
@@ -71,6 +72,8 @@ public class ACMENewOrderService {
             String value = identifier.getValue();
             logger.info("Identifier " + type + ": " + value);
 
+            engine.getPolicy().validateIdentifier(identifier);
+
             // RFC 8555 Section 7.1.3: Order Objects
             //
             // Any identifier of type "dns" in a newOrder request MAY have a
@@ -87,7 +90,6 @@ public class ACMENewOrderService {
             if ("dns".equals(type) && value.startsWith("*.")) {
                 wildcard = true;
                 value = value.substring(2); // remove *. prefix
-
             } else {
                 wildcard = false;
             }
