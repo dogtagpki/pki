@@ -993,7 +993,7 @@ fi
 %files -n pki-symkey
 ################################################################################
 
-%doc base/symkey/LICENSE
+%license base/symkey/LICENSE
 %{_jnidir}/symkey.jar
 %{_libdir}/symkey/
 
@@ -1001,8 +1001,8 @@ fi
 %files -n pki-base
 ################################################################################
 
-%doc base/common/LICENSE
-%doc base/common/LICENSE.LESSER
+%license base/common/LICENSE
+%license base/common/LICENSE.LESSER
 %doc %{_datadir}/doc/pki-base/html
 %dir %{_datadir}/pki
 %{_datadir}/pki/VERSION
@@ -1027,8 +1027,8 @@ fi
 %files -n pki-base-java
 ################################################################################
 
-%doc base/common/LICENSE
-%doc base/common/LICENSE.LESSER
+%license base/common/LICENSE
+%license base/common/LICENSE.LESSER
 %{_datadir}/pki/examples/java/
 %{_datadir}/pki/lib/*.jar
 %dir %{_javadir}/pki
@@ -1039,8 +1039,8 @@ fi
 %files -n python3-pki
 ################################################################################
 
-%doc base/common/LICENSE
-%doc base/common/LICENSE.LESSER
+%license base/common/LICENSE
+%license base/common/LICENSE.LESSER
 %if %{with server}
 %exclude %{python3_sitelib}/pki/server
 %endif
@@ -1050,7 +1050,8 @@ fi
 %files -n pki-tools
 ################################################################################
 
-%doc base/native-tools/LICENSE base/native-tools/doc/README
+%license base/native-tools/LICENSE
+%doc base/native-tools/doc/README
 %{_bindir}/p7tool
 %{_bindir}/pistool
 %{_bindir}/pki
@@ -1124,8 +1125,8 @@ fi
 %files -n pki-server
 ################################################################################
 
-%doc base/common/THIRD_PARTY_LICENSES
-%doc base/server/LICENSE
+%license base/common/THIRD_PARTY_LICENSES
+%license base/server/LICENSE
 %doc base/server/README
 %attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki
 %attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki/tomcat
@@ -1187,7 +1188,7 @@ fi
 %files -n pki-ca
 ################################################################################
 
-%doc base/ca/LICENSE
+%license base/ca/LICENSE
 %{_javadir}/pki/pki-ca.jar
 %dir %{_datadir}/pki/ca
 %{_datadir}/pki/ca/conf/
@@ -1204,7 +1205,7 @@ fi
 %files -n pki-kra
 ################################################################################
 
-%doc base/kra/LICENSE
+%license base/kra/LICENSE
 %{_javadir}/pki/pki-kra.jar
 %dir %{_datadir}/pki/kra
 %{_datadir}/pki/kra/conf/
@@ -1219,7 +1220,7 @@ fi
 %files -n pki-ocsp
 ################################################################################
 
-%doc base/ocsp/LICENSE
+%license base/ocsp/LICENSE
 %{_javadir}/pki/pki-ocsp.jar
 %dir %{_datadir}/pki/ocsp
 %{_datadir}/pki/ocsp/conf/
@@ -1234,7 +1235,7 @@ fi
 %files -n pki-tks
 ################################################################################
 
-%doc base/tks/LICENSE
+%license base/tks/LICENSE
 %{_javadir}/pki/pki-tks.jar
 %dir %{_datadir}/pki/tks
 %{_datadir}/pki/tks/conf/
@@ -1249,7 +1250,7 @@ fi
 %files -n pki-tps
 ################################################################################
 
-%doc base/tps/LICENSE
+%license base/tps/LICENSE
 %{_javadir}/pki/pki-tps.jar
 %dir %{_datadir}/pki/tps
 %{_datadir}/pki/tps/applets/
@@ -1285,7 +1286,7 @@ fi
 %files -n pki-console
 ################################################################################
 
-%doc base/console/LICENSE
+%license base/console/LICENSE
 %{_bindir}/pkiconsole
 %{_javadir}/pki/pki-console.jar
 
@@ -1297,7 +1298,7 @@ fi
 %files -n %{vendor_id}-pki-server-theme
 ################################################################################
 
-%doc themes/%{vendor_id}/common-ui/LICENSE
+%license themes/%{vendor_id}/common-ui/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/CS_SERVER_VERSION
 %{_datadir}/pki/common-ui/
@@ -1315,7 +1316,7 @@ fi
 %files -n %{vendor_id}-pki-console-theme
 ################################################################################
 
-%doc themes/%{vendor_id}/console-ui/LICENSE
+%license themes/%{vendor_id}/console-ui/LICENSE
 %{_javadir}/pki/pki-console-theme.jar
 
 # with theme
