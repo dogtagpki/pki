@@ -1,10 +1,13 @@
 project(pki)
 
 # Required cmake version
-cmake_minimum_required(VERSION 2.6.0)
+cmake_minimum_required(VERSION 3.0.0)
 
 # global needed variables
 set(APPLICATION_NAME ${PROJECT_NAME})
+
+# Skip recompiling when already compiled
+set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY TRUE)
 
 # Suppress install messages
 set(CMAKE_INSTALL_MESSAGE NEVER)
