@@ -42,6 +42,8 @@ import java.util.Vector;
 import org.apache.commons.net.ntp.TimeStamp;
 import org.dogtagpki.ct.CTRequest;
 import org.dogtagpki.ct.CTResponse;
+import org.dogtagpki.ct.LogServer;
+import org.dogtagpki.ct.sct.SCTProcessor;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICAService;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
@@ -876,76 +878,99 @@ public class CAService implements ICAService, IService {
          * signed certificate timestamp (SCT) for inclusion in the SCT extension
          * in the cert to be issued.
          */
-        String method = "CAService: issueX509Cert - CT:";
+
+        // Get CT config from CS.cfg
+        SCTProcessor sct = new SCTProcessor();
         try {
-            exts = (CertificateExtensions)
-                    certi.get(X509CertInfo.EXTENSIONS);
-            logger.debug(method + " about to check CT poison");
-            Extension ctPoison = (Extension) exts.get("1.3.6.1.4.1.11129.2.4.3");
-            if ( ctPoison == null) {
-                logger.debug(method + " ctPoison not found");
-            } else {
-                logger.debug(method + " ctPoison found");
-                logger.debug(method + " About to ca.sign CT pre-cert.");
-                cert = ca.sign(certi, algname);
+            // Initialize Signed Certificate Timestamp class
+            sct.init();
 
-                // compose CTRequest
-                CTRequest ctRequest = createCTRequest(cert);
+            if(sct.isCTEnabled()) {
+                String method = "CAService: issueX509Cert - CT:";
 
-                // submit to CT log(s)
-                // TODO: retrieve certTrans config and submit to designated CT logs
-                // This prototype code currently only handles one single hardcoded CT log
-                String respS;
-
-                { // loop through all CTs
-                    String ct_host = "ct.googleapis.com";
-                    int ct_port = 80;
-                    String ct_uri = "http://ct.googleapis.com/testtube/ct/v1/add-pre-chain";
-
-                    respS = certTransSendReq(
-                            ct_host, ct_port, ct_uri, ctRequest);
-
-                    // verify the sct: TODO - not working, need to fix
-                    verifySCT(CTResponse.fromJSON(respS), cert.getTBSCertificate());
-                } // todo: should collect a list of CTResonses once out of loop
-
-                /**
-                 * Now onto turning the precert into a real cert
-                 */
-                // remove the poison extension
-                exts.delete("1.3.6.1.4.1.11129.2.4.3");
-                certi.delete(X509CertInfo.EXTENSIONS);
-                certi.set(X509CertInfo.EXTENSIONS, exts);
-
-                // create SCT extension
-                // TODO : handle multiple SCTs; should pass in list of CTResponses
-                Extension sctExt = createSCTextension(CTResponse.fromJSON(respS));
-
-                // add the SCT extension
-                exts.set(sctExt.getExtensionId().toString(), sctExt);
-                //check
-                Extension p = (Extension) exts.get("1.3.6.1.4.1.11129.2.4.2");
-                certi.delete(X509CertInfo.EXTENSIONS);
-                certi.set(X509CertInfo.EXTENSIONS, exts);
-
-                try { //double-check if it's there
+                try {
                     exts = (CertificateExtensions)
                             certi.get(X509CertInfo.EXTENSIONS);
-                    logger.debug(method + " about to check sct ext");
-                    Extension check = (Extension) exts.get("1.3.6.1.4.1.11129.2.4.2");
-                    if ( check == null)
-                        logger.debug(method + " check not found");
-                    else
-                        logger.debug(method + " SCT ext found added successfully");
+                    logger.debug(method + " about to check CT poison");
+                    Extension ctPoison = (Extension) exts.get("1.3.6.1.4.1.11129.2.4.3");
+                    if ( ctPoison == null) {
+                        logger.debug(method + " ctPoison not found");
+                    } else {
+                        logger.debug(method + " ctPoison found");
+                        logger.debug(method + " About to ca.sign CT pre-cert.");
+                        cert = ca.sign(certi, algname);
+
+                        // compose CTRequest
+                        CTRequest ctRequest = createCTRequest(cert);
+
+                        List<LogServer> logServers= sct.getLogServerConfig();
+                        List<String> ctResponses = new ArrayList<>();
+
+                        // loop through all CT log servers
+                        for (LogServer ls : logServers) {
+                            logger.debug("Processing log server ID: " + ls.getId());
+
+                            String ct_host = ls.getUrl().getHost();
+                            logger.debug("Log server host: " + ct_host);
+
+                            int ct_port = ls.getUrl().getPort();
+                            logger.debug("Log server port: " + ct_port);
+
+                            // TODO: Refactor to form right rest API
+                            String ct_uri = ls.getUrl() + "ct/v1/add-pre-chain";
+                            logger.debug("Log server URI: " + ct_uri);
+
+                            String respS = certTransSendReq(
+                                    ct_host, ct_port, ct_uri, ctRequest);
+                            logger.debug("Response from log server " + respS);
+
+                            // verify the sct: TODO - not working, need to fix
+                            verifySCT(CTResponse.fromJSON(respS), cert.getTBSCertificate());
+
+                            ctResponses.add(respS);
+                        }
+
+                        /**
+                         * Now onto turning the precert into a real cert
+                         */
+                        // remove the poison extension
+                        exts.delete("1.3.6.1.4.1.11129.2.4.3");
+                        certi.delete(X509CertInfo.EXTENSIONS);
+                        certi.set(X509CertInfo.EXTENSIONS, exts);
+
+                        // create SCT extension
+                        // TODO : handle multiple SCTs; should pass in list of CTResponses
+                        Extension sctExt = createSCTextension(CTResponse.fromJSON(ctResponses.get(0)));
+
+                        // add the SCT extension
+                        exts.set(sctExt.getExtensionId().toString(), sctExt);
+
+                        //check
+                        Extension p = (Extension) exts.get("1.3.6.1.4.1.11129.2.4.2");
+                        certi.delete(X509CertInfo.EXTENSIONS);
+                        certi.set(X509CertInfo.EXTENSIONS, exts);
+
+                        try { //double-check if it's there
+                            exts = (CertificateExtensions)
+                                    certi.get(X509CertInfo.EXTENSIONS);
+                            logger.debug(method + " about to check sct ext");
+                            Extension check = (Extension) exts.get("1.3.6.1.4.1.11129.2.4.2");
+                            if ( check == null)
+                                logger.debug(method + " check not found");
+                            else
+                                logger.debug(method + " SCT ext found added successfully");
+                        } catch (Exception e) {
+                            logger.debug(method + " check sct failed:" + e.toString());
+                        }
+                    }
                 } catch (Exception e) {
-                    logger.debug(method + " check sct failed:" + e.toString());
+                    logger.debug(method + " ctPoison check failure:" + e.toString());
                 }
             }
         } catch (Exception e) {
-            logger.debug(method + " ctPoison check failure:" + e.toString());
+            logger.error("CT Error occured: " + e.getMessage(), e);
         }
-
-        logger.debug(method + "About to ca.sign cert.");
+        logger.debug("CAService: issueX509Cert: About to ca.sign cert.");
         cert = ca.sign(certi, algname);
         return cert;
     }
