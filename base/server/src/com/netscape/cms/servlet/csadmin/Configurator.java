@@ -1191,7 +1191,11 @@ public class Configurator {
             String hostname;
             int port;
 
-            if (sign_clone_sslserver_cert_using_master) {
+            if (certTag.equals("subsystem")) {
+                hostname = cs.getString("securitydomain.host", "");
+                port = cs.getInteger("securitydomain.httpseeport", -1);
+
+            } else if (sign_clone_sslserver_cert_using_master) {
                 // For Cloned CA always use its Master CA to generate the
                 // sslserver certificate to avoid any changes which may have
                 // been made to the X500Name directory string encoding order.
@@ -1206,7 +1210,6 @@ public class Configurator {
             X509CertImpl cert = configRemoteCert(
                     hostname,
                     port,
-                    preopCaType,
                     actualProfileID,
                     session_id,
                     b64Request,
@@ -1280,7 +1283,6 @@ public class Configurator {
     private X509CertImpl configRemoteCert(
             String hostname,
             int port,
-            String caType,
             String actualProfileId,
             String session_id,
             String b64Request,
@@ -1295,53 +1297,25 @@ public class Configurator {
         String machineName = cs.getHostname();
         String securePort = cs.getString("service.securePort", "");
 
-        if (certTag.equals("subsystem")) {
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
+        content.putSingle("profileId", actualProfileId);
+        content.putSingle("cert_request_type", "pkcs10");
+        content.putSingle("cert_request", b64Request);
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", session_id);
 
-            String sd_hostname = cs.getString("securitydomain.host", "");
-            int sd_ee_port = cs.getInteger("securitydomain.httpseeport", -1);
+        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+        logger.debug("Configurator: injectSAN: " + injectSAN);
 
-            MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-            content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
-            content.putSingle("profileId", actualProfileId);
-            content.putSingle("cert_request_type", "pkcs10");
-            content.putSingle("cert_request", b64Request);
-            content.putSingle("xmlOutput", "true");
-            content.putSingle("sessionID", session_id);
+        if (certTag.equals("sslserver") && injectSAN) {
+            CertUtil.buildSANSSLserverURLExtension(cs, content);
+        }
 
-            cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port, content);
+        cert = CertUtil.createRemoteCert(hostname, port, content);
 
-            if (cert == null) {
-                throw new IOException("Error: remote certificate is null");
-            }
-
-        } else if (caType.equals("sdca")) {
-
-            MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-            content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
-            content.putSingle("profileId", actualProfileId);
-            content.putSingle("cert_request_type", "pkcs10");
-            content.putSingle("cert_request", b64Request);
-            content.putSingle("xmlOutput", "true");
-            content.putSingle("sessionID", session_id);
-
-            Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-            logger.debug("Configurator: injectSAN: " + injectSAN);
-
-            if (certTag.equals("sslserver") && injectSAN) {
-                CertUtil.buildSANSSLserverURLExtension(cs, content);
-            }
-
-            cert = CertUtil.createRemoteCert(hostname, port, content);
-
-            if (cert == null) {
-                throw new IOException("Error: remote certificate is null");
-            }
-
-        } else if (caType.equals("otherca")) {
-            // external certs already imported in configuration.py
-
-        } else {
-            logger.warn("Configurator: no preop.ca.type is provided");
+        if (cert == null) {
+            throw new IOException("Unable to create remote certificate");
         }
 
         return cert;
