@@ -1054,7 +1054,6 @@ class PKIConfigParser:
 
                 # Stand-alone PKI
                 self.mdict['pki_security_domain_type'] = "new"
-                self.mdict['pki_issuing_ca'] = "External CA"
 
             elif self.deployer.subsystem_name != "CA" or \
                     config.str2bool(self.mdict['pki_clone']) or \
@@ -1070,7 +1069,6 @@ class PKIConfigParser:
 
                 # External CA
                 self.mdict['pki_security_domain_type'] = "new"
-                self.mdict['pki_issuing_ca'] = "External CA"
 
             else:
                 # PKI CA (master) and Subordinate CA (new)

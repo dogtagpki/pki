@@ -342,7 +342,6 @@ public class ConfigurationTest {
 
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
         data.setClone("false");
-        data.setIssuingCA("External CA");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -398,7 +397,6 @@ public class ConfigurationTest {
 
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
         data.setClone("false");
-        data.setIssuingCA("External CA");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();

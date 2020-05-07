@@ -730,7 +730,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if not (subsystem.type == 'CA' and hierarchy == 'Root'):
 
-            if issuing_ca == 'External CA':
+            if external or standalone:
 
                 logger.info('Using external CA')
 
@@ -761,7 +761,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if not (subsystem.type == 'CA' and hierarchy == 'Root'):
 
-            if issuing_ca == 'External CA':
+            if external or standalone:
                 subsystem.config['preop.ca.pkcs7'] = ''
 
             elif not clone and not system_certs_imported:
