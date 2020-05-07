@@ -1176,11 +1176,41 @@ public class Configurator {
 
             String session_id = request.getInstallToken().getToken();
 
+            String preopCaType = preopConfig.getString("ca.type", "");
+            logger.debug("Configurator: preop.ca.type: " + preopCaType);
+
+            String profileID = preopConfig.getString("cert." + certTag + ".profile");
+            logger.debug("Configurator: profile ID: " + profileID);
+
+            String keyType = preopConfig.getString("cert." + certTag + ".keytype");
+            logger.debug("Configurator: key type: " + keyType);
+
+            String actualProfileID = getSystemCertProfileID(keyType, certTag, profileID);
+            logger.debug("Configurator: actual profile ID: " + actualProfileID);
+
+            String hostname;
+            int port;
+
+            if (sign_clone_sslserver_cert_using_master) {
+                // For Cloned CA always use its Master CA to generate the
+                // sslserver certificate to avoid any changes which may have
+                // been made to the X500Name directory string encoding order.
+                hostname = preopConfig.getString("master.hostname", "");
+                port = preopConfig.getInteger("master.httpsport", -1);
+
+            } else {
+                hostname = preopConfig.getString("ca.hostname", "");
+                port = preopConfig.getInteger("ca.httpsport", -1);
+            }
+
             X509CertImpl cert = configRemoteCert(
+                    hostname,
+                    port,
+                    preopCaType,
+                    actualProfileID,
                     session_id,
                     b64Request,
-                    certTag,
-                    sign_clone_sslserver_cert_using_master);
+                    certTag);
 
             if (sign_clone_sslserver_cert_using_master) {
                 // restore original 'CS.cfg' entries
@@ -1248,22 +1278,19 @@ public class Configurator {
     }
 
     private X509CertImpl configRemoteCert(
+            String hostname,
+            int port,
+            String caType,
+            String actualProfileId,
             String session_id,
             String b64Request,
-            String certTag,
-            boolean sign_clone_sslserver_cert_using_master)
+            String certTag)
             throws Exception {
 
         logger.info("Configurator: Creating remote " + certTag + " certificate");
 
         X509CertImpl cert = null;
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String caType = preopConfig.getString("ca.type", "");
-        logger.debug("Configurator: preop.ca.type: " + caType);
-
-        String profileId = preopConfig.getString("cert." + certTag + ".profile");
         String sysType = cs.getType();
         String machineName = cs.getHostname();
         String securePort = cs.getString("service.securePort", "");
@@ -1275,12 +1302,6 @@ public class Configurator {
 
             MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
-
-            logger.debug("configRemoteCert: subsystemCert: setting profileId to: " + profileId);
-            String keyType = preopConfig.getString("cert." + certTag + ".keytype");
-            String actualProfileId = getSystemCertProfileID(keyType, certTag, profileId);
-            logger.debug("configRemoteCert: subsystemCert: calculated profileId: " + actualProfileId);
-
             content.putSingle("profileId", actualProfileId);
             content.putSingle("cert_request_type", "pkcs10");
             content.putSingle("cert_request", b64Request);
@@ -1295,36 +1316,8 @@ public class Configurator {
 
         } else if (caType.equals("sdca")) {
 
-            String ca_hostname = "";
-            int ca_port = -1;
-
-            try {
-                if (sign_clone_sslserver_cert_using_master) {
-
-                    logger.debug("Configurator: For this Cloned CA, always use its Master CA to generate " +
-                            "the 'sslserver' certificate to avoid any changes which may have been " +
-                            "made to the X500Name directory string encoding order.");
-                    ca_hostname = preopConfig.getString("master.hostname", "");
-                    ca_port = preopConfig.getInteger("master.httpsport", -1);
-
-                } else {
-
-                    ca_hostname = preopConfig.getString("ca.hostname", "");
-                    ca_port = preopConfig.getInteger("ca.httpsport", -1);
-                }
-
-            } catch (Exception ee) {
-            }
-
             MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
-
-            //Get the correct profile id to send in case it's sslserver type:
-            logger.debug("configRemoteCert: tag: " + certTag + " : setting profileId to: " + profileId);
-            String keyType = preopConfig.getString("cert." + certTag + ".keytype");
-            String actualProfileId = getSystemCertProfileID(keyType, certTag, profileId);
-            logger.debug("configRemoteCert: tag: " + certTag + " calculated profileId: " + actualProfileId);
-
             content.putSingle("profileId", actualProfileId);
             content.putSingle("cert_request_type", "pkcs10");
             content.putSingle("cert_request", b64Request);
@@ -1338,7 +1331,7 @@ public class Configurator {
                 CertUtil.buildSANSSLserverURLExtension(cs, content);
             }
 
-            cert = CertUtil.createRemoteCert(ca_hostname, ca_port, content);
+            cert = CertUtil.createRemoteCert(hostname, port, content);
 
             if (cert == null) {
                 throw new IOException("Error: remote certificate is null");
