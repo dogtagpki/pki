@@ -14,9 +14,8 @@ import java.util.Properties;
  * No updates are ever performed.
  */
 class ACMEEngineConfigDefaultSource extends ACMEEngineConfigSource {
-    Consumer<Boolean> setEnabled;
-
-    public void init(Properties _cfg, Consumer<Boolean> setEnabled) {
+    public void init(Properties _cfg, Consumer<Boolean> setEnabled, Consumer<Boolean> setWildcard) {
         setEnabled.accept(true);
+        setWildcard.accept(true);
     }
 }

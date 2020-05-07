@@ -45,6 +45,7 @@ import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMEMetadata;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
+import org.dogtagpki.acme.ACMEPolicy;
 import org.dogtagpki.acme.ACMERevocation;
 import org.dogtagpki.acme.JWK;
 import org.dogtagpki.acme.JWS;
@@ -99,12 +100,15 @@ public class ACMEEngine implements ServletContextListener {
 
     private boolean enabled = true;
 
+    private ACMEPolicy policy;
+
     public static ACMEEngine getInstance() {
         return INSTANCE;
     }
 
     public ACMEEngine() {
         INSTANCE = this;
+        policy = new ACMEPolicy(true /* enable wildcards by default */);
     }
 
     public String getName() {
@@ -178,6 +182,13 @@ public class ACMEEngine implements ServletContextListener {
         this.enabled = b;
     }
 
+    /**
+     * Get the local policy configuration object.
+     */
+    public ACMEPolicy getPolicy() {
+        return policy;
+    }
+
     public void loadEngineConfig(Properties cfg) throws Exception {
         // the default class just sends the default config values
         Class<? extends ACMEEngineConfigSource> configSourceClass
@@ -200,6 +211,16 @@ public class ACMEEngine implements ServletContextListener {
                     setEnabled(b);
                     logger.info(
                         "ACME service is "
+                        + (b ? "enabled" : "DISABLED")
+                        + " by configuration"
+                    );
+                }
+            },
+            new Consumer<Boolean>() {
+                @Override public void accept(Boolean b) {
+                    getPolicy().setEnableWildcards(b);
+                    logger.info(
+                        "ACME wildcard issuance is "
                         + (b ? "enabled" : "DISABLED")
                         + " by configuration"
                     );

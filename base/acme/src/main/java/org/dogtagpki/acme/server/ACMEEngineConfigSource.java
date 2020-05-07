@@ -18,14 +18,17 @@ import java.util.Properties;
  */
 abstract class ACMEEngineConfigSource {
     Consumer<Boolean> setEnabled;
+    Consumer<Boolean> setWildcard;
 
     public abstract void init(
         Properties cfg,
-        Consumer<Boolean> setEnabled)
+        Consumer<Boolean> setEnabled,
+        Consumer<Boolean> setWildcard)
         throws Exception;
 
-    void init(Consumer<Boolean> setEnabled) {
+    void init(Consumer<Boolean> setEnabled, Consumer<Boolean> setWildcard) {
         this.setEnabled = setEnabled;
+        this.setWildcard = setWildcard;
     }
 
     /**

@@ -32,12 +32,14 @@ class ACMEEngineConfigFileSource
 
     // cached config values, so we only send values that actually changed
     Optional<Boolean> cacheEnabled = Optional.empty();
+    Optional<Boolean> cacheWildcard = Optional.empty();
 
     public void init(
             Properties cfg,
-            Consumer<Boolean> setEnabled)
+            Consumer<Boolean> setEnabled,
+            Consumer<Boolean> setWildcard)
             throws Exception {
-        init(setEnabled);
+        init(setEnabled, setWildcard);
 
         filename = cfg.getProperty("engine.filename");
         if (null == filename) {
@@ -55,6 +57,7 @@ class ACMEEngineConfigFileSource
     void loadFile() throws IOException {
         // default values
         Boolean enabled = true;
+        Boolean wildcard = true;
 
         // read values
         File f = new File(filename);
@@ -68,6 +71,11 @@ class ACMEEngineConfigFileSource
             if (s != null) {
                 enabled = !("0".equals(s) || "false".equalsIgnoreCase(s));
             }
+
+            s = props.getProperty("wildcard");
+            if (s != null) {
+                wildcard = !("0".equals(s) || "false".equalsIgnoreCase(s));
+            }
         }
 
         // send changed values and update cache
@@ -75,6 +83,12 @@ class ACMEEngineConfigFileSource
         if (!cacheEnabled.equals(v)) {
             setEnabled.accept(enabled);
             cacheEnabled = v;
+        }
+
+        v = Optional.of(wildcard);
+        if (!cacheWildcard.equals(v)) {
+            setWildcard.accept(enabled);
+            cacheWildcard = v;
         }
     }
 
