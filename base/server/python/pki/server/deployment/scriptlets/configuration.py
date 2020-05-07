@@ -734,8 +734,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 logger.info('Using external CA')
 
-                subsystem.config['preop.ca.type'] = 'otherca'
-
                 if subsystem.type == 'CA':
                     subsystem.config['preop.cert.signing.type'] = 'remote'
 
@@ -746,7 +744,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 url = urllib.parse.urlparse(issuing_ca)
 
                 subsystem.config['preop.ca.url'] = issuing_ca
-                subsystem.config['preop.ca.type'] = 'sdca'
                 subsystem.config['preop.ca.hostname'] = url.hostname
                 subsystem.config['preop.ca.httpsport'] = str(url.port)
                 subsystem.config['preop.ca.httpsadminport'] = str(url.port)

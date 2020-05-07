@@ -470,11 +470,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             self.generate_system_cert_requests(deployer, subsystem)
 
-            # This is needed by IPA to detect step 1 completion.
-            # See is_step_one_done() in ipaserver/install/cainstance.py.
-
-            subsystem.config['preop.ca.type'] = 'otherca'
-
             subsystem.save()
 
     def destroy(self, deployer):

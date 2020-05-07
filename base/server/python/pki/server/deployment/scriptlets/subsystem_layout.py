@@ -39,6 +39,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
+        external = deployer.configuration_file.external
+        standalone = deployer.configuration_file.standalone
+        subordinate = deployer.configuration_file.subordinate
+
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             logger.info('Skipping subsystem creation')
             return
@@ -237,8 +241,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     config.str2bool(deployer.mdict['pki_subordinate']):
                 subsystem.config['preop.cert.signing.type'] = 'remote'
 
-            else:
-                subsystem.config['preop.ca.type'] = 'sdca'
+        if external or standalone:
+
+            # This is needed by IPA to detect step 1 completion.
+            # See is_step_one_done() in ipaserver/install/cainstance.py.
+
+            subsystem.config['preop.ca.type'] = 'otherca'
+
+        elif subsystem.type != 'CA' or subordinate:
+
+            subsystem.config['preop.ca.type'] = 'sdca'
 
         # configure cloning
         if config.str2bool(deployer.mdict['pki_clone']):
