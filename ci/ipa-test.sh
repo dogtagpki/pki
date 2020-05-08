@@ -20,56 +20,8 @@
 # All rights reserved.
 #
 
-TEST_LOG=/tmp/ipa-test.txt
-LOGS_TAR_NAME="var_log.tar"
-
-exit_handler() {
-
-    if [ $? -eq 0 ]
-    then
-        # test succeeded, do not upload test logs
-        return
-    fi
-
-    echo "Test failed"
-
-    # display the last 1000 lines for troubleshooting
-    tail -n 1000 systemd_journal.txt
-
-    echo "Uploading test log"
-    curl -k -w "\n" --upload ${TEST_LOG} https://transfer.sh/ipa-test.txt >> ${BUILDDIR}/pki/logs.txt || true
-
-    echo "Saving systemd journal"
-    journalctl -b --no-pager > systemd_journal.txt
-
-    echo "Uploading systemd_journal.txt"
-    curl -k -w "\n" --upload systemd_journal.txt https://transfer.sh/systemd_journal.txt >> ${BUILDDIR}/pki/logs.txt || true
-
-    echo "Saving other logs"
-
-    tar --ignore-failed-read -cvf /tmp/${LOGS_TAR_NAME} \
-        /var/log/dirsrv \
-        /var/log/httpd \
-        /var/log/ipa* \
-        /var/log/krb5kdc.log \
-        /var/log/pki
-
-    chown ${BUILDUSER_UID}:${BUILDUSER_GID} /tmp/${LOGS_TAR_NAME}
-
-    echo "Uploading ${LOGS_TAR_NAME}"
-    curl -k -w "\n" --upload /tmp/${LOGS_TAR_NAME} https://transfer.sh/${LOGS_TAR_NAME} >> ${BUILDDIR}/pki/logs.txt || true
-}
-
 # Print the version of installed components
-rpm -qa tomcat* pki-* freeipa-* nss* 389-ds* jss*| sort
-
-# workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1727378
-# TODO: remove after the fix is available
-ds_version=`rpm -q 389-ds-base`
-if [[ $ds_version =~ 389-ds-base-1.4.0.24-1.fc29 ]]
-then
-    dnf downgrade -y 389-ds-base
-fi
+rpm -qa tomcat* pki-* freeipa-* nss* 389-ds* jss* | sort
 
 # Disable IPV6
 sysctl net.ipv6.conf.lo.disable_ipv6=0
@@ -97,20 +49,15 @@ done
 echo "Following IPA tests are scheduled to run: "
 echo ${cert_test_file_loc}
 
-trap "exit_handler" EXIT
-
 echo "Running IPA tests"
 
-# Propogate exit code when piped
-set -o pipefail
 ipa-run-tests \
 --ignore test_integration \
 --ignore test_webui \
 --ignore test_ipapython/test_keyring.py \
 -k-test_dns_soa \
 --verbose \
-${cert_test_file_loc} 2>&1 | tee $TEST_LOG
-set +o pipefail
+${cert_test_file_loc} 2>&1
 
 echo "Test complete"
 
