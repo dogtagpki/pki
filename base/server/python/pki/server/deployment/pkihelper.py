@@ -3216,16 +3216,6 @@ class ConfigClient:
                 print("log.PKI_CONFIG_PKCS10_SUPPORT_ONLY")
                 raise Exception(log.PKI_CONFIG_PKCS10_SUPPORT_ONLY)
 
-    def set_issuing_ca_parameters(self, data):
-        if (self.subsystem != "CA" or
-                self.clone or
-                self.subordinate or
-                self.external):
-            # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
-            # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone,
-            # Subordinate CA, External CA, or Stand-alone PKI
-            data.issuingCA = self.mdict['pki_issuing_ca']
-
     def set_tps_parameters(self, data):
 
         data.caUri = self.mdict['pki_ca_uri']
