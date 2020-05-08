@@ -140,12 +140,6 @@ public class Configurator {
     public final static Logger logger = LoggerFactory.getLogger(Configurator.class);
 
     // Hard coded values for ECC and RSA internal cert profile names
-    public static final String ECC_INTERNAL_SERVER_CERT_PROFILE = "caECInternalAuthServerCert";
-    public static final String RSA_INTERNAL_SERVER_CERT_PROFILE = "caInternalAuthServerCert";
-
-    public static final String ECC_INTERNAL_SUBSYSTEM_CERT_PROFILE = "caECInternalAuthSubsystemCert";
-    public static final String RSA_INTERNAL_SUBSYSTEM_CERT_PROFILE = "caInternalAuthSubsystemCert";
-
     public static final String ECC_INTERNAL_ADMIN_CERT_PROFILE = "caECAdminCert";
     public static final String RSA_INTERNAL_ADMIN_CERT_PROFILE = "caAdminCert";
 
@@ -2414,35 +2408,5 @@ public class Configurator {
                 break;
             }
         }
-    }
-
-    public String getSystemCertProfileID(String keyType, String tag, String defaultName) {
-
-        String profileName = defaultName;
-
-        logger.debug("Configurator: tag: " + tag + " defaultName: " + defaultName + " keyType: " + keyType);
-        if (keyType == null) {
-            return profileName;
-        }
-
-        // Hard code for now based on key type.  Method can be changed later to read pkispawn
-        // params sent over in the future.
-        if ("ecc".equalsIgnoreCase(keyType)) {
-            if ("sslserver".equalsIgnoreCase(tag)) {
-                profileName = ECC_INTERNAL_SERVER_CERT_PROFILE;
-            } else if ("subsystem".equalsIgnoreCase(tag)) {
-                profileName = ECC_INTERNAL_SUBSYSTEM_CERT_PROFILE;
-            }
-
-        } else if ("rsa".equalsIgnoreCase(keyType)) {
-            if ("sslserver".equalsIgnoreCase(tag)) {
-                profileName = RSA_INTERNAL_SERVER_CERT_PROFILE;
-            } else if ("subsystem".equalsIgnoreCase(tag)) {
-                profileName = RSA_INTERNAL_SUBSYSTEM_CERT_PROFILE;
-            }
-        }
-
-        logger.debug("Configurator: returning: " + profileName);
-        return profileName;
     }
 }
