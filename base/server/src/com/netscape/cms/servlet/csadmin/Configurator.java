@@ -1106,7 +1106,6 @@ public class Configurator {
 
         String csType = cs.getType();
         String preop_ca_type = null;
-        String preop_cert_sslserver_profile = null;
         boolean sign_clone_sslserver_cert_using_master = false;
 
         if (request.isClone() && csType.equals("CA") && certTag.equals("sslserver")) {
@@ -1115,14 +1114,9 @@ public class Configurator {
 
             // retrieve and store original 'CS.cfg' entries
             preop_ca_type = preopConfig.getString("ca.type", "");
-            preop_cert_sslserver_profile = preopConfig.getString("cert.sslserver.profile", "");
 
             // add/modify 'CS.cfg' entries
             preopConfig.putString("ca.type", "sdca");
-
-            String keyType = preopConfig.getString("cert.sslserver.keytype");
-            String profileID = getSystemCertProfileID(keyType, "sslserver", "caInternalAuthServerCert");
-            preopConfig.putString("cert.sslserver.profile", profileID);
 
             // set master/clone signature flag
             sign_clone_sslserver_cert_using_master = true;
@@ -1199,7 +1193,6 @@ public class Configurator {
             if (sign_clone_sslserver_cert_using_master) {
                 // restore original 'CS.cfg' entries
                 preopConfig.putString("ca.type", preop_ca_type);
-                preopConfig.putString("cert.sslserver.profile", preop_cert_sslserver_profile);
             }
 
             return cert;

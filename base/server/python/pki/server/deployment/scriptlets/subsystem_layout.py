@@ -267,6 +267,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             if clone:
                 subsystem.config['preop.cert.sslserver.type'] = 'remote'
+                subsystem.config['preop.cert.sslserver.profile'] = 'caInternalAuthServerCert'
 
         # configure TPS
         if subsystem.type == 'TPS':
