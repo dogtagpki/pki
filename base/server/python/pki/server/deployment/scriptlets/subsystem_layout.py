@@ -263,6 +263,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             if subordinate:
                 subsystem.config['preop.cert.signing.type'] = 'remote'
+                subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
 
         # configure TPS
         if subsystem.type == 'TPS':

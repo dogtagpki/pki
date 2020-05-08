@@ -741,9 +741,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.config['preop.ca.httpsport'] = str(url.port)
                 subsystem.config['preop.ca.httpsadminport'] = str(url.port)
 
-                if subsystem.type == 'CA':
-                    subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
-
         system_certs_imported = \
             deployer.mdict['pki_server_pkcs12_path'] != '' or \
             deployer.mdict['pki_clone_pkcs12_path'] != ''
