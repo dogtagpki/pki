@@ -206,12 +206,6 @@ public class Configurator {
         }
 
         logger.info("Joining existing security domain");
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        String keyType = preopConfig.getString("cert.subsystem.keytype");
-        String profileID = preopConfig.getString("cert.subsystem.profile");
-        profileID = getSystemCertProfileID(keyType, "subsystem", profileID);
-        preopConfig.putString("cert.subsystem.profile", profileID);
     }
 
     private String logIntoSecurityDomain(

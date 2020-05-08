@@ -226,6 +226,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem.config['preop.subsystem.name'] = deployer.mdict['pki_subsystem_name']
 
+        certs = subsystem.find_system_certs()
+        for cert in certs:
+
+            # get CS.cfg tag and pkispawn tag
+            config_tag = cert['id']
+            deploy_tag = config_tag
+
+            if config_tag == 'signing':  # for CA and OCSP
+                deploy_tag = subsystem.name + '_signing'
+
+            keytype = deployer.mdict['pki_%s_key_type' % deploy_tag]
+            subsystem.config['preop.cert.%s.keytype' % config_tag] = keytype
+
         # configure subsystem cert
         if deployer.mdict['pki_security_domain_type'] == 'new':
 
@@ -235,7 +248,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         else:  # deployer.mdict['pki_security_domain_type'] == 'existing':
 
             subsystem.config['preop.cert.subsystem.type'] = 'remote'
-            subsystem.config['preop.cert.subsystem.profile'] = 'caInternalAuthSubsystemCert'
+            keytype = subsystem.config['preop.cert.subsystem.keytype']
+
+            if keytype.lower() == 'ecc':
+                subsystem.config['preop.cert.subsystem.profile'] = 'caECInternalAuthSubsystemCert'
+
+            elif keytype.lower() == 'rsa':
+                subsystem.config['preop.cert.subsystem.profile'] = 'caInternalAuthSubsystemCert'
 
         if external or standalone:
 

@@ -250,9 +250,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subject_dn = deployer.mdict['pki_%s_subject_dn' % deploy_tag]
             subsystem.config['preop.cert.%s.dn' % config_tag] = subject_dn
 
-            keytype = deployer.mdict['pki_%s_key_type' % deploy_tag]
-            subsystem.config['preop.cert.%s.keytype' % config_tag] = keytype
-
             keyalgorithm = deployer.mdict['pki_%s_key_algorithm' % deploy_tag]
             subsystem.config['preop.cert.%s.keyalgorithm' % config_tag] = keyalgorithm
 
