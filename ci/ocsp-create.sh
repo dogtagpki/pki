@@ -11,7 +11,7 @@ exit_handler() {
 
     # display logs for quick troubleshooting
 
-    for DEBUG_LOG in `ls /var/log/pki/pkitest/ca/debug.*`
+    for DEBUG_LOG in `ls /var/log/pki/pkitest/ocsp/debug.*`
     do
         tail -n 1000 $DEBUG_LOG
     done
@@ -22,7 +22,7 @@ exit_handler() {
 
     # upload logs for further investigation
 
-    for DEBUG_LOG in `ls /var/log/pki/pkitest/ca/debug.*`
+    for DEBUG_LOG in `ls /var/log/pki/pkitest/ocsp/debug.*`
     do
         filename=`basename $DEBUG_LOG`
         curl -k -w "\n" --upload-file $DEBUG_LOG https://transfer.sh/$filename
@@ -33,4 +33,4 @@ exit_handler() {
 }
 
 trap "exit_handler" EXIT
-pkispawn -v -f ${BUILDDIR}/pki/travis/pki.cfg -s CA
+pkispawn -v -f ${BUILDDIR}/pki/ci/pki.cfg -s OCSP
