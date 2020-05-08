@@ -41,9 +41,6 @@ public class ConfigurationRequest {
     @XmlElement
     protected String securityDomainType;
 
-    @XmlElement
-    protected Boolean systemCertsImported;
-
     public ConfigurationRequest() {
         // required for JAXB
     }
@@ -64,28 +61,11 @@ public class ConfigurationRequest {
         this.securityDomainType = securityDomainType;
     }
 
-    /**
-     *
-     * @return systemCertsImported
-     */
-    public Boolean getSystemCertsImported() {
-        return systemCertsImported;
-    }
-
-    /**
-     *
-     * @param systemCertsImported
-     */
-    public void setSystemCertsImported(Boolean systemCertsImported) {
-        this.systemCertsImported = systemCertsImported;
-    }
-
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
                ", installToken=XXXX" +
                ", securityDomainType=" + securityDomainType +
-               ", systemCertsImported=" + systemCertsImported +
                "]";
     }
 }
