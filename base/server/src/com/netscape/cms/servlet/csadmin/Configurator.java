@@ -1097,14 +1097,22 @@ public class Configurator {
 
     public X509CertImpl configCert(CertificateSetupRequest request, KeyPair keyPair, Cert certObj) throws Exception {
 
+        String csType = cs.getType();
+
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String certType = certObj.getType();
         logger.debug("Configurator: cert type: " + certType);
 
         String certTag = certObj.getCertTag();
+        logger.debug("Configurator: cert type: " + certTag);
 
-        String csType = cs.getType();
+        String dn = preopConfig.getString("cert." + certTag + ".dn");
+        logger.debug("Configurator: subject: " + dn);
+
+        String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
+        logger.debug("Configurator: algorithm: " + algorithm);
+
         String preop_ca_type = null;
         boolean sign_clone_sslserver_cert_using_master = false;
 
@@ -1126,13 +1134,7 @@ public class Configurator {
 
         if (certType.equals("remote")) {
 
-            logger.info("CertUtil: Generating CSR for " + certTag);
-
-            String dn = preopConfig.getString("cert." + certTag + ".dn");
-            logger.debug("CertUtil: subject: " + dn);
-
-            String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
-            logger.debug("CertUtil: algorithm: " + algorithm);
+            logger.info("Configurator: Generating CSR for " + certTag);
 
             X509Key key = CryptoUtil.createX509Key(keyPair.getPublic());
             PKCS10 pkcs10 = CryptoUtil.createCertificationRequest(
@@ -1201,9 +1203,7 @@ public class Configurator {
 
             ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
-            String dn = preopConfig.getString("cert." + certTag + ".dn");
             String issuerDN = preopConfig.getString("cert.signing.dn", "");
-            String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
 
             String instanceRoot = cs.getInstanceDir();
             String configurationRoot = cs.getString("configurationRoot");
@@ -1242,7 +1242,7 @@ public class Configurator {
 
             if (cert != null) {
                 if (certTag.equals("subsystem")) {
-                    logger.debug("configCert: creating subsystem user");
+                    logger.debug("Configurator: creating subsystem user");
                     setupSubsystemUser(cert);
                 }
             }
