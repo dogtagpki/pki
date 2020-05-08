@@ -1113,18 +1113,6 @@ public class Configurator {
         String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
         logger.debug("Configurator: algorithm: " + algorithm);
 
-        boolean sign_clone_sslserver_cert_using_master = false;
-
-        if (request.isClone() && csType.equals("CA") && certTag.equals("sslserver")) {
-
-            logger.info("Configuring sslserver cert for CA clone");
-
-            // set master/clone signature flag
-            sign_clone_sslserver_cert_using_master = true;
-        }
-
-        cs.commit(false);
-
         if (certType.equals("remote")) {
 
             logger.info("Configurator: Generating CSR for " + certTag);
@@ -1162,7 +1150,7 @@ public class Configurator {
                 hostname = cs.getString("securitydomain.host", "");
                 port = cs.getInteger("securitydomain.httpseeport", -1);
 
-            } else if (sign_clone_sslserver_cert_using_master) {
+            } else if (request.isClone() && csType.equals("CA") && certTag.equals("sslserver")) {
                 // For Cloned CA always use its Master CA to generate the
                 // sslserver certificate to avoid any changes which may have
                 // been made to the X500Name directory string encoding order.
