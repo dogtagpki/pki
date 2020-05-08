@@ -41,9 +41,6 @@ public class ConfigurationRequest {
     @XmlElement
     protected String securityDomainType;
 
-    @XmlElement(defaultValue="false")
-    protected String isClone;
-
     @XmlElement
     protected Boolean systemCertsImported;
 
@@ -68,14 +65,6 @@ public class ConfigurationRequest {
 
     public void setSecurityDomainType(String securityDomainType) {
         this.securityDomainType = securityDomainType;
-    }
-
-    public boolean isClone() {
-        return (isClone!= null) && isClone.equalsIgnoreCase("true");
-    }
-
-    public void setClone(String isClone) {
-        this.isClone = isClone;
     }
 
     /**
@@ -108,20 +97,11 @@ public class ConfigurationRequest {
         this.issuingCA = issuingCA;
     }
 
-    public String getIsClone() {
-        return isClone;
-    }
-
-    public void setIsClone(String isClone) {
-        this.isClone = isClone;
-    }
-
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
                ", installToken=XXXX" +
                ", securityDomainType=" + securityDomainType +
-               ", isClone=" + isClone +
                ", systemCertsImported=" + systemCertsImported +
                ", issuingCA=" + issuingCA +
                "]";

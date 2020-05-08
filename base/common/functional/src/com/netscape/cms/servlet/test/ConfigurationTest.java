@@ -228,7 +228,6 @@ public class ConfigurationTest {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
-        data.setClone("false");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -283,7 +282,6 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setClone("false");
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
@@ -339,7 +337,6 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
-        data.setClone("false");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -394,7 +391,6 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
-        data.setClone("false");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -456,7 +452,6 @@ public class ConfigurationTest {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setClone("true");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -478,7 +473,6 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setClone("false");
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
@@ -534,7 +528,6 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setClone("false");
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
@@ -582,7 +575,6 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setClone("false");
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
