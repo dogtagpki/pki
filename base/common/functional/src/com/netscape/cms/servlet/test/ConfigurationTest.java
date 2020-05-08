@@ -227,7 +227,6 @@ public class ConfigurationTest {
             InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
-        data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -281,8 +280,6 @@ public class ConfigurationTest {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
 
-        data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert1 = new SystemCertData();
@@ -335,8 +332,6 @@ public class ConfigurationTest {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
 
-        data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
-
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert1 = new SystemCertData();
@@ -388,8 +383,6 @@ public class ConfigurationTest {
             throws NoSuchAlgorithmException, TokenException, IOException, InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
-
-        data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -450,7 +443,6 @@ public class ConfigurationTest {
             InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
-        data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -470,8 +462,6 @@ public class ConfigurationTest {
             InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
-
-        data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -525,8 +515,6 @@ public class ConfigurationTest {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
 
-        data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert1 = new SystemCertData();
@@ -570,8 +558,6 @@ public class ConfigurationTest {
             InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
-
-        data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();

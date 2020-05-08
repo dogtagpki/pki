@@ -38,9 +38,6 @@ public class ConfigurationRequest {
     @XmlElement
     protected String pin;
 
-    @XmlElement
-    protected String securityDomainType;
-
     public ConfigurationRequest() {
         // required for JAXB
     }
@@ -53,19 +50,10 @@ public class ConfigurationRequest {
         this.pin = pin;
     }
 
-    public String getSecurityDomainType() {
-        return securityDomainType;
-    }
-
-    public void setSecurityDomainType(String securityDomainType) {
-        this.securityDomainType = securityDomainType;
-    }
-
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
                ", installToken=XXXX" +
-               ", securityDomainType=" + securityDomainType +
                "]";
     }
 }
