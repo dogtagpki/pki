@@ -450,11 +450,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         String nickname = preopConfig.getString("cert." + tag + ".nickname");
         String dn = preopConfig.getString("cert." + tag + ".dn");
         String subsystem = preopConfig.getString("cert." + tag + ".subsystem");
+        String type = preopConfig.getString("cert." + tag + ".type");
 
         Cert cert = new Cert(tokenName, nickname, tag);
         cert.setDN(dn);
         cert.setSubsystem(subsystem);
-        cert.setType(preopConfig.getString("cert." + tag + ".type"));
+        cert.setType(type);
 
         String fullName;
         if (!CryptoUtil.isInternalToken(tokenName)) {

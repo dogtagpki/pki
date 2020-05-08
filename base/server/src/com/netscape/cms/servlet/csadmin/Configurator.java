@@ -1099,8 +1099,9 @@ public class Configurator {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        String caType = certObj.getType();
-        logger.debug("configCert: caType is " + caType);
+        String certType = certObj.getType();
+        logger.debug("Configurator: cert type: " + certType);
+
         String certTag = certObj.getCertTag();
 
         String csType = cs.getType();
@@ -1109,7 +1110,7 @@ public class Configurator {
         String preop_cert_signing_profile = null;
         String preop_cert_sslserver_type = null;
         String preop_cert_sslserver_profile = null;
-        String original_caType = null;
+        String original_certType = null;
         boolean sign_clone_sslserver_cert_using_master = false;
 
         if (request.isClone() && csType.equals("CA") && certTag.equals("sslserver")) {
@@ -1133,15 +1134,15 @@ public class Configurator {
             String profileID = getSystemCertProfileID(keyType, "sslserver", "caInternalAuthServerCert");
             preopConfig.putString("cert.sslserver.profile", profileID);
 
-            // store original caType
-            original_caType = caType;
+            // store original certType
+            original_certType = certType;
 
-            // modify caType
+            // modify certType
             certObj.setType("remote");
 
-            // fetch revised caType
-            caType = certObj.getType();
-            logger.debug("configCert: caType is " + caType + " (revised)");
+            // fetch revised certType
+            certType = certObj.getType();
+            logger.debug("Configurator: cert type: " + certType + " (revised)");
 
             // set master/clone signature flag
             sign_clone_sslserver_cert_using_master = true;
@@ -1149,7 +1150,7 @@ public class Configurator {
 
         cs.commit(false);
 
-        if (caType.equals("remote")) {
+        if (certType.equals("remote")) {
 
             logger.info("CertUtil: Generating CSR for " + certTag);
 
@@ -1241,12 +1242,12 @@ public class Configurator {
 
             PublicKey publicKey = keyPair.getPublic();
             X509Key x509key = CryptoUtil.createX509Key(publicKey);
-            X509CertInfo info = CertUtil.createCertInfo(dn, issuerDN, algorithm, x509key, caType);
+            X509CertInfo info = CertUtil.createCertInfo(dn, issuerDN, algorithm, x509key, certType);
 
             java.security.PrivateKey signingPrivateKey;
             String signingAlgorithm;
 
-            if (caType.equals("selfsign")) {
+            if (certType.equals("selfsign")) {
                 signingPrivateKey = keyPair.getPrivate();
                 signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
             } else {
