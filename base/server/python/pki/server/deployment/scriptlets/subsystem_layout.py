@@ -239,6 +239,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             keytype = deployer.mdict['pki_%s_key_type' % deploy_tag]
             subsystem.config['preop.cert.%s.keytype' % config_tag] = keytype
 
+        # configure SSL server cert
+        if subsystem.type == 'CA' and clone or subsystem.type != 'CA':
+
+            subsystem.config['preop.cert.sslserver.type'] = 'remote'
+            keytype = subsystem.config['preop.cert.sslserver.keytype']
+
+            if keytype.lower() == 'ecc':
+                subsystem.config['preop.cert.sslserver.profile'] = 'caECInternalAuthServerCert'
+
+            elif keytype.lower() == 'rsa':
+                subsystem.config['preop.cert.sslserver.profile'] = 'caInternalAuthServerCert'
+
         # configure subsystem cert
         if deployer.mdict['pki_security_domain_type'] == 'new':
 
@@ -284,10 +296,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if subordinate:
                 subsystem.config['preop.cert.signing.type'] = 'remote'
                 subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
-
-            if clone:
-                subsystem.config['preop.cert.sslserver.type'] = 'remote'
-                subsystem.config['preop.cert.sslserver.profile'] = 'caInternalAuthServerCert'
 
         # configure TPS
         if subsystem.type == 'TPS':

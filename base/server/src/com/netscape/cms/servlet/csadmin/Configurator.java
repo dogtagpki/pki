@@ -1132,12 +1132,6 @@ public class Configurator {
             String profileID = preopConfig.getString("cert." + certTag + ".profile");
             logger.debug("Configurator: profile ID: " + profileID);
 
-            String keyType = preopConfig.getString("cert." + certTag + ".keytype");
-            logger.debug("Configurator: key type: " + keyType);
-
-            String actualProfileID = getSystemCertProfileID(keyType, certTag, profileID);
-            logger.debug("Configurator: actual profile ID: " + actualProfileID);
-
             String hostname;
             int port;
 
@@ -1160,7 +1154,7 @@ public class Configurator {
             X509CertImpl cert = configRemoteCert(
                     hostname,
                     port,
-                    actualProfileID,
+                    profileID,
                     session_id,
                     b64Request,
                     certTag);
