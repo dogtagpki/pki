@@ -282,7 +282,6 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -473,7 +472,6 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -528,7 +526,6 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -575,7 +572,6 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
-        data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();

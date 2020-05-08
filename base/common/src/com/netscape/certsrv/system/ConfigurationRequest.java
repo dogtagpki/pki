@@ -44,9 +44,6 @@ public class ConfigurationRequest {
     @XmlElement
     protected Boolean systemCertsImported;
 
-    @XmlElement
-    protected String issuingCA;
-
     public ConfigurationRequest() {
         // required for JAXB
     }
@@ -83,27 +80,12 @@ public class ConfigurationRequest {
         this.systemCertsImported = systemCertsImported;
     }
 
-   /**
-     * @return the issuingCA
-     */
-    public String getIssuingCA() {
-        return issuingCA;
-    }
-
-    /**
-     * @param issuingCA the issuingCA to set
-     */
-    public void setIssuingCA(String issuingCA) {
-        this.issuingCA = issuingCA;
-    }
-
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
                ", installToken=XXXX" +
                ", securityDomainType=" + securityDomainType +
                ", systemCertsImported=" + systemCertsImported +
-               ", issuingCA=" + issuingCA +
                "]";
     }
 }
