@@ -114,10 +114,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            // configure security domain
-            logger.debug("=== Security Domain Configuration ===");
-            configurator.configureSecurityDomain(request);
-
             cs.commit(false);
 
         } catch (PKIException e) { // normal responses

@@ -185,23 +185,6 @@ public class Configurator {
         this.serverXml = serverXml;
     }
 
-    public void configureSecurityDomain(ConfigurationRequest request) throws Exception {
-
-        String securityDomainType = request.getSecurityDomainType();
-
-        if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-            logger.info("Creating new security domain");
-            return;
-        }
-
-        if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)){
-            logger.info("Configuring new security subdomain");
-            return;
-        }
-
-        logger.info("Joining existing security domain");
-    }
-
     private String logIntoSecurityDomain(
             ConfigurationRequest request,
             String hostname,
