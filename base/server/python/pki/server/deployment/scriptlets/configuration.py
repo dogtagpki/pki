@@ -902,8 +902,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Configuring %s subsystem', subsystem.type)
 
-        request = deployer.config_client.create_config_request()
-        client.configure(request)
+        deployer.config_client.create_config_request()
 
         if clone:
 

@@ -39,8 +39,4 @@ public class SystemConfigClient extends Client {
     public void init() throws URISyntaxException {
         configClient = createProxy(SystemConfigResource.class);
     }
-
-    public void configure(ConfigurationRequest request) throws Exception {
-        configClient.configure(request);
-    }
 }

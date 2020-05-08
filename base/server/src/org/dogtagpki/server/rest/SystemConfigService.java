@@ -43,7 +43,6 @@ import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.CloneSetupRequest;
-import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DatabaseUserSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
@@ -97,37 +96,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         instanceRoot = cs.getInstanceDir();
 
         configurator = engine.createConfigurator();
-    }
-
-    /* (non-Javadoc)
-     * @see com.netscape.cms.servlet.csadmin.SystemConfigurationResource#configure(com.netscape.cms.servlet.csadmin.data.ConfigurationData)
-     */
-    @Override
-    public void configure(ConfigurationRequest request) throws Exception {
-
-        logger.info("SystemConfigService: configuring subsystem");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            cs.commit(false);
-
-        } catch (PKIException e) { // normal responses
-            logger.error("Configuration failed: " + e.getMessage()); // log the response
-            throw e;
-
-        } catch (Exception e) { // unexpected exceptions
-            logger.error("Configuration failed: " + e.getMessage(), e); // show stack trace for troubleshooting
-            throw e;
-
-        } catch (Error e) { // system errors
-            logger.error("Configuration failed: " + e.getMessage(), e); // show stack trace for troubleshooting
-            throw e;
-        }
     }
 
     @Override

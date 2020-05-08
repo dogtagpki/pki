@@ -220,8 +220,6 @@ public class ConfigurationTest {
             System.out.println("Invalid test");
             System.exit(1);
         }
-
-        client.configure(data);
     }
 
     private static ConfigurationRequest constructCAData(String host, String port, String pin, String db_dir,

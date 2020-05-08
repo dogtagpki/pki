@@ -412,23 +412,6 @@ class SystemConfigClient(object):
             self.setup_db_user_url = '/' + subsystem + self.setup_db_user_url
             self.finalize_config_url = '/' + subsystem + self.finalize_config_url
 
-    def configure(self, request):
-        """
-        Contacts the server and invokes the Java configuration REST API to
-        configure a Dogtag subsystem.
-
-        :param request: Configuration request containing all the input needed to
-            configure the subsystem
-        :type request: ConfigurationRequest
-        """
-        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
-        headers = {'Content-type': 'application/json',
-                   'Accept': 'application/json'}
-        self.connection.post(
-            self.configure_url,
-            data,
-            headers)
-
     def setupClone(self, request):
         """
         Set up clone.
