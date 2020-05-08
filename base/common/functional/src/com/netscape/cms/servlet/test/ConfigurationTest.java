@@ -226,7 +226,6 @@ public class ConfigurationTest {
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
-        data.setPin(pin);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -278,7 +277,6 @@ public class ConfigurationTest {
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
-        data.setPin(pin);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -330,7 +328,6 @@ public class ConfigurationTest {
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
-        data.setPin(pin);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -382,7 +379,6 @@ public class ConfigurationTest {
             String token_pwd, CryptoToken token, String extCertFile)
             throws NoSuchAlgorithmException, TokenException, IOException, InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
-        data.setPin(pin);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -442,7 +438,6 @@ public class ConfigurationTest {
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
-        data.setPin(pin);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -461,7 +456,6 @@ public class ConfigurationTest {
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
-        data.setPin(pin);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -513,7 +507,6 @@ public class ConfigurationTest {
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
-        data.setPin(pin);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -557,7 +550,6 @@ public class ConfigurationTest {
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
-        data.setPin(pin);
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();

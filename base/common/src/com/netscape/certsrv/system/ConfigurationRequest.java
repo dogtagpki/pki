@@ -19,7 +19,6 @@ package com.netscape.certsrv.system;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -35,25 +34,12 @@ public class ConfigurationRequest {
     public static final String EXISTING_DOMAIN = "existingdomain";
     public static final String NEW_SUBDOMAIN = "newsubdomain";
 
-    @XmlElement
-    protected String pin;
-
     public ConfigurationRequest() {
         // required for JAXB
     }
 
-    public String getPin() {
-        return pin;
-    }
-
-    public void setPin(String pin) {
-        this.pin = pin;
-    }
-
     @Override
     public String toString() {
-        return "ConfigurationRequest [pin=XXXX" +
-               ", installToken=XXXX" +
-               "]";
+        return "ConfigurationRequest []";
     }
 }
