@@ -730,14 +730,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if not (subsystem.type == 'CA' and hierarchy == 'Root'):
 
-            if external or standalone:
-
-                logger.info('Using external CA')
-
-                if subsystem.type == 'CA':
-                    subsystem.config['preop.cert.signing.type'] = 'remote'
-
-            else:
+            if not external and not standalone:
 
                 logger.info('Using CA at %s', issuing_ca)
 
@@ -749,7 +742,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.config['preop.ca.httpsadminport'] = str(url.port)
 
                 if subsystem.type == 'CA':
-                    subsystem.config['preop.cert.signing.type'] = 'remote'
                     subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
 
         system_certs_imported = \

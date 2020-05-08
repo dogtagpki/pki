@@ -42,6 +42,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         external = deployer.configuration_file.external
         standalone = deployer.configuration_file.standalone
         subordinate = deployer.configuration_file.subordinate
+        clone = deployer.configuration_file.clone
 
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             logger.info('Skipping subsystem creation')
@@ -235,12 +236,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             subsystem.config['preop.cert.subsystem.type'] = 'remote'
 
-        if subsystem.type == 'CA' and not config.str2bool(deployer.mdict['pki_clone']):
-
-            if config.str2bool(deployer.mdict['pki_external']) or \
-                    config.str2bool(deployer.mdict['pki_subordinate']):
-                subsystem.config['preop.cert.signing.type'] = 'remote'
-
         if external or standalone:
 
             # This is needed by IPA to detect step 1 completion.
@@ -258,15 +253,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         else:
             subsystem.config['subsystem.select'] = 'New'
 
-        # configure CA hierarchy
+        # configure CA
         if subsystem.type == 'CA':
 
-            if config.str2bool(deployer.mdict['pki_external']) or \
-                    config.str2bool(deployer.mdict['pki_subordinate']):
+            if external or subordinate:
                 subsystem.config['hierarchy.select'] = 'Subordinate'
-
             else:
                 subsystem.config['hierarchy.select'] = 'Root'
+
+            if subordinate:
+                subsystem.config['preop.cert.signing.type'] = 'remote'
 
         # configure TPS
         if subsystem.type == 'TPS':
