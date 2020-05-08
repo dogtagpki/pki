@@ -209,7 +209,8 @@ public class Configurator {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
         String keyType = preopConfig.getString("cert.subsystem.keytype");
-        String profileID = getSystemCertProfileID(keyType, "subsystem", "caInternalAuthSubsystemCert");
+        String profileID = preopConfig.getString("cert.subsystem.profile");
+        profileID = getSystemCertProfileID(keyType, "subsystem", profileID);
         preopConfig.putString("cert.subsystem.profile", profileID);
     }
 

@@ -226,7 +226,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem.config['preop.subsystem.name'] = deployer.mdict['pki_subsystem_name']
 
-        # configure security domain
+        # configure subsystem cert
         if deployer.mdict['pki_security_domain_type'] == 'new':
 
             subsystem.config['preop.cert.subsystem.type'] = 'local'
@@ -235,6 +235,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         else:  # deployer.mdict['pki_security_domain_type'] == 'existing':
 
             subsystem.config['preop.cert.subsystem.type'] = 'remote'
+            subsystem.config['preop.cert.subsystem.profile'] = 'caInternalAuthSubsystemCert'
 
         if external or standalone:
 
