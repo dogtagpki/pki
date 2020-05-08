@@ -1113,18 +1113,11 @@ public class Configurator {
         String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
         logger.debug("Configurator: algorithm: " + algorithm);
 
-        String preop_ca_type = null;
         boolean sign_clone_sslserver_cert_using_master = false;
 
         if (request.isClone() && csType.equals("CA") && certTag.equals("sslserver")) {
 
             logger.info("Configuring sslserver cert for CA clone");
-
-            // retrieve and store original 'CS.cfg' entries
-            preop_ca_type = preopConfig.getString("ca.type", "");
-
-            // add/modify 'CS.cfg' entries
-            preopConfig.putString("ca.type", "sdca");
 
             // set master/clone signature flag
             sign_clone_sslserver_cert_using_master = true;
@@ -1152,9 +1145,6 @@ public class Configurator {
             cs.putString(subsystem + "." + certTag + ".certreq", b64Request);
 
             String session_id = request.getInstallToken().getToken();
-
-            String preopCaType = preopConfig.getString("ca.type", "");
-            logger.debug("Configurator: preop.ca.type: " + preopCaType);
 
             String profileID = preopConfig.getString("cert." + certTag + ".profile");
             logger.debug("Configurator: profile ID: " + profileID);
@@ -1191,11 +1181,6 @@ public class Configurator {
                     session_id,
                     b64Request,
                     certTag);
-
-            if (sign_clone_sslserver_cert_using_master) {
-                // restore original 'CS.cfg' entries
-                preopConfig.putString("ca.type", preop_ca_type);
-            }
 
             return cert;
 
