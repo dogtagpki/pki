@@ -33,4 +33,4 @@ exit_handler() {
 }
 
 trap "exit_handler" EXIT
-pkispawn -v -f ${BUILDDIR}/pki/travis/pki.cfg -s TKS
+pkispawn -v -f ${BUILDDIR}/pki/ci/pki.cfg -s TKS

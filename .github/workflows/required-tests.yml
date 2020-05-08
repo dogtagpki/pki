@@ -16,7 +16,7 @@ jobs:
       container: fedora:${{ matrix.os }}
       strategy:
           matrix:
-            os: ['30', '31']
+            os: ['31', '32']
       steps:
           - name: Update base image
             run: |
@@ -62,13 +62,13 @@ jobs:
         COPR_REPO: "@pki/master"
       strategy:
         matrix:
-          os: ['30', '31']
+          os: ['31', '32']
       steps:
         - name: Clone the repository
           uses: actions/checkout@v2
 
         - name: Setup required test environment
-          run: IMAGE=fedora:${{ matrix.os }} travis/runner-init.sh
+          run: IMAGE=fedora:${{ matrix.os }} ci/runner-init.sh
 
         - name: Download PKI binaries from Build job
           uses: actions/download-artifact@v1
@@ -88,40 +88,40 @@ jobs:
         #  run: docker exec -i ${CONTAINER} dnf copr enable -y ${COPR_REPO}
 
         - name: Install DS
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/ds-create.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ds-create.sh
 
         - name: Install CA
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/ca-create.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ca-create.sh
 
         - name: Install KRA
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/kra-create.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/kra-create.sh
 
         - name: Install OCSP
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/ocsp-create.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ocsp-create.sh
 
         - name: Install TKS
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/tks-create.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/tks-create.sh
 
         - name: Install TPS
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/tps-create.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/tps-create.sh
 
         - name: Remove TPS
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/tps-remove.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/tps-remove.sh
 
         - name: Remove TKS
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/tks-remove.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/tks-remove.sh
 
         - name: Remove OCSP
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/ocsp-remove.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ocsp-remove.sh
 
         - name: Remove KRA
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/kra-remove.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/kra-remove.sh
 
         - name: Remove CA
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/ca-remove.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ca-remove.sh
 
         - name: Remove DS
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/ds-remove.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ds-remove.sh
 
         - name: Gather journalctl logs
           run: docker exec -i ${CONTAINER} bash -c "journalctl -u pki-tomcatd@pkitest > /var/log/pki/pki-journalctl.log"
@@ -154,13 +154,13 @@ jobs:
         test_set: "test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_ca_plugin.py test_vault_plugin.py"
       strategy:
         matrix:
-          os: ['30', '31']
+          os: ['31', '32']
       steps:
         - name: Clone the repository
           uses: actions/checkout@v2
 
         - name: Setup required test environment
-          run: IMAGE=fedora:${{ matrix.os }} travis/runner-init.sh
+          run: IMAGE=fedora:${{ matrix.os }} ci/runner-init.sh
 
         - name: Download PKI binaries from Build job
           uses: actions/download-artifact@v1
@@ -186,7 +186,7 @@ jobs:
           run: docker exec -i ${CONTAINER} bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
 
         - name: Run IPA tests
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/travis/ipa-test.sh
+          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ipa-test.sh
 
         - name: Extract PKI related journalctl logs
           run: docker exec -i ${CONTAINER} bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"

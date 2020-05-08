@@ -1,6 +1,0 @@
-CONTAINER=pkitest
-BUILDDIR=/tmp/workdir
-SCRIPTDIR=${BUILDDIR}/pki/travis
-LOGS=${TRAVIS_BUILD_DIR}/logs.txt
-COPR_REPO=@pki/master
-test_set="test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_ca_plugin.py test_vault_plugin.py"
