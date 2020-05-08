@@ -1,2 +1,2 @@
 #!/bin/bash -ex
-pkispawn -v -f ${BUILDDIR}/pki/ci/pki.cfg -s CA
+pkispawn -v -f ${PKIDIR}/ci/pki.cfg -s CA

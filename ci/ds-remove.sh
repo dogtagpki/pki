@@ -1,3 +1,2 @@
 #!/bin/bash -ex
-
-remove-ds.pl -f -i slapd-pkitest
+dsctl slapd-pkitest remove --do-it

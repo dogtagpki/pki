@@ -1,11 +1,13 @@
 #!/bin/bash -ex
 
-setup-ds.pl \
-    --silent \
-    slapd.ServerIdentifier="pkitest" \
-    General.SuiteSpotUserID=nobody \
-    General.SuiteSpotGroup=nobody \
-    slapd.ServerPort=389 \
-    slapd.Suffix="dc=pki,dc=test" \
-    slapd.RootDN="cn=Directory Manager" \
-    slapd.RootDNPwd="Secret.123"
+# This command needs to be executed as it pulls the machine name
+# dynamically.
+dscreate create-template ds.tmp
+
+sed \
+    -e 's/;root_password = .*/root_password = Secret.123/g' \
+    -e 's/;suffix = .*/suffix = dc=example,dc=com/g' \
+    -e 's/;instance_name = .*/instance_name = pkitest/g' \
+    ds.tmp > ds.inf
+
+dscreate from-file ds.inf
