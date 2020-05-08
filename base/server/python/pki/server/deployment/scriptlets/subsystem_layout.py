@@ -265,6 +265,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.config['preop.cert.signing.type'] = 'remote'
                 subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
 
+            if clone:
+                subsystem.config['preop.cert.sslserver.type'] = 'remote'
+
         # configure TPS
         if subsystem.type == 'TPS':
             subsystem.config['auths.instance.ldap1.ldap.basedn'] = \
