@@ -2713,37 +2713,6 @@ class ConfigClient:
             self.mdict['pki_client_admin_cert_p12'],
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
-    def create_config_request(self):
-
-        logger.info('Creating config request')
-
-        data = pki.system.ConfigurationRequest()
-        data.pin = self.mdict['pki_one_time_pin']
-
-        if self.clone:
-            data.isClone = 'true'
-        else:
-            data.isClone = 'false'
-
-        if self.security_domain_type == 'existing':
-            data.securityDomainType = 'existingdomain'
-
-        elif self.subordinate and \
-                config.str2bool(self.mdict['pki_subordinate_create_new_security_domain']):
-            data.securityDomainType = 'newsubdomain'
-
-        else:
-            # PKI CA, External CA, or Stand-alone PKI
-            data.securityDomainType = 'newdomain'
-
-        self.set_issuing_ca_parameters(data)
-
-        data.systemCertsImported = \
-            self.mdict['pki_server_pkcs12_path'] != '' or \
-            self.mdict['pki_clone_pkcs12_path'] != ''
-
-        return data
-
     def create_clone_setup_request(self, subsystem):
 
         logger.info('Creating clone setup request')
