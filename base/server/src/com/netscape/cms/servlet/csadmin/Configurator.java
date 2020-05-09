@@ -36,6 +36,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.common.Range;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
@@ -431,18 +432,24 @@ public class Configurator {
         String serverURL = "https://" + masterHostname + ":" + masterAdminPort;
         PKIClient client = createClient(serverURL, null, null);
 
-        updateNumberRange(client, cstype, "request", sessionID);
+        Range requestRange = requestRange(client, cstype, "request", sessionID);
+        dbConfig.putString("beginRequestNumber", requestRange.getBegin());
+        dbConfig.putString("endRequestNumber", requestRange.getEnd());
 
-        updateNumberRange(client, cstype, "serialNo", sessionID);
+        Range serialRange = requestRange(client, cstype, "serialNo", sessionID);
+        dbConfig.putString("beginSerialNumber", serialRange.getBegin());
+        dbConfig.putString("endSerialNumber", serialRange.getEnd());
 
-        updateNumberRange(client, cstype, "replicaId", sessionID);
+        Range replicaRange = requestRange(client, cstype, "replicaId", sessionID);
+        dbConfig.putString("beginReplicaNumber", replicaRange.getBegin());
+        dbConfig.putString("endReplicaNumber", replicaRange.getEnd());
 
         dbConfig.putString("enableSerialManagement", "true");
 
         cs.commit(false);
     }
 
-    public void updateNumberRange(
+    public Range requestRange(
             PKIClient client,
             String cstype,
             String type,
@@ -488,20 +495,11 @@ public class Configurator {
         String endNumber = parser.getValue("endNumber");
         logger.info("End number: " + endNumber);
 
-        DatabaseConfig dbConfig = cs.getDatabaseConfig();
+        Range range = new Range();
+        range.setBegin(beginNumber);
+        range.setEnd(endNumber);
 
-        if (type.equals("request")) {
-            dbConfig.putString("beginRequestNumber", beginNumber);
-            dbConfig.putString("endRequestNumber", endNumber);
-
-        } else if (type.equals("serialNo")) {
-            dbConfig.putString("beginSerialNumber", beginNumber);
-            dbConfig.putString("endSerialNumber", endNumber);
-
-        } else if (type.equals("replicaId")) {
-            dbConfig.putString("beginReplicaNumber", beginNumber);
-            dbConfig.putString("endReplicaNumber", endNumber);
-        }
+        return range;
     }
 
     public void getConfigEntries(
