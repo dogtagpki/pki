@@ -422,46 +422,42 @@ public class Configurator {
 
         logger.info("Setting up number ranges");
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
         String masterHostname = masterHost.getHostname();
         int masterAdminPort = Integer.parseInt(masterHost.getSecureAdminPort());
-        int masterEEPort = Integer.parseInt(masterHost.getSecurePort());
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("type", "request");
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionID);
-        updateNumberRange(masterHostname, masterEEPort, masterAdminPort, true, content, "request");
-
-        content = new MultivaluedHashMap<String, String>();
-        content.putSingle("type", "serialNo");
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionID);
-        updateNumberRange(masterHostname, masterEEPort, masterAdminPort, true, content, "serialNo");
-
-        content = new MultivaluedHashMap<String, String>();
-        content.putSingle("type", "replicaId");
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionID);
-        updateNumberRange(masterHostname, masterEEPort, masterAdminPort, true, content, "replicaId");
-
+        String cstype = cs.getType();
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
+
+        String serverURL = "https://" + masterHostname + ":" + masterAdminPort;
+        PKIClient client = createClient(serverURL, null, null);
+
+        updateNumberRange(client, cstype, "request", sessionID);
+
+        updateNumberRange(client, cstype, "serialNo", sessionID);
+
+        updateNumberRange(client, cstype, "replicaId", sessionID);
+
         dbConfig.putString("enableSerialManagement", "true");
 
         cs.commit(false);
     }
 
-    public void updateNumberRange(String hostname, int eePort, int adminPort, boolean https,
-            MultivaluedMap<String, String> content, String type) throws Exception {
+    public void updateNumberRange(
+            PKIClient client,
+            String cstype,
+            String type,
+            String sessionID)
+            throws Exception {
 
-        String cstype = cs.getType();
         logger.info("Getting " + type + " number range from " + cstype + " master");
 
         String subsystem = cstype.toLowerCase();
-        String serverURL = "https://" + hostname + ":" + adminPort;
 
-        PKIClient client = createClient(serverURL, null, null);
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("type", type);
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", sessionID);
+
         String response = client.post("/" + subsystem + "/admin/" + subsystem + "/updateNumberRange", content);
         logger.debug("Response: " + response);
 
