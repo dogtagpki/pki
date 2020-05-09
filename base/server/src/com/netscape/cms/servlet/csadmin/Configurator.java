@@ -415,12 +415,15 @@ public class Configurator {
 
         cs.commit(false);
 
+        String serverURL = "https://" + masterHostname + ":" + masterPort;
+        PKIClient client = Configurator.createClient(serverURL, null, null);
+
         if (csType.equals("CA") || csType.equals("KRA")) {
             setupNumberRanges(sessionID, masterHost);
         }
 
         logger.debug("SystemConfigService: get configuration entries from master");
-        getConfigEntriesFromMaster(sessionID, masterHost);
+        getConfigEntries(client, sessionID);
 
         String token = preopConfig.getString("module.token", null);
         CryptoUtil.getKeyStorageToken(token); // throw exception if token doesn't exist
@@ -530,17 +533,15 @@ public class Configurator {
         }
     }
 
-    public void getConfigEntriesFromMaster(
-            String sessionID,
-            SecurityDomainHost masterHost) throws Exception {
+    public void getConfigEntries(
+            PKIClient client,
+            String sessionID)
+            throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
         String cstype = cs.getType();
 
         cstype = cstype.toLowerCase();
-
-        String masterHostname = masterHost.getHostname();
-        int masterAdminPort = Integer.parseInt(masterHost.getSecureAdminPort());
 
         StringBuffer c1 = new StringBuffer();
         StringBuffer s1 = new StringBuffer();
@@ -573,9 +574,6 @@ public class Configurator {
         }
 
         s1.append(",internaldb,internaldb.ldapauth,internaldb.ldapconn");
-
-        String serverURL = "https://" + masterHostname + ":" + masterHostname;
-        PKIClient client = Configurator.createClient(serverURL, null, null);
 
         updateConfigEntries(
                 client,
