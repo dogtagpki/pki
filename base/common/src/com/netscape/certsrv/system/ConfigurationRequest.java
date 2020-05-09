@@ -29,11 +29,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ConfigurationRequest {
 
-    //defaults
-    public static final String NEW_DOMAIN = "newdomain";
-    public static final String EXISTING_DOMAIN = "existingdomain";
-    public static final String NEW_SUBDOMAIN = "newsubdomain";
-
     public ConfigurationRequest() {
         // required for JAXB
     }

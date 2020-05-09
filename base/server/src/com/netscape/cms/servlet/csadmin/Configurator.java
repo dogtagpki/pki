@@ -1818,11 +1818,11 @@ public class Configurator {
 
         String type = request.getSecurityDomainType();
 
-        if (type.equals(ConfigurationRequest.NEW_DOMAIN)) {
+        if (type.equals("newdomain")) {
             logger.info("Creating new security domain");
             createSecurityDomain();
 
-        } else if (type.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
+        } else if (type.equals("newsubdomain")) {
             logger.info("Configuring new security subdomain");
             createSecurityDomain();
 
