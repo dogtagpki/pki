@@ -574,41 +574,36 @@ public class Configurator {
 
         s1.append(",internaldb,internaldb.ldapauth,internaldb.ldapconn");
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("op", "get");
-        content.putSingle("names", "internaldb.ldapauth.password,internaldb.replication.password" + c1);
-        content.putSingle("substores", s1.toString());
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionID);
+        String serverURL = "https://" + masterHostname + ":" + masterHostname;
+        PKIClient client = Configurator.createClient(serverURL, null, null);
 
-        updateConfigEntries(masterHostname, masterAdminPort, true,
-                "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content);
-
-        preopConfig.putString("clone.configuration", "true");
-
-        cs.commit(false);
+        updateConfigEntries(
+                client,
+                "internaldb.ldapauth.password,internaldb.replication.password" + c1,
+                s1.toString(),
+                sessionID);
     }
 
-    public void updateConfigEntries(String hostname, int port, boolean https,
-            String servlet, MultivaluedMap<String, String> content)
+    public void updateConfigEntries(
+            PKIClient client,
+            String names,
+            String substores,
+            String sessionID)
             throws Exception {
 
         String cstype = cs.getType();
         logger.info("Getting " + cstype + " master configuration entries");
 
         String subsystem = cs.getType().toLowerCase();
-
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
-        LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("op", "get");
+        content.putSingle("names", names);
+        content.putSingle("substores", substores);
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", sessionID);
 
-        LDAPConfig replicaConfig = cs.getInternalDBConfig();
-        LDAPConnectionConfig replicaConnConfig = replicaConfig.getConnectionConfig();
-
-        String serverURL = "https://" + hostname + ":" + port;
-
-        PKIClient client = Configurator.createClient(serverURL, null, null);
         String response = client.post("/" + subsystem + "/admin/" + subsystem + "/getConfigEntries", content);
 
         if (response == null) {
@@ -674,6 +669,14 @@ public class Configurator {
             }
         }
 
+        preopConfig.putString("clone.configuration", "true");
+
+        LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
+        LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
+
+        LDAPConfig replicaConfig = cs.getInternalDBConfig();
+        LDAPConnectionConfig replicaConnConfig = replicaConfig.getConnectionConfig();
+
         String masterHostname = masterConnConfig.getString("host", "");
         String masterPort = masterConnConfig.getString("port", "");
 
@@ -683,6 +686,8 @@ public class Configurator {
         if (masterHostname.equals(replicaHostname) && masterPort.equals(replicaPort)) {
             throw new BadRequestException("Master and clone must not share the same LDAP database");
         }
+
+        cs.commit(false);
     }
 
     public void verifySystemCertificates() throws Exception {
