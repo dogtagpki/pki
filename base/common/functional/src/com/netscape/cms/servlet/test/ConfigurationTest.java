@@ -57,7 +57,6 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -190,31 +189,30 @@ public class ConfigurationTest {
             System.exit(1);
         }
 
-        ConfigurationRequest data = null;
         switch (testnum) {
         case 1:
-            data = constructCAData(host, port, pin, db_dir, token_pwd, token);
+            constructCAData(host, port, pin, db_dir, token_pwd, token);
             break;
         case 2:
-            data = constructCloneCAData(host, port, pin, db_dir, token_pwd, token);
+            constructCloneCAData(host, port, pin, db_dir, token_pwd, token);
             break;
         case 3:
-            data = constructKRAData(host, port, pin, db_dir, token_pwd, token);
+            constructKRAData(host, port, pin, db_dir, token_pwd, token);
             break;
         case 4:
-            data = constructOCSPData(host, port, pin, db_dir, token_pwd, token);
+            constructOCSPData(host, port, pin, db_dir, token_pwd, token);
             break;
         case 5:
-            data = constructTKSData(host, port, pin, db_dir, token_pwd, token);
+            constructTKSData(host, port, pin, db_dir, token_pwd, token);
             break;
         case 6:
-            data = constructSubCAData(host, port, pin, db_dir, token_pwd, token);
+            constructSubCAData(host, port, pin, db_dir, token_pwd, token);
             break;
         case 7:
-            data = constructExternalCADataPart1(host, port, pin, db_dir, token_pwd, token);
+            constructExternalCADataPart1(host, port, pin, db_dir, token_pwd, token);
             break;
         case 8:
-            data = constructExternalCADataPart2(host, port, pin, db_dir, token_pwd, token, extCertFile);
+            constructExternalCADataPart2(host, port, pin, db_dir, token_pwd, token, extCertFile);
             break;
         default:
             System.out.println("Invalid test");
@@ -222,10 +220,9 @@ public class ConfigurationTest {
         }
     }
 
-    private static ConfigurationRequest constructCAData(String host, String port, String pin, String db_dir,
+    private static void constructCAData(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationRequest data = new ConfigurationRequest();
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -269,14 +266,11 @@ public class ConfigurationTest {
         cert5.setSubjectDN("CN=CA Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
-
-        return data;
     }
 
-    private static ConfigurationRequest constructSubCAData(String host, String port, String pin, String db_dir,
+    private static void constructSubCAData(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationRequest data = new ConfigurationRequest();
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -320,14 +314,11 @@ public class ConfigurationTest {
         cert5.setSubjectDN("CN=SubCA Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
-
-        return data;
     }
 
-    private static ConfigurationRequest constructExternalCADataPart1(String host, String port, String pin, String db_dir,
+    private static void constructExternalCADataPart1(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationRequest data = new ConfigurationRequest();
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -371,14 +362,11 @@ public class ConfigurationTest {
         cert5.setSubjectDN("CN=SubCA Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
-
-        return data;
     }
 
-    private static ConfigurationRequest constructExternalCADataPart2(String host, String port, String pin, String db_dir,
+    private static void constructExternalCADataPart2(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token, String extCertFile)
             throws NoSuchAlgorithmException, TokenException, IOException, InvalidBERException {
-        ConfigurationRequest data = new ConfigurationRequest();
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -430,14 +418,11 @@ public class ConfigurationTest {
         cert5.setSubjectDN("CN=SubCA Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
-
-        return data;
     }
 
-    private static ConfigurationRequest constructCloneCAData(String host, String port, String pin, String db_dir,
+    private static void constructCloneCAData(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationRequest data = new ConfigurationRequest();
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -448,14 +433,11 @@ public class ConfigurationTest {
         cert3.setSubjectDN("CN=" + host);
         cert3.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert3);
-
-        return data;
     }
 
-    private static ConfigurationRequest constructKRAData(String host, String port, String pin, String db_dir,
+    private static void constructKRAData(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationRequest data = new ConfigurationRequest();
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -499,14 +481,11 @@ public class ConfigurationTest {
         cert5.setSubjectDN("CN=KRA Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
-
-        return data;
     }
 
-    private static ConfigurationRequest constructOCSPData(String host, String port, String pin, String db_dir,
+    private static void constructOCSPData(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationRequest data = new ConfigurationRequest();
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -542,14 +521,11 @@ public class ConfigurationTest {
         cert5.setSubjectDN("CN=OCSP Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
-
-        return data;
     }
 
-    private static ConfigurationRequest constructTKSData(String host, String port, String pin, String db_dir,
+    private static void constructTKSData(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationRequest data = new ConfigurationRequest();
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -577,8 +553,6 @@ public class ConfigurationTest {
         cert5.setSubjectDN("CN=TKS Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
-
-        return data;
     }
 
     private static String generateCRMFRequest(CryptoToken token, String keysize, String subjectdn, boolean dualkey)

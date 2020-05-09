@@ -453,7 +453,6 @@ class ConfigurationFile:
             # Only allowed for Stand-alone PKI
             #
             # ADD checks for valid types of Stand-alone PKI subsystems here
-            # AND to the 'private void validateData(ConfigurationRequest data)'
             # Java method located in the file called 'SystemConfigService.java'
             #
             if self.subsystem != "KRA" and self.subsystem != "OCSP":

@@ -91,7 +91,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.CloneSetupRequest;
-import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
@@ -186,7 +185,6 @@ public class Configurator {
     }
 
     private String logIntoSecurityDomain(
-            ConfigurationRequest request,
             String hostname,
             int port,
             String username,

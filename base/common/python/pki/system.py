@@ -299,19 +299,6 @@ class SecurityDomainClient(object):
         return InstallToken.from_json(response.json())
 
 
-class ConfigurationRequest(object):
-    """
-    Class used to represent a configuration request to be submitted to the
-    Java installation servlet during the execution of pkispawn.
-
-    This class is the python equivalent of the Java class:
-    com.netscape.certsrv.system.ConfigurationRequest
-    """
-
-    def __init__(self):
-        self.isClone = "false"
-
-
 class CloneSetupRequest(object):
     def __init__(self):
         self.domainInfo = None
@@ -560,7 +547,6 @@ class SystemStatusClient(object):
         return response.text
 
 
-pki.encoder.NOTYPES['ConfigurationRequest'] = ConfigurationRequest
 pki.encoder.NOTYPES['DomainInfo'] = DomainInfo
 pki.encoder.NOTYPES['SecurityDomainSubsystem'] = SecurityDomainSubsystem
 pki.encoder.NOTYPES['SecurityDomainHost'] = SecurityDomainHost
