@@ -328,6 +328,7 @@ class PKIDeployer:
             config.str2bool(self.mdict['pki_existing'])
         request.standAlone = config.str2bool(self.mdict['pki_standalone'])
         request.clone = config.str2bool(self.mdict['pki_clone'])
+        request.masterURL = self.mdict['pki_clone_uri']
 
         request.tag = tag
         self.config_client.set_system_cert_info(request, tag)

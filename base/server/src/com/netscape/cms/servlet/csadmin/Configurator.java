@@ -386,8 +386,6 @@ public class Configurator {
 
         String masterAdminPort = masterHost.getSecureAdminPort();
 
-        preopConfig.putString("master.hostname", masterHostname);
-        preopConfig.putInteger("master.httpsport", masterPort);
         preopConfig.putString("master.httpsadminport", masterAdminPort);
 
         cs.commit(false);
@@ -1058,8 +1056,9 @@ public class Configurator {
                 // For Cloned CA always use its Master CA to generate the
                 // sslserver certificate to avoid any changes which may have
                 // been made to the X500Name directory string encoding order.
-                hostname = preopConfig.getString("master.hostname", "");
-                port = preopConfig.getInteger("master.httpsport", -1);
+                URL masterURL = request.getMasterURL();
+                hostname = masterURL.getHost();
+                port = masterURL.getPort();
 
             } else {
                 hostname = preopConfig.getString("ca.hostname", "");

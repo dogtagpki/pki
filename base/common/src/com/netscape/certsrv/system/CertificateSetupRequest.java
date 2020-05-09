@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
+import java.net.URL;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -50,6 +52,9 @@ public class CertificateSetupRequest {
 
     @XmlElement(defaultValue="false")
     protected Boolean clone;
+
+    @XmlElement
+    protected URL masterURL;
 
     public CertificateSetupRequest() {
         // required for JAXB
@@ -111,6 +116,14 @@ public class CertificateSetupRequest {
         this.clone = clone;
     }
 
+    public URL getMasterURL() {
+        return masterURL;
+    }
+
+    public void setMasterURL(URL masterURL) {
+        this.masterURL = masterURL;
+    }
+
     @Override
     public String toString() {
         return "CertificateSetupRequest [pin=XXXX" +
@@ -119,6 +132,7 @@ public class CertificateSetupRequest {
                ", external=" + external +
                ", standAlone=" + standAlone +
                ", clone=" + clone +
+               ", masterURL=" + masterURL +
                "]";
     }
 }
