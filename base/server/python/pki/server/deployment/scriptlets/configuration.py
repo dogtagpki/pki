@@ -849,6 +849,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             setup_db_manager=setup_db_manager,
             setup_vlv_indexes=setup_vlv_indexes)
 
+        if subsystem.type in ['CA', 'KRA'] and clone:
+            logger.info('Setting up %s clone', subsystem.type)
+
+            master_url = deployer.mdict['pki_clone_uri']
+            session_id = deployer.install_token.token
+
+            subsystem.update_ranges(master_url, session_id)
+
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger
         # (e. g. - 'eclipse'):

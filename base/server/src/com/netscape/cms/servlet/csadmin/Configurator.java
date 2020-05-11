@@ -36,7 +36,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
-import org.dogtagpki.common.Range;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
@@ -85,7 +84,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -376,10 +374,6 @@ public class Configurator {
         String serverURL = "https://" + masterHostname + ":" + masterPort;
         PKIClient client = Configurator.createClient(serverURL, null, null);
 
-        if (csType.equals("CA") || csType.equals("KRA")) {
-            updateRanges(client, sessionID);
-        }
-
         logger.debug("SystemConfigService: get configuration entries from master");
         getConfigEntries(client, sessionID);
 
@@ -397,33 +391,6 @@ public class Configurator {
         if (request.getSetupReplication()) {
             setupReplication(request);
         }
-    }
-
-    public void updateRanges(PKIClient client, String sessionID) throws Exception {
-
-        logger.info("Setting up number ranges");
-
-        String cstype = cs.getType();
-        DatabaseConfig dbConfig = cs.getDatabaseConfig();
-
-        String subsystem = cstype.toLowerCase();
-        SubsystemClient subsystemClient = new SubsystemClient(client, subsystem);
-
-        Range requestRange = subsystemClient.requestRange("request", sessionID);
-        dbConfig.putString("beginRequestNumber", requestRange.getBegin());
-        dbConfig.putString("endRequestNumber", requestRange.getEnd());
-
-        Range serialRange = subsystemClient.requestRange("serialNo", sessionID);
-        dbConfig.putString("beginSerialNumber", serialRange.getBegin());
-        dbConfig.putString("endSerialNumber", serialRange.getEnd());
-
-        Range replicaRange = subsystemClient.requestRange("replicaId", sessionID);
-        dbConfig.putString("beginReplicaNumber", replicaRange.getBegin());
-        dbConfig.putString("endReplicaNumber", replicaRange.getEnd());
-
-        dbConfig.putString("enableSerialManagement", "true");
-
-        cs.commit(false);
     }
 
     public void getConfigEntries(

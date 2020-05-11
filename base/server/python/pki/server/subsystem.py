@@ -22,6 +22,7 @@
 from __future__ import absolute_import
 
 import functools
+import json
 import logging
 import os
 import pwd
@@ -917,6 +918,49 @@ class PKISubsystem(object):
             cmd.append('--verbose')
 
         self.run(cmd, as_current_user=as_current_user)
+
+    def request_range(self, master_url, range_type, session_id):
+
+        cmd = [
+            'pki',
+            '-d', self.instance.nssdb_dir,
+            '-U', master_url,
+            '%s-range-request' % self.name,
+            range_type,
+            '--session', session_id,
+            '--output-format', 'json'
+        ]
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        logger.debug('Command: %s', ' '.join(cmd))
+
+        # TODO: Replace stdout/stderr with capture_output in Python 3.7.
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+
+        return json.loads(result.stdout.decode())
+
+    def update_ranges(self, master_url, session_id):
+
+        request_range = self.request_range(master_url, 'request', session_id)
+        self.config['dbs.beginRequestNumber'] = request_range['begin']
+        self.config['dbs.endRequestNumber'] = request_range['end']
+
+        serial_range = self.request_range(master_url, 'serialNo', session_id)
+        self.config['dbs.beginSerialNumber'] = serial_range['begin']
+        self.config['dbs.endSerialNumber'] = serial_range['end']
+
+        replica_range = self.request_range(master_url, 'replicaId', session_id)
+        self.config['dbs.beginReplicaNumber'] = replica_range['begin']
+        self.config['dbs.endReplicaNumber'] = replica_range['end']
+
+        self.config['dbs.enableSerialManagement'] = 'true'
+
+        self.save()
 
     def run(self, args, as_current_user=False):
 
