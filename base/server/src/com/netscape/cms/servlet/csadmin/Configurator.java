@@ -85,6 +85,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -431,75 +432,24 @@ public class Configurator {
 
         String serverURL = "https://" + masterHostname + ":" + masterAdminPort;
         PKIClient client = createClient(serverURL, null, null);
+        String subsystem = cstype.toLowerCase();
+        SubsystemClient subsystemClient = new SubsystemClient(client, subsystem);
 
-        Range requestRange = requestRange(client, cstype, "request", sessionID);
+        Range requestRange = subsystemClient.requestRange("request", sessionID);
         dbConfig.putString("beginRequestNumber", requestRange.getBegin());
         dbConfig.putString("endRequestNumber", requestRange.getEnd());
 
-        Range serialRange = requestRange(client, cstype, "serialNo", sessionID);
+        Range serialRange = subsystemClient.requestRange("serialNo", sessionID);
         dbConfig.putString("beginSerialNumber", serialRange.getBegin());
         dbConfig.putString("endSerialNumber", serialRange.getEnd());
 
-        Range replicaRange = requestRange(client, cstype, "replicaId", sessionID);
+        Range replicaRange = subsystemClient.requestRange("replicaId", sessionID);
         dbConfig.putString("beginReplicaNumber", replicaRange.getBegin());
         dbConfig.putString("endReplicaNumber", replicaRange.getEnd());
 
         dbConfig.putString("enableSerialManagement", "true");
 
         cs.commit(false);
-    }
-
-    public Range requestRange(
-            PKIClient client,
-            String cstype,
-            String type,
-            String sessionID)
-            throws Exception {
-
-        logger.info("Getting " + type + " number range from " + cstype + " master");
-
-        String subsystem = cstype.toLowerCase();
-
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("type", type);
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionID);
-
-        String response = client.post("/" + subsystem + "/admin/" + subsystem + "/updateNumberRange", content);
-        logger.debug("Response: " + response);
-
-        if (StringUtils.isEmpty(response)) {
-            String message = "Unable to get " + type + " number range from " + cstype + " master";
-            logger.error(message);
-            throw new IOException(message);
-        }
-
-        // when the admin servlet is unavailable, we return a badly formatted error page
-        XMLObject parser = new XMLObject(new ByteArrayInputStream(response.getBytes()));
-
-        String status = parser.getValue("Status");
-        logger.debug("Status: " + status);
-
-        if (status.equals(AUTH_FAILURE)) {
-            throw new EAuthException(AUTH_FAILURE);
-        }
-
-        if (!status.equals(SUCCESS)) {
-            String error = parser.getValue("Error");
-            throw new IOException(error);
-        }
-
-        String beginNumber = parser.getValue("beginNumber");
-        logger.info("Begin number: " + beginNumber);
-
-        String endNumber = parser.getValue("endNumber");
-        logger.info("End number: " + endNumber);
-
-        Range range = new Range();
-        range.setBegin(beginNumber);
-        range.setEnd(endNumber);
-
-        return range;
     }
 
     public void getConfigEntries(
