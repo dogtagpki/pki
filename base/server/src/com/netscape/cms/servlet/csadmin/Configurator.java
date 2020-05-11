@@ -396,7 +396,7 @@ public class Configurator {
         PKIClient client = Configurator.createClient(serverURL, null, null);
 
         if (csType.equals("CA") || csType.equals("KRA")) {
-            setupNumberRanges(sessionID, masterHost);
+            updateRanges(client, sessionID);
         }
 
         logger.debug("SystemConfigService: get configuration entries from master");
@@ -418,20 +418,13 @@ public class Configurator {
         }
     }
 
-    public void setupNumberRanges(
-            String sessionID,
-            SecurityDomainHost masterHost) throws Exception {
+    public void updateRanges(PKIClient client, String sessionID) throws Exception {
 
         logger.info("Setting up number ranges");
-
-        String masterHostname = masterHost.getHostname();
-        int masterAdminPort = Integer.parseInt(masterHost.getSecureAdminPort());
 
         String cstype = cs.getType();
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
 
-        String serverURL = "https://" + masterHostname + ":" + masterAdminPort;
-        PKIClient client = createClient(serverURL, null, null);
         String subsystem = cstype.toLowerCase();
         SubsystemClient subsystemClient = new SubsystemClient(client, subsystem);
 
