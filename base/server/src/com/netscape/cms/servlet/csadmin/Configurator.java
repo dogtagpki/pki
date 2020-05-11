@@ -373,23 +373,6 @@ public class Configurator {
         String masterHostname = url.getHost();
         int masterPort = url.getPort();
 
-        logger.debug("SystemConfigService: getting " + csType + " master host info: " + url);
-
-        DomainInfo domainInfo = request.getDomainInfo();
-        logger.info("Domain: " + domainInfo);
-
-        SecurityDomainHost masterHost = getHostInfo(domainInfo, csType, masterHostname, masterPort);
-
-        if (masterHost == null) {
-            throw new BadRequestException("Clone URI does not match available subsystems: " + url);
-        }
-
-        String masterAdminPort = masterHost.getSecureAdminPort();
-
-        preopConfig.putString("master.httpsadminport", masterAdminPort);
-
-        cs.commit(false);
-
         String serverURL = "https://" + masterHostname + ":" + masterPort;
         PKIClient client = Configurator.createClient(serverURL, null, null);
 
