@@ -29,6 +29,8 @@ import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -36,6 +38,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.common.ConfigData;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
@@ -435,14 +438,52 @@ public class Configurator {
 
         s1.append(",internaldb,internaldb.ldapauth,internaldb.ldapconn");
 
-        updateConfigEntries(
+        ConfigData config = getConfig(
                 client,
                 "internaldb.ldapauth.password,internaldb.replication.password" + c1,
                 s1.toString(),
                 sessionID);
+
+        Map<String, String> properties = config.getProperties();
+        for (String name : properties.keySet()) {
+            String v = properties.get(name);
+
+            if (name.startsWith("internaldb")) {
+                preopConfig.putString(name.replaceFirst("internaldb", "internaldb.master"), v);
+
+            } else if (name.startsWith("cloning.ca")) {
+                cs.putString(name.replaceFirst("cloning", "preop"), v);
+
+            } else if (name.startsWith("cloning")) {
+                cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
+
+            } else {
+                cs.putString(name, v);
+            }
+        }
+
+        preopConfig.putString("clone.configuration", "true");
+
+        cs.commit(false);
+
+        LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
+        LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
+
+        LDAPConfig replicaConfig = cs.getInternalDBConfig();
+        LDAPConnectionConfig replicaConnConfig = replicaConfig.getConnectionConfig();
+
+        String masterHostname = masterConnConfig.getString("host", "");
+        String masterPort = masterConnConfig.getString("port", "");
+
+        String replicaHostname = replicaConnConfig.getString("host");
+        String replicaPort = replicaConnConfig.getString("port");
+
+        if (masterHostname.equals(replicaHostname) && masterPort.equals(replicaPort)) {
+            throw new BadRequestException("Master and clone must not share the same LDAP database");
+        }
     }
 
-    public void updateConfigEntries(
+    public ConfigData getConfig(
             PKIClient client,
             String names,
             String substores,
@@ -453,7 +494,6 @@ public class Configurator {
         logger.info("Getting " + cstype + " master configuration entries");
 
         String subsystem = cs.getType().toLowerCase();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("op", "get");
@@ -484,6 +524,7 @@ public class Configurator {
         }
 
         logger.info("Retrieved configuration entries:");
+        Map<String, String> properties = new HashMap<>();
 
         Document doc = parser.getDocument();
         NodeList list = doc.getElementsByTagName("name");
@@ -513,39 +554,13 @@ public class Configurator {
                 }
             }
 
-            if (name.startsWith("internaldb")) {
-                preopConfig.putString(name.replaceFirst("internaldb", "internaldb.master"), v);
-
-            } else if (name.startsWith("cloning.ca")) {
-                cs.putString(name.replaceFirst("cloning", "preop"), v);
-
-            } else if (name.startsWith("cloning")) {
-                cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
-
-            } else {
-                cs.putString(name, v);
-            }
+            properties.put(name, v);
         }
 
-        preopConfig.putString("clone.configuration", "true");
+        ConfigData config = new ConfigData();
+        config.setProperties(properties);
 
-        LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
-        LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
-
-        LDAPConfig replicaConfig = cs.getInternalDBConfig();
-        LDAPConnectionConfig replicaConnConfig = replicaConfig.getConnectionConfig();
-
-        String masterHostname = masterConnConfig.getString("host", "");
-        String masterPort = masterConnConfig.getString("port", "");
-
-        String replicaHostname = cs.getHostname();
-        String replicaPort = replicaConnConfig.getString("port");
-
-        if (masterHostname.equals(replicaHostname) && masterPort.equals(replicaPort)) {
-            throw new BadRequestException("Master and clone must not share the same LDAP database");
-        }
-
-        cs.commit(false);
+        return config;
     }
 
     public void verifySystemCertificates() throws Exception {
