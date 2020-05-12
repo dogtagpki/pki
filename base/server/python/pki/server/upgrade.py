@@ -74,6 +74,15 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         if not self.is_complete():
             raise Exception('Incomplete upgrade: %s' % self.instance)
 
+    def makedirs(self, path, exist_ok=False):
+        self.instance.makedirs(path, exist_ok=exist_ok)
+
+    def copydirs(self, source, dest, force=False):
+        self.instance.copydirs(source, dest, force=force)
+
+    def copyfile(self, source, dest, force=False):
+        self.instance.copyfile(source, dest, force=force)
+
     def run_scriptlet(self, scriptlet):
 
         for subsystem in self.instance.get_subsystems():
