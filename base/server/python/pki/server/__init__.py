@@ -373,8 +373,9 @@ class PKIServer(object):
         return subprocess.Popen(cmd, env=self.config)
 
     def touch(self, path):
-        pathlib.Path(path).touch(mode=DEFAULT_FILE_MODE)
+        pathlib.Path(path).touch()
         os.chown(path, self.uid, self.gid)
+        os.chmod(path, DEFAULT_FILE_MODE)
 
     def makedirs(self, path, exist_ok=None, force=False):
         pki.util.makedirs(

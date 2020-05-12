@@ -23,6 +23,7 @@ from __future__ import absolute_import
 import functools
 import logging
 import os
+import pathlib
 import re
 
 import pki
@@ -364,6 +365,9 @@ class PKIUpgrader(object):
         if not self.is_complete():
             raise Exception('Incomplete upgrade')
 
+    def touch(self, path):
+        pathlib.Path(path).touch()
+
     def makedirs(self, path, exist_ok=False):
         os.makedirs(path, exist_ok=exist_ok)
 
@@ -376,7 +380,10 @@ class PKIUpgrader(object):
     def record(self, scriptlet, path):
 
         backup_dir = scriptlet.get_backup_dir()
-        with open(backup_dir + '/newfiles', 'a') as f:
+        filename = backup_dir + '/newfiles'
+
+        self.touch(filename)
+        with open(filename, 'a') as f:
             f.write(path + '\n')
 
     def backup(self, scriptlet, path):

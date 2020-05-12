@@ -74,6 +74,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         if not self.is_complete():
             raise Exception('Incomplete upgrade: %s' % self.instance)
 
+    def touch(self, path):
+        self.instance.touch(path)
+
     def makedirs(self, path, exist_ok=False):
         self.instance.makedirs(path, exist_ok=exist_ok)
 
