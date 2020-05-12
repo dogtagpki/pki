@@ -24,7 +24,6 @@ import functools
 import logging
 import os
 import re
-import shutil
 
 import pki
 import pki.util
@@ -365,9 +364,8 @@ class PKIUpgrader(object):
         if not self.is_complete():
             raise Exception('Incomplete upgrade')
 
-    def makedirs(self, path):
-        if not os.path.exists(path):
-            os.makedirs(path)
+    def makedirs(self, path, exist_ok=False):
+        os.makedirs(path, exist_ok=exist_ok)
 
     def copydirs(self, source, dest, force=False):
         pki.util.copydirs(source, dest, force=force)
@@ -385,7 +383,7 @@ class PKIUpgrader(object):
 
         backup_dir = scriptlet.get_backup_dir()
 
-        self.makedirs(backup_dir)
+        self.makedirs(backup_dir, exist_ok=True)
 
         if not os.path.exists(path):
 
@@ -397,7 +395,7 @@ class PKIUpgrader(object):
         # otherwise, keep a copy
 
         oldfiles = backup_dir + '/oldfiles'
-        self.makedirs(oldfiles)
+        self.makedirs(oldfiles, exist_ok=True)
 
         dest = oldfiles + path
 
@@ -461,10 +459,10 @@ class PKIUpgrader(object):
 
         if os.path.exists(backup_dir):
             logger.debug('Command: rm -rf %s', backup_dir)
-            shutil.rmtree(backup_dir)
+            pki.util.rmtree(backup_dir)
 
         logger.debug('Command: mkdir -p %s', backup_dir)
-        os.makedirs(backup_dir)
+        self.makedirs(backup_dir)
 
     def run_scriptlet(self, scriptlet):
 
@@ -530,7 +528,7 @@ class PKIUpgrader(object):
                 if os.path.isfile(path):
                     os.remove(path)
                 else:
-                    shutil.rmtree(path)
+                    pki.util.rmtree(path)
 
     def revert_version(self, version):
 
