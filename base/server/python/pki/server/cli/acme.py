@@ -98,29 +98,29 @@ class ACMECreateCLI(pki.cli.CLI):
         instance.load()
 
         acme_conf_dir = os.path.join(instance.conf_dir, name)
-        logging.info('Creating %s', acme_conf_dir)
+        logger.info('Creating %s', acme_conf_dir)
         instance.makedirs(acme_conf_dir, force=force)
 
         acme_share_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'acme')
 
         metadata_template = os.path.join(acme_share_dir, 'conf', 'metadata.conf')
         metadata_conf = os.path.join(acme_conf_dir, 'metadata.conf')
-        logging.info('Creating %s', metadata_conf)
+        logger.info('Creating %s', metadata_conf)
         instance.copy(metadata_template, metadata_conf, force=force)
 
         database_template = os.path.join(acme_share_dir, 'conf', 'database.conf')
         database_conf = os.path.join(acme_conf_dir, 'database.conf')
-        logging.info('Creating %s', database_conf)
+        logger.info('Creating %s', database_conf)
         instance.copy(database_template, database_conf, force=force)
 
         validators_template = os.path.join(acme_share_dir, 'conf', 'validators.conf')
         validators_conf = os.path.join(acme_conf_dir, 'validators.conf')
-        logging.info('Creating %s', validators_conf)
+        logger.info('Creating %s', validators_conf)
         instance.copy(validators_template, validators_conf, force=force)
 
         issuer_template = os.path.join(acme_share_dir, 'conf', 'issuer.conf')
         issuer_conf = os.path.join(acme_conf_dir, 'issuer.conf')
-        logging.info('Creating %s', issuer_conf)
+        logger.info('Creating %s', issuer_conf)
         instance.copy(issuer_template, issuer_conf, force=force)
 
 
@@ -190,7 +190,7 @@ class ACMERemoveCLI(pki.cli.CLI):
         instance.load()
 
         acme_conf_dir = os.path.join(instance.conf_dir, name)
-        logging.info('Removing %s', acme_conf_dir)
+        logger.info('Removing %s', acme_conf_dir)
         pki.util.rmtree(acme_conf_dir, force=force)
 
 
@@ -258,7 +258,7 @@ class ACMEDeployCLI(pki.cli.CLI):
         doc_base = os.path.join(pki.server.PKIServer.SHARE_DIR,
                                 'acme/webapps/acme')
 
-        logging.info('Deploying %s webapp', name)
+        logger.info('Deploying %s webapp', name)
         instance.deploy_webapp(name, descriptor, doc_base)
 
 
@@ -321,5 +321,5 @@ class ACMEUndeployCLI(pki.cli.CLI):
 
         instance.load()
 
-        logging.info('Undeploying %s webapp', name)
+        logger.info('Undeploying %s webapp', name)
         instance.undeploy_webapp(name)

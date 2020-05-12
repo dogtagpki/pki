@@ -75,14 +75,14 @@ class PKIUpgradeTracker(object):
 
     def show(self):
 
-        logger.info('%s:', self.name)
+        print('%s:' % self.name)
 
         version = self.get_version()
-        logger.info('  Configuration version: %s', version)
+        print('  Configuration version: %s' % version)
 
         index = self.get_index()
         if index > 0:
-            logger.info('  Last completed scriptlet: %s', index)
+            print('  Last completed scriptlet: %s' % index)
 
     def get_index(self):
 
@@ -262,9 +262,9 @@ class PKIUpgrader(object):
         if not upgrade_path or upgrade_path[-1] != target_version:
             upgrade_path.append(target_version)
 
-        logging.debug('Upgrade path:')
+        logger.debug('Upgrade path:')
         for version in upgrade_path:
-            logging.debug(' - %s', version)
+            logger.debug(' - %s', version)
 
         versions = []
 
@@ -343,14 +343,14 @@ class PKIUpgrader(object):
         if not current_version:
             current_version = self.get_target_version()
 
-        logging.debug('Current version: %s', current_version)
+        logger.debug('Current version: %s', current_version)
 
         return current_version
 
     def get_target_version(self):
 
         target_version = pki.util.Version(pki.specification_version())
-        logging.debug('Target version: %s', target_version)
+        logger.debug('Target version: %s', target_version)
 
         return target_version
 
@@ -362,10 +362,8 @@ class PKIUpgrader(object):
         return current_version == target_version
 
     def validate(self):
-
         if not self.is_complete():
-            log_file = '/var/log/pki/pki-upgrade-%s.log' % self.get_target_version()
-            raise Exception('Upgrade incomplete: see %s' % log_file)
+            raise Exception('Incomplete upgrade')
 
     def makedirs(self, path):
         if not os.path.exists(path):
@@ -449,7 +447,8 @@ class PKIUpgrader(object):
         # execute scriptlets
         for scriptlet in scriptlets:
 
-            logger.info('Running %s: %s. %s', version, scriptlet.index, scriptlet.message)
+            logger.info('Running upgrade script %s-%s: %s',
+                        version, scriptlet.index, scriptlet.message)
 
             self.init_scriptlet(scriptlet)
             self.run_scriptlet(scriptlet)

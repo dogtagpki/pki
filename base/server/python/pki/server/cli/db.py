@@ -820,7 +820,7 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            logging.error(e)
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -850,14 +850,14 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logging.error('Invalid option: %s', o)
+                logger.error('Invalid option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
         if not instance.exists():
-            logging.error('Invalid instance: %s', instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -865,8 +865,8 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            logging.error('No %s subsystem in instance %s.',
-                          subsystem_name.upper(), instance_name)
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         subsystem.run(cmd, as_current_user=as_current_user)

@@ -181,7 +181,7 @@ class CLI(object):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.DEBUG)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--help':
                 self.print_help()

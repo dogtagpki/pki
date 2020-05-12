@@ -367,7 +367,7 @@ class CreateCLI(pki.cli.CLI):
             logger.error('Instance already exists: %s', instance_name)
             sys.exit(1)
 
-        logging.info('Creating instance: %s', instance_name)
+        logger.info('Creating instance: %s', instance_name)
 
         instance.with_maven_deps = with_maven_deps
         instance.create(force=force)
@@ -430,7 +430,7 @@ class RemoveCLI(pki.cli.CLI):
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
-        logging.info('Removing instance: %s', instance_name)
+        logger.info('Removing instance: %s', instance_name)
 
         instance.stop()
         instance.remove(force=force)
@@ -752,4 +752,4 @@ class RunCLI(pki.cli.CLI):
                 agentpath=agentpath)
 
         except KeyboardInterrupt:
-            logging.debug('Server stopped')
+            logger.debug('Server stopped')

@@ -71,16 +71,14 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         return self.tracker
 
     def validate(self):
-
         if not self.is_complete():
-            log_file = '/var/log/pki/pki-server-upgrade-%s.log' % self.get_target_version()
-            raise Exception('Upgrade incomplete: see %s' % log_file)
+            raise Exception('Incomplete upgrade: %s' % self.instance)
 
     def run_scriptlet(self, scriptlet):
 
         for subsystem in self.instance.get_subsystems():
 
-            logging.info('Upgrading %s subsystem', subsystem)
+            logger.info('Upgrading %s subsystem', subsystem)
 
             # reload changes
             subsystem.load()

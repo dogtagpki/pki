@@ -23,6 +23,8 @@ from lxml import etree
 
 import pki
 
+logger = logging.getLogger(__name__)
+
 
 class AddPKIListener(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
@@ -42,28 +44,28 @@ class AddPKIListener(pki.server.upgrade.PKIServerUpgradeScriptlet):
         pki_listener = server.find('Listener[@className=\'%s\']' % class_name)
 
         if pki_listener is None:
-            logging.debug('Creating new PKIListener')
+            logger.debug('Creating new PKIListener')
             pki_listener = etree.Element('Listener')
             pki_listener.set('className', class_name)
 
         else:
-            logging.debug('Detaching existing PKIListener')
+            logger.debug('Detaching existing PKIListener')
             server.remove(pki_listener)
 
         # find the last Listener
         last_listener = server.find('Listener[last()]')
 
         if last_listener is None:
-            logging.debug('No other Listeners found')
+            logger.debug('No other Listeners found')
             # (re)insert PKIListener at the top
             index = 0
 
         else:
-            logging.debug('Found last Listener: %s', last_listener.get('className'))
+            logger.debug('Found last Listener: %s', last_listener.get('className'))
             # (re)insert PKIListener after the last listener
             index = list(server).index(last_listener) + 1
 
-        logging.debug('Inserting PKIListener at index %d', index)
+        logger.debug('Inserting PKIListener at index %d', index)
         server.insert(index, pki_listener)
 
         with open(instance.server_xml, 'wb') as f:

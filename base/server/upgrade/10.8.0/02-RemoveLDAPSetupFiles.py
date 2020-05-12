@@ -42,8 +42,8 @@ class RemoveLDAPSetupFiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         for filename in filenames:
             path = os.path.join(instance.conf_dir, filename)
-            logging.info('Checking %s', path)
+            logger.info('Checking %s', path)
             if os.path.exists(path):
-                logging.info('Removing %s', path)
+                logger.info('Removing %s', path)
                 self.backup(path)
                 pki.util.remove(path)

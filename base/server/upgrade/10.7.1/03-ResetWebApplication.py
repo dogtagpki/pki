@@ -26,6 +26,8 @@ import pki
 import pki.server
 import pki.util
 
+logger = logging.getLogger(__name__)
+
 
 class ResetWebApplication(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
@@ -44,30 +46,30 @@ class ResetWebApplication(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def reset_webapp(self, webapp_id, context_xml, default_doc_base):
 
-        logging.debug('Resetting %s webapp', webapp_id)
+        logger.debug('Resetting %s webapp', webapp_id)
 
         self.backup(context_xml)
 
-        logging.debug('Loading %s', context_xml)
+        logger.debug('Loading %s', context_xml)
         document = etree.parse(context_xml, pki.server.parser)
 
         context = document.getroot()
         doc_base = context.get('docBase')
-        logging.debug('Document base: %s', doc_base)
+        logger.debug('Document base: %s', doc_base)
 
         if doc_base == default_doc_base:
-            logging.debug('No change required')
+            logger.debug('No change required')
             return
 
-        logging.debug('Backing up custom webapp')
+        logger.debug('Backing up custom webapp')
         self.backup(doc_base)
 
-        logging.debug('Removing custom webapp')
+        logger.debug('Removing custom webapp')
         pki.util.rmtree(doc_base)
 
-        logging.debug('Deploying default webapp')
+        logger.debug('Deploying default webapp')
         context.set('docBase', default_doc_base)
 
-        logging.debug('Storing %s', context_xml)
+        logger.debug('Storing %s', context_xml)
         with open(context_xml, 'wb') as f:
             document.write(f, pretty_print=True, encoding='utf-8')

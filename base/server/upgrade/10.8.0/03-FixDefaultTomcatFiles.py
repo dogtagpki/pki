@@ -34,11 +34,11 @@ class FixDefaultTomcatFiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def upgrade_instance(self, instance):
 
-        logging.info('Checking %s', instance.context_xml)
+        logger.info('Checking %s', instance.context_xml)
         if not os.path.islink(instance.context_xml):
 
             context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
-            logging.info('Linking %s to %s', instance.context_xml, context_xml)
+            logger.info('Linking %s to %s', instance.context_xml, context_xml)
 
             self.backup(instance.context_xml)
 
@@ -47,11 +47,11 @@ class FixDefaultTomcatFiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
             instance.symlink(context_xml, instance.context_xml)
 
-        logging.info('Checking %s', instance.web_xml)
+        logger.info('Checking %s', instance.web_xml)
         if not os.path.islink(instance.web_xml):
 
             web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
-            logging.info('Linking %s to %s', instance.web_xml, web_xml)
+            logger.info('Linking %s to %s', instance.web_xml, web_xml)
 
             self.backup(instance.web_xml)
 

@@ -35,7 +35,7 @@ class RemoveCustomPolicy(pki.server.upgrade.PKIServerUpgradeScriptlet):
     def upgrade_instance(self, instance):
 
         custom_policy = os.path.join(instance.conf_dir, 'custom.policy')
-        logging.info('Checking %s', custom_policy)
+        logger.info('Checking %s', custom_policy)
 
         if not os.path.exists(custom_policy):
             logger.info('%s does not exist', custom_policy)

@@ -35,9 +35,9 @@ class RemovePKIPolicy(pki.server.upgrade.PKIServerUpgradeScriptlet):
     def upgrade_instance(self, instance):
 
         pki_policy = os.path.join(instance.conf_dir, 'pki.policy')
-        logging.info('Checking %s', pki_policy)
+        logger.info('Checking %s', pki_policy)
 
         if os.path.exists(pki_policy):
-            logging.info('Removing %s', pki_policy)
+            logger.info('Removing %s', pki_policy)
             self.backup(pki_policy)
             pki.util.remove(pki_policy)

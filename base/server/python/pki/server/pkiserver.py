@@ -42,26 +42,26 @@ if __name__ == '__main__':
     except KeyboardInterrupt as e:
 
         if logger.isEnabledFor(logging.INFO):
-            logging.exception(e)
+            logger.exception(e)
 
         sys.exit(1)
 
     except subprocess.CalledProcessError as e:
 
         if logger.isEnabledFor(logging.DEBUG):
-            logging.exception('Command: %s', ' '.join(e.cmd))
+            logger.exception('Command: %s', ' '.join(e.cmd))
 
         else:
-            logging.error('Command: %s', ' '.join(e.cmd))
+            logger.error('Command: %s', ' '.join(e.cmd))
 
         sys.exit(e.returncode)
 
     except Exception as e:  # pylint: disable=broad-except
 
         if logger.isEnabledFor(logging.DEBUG):
-            logging.exception(e)
+            logger.exception(e)
 
         else:
-            logging.error(e)
+            logger.error(e)
 
         sys.exit(1)
