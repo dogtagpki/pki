@@ -853,6 +853,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 logger.info('Updating ranges for %s clone', subsystem.type)
                 subsystem.update_ranges(master_url, deployer.install_token)
 
+            logger.info('Updating configuration for %s clone', subsystem.type)
+            subsystem.update_config(master_url, deployer.install_token)
+
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger
         # (e. g. - 'eclipse'):

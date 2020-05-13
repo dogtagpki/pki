@@ -966,6 +966,80 @@ class PKISubsystem(object):
 
         self.save()
 
+    def retrieve_config(self, master_url, names, substores, install_token):
+
+        cmd = [
+            'pki',
+            '-d', self.instance.nssdb_dir,
+            '-U', master_url,
+            '%s-config-export' % self.name,
+            '--names', ','.join(names),
+            '--substores', ','.join(substores),
+            '--session', install_token.token,
+            '--output-format', 'json'
+        ]
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        output = subprocess.check_output(cmd)
+
+        return json.loads(output.decode())
+
+    def update_config(self, master_url, install_token):
+
+        logger.info('Updating configuration')
+
+        names = [
+            'internaldb.ldapauth.password',
+            'internaldb.replication.password'
+        ]
+
+        substores = [
+            'internaldb',
+            'internaldb.ldapauth',
+            'internaldb.ldapconn'
+        ]
+
+        tags = self.config['preop.cert.list'].split(',')
+        for tag in tags:
+            if tag == 'sslserver':
+                continue
+            substores.append(self.name + '.' + tag)
+
+        if self.name == 'ca':
+            substores.append('ca.connector.KRA')
+        else:
+            names.append('cloning.ca.type')
+
+        config = self.retrieve_config(master_url, names, substores, install_token)
+        properties = config['properties']
+
+        for name in properties:
+
+            if name.startswith('internaldb'):
+                new_name = 'preop.internaldb.master' + name[10:]
+
+            elif name.startswith('cloning.ca'):
+                new_name = 'preop.ca' + name[10:]
+
+            elif name.startswith('cloning'):
+                new_name = 'preop.cert' + name[7:]
+
+            else:
+                new_name = name
+
+            value = properties.get(name)
+            self.config[new_name] = value
+
+        self.config['preop.clone.configuration'] = 'true'
+
+        self.save()
+
     def run(self, args, as_current_user=False):
 
         java_home = self.instance.config['JAVA_HOME']

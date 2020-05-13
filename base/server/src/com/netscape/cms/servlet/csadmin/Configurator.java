@@ -29,7 +29,6 @@ import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -37,8 +36,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
-import org.dogtagpki.common.ConfigClient;
-import org.dogtagpki.common.ConfigData;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
@@ -375,7 +372,7 @@ public class Configurator {
         PKIClient client = Configurator.createClient(serverURL, null, null);
 
         logger.debug("SystemConfigService: get configuration entries from master");
-        getConfigEntries(client, sessionID);
+        getConfigEntries();
 
         String token = preopConfig.getString("module.token", null);
         CryptoUtil.getKeyStorageToken(token); // throw exception if token doesn't exist
@@ -393,75 +390,9 @@ public class Configurator {
         }
     }
 
-    public void getConfigEntries(
-            PKIClient client,
-            String sessionID)
-            throws Exception {
+    public void getConfigEntries() throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
-        String cstype = cs.getType();
-
-        cstype = cstype.toLowerCase();
-
-        StringBuffer c1 = new StringBuffer();
-        StringBuffer s1 = new StringBuffer();
-
-        String value = preopConfig.getString("cert.list");
-        String[] certList = value.split(",");
-
-        for (String tag : certList) {
-
-            if (tag.equals("sslserver")) {
-                continue;
-            }
-
-            if (s1.length() != 0) {
-                s1.append(",");
-            }
-
-            s1.append(cstype + "." + tag);
-        }
-
-        if (!cstype.equals("ca")) {
-            c1.append(",cloning.ca.type");
-        }
-
-        if (cstype.equals("ca")) {
-            /* get ca connector details */
-            if (s1.length() != 0)
-                s1.append(",");
-            s1.append("ca.connector.KRA");
-        }
-
-        s1.append(",internaldb,internaldb.ldapauth,internaldb.ldapconn");
-
-        ConfigClient configClient = new ConfigClient(client, cstype);
-        ConfigData config = configClient.getConfig(
-                "internaldb.ldapauth.password,internaldb.replication.password" + c1,
-                s1.toString(),
-                sessionID);
-
-        Map<String, String> properties = config.getProperties();
-        for (String name : properties.keySet()) {
-            String v = properties.get(name);
-
-            if (name.startsWith("internaldb")) {
-                preopConfig.putString(name.replaceFirst("internaldb", "internaldb.master"), v);
-
-            } else if (name.startsWith("cloning.ca")) {
-                cs.putString(name.replaceFirst("cloning", "preop"), v);
-
-            } else if (name.startsWith("cloning")) {
-                cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
-
-            } else {
-                cs.putString(name, v);
-            }
-        }
-
-        preopConfig.putString("clone.configuration", "true");
-
-        cs.commit(false);
 
         LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
         LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
