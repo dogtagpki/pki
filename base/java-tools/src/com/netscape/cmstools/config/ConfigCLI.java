@@ -42,6 +42,12 @@ public class ConfigCLI extends CLI {
         super(name, description, subsystemCLI);
     }
 
+    public ConfigCLI(SubsystemCLI subsystemCLI) {
+        super("config", "Configuration management commands", subsystemCLI);
+
+        addModule(new ConfigExportCLI(this));
+    }
+
     public ConfigClient getConfigClient() throws Exception {
 
         if (configClient != null) return configClient;

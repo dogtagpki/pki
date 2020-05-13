@@ -23,6 +23,7 @@ import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.kra.KRAClient;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
+import com.netscape.cmstools.config.ConfigCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.logging.AuditCLI;
 import com.netscape.cmstools.range.RangeCLI;
@@ -43,6 +44,7 @@ public class KRACLI extends SubsystemCLI {
 
         addModule(new AuditCLI(this));
         addModule(new KRACertCLI(this));
+        addModule(new ConfigCLI(this));
         addModule(new GroupCLI(this));
         addModule(new KRAKeyCLI(this));
         addModule(new RangeCLI(this));

@@ -24,6 +24,7 @@ import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.cmstools.authority.AuthorityCLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
+import com.netscape.cmstools.config.ConfigCLI;
 import com.netscape.cmstools.feature.FeatureCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.logging.AuditCLI;
@@ -46,6 +47,7 @@ public class CACLI extends SubsystemCLI {
         addModule(new AuthorityCLI(this));
         addModule(new AuditCLI(this));
         addModule(new CACertCLI(this));
+        addModule(new ConfigCLI(this));
         addModule(new FeatureCLI(this));
         addModule(new GroupCLI(this));
         addModule(new KRAConnectorCLI(this));

@@ -7,6 +7,7 @@ package com.netscape.cmstools.tps.config;
 
 import com.netscape.cmstools.cli.SubsystemCLI;
 import com.netscape.cmstools.config.ConfigCLI;
+import com.netscape.cmstools.config.ConfigExportCLI;
 
 public class TPSConfigCLI extends ConfigCLI {
 
@@ -15,6 +16,7 @@ public class TPSConfigCLI extends ConfigCLI {
     public TPSConfigCLI(SubsystemCLI subsystemCLI) {
         super("config", "Configuration management commands", subsystemCLI);
 
+        addModule(new ConfigExportCLI(this));
         addModule(new ConfigModifyCLI(this));
         addModule(new ConfigShowCLI(this));
     }
