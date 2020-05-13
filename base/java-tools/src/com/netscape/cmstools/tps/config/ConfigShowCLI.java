@@ -24,9 +24,9 @@ import java.io.PrintWriter;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.common.ConfigClient;
+import org.dogtagpki.common.ConfigData;
 
-import com.netscape.certsrv.tps.config.ConfigClient;
-import com.netscape.certsrv.tps.config.ConfigData;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**

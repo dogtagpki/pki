@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.certsrv.tps.config;
+package org.dogtagpki.common;
 
 import java.io.StringReader;
 import java.io.StringWriter;

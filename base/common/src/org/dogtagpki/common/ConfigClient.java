@@ -15,7 +15,7 @@
 //(C) 2013 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.tps.config;
+package org.dogtagpki.common;
 
 import java.net.URISyntaxException;
 

@@ -19,6 +19,8 @@ package com.netscape.certsrv.tps;
 
 import java.net.URISyntaxException;
 
+import org.dogtagpki.common.ConfigClient;
+
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
@@ -26,7 +28,6 @@ import com.netscape.certsrv.logging.ActivityClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.cert.TPSCertClient;
-import com.netscape.certsrv.tps.config.ConfigClient;
 import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingClient;
