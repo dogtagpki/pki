@@ -86,7 +86,7 @@ public class ConfigModifyCLI extends CommandCLI {
                 out.println(line);
             }
 
-            configData = ConfigData.valueOf(sw.toString());
+            configData = ConfigData.fromXML(sw.toString());
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
@@ -102,7 +102,7 @@ public class ConfigModifyCLI extends CommandCLI {
 
         } else {
             try (PrintWriter out = new PrintWriter(new FileWriter(output))) {
-                out.println(configData);
+                out.println(configData.toXML());
             }
         }
     }

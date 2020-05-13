@@ -40,11 +40,18 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Configuration")
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ConfigData {
 
     public static Marshaller marshaller;
@@ -166,22 +173,31 @@ public class ConfigData {
         return true;
     }
 
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
-
-        } catch (Exception e) {
-            return super.toString();
-        }
+    public String toXML() throws Exception {
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static ConfigData valueOf(String string) throws Exception {
+    public static ConfigData fromXML(String xml) throws Exception {
+        return (ConfigData) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static ConfigData fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, ConfigData.class);
+    }
+
+    public String toString() {
         try {
-            return (ConfigData)unmarshaller.unmarshal(new StringReader(string));
+            return toJSON();
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -195,10 +211,16 @@ public class ConfigData {
         properties.put("param2", "value2");
         before.setProperties(properties);
 
-        String string = before.toString();
-        System.out.println(string);
+        String xml = before.toXML();
+        System.out.println(xml);
 
-        ConfigData after = ConfigData.valueOf(string);
-        System.out.println(before.equals(after));
+        ConfigData afterXML = ConfigData.fromXML(xml);
+        System.out.println(before.equals(afterXML));
+
+        String json = before.toJSON();
+        System.out.println(json);
+
+        ConfigData afterJSON = ConfigData.fromJSON(json);
+        System.out.println(before.equals(afterJSON));
     }
 }
