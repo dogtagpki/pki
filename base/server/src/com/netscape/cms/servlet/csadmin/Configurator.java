@@ -29,7 +29,6 @@ import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -38,6 +37,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.common.ConfigClient;
 import org.dogtagpki.common.ConfigData;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
@@ -72,9 +72,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXParseException;
 
 import com.netscape.certsrv.account.AccountClient;
@@ -438,8 +435,8 @@ public class Configurator {
 
         s1.append(",internaldb,internaldb.ldapauth,internaldb.ldapconn");
 
-        ConfigData config = getConfig(
-                client,
+        ConfigClient configClient = new ConfigClient(client, cstype);
+        ConfigData config = configClient.getConfig(
                 "internaldb.ldapauth.password,internaldb.replication.password" + c1,
                 s1.toString(),
                 sessionID);
@@ -481,86 +478,6 @@ public class Configurator {
         if (masterHostname.equals(replicaHostname) && masterPort.equals(replicaPort)) {
             throw new BadRequestException("Master and clone must not share the same LDAP database");
         }
-    }
-
-    public ConfigData getConfig(
-            PKIClient client,
-            String names,
-            String substores,
-            String sessionID)
-            throws Exception {
-
-        String cstype = cs.getType();
-        logger.info("Getting " + cstype + " master configuration entries");
-
-        String subsystem = cs.getType().toLowerCase();
-
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("op", "get");
-        content.putSingle("names", names);
-        content.putSingle("substores", substores);
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionID);
-
-        String response = client.post("/" + subsystem + "/admin/" + subsystem + "/getConfigEntries", content);
-
-        if (response == null) {
-            throw new IOException("Unable to get " + cstype + " master configuration");
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-        XMLObject parser = new XMLObject(bis);
-
-        String status = parser.getValue("Status");
-        logger.debug("Status: " + status);
-
-        if (status.equals(AUTH_FAILURE)) {
-            throw new EAuthException(AUTH_FAILURE);
-        }
-
-        if (!status.equals(SUCCESS)) {
-            String error = parser.getValue("Error");
-            throw new IOException(error);
-        }
-
-        logger.info("Retrieved configuration entries:");
-        Map<String, String> properties = new HashMap<>();
-
-        Document doc = parser.getDocument();
-        NodeList list = doc.getElementsByTagName("name");
-        int len = list.getLength();
-
-        for (int i = 0; i < len; i++) {
-            Node n = list.item(i);
-            NodeList nn = n.getChildNodes();
-            String name = nn.item(0).getNodeValue();
-            logger.info("- " + name);
-
-            Node parent = n.getParentNode();
-            nn = parent.getChildNodes();
-            int len1 = nn.getLength();
-
-            String v = "";
-            for (int j = 0; j < len1; j++) {
-                Node nv = nn.item(j);
-                String val = nv.getNodeName();
-
-                if (val.equals("value")) {
-                    NodeList n2 = nv.getChildNodes();
-                    if (n2.getLength() > 0) {
-                        v = n2.item(0).getNodeValue();
-                    }
-                    break;
-                }
-            }
-
-            properties.put(name, v);
-        }
-
-        ConfigData config = new ConfigData();
-        config.setProperties(properties);
-
-        return config;
     }
 
     public void verifySystemCertificates() throws Exception {

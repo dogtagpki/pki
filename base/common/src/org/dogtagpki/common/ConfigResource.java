@@ -34,6 +34,10 @@ import com.netscape.certsrv.base.PATCH;
 @ACLMapping("config.read")
 public interface ConfigResource {
 
+    public String SUCCESS = "0";
+    public String FAILURE = "1";
+    public String AUTH_FAILURE = "2";
+
     @GET
     public Response getConfig();
 
