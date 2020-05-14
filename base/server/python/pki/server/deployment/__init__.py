@@ -416,8 +416,7 @@ class PKIDeployer:
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
-        # TODO: Replace stdout/stderr with capture_output in Python 3.7.
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, check=False)
 
         if result.returncode == 0:
             return json.loads(result.stdout.decode())
@@ -451,8 +450,7 @@ class PKIDeployer:
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
-        # TODO: Replace stdout/stderr with capture_output in Python 3.7.
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, check=False)
 
         if result.returncode == 0:
             return json.loads(result.stdout.decode())
@@ -480,8 +478,7 @@ class PKIDeployer:
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
-        # TODO: Replace stdout/stderr with capture_output in Python 3.7.
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, check=False)
 
         if result.returncode == 0:
             return json.loads(result.stdout.decode())
@@ -510,8 +507,7 @@ class PKIDeployer:
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
-        # TODO: Replace stdout/stderr with capture_output in Python 3.7.
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, check=False)
 
         if result.returncode == 0:
             return json.loads(result.stdout.decode())
@@ -540,8 +536,7 @@ class PKIDeployer:
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
-        # TODO: Replace stdout/stderr with capture_output in Python 3.7.
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, check=False)
 
         if result.returncode == 0:
             return json.loads(result.stdout.decode())

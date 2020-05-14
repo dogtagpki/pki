@@ -938,11 +938,9 @@ class PKISubsystem(object):
             cmd.append('--verbose')
 
         logger.debug('Command: %s', ' '.join(cmd))
+        output = subprocess.check_output(cmd)
 
-        # TODO: Replace stdout/stderr with capture_output in Python 3.7.
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-
-        return json.loads(result.stdout.decode())
+        return json.loads(output.decode())
 
     def update_ranges(self, master_url, session_id):
 
