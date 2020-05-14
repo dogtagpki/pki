@@ -508,7 +508,7 @@ class AuditEventEnableCLI(pki.cli.CLI):
         self.parent = parent
 
     def print_help(self):
-        print('Usage: pki-server %s-audit-event-enable <event_name> [OPTIONS]'
+        print('Usage: pki-server %s-audit-event-enable [OPTIONS] <event_name>'
               % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
@@ -681,7 +681,7 @@ class AuditEventDisableCLI(pki.cli.CLI):
         self.parent = parent
 
     def print_help(self):
-        print('Usage: pki-server %s-audit-event-disable <event_name> [OPTIONS]'
+        print('Usage: pki-server %s-audit-event-disable [OPTIONS] <event_name>'
               % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')

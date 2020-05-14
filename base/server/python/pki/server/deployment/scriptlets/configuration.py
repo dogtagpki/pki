@@ -433,7 +433,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             logger.info('Creating temp SSL server cert for %s', deployer.mdict['pki_hostname'])
 
-            # TODO: replace with pki-server create-cert sslserver --temp
+            # TODO: replace with pki-server create-cert --temp sslserver
 
             # NOTE:  ALWAYS create the temporary sslserver certificate
             #        in the software DB regardless of whether the

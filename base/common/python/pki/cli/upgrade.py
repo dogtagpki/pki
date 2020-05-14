@@ -56,7 +56,7 @@ def advancedOptions():
 def main(argv):
 
     try:
-        opts, _ = getopt.getopt(argv, 'hi:s:t:vX', [
+        opts, _ = getopt.gnu_getopt(argv, 'hi:s:t:vX', [
             'status', 'revert', 'validate',
             'remove-tracker', 'reset-tracker', 'set-tracker=',
             'verbose', 'debug', 'help'])

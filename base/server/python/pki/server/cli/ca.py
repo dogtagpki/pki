@@ -281,7 +281,7 @@ class CACertRequestShowCLI(pki.cli.CLI):
             'show', 'Show CA certificate request')
 
     def print_help(self):
-        print('Usage: pki-server ca-cert-request-show <request ID> [OPTIONS]')
+        print('Usage: pki-server ca-cert-request-show [OPTIONS] <request ID>')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --output-file <file_name>      Save request in file.')

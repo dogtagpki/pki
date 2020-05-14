@@ -61,7 +61,7 @@ class UpgradeCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.getopt(argv, 'hi:s:t:vX', [
+            opts, args = getopt.gnu_getopt(argv, 'hi:s:t:vX', [
                 'instance=',
                 'status', 'revert', 'validate',
                 'remove-tracker', 'reset-tracker', 'set-tracker=',

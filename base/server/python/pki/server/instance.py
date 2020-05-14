@@ -199,21 +199,22 @@ class PKIInstance(pki.server.PKIServer):
                 if current_user != self.user:
                     prefix.extend(['sudo', '-u', self.user])
 
-            cmd = prefix + ['/usr/sbin/pki-server', 'upgrade', self.name]
+            cmd = prefix + ['/usr/sbin/pki-server', 'upgrade']
 
             if logger.isEnabledFor(logging.DEBUG):
-                cmd.extend(['--debug'])
+                cmd.append('--debug')
 
             elif logger.isEnabledFor(logging.INFO):
-                cmd.extend(['-v'])
+                cmd.append('--verbose')
+
+            cmd.append(self.name)
 
             logger.debug('Command: %s', ' '.join(cmd))
-
             subprocess.run(cmd, env=self.config, check=True)
 
             cmd = prefix + ['/usr/bin/pkidaemon', 'start', self.name]
-            logger.debug('Command: %s', ' '.join(cmd))
 
+            logger.debug('Command: %s', ' '.join(cmd))
             subprocess.run(cmd, env=self.config, check=True)
 
         return super(PKIInstance, self).execute(
