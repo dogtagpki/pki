@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.tps.config;
+package com.netscape.cmstools.config;
 
 import java.io.IOException;
 import java.util.Map;

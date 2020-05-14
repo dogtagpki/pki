@@ -28,6 +28,7 @@ import org.dogtagpki.common.ConfigClient;
 import org.dogtagpki.common.ConfigData;
 
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.config.ConfigCLI;
 
 /**
  * @author Endi S. Dewata
