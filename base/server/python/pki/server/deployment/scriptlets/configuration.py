@@ -640,6 +640,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         existing = deployer.configuration_file.existing
         step_two = deployer.configuration_file.external_step_two
         clone = deployer.configuration_file.clone
+        master_url = deployer.mdict['pki_clone_uri']
 
         try:
             if existing or (external or standalone) and step_two:
@@ -766,11 +767,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if subsystem.type == 'CA' and clone and not system_certs_imported:
 
-            clone_uri = deployer.mdict['pki_clone_uri']
+            logger.info('Retrieving CA certificate chain from %s', master_url)
 
-            logger.info('Retrieving CA certificate chain from %s', clone_uri)
-
-            pem_chain = self.get_cert_chain(instance, clone_uri)
+            pem_chain = self.get_cert_chain(instance, master_url)
             base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
             subsystem.config['preop.clone.pkcs7'] = base64_chain
 
@@ -847,13 +846,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             setup_db_manager=setup_db_manager,
             setup_vlv_indexes=setup_vlv_indexes)
 
-        if subsystem.type in ['CA', 'KRA'] and clone:
-            logger.info('Setting up %s clone', subsystem.type)
+        if clone:
 
-            master_url = deployer.mdict['pki_clone_uri']
-            session_id = deployer.install_token.token
+            if subsystem.type in ['CA', 'KRA']:
 
-            subsystem.update_ranges(master_url, session_id)
+                logger.info('Updating ranges for %s clone', subsystem.type)
+                subsystem.update_ranges(master_url, deployer.install_token)
 
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger
