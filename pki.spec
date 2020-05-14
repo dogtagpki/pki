@@ -150,7 +150,7 @@ fi;
 BuildRequires:    git
 BuildRequires:    make
 
-BuildRequires:    cmake >= 2.8.9-1
+BuildRequires:    cmake >= 3.0.2
 BuildRequires:    gcc-c++
 BuildRequires:    zip
 BuildRequires:    java-1.8.0-openjdk-devel
