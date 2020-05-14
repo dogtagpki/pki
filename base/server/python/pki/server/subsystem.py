@@ -1040,6 +1040,16 @@ class PKISubsystem(object):
 
         self.save()
 
+        master_hostname = self.config['preop.internaldb.master.ldapconn.host']
+        master_port = self.config['preop.internaldb.master.ldapconn.port']
+
+        replica_hostname = self.config['internaldb.ldapconn.host']
+        replica_port = self.config['internaldb.ldapconn.port']
+
+        if master_hostname == replica_hostname and \
+                master_port == replica_port:
+            raise Exception('Master and replica must not share LDAP database')
+
     def run(self, args, as_current_user=False):
 
         java_home = self.instance.config['JAVA_HOME']

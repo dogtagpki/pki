@@ -73,7 +73,6 @@ import org.xml.sax.SAXParseException;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.authentication.EAuthException;
-import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -358,21 +357,7 @@ public class Configurator {
 
     public void setupClone(CloneSetupRequest request) throws Exception {
 
-        String csType = cs.getType();
         PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String sessionID = request.getInstallToken().getToken();
-
-        String cloneUri = request.getCloneUri();
-        URL url = new URL(cloneUri);
-        String masterHostname = url.getHost();
-        int masterPort = url.getPort();
-
-        String serverURL = "https://" + masterHostname + ":" + masterPort;
-        PKIClient client = Configurator.createClient(serverURL, null, null);
-
-        logger.debug("SystemConfigService: get configuration entries from master");
-        getConfigEntries();
 
         String token = preopConfig.getString("module.token", null);
         CryptoUtil.getKeyStorageToken(token); // throw exception if token doesn't exist
@@ -387,27 +372,6 @@ public class Configurator {
 
         if (request.getSetupReplication()) {
             setupReplication(request);
-        }
-    }
-
-    public void getConfigEntries() throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
-        LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
-
-        LDAPConfig replicaConfig = cs.getInternalDBConfig();
-        LDAPConnectionConfig replicaConnConfig = replicaConfig.getConnectionConfig();
-
-        String masterHostname = masterConnConfig.getString("host", "");
-        String masterPort = masterConnConfig.getString("port", "");
-
-        String replicaHostname = replicaConnConfig.getString("host");
-        String replicaPort = replicaConnConfig.getString("port");
-
-        if (masterHostname.equals(replicaHostname) && masterPort.equals(replicaPort)) {
-            throw new BadRequestException("Master and clone must not share the same LDAP database");
         }
     }
 
