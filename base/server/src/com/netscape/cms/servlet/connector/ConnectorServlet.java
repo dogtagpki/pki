@@ -82,7 +82,7 @@ import com.netscape.cmscore.connector.HttpRequestEncoder;
  * process requests from remote authority -
  * service request or return status.
  *
- * @version $Revision$, $Date$
+ * @author cfu - Server-Side Keygen Enrollment implementation
  */
 public class ConnectorServlet extends CMSServlet {
 
@@ -386,6 +386,8 @@ public class ConnectorServlet extends CMSServlet {
     protected IPKIMessage processRequest(
             String source, String sourceUserId, IPKIMessage msg, IAuthToken token)
             throws EBaseException {
+
+        String method = "ConnectorServlet: processRequest: ";
         String auditMessage = null;
         String auditSubjectID = sourceUserId;
         String auditProtectionMethod = SIGNED_AUDIT_PROTECTION_METHOD_SSL;
@@ -422,19 +424,21 @@ public class ConnectorServlet extends CMSServlet {
         try {
             IRequestQueue queue = mAuthority.getRequestQueue();
             String srcid = source + ":" + msg.getReqId();
+            logger.debug(method + "srcid =" + srcid);
 
             // find request in request queue and return result.
             RequestId thisreqid = queue.findRequestBySourceId(srcid);
             IRequest thisreq = null;
 
             if (thisreqid != null) {
+                logger.debug(method + "thisreqid not null:" + thisreqid);
                 thisreq = queue.findRequest(thisreqid);
                 if (thisreq == null) {
                     // strange case.
                     String errormsg = "Cannot find request in request queue " +
                             thisreqid;
 
-                    logger.error(CMS.getLogMessage(
+                    logger.error(method + CMS.getLogMessage(
                                     "CMSGW_REQUEST_ID_NOT_FOUND_1",
                                     thisreqid.toString()));
 
@@ -455,31 +459,56 @@ public class ConnectorServlet extends CMSServlet {
 
                     throw new EBaseException(errormsg);
                 } else {
-                    logger.info("ConnectorServlet: Found request " + thisreqid + " for " + srcid);
-                    replymsg = new HttpPKIMessage();
-                    replymsg.fromRequest(thisreq);
+                    String errormsg = "Found request " + thisreqid + " for " + srcid;
+                    // for Server-Side Keygen, it could be the 2nd trip
+                    // where stage was Request.SSK_STAGE_KEYGEN going on
+                    // IRequest.SSK_STAGE_KEY_RETRIEVE
+                    String sskKeygenStage = thisreq.getExtDataInString(IRequest.SSK_STAGE);
+                    if (sskKeygenStage!= null && sskKeygenStage.equalsIgnoreCase(IRequest.SSK_STAGE_KEYGEN)) {
+                        logger.debug("ConnectorServlet:processRequest: Stage=" + sskKeygenStage);
+                    } else {
 
-                    // store a message in the signed audit log file
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.INTER_BOUNDARY,
-                                auditSubjectID,
-                                ILogger.SUCCESS,
-                                auditProtectionMethod,
-                                auditRequestType,
-                                auditRequesterID);
+                        logger.debug(method + errormsg);
 
-                    audit(auditMessage);
+                        replymsg = new HttpPKIMessage();
+                        replymsg.fromRequest(thisreq);
 
-                    // NOTE:  The signed audit event
-                    //        LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST
-                    //        does not yet matter at this point!
+                        // store a message in the signed audit log file
+                        auditMessage = CMS.getLogMessage(
+                                    AuditEvent.INTER_BOUNDARY,
+                                    auditSubjectID,
+                                    ILogger.SUCCESS,
+                                    auditProtectionMethod,
+                                    auditRequestType,
+                                    auditRequesterID);
 
-                    return replymsg;
+                        audit(auditMessage);
+
+                        // NOTE:  The signed audit event
+                        //        LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST
+                        //        does not yet matter at this point!
+
+                        return replymsg;
+                    }
                 }
             }
 
             // if not found process request.
             thisreq = queue.newRequest(msg.getReqType());
+            /* cfu: let's find out what's in the request
+            logger.debug("ConnectorServlet: cfu see what's in request");
+            Enumeration<String> ereq = thisreq.getExtDataKeys();
+            while (ereq.hasMoreElements()) {
+                String reqKey = ereq.nextElement();
+                String reqVal = thisreq.getExtDataInString(reqKey);
+                if (reqVal != null) {
+                    logger.debug("ConnectorServlet: - " + reqKey + ": " + reqVal);
+                } else {
+                    logger.debug("ConnectorServlet: - " + reqKey + ": no value");
+                }
+            }
+            */
+
             logger.debug("ConnectorServlet: created requestId=" +
                     thisreq.getRequestId().toString());
             thisreq.setSourceId(srcid);
@@ -491,6 +520,33 @@ public class ConnectorServlet extends CMSServlet {
             //        then this code does NOT need to be contained within its
             //        own special try/catch block.
             msg.toRequest(thisreq);
+
+            // reset CA's request dbStatus and requestStatus got inadvertantly
+            // transferred over
+            thisreq.setExtData("dbStatus", "NOT_UPDATED");
+            thisreq.setExtData(IRequest.REQ_STATUS, "begin");
+
+            boolean isSSKeygen = false;
+            String isSSKeygenStr = thisreq.getExtDataInString("isServerSideKeygen");
+            if ((isSSKeygenStr != null) && isSSKeygenStr.equalsIgnoreCase("true")) {
+                logger.debug("ConnectorServlet:isServerSideKeygen = true");
+                isSSKeygen = true;
+                String sskKeygenStage = thisreq.getExtDataInString(IRequest.SSK_STAGE);
+                if (sskKeygenStage!= null && sskKeygenStage.equalsIgnoreCase(IRequest.SSK_STAGE_KEYGEN)) {
+                    logger.debug(method + "isServerSideKeygen Stage=" + sskKeygenStage);
+                    thisreq.setRequestType("asymkeyGenRequest"); //IRequest.ASYMKEY_GENERATION_REQUEST
+                } else if (sskKeygenStage.equalsIgnoreCase(IRequest.SSK_STAGE_KEY_RETRIEVE)) {
+                    logger.debug(method + "isServerSideKeygen Stage=" + sskKeygenStage);
+                    thisreq.setRequestType("recovery"); //IRequest.KEYRECOVERY_REQUEST
+                }
+                String clientKeyId = thisreq.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
+                if (clientKeyId != null)
+                    logger.debug(method + "isServerSideKeygen clientKeyId = " + clientKeyId);
+                else
+                    logger.debug(method + "isServerSideKeygen clientKeyId not found");
+            } else {
+                logger.debug("ConnectorServlet:isServerSideKeygen = false");
+            }
 
             if (isProfileRequest(thisreq)) {
                 X509CertInfo info =

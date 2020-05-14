@@ -18,6 +18,8 @@
 package com.netscape.cms.servlet.profile;
 
 import java.util.Locale;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -45,6 +47,8 @@ import com.netscape.cms.servlet.cert.RequestProcessor;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
+
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This servlet approves profile-based request.
@@ -170,8 +174,32 @@ public class ProfileProcessServlet extends ProfileServlet {
             }
             args.set(ARG_OUTPUT_LIST, outputlist);
         }
-
-        outputTemplate(request, response, args);
+        try {
+            //logger.debug("ProfileProcessServlet: p12 output process begins");
+            String p12Str = req.getExtDataInString("req_issued_p12");
+            if (p12Str == null) {
+                // not server-side keygen
+                // logger.debug("ProfileProcessServlet: no p12; not server-side keygen");
+                outputTemplate(request, response, args);
+            } else {
+                // found pkcs12 blob
+                //logger.debug("ProfileProcessServlet: found p12 " /* + p12Str*/);
+                byte[] p12blob = null;
+                HttpServletResponse p12_response = cmsReq.getHttpResp();
+                p12blob = Utils.base64decode(p12Str);
+                OutputStream bos = p12_response.getOutputStream();
+                p12_response.setContentType("application/x-pkcs12");
+                p12_response.setContentLength(p12blob.length);
+                p12_response.setHeader("Content-disposition", "attachment; filename="+  "serverKeyGenCert.p12");
+                bos.write(p12blob);
+                bos.flush();
+                bos.close();
+            }
+        } catch (IOException e) {
+            logger.error("ProfileProcessServlet: p12 output process error" + e);
+            setError(args, e.getMessage(), request, response);
+            return;
+        }
     }
 
     private void setError(ArgSet args, String reason, HttpServletRequest request, HttpServletResponse response)

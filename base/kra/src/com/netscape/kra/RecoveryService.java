@@ -39,8 +39,12 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.util.BigInt;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
@@ -83,8 +87,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * End Entity recovery will send RA or CA a response where stores the recovered key.
  *
  * @author thomask (original)
- * @author cfu (non-RSA keys; private keys secure handling);
- * @version $Revision$, $Date$
+ * @author cfu (non-RSA keys; private keys secure handling; server-side keygen enrollment);
  */
 public class RecoveryService implements IService {
 
@@ -137,21 +140,86 @@ public class RecoveryService implements IService {
         String tokName = "";
         CryptoToken ct = null;
         Boolean allowEncDecrypt_recovery = false;
+        boolean isSSKeygen = false;
+        String serverKeygenP12Pass = null;
 
         CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
+        X509Certificate transportCert =
+                request.getExtDataInCert(ATTR_TRANSPORT_CERT);
+        String transportCertNick = null;
         try {
             cm = CryptoManager.getInstance();
             config = engine.getConfig();
             tokName = config.getString("kra.storageUnit.hardware", CryptoUtil.INTERNAL_TOKEN_NAME);
+
+            // default to "KRA transport certificate" would require one to
+            // change the nickname for existing KRA transport cert
+            transportCertNick = config.getString("kra.cert.transport.nickname", "KRA transport certificate");
+            logger.debug("RecoveryService: serviceRequest: KRA transport cert nickname: " + transportCertNick);
             logger.debug("RecoveryService: serviceRequest: token: " + tokName);
             ct = CryptoUtil.getCryptoToken(tokName);
 
             allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
+
+            String isSSKeygenStr = request.getExtDataInString("isServerSideKeygen");
+            if (isSSKeygenStr != null && isSSKeygenStr.equalsIgnoreCase("true")) {
+                logger.debug("RecoveryService: serviceRequest: isSSKengen=" + isSSKeygenStr);
+                isSSKeygen = true;
+                CryptoToken token = CryptoUtil.getKeyStorageToken("internal");
+
+                byte[] sessionWrappedPassphrase = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdEnc");
+                if (sessionWrappedPassphrase == null) {
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "Server-Side Keygen Enroll Key Retrieval: sessionWrappedPassphrase not found in Request"));
+                }
+                byte[] transWrappedSessionKey = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdTransSession");
+                if (transWrappedSessionKey == null) {
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "Server-Side Keygen Enroll Key Retrieval: transWrappedSessionKey not found in Request"));
+                }
+
+                // unwrap session key
+                org.mozilla.jss.crypto.X509Certificate transCert =
+                        cm.findCertByNickname(transportCertNick);
+                PrivateKey transPrivateKey =
+                        (org.mozilla.jss.crypto.PrivateKey) cm.findPrivKeyByCert(transCert);
+                if (transPrivateKey != null)
+                    logger.debug("RecoveryService: serviceRequest: found private key");
+
+                // key size and alg must match with serverKeygenUserKeyDefault.java
+
+                SymmetricKey unwrappedSessionKey =
+                        CryptoUtil.unwrap(token,  SymmetricKey.AES, 128,
+                        SymmetricKey.Usage.UNWRAP,
+                        transPrivateKey,
+                        transWrappedSessionKey,
+                        KeyWrapAlgorithm.RSA);
+
+                if (unwrappedSessionKey == null) {
+                    logger.debug("RecoveryService: serviceRequest: unwrappedSessionKey null");
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "Server-Side Keygen Enroll Key Retrieval: CryptoUtil.unwrap failed on unwrappedSessionKey"));
+                }
+
+                // decrypt p12 passphrase
+                EncryptionAlgorithm encryptAlgorithm =
+                        EncryptionAlgorithm.AES_128_CBC_PAD;
+                byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+                IVParameterSpec ivps = new IVParameterSpec(iv);
+                byte[] passphrase = CryptoUtil.decryptUsingSymmetricKey(token,
+                        ivps, sessionWrappedPassphrase, unwrappedSessionKey,
+                        encryptAlgorithm);
+                serverKeygenP12Pass = new String(passphrase, "UTF-8");
+                CryptoUtil.obscureBytes(passphrase, "random");
+            }
         } catch (Exception e) {
             logger.error("RecoveryService exception: use internal token: " + e, e);
             ct = cm.getInternalCryptoToken();
+        } finally {
+            // delete SSK items from request
+            request.setExtData("serverSideKeygenP12PasswdTransSession", "");
+            request.setExtData("serverSideKeygenP12PasswdEnc", "");
+            request.deleteExtData("serverSideKeygenP12PasswdTransSession");
+            request.deleteExtData("serverSideKeygenP12PasswdEnc");
         }
         if (ct == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "cannot get crypto token"));
@@ -171,14 +239,19 @@ public class RecoveryService implements IService {
                 request.getRequestId());
 
         if (params == null) {
-            // possibly we are in recovery mode
-            return true;
+            if (isSSKeygen) {
+                params = new Hashtable<String, Object>();
+                params.put(RecoveryService.ATTR_TRANSPORT_PWD, serverKeygenP12Pass);
+            } else {
+                // possibly we are in recovery mode
+                return true;
+            }
         }
 
         // retrieve based on serial no
         BigInteger serialno = request.getExtDataInBigInteger(ATTR_SERIALNO);
 
-        logger.info("KRA reading key record");
+        logger.info("KRA reading key record; serialno=" + serialno.toString());
 
         if (statsSub != null) {
             statsSub.startTiming("get_key");
@@ -220,8 +293,6 @@ public class RecoveryService implements IService {
 
         // Unwrap the archived private key
         byte privateKeyData[] = null;
-        X509Certificate transportCert =
-                request.getExtDataInCert(ATTR_TRANSPORT_CERT);
 
         if (transportCert == null) {
             if (statsSub != null) {
@@ -308,6 +379,30 @@ public class RecoveryService implements IService {
             if (engine.getConfig().getBoolean("kra.keySplitting")) {
                 mKRA.getStorageKeyUnit().logout();
             }
+        }
+
+        if (isSSKeygen) {
+            logger.debug("RecoveryService: putting p12 in request");
+            byte[] p12b = (byte[])params.get(ATTR_PKCS12);
+            // IEnrollProfile.REQUEST_ISSUED_P12
+            request.setExtData("req_issued_p12" /*ATTR_PKCS12*/, p12b);
+
+            /*
+             * if key archival is not enabled, delete the key record.
+             * for Server-Side keygen enrollment, key archival is determined
+             * by the enableArchival parameter in the enrollment profiile:
+             * e.g.
+             *     policyset.userCertSet.3.default.params.enableArchival
+             * Note that if the enableArchival parameter does not exist in
+             * the profile, the default value to that is set to *false*
+             * in the request in ServerKeygenUserKeyDefault
+             */
+            boolean isArchival = request.getExtDataInBoolean(IRequest.SERVER_SIDE_KEYGEN_ENROLL_ENABLE_ARCHIVAL, true);
+            if (isArchival) {
+                logger.debug("RecoveryService: serviceRequest: Server-Side Keygen isArchival true, key record kept");
+            } else
+                mStorage.deleteKeyRecord(serialno);
+                logger.debug("RecoveryService: serviceRequest: Server-Side Keygen isArchival false, key record not kept");
         }
 
         logger.info("key " + serialno + " recovered");
@@ -589,6 +684,16 @@ public class RecoveryService implements IService {
             jssSubsystem.obscureChars(pwdChar);
         }
 
+        /* TODO
+        if (isSSKeygen) {
+            signedAuditLogger.log(new ServerSideKeygenEnrollKeyRetrievalProcessedEvent(
+                        auditSubjectID,
+                        "Success",
+                        request.getRequestId(),
+                        clientKeyId,
+                        null));
+        }
+        */
         // update request
         mKRA.getRequestQueue().updateRequest(request);
     }

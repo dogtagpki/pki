@@ -45,6 +45,10 @@ public interface IDescriptor {
     public static String DUAL_KEYGEN_REQUEST_TYPE = "dual_keygen_request_type";
     public static String CERT_REQUEST = "cert_request";
     public static String CERT_REQUEST_TYPE = "cert_request_type";
+    public static String SERVER_SIDE_KEYGEN_REQUEST_TYPE = "server_side_keygen_request_type";
+    public static String SERVER_SIDE_KEYGEN_PKCS12 = "server_side_keygen_p12";
+    public static String SERVER_SIDE_KEYGEN_KEY_TYPE = "server_side_keygen_key_type";
+    public static String SERVER_SIDE_KEYGEN_KEY_SIZE = "server_side_keygen_key_size";
     public static String CHOICE = "choice"; // choice of strings
     public static String DN = "dn";
     public static String IP = "ip";
