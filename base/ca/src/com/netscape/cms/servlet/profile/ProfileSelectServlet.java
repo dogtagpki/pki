@@ -53,7 +53,7 @@ import com.netscape.cmscore.profile.ProfileSubsystem;
 /**
  * Retrieve detailed information of a particular profile.
  *
- * @version $Revision$, $Date$
+ * @author cfu Server-Side Keygen Enrollment support
  */
 public class ProfileSelectServlet extends ProfileServlet {
 

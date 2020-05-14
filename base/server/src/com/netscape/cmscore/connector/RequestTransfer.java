@@ -84,15 +84,17 @@ public class RequestTransfer {
                 if (k.equals("AUTH_TOKEN"))
                     continue;
                 // logger.debug("RequestTransfer: attribute=" + k);
-                if (k.equals("requestStatus")) {
+                if (k.equalsIgnoreCase("requestStatus")) {
                     logger.debug("RequestTransfer : requestStatus=" +
                             r.getExtDataInString("requestStatus"));
                 }
+                //logger.debug("RequestTransfer: profile request; transfer name:"+k);
                 v.addElement(k);
             }
             logger.debug("RequestTransfer: attribute size=" + v.size());
             return v.toArray(new String[v.size()]);
         } else {
+            // logger.debug("RequestTransfer: not profile request; returning default transferAttributes");
             return transferAttributes;
         }
     }

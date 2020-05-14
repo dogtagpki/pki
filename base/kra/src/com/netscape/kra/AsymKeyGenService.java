@@ -33,6 +33,7 @@ import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AsymKeyGenerationProcessedEvent;
+import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeygenProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
@@ -43,6 +44,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Service class to handle asymmetric key generation requests.
@@ -52,6 +54,7 @@ import com.netscape.cmscore.dbs.KeyRecord;
  * The public key is stored in the publicKeyData attribute of the record.
  *
  * @author akoneru
+ * @author cfu Server-Side Keygen Enrollment support
  *
  */
 public class AsymKeyGenService implements IService {
@@ -72,13 +75,60 @@ public class AsymKeyGenService implements IService {
 
     @Override
     public boolean serviceRequest(IRequest request) throws EBaseException {
+        String method = "AsymKeyGenService:serviceRequest: ";
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig configStore = engine.getConfig();
+
+        String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
+        String auditSubjectID = owner;
+        boolean isSSKeygen = false;
+        String isSSKeygenStr = request.getExtDataInString("isServerSideKeygen");
+        if ((isSSKeygenStr != null) && isSSKeygenStr.equalsIgnoreCase("true")) {
+            logger.debug(method + "isServerSideKeygen = true");
+            isSSKeygen = true;
+        } else {
+            logger.debug(method + "isServerSideKeygen = false");
+        }
+
         String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
+        if (clientKeyId != null)
+            logger.debug(method + "clientKeyId = " + clientKeyId);
+        else
+            logger.debug(method + "clientKeyId not found");
+
         String algorithm = request.getExtDataInString(IRequest.KEY_GEN_ALGORITHM);
 
         String keySizeStr = request.getExtDataInString(IRequest.KEY_GEN_SIZE);
-        int keySize = Integer.valueOf(keySizeStr);
+        int keySize = 2048;
+        boolean isEC = false;
+        String errmsg ="";
+
+        if (algorithm.toUpperCase().equals("EC")) {
+            isEC = true;
+            switch (keySizeStr) {
+               case "nistp256":
+                    keySize = 256;
+                    break;
+                case "nistp384":
+                    keySize = 384;
+                    break;
+                case "nistp521":
+                    keySize = 521;
+                    break;
+                default:
+                    logger.debug(method + "unknown EC key curve name: " + keySizeStr);
+                    errmsg = "unknown EC key curve name: " + keySizeStr;
+                    signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        errmsg));
+                    throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + errmsg);
+            }
+        } else {
+            keySize = Integer.valueOf(keySizeStr);
+        }
 
         String realm = request.getRealm();
 
@@ -132,9 +182,6 @@ public class AsymKeyGenService implements IService {
         logger.debug("AsymKeyGenService: request id: " + request.getRequestId());
         logger.debug("AsymKeyGenService: algorithm: " + algorithm);
 
-        String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
-        String auditSubjectID = owner;
-
         // Generating the asymmetric keys
         KeyPair kp = null;
 
@@ -142,25 +189,82 @@ public class AsymKeyGenService implements IService {
             kp = kra.generateKeyPair(
                     algorithm.toUpperCase(),
                     keySize,
-                    null, // keyCurve for ECC, not yet supported
+                    isEC? keySizeStr:null, // keyCurve for ECC
                     null, // PQG not yet supported
-                    usageList
+                    usageList,
+                    true /* temporary */
                  );
 
         } catch (EBaseException e) {
-            String message = "Unable to generate asymmetric key: " + e.getMessage();
-            logger.error("AsymKeyGenService: " + message, e);
-            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, message);
-            throw new EBaseException(message, e);
+            errmsg = "Unable to generate asymmetric key: " + e.getMessage();
+            logger.error("AsymKeyGenService: " + errmsg, e);
+            if (isSSKeygen) {
+                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        errmsg));
+                throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + e, e);
+            } else {
+                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                        clientKeyId, null, errmsg);
+                throw new EBaseException(errmsg, e);
+            }
         }
 
         if (kp == null) {
-            String message = "Unable to generate asymmetric key";
-            logger.error("AsymKeyGenService: " + message);
-            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, message);
-            throw new EBaseException(message);
+            errmsg = "Unable to generate asymmetric key";
+            logger.error("AsymKeyGenService: " + errmsg);
+            if (isSSKeygen) {
+                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        errmsg));
+                throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: "+ errmsg);
+            } else {
+                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                        clientKeyId, null, errmsg);
+                throw new EBaseException(errmsg);
+            }
+        }
+
+        if (isSSKeygen) {
+            byte[] publicKeyData = null;
+            String pubKeyStr = "";
+            try {
+                publicKeyData = kp.getPublic().getEncoded();
+                if (publicKeyData == null) {
+                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    errmsg = " failed getting publickey encoded";
+                    logger.debug(method + errmsg);
+                    signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        errmsg));
+                    throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: "+ errmsg);
+                } else {
+                    //logger.debug(method + "public key binary length ="+ publicKeyData.length);
+                    pubKeyStr = CryptoUtil.base64Encode(publicKeyData);
+
+                    //logger.debug(method + "public key length =" + pubKeyStr.length());
+                    request.setExtData("public_key", pubKeyStr);
+                }
+            } catch (Exception e) {
+                logger.debug(method + e);
+                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        e.getMessage()));
+                throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + e, e);
+            }
         }
 
         byte[] privateSecurityData = null;
@@ -170,25 +274,49 @@ public class AsymKeyGenService implements IService {
             params = storageUnit.getWrappingParams(allowEncDecrypt_archival);
             privateSecurityData = storageUnit.wrap((PrivateKey) kp.getPrivate(), params);
         } catch (Exception e) {
-            String message = "Unable to wrap asymmetric key: " + e.getMessage();
-            logger.error("AsymKeyGenService: " + message, e);
-            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, message);
-            throw new EBaseException(message, e);
+            errmsg = "Unable to wrap asymmetric key: " + e.getMessage();
+            logger.error("AsymKeyGenService: " + errmsg, e);
+            if (isSSKeygen) {
+                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        errmsg));
+                throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + e, e);
+            } else {
+                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                        clientKeyId, null, errmsg);
+                throw new EBaseException(errmsg, e);
+            }
         }
 
+        if (owner == null)
+            owner = request.getExtDataInString("auth_token-userdn");
+
         KeyRecord record = new KeyRecord(null, kp.getPublic().getEncoded(), privateSecurityData,
-                owner, algorithm, owner);
+                isSSKeygen? clientKeyId:owner, algorithm, owner);
 
         IKeyRepository storage = kra.getKeyRepository();
         BigInteger serialNo = storage.getNextSerialNumber();
 
         if (serialNo == null) {
-            String message = "Unable to get next key ID";
-            logger.error("AsymKeyGenService: " + message);
-            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, message);
-            throw new EBaseException(message);
+            errmsg = "Unable to get next key ID";
+            logger.error("AsymKeyGenService: " + errmsg);
+            if (isSSKeygen) {
+                errmsg = "Failed to get next Key ID";
+                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        errmsg));
+                throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: "+ errmsg);
+            } else {
+                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                        clientKeyId, null, errmsg);
+                throw new EBaseException(errmsg);
+            }
         }
 
         // Storing the public key and private key.
@@ -200,6 +328,9 @@ public class AsymKeyGenService implements IService {
         record.set(KeyRecord.ATTR_KEY_SIZE, keySize);
         request.setExtData(ATTR_KEY_RECORD, serialNo);
 
+        // "serialNumber" must match RecoveryService:ATTR_SERIALNO
+        request.setExtData("serialNumber", serialNo);
+
         if (realm != null) {
             record.set(KeyRecord.ATTR_REALM, realm);
         }
@@ -207,17 +338,36 @@ public class AsymKeyGenService implements IService {
         try {
             record.setWrappingParams(params, allowEncDecrypt_archival);
         } catch (Exception e) {
-            String message = "Unable to store wrapping parameters: " + e.getMessage();
-            logger.error("AsymKeyGenService: " + message);
-            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, message);
-            throw new EBaseException(message, e);
+            errmsg = "Unable to store wrapping parameters: " + e.getMessage();
+            logger.error("AsymKeyGenService: " + errmsg);
+            if (isSSKeygen) {
+                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Failure",
+                        request.getRequestId(),
+                        clientKeyId,
+                        errmsg));
+                throw new EBaseException("Errors in ServerSideKeygenEnroll generating Asymmetric key: " + errmsg, e);
+            } else {
+                auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                        clientKeyId, null, errmsg);
+                throw new EBaseException(errmsg, e);
+            }
         }
 
         storage.addKeyRecord(record);
 
-        auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
-                clientKeyId, new KeyId(serialNo), "None");
+        if (isSSKeygen) {
+            signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                        auditSubjectID,
+                        "Success",
+                        request.getRequestId(),
+                        clientKeyId,
+                        null));
+        } else {
+            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
+                    clientKeyId, new KeyId(serialNo), "None");
+        }
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
         kra.getRequestQueue().updateRequest(request);
         return true;

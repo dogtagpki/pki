@@ -108,6 +108,8 @@ public class KRAConfigurator extends Configurator {
         String kraPort = engine.getAgentPort();
         String transportCert = cs.getString("kra.transport.cert", "");
         String sessionId = request.getInstallToken().getToken();
+        String transportCertNickname = cs.getString("kra.cert.transport.nickname");
+        logger.debug("KRAConfigurator: transportCert nickname: " + transportCertNickname);
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("ca.connector.KRA.enable", "true");
@@ -117,8 +119,10 @@ public class KRAConfigurator extends Configurator {
         content.putSingle("ca.connector.KRA.host", kraHost);
         content.putSingle("ca.connector.KRA.port", kraPort);
         content.putSingle("ca.connector.KRA.transportCert", transportCert);
+        content.putSingle("ca.connector.KRA.transportCertNickname",transportCertNickname);
         content.putSingle("sessionID", sessionId);
 
+        logger.debug("KRAConfigurator: content: " + content);
         PKIClient client = createClient(serverURL, null, null);
         String c = client.post("/ca/admin/ca/updateConnector", content);
 
