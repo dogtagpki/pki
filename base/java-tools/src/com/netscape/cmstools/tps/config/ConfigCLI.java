@@ -27,7 +27,7 @@ import org.dogtagpki.common.ConfigData;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.cmstools.tps.TPSCLI;
+import com.netscape.cmstools.cli.SubsystemCLI;
 
 /**
  * @author Endi S. Dewata
@@ -36,12 +36,10 @@ public class ConfigCLI extends CLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigCLI.class);
 
-    public TPSCLI tpsCLI;
     public ConfigClient configClient;
 
-    public ConfigCLI(TPSCLI tpsCLI) {
-        super("config", "Configuration management commands", tpsCLI);
-        this.tpsCLI = tpsCLI;
+    public ConfigCLI(SubsystemCLI subsystemCLI) {
+        super("config", "Configuration management commands", subsystemCLI);
 
         addModule(new ConfigModifyCLI(this));
         addModule(new ConfigShowCLI(this));
@@ -52,7 +50,7 @@ public class ConfigCLI extends CLI {
         if (configClient != null) return configClient;
 
         PKIClient client = getClient();
-        configClient = (ConfigClient)parent.getClient("config");
+        configClient = new ConfigClient(client, parent.name);
 
         return configClient;
     }

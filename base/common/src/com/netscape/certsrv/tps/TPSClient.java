@@ -19,8 +19,6 @@ package com.netscape.certsrv.tps;
 
 import java.net.URISyntaxException;
 
-import org.dogtagpki.common.ConfigClient;
-
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
@@ -48,7 +46,6 @@ public class TPSClient extends SubsystemClient {
         addClient(new ActivityClient(client, name));
         addClient(new AuthenticatorClient(client, name));
         addClient(new TPSCertClient(client, name));
-        addClient(new ConfigClient(client, name));
         addClient(new ConnectorClient(client, name));
         addClient(new GroupClient(client, name));
         addClient(new ProfileClient(client, name));
