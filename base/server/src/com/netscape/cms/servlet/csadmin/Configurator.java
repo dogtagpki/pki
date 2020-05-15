@@ -599,10 +599,14 @@ public class Configurator {
         int replicaID = dbConfig.getInteger("beginReplicaNumber", 1);
 
         logger.debug("Configurator: enabling replication on master");
-        replicaID = masterConfigurator.enableReplication(replicaDN, masterBindUser, baseDN, replicaID);
+        if (masterConfigurator.createReplicaObject(masterBindUser, replicaID)) {
+            replicaID++;
+        }
 
         logger.debug("Configurator: enabling replication on replica");
-        replicaID = replicaConfigurator.enableReplication(replicaDN, replicaBindUser, baseDN, replicaID);
+        if (replicaConfigurator.createReplicaObject(replicaBindUser, replicaID)) {
+            replicaID++;
+        }
 
         logger.debug("Configurator: replica ID: " + replicaID);
         dbConfig.putString("beginReplicaNumber", Integer.toString(replicaID));

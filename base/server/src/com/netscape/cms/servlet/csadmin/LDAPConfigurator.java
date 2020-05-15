@@ -729,8 +729,10 @@ public class LDAPConfigurator {
         }
     }
 
-    public int enableReplication(String replicaDN, String bindUser, String baseDN, int id) throws Exception {
+    public boolean createReplicaObject(String bindUser, int id) throws Exception {
 
+        String baseDN = config.getBaseDN();
+        String replicaDN = "cn=replica,cn=\"" + baseDN + "\",cn=mapping tree,cn=config";
         String bindDN = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
 
         logger.info("Adding " + replicaDN);
@@ -762,7 +764,7 @@ public class LDAPConfigurator {
 
                 entry = connection.read(replicaDN);
                 LDAPAttribute attr = entry.getAttribute("nsDS5ReplicaBindDN");
-                attr.addValue("cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config");
+                attr.addValue(bindDN);
 
                 LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
 
@@ -773,15 +775,15 @@ public class LDAPConfigurator {
                     logger.warn("Unable to modify " + replicaDN + ": " + ee.getMessage(), ee);
                 }
 
-                return id;
+                return false;
 
             } else {
                 logger.warn("Unable to add " + replicaDN + ": " + e.getMessage(), e);
-                return id;
+                return false;
             }
         }
 
-        return id + 1;
+        return true;
     }
 
     public void createReplicationAgreement(
