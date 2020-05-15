@@ -577,19 +577,13 @@ public class Configurator {
         logger.debug("Configurator: creating replication manager on master");
         masterConfigurator.createSystemContainer();
         masterConfigurator.createReplicationManager(masterBindUser, masterReplicationPassword);
-
-        String masterChangelog = masterConfigurator.getInstanceDir() + "/changelogs";
-        logger.debug("Configurator: creating master changelog dir: " + masterChangelog);
-        masterConfigurator.createChangeLog(masterChangelog);
+        masterConfigurator.createChangeLog();
 
         String replicaBindUser = "Replication Manager " + replicaAgreementName;
         logger.debug("Configurator: creating replication manager on replica");
         replicaConfigurator.createSystemContainer();
         replicaConfigurator.createReplicationManager(replicaBindUser, replicaReplicationPassword);
-
-        String replicaChangelog = replicaConfigurator.getInstanceDir() + "/changelogs";
-        logger.debug("Configurator: creating replica changelog dir: " + masterChangelog);
-        replicaConfigurator.createChangeLog(replicaChangelog);
+        replicaConfigurator.createChangeLog();
 
         int replicaID = dbConfig.getInteger("beginReplicaNumber", 1);
 

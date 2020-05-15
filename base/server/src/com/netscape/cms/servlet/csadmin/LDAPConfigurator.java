@@ -701,10 +701,12 @@ public class LDAPConfigurator {
         return "";
     }
 
-    public void createChangeLog(String dir) throws Exception {
+    public void createChangeLog() throws Exception {
 
         String dn = "cn=changelog5,cn=config";
         logger.info("Adding " + dn);
+
+        String dir = getInstanceDir() + "/changelogs";
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectClass", "top"));
