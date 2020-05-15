@@ -458,6 +458,7 @@ public class Configurator {
 
         IPasswordStore passwordStore = engine.getPasswordStore();
 
+        String hostname = cs.getHostname();
         String instanceId = cs.getInstanceID();
         String subsystem = cs.getType().toLowerCase();
         PreOpConfig preopConfig = cs.getPreOpConfig();
@@ -511,16 +512,30 @@ public class Configurator {
             LDAPConfigurator masterConfigurator = new LDAPConfigurator(masterConn, masterConfig);
 
             try {
-                setupReplicationAgreements(
+                String masterAgreementName = "masterAgreement1-" + hostname + "-" + instanceId;
+                String replicaAgreementName = "cloneAgreement1-" + hostname + "-" + instanceId;
+
+                DatabaseConfig dbConfig = cs.getDatabaseConfig();
+                int replicaID = dbConfig.getInteger("beginReplicaNumber", 1);
+
+                replicaID = setupReplicationAgreements(
                         masterConfigurator,
                         ldapConfigurator,
+                        masterAgreementName,
+                        replicaAgreementName,
                         masterHostname,
                         replicaHostname,
                         Integer.parseInt(masterReplicationPort),
                         Integer.parseInt(replicaReplicationPort),
                         masterReplicationPassword,
                         replicaReplicationPassword,
-                        request.getReplicationSecurity());
+                        request.getReplicationSecurity(),
+                        replicaID);
+
+                dbConfig.putString("beginReplicaNumber", Integer.toString(replicaID));
+
+                logger.info("Initializing replication consumer");
+                masterConfigurator.initializeConsumer(masterAgreementName);
 
             } finally {
                 releaseConnection(masterConn);
@@ -545,33 +560,22 @@ public class Configurator {
         }
     }
 
-    public void setupReplicationAgreements(
+    public int setupReplicationAgreements(
             LDAPConfigurator masterConfigurator,
             LDAPConfigurator replicaConfigurator,
+            String masterAgreementName,
+            String replicaAgreementName,
             String masterHostname,
             String replicaHostname,
             int masterReplicationPort,
             int replicaReplicationPort,
             String masterReplicationPassword,
             String replicaReplicationPassword,
-            String replicationSecurity) throws Exception {
+            String replicationSecurity,
+            int replicaID)
+            throws Exception {
 
         logger.info("Configurator: setting up replication");
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        DatabaseConfig dbConfig = cs.getDatabaseConfig();
-
-        String hostname = cs.getHostname();
-        String instanceID = cs.getInstanceID();
-
-        LDAPConfig masterCfg = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
-        LDAPConnectionConfig masterConnCfg = masterCfg.getConnectionConfig();
-
-        LDAPConfig replicaConfig = cs.getInternalDBConfig();
-        LDAPConnectionConfig replicaConnCfg = replicaConfig.getConnectionConfig();
-
-        String masterAgreementName = "masterAgreement1-" + hostname + "-" + instanceID;
-        String replicaAgreementName = "cloneAgreement1-" + hostname + "-" + instanceID;
 
         String masterBindUser = "Replication Manager " + masterAgreementName;
         logger.debug("Configurator: creating replication manager on master");
@@ -585,8 +589,6 @@ public class Configurator {
         replicaConfigurator.createReplicationManager(replicaBindUser, replicaReplicationPassword);
         replicaConfigurator.createChangeLog();
 
-        int replicaID = dbConfig.getInteger("beginReplicaNumber", 1);
-
         logger.debug("Configurator: enabling replication on master");
         if (masterConfigurator.createReplicaObject(masterBindUser, replicaID)) {
             replicaID++;
@@ -596,9 +598,6 @@ public class Configurator {
         if (replicaConfigurator.createReplicaObject(replicaBindUser, replicaID)) {
             replicaID++;
         }
-
-        logger.debug("Configurator: replica ID: " + replicaID);
-        dbConfig.putString("beginReplicaNumber", Integer.toString(replicaID));
 
         logger.debug("Configurator: creating master replication agreement");
         masterConfigurator.createReplicationAgreement(
@@ -618,8 +617,7 @@ public class Configurator {
                 masterReplicationPassword,
                 replicationSecurity);
 
-        logger.debug("Configurator: initializing replication consumer");
-        masterConfigurator.initializeConsumer(masterAgreementName);
+        return replicaID;
     }
 
     public void releaseConnection(LDAPConnection conn) {
