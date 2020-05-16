@@ -38,4 +38,8 @@ class AddSANToCNDefault(pki.server.upgrade.PKIServerUpgradeScriptlet):
         logger.info('Adding defaultPolicy.sanToCNDefaultImpl.desc')
         subsystem.registry['defaultPolicy.sanToCNDefaultImpl.desc'] = 'SAN to CN Default'
 
+        logger.info('Adding defaultPolicy.sanToCNDefaultImpl.class')
+        subsystem.registry['defaultPolicy.sanToCNDefaultImpl.class'] = \
+            'com.netscape.cms.profile.def.SANToCNDefault'
+
         subsystem.save()
