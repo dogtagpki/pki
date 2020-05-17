@@ -26,6 +26,7 @@ setup(
         # plugin modules for pkihealthcheck.pki registry
         'pkihealthcheck.pki': [
             'pki_certs = pki.server.healthcheck.meta.csconfig',
+            'pki_connectivity = pki.server.healthcheck.meta.connectivity'
         ],
     },
     classifiers=[
