@@ -34,9 +34,6 @@ import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * The X509CertInfo class represents X.509 certificate information.
  *
@@ -74,8 +71,6 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
      */
-
-     private static Logger logger = LoggerFactory.getLogger(X509CertInfo.class);
 
     public static final String IDENT = "x509.info";
     // Certificate attribute names
@@ -621,7 +616,6 @@ public class X509CertInfo implements CertAttrSet, Serializable {
                 return (serialNum.get(attrName.getSuffix()));
             }
         case (ATTR_ALGORITHM):
-            logger.warn("X509CertInfo.get(alg): " + this.toString());
             if (attrName.getSuffix() == null) {
                 return (algId);
             } else {
