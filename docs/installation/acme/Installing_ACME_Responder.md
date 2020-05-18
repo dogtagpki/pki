@@ -28,24 +28,7 @@ See also [pki-server-acme(8)](../../manuals/man8/pki-server-acme.8.md).
 
 ## Configuring ACME Database
 
-The database configuration for the ACME responder is located at /etc/pki/pki-tomcat/acme/database.conf.
-
-To use an in-memory database, copy the sample configuration file with the following command:
-
-```
-$ cp /usr/share/pki/acme/conf/database/in-memory/database.conf \
-    /etc/pki/pki-tomcat/acme/database.conf
-```
-
-Alternatively, edit the file as follows:
-
-```
-class=org.dogtagpki.acme.database.InMemoryDatabase
-```
-
-Currently there are no parameters to configure for in-memory database.
-
-See also [Configuring ACME Responder](https://www.dogtagpki.org/wiki/Configuring_ACME_Responder).
+See [Configuring ACME Database](Configuring_ACME_Database.md).
 
 ## Configuring ACME Issuer
 
