@@ -5,7 +5,6 @@
 //
 package org.dogtagpki.acme.database;
 
-import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,25 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Enumeration;
 import java.util.stream.Collectors;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPDN;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.util.DN;
-
-import com.netscape.cmscore.base.FileConfigStore;
-import com.netscape.cmscore.base.PropConfigStore;
-import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.LDAPConfig;
-import com.netscape.cmsutil.password.IPasswordStore;
 
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
@@ -41,6 +22,22 @@ import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWK;
+
+import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PlainPasswordFile;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * LDAP database plugin for ACME service.
@@ -62,6 +59,8 @@ import org.dogtagpki.acme.JWK;
  * @author Fraser Tweedale
  */
 public class LDAPDatabase extends ACMEDatabase {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPDatabase.class);
 
     static final String RDN_NONCE = "ou=nonces";
     static final String RDN_ACCOUNT = "ou=accounts";
@@ -109,18 +108,55 @@ public class LDAPDatabase extends ACMEDatabase {
     LdapBoundConnFactory connFactory = null;
 
     public void init() throws Exception {
+
+        PropConfigStore cs;
+        IPasswordStore ps;
+        LDAPConfig ldapConfig;
+
+        String configFile = config.getParameter("configFile");
+
+        if (configFile == null) {
+
+            logger.info("Loading LDAP database configuration from database.conf");
+
+            cs = new PropConfigStore();
+            ps = new PlainPasswordFile();
+            ldapConfig = new LDAPConfig(null);
+
+            for (String name : config.getParameterNames()) {
+                String value = config.getParameter(name);
+
+                if (name.equals("basedn")) {
+                    continue;
+
+                } else if (name.startsWith("password.")) {
+                    name = name.substring(9);
+                    ps.putPassword(name, value);
+
+                } else if (name.startsWith("internaldb.")) {
+                    name = name.substring(11);
+                    ldapConfig.put(name, value);
+
+                } else {
+                    cs.put(name, value);
+                }
+            }
+
+        } else {
+
+            logger.info("Loading LDAP database configuration from " + configFile);
+
+            cs = new PropConfigStore(new FileConfigStore(configFile));
+            cs.load();
+
+            ps = IPasswordStore.getPasswordStore("acme", cs.getProperties());
+            ldapConfig = cs.getSubStore("internaldb", LDAPConfig.class);
+        }
+
         basedn = config.getParameter("basedn");
 
-        String path = config.getParameter("configFile");
-        if (path == null)
-            throw new RuntimeException("LDAPDatabase: configFile not specified");
-
-        PropConfigStore cs = new PropConfigStore(new FileConfigStore(path));
-        cs.load();
-        LDAPConfig dbCfg = cs.getSubStore("internaldb", LDAPConfig.class);
         connFactory = new LdapBoundConnFactory("acme");
-        connFactory.init(
-            cs, dbCfg, IPasswordStore.getPasswordStore("acme", cs.getProperties()));
+        connFactory.init(cs, ldapConfig, ps);
     }
 
     public ACMENonce getNonce(String value) throws Exception {
@@ -578,7 +614,7 @@ public class LDAPDatabase extends ACMEDatabase {
         }
         // NOTE: there are optimisation opportunities here.
         //
-        // 1) With proper equality checks for challenge objects, 
+        // 1) With proper equality checks for challenge objects,
         //    we could avoid redundant deletes/adds and devolve
         //    delete/add to modify when updating a challenge.
         //
