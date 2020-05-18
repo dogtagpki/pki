@@ -823,7 +823,7 @@ class PKIServer(object):
             self.subsystems[subsystem_name] = subsystem
 
     def get_subsystems(self):
-        return self.subsystems.values()
+        return list(self.subsystems.values())
 
     def get_subsystem(self, subsystem_name):
         return self.subsystems.get(subsystem_name)
