@@ -20,7 +20,6 @@ package com.netscape.cms.profile.def;
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.security.interfaces.DSAParams;
-import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 import java.security.KeyPair;
@@ -271,6 +270,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
         CertificateX509Key certKey = null;
         String method = "ServerKeygenUserKeyDefault: populate: ";
         CMS.debug(method + "begins");
+        String errmsg = "";
 
         // trigger serverSide keygen enrollment
         try {
@@ -439,8 +439,9 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                     pubKeyStr = TEMP_PUBKEY_RSA_4096;
                     break;
                 default:
-                    CMS.debug("ServerKeygenUserKeyDefault: populate: unsupported keySize: " + keySize);
-                    break;
+                    errmsg = "unsupported keySize: " + keySize;
+                    CMS.debug("ServerKeygenUserKeyDefault: populate: " + errmsg);
+                    throw new EProfileException(errmsg);
               }
             } else {
               switch (curveName) {
@@ -454,8 +455,9 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                     pubKeyStr = TEMP_PUBKEY_EC_NISTP521;
                     break;
                 default:
-                    CMS.debug("ServerKeygenUserKeyDefault: populate: unsupported cureveName: " + curveName);
-                    break;
+                    errmsg = "unsupported curveName: " + curveName;
+                    CMS.debug("ServerKeygenUserKeyDefault: populate: " + errmsg);
+                    throw new EProfileException(errmsg);
               }
             }
             byte[] certKeyData = CryptoUtil.base64Decode(pubKeyStr);
