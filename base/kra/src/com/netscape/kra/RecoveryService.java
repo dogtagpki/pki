@@ -637,7 +637,7 @@ public class RecoveryService implements IService {
                     pass,
                     /* NSS has a bug that causes any AES CBC encryption
                      * to use AES-256, but AlgorithmID contains chosen
-                     * alg.  To avoid mismatch, use AES_128_CBC. */
+                     * alg.  To avoid mismatch, use AES_256_CBC. */
                     EncryptionAlgorithm.AES_256_CBC,
                     0 /* iterations (use default) */,
                     priKey);

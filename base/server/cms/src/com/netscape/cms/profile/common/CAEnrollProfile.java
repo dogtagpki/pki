@@ -156,6 +156,8 @@ public class CAEnrollProfile extends EnrollProfile {
                 if (kraConnector == null) {
                     String message = "KRA connector not configured";
                     CMS.debug(method + message);
+
+                    throw new EProfileException(message);
                 } else {
                     CMS.debug(method + "request");
                     kraConnector.send(request);
