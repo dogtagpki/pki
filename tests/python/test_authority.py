@@ -70,8 +70,8 @@ class AuthorityTests(unittest.TestCase):
     def test_should_create_subca(self):
         authority_data = authority.AuthorityData(** self.subca_data)
         ca = self.authority_client.create_ca(authority_data)
-        self.assertEquals(ca.aid, self.aid)
-        self.assertEquals(ca.dn, self.dn)
+        self.assertEqual(ca.aid, self.aid)
+        self.assertEqual(ca.dn, self.dn)
 
     def test_create_should_raise_ca_data_not_defined(self):
         self.assertRaises(
@@ -113,8 +113,8 @@ class AuthorityTests(unittest.TestCase):
         self.connection.get.return_value = get_return
 
         ca = self.authority_client.get_ca(self.aid)
-        self.assertEquals(ca.aid, self.aid)
-        self.assertEquals(ca.dn, self.dn)
+        self.assertEqual(ca.aid, self.aid)
+        self.assertEqual(ca.dn, self.dn)
 
     def test_should_list_cas(self):
         get_return = mock.MagicMock()
@@ -126,6 +126,6 @@ class AuthorityTests(unittest.TestCase):
         for ca in cas:
             self.assertIsInstance(ca, authority.AuthorityData)
             if ca.aid == self.aid2:
-                self.assertEquals(ca.dn, self.dn2)
+                self.assertEqual(ca.dn, self.dn2)
             else:
-                self.assertEquals(ca.dn, self.dn)
+                self.assertEqual(ca.dn, self.dn)
