@@ -56,6 +56,11 @@ SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 DEFAULT_DIR_MODE = 0o0770
 DEFAULT_FILE_MODE = 0o0660
 
+SCHEMA_FILES = [
+    '/usr/share/pki/server/conf/schema.ldif',
+    '/usr/share/pki/acme/conf/database/ldap/schema.ldif'
+]
+
 logger = logging.getLogger(__name__)
 
 parser = etree.XMLParser(remove_blank_text=True)

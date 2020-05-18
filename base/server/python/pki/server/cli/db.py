@@ -44,8 +44,6 @@ class DBCLI(pki.cli.CLI):
 
 class DBSchemaUpgradeCLI(pki.cli.CLI):
 
-    SCHEMA_PATH = '/usr/share/pki/server/conf/schema.ldif'
-
     def __init__(self):
         super(DBSchemaUpgradeCLI, self).__init__(
             'schema-upgrade', 'Upgrade PKI database schema')
@@ -125,8 +123,9 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
 
     def update_schema(self, subsystem, bind_dn, bind_password):
 
-        logger.info('Updating schema with %s', self.SCHEMA_PATH)
-        subsystem.import_ldif(bind_dn, bind_password, self.SCHEMA_PATH)
+        for filename in pki.server.SCHEMA_FILES:
+            logger.info('Updating schema with %s', filename)
+            subsystem.import_ldif(bind_dn, bind_password, filename)
 
 
 class DBUpgradeCLI(pki.cli.CLI):
