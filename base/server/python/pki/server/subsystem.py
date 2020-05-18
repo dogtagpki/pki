@@ -847,6 +847,29 @@ class PKISubsystem(object):
         """
         self.config.update(new_config)
 
+    def import_ldif(self, bind_dn, bind_password, filename):
+
+        # TODO(alee) re-implement this using open_database
+        host = self.config['internaldb.ldapconn.host']
+        port = self.config['internaldb.ldapconn.port']
+        secure = self.config['internaldb.ldapconn.secureConn']
+
+        cmd = [
+            'ldapmodify',
+            '-c',
+            '-D', bind_dn,
+            '-w', bind_password,
+            '-h', host,
+            '-p', port,
+            '-f', filename
+        ]
+
+        if secure.lower() == 'true':
+            cmd.append('-Z')
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
     def init_database(
             self,
             setup_schema=False,

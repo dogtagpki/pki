@@ -126,24 +126,7 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
     def update_schema(self, subsystem, bind_dn, bind_password):
 
         logger.info('Updating schema with %s', self.SCHEMA_PATH)
-
-        # TODO(alee) re-implement this using open_database
-        host = subsystem.config['internaldb.ldapconn.host']
-        port = subsystem.config['internaldb.ldapconn.port']
-        secure = subsystem.config['internaldb.ldapconn.secureConn']
-        cmd = ['ldapmodify',
-               '-c',
-               '-D', bind_dn,
-               '-w', bind_password,
-               '-h', host,
-               '-p', port,
-               '-f', self.SCHEMA_PATH
-               ]
-
-        if secure.lower() == "true":
-            cmd.append('-Z')
-
-        subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        subsystem.import_ldif(bind_dn, bind_password, self.SCHEMA_PATH)
 
 
 class DBUpgradeCLI(pki.cli.CLI):
