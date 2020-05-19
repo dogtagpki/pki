@@ -15,17 +15,22 @@
 """
 from pki.client import PKIConnection
 from pki.cert import CertClient
-import os
+from timeit import default_timer as timer
 import sys
+import logging
 import threading
 import argparse
+import json
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--hostname", help="<CA hostname>")
 parser.add_argument("--port", help="<CA Port Number>")
 parser.add_argument("--client-cert", help="path for admin.pem certificate")
-parser.add_argument("--number-of-threads", help="Number of thread", type=int)
-parser.add_argument("--number-of-tests-per-thread", help="Number of test per thread", type=int)
+parser.add_argument("--number-of-clients", help="Number of thread", type=int)
+parser.add_argument("--number-of-tests-per-client", help="Number of test per thread", type=int)
+
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 args = parser.parse_args()
 
@@ -71,32 +76,52 @@ class cert_enroll(object):
 
         enrollment_results = cert_client.enroll_cert('caUserCert', inputs)
 
+        if enrollment_results.__len__() == 0:
+            raise Exception("Enrollment results is empty")
+
         for enrollment_result in enrollment_results:
             request_data = enrollment_result.request
             cert_data = enrollment_result.cert
-            print('Request ID: ' + request_data.request_id)
+            if request_data.request_status != 'complete':
+                raise Exception("Cert enrollment failed : {}".format(cert_data))
+            else:
+                self.cert_serial_number = cert_data.serial_number
+
 
 def run_test(sn_uid, number_of_tests_per_thread):
     # execute the specified number of tests sequentially
     for i in range(number_of_tests_per_thread):
-        cert_enroll(sn_uid)
+        serial_num = cert_enroll(sn_uid)
+        cert_list.append(serial_num.cert_serial_number)
     # call cert_enroll(sn_uid)
 
 
 if __name__ == "__main__":
     # get test parameters from CLI parameters
-    number_of_threads = args.number_of_threads
-    number_of_tests_per_thread = args.number_of_tests_per_thread
+    number_of_threads = args.number_of_clients
+    number_of_tests_per_thread = args.number_of_tests_per_client
 
     # create the specified number of threads
     threads = []
-
+    cert_list = []
+    start = timer()
     for t in range(number_of_threads):
         t1 = threading.Thread(target=run_test, args=("testuser{}".format(t), number_of_tests_per_thread))
         t1.start()
         threads.append(t1)
 
     # wait for all threads to complete
-    # (not sure if this is needed since Python probably won’t exit until all threads are complete)
     for t in threads:
         t.join()
+    end = timer()
+
+    cf = open("cert_file.txt", "w+")
+    json.dump(cert_list, cf)
+    cf.close()
+
+    # Below part is for reporting purpose to calculate Throughput
+    T = int(end - start)
+    N = number_of_threads * number_of_tests_per_thread
+    log.info("Number of certs enrolled (N)={}".format(N))
+    log.info("Test execution time (T)={}".format(T))
+    log.info("Throughput (V = N/T)={}".format(N / T))
