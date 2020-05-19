@@ -4596,7 +4596,7 @@ class ConfigClient:
         if ('pki_subsystem_signing_algorithm' in self.mdict):
             if ('RSA' in self.mdict['pki_subsystem_signing_algorithm'] and
                 'PSS' not in self.mdict['pki_subsystem_signing_algorithm']):
-                self.mdict[''] = \
+                self.mdict['pki_subsystem_signing_algorithm'] = \
                     self.mdict['pki_subsystem_signing_algorithm'] + '/PSS'
                     
 
