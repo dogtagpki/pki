@@ -131,8 +131,6 @@ public class CAService implements ICAService, IService {
     public static final String CHALLENGE_PHRASE = "challengePhrase";
     public static final String SERIALNO_ARRAY = "serialNoArray";
 
-    public static final String GoogleTestTube_Pub = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEw8i8S7qiGEs9NXv0ZJFh6uuOmR2Q7dPprzk9XNNGkUXjzqx2SDvRfiwKYwBljfWujozHESVPQyydGaHhkaSz/g==";
-
     // CCA->CLA connector
     protected static IConnector mCLAConnector = null;
 
@@ -925,7 +923,7 @@ public class CAService implements ICAService, IService {
                             logger.debug("Response from log server " + respS);
 
                             // verify the sct: TODO - not working, need to fix
-                            verifySCT(CTResponse.fromJSON(respS), cert.getTBSCertificate());
+                            // verifySCT(CTResponse.fromJSON(respS), cert.getTBSCertificate(), ls.getPublicKey());
 
                             ctResponses.add(respS);
                         }
@@ -1158,7 +1156,7 @@ public class CAService implements ICAService, IService {
            TBSCertificate tbs_certificate;
          } PreCert;
     */
-    void verifySCT(CTResponse response, byte[] cert)
+    void verifySCT(CTResponse response, byte[] cert, String logPublicKey)
             throws Exception {
 
         String method = "CAService:verifySCT: ";
@@ -1177,7 +1175,7 @@ public class CAService implements ICAService, IService {
         byte[] version = new byte[] {0}; // v1(0)
         byte[] signature_type = new byte[] {0}; // certificate_timestamp(0)
         byte[] entry_type = new byte[] {0, 1}; // LogEntryType: precert_entry(1)
-        byte google_pub[] = CryptoUtil.base64Decode(GoogleTestTube_Pub);
+        byte google_pub[] = CryptoUtil.base64Decode(logPublicKey);
         PublicKey google_pubKey = KeyFactory.getInstance("RSA").generatePublic(
                 new X509EncodedKeySpec(google_pub));
         /*
