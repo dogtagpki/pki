@@ -44,6 +44,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_API_JAR} lib/slf4j-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_JDK14_JAR} lib/slf4j-jdk14.jar
     COMMAND ln -sf ${P11_KIT_TRUST} lib/p11-kit-trust.so
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_NET_JAR} lib/commons-net.jar
 )
 
 add_custom_target(pki-man ALL
