@@ -419,6 +419,18 @@ def store_properties(filename, properties):
                 raise TypeError((name, value, type(value)))
 
 
+def set_property(properties, name, value):
+
+    if value is None:  # no change
+        return
+
+    if value:  # non-empty value updates the property
+        properties[name] = value
+
+    else:  # empty value removes the property
+        properties.pop(name, None)
+
+
 def copytree(src, dst, symlinks=False, ignore=None):
     """
     Recursively copy a directory tree using copy2().

@@ -29,6 +29,7 @@ import pki.nssdb
 import pki.server
 import pki.server.cli.nuxwdog
 import pki.server.instance
+import pki.util
 
 
 class HTTPCLI(pki.cli.CLI):
@@ -64,15 +65,7 @@ class HTTPConnectorCLI(pki.cli.CLI):
 
     @staticmethod
     def set_param(element, name, value):
-
-        if value is None:
-            return
-
-        if value:  # non-empty
-            element.set(name, value)
-
-        else:
-            element.attrib.pop(name, None)
+        pki.util.set_property(element.attrib, name, value)
 
     @staticmethod
     def print_connector(connector):
