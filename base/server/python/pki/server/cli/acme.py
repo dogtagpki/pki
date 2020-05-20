@@ -17,6 +17,14 @@ import pki.cli
 import pki.server
 import pki.server.instance
 
+# TODO: auto-populate this map from /usr/share/pki/acme/conf/database
+DATABASE_CLASSES = {
+    'in-memory': 'org.dogtagpki.acme.database.InMemoryDatabase',
+    'postgresql': 'org.dogtagpki.acme.database.PostgreSQLDatabase'
+}
+
+DATABASE_TYPES = {value: key for key, value in DATABASE_CLASSES.items()}
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,6 +40,7 @@ class ACMECLI(pki.cli.CLI):
         self.add_module(ACMEUndeployCLI())
 
         self.add_module(ACMEMetadataCLI())
+        self.add_module(ACMEDatabaseCLI())
 
 
 class ACMECreateCLI(pki.cli.CLI):
@@ -509,3 +518,203 @@ class ACMEMetadataModifyCLI(pki.cli.CLI):
         pki.util.set_property(config, 'externalAccountRequired', external_account_required)
 
         pki.util.store_properties(metadata_conf, config)
+
+
+class ACMEDatabaseCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(ACMEDatabaseCLI, self).__init__(
+            'database', 'ACME database management commands')
+
+        self.add_module(ACMEDatabaseShowCLI())
+        self.add_module(ACMEDatabaseModifyCLI())
+
+
+class ACMEDatabaseShowCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(ACMEDatabaseShowCLI, self).__init__(
+            'show', 'Show ACME database configuration')
+
+    def print_help(self):
+        print('Usage: pki-server acme-database-show [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Unknown option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        acme_conf_dir = os.path.join(instance.conf_dir, 'acme')
+        database_conf = os.path.join(acme_conf_dir, 'database.conf')
+        config = {}
+
+        logger.info('Loading %s', database_conf)
+        pki.util.load_properties(database_conf, config)
+
+        database_class = config.get('class')
+
+        database_type = DATABASE_TYPES.get(database_class)
+        print('  Database Type: %s' % database_type)
+
+        if database_type == 'postgresql':
+
+            url = config.get('url')
+            if url:
+                print('  Server URL: %s' % url)
+
+            username = config.get('user')
+            if username:
+                print('  Username: %s' % username)
+
+            password = config.get('password')
+            if password:
+                print('  Password: ********')
+
+
+class ACMEDatabaseModifyCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(ACMEDatabaseModifyCLI, self).__init__(
+            'mod', 'Modify ACME database configuration')
+
+    def print_help(self):
+        print('Usage: pki-server acme-database-mod [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Unknown option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        acme_conf_dir = os.path.join(instance.conf_dir, 'acme')
+        database_conf = os.path.join(acme_conf_dir, 'database.conf')
+        config = {}
+
+        logger.info('Loading %s', database_conf)
+        pki.util.load_properties(database_conf, config)
+
+        print('The current value is displayed in the square brackets.')
+        print('To keep the current value, simply press Enter.')
+        print('To change the current value, enter the new value.')
+        print('To remove the current value, enter a blank space.')
+
+        database_class = config.get('class')
+
+        print()
+        print('Enter the type of the database. Available types: in-memory, postgresql.')
+        database_type = DATABASE_TYPES.get(database_class)
+        database_type = pki.util.read_text(
+            '  Database Type',
+            options=DATABASE_TYPES.values(),
+            default=database_type,
+            required=True)
+        pki.util.set_property(config, 'class', DATABASE_CLASSES.get(database_type))
+
+        if database_type == 'in-memory':
+            config.pop('url', None)
+            config.pop('user', None)
+            config.pop('password', None)
+
+        elif database_type == 'postgresql':
+
+            print()
+            print('Enter the location of the PostgreSQL server.')
+            url = config.get('url')
+            url = pki.util.read_text('  Server URL', default=url, required=True)
+            pki.util.set_property(config, 'url', url)
+
+            print()
+            print('Enter the username for basic authentication.')
+            username = config.get('user')
+            username = pki.util.read_text('  Username', default=username, required=True)
+            pki.util.set_property(config, 'user', username)
+
+            print()
+            print('Enter the password for basic authentication.')
+            password = config.get('password')
+            password = pki.util.read_text(
+                '  Password', default=password, password=True, required=True)
+            pki.util.set_property(config, 'password', password)
+
+        pki.util.store_properties(database_conf, config)
