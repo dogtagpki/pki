@@ -31,6 +31,8 @@ class ACMECLI(pki.cli.CLI):
         self.add_module(ACMEDeployCLI())
         self.add_module(ACMEUndeployCLI())
 
+        self.add_module(ACMEMetadataCLI())
+
 
 class ACMECreateCLI(pki.cli.CLI):
 
@@ -323,3 +325,187 @@ class ACMEUndeployCLI(pki.cli.CLI):
 
         logger.info('Undeploying %s webapp', name)
         instance.undeploy_webapp(name)
+
+
+class ACMEMetadataCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(ACMEMetadataCLI, self).__init__(
+            'metadata', 'ACME metadata management commands')
+
+        self.add_module(ACMEMetadataShowCLI())
+        self.add_module(ACMEMetadataModifyCLI())
+
+
+class ACMEMetadataShowCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(ACMEMetadataShowCLI, self).__init__(
+            'show', 'Show ACME metadata configuration')
+
+    def print_help(self):
+        print('Usage: pki-server acme-metadata-show [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Unknown option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        acme_conf_dir = os.path.join(instance.conf_dir, 'acme')
+        metadata_conf = os.path.join(acme_conf_dir, 'metadata.conf')
+        config = {}
+
+        logger.info('Loading %s', metadata_conf)
+        pki.util.load_properties(metadata_conf, config)
+
+        terms_of_service = config.get('termsOfService')
+        if terms_of_service:
+            print('  Terms of Service: %s' % terms_of_service)
+
+        website = config.get('website')
+        if website:
+            print('  Website: %s' % website)
+
+        caa_identities = config.get('caaIdentities')
+        if caa_identities:
+            print('  CAA Identities: %s' % caa_identities)
+
+        external_account_required = config.get('externalAccountRequired')
+        if external_account_required:
+            print('  External Account Required: %s' % external_account_required)
+
+
+class ACMEMetadataModifyCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(ACMEMetadataModifyCLI, self).__init__(
+            'mod', 'Modify ACME metadata configuration')
+
+    def print_help(self):
+        print('Usage: pki-server acme-metadata-mod [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Unknown option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        acme_conf_dir = os.path.join(instance.conf_dir, 'acme')
+        metadata_conf = os.path.join(acme_conf_dir, 'metadata.conf')
+        config = {}
+
+        logger.info('Loading %s', metadata_conf)
+        pki.util.load_properties(metadata_conf, config)
+
+        print('The current value is displayed in the square brackets.')
+        print('To keep the current value, simply press Enter.')
+        print('To change the current value, enter the new value.')
+        print('To remove the current value, enter a blank space.')
+
+        print()
+        print('Enter the location of the terms of service.')
+        terms_of_service = config.get('termsOfService')
+        terms_of_service = pki.util.read_text('  Terms of Service', default=terms_of_service)
+        pki.util.set_property(config, 'termsOfService', terms_of_service)
+
+        print()
+        print('Enter the location of the website.')
+        website = config.get('website')
+        website = pki.util.read_text('  Website', default=website)
+        pki.util.set_property(config, 'website', website)
+
+        print()
+        print('Enter the CAA identities.')
+        caa_identities = config.get('caaIdentities')
+        caa_identities = pki.util.read_text('  CAA Identities', default=caa_identities)
+        pki.util.set_property(config, 'caaIdentities', caa_identities)
+
+        print()
+        print('Enter true/false whether an external account is required.')
+        external_account_required = config.get('externalAccountRequired')
+        external_account_required = pki.util.read_text(
+            '  External Account Required', default=external_account_required)
+        pki.util.set_property(config, 'externalAccountRequired', external_account_required)
+
+        pki.util.store_properties(metadata_conf, config)
