@@ -25,6 +25,13 @@ DATABASE_CLASSES = {
 
 DATABASE_TYPES = {value: key for key, value in DATABASE_CLASSES.items()}
 
+# TODO: auto-populate this map from /usr/share/pki/acme/conf/issuer
+ISSUER_CLASSES = {
+    'pki': 'org.dogtagpki.acme.issuer.PKIIssuer'
+}
+
+ISSUER_TYPES = {value: key for key, value in ISSUER_CLASSES.items()}
+
 logger = logging.getLogger(__name__)
 
 
@@ -41,6 +48,7 @@ class ACMECLI(pki.cli.CLI):
 
         self.add_module(ACMEMetadataCLI())
         self.add_module(ACMEDatabaseCLI())
+        self.add_module(ACMEIssuerCLI())
 
 
 class ACMECreateCLI(pki.cli.CLI):
@@ -718,3 +726,236 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
             pki.util.set_property(config, 'password', password)
 
         pki.util.store_properties(database_conf, config)
+
+
+class ACMEIssuerCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(ACMEIssuerCLI, self).__init__(
+            'issuer', 'ACME issuer management commands')
+
+        self.add_module(ACMEIssuerShowCLI())
+        self.add_module(ACMEIssuerModifyCLI())
+
+
+class ACMEIssuerShowCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(ACMEIssuerShowCLI, self).__init__(
+            'show', 'Show ACME issuer configuration')
+
+    def print_help(self):
+        print('Usage: pki-server acme-issuer-show [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Unknown option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        acme_conf_dir = os.path.join(instance.conf_dir, 'acme')
+        issuer_conf = os.path.join(acme_conf_dir, 'issuer.conf')
+        config = {}
+
+        logger.info('Loading %s', issuer_conf)
+        pki.util.load_properties(issuer_conf, config)
+
+        issuer_class = config.get('class')
+
+        issuer_type = ISSUER_TYPES.get(issuer_class)
+        print('  Issuer Type: %s' % issuer_type)
+
+        if issuer_type == 'pki':
+
+            url = config.get('url')
+            if url:
+                print('  Server URL: %s' % url)
+
+            nickname = config.get('nickname')
+            if nickname:
+                print('  Client Certificate: %s' % nickname)
+
+            username = config.get('username')
+            if username:
+                print('  Agent Username: %s' % username)
+
+            password = config.get('password')
+            if password:
+                print('  Agent Password: ********')
+
+            password_file = config.get('passwordFile')
+            if password_file:
+                print('  Password file: %s' % password_file)
+
+            profile = config.get('profile')
+            if profile:
+                print('  Certificate Profile: %s' % profile)
+
+
+class ACMEIssuerModifyCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(ACMEIssuerModifyCLI, self).__init__(
+            'mod', 'Modify ACME issuer configuration')
+
+    def print_help(self):
+        print('Usage: pki-server acme-issuer-mod [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Unknown option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        acme_conf_dir = os.path.join(instance.conf_dir, 'acme')
+        issuer_conf = os.path.join(acme_conf_dir, 'issuer.conf')
+        config = {}
+
+        logger.info('Loading %s', issuer_conf)
+        pki.util.load_properties(issuer_conf, config)
+
+        print('The current value is displayed in the square brackets.')
+        print('To keep the current value, simply press Enter.')
+        print('To change the current value, enter the new value.')
+        print('To remove the current value, enter a blank space.')
+
+        issuer_class = config.get('class')
+
+        print()
+        print('Enter the type of the certificate issuer. Available types: pki.')
+        issuer_type = ISSUER_TYPES.get(issuer_class)
+        issuer_type = pki.util.read_text(
+            '  Issuer Type',
+            options=ISSUER_TYPES.values(),
+            default=issuer_type,
+            required=True)
+        pki.util.set_property(config, 'class', ISSUER_CLASSES.get(issuer_type))
+
+        if issuer_type == 'pki':
+
+            print()
+            print('Enter the location of the PKI server.')
+            url = config.get('url')
+            url = pki.util.read_text('  Server URL', default=url, required=True)
+            pki.util.set_property(config, 'url', url)
+
+            print()
+            print('Enter the certificate nickname for client authentication.')
+            print('This might be the CA agent certificate.')
+            print('Enter blank to use basic authentication.')
+            nickname = config.get('nickname')
+            nickname = pki.util.read_text('  Client Certificate', default=nickname)
+            pki.util.set_property(config, 'nickname', nickname)
+
+            print()
+            print('Enter the username of the CA agent for basic authentication.')
+            print('Enter blank if a CA agent certificate is used for client authentication.')
+            username = config.get('username')
+            username = pki.util.read_text('  Agent Username', default=username)
+            pki.util.set_property(config, 'username', username)
+
+            print()
+            print('Enter the CA agent password for basic authentication.')
+            print('Enter blank if the password is already stored in a separate property file')
+            print('or if a CA agent certificate is used for client authentication.')
+            password = config.get('password')
+            password = pki.util.read_text('  Agent Password', default=password, password=True)
+            pki.util.set_property(config, 'password', password)
+
+            if password:
+                config.pop('passwordFile', None)
+            else:
+                print()
+                print('Enter the property file that stores the CA agent password.')
+                print('The password must be stored under acmeUserPassword property.')
+                password_file = config.get('passwordFile')
+                password_file = pki.util.read_text('  Password File', default=password_file)
+                pki.util.set_property(config, 'passwordFile', password_file)
+
+            print()
+            print('Enter the certificate profile for issuing ACME certificates.')
+            profile = config.get('profile')
+            profile = pki.util.read_text('  Certificate Profile', default=profile, required=True)
+            pki.util.set_property(config, 'profile', profile)
+
+        pki.util.store_properties(issuer_conf, config)
