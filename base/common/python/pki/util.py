@@ -526,8 +526,11 @@ def read_environment_files(env_file_list=None):
 
 
 def read_text(message,
-              options=None, default=None, delimiter=':',
-              allow_empty=True, case_sensitive=True):
+              options=None,
+              default=None,
+              delimiter=':',
+              allow_empty=True,
+              case_sensitive=True):
     """
     Get an input from the user. This is used, for example, in
     pkispawn and pkidestroy to obtain user input.
@@ -550,32 +553,28 @@ def read_text(message,
         message = message + ' [' + default + ']'
     message = message + delimiter + ' '
 
-    done = False
-    value = None
-    while not done:
+    if options and not case_sensitive:
+        options = list(options)
+        for i in range(len(options)):
+            options[i] = options[i].lower()  # normalize options
+
+    while True:
         value = input(message)
         value = value.strip()
 
         if len(value) == 0:  # empty value
             if allow_empty:
-                value = default
-                break
+                return default
+            continue
 
-        else:  # non-empty value
-            if options is not None:
-                for val in options:
-                    if case_sensitive:
-                        if val == value:
-                            done = True
-                            break
-                    else:
-                        if val.lower() == value.lower():
-                            done = True
-                            break
-            else:
-                break
+        if options:  # non-empty options
+            if not case_sensitive:
+                value = value.lower()  # normalize value
+            if value in options:
+                return value
+            continue
 
-    return value
+        return value
 
 
 @functools.total_ordering
