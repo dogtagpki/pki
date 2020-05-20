@@ -1335,9 +1335,10 @@ public class CryptoUtil {
                 IOException,
                 CertificateException {
 
-        DerInputStream ds = new DerInputStream(ASN1Util.encode(sigAlg.toOID()));
-        ObjectIdentifier sigAlgOID = new ObjectIdentifier(ds);
-        AlgorithmId aid = new AlgorithmId(sigAlgOID);
+	logger.warn("signCert: alg: "  + sigAlg);
+        AlgorithmId aid = null;
+        String algName = mapSignatureAlgorithmToInternalName(sigAlg);
+        aid = AlgorithmId.get(algName);
         certInfo.set(X509CertInfo.ALGORITHM_ID,
                 new CertificateAlgorithmId(aid));
 
@@ -2841,6 +2842,43 @@ public class CryptoUtil {
             return KeyWrapAlgorithm.DES_CBC_PAD_OID;
 
         throw new NoSuchAlgorithmException();
+    }
+
+    public static String mapSignatureAlgorithmToInternalName(SignatureAlgorithm alg) throws NoSuchAlgorithmException {
+        String method = "CryptoUtil.mapSignatureAlgorithmToInternalName ";
+        if(alg == null)
+            throw new NoSuchAlgorithmException(method + alg);
+        String algname = alg.toString();
+        if (algname.equals(SignatureAlgorithm.RSASignatureWithMD5Digest.toString()))
+            return "MD5withRSA";
+        else if (algname.equals(SignatureAlgorithm.RSASignatureWithMD2Digest.toString()))
+            return  "MD2withRSA";
+        else if (algname.equals(SignatureAlgorithm.RSASignatureWithSHA1Digest.toString()))
+            return "SHA1withRSA";
+        else if (algname.equals(SignatureAlgorithm.DSASignatureWithSHA1Digest.toString()))
+            return "SHA1withDSA";
+        else if (algname.equals(SignatureAlgorithm.RSASignatureWithSHA256Digest.toString()))
+            return "SHA256withRSA";
+        else if (algname.equals(SignatureAlgorithm.RSASignatureWithSHA384Digest.toString()))
+            return "SHA384withRSA";
+        else if (algname.equals(SignatureAlgorithm.RSASignatureWithSHA512Digest.toString()))
+            return "SHA512withRSA";
+        else if (algname.equals(SignatureAlgorithm.ECSignatureWithSHA1Digest.toString()))
+            return "SHA1withEC";
+        else if (algname.equals(SignatureAlgorithm.ECSignatureWithSHA256Digest.toString()))
+            return "SHA256withEC";
+        else if (algname.equals(SignatureAlgorithm.ECSignatureWithSHA384Digest.toString()))
+            return "SHA384withEC";
+        else if (algname.equals(SignatureAlgorithm.ECSignatureWithSHA512Digest.toString()))
+            return "SHA512withEC";
+        else if (algname.equals(SignatureAlgorithm.RSAPSSSignatureWithSHA256Digest.toString()))
+            return "SHA256withRSA/PSS";
+        else if (algname.equals(SignatureAlgorithm.RSAPSSSignatureWithSHA384Digest.toString()))
+            return "SHA384withRSA/PSS";
+        else if (algname.equals(SignatureAlgorithm.RSAPSSSignatureWithSHA512Digest.toString()))
+            return "SHA512withRSA/PSS";
+
+        throw new NoSuchAlgorithmException(method + alg);
     }
 }
 

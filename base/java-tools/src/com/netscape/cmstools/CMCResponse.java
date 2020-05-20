@@ -53,6 +53,7 @@ import org.mozilla.jss.pkix.cmc.TaggedAttribute;
 import org.mozilla.jss.pkix.cms.ContentInfo;
 import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
 import org.mozilla.jss.pkix.cms.SignedData;
+import org.mozilla.jss.CryptoManager;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -352,8 +353,7 @@ public class CMCResponse {
 
         CommandLine cmd = parser.parse(options, args, true);
 
-        @SuppressWarnings("unused")
-        String database = cmd.getOptionValue("d");
+        String dbdir = cmd.getOptionValue("d");
 
         String input = cmd.getOptionValue("i");
         String output = cmd.getOptionValue("o");
@@ -369,6 +369,14 @@ public class CMCResponse {
             System.err.println("Try 'CMCResponse --help' for more information.");
             System.exit(1);
         }
+
+        //Intialize the crypto manager, just in case we need to use the JSS Provider to parse 
+        //algorithm parameters. All we have to do is initialize the manager and be done.
+
+        if (dbdir == null)
+            dbdir = ".";
+
+        CryptoManager.initialize(dbdir);
 
         // load CMC response
         byte[] data = Files.readAllBytes(Paths.get(input));

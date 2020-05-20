@@ -48,6 +48,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
         instance.load()
 
+        usePSSForRSASigningAlg = \
+            deployer.mdict['pki_use_pss_rsa_signing_algorithm']
+
+        if usePSSForRSASigningAlg == "True":
+            self.set_signing_algs_for_pss(deployer)
+
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
 
         if config.str2bool(deployer.mdict['pki_hsm_enable']):
@@ -387,6 +393,88 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 nssdb.create()
         finally:
             nssdb.close()
+
+    def set_signing_algs_for_pss(self, deployer):
+        # We know that the use pss flag is true.
+        # Only modify SHAXXXwithRSA series of algs for PSS.
+        logger.debug('In security_databases.set_signing_algs_for_pss')
+        if ('pki_admin_key_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_admin_key_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_admin_key_algorithm']):
+                deployer.mdict['pki_admin_key_algorithm'] = \
+                    deployer.mdict['pki_admin_key_algorithm'] + '/PSS'
+        if ('pki_audit_signing_key_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_audit_signing_key_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_audit_signing_key_algorithm']):
+                deployer.mdict['pki_audit_signing_key_algorithm'] = \
+                    deployer.mdict['pki_audit_signing_key_algorithm'] + '/PSS'
+        if ('pki_audit_signing_signing_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_audit_signing_signing_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_audit_signing_signing_algorithm']):
+                deployer.mdict['pki_audit_signing_signing_algorithm'] = \
+                    deployer.mdict['pki_audit_signing_signing_algorithm'] + '/PSS'
+        if ('pki_ca_signing_key_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_ca_signing_key_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_ca_signing_key_algorithm']):
+                deployer.mdict['pki_ca_signing_key_algorithm'] = \
+                    deployer.mdict['pki_ca_signing_key_algorithm'] + '/PSS'
+        if ('pki_ca_signing_signing_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_ca_signing_signing_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_ca_signing_signing_algorithm']):
+                deployer.mdict['pki_ca_signing_signing_algorithm'] = \
+                    deployer.mdict['pki_ca_signing_signing_algorithm'] + '/PSS'
+        if ('pki_ocsp_signing_key_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_ocsp_signing_key_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_ocsp_signing_key_algorithm']):
+                deployer.mdict['pki_ocsp_signing_key_algorithm'] = \
+                    deployer.mdict['pki_ocsp_signing_key_algorithm'] + '/PSS'
+        if ('pki_ocsp_signing_signing_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_ocsp_signing_signing_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_ocsp_signing_signing_algorithm']):
+                deployer.mdict['pki_ocsp_signing_signing_algorithm'] = \
+                    deployer.mdict['pki_ocsp_signing_signing_algorithm'] + '/PSS'
+        if ('pki_transport_signing_algorithm' in deployer.mdict):
+            if ('pki_transport_signing_algorithm' in deployer.mdict):
+                if ('RSA' in deployer.mdict['pki_transport_signing_algorithm'] and
+                        'PSS' not in deployer.mdict['pki_transport_signing_algorithm']):
+                    deployer.mdict['pki_transport_signing_algorithm'] = \
+                        deployer.mdict['pki_transport_signing_algorithm'] + '/PSS'
+        if ('pki_transport_key_algorithm' in deployer.mdict):
+            if ('pki_transport_key_algorithm' in deployer.mdict):
+                if ('RSA' in deployer.mdict['pki_transport_key_algorithm'] and
+                        'PSS' not in deployer.mdict['pki_transport_key_algorithm']):
+                    deployer.mdict['pki_transport_key_algorithm'] = \
+                        deployer.mdict['pki_transport_key_algorithm'] + '/PSS'
+        if ('pki_sslserver_key_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_sslserver_key_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_sslserver_key_algorithm']):
+                deployer.mdict['pki_sslserver_key_algorithm'] = \
+                    deployer.mdict['pki_sslserver_key_algorithm'] + '/PSS'
+        if ('pki_sslserver_signing_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_sslserver_signing_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_sslserver_signing_algorithm']):
+                deployer.mdict['pki_sslserver_signing_algorithm'] = \
+                    deployer.mdict['pki_sslserver_signing_algorithm'] + '/PSS'
+        if ('pki_storage_signing_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_storage_signing_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_storage_signing_algorithm']):
+                deployer.mdict['pki_storage_signing_algorithm'] = \
+                    deployer.mdict['pki_storage_signing_algorithm'] + '/PSS'
+        if ('pki_storage_key_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_storage_key_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_storage_key_algorithm']):
+                deployer.mdict['pki_storage_key_algorithm'] = \
+                    deployer.mdict['pki_storage_key_algorithm'] + '/PSS'
+        if ('pki_subsystem_key_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_subsystem_key_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_subsystem_key_algorithm']):
+                deployer.mdict['pki_subsystem_key_algorithm'] = \
+                    deployer.mdict['pki_subsystem_key_algorithm'] + '/PSS'
+        if ('pki_subsystem_signing_algorithm' in deployer.mdict):
+            if ('RSA' in deployer.mdict['pki_subsystem_signing_algorithm'] and
+                    'PSS' not in deployer.mdict['pki_subsystem_signing_algorithm']):
+                deployer.mdict['pki_subsystem_signing_algorithm'] = \
+                    deployer.mdict['pki_subsystem_signing_algorithm'] + '/PSS'
 
     def update_external_certs_conf(self, external_path, deployer):
         external_certs = pki.server.instance.PKIInstance.read_external_certs(
