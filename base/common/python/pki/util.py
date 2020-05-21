@@ -571,12 +571,13 @@ def read_text(message,
             value = getpass.getpass(message)
         else:
             value = input(message)
-        value = value.strip()
 
         if not value:  # empty value
             if default is not None:
                 return default
             continue
+
+        value = value.strip()
 
         if options:  # non-empty options
             if not case_sensitive:
