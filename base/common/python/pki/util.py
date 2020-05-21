@@ -26,6 +26,7 @@ Module containing utility functions and classes for the Dogtag python code
 from __future__ import absolute_import
 import fileinput
 import functools
+import getpass
 import io
 import logging
 import operator
@@ -529,7 +530,8 @@ def read_text(message,
               options=None,
               default=None,
               delimiter=':',
-              case_sensitive=True):
+              case_sensitive=True,
+              password=False):
     """
     Get an input from the user. This is used, for example, in
     pkispawn and pkidestroy to obtain user input.
@@ -544,10 +546,19 @@ def read_text(message,
     :type delimiter: str
     :param case_sensitive: Allow input to be case sensitive.
     :type case_sensitive: boolean -- True/False
+    :param password: Input is a password. Don't show the value.
+    :type password: boolean -- True/False
     :returns: str -- value obtained from user input.
     """
+
     if default is not None:
-        message = message + ' [' + default + ']'
+        if len(default) == 0:
+            message = message + ' []'
+        elif password:
+            message = message + ' [********]'
+        else:
+            message = message + ' [' + default + ']'
+
     message = message + delimiter + ' '
 
     if options and not case_sensitive:
@@ -556,7 +567,10 @@ def read_text(message,
             options[i] = options[i].lower()  # normalize options
 
     while True:
-        value = input(message)
+        if password:
+            value = getpass.getpass(message)
+        else:
+            value = input(message)
         value = value.strip()
 
         if not value:  # empty value
