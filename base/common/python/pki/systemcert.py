@@ -35,7 +35,7 @@ class SystemCertClient(object):
     system certificate resources.
     """
 
-    def __init__(self, connection):
+    def __init__(self, connection, subsystem=None):
         """ Constructor """
         # super(PKIResource, self).__init__(connection)
 
@@ -43,7 +43,9 @@ class SystemCertClient(object):
 
         self.cert_url = '/rest/config/cert'
 
-        if connection.subsystem is None:
+        if subsystem:
+            self.cert_url = '/' + subsystem + self.cert_url
+        elif connection.subsystem is None:
             self.cert_url = '/ca' + self.cert_url
 
         self.headers = {'Content-type': 'application/json',

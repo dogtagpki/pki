@@ -40,6 +40,7 @@ import pki
 import pki.nssdb
 import pki.util
 import pki.server
+import pki.system
 
 SELFTEST_CRITICAL = 'critical'
 
