@@ -531,7 +531,8 @@ def read_text(message,
               default=None,
               delimiter=':',
               case_sensitive=True,
-              password=False):
+              password=False,
+              required=False):
     """
     Get an input from the user. This is used, for example, in
     pkispawn and pkidestroy to obtain user input.
@@ -548,6 +549,8 @@ def read_text(message,
     :type case_sensitive: boolean -- True/False
     :param password: Input is a password. Don't show the value.
     :type password: boolean -- True/False
+    :param required: Input must be non-empty.
+    :type required: boolean -- True/False
     :returns: str -- value obtained from user input.
     """
 
@@ -573,16 +576,23 @@ def read_text(message,
             value = input(message)
 
         if not value:  # empty value
-            if default is not None:
+            if not required:
+                return default
+            if default:
                 return default
             continue
 
         value = value.strip()
 
+        if not value:  # blank value
+            if not required:
+                return value
+            continue
+
         if options:  # non-empty options
-            if not case_sensitive:
-                value = value.lower()  # normalize value
-            if value in options:
+            if case_sensitive and value in options:
+                return value
+            if not case_sensitive and value.lower() in options:
                 return value
             continue
 
