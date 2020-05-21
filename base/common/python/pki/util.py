@@ -529,7 +529,6 @@ def read_text(message,
               options=None,
               default=None,
               delimiter=':',
-              allow_empty=True,
               case_sensitive=True):
     """
     Get an input from the user. This is used, for example, in
@@ -543,13 +542,11 @@ def read_text(message,
     :type default: str
     :param delimiter: delimiter to be used at the end of the prompt.
     :type delimiter: str
-    :param allow_empty: Allow input to be empty.
-    :type allow_empty: boolean -- True/False
     :param case_sensitive: Allow input to be case sensitive.
     :type case_sensitive: boolean -- True/False
     :returns: str -- value obtained from user input.
     """
-    if default:
+    if default is not None:
         message = message + ' [' + default + ']'
     message = message + delimiter + ' '
 
@@ -562,8 +559,8 @@ def read_text(message,
         value = input(message)
         value = value.strip()
 
-        if len(value) == 0:  # empty value
-            if allow_empty:
+        if not value:  # empty value
+            if default is not None:
                 return default
             continue
 
