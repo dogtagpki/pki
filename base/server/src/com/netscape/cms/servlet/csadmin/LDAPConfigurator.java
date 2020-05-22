@@ -57,8 +57,6 @@ public class LDAPConfigurator {
     LDAPConfig config;
     String instanceID;
 
-    Map<String, String> params = new HashMap<>();
-
     public LDAPConfigurator(LDAPConnection connection, LDAPConfig config) throws Exception {
         this.connection = connection;
         this.config = config;
@@ -68,25 +66,10 @@ public class LDAPConfigurator {
         this.connection = connection;
         this.config = config;
         this.instanceID = instanceID;
-
-        params.put("instanceId", instanceID);
-
-        String baseDN = config.getBaseDN();
-        params.put("rootSuffix", baseDN);
-
-        String database = config.getDatabase();
-        params.put("database", database);
-
-        String dbuser = config.getDBUser("uid=pkidbuser,ou=people," + baseDN);
-        params.put("dbuser", dbuser);
     }
 
     public LDAPConnection getConnection() {
         return connection;
-    }
-
-    public String getParam(String name) {
-        return params.get(name);
     }
 
     public void configureDirectory() throws Exception {
@@ -361,6 +344,18 @@ public class LDAPConfigurator {
     public void customizeFile(File file, File tmpFile) throws Exception {
 
         logger.info("Creating " + tmpFile);
+
+        Map<String, String> params = new HashMap<>();
+        params.put("instanceId", instanceID);
+
+        String baseDN = config.getBaseDN();
+        params.put("rootSuffix", baseDN);
+
+        String database = config.getDatabase();
+        params.put("database", database);
+
+        String dbuser = config.getDBUser("uid=pkidbuser,ou=people," + baseDN);
+        params.put("dbuser", dbuser);
 
         try (BufferedReader in = new BufferedReader(new FileReader(file));
                 PrintWriter out = new PrintWriter(new FileWriter(tmpFile))) {
