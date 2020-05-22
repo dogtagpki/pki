@@ -787,15 +787,15 @@ public class LDAPConfigurator {
     }
 
     public void createReplicationAgreement(
-            String replicaDN,
             String name,
             String replicaHostname,
             int replicaPort,
-            String replicaPassword,
-            String baseDN,
             String bindUser,
+            String replicaPassword,
             String replicationSecurity) throws Exception {
 
+        String baseDN = config.getBaseDN();
+        String replicaDN = "cn=replica,cn=\"" + baseDN + "\",cn=mapping tree,cn=config";
         String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicaDN;
         String bindDN = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
 

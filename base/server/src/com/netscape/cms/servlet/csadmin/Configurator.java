@@ -613,24 +613,20 @@ public class Configurator {
 
         logger.debug("Configurator: creating master replication agreement");
         masterConfigurator.createReplicationAgreement(
-                replicaDN,
                 masterAgreementName,
                 replicaHostname,
                 replicaReplicationPort,
-                replicaReplicationPassword,
-                baseDN,
                 replicaBindUser,
+                replicaReplicationPassword,
                 replicationSecurity);
 
         logger.debug("Configurator: creating replica replication agreement");
         replicaConfigurator.createReplicationAgreement(
-                replicaDN,
                 replicaAgreementName,
                 masterHostname,
                 masterReplicationPort,
-                masterReplicationPassword,
-                baseDN,
                 masterBindUser,
+                masterReplicationPassword,
                 replicationSecurity);
 
         logger.debug("Configurator: initializing replication consumer");
