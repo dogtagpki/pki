@@ -857,6 +857,35 @@ public class LDAPConfigurator {
         }
     }
 
+    public boolean setupReplicationAgreement(
+            String agreementName,
+            String bindUser,
+            String bindPassword,
+            String peerHostname,
+            int peerPort,
+            String peerBindUser,
+            String peerBindPassword,
+            String security,
+            int replicaID)
+            throws Exception {
+
+        createSystemContainer();
+        createReplicationManager(bindUser, bindPassword);
+        createChangeLog();
+
+        boolean created = createReplicaObject(bindUser, replicaID);
+
+        createReplicationAgreement(
+                agreementName,
+                peerHostname,
+                peerPort,
+                peerBindUser,
+                peerBindPassword,
+                security);
+
+        return created;
+    }
+
     public void initializeConsumer(String agreementName) throws Exception {
 
         String baseDN = config.getBaseDN();

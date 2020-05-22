@@ -575,47 +575,42 @@ public class Configurator {
             int replicaID)
             throws Exception {
 
-        logger.info("Configurator: setting up replication");
-
         String masterBindUser = "Replication Manager " + masterAgreementName;
-        logger.debug("Configurator: creating replication manager on master");
-        masterConfigurator.createSystemContainer();
-        masterConfigurator.createReplicationManager(masterBindUser, masterReplicationPassword);
-        masterConfigurator.createChangeLog();
-
         String replicaBindUser = "Replication Manager " + replicaAgreementName;
-        logger.debug("Configurator: creating replication manager on replica");
-        replicaConfigurator.createSystemContainer();
-        replicaConfigurator.createReplicationManager(replicaBindUser, replicaReplicationPassword);
-        replicaConfigurator.createChangeLog();
 
-        logger.debug("Configurator: enabling replication on master");
-        if (masterConfigurator.createReplicaObject(masterBindUser, replicaID)) {
-            replicaID++;
-        }
+        logger.info("Setting up replication agreement on master");
 
-        logger.debug("Configurator: enabling replication on replica");
-        if (replicaConfigurator.createReplicaObject(replicaBindUser, replicaID)) {
-            replicaID++;
-        }
-
-        logger.debug("Configurator: creating master replication agreement");
-        masterConfigurator.createReplicationAgreement(
+        boolean created = masterConfigurator.setupReplicationAgreement(
                 masterAgreementName,
+                masterBindUser,
+                masterReplicationPassword,
                 replicaHostname,
                 replicaReplicationPort,
                 replicaBindUser,
                 replicaReplicationPassword,
-                replicationSecurity);
+                replicationSecurity,
+                replicaID);
 
-        logger.debug("Configurator: creating replica replication agreement");
-        replicaConfigurator.createReplicationAgreement(
+        if (created) {
+            replicaID++;
+        }
+
+        logger.info("Setting up replication agreement on replica");
+
+        created = replicaConfigurator.setupReplicationAgreement(
                 replicaAgreementName,
+                replicaBindUser,
+                replicaReplicationPassword,
                 masterHostname,
                 masterReplicationPort,
                 masterBindUser,
                 masterReplicationPassword,
-                replicationSecurity);
+                replicationSecurity,
+                replicaID);
+
+        if (created) {
+            replicaID++;
+        }
 
         return replicaID;
     }
