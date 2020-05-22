@@ -2731,9 +2731,6 @@ class ConfigClient:
         request.masterReplicationPort = self.mdict['pki_clone_replication_master_port']
         request.cloneReplicationPort = self.mdict['pki_clone_replication_clone_port']
 
-        if not request.cloneReplicationPort:
-            request.cloneReplicationPort = dsPort
-
         request.replicationSecurity = self.mdict['pki_clone_replication_security']
 
         if request.cloneReplicationPort == dsPort and secureConn == 'true':

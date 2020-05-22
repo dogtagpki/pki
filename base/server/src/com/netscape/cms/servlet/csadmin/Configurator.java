@@ -463,10 +463,14 @@ public class Configurator {
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
-        String database = ldapConfig.getDatabase();
-        String baseDN = ldapConfig.getBaseDN();
-        String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
-        String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
+        LDAPConnectionConfig replicaConnConfig = ldapConfig.getConnectionConfig();
+        String replicaHostname = replicaConnConfig.getString("host", "");
+        String replicaPort = replicaConnConfig.getString("port", "");
+
+        String replicaReplicationPort = request.getCloneReplicationPort();
+        if (replicaReplicationPort == null || replicaReplicationPort.equals("")) {
+            replicaReplicationPort = replicaPort;
+        }
 
         LdapBoundConnFactory ldapFactory = new LdapBoundConnFactory("LDAPConfigurator");
         ldapFactory.init(cs, ldapConfig, passwordStore);
@@ -477,6 +481,7 @@ public class Configurator {
         try {
             LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
             LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
+            String masterHostname = masterConnConfig.getString("host", "");
             String masterPort = masterConnConfig.getString("port", "");
 
             String masterReplicationPort = request.getMasterReplicationPort();
@@ -506,13 +511,15 @@ public class Configurator {
             LDAPConfigurator masterConfigurator = new LDAPConfigurator(masterConn);
 
             try {
-                setupReplicationAgreement(
+                setupReplicationAgreements(
                         masterConfigurator,
                         ldapConfigurator,
+                        masterHostname,
+                        replicaHostname,
+                        Integer.parseInt(masterReplicationPort),
+                        Integer.parseInt(replicaReplicationPort),
                         masterReplicationPassword,
                         replicaReplicationPassword,
-                        Integer.parseInt(masterReplicationPort),
-                        Integer.parseInt(request.getCloneReplicationPort()),
                         request.getReplicationSecurity());
 
             } finally {
@@ -538,13 +545,15 @@ public class Configurator {
         }
     }
 
-    public void setupReplicationAgreement(
+    public void setupReplicationAgreements(
             LDAPConfigurator masterConfigurator,
             LDAPConfigurator replicaConfigurator,
-            String masterReplicationPassword,
-            String replicaReplicationPassword,
+            String masterHostname,
+            String replicaHostname,
             int masterReplicationPort,
             int replicaReplicationPort,
+            String masterReplicationPassword,
+            String replicaReplicationPassword,
             String replicationSecurity) throws Exception {
 
         logger.info("Configurator: setting up replication");
@@ -562,9 +571,6 @@ public class Configurator {
         LDAPConnectionConfig replicaConnCfg = replicaConfig.getConnectionConfig();
 
         String baseDN = replicaConfig.getBaseDN();
-
-        String masterHostname = masterConnCfg.getString("host", "");
-        String replicaHostname = replicaConnCfg.getString("host", "");
 
         String masterAgreementName = "masterAgreement1-" + hostname + "-" + instanceID;
         String replicaAgreementName = "cloneAgreement1-" + hostname + "-" + instanceID;
