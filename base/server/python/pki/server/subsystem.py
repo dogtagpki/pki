@@ -199,14 +199,10 @@ class PKISubsystem(object):
 
     def update_subsystem_cert(self, cert):
         cert_id = cert['id']
-        self.config['%s.%s.nickname' % (self.name, cert_id)] = (
-            cert.get('nickname', None))
-        self.config['%s.%s.tokenname' % (self.name, cert_id)] = (
-            cert.get('token', None))
-        self.config['%s.%s.cert' % (self.name, cert_id)] = (
-            cert.get('data', None))
-        self.config['%s.%s.certreq' % (self.name, cert_id)] = (
-            cert.get('request', None))
+        self.config['%s.%s.nickname' % (self.name, cert_id)] = cert.get('nickname')
+        self.config['%s.%s.tokenname' % (self.name, cert_id)] = cert.get('token')
+        self.config['%s.%s.cert' % (self.name, cert_id)] = cert.get('data')
+        self.config['%s.%s.certreq' % (self.name, cert_id)] = cert.get('request')
 
     def validate_system_cert(self, cert_id=None):
 
@@ -715,7 +711,7 @@ class PKISubsystem(object):
         logger.debug('Exporting CSR for %s cert', cert_tag)
 
         # Retrieve CSR for cert_id
-        cert_request = self.get_subsystem_cert(cert_tag).get('request', None)
+        cert_request = self.get_subsystem_cert(cert_tag).get('request')
         if cert_request is None:
             raise pki.server.PKIServerException('Unable to find CSR for %s cert' % cert_tag)
 
@@ -732,7 +728,7 @@ class PKISubsystem(object):
         # Retrieve Subject Key Identifier from CA cert
         ca_signing_cert = self.instance.get_subsystem('ca').get_subsystem_cert('signing')
 
-        ca_cert_data = ca_signing_cert.get('data', None)
+        ca_cert_data = ca_signing_cert.get('data')
         if ca_cert_data is None:
             raise pki.server.PKIServerException(
                 'Unable to find certificate data for CA signing certificate.')

@@ -867,7 +867,7 @@ class CertExportCLI(pki.cli.CLI):
 
                 logger.info('Exporting %s certificate into %s.', cert_id, cert_file)
 
-                cert_data = cert.get('data', None)
+                cert_data = cert.get('data')
                 if cert_data is None:
                     logger.error('Unable to find certificate data for %s', cert_id)
                     sys.exit(1)
@@ -880,7 +880,7 @@ class CertExportCLI(pki.cli.CLI):
 
                 logger.info('Exporting %s CSR into %s.', cert_id, csr_file)
 
-                cert_request = cert.get('request', None)
+                cert_request = cert.get('request')
                 if cert_request is None:
                     logger.error('Unable to find certificate request for %s', cert_id)
                     sys.exit(1)

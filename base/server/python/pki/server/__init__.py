@@ -656,7 +656,7 @@ class PKIServer(object):
             document = etree.parse(context_xml, parser)
             context = document.getroot()
 
-            doc_base = context.get('docBase', None)
+            doc_base = context.get('docBase')
             webapp['docBase'] = doc_base
 
             webapps.append(webapp)

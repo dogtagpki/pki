@@ -225,42 +225,42 @@ class SubsystemDBCLI(pki.cli.CLI):
 
         name = 'internaldb.%s'
 
-        hostname = subsystem.config.get(name % 'ldapconn.host', None)
+        hostname = subsystem.config.get(name % 'ldapconn.host')
         print('  Hostname: %s' % hostname)
 
-        port = subsystem.config.get(name % 'ldapconn.port', None)
+        port = subsystem.config.get(name % 'ldapconn.port')
         print('  Port: %s' % port)
 
-        secure = subsystem.config.get(name % 'ldapconn.secureConn', None)
+        secure = subsystem.config.get(name % 'ldapconn.secureConn')
         print('  Secure: %s' % secure)
 
-        auth = subsystem.config.get(name % 'ldapauth.authtype', None)
+        auth = subsystem.config.get(name % 'ldapauth.authtype')
         print('  Authentication: %s' % auth)
 
         if auth == 'BasicAuth':
-            bindDN = subsystem.config.get(name % 'ldapauth.bindDN', None)
+            bindDN = subsystem.config.get(name % 'ldapauth.bindDN')
             print('  Bind DN: %s' % bindDN)
 
-            bindPWPrompt = subsystem.config.get(name % 'ldapauth.bindPWPrompt', None)
+            bindPWPrompt = subsystem.config.get(name % 'ldapauth.bindPWPrompt')
             print('  Bind Password Prompt: %s' % bindPWPrompt)
 
         if auth == 'SslClientAuth':
-            nickname = subsystem.config.get(name % 'ldapauth.clientCertNickname', None)
+            nickname = subsystem.config.get(name % 'ldapauth.clientCertNickname')
             print('  Client Certificate: %s' % nickname)
 
-        database = subsystem.config.get(name % 'database', None)
+        database = subsystem.config.get(name % 'database')
         print('  Database: %s' % database)
 
-        baseDN = subsystem.config.get(name % 'basedn', None)
+        baseDN = subsystem.config.get(name % 'basedn')
         print('  Base DN: %s' % baseDN)
 
-        multipleSuffix = subsystem.config.get(name % 'multipleSuffix.enable', None)
+        multipleSuffix = subsystem.config.get(name % 'multipleSuffix.enable')
         print('  Multiple suffix: %s' % multipleSuffix)
 
-        maxConns = subsystem.config.get(name % 'maxConns', None)
+        maxConns = subsystem.config.get(name % 'maxConns')
         print('  Maximum connections: %s' % maxConns)
 
-        minConns = subsystem.config.get(name % 'minConns', None)
+        minConns = subsystem.config.get(name % 'minConns')
         print('  Minimum connections: %s' % minConns)
 
 

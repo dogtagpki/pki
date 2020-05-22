@@ -47,7 +47,7 @@ class UpdateNetscapeSecurityClasses(
         self.backup(subsystem.cs_conf)
 
         for prop_name in self.PROPERTIES:
-            value = subsystem.config.get(prop_name, None)
+            value = subsystem.config.get(prop_name)
             if not value or value.startswith(self.NEW_PREFIX):
                 continue
 

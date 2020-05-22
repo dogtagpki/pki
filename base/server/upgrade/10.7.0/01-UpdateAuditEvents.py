@@ -101,7 +101,7 @@ class UpdateAuditEvents(
 
     def update_audit_events(self, subsystem, prop_name):
 
-        value = subsystem.config.get(prop_name, None)
+        value = subsystem.config.get(prop_name)
         if not value:
             return
 

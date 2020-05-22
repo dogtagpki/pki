@@ -249,7 +249,7 @@ class JarCollection:
                 print "    %s" % ' -> '.join(link_traversal)
 
     def lookup_class(self, klass):
-        return self.class_jar_paths.get(klass, None)
+        return self.class_jar_paths.get(klass)
 
     def search_class(self, pattern):
         classes = []

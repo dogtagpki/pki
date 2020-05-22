@@ -734,7 +734,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             sys.exit(1)
 
         if cert_file:
-            cert_data = subsystem_cert.get('data', None)
+            cert_data = subsystem_cert.get('data')
             if cert_data is None:
                 logger.error("Unable to find certificate data for %s", cert_id)
                 sys.exit(1)
@@ -744,7 +744,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                 f.write(cert_data)
 
         if csr_file:
-            cert_request = subsystem_cert.get('request', None)
+            cert_request = subsystem_cert.get('request')
             if cert_request is None:
                 logger.error('Unable to find certificate request for %s', cert_id)
                 sys.exit(1)
