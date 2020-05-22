@@ -855,8 +855,10 @@ public class LDAPConfigurator {
         }
     }
 
-    public void initializeConsumer(String replicaDN, String agreementName) throws Exception {
+    public void initializeConsumer(String agreementName) throws Exception {
 
+        String baseDN = config.getBaseDN();
+        String replicaDN = "cn=replica,cn=\"" + baseDN + "\",cn=mapping tree,cn=config";
         String dn = "cn=" + LDAPUtil.escapeRDNValue(agreementName) + "," + replicaDN;
         logger.info("Initializing consumer " + dn);
 

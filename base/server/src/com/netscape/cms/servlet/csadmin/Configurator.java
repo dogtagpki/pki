@@ -570,13 +570,8 @@ public class Configurator {
         LDAPConfig replicaConfig = cs.getInternalDBConfig();
         LDAPConnectionConfig replicaConnCfg = replicaConfig.getConnectionConfig();
 
-        String baseDN = replicaConfig.getBaseDN();
-
         String masterAgreementName = "masterAgreement1-" + hostname + "-" + instanceID;
         String replicaAgreementName = "cloneAgreement1-" + hostname + "-" + instanceID;
-
-        String replicaDN = "cn=replica,cn=\"" + baseDN + "\",cn=mapping tree,cn=config";
-        logger.debug("Configurator: replica DN: " + replicaDN);
 
         String masterBindUser = "Replication Manager " + masterAgreementName;
         logger.debug("Configurator: creating replication manager on master");
@@ -630,7 +625,7 @@ public class Configurator {
                 replicationSecurity);
 
         logger.debug("Configurator: initializing replication consumer");
-        masterConfigurator.initializeConsumer(replicaDN, masterAgreementName);
+        masterConfigurator.initializeConsumer(masterAgreementName);
     }
 
     public void releaseConnection(LDAPConnection conn) {
