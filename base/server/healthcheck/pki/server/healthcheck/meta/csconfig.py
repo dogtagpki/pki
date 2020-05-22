@@ -16,7 +16,7 @@ from ipahealthcheck.core import constants
 
 from pki.server import PKIServer
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 @registry
@@ -27,7 +27,7 @@ class DogtagCertsConfigCheck(CSPlugin):
     @duration
     def check(self):
         if not self.instance.exists():
-            logging.debug('Invalid instance: %s', self.instance.name)
+            logger.debug('Invalid instance: %s', self.instance.name)
             yield Result(self, constants.CRITICAL,
                          msg='Invalid PKI instance: %s' % self.instance.name)
             return
