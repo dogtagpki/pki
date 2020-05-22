@@ -44,6 +44,7 @@ public class LdapBoundConnection extends LDAPConnection {
     // authenticate call.
     @SuppressWarnings("unused")
     private boolean mAuthenticated;
+    LdapBoundConnFactory connectionFactory;
 
     /**
      * Instantiates a connection to a ldap server, secure or non-secure

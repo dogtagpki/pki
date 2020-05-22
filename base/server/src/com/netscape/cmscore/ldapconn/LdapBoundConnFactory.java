@@ -26,7 +26,6 @@ import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSocketFactory;
 import netscape.ldap.LDAPv2;
 
 /**
@@ -73,7 +72,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
 
     private boolean doCloning = true;
     private LdapBoundConnection mMasterConn = null; // master connection object.
-    private BoundConnection mConns[];
+    private LdapBoundConnection[] mConns;
 
     /**
      * return error if server is down at creation time.
@@ -256,7 +255,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         logger.debug("LdapBoundConnFactory: secure: " + mConnInfo.getSecure());
         logger.debug("LdapBoundConnFactory: authentication: " + mAuthInfo.getAuthType());
 
-        mConns = new BoundConnection[mMaxConns];
+        mConns = new LdapBoundConnection[mMaxConns];
 
         // Create connection handle and make initial connection
         makeConnection(mErrorIfDown);
@@ -283,7 +282,8 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
             }
             socketFactory.init(config);
 
-            mMasterConn = new BoundConnection(socketFactory, mConnInfo, mAuthInfo);
+            mMasterConn = new LdapBoundConnection(socketFactory, mConnInfo, mAuthInfo);
+            mMasterConn.connectionFactory = this;
 
         } catch (EBaseException e) {
             throw new ELdapException("Unable to create socket factory: " + e.getMessage(), e);
@@ -324,7 +324,8 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
             }
             socketFactory.init(config);
 
-            conn = new BoundConnection(socketFactory, mConnInfo, mAuthInfo);
+            conn = new LdapBoundConnection(socketFactory, mConnInfo, mAuthInfo);
+            conn.connectionFactory = this;
 
         } catch (EBaseException e) {
             throw new ELdapException("Unable to create socket factory: " + e.getMessage(), e);
@@ -363,9 +364,9 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
             for (int i = increment - 1; i >= 0; i--) {
 
                 if (doCloning == true) {
-                    mConns[i] = (BoundConnection) mMasterConn.clone();
+                    mConns[i] = (LdapBoundConnection) mMasterConn.clone();
                 } else {
-                    mConns[i] = (BoundConnection) makeNewConnection(true);
+                    mConns[i] = makeNewConnection(true);
                 }
 
             }
@@ -424,7 +425,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      * }
      * </pre>
      */
-    public synchronized LDAPConnection getConn(boolean waitForConn)
+    public synchronized LdapBoundConnection getConn(boolean waitForConn)
             throws ELdapException {
         boolean waited = false;
 
@@ -460,7 +461,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
             }
         }
         mNumConns--;
-        LDAPConnection conn = mConns[mNumConns];
+        LdapBoundConnection conn = mConns[mNumConns];
 
         boolean isConnected = false;
         if (conn != null) {
@@ -477,10 +478,10 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
             logger.debug("LdapBoundConnFactory: reestablishing connection");
 
             if (doCloning == true) {
-                mConns[mNumConns] = (BoundConnection) mMasterConn.clone();
+                mConns[mNumConns] = (LdapBoundConnection) mMasterConn.clone();
             } else {
                 try {
-                    mConns[mNumConns] = (BoundConnection) makeNewConnection(true);
+                    mConns[mNumConns] = makeNewConnection(true);
                 } catch (ELdapException e) {
                     mConns[mNumConns] = null;
                 }
@@ -532,16 +533,16 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         if (conn == null) {
             return;
         }
-        BoundConnection boundconn = null;
+        LdapBoundConnection boundconn = null;
 
-        if (conn instanceof BoundConnection) {
-            boundconn = (BoundConnection) conn;
+        if (conn instanceof LdapBoundConnection) {
+            boundconn = (LdapBoundConnection) conn;
         } else {
             logger.warn("LdapBoundConnFactory: Unable to return connection: not a bound connection");
             return;
         }
 
-        if (boundconn.getFacId() != mConns) {
+        if (boundconn.connectionFactory != this) {
             logger.warn("LdapBoundConnFactory: Unknown connection");
         }
 
@@ -648,37 +649,5 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
 
     public void setPasswordStore(IPasswordStore passwordStore) {
         this.passwordStore = passwordStore;
-    }
-
-    /**
-     * used to keep track of connections from this factory.
-     */
-    public class BoundConnection extends LdapBoundConnection {
-        /**
-         *
-         */
-        private static final long serialVersionUID = 1353616391879078337L;
-
-        public BoundConnection(
-                LDAPSocketFactory socketFactory,
-                LdapConnInfo connInfo,
-                LdapAuthInfo authInfo)
-                throws EBaseException, LDAPException {
-            super(socketFactory, connInfo, authInfo);
-        }
-
-        public BoundConnection(String host, int port, int version,
-                LDAPSocketFactory fac,
-                String bindDN, String bindPW)
-                throws LDAPException {
-            super(host, port, version, fac, bindDN, bindPW);
-        }
-
-        /**
-         * used only to identify the factory from which this came.
-         */
-        public BoundConnection[] getFacId() {
-            return mConns;
-        }
     }
 }
