@@ -54,25 +54,30 @@ public class LDAPConfigurator {
     public final static Logger logger = LoggerFactory.getLogger(LDAPConfigurator.class);
 
     LDAPConnection connection;
+    LDAPConfig config;
+    String instanceID;
 
     Map<String, String> params = new HashMap<>();
 
-    public LDAPConfigurator(LDAPConnection connection) throws Exception {
+    public LDAPConfigurator(LDAPConnection connection, LDAPConfig config) throws Exception {
         this.connection = connection;
+        this.config = config;
     }
 
-    public LDAPConfigurator(LDAPConnection connection, String instanceId, LDAPConfig ldapConfig) throws Exception {
+    public LDAPConfigurator(LDAPConnection connection, LDAPConfig config, String instanceID) throws Exception {
         this.connection = connection;
+        this.config = config;
+        this.instanceID = instanceID;
 
-        params.put("instanceId", instanceId);
+        params.put("instanceId", instanceID);
 
-        String baseDN = ldapConfig.getBaseDN();
+        String baseDN = config.getBaseDN();
         params.put("rootSuffix", baseDN);
 
-        String database = ldapConfig.getDatabase();
+        String database = config.getDatabase();
         params.put("database", database);
 
-        String dbuser = ldapConfig.getDBUser("uid=pkidbuser,ou=people," + baseDN);
+        String dbuser = config.getDBUser("uid=pkidbuser,ou=people," + baseDN);
         params.put("dbuser", dbuser);
     }
 

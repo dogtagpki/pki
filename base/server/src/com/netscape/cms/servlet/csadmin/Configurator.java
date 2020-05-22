@@ -476,7 +476,7 @@ public class Configurator {
         ldapFactory.init(cs, ldapConfig, passwordStore);
 
         LDAPConnection conn = ldapFactory.getConn();
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, instanceId, ldapConfig);
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig, instanceId);
 
         try {
             LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
@@ -508,7 +508,7 @@ public class Configurator {
             masterFactory.init(cs, masterConfig, passwordStore);
 
             LDAPConnection masterConn = masterFactory.getConn();
-            LDAPConfigurator masterConfigurator = new LDAPConfigurator(masterConn);
+            LDAPConfigurator masterConfigurator = new LDAPConfigurator(masterConn, masterConfig);
 
             try {
                 setupReplicationAgreements(

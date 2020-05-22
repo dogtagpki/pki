@@ -119,7 +119,7 @@ public class SubsystemDBInitCLI extends CommandCLI {
         socketFactory.init(cs);
 
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, instanceId, ldapConfig);
+        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig, instanceId);
 
         try {
             ldapConfigurator.configureDirectory();
