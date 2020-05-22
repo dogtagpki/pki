@@ -10,6 +10,10 @@
 from ipahealthcheck.core.plugin import Plugin, Registry
 from pki.server.instance import PKIInstance
 
+import logging
+
+logging.getLogger().setLevel(logging.WARNING)
+
 
 class CSPlugin(Plugin):
     def __init__(self, registry):
