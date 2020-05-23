@@ -46,6 +46,48 @@ jobs:
               name: pki-build-${{ matrix.os }}
               path: pki-rpms.tar.gz
 
+    # Code Lint job
+    lint:
+      # This job depends on the 'build' job and waits till it completes.
+      # This job installs the built rpms and executes pylint and flak8 tests
+      # on the python files listed in the rpm
+      name: Code lint
+      needs: build
+      runs-on: ubuntu-latest
+      env:
+        COPR_REPO: "@pki/master"
+      container: fedora:${{ matrix.os }}
+      strategy:
+          matrix:
+            os: ['31', '32']
+      steps:
+        - name: Update base image
+          run: |
+                set -x &&
+                dnf update -y &&
+                dnf install -y python3-pylint python3-flake8 python3-pyflakes findutils dnf-plugins-core
+
+        - name: Clone the repository
+          uses: actions/checkout@v2
+
+        - name: Download PKI binaries from Build job
+          uses: actions/download-artifact@v1
+          with:
+            name: pki-build-${{ matrix.os }}
+
+        - name: Extract tar.gz for rpms
+          run: tar -xzf pki-build-${{ matrix.os }}/pki-rpms.tar.gz
+
+        - name: Enable PKI COPR repo
+          run: dnf copr enable -y ${COPR_REPO}
+
+        - name: Install newly built PKI packages
+          run: find . -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install
+
+        # Run python linters
+        - name: Run python lint
+          run: tools/pylint.sh
+
     # Test job
     pki-tests:
       # This job depends on the 'build' job and waits till it completes.

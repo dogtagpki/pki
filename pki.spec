@@ -192,14 +192,6 @@ BuildRequires:    resteasy-core >= 3.0.17-1
 BuildRequires:    resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
-%if 0%{?rhel}
-# no pylint
-%else
-BuildRequires:    python3-pylint
-BuildRequires:    python3-flake8 >= 2.5.4
-BuildRequires:    python3-pyflakes >= 1.2.3
-%endif
-
 BuildRequires:    python3 >= 3.5
 BuildRequires:    python3-devel
 BuildRequires:    python3-cryptography
@@ -889,32 +881,6 @@ ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.
 ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/server/common/lib/jboss-jaxrs-2.0-api.jar
 ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-logging.jar
 ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-annotations-api_1.2_spec.jar
-
-%if 0%{?rhel}
-# no pylint
-%else
-
-################################################################################
-echo "Scanning Python code with pylint"
-################################################################################
-
-%{python_executable} -I ../tools/pylint-build-scan.py rpm --prefix %{buildroot}
-if [ $? -ne 0 ]; then
-    echo "pylint for Python 3 failed. RC: $?"
-    exit 1
-fi
-
-################################################################################
-echo "Scanning Python code with flake8"
-################################################################################
-
-python3-flake8 --config ../tox.ini %{buildroot}
-if [ $? -ne 0 ]; then
-    echo "flake8 for Python 3 failed. RC: $?"
-    exit 1
-fi
-
-%endif
 
 # with server
 %endif
