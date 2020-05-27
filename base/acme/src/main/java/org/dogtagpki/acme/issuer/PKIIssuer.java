@@ -159,15 +159,19 @@ public class PKIIssuer extends ACMEIssuer {
             throw new Exception("Unable to generate certificate: " + error);
         }
 
-        CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
-        certClient.approveRequest(requestId, reviewInfo);
+        CertId id = null;
+        if (info.getRequestStatus() == RequestStatus.COMPLETE) {
+            id = info.getCertId();
+        } else {
+            CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
+            certClient.approveRequest(requestId, reviewInfo);
 
-        info = certClient.getRequest(requestId);
-        logger.info("Serial number: " + info.getCertId().toHexString());
+            info = certClient.getRequest(requestId);
+            id = info.getCertId();
+        }
 
-        CertId id = info.getCertId();
+        logger.info("Serial number: " + id.toHexString());
         BigInteger serialNumber = id.toBigInteger();
-
         return Base64.encodeBase64URLSafeString(serialNumber.toByteArray());
     }
 
