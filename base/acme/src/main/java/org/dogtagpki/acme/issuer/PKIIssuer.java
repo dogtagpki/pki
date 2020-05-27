@@ -123,6 +123,7 @@ public class PKIIssuer extends ACMEIssuer {
         AuthorityID aid = null;
         X500Name adn = null;
 
+        caClient.login();
         CACertClient certClient = new CACertClient(caClient);
         CertEnrollmentRequest certEnrollmentRequest = certClient.getEnrollmentTemplate(profile);
 
