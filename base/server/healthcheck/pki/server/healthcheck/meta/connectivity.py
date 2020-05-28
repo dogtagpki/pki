@@ -201,3 +201,50 @@ class DogtagOCSPConnectivityCheck(CSPlugin):
                          msg="Internal server error. Is your PKI server and LDAP up?",
                          instance_name=ocsp.instance.name,
                          exception="%s" % e)
+
+
+@registry
+class DogtagTKSConnectivityCheck(CSPlugin):
+    """
+    Test basic TKS connectivity by trying to hit REST api endpoint. Note that this
+    test DOES NOT fetch any objects from LDAP. This only tests whether TKS is running.
+    """
+
+    @duration
+    def check(self):
+        if not self.instance.is_valid():
+            logger.debug('Invalid instance: %s', self.instance.name)
+            yield Result(self, constants.CRITICAL,
+                         msg='Invalid PKI instance: %s' % self.instance.name)
+            return
+
+        self.instance.load()
+
+        tks = self.instance.get_subsystem('tks')
+
+        if not tks:
+            logger.debug("No TKS configured, skipping dogtag TKS connectivity check")
+            return
+
+        try:
+            # Make a plain HTTP GET request to /tks/admin/tks/getStatus REST api end point
+            # and check if the TKS is running
+            if tks.is_ready():
+                logger.info("TKS instance is running.")
+                yield Result(self, constants.SUCCESS,
+                             instance_name=tks.instance.name,
+                             subsystem_name=tks.name,
+                             status="Running")
+            else:
+                logger.info("TKS instance is down.")
+                yield Result(self, constants.ERROR,
+                             instance_name=tks.instance.name,
+                             subsystem_name=tks.name,
+                             status="Stopped")
+
+        except BaseException as e:
+            logger.error("Internal server error %s", e)
+            yield Result(self, constants.CRITICAL,
+                         msg="Internal server error. Is your PKI server and LDAP up?",
+                         instance_name=tks.instance.name,
+                         exception="%s" % e)
