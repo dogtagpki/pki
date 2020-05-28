@@ -28,6 +28,7 @@ class ACMEEngineConfigFileSource
     static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEEngine.class);
 
     String filename;
+    boolean monitor = true;
     Thread monitorThread = null;
 
     // cached config values, so we only send values that actually changed
@@ -50,6 +51,7 @@ class ACMEEngineConfigFileSource
         loadFile();
 
         // start file monitor thread
+        monitor = true;  // in case shutdown() was previously called
         monitorThread = new Thread(this, "ACMEEngineConfigFileSource");
         monitorThread.start();
     }
@@ -96,34 +98,86 @@ class ACMEEngineConfigFileSource
 
         final Path path = FileSystems.getDefault().getPath(filename);
 
-        try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
-            // You can only watch a directory, not a file.  So we must
-            // watch the parent dir and check the event is for the file.
-            path.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-            while (true) {
-                WatchKey wk = watchService.take();
-                for (WatchEvent<?> event : wk.pollEvents()) {
-                    if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
-                        if (((Path) event.context()).endsWith(path.getFileName())) {
-                            loadFile();
-                        }
-                    }
+        // how long to sleep before retrying
+        int delay_ms = 0;
+
+        while (monitor) {
+
+            if (delay_ms > 0) {
+                try {
+                    logger.info("ACMEEngineConfigSource: sleeping for " + delay_ms + "ms");
+                    Thread.sleep(delay_ms);
+                } catch (InterruptedException e) {
+                    // no big deal
                 }
 
-                if (!wk.reset()) {
-                    // watch key could not be reset; break loop
-                    break;
+                // We looped due to an exception.  It is possible that the file
+                // changed, and that we were unable to read it, but after the sleep
+                // it might be OK.  So let's try and read it, but ignore failures.
+                try {
+                    loadFile();
+                } catch (Throwable e) {
+                    // log warning then move on
+                    logger.warn(
+                        "ACMEEngineConfigSource: Unable to load " + filename
+                        + ": " + e.getMessage());
                 }
+
             }
-        } catch (InterruptedException e) {
-            // probably due to shutdown()
-            logger.info("ACMEEngineConfigSource: file monitoring interrupted");
-        } catch (Throwable e) {
-            logger.error(
-                "ACMEEngineConfigFileSource: caught exception while monitoring file",
-                e
-            );
+
+            try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
+                // You can only watch a directory, not a file.  So we must
+                // watch the parent dir and check the event is for the file.
+                path.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+
+                // so far so good; reset the delay
+                logger.info("ACMEEngineConfigSource: watching " + filename);
+                delay_ms = 0;  // reset the delay
+
+                while (true) {
+                    logger.debug("ACMEEngineConfigSource: something happened");
+                    WatchKey wk = watchService.take();
+                    for (WatchEvent<?> event : wk.pollEvents()) {
+                        if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
+                            if (((Path) event.context()).endsWith(path.getFileName())) {
+                                logger.debug("ACMEEngineConfigSource: file modified");
+                                // sleep for a moment before reading file; this seems
+                                // to avoid a race situation observed with vi/vim.
+                                Thread.sleep(1000);
+                                loadFile();
+                            }
+                        }
+                    }
+
+                    if (!wk.reset()) {
+                        // watch key could not be reset; break inner loop
+                        logger.warn("ACMEEngineConfigSource: watch key could not be reset");
+                        break;
+                    }
+                }
+            } catch (InterruptedException e) {
+                // probably due to shutdown(), in which case monitor == false
+                // and the outer while loop will terminate
+                logger.info("ACMEEngineConfigSource: file monitoring interrupted");
+            } catch (Throwable e) {
+                logger.error(
+                    "ACMEEngineConfigFileSource: caught exception while monitoring file",
+                    e
+                );
+            }
+
+            // Something went wrong, or we were interrupted by shutdown().
+            // Set or increase the delay, then loop back and either try
+            // again, or in case of shutdown() the loop condition fails.
+            if (delay_ms == 0) {
+                delay_ms = 1000;
+            } else {
+                // double; clamp at 5 mins
+                delay_ms = Math.min(delay_ms * 2, 5 * 60 * 1000);
+            }
+
         }
+
         logger.info("ACMEConfigFileSource: watch thread exiting");
         monitorThread = null;
 
@@ -131,6 +185,8 @@ class ACMEEngineConfigFileSource
 
     @Override
     public void shutdown() {
+        monitor = false;
+
         if (monitorThread != null) {
             logger.info("ACMEEngineConfigSource.shutdown(): interrupting monitor thread");
             monitorThread.interrupt();
