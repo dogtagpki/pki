@@ -76,6 +76,7 @@ class DogtagCACertsConnectivityCheck(CSPlugin):
             logger.error("Internal server error %s", e)
             yield Result(self, constants.CRITICAL,
                          msg="Internal server error. Is your PKI server and LDAP up?",
+                         instance_name=ca.instance.name,
                          exception="%s" % e)
 
 
@@ -151,4 +152,52 @@ class DogtagKRAConnectivityCheck(CSPlugin):
             logger.error("Internal server error %s", e)
             yield Result(self, constants.CRITICAL,
                          msg="Internal server error. Is your PKI server and LDAP up?",
+                         instance_name=kra.instance.name,
+                         exception="%s" % e)
+
+
+@registry
+class DogtagOCSPConnectivityCheck(CSPlugin):
+    """
+    Test basic OCSP connectivity by trying to hit REST api endpoint. Note that this
+    test DOES NOT fetch any objects from LDAP. This only tests whether OCSP is running.
+    """
+
+    @duration
+    def check(self):
+        if not self.instance.is_valid():
+            logger.debug('Invalid instance: %s', self.instance.name)
+            yield Result(self, constants.CRITICAL,
+                         msg='Invalid PKI instance: %s' % self.instance.name)
+            return
+
+        self.instance.load()
+
+        ocsp = self.instance.get_subsystem('ocsp')
+
+        if not ocsp:
+            logger.debug("No OCSP configured, skipping dogtag OCSP connectivity check")
+            return
+
+        try:
+            # Make a plain HTTP GET request to /ocsp/admin/ocsp/getStatus REST api end point
+            # and check if the OCSP is running
+            if ocsp.is_ready():
+                logger.info("OCSP instance is running.")
+                yield Result(self, constants.SUCCESS,
+                             instance_name=ocsp.instance.name,
+                             subsystem_name=ocsp.name,
+                             status="Running")
+            else:
+                logger.info("OCSP instance is down.")
+                yield Result(self, constants.ERROR,
+                             instance_name=ocsp.instance.name,
+                             subsystem_name=ocsp.name,
+                             status="Stopped")
+
+        except BaseException as e:
+            logger.error("Internal server error %s", e)
+            yield Result(self, constants.CRITICAL,
+                         msg="Internal server error. Is your PKI server and LDAP up?",
+                         instance_name=ocsp.instance.name,
                          exception="%s" % e)
