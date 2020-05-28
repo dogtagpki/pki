@@ -75,8 +75,9 @@ class DogtagCACertsConnectivityCheck(CSPlugin):
         except BaseException as e:
             logger.error("Internal server error %s", e)
             yield Result(self, constants.CRITICAL,
-                         msg="Internal server error. Is your PKI server and LDAP up?",
-                         instance_name=ca.instance.name,
+                         msg="Internal server error. Is your CA subsystem and "
+                             "LDAP database up?",
+                         instance_name=self.instance.name,
                          exception="%s" % e)
 
 
@@ -151,8 +152,9 @@ class DogtagKRAConnectivityCheck(CSPlugin):
         except BaseException as e:
             logger.error("Internal server error %s", e)
             yield Result(self, constants.CRITICAL,
-                         msg="Internal server error. Is your PKI server and LDAP up?",
-                         instance_name=kra.instance.name,
+                         msg="Internal server error. Is your KRA subsystem and "
+                             "LDAP database up?",
+                         instance_name=self.instance.name,
                          exception="%s" % e)
 
 
@@ -198,8 +200,9 @@ class DogtagOCSPConnectivityCheck(CSPlugin):
         except BaseException as e:
             logger.error("Internal server error %s", e)
             yield Result(self, constants.CRITICAL,
-                         msg="Internal server error. Is your PKI server and LDAP up?",
-                         instance_name=ocsp.instance.name,
+                         msg="Internal server error. Is your OCSP subsystem and "
+                             "LDAP database up?",
+                         instance_name=self.instance.name,
                          exception="%s" % e)
 
 
@@ -245,6 +248,55 @@ class DogtagTKSConnectivityCheck(CSPlugin):
         except BaseException as e:
             logger.error("Internal server error %s", e)
             yield Result(self, constants.CRITICAL,
-                         msg="Internal server error. Is your PKI server and LDAP up?",
-                         instance_name=tks.instance.name,
+                         msg="Internal server error. Is your TKS subsystem and "
+                             "LDAP database up?",
+                         instance_name=self.instance.name,
+                         exception="%s" % e)
+
+
+@registry
+class DogtagTPSConnectivityCheck(CSPlugin):
+    """
+    Test basic TPS connectivity by trying to hit REST api endpoint. Note that this
+    test DOES NOT fetch any objects from LDAP. This only tests whether TPS is running.
+    """
+
+    @duration
+    def check(self):
+        if not self.instance.is_valid():
+            logger.debug('Invalid instance: %s', self.instance.name)
+            yield Result(self, constants.CRITICAL,
+                         msg='Invalid PKI instance: %s' % self.instance.name)
+            return
+
+        self.instance.load()
+
+        tps = self.instance.get_subsystem('tps')
+
+        if not tps:
+            logger.debug("No TPS configured, skipping dogtag TPS connectivity check")
+            return
+
+        try:
+            # Make a plain HTTP GET request to /tps/admin/tps/getStatus REST api end point
+            # and check if the TPS is running
+            if tps.is_ready():
+                logger.info("TPS instance is running.")
+                yield Result(self, constants.SUCCESS,
+                             instance_name=tps.instance.name,
+                             subsystem_name=tps.name,
+                             status="Running")
+            else:
+                logger.info("TPS instance is down.")
+                yield Result(self, constants.ERROR,
+                             instance_name=tps.instance.name,
+                             subsystem_name=tps.name,
+                             status="Stopped")
+
+        except BaseException as e:
+            logger.error("Internal server error %s", e)
+            yield Result(self, constants.CRITICAL,
+                         msg="Internal server error. Is your TPS subsystem and "
+                             "LDAP database up?",
+                         instance_name=self.instance.name,
                          exception="%s" % e)
