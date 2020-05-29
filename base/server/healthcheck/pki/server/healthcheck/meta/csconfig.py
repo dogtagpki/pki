@@ -10,7 +10,7 @@
 import logging
 from contextlib import contextmanager
 
-from pki.server.healthcheck.meta.plugin import CSPlugin, registry
+from pki.server.healthcheck.meta.plugin import MetaPlugin, registry
 from ipahealthcheck.core.plugin import Result, duration
 from ipahealthcheck.core import constants
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 @registry
-class DogtagCertsConfigCheck(CSPlugin):
+class DogtagCertsConfigCheck(MetaPlugin):
     """
     Compare the cert blob in the NSS database to that stored in CS.cfg
     """

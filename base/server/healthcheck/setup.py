@@ -17,14 +17,14 @@ setup(
         ],
         # register the plugin with ipa-healthcheck
         'ipahealthcheck.registry': [
-            'pkihealthcheck.pki = pki.server.healthcheck.meta.plugin:registry',
+            'pkihealthcheck.meta = pki.server.healthcheck.meta.plugin:registry',
         ],
         # register the plugin with pki-healthcheck
         'pkihealthcheck.registry': [
-            'pkihealthcheck.pki = pki.server.healthcheck.meta.plugin:registry',
+            'pkihealthcheck.meta = pki.server.healthcheck.meta.plugin:registry',
         ],
-        # plugin modules for pkihealthcheck.pki registry
-        'pkihealthcheck.pki': [
+        # plugin modules for pkihealthcheck.meta registry
+        'pkihealthcheck.meta': [
             'pki_certs = pki.server.healthcheck.meta.csconfig',
             'pki_connectivity = pki.server.healthcheck.meta.connectivity'
         ],
