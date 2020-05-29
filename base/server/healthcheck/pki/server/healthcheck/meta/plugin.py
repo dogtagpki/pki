@@ -15,17 +15,17 @@ import logging
 logging.getLogger().setLevel(logging.WARNING)
 
 
-class CSPlugin(Plugin):
+class MetaPlugin(Plugin):
     def __init__(self, registry):
         # pylint: disable=redefined-outer-name
-        super(CSPlugin, self).__init__(registry)
+        super(MetaPlugin, self).__init__(registry)
         # TODO: Support custom instance names
         self.instance = PKIInstance('pki-tomcat')
 
 
-class CSRegistry(Registry):
+class MetaRegistry(Registry):
     def initialize(self, framework, config):
         pass
 
 
-registry = CSRegistry()
+registry = MetaRegistry()

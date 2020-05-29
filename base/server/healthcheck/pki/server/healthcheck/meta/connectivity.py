@@ -1,6 +1,6 @@
 import logging
 
-from pki.server.healthcheck.meta.plugin import CSPlugin, registry
+from pki.server.healthcheck.meta.plugin import MetaPlugin, registry
 from ipahealthcheck.core.plugin import Result, duration
 from ipahealthcheck.core import constants
 from pki.client import PKIConnection
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 @registry
-class DogtagCACertsConnectivityCheck(CSPlugin):
+class DogtagCACertsConnectivityCheck(MetaPlugin):
     """
     Test basic CA connectivity by using cert-find to fetch a cert
     """
@@ -82,7 +82,7 @@ class DogtagCACertsConnectivityCheck(CSPlugin):
 
 
 @registry
-class DogtagKRAConnectivityCheck(CSPlugin):
+class DogtagKRAConnectivityCheck(MetaPlugin):
     """
     Test basic KRA connectivity by trying to fetch the transport cert using REST endpoint.
     """
@@ -159,7 +159,7 @@ class DogtagKRAConnectivityCheck(CSPlugin):
 
 
 @registry
-class DogtagOCSPConnectivityCheck(CSPlugin):
+class DogtagOCSPConnectivityCheck(MetaPlugin):
     """
     Test basic OCSP connectivity by trying to hit REST api endpoint. Note that this
     test DOES NOT fetch any objects from LDAP. This only tests whether OCSP is running.
@@ -207,7 +207,7 @@ class DogtagOCSPConnectivityCheck(CSPlugin):
 
 
 @registry
-class DogtagTKSConnectivityCheck(CSPlugin):
+class DogtagTKSConnectivityCheck(MetaPlugin):
     """
     Test basic TKS connectivity by trying to hit REST api endpoint. Note that this
     test DOES NOT fetch any objects from LDAP. This only tests whether TKS is running.
@@ -255,7 +255,7 @@ class DogtagTKSConnectivityCheck(CSPlugin):
 
 
 @registry
-class DogtagTPSConnectivityCheck(CSPlugin):
+class DogtagTPSConnectivityCheck(MetaPlugin):
     """
     Test basic TPS connectivity by trying to hit REST api endpoint. Note that this
     test DOES NOT fetch any objects from LDAP. This only tests whether TPS is running.
