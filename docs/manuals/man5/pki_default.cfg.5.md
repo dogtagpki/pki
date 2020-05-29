@@ -154,6 +154,21 @@ Nickname for the certificate in the token database.
 Subject DN for the certificate.
 The subject DN for the SSL Server certificate must include CN=*hostname*.
 
+All system certs can be configured to request the PSS variant of rsa signing algorithms (when applicable).
+
+**pki_use_pss_rsa_signing_algorithm**
+
+Set this to True if algs such as SHA256withRSA/PSS for each subsystem signing algorithm is desired. The default is false.
+If set only, this setting will cause all other signing algorithm values to be promoted to <alg>/PSS.
+
+Ex: (SHA256withRSA/PSS)
+
+If this setting is not set, the standard default algorithms will continue to be used, without PSS support..
+If higher than 256 support is desired, each algorithm must be set explicitly, example:
+
+pki_ca_signing_key_algorithm=SHA512withRSA/PSS
+...
+
 ### ADMIN USER PARAMETERS
 
 **pkispawn** creates a bootstrap administrative user that is a member of all the necessary groups

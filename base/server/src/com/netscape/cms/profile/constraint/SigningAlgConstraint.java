@@ -121,7 +121,7 @@ public class SigningAlgConstraint extends EnrollConstraint {
                 mCache.addElement(token);
             }
 
-            if (!mCache.contains(id.toString())) {
+            if (!mCache.contains(id.getName())) {
                 throw new ERejectException(CMS.getUserMessage(
                             getLocale(request),
                             "CMS_PROFILE_SIGNING_ALGORITHM_NOT_MATCHED", id.toString()));
