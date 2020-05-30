@@ -9,6 +9,7 @@ setup(
     packages=[
         'pki.server.healthcheck.core',
         'pki.server.healthcheck.meta',
+        'pki.server.healthcheck.certs'
     ],
     entry_points={
         # creates bin/pki-healthcheck
@@ -18,15 +19,21 @@ setup(
         # register the plugin with ipa-healthcheck
         'ipahealthcheck.registry': [
             'pkihealthcheck.meta = pki.server.healthcheck.meta.plugin:registry',
+            'pkihealthcheck.certs = pki.server.healthcheck.certs.plugin:registry',
         ],
         # register the plugin with pki-healthcheck
         'pkihealthcheck.registry': [
             'pkihealthcheck.meta = pki.server.healthcheck.meta.plugin:registry',
+            'pkihealthcheck.certs = pki.server.healthcheck.certs.plugin:registry',
         ],
         # plugin modules for pkihealthcheck.meta registry
         'pkihealthcheck.meta': [
             'pki_certs = pki.server.healthcheck.meta.csconfig',
             'pki_connectivity = pki.server.healthcheck.meta.connectivity'
+        ],
+        # plugin modules for pkihealthcheck.certs registry
+        'pkihealthcheck.certs': [
+            'trust_flags = pki.server.healthcheck.certs.trustflags',
         ],
     },
     classifiers=[
