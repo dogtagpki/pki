@@ -67,9 +67,6 @@ jobs:
                 dnf update -y &&
                 dnf install -y python3-pylint python3-flake8 python3-pyflakes findutils dnf-plugins-core
 
-        - name: Clone the repository
-          uses: actions/checkout@v2
-
         - name: Download PKI binaries from Build job
           uses: actions/download-artifact@v1
           with:
@@ -84,9 +81,11 @@ jobs:
         - name: Install newly built PKI packages
           run: find . -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install
 
-        # Run python linters
         - name: Run python lint
-          run: tools/pylint.sh
+          run: |
+                /usr/share/pki/tests/bin/pki-lint \
+                  --rcfile=/usr/share/pki/tests/pylintrc \
+                  --config=/usr/share/pki/tests/tox.ini -v
 
     # Test job
     pki-tests:
