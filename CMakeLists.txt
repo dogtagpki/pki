@@ -165,3 +165,22 @@ install(
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}
 )
+
+install(
+    FILES
+        tools/pylintrc
+        tox.ini
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/tests
+)
+
+install(
+    FILES
+        tools/pki-lint
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/tests/bin
+    PERMISSIONS
+        OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
+)

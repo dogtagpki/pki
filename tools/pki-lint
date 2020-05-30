@@ -1,0 +1,72 @@
+#! /bin/bash -e
+SCRIPT_PATH=`readlink -f "$0"`
+SCRIPT_NAME=`basename "$SCRIPT_PATH"`
+SRC_DIR=`dirname "$SCRIPT_PATH"`
+
+usage() {
+    echo "Usage: $SCRIPT_NAME [OPTIONS]"
+    echo
+    echo "Options:"
+    echo "    --rcfile=<path>        Path to RC file to be passed to pylint (default: pylintrc)."
+    echo "    --config=<path>        Path to tox.ini to be used by flake8 (default: ../tox.ini)."
+    echo " -v,--verbose              Run in verbose mode."
+    echo "    --debug                Run in debug mode."
+    echo "    --help                 Show help message."
+}
+# Check if python linters are installed
+rpm -q python3-pylint python3-flake8 python3-pyflakes
+
+# Python files are present in python3-pki and pki-server packages. Get the list of the files
+PYTHON_PKI_FILES=`rpm -ql python3-pki | grep .py$`
+PYTHON_PKI_FILES="$PYTHON_PKI_FILES `rpm -ql pki-server | grep .py$`"
+
+RC_FILE='/usr/share/pki/tests/pylintrc'
+FLAKE8_CONFIG='/usr/share/pki/tests/tox.ini'
+
+while getopts v-: arg ; do
+    case $arg in
+    v)
+        set -x
+        ;;
+    -)
+        LONG_OPTARG="${OPTARG#*=}"
+
+        case $OPTARG in
+        rcfile=?*)
+            RC_FILE="$LONG_OPTARG"
+            ;;
+        config?*)
+            FLAKE8_CONFIG="$LONG_OPTARG"
+            ;;
+        help)
+            usage
+            exit
+            ;;
+        '')
+            break # "--" terminates argument processing
+            ;;
+        rcfile* | config*)
+            echo "ERROR: Missing argument for --$OPTARG option" >&2
+            exit 1
+            ;;
+        *)
+            echo "ERROR: Illegal option --$OPTARG" >&2
+            exit 1
+            ;;
+        esac
+        ;;
+    \?)
+        exit 1 # getopts already reported the illegal option
+        ;;
+    esac
+done
+
+# Run pylint
+pylint-3 \
+    --rcfile=${RC_FILE} \
+    ${PYTHON_PKI_FILES}
+
+# Run flake8
+python3-flake8 \
+    --config ${FLAKE8_CONFIG} \
+    ${PYTHON_PKI_FILES}
