@@ -1145,6 +1145,62 @@ class NSSDatabase(object):
         logger.debug('Command: %s', ' '.join(map(str, cmd)))
         subprocess.check_call(cmd)
 
+    def get_trust(self, nickname, token=None):
+        """
+        Get trust of certificate from NSSDB
+
+        :param nickname: Nickname of the cert
+        :type nickname: str
+        :param token: Token where cert resides
+        :type token: str
+        :return: Trust flag
+        :rtype: str
+        """
+        tmpdir = tempfile.mkdtemp()
+        try:
+            token = self.get_effective_token(token)
+            password_file = self.get_password_file(tmpdir, token)
+            cmd = [
+                'certutil',
+                '-L',
+                '-d', self.directory
+            ]
+            fullname = nickname
+
+            if token:
+                cmd.extend(['-h', token])
+                fullname = token + ':' + fullname
+
+            if password_file:
+                cmd.extend(['-f', password_file])
+
+            logger.debug('Command: %s', ' '.join(map(str, cmd)))
+
+            p = subprocess.Popen(cmd,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+
+            output, error = p.communicate()
+
+            if error:
+                # certutil returned an error
+                # raise exception unless its not cert not found
+                if error.startswith(b'certutil: Could not find cert: '):
+                    return None
+
+                raise Exception('Could not find certificate: %s: %s' % (fullname, error.strip()))
+
+            if p.returncode != 0:
+                logger.warning('certutil returned non-zero exit code (bug #1539996)')
+
+            re_compile = re.compile(r'^' + fullname + r'(.*$)', re.MULTILINE)
+            cert_trust = re.search(re_compile, output.decode()).group(1)
+
+            return cert_trust.strip()
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def show_cert(self, nickname, token=None):
 
         tmpdir = tempfile.mkdtemp()
