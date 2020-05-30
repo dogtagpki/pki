@@ -1193,10 +1193,10 @@ class NSSDatabase(object):
             if p.returncode != 0:
                 logger.warning('certutil returned non-zero exit code (bug #1539996)')
 
-            re_compile = re.compile(r'^' + fullname + r'(.*$)', re.MULTILINE)
+            re_compile = re.compile(r'^' + fullname + r'\s+(\S+)$', re.MULTILINE)
             cert_trust = re.search(re_compile, output.decode()).group(1)
 
-            return cert_trust.strip()
+            return cert_trust
 
         finally:
             shutil.rmtree(tmpdir)
