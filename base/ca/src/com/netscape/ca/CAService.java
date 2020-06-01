@@ -877,9 +877,11 @@ public class CAService implements ICAService, IService {
          * if it does then reach out to the CT log servers to obtain
          * signed certificate timestamp (SCT) for inclusion in the SCT extension
          * in the cert to be issued.
+         *
          */
 
         // Get CT config from CS.cfg
+        String errMsg = "";
         SCTProcessor sct = new SCTProcessor();
         try {
             // Initialize Signed Certificate Timestamp class
@@ -894,7 +896,7 @@ public class CAService implements ICAService, IService {
                     logger.debug(method + " about to check CT poison");
                     Extension ctPoison = (Extension) exts.get("1.3.6.1.4.1.11129.2.4.3");
                     if ( ctPoison == null) {
-                        logger.debug(method + " ctPoison not found");
+                        logger.debug(method + " ctPoison not found, no CT processing needed");
                     } else {
                         logger.debug(method + " ctPoison found");
                         logger.debug(method + " About to ca.sign CT pre-cert.");
@@ -922,62 +924,68 @@ public class CAService implements ICAService, IService {
 
                         // loop through all CT log servers
                         for (LogServer ls : logServers) {
-                            logger.debug("Processing log server ID: " + ls.getId());
+                            logger.debug(method + "Processing log server ID: " + ls.getId());
 
                             String ct_host = ls.getUrl().getHost();
-                            logger.debug("Log server host: " + ct_host);
+                            logger.debug(method + "Log server host: " + ct_host);
 
                             int ct_port = ls.getUrl().getPort();
-                            logger.debug("Log server port: " + ct_port);
+                            logger.debug(method + "Log server port: " + ct_port);
 
                             // TODO: Refactor to form right rest API
                             String ct_uri = ls.getUrl() + "ct/v1/add-pre-chain";
-                            logger.debug("Log server URI: " + ct_uri);
+                            logger.debug(method + "Log server URI: " + ct_uri);
 
                             String respS = certTransSendReq(
                                     ct_host, ct_port, ct_uri, ctRequest);
-                            logger.debug("Response from log server " + respS);
+                            if (respS == null) {
+                                errMsg = method + "Response from CT log server null";
+                                logger.warn(errMsg);
+                                // skip to next CT log server
+                                //throw new EBaseException(errMsg);
+                                continue;
+                            }
+                            logger.debug(method + "Response from CT log server " + respS);
 
-                            // verify the sct:
-                            verifySCT(CTResponse.fromJSON(respS), tbsCert, ls.getPublicKey());
-
-                            ctResponses.add(respS);
+                            // verify the sct
+                            boolean verified =
+                                    verifySCT(CTResponse.fromJSON(respS), tbsCert, ls.getPublicKey());
+                            if (verified)
+                                ctResponses.add(respS);
+                            else { // not verified
+                                logger.warn(method + "verifySCT returns false; SCT failed to verify");
+                                // skip to next CT log server for now
+                                continue;
+                            }
                         }
 
                         /**
                          * Now onto turning the precert into a real cert
+                         * with the SCT extension
                          */
 
                         // create SCT extension
                         Extension sctExt = createSCTextension(ctResponses);
+                        if (sctExt == null) {
+                            errMsg = " createSCTextension returns null";
+                            logger.debug(method + errMsg);
+                            throw new EBaseException(errMsg);
+                        }
 
                         // add the SCT extension
                         exts.set(sctExt.getExtensionId().toString(), sctExt);
 
-                        //check
-                        Extension p = (Extension) exts.get("1.3.6.1.4.1.11129.2.4.2");
                         certi.delete(X509CertInfo.EXTENSIONS);
                         certi.set(X509CertInfo.EXTENSIONS, exts);
-
-                        try { //double-check if it's there
-                            exts = (CertificateExtensions)
-                                    certi.get(X509CertInfo.EXTENSIONS);
-                            logger.debug(method + " about to check sct ext");
-                            Extension check = (Extension) exts.get("1.3.6.1.4.1.11129.2.4.2");
-                            if ( check == null)
-                                logger.debug(method + " check not found");
-                            else
-                                logger.debug(method + " SCT ext found added successfully");
-                        } catch (Exception e) {
-                            logger.debug(method + " check sct failed:" + e.toString());
-                        }
                     }
                 } catch (Exception e) {
-                    logger.debug(method + " ctPoison check failure:" + e.toString());
+                    logger.debug(method + " failure:" + e.getMessage());
+                    throw new EBaseException(e.getMessage());
                 }
             }
         } catch (Exception e) {
-            logger.error("CT Error occured: " + e.getMessage(), e);
+            logger.error("CT Error occurred: " + e.getMessage(), e);
+            throw new EBaseException(e.getMessage());
         }
         logger.debug("CAService: issueX509Cert: About to ca.sign cert.");
         cert = ca.sign(certi, algname);
@@ -987,7 +995,11 @@ public class CAService implements ICAService, IService {
     /**
      * (Certificate Transparency)
      *
-     * timeStampHexStringToByteArray
+     * timeStampHexStringToByteArray converts time stamp hex string to bytes
+     *   - example timestamp: 00000172.71270909
+     * @param timeStampString hex string (example above)
+     * @return byte[] time stamp in byte array
+     * @author cfu
      */
     public static byte[] timeStampHexStringToByteArray(String timeStampString) {
         String method = "timeStampHexStringToByteArray: ";
@@ -1044,10 +1056,18 @@ public class CAService implements ICAService, IService {
        } SignedCertificateTimestamp;
 
     * @param ctResponses: list of CTResponse as input param
+    * @return SCT extension
+    * @author cfu
     */
     Extension createSCTextension(List<String> ctResponses) {
 
         String method = "CAService.createSCTextension:";
+        logger.debug(method + "begins");
+        if (ctResponses.size() == 0) {
+            logger.debug(method + "ctResponses size 0; returning null");
+            return null;
+        }
+
         boolean ct_sct_critical = false;
         ObjectIdentifier ct_sct_oid = new ObjectIdentifier("1.3.6.1.4.1.11129.2.4.2");
 
@@ -1065,8 +1085,8 @@ public class CAService implements ICAService, IService {
             int tls_len = 0;
 
             ByteArrayOutputStream sct_ostream = new ByteArrayOutputStream();
-            for (int i = 0; i < ctResponses.size(); i++)
-            { // loop through each ctResponse
+            for (int i = 0; i < ctResponses.size(); i++) {
+                // loop through each ctResponse
                 CTResponse response = CTResponse.fromJSON(ctResponses.get(i));
                 byte ct_version[] = new byte[] {0}; // sct_version
                 byte ct_id[] = CryptoUtil.base64Decode(response.getId()); // id
@@ -1127,16 +1147,16 @@ public class CAService implements ICAService, IService {
                     ct_sct_ext.getExtensionId().toString());
                 logger.debug(method + " CT extension constructed");
             } catch (IOException e) {
-                logger.debug(method + " test 3 " + e.toString());
+                logger.debug(method + e.toString());
                 return null;
             } catch (Exception e) {
-                logger.debug(method + " test4 " + e.toString());
+                logger.debug(method + e.toString());
                 return null;
             }
 
             return ct_sct_ext;
         } catch (Exception ex) {
-            logger.debug(method + " test 5" + ex.toString());
+            logger.debug(method + ex.toString());
             return null;
         }
     }
@@ -1179,8 +1199,14 @@ public class CAService implements ICAService, IService {
            opaque issuer_key_hash[32];
            TBSCertificate tbs_certificate;
          } PreCert;
+    *
+    * @param response CT log server response
+    * @param tbsCert encoded TBSCert
+    * @param logPublicKey public key of log
+    * @return boolean true for verified; false for not verified
+    * @author cfu
     */
-    void verifySCT(CTResponse response, byte[] tbsCert, String logPublicKey)
+    boolean verifySCT(CTResponse response, byte[] tbsCert, String logPublicKey)
             throws Exception {
 
         String method = "CAService:verifySCT: ";
@@ -1194,12 +1220,14 @@ public class CAService implements ICAService, IService {
         // timestamp
         byte timestamp[] = timeStampHexStringToByteArray(timestamp_s);
         byte ct_signature[] = CryptoUtil.base64Decode(response.getSignature());
+        logger.debug(method + " ct_signature len = "+ ct_signature.length);
+        // hard code for now for SHA256withEC signature size is 64
+        int sig_index = ct_signature.length - 64;
         /*
          * first 4 bytes are for algorithms
          * e.g. 04030047 (sha256, ecdsa)
          */
-        byte[] signature = Arrays.copyOfRange(ct_signature, 4, ct_signature.length);
-        logger.debug(method + " ct_signature len = "+ ct_signature.length);
+        byte[] signature = Arrays.copyOfRange(ct_signature, sig_index, ct_signature.length);
         logger.debug(method + " signature len = "+ signature.length);
 
         /* compose data */
@@ -1225,13 +1253,15 @@ public class CAService implements ICAService, IService {
                 logger.debug(method + "CT log signer key hash matches key id");
             } else {
                 errMsg = "CT log signer key hash does not matche key id!!";
-                logger.debug(method +  errMsg);
-                throw new Exception(method + errMsg);
+                logger.error(method +  errMsg);
+                return false;
             }
         } catch (NoSuchAlgorithmException ex) {
-            logger.debug(method + ex.toString());
+            logger.error(method + ex.toString());
+            return false;
         } catch (Exception e) {
-            logger.debug(method + e.toString());
+            logger.error(method + e.toString());
+            return false;
         }
 
         /** per rfc 6962 -
@@ -1250,7 +1280,8 @@ public class CAService implements ICAService, IService {
 
             issuer_key_hash = SHA256Digest.digest(issuer_key);
         } catch (NoSuchAlgorithmException ex) {
-            logger.debug(method + " getting hash of CA signing key:" + ex.toString());
+            logger.error(method + " getting hash of CA signing key:" + ex.toString());
+            return false;
         }
 
         byte[] extensions = new byte[] {0, 0};
@@ -1285,14 +1316,15 @@ public class CAService implements ICAService, IService {
         signer.update(data);
 
         if (!signer.verify(signature)) {
-            logger.debug(method + "failed to verify SCT signature; pass for now");
+            logger.error(method + "failed to verify SCT signature; pass for now");
             // this method is not yet working;  Let this pass for now
-            // throw new Exception("Invalid SCT signature");
+            // return false;
         } else {
             logger.debug(method + "SCT signature verified successfully");
         }
         logger.debug("verifySCT ends");
 
+        return true;
     }
 
     /**
@@ -1300,8 +1332,10 @@ public class CAService implements ICAService, IService {
      * Given a leaf cert, build chain and format a JSON request
      * @param leaf cert
      * @return JSON request in String
+     * @author cfu
      */
-    CTRequest createCTRequest(X509CertImpl cert) {
+    CTRequest createCTRequest(X509CertImpl cert)
+           throws EBaseException {
         String method = "CAService.createCTRequest";
 
         CTRequest ctRequest = new CTRequest();
@@ -1337,6 +1371,7 @@ public class CAService implements ICAService, IService {
             logger.debug(method + " ct_json_request:" + ctRequest.toString());
         } catch (Exception e) {
             logger.debug(method + e.toString());
+            throw new EBaseException(e.toString());
         }
         return ctRequest;
     }
@@ -1344,13 +1379,20 @@ public class CAService implements ICAService, IService {
     /**
      * (Certificate Transparency)
      * certTransSendReq connects to CT host and send ct request
+     * @param ct_host host name
+     * @param ct_port port #
+     * @param ct_uri uri of the CT log server
+     * @param ctReq CT request
+     * @return response content from CT log server
+     * @author cfu
      */
     private String certTransSendReq(String ct_host, int ct_port, String ct_uri, CTRequest ctReq) {
+        String method = "CAService.certTransSendReq: ";
         HttpClient client = new HttpClient();
         HttpRequest req = new HttpRequest();
         HttpResponse resp = null;
 
-        logger.debug("CAService.certTransSendReq begins");
+        logger.debug(method + "begins");
         try {
             client.connect(ct_host, ct_port);
             req.setMethod("POST");
@@ -1360,12 +1402,16 @@ public class CAService implements ICAService, IService {
             req.setHeader("Content-Length", Integer.toString(ctReq.toString().length()));
 
             resp = client.send(req);
+            if (resp == null)
+                return null;
             logger.debug("version " + resp.getHttpVers());
             logger.debug("status code " + resp.getStatusCode());
             logger.debug("reason " + resp.getReasonPhrase());
             logger.debug("content " + resp.getContent());
             logger.debug("CAService.certTransSendReq ends");
         } catch (Exception e) {
+            logger.debug(method + e.toString());
+            return null;
         }
 
         return (resp.getContent());
