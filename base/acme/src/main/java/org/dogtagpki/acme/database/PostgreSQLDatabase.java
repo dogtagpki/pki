@@ -83,7 +83,9 @@ public class PostgreSQLDatabase extends ACMEDatabase {
     }
 
     public void close() throws Exception {
-        connection.close();
+        if (connection != null) {
+            connection.close();
+        }
     }
 
     public ACMENonce getNonce(String value) throws Exception {
