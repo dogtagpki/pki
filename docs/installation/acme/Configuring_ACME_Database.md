@@ -4,11 +4,11 @@ Configuring ACME Database
 ## Overview
 
 This document describes the process to configure a database for ACME responder.
-The database configuration for the ACME responder is located at /etc/pki/pki-tomcat/acme/database.conf.
+The database configuration is located at /etc/pki/pki-tomcat/acme/database.conf.
 
 ## Configuring In-Memory Database
 
-To configure an in-memory database, copy the sample configuration file with the following command:
+To configure an in-memory database, copy the sample [database.conf](../../../base/acme/conf/database/in-memory/database.conf) with the following command:
 
 ```
 $ cp /usr/share/pki/acme/conf/database/in-memory/database.conf \
@@ -25,7 +25,7 @@ Currently there are no parameters to configure for in-memory database.
 
 ## Configuring LDAP Database
 
-To configure an LDAP database, import the ACME LDAP schema with the following command:
+First, add the ACME LDAP schema by importing the [schema.ldif](../../../base/acme/conf/database/ldap/schema.ldif) with the following command:
 
 ```
 $ ldapmodify -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
@@ -34,7 +34,7 @@ $ ldapmodify -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
 
 Next, prepare an LDIF file to create the ACME LDAP tree.
 An sample LDIF file is available at [/usr/share/pki/acme/conf/database/ldap/create.ldif](../../../base/acme/conf/database/ldap/create.ldif).
-This example uses dc=acme,dc=pki,dc=example,dc=com as the base DN of the LDAP tree.
+This example uses dc=acme,dc=pki,dc=example,dc=com as the base DN.
 Import the file with the following command:
 
 ```
@@ -42,7 +42,7 @@ $ ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
     -f /usr/share/pki/acme/conf/database/ldap/create.ldif
 ```
 
-Then copy the sample configuration file with the following command:
+Then copy the sample [database.conf](../../../base/acme/conf/database/ldap/database.conf) with the following command:
 
 ```
 $ cp /usr/share/pki/acme/conf/database/ldap/database.conf \

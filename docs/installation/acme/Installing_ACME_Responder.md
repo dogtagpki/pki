@@ -32,29 +32,7 @@ See [Configuring ACME Database](Configuring_ACME_Database.md).
 
 ## Configuring ACME Issuer
 
-The issuer configuration for the ACME responder is located at /etc/pki/pki-tomcat/acme/issuer.conf.
-
-To use the CA subsystem as the issuer for the ACME responder,
-copy the sample configuration with the following command:
-
-```
-$ cp /usr/share/pki/acme/conf/issuer/pki/issuer.conf \
-    /etc/pki/pki-tomcat/acme/issuer.conf
-```
-
-Alternatively, edit the file as follows:
-
-```
-class=org.dogtagpki.acme.issuer.PKIIssuer
-url=https://localhost:8443
-profile=acmeServerCert
-username=caadmin
-password=Secret.123
-```
-
-Configure the parameters as needed.
-
-See also [Configuring ACME Responder](https://www.dogtagpki.org/wiki/Configuring_ACME_Responder).
+See [Configuring ACME Issuer](Configuring_ACME_Issuer.md).
 
 ## Deploying ACME Responder
 
