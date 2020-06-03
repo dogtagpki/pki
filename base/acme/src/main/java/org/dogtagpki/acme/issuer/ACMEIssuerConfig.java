@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -52,6 +53,18 @@ public class ACMEIssuerConfig {
         return parameters.keySet();
     }
 
+    @JsonIgnore
+    public Collection<String> getParameterNames(String parent) {
+
+        String prefix = parent + ".";
+        int length = prefix.length();
+
+        return parameters.keySet().stream()
+            .filter(name -> name.startsWith(prefix))
+            .map(name -> name.substring(length))
+            .collect(Collectors.toSet());
+    }
+
     public String getParameter(String name) {
         return parameters.get(name);
     }
@@ -63,6 +76,7 @@ public class ACMEIssuerConfig {
     public String removeParameter(String name) {
         return parameters.remove(name);
     }
+
     public String toJSON() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(this);
