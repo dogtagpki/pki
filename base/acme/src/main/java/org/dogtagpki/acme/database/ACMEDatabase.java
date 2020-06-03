@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.acme.database;
 
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
 
@@ -111,4 +112,16 @@ public abstract class ACMEDatabase {
 
     public abstract void addAuthorization(ACMEAuthorization authorization) throws Exception;
     public abstract void updateAuthorization(ACMEAuthorization authorization) throws Exception;
+
+    public X509Certificate getCertificate(String certID) throws Exception {
+        throw new NotImplementedException();
+    }
+
+    public void addCertificate(String certID, X509Certificate cert) throws Exception {
+        throw new NotImplementedException();
+    }
+
+    public void removeCertificate(String certID) throws Exception {
+        throw new NotImplementedException();
+    }
 }

@@ -6,6 +6,7 @@
 package org.dogtagpki.acme.database;
 
 import java.io.FileReader;
+import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -26,6 +27,7 @@ import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWK;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * @author Endi S. Dewata
@@ -916,6 +918,65 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 ps.executeUpdate();
             }
+        }
+    }
+
+    public X509Certificate getCertificate(String certID) throws Exception {
+
+        logger.info("Getting certificate " + certID);
+
+        String sql = statements.getProperty("getCertificate");
+        logger.info("SQL: " + sql);
+
+        connect();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, certID);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (!rs.next()) {
+                    return null;
+                }
+
+                byte[] bytes = rs.getBytes("data");
+                return new X509CertImpl(bytes);
+            }
+        }
+    }
+
+    public void addCertificate(String certID, X509Certificate cert) throws Exception {
+
+        logger.info("Adding certificate " + certID);
+
+        String sql = statements.getProperty("addCertificate");
+        logger.info("SQL: " + sql);
+
+        connect();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, certID);
+            ps.setBytes(2, cert.getEncoded());
+
+            ps.executeUpdate();
+        }
+    }
+
+    public void removeCertificate(String certID) throws Exception {
+
+        logger.info("Deleting certificate " + certID);
+
+        String sql = statements.getProperty("removeCertificate");
+        logger.info("SQL: " + sql);
+
+        connect();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, certID);
+
+            ps.executeUpdate();
         }
     }
 }

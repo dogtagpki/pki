@@ -21,3 +21,7 @@ ou: authorizations
 dn: ou=challenges,dc=acme,dc=pki,dc=example,dc=com
 objectClass: organizationalUnit
 ou: challenges
+
+dn: ou=certificates,dc=acme,dc=pki,dc=example,dc=com
+objectClass: organizationalUnit
+ou: certificates

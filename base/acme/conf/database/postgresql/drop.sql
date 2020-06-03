@@ -1,3 +1,4 @@
+DROP TABLE "certificates";
 DROP TABLE "authorization_challenges";
 DROP TABLE "authorizations";
 DROP TABLE "order_authorizations";
