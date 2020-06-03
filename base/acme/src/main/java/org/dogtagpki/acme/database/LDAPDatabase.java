@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.acme.database;
 
+import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWK;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
@@ -67,6 +69,7 @@ public class LDAPDatabase extends ACMEDatabase {
     static final String RDN_ORDER = "ou=orders";
     static final String RDN_AUTHORIZATION = "ou=authorizations";
     static final String RDN_CHALLENGE = "ou=challenges";
+    static final String RDN_CERTIFICATE = "ou=certificates";
 
     static final String ATTR_OBJECTCLASS = "objectClass";
     static final String ATTR_ACCOUNT_CONTACT = "acmeAccountContact";
@@ -83,10 +86,12 @@ public class LDAPDatabase extends ACMEDatabase {
     static final String ATTR_ORDER_ID = "acmeOrderId";
     static final String ATTR_STATUS = "acmeStatus";
     static final String ATTR_TOKEN = "acmeToken";
+    static final String ATTR_USER_CERTIFICATE = "userCertificate";
     static final String ATTR_VALIDATED_AT = "acmeValidatedAt";
 
     static final String OBJ_ACCOUNT = "acmeAccount";
     static final String OBJ_AUTHORIZATION = "acmeAuthorization";
+    static final String OBJ_CERTIFICATE = "acmeCertificate";
     static final String OBJ_CHALLENGE = "acmeChallenge";
     static final String OBJ_CHALLENGE_DNS01 = "acmeChallengeDns01";
     static final String OBJ_CHALLENGE_HTTP01 = "acmeChallengeHttp01";
@@ -669,6 +674,33 @@ public class LDAPDatabase extends ACMEDatabase {
                 + "))"
         );
         return !entries.isEmpty();
+    }
+
+    public X509Certificate getCertificate(String certID) throws Exception {
+        String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + basedn;
+        LDAPEntry entry = ldapGet(dn);
+        if (entry == null) return null;
+
+        LDAPAttribute userCertificate = entry.getAttribute(ATTR_USER_CERTIFICATE);
+        byte[] bytes = userCertificate.getByteValueArray()[0];
+        return new X509CertImpl(bytes);
+    }
+
+    public void addCertificate(String certID, X509Certificate cert) throws Exception {
+        String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + basedn;
+        LDAPAttribute[] attrs = {
+                new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_CERTIFICATE),
+                new LDAPAttribute(ATTR_CERTIFICATE_ID, certID),
+                new LDAPAttribute(ATTR_USER_CERTIFICATE, cert.getEncoded())
+        };
+        LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
+        LDAPEntry entry = new LDAPEntry(dn, attrSet);
+        ldapAdd(entry);
+    }
+
+    public void removeCertificate(String certID) throws Exception {
+        String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + basedn;
+        ldapDelete(dn, OnNoSuchObject.Ignore);
     }
 
 

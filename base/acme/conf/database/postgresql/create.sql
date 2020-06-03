@@ -53,3 +53,8 @@ CREATE TABLE "authorization_challenges" (
     "status"           VARCHAR NOT NULL,
     "validated"        TIMESTAMP
 );
+
+CREATE TABLE "certificates" (
+    "id"               VARCHAR PRIMARY KEY,
+    "data"             BYTEA
+);
