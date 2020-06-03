@@ -128,7 +128,11 @@ class ACMEEngineConfigFileSource
             try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
                 // You can only watch a directory, not a file.  So we must
                 // watch the parent dir and check the event is for the file.
-                path.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+                path.getParent().register(
+                    watchService,
+                    StandardWatchEventKinds.ENTRY_MODIFY,   // ordinary writes
+                    StandardWatchEventKinds.ENTRY_CREATE    // rename to target file
+                );
 
                 // so far so good; reset the delay
                 logger.info("ACMEEngineConfigSource: watching " + filename);
@@ -138,14 +142,20 @@ class ACMEEngineConfigFileSource
                     logger.debug("ACMEEngineConfigSource: something happened");
                     WatchKey wk = watchService.take();
                     for (WatchEvent<?> event : wk.pollEvents()) {
-                        if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
-                            if (((Path) event.context()).endsWith(path.getFileName())) {
-                                logger.debug("ACMEEngineConfigSource: file modified");
-                                // sleep for a moment before reading file; this seems
-                                // to avoid a race situation observed with vi/vim.
-                                Thread.sleep(1000);
-                                loadFile();
-                            }
+
+                        if (
+                            (
+                                event.kind() == StandardWatchEventKinds.ENTRY_MODIFY
+                                || event.kind() == StandardWatchEventKinds.ENTRY_CREATE
+                            )
+                            && event.context() instanceof Path
+                            && ((Path) event.context()).endsWith(path.getFileName())
+                        ) {
+                            logger.debug("ACMEEngineConfigSource: file modified");
+                            // sleep for a moment before reading file; this seems
+                            // to avoid a race situation observed with vi/vim.
+                            Thread.sleep(1000);
+                            loadFile();
                         }
                     }
 
