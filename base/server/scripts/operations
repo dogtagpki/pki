@@ -97,7 +97,7 @@ if [ ! -d ${PKI_CA_PATH} ]   &&
     fi
 fi
 
-PKI_REGISTRY_ENTRIES="${PKI_REGISTRY}/${pki_instance_id}/${pki_instance_id}"
+PKI_REGISTRY_ENTRY="${PKI_REGISTRY}/${pki_instance_id}/${pki_instance_id}"
 PKI_SUBSYSTEMS=""
 
 usage()
@@ -169,26 +169,16 @@ elif [ $# -gt 2 ] ; then
     fi
 fi
 
-# If an "instance" was supplied, check that it is a "valid" instance
-if [ -n "${pki_instance_id}" ]; then
-    valid=0
-    for PKI_REGISTRY_ENTRY in $PKI_REGISTRY_ENTRIES; do
-        if [ -f ${PKI_REGISTRY_ENTRY} ]; then
-            valid=1
-            break
-        fi
-    done
-    if [ $valid -eq 0 ]; then
-        echo -n "${pki_instance_id} is an invalid '${PKI_TYPE}' instance"
-        echo
+if [ ! -f ${PKI_REGISTRY_ENTRY} ]; then
+    echo -n "${pki_instance_id} is an invalid '${PKI_TYPE}' instance"
+    echo
 
-        if [ "${command}" != "status" ]; then
-            # 5 program is not installed
-            exit 5
-        else
-            # 4 program or service status is unknown
-            exit 4
-        fi
+    if [ "${command}" != "status" ]; then
+        # 5 program is not installed
+        exit 5
+    else
+        # 4 program or service status is unknown
+        exit 4
     fi
 fi
 
@@ -926,35 +916,32 @@ start()
     config_errors=0
     errors=0
 
-    # Start every PKI instance of this type that isn't already running
-    for PKI_REGISTRY_ENTRY in ${PKI_REGISTRY_ENTRIES}; do
-        # Source values associated with this particular PKI instance
-        [ -f ${PKI_REGISTRY_ENTRY} ] &&
-        . ${PKI_REGISTRY_ENTRY}
+    # Source values associated with this particular PKI instance
+    [ -f ${PKI_REGISTRY_ENTRY} ] &&
+    . ${PKI_REGISTRY_ENTRY}
 
-        start_instance
-        rv=$?
+    start_instance
+    rv=$?
 
-        if [ $rv = 6 ] ; then
-            # Since at least ONE configuration error exists, then there
-            # is at least ONE unconfigured instance from the PKI point
-            # of view.
-            #
-            # However, it must still be considered that the
-            # instance is "running" from the point of view of other
-            # OS programs such as 'chkconfig'.
-            #
-            # Therefore, ignore non-zero return codes resulting
-            # from configuration errors.
-            #
+    if [ $rv = 6 ] ; then
+        # Since at least ONE configuration error exists, then there
+        # is at least ONE unconfigured instance from the PKI point
+        # of view.
+        #
+        # However, it must still be considered that the
+        # instance is "running" from the point of view of other
+        # OS programs such as 'chkconfig'.
+        #
+        # Therefore, ignore non-zero return codes resulting
+        # from configuration errors.
+        #
 
-            config_errors=`expr $config_errors + 1`
-            rv=0
-        elif [ $rv != 0 ] ; then
-            errors=`expr $errors + 1`
-            error_rv=$rv
-        fi
-    done
+        config_errors=`expr $config_errors + 1`
+        rv=0
+    elif [ $rv != 0 ] ; then
+        errors=`expr $errors + 1`
+        error_rv=$rv
+    fi
 
     return $rv
 }
@@ -965,19 +952,16 @@ registry_status()
     rv=0
     errors=0
 
-    # Obtain status of every PKI instance of this type
-    for PKI_REGISTRY_ENTRY in ${PKI_REGISTRY_ENTRIES}; do
-        # Source values associated with this particular PKI instance
-        [ -f ${PKI_REGISTRY_ENTRY} ] &&
-        . ${PKI_REGISTRY_ENTRY}
+    # Source values associated with this particular PKI instance
+    [ -f ${PKI_REGISTRY_ENTRY} ] &&
+    . ${PKI_REGISTRY_ENTRY}
 
-        display_instance_status_systemd
-        rv=$?
-        if [ $rv -ne 0 ] ; then
-            errors=`expr $errors + 1`
-            error_rv=$rv
-        fi
-    done
+    display_instance_status_systemd
+    rv=$?
+    if [ $rv -ne 0 ] ; then
+        errors=`expr $errors + 1`
+        error_rv=$rv
+    fi
 
     return $rv
 }
