@@ -301,8 +301,6 @@ PKIHELPER_SSLGET_OUTPUT_1 = '''
 PKIHELPER_SYSTEMD_COMMAND_1 = "executing '%s'"
 PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2 = \
     "instance '%s' contains '%d' Tomcat PKI subsystems"
-PKIHELPER_TOMCAT_INSTANCES_2 = \
-    "PKI Tomcat registry '%s' contains '%d' Tomcat PKI instances"
 PKIHELPER_TOUCH_1 = "touch %s"
 PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE = "Failed to update TPS connector on TKS"
 PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE_2 = \

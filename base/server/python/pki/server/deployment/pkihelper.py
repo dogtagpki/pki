@@ -819,34 +819,6 @@ class Instance:
             raise
         return rv
 
-    def tomcat_instances(self):
-        rv = 0
-        try:
-            # Since ALL directories under the top-level PKI 'tomcat' registry
-            # directory SHOULD represent PKI Tomcat instances, and there
-            # shouldn't be any stray files or symbolic links at this level,
-            # simply count the number of PKI 'tomcat' instances (directories)
-            # present within the PKI 'tomcat' registry directory
-            for instance in os.listdir(
-                    self.mdict['pki_instance_type_registry_path']):
-                if os.path.isdir(
-                    os.path.join(
-                        self.mdict['pki_instance_type_registry_path'],
-                        instance)) and not\
-                   os.path.islink(
-                       os.path.join(
-                           self.mdict['pki_instance_type_registry_path'],
-                           instance)):
-                    rv += 1
-            logger.debug(
-                log.PKIHELPER_TOMCAT_INSTANCES_2,
-                self.mdict['pki_instance_type_registry_path'],
-                rv)
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            raise
-        return rv
-
     def verify_subsystem_exists(self):
         try:
             if not os.path.exists(self.mdict['pki_subsystem_path']):
