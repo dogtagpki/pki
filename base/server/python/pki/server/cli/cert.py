@@ -87,6 +87,10 @@ class CertCLI(pki.cli.CLI):
         if not_after:
             print('  Not Valid After: %s' % CertCLI.convert_millis_to_date(not_after))
 
+        trust_flags = cert.get('trust_flags')
+        if trust_flags:
+            print('  NSSDB Trust flag: %s' % trust_flags)
+
         if show_all:
             print('  Certificate: %s' % cert['data'])
             print('  Request: %s' % cert['request'])
