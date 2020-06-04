@@ -99,7 +99,6 @@ fi
 
 PKI_REGISTRY_ENTRIES="${PKI_REGISTRY}/${pki_instance_id}/${pki_instance_id}"
 PKI_SUBSYSTEMS=""
-TOTAL_PKI_REGISTRY_ENTRIES=1
 
 usage()
 {
@@ -927,24 +926,11 @@ start()
     config_errors=0
     errors=0
 
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -eq 0 ]; then
-        echo
-        echo "ERROR:  No '${PKI_TYPE}' instances installed!"
-        # 5 program is not installed
-        return 5
-    fi
-
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ]; then
-        echo "BEGIN STARTING '${PKI_TYPE}' INSTANCES:"
-    fi
-
     # Start every PKI instance of this type that isn't already running
     for PKI_REGISTRY_ENTRY in ${PKI_REGISTRY_ENTRIES}; do
         # Source values associated with this particular PKI instance
         [ -f ${PKI_REGISTRY_ENTRY} ] &&
         . ${PKI_REGISTRY_ENTRY}
-
-        [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] && echo
 
         start_instance
         rv=$?
@@ -969,30 +955,6 @@ start()
             error_rv=$rv
         fi
     done
-    # ONLY print a "WARNING" message if multiple
-    # instances are being examined
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
-        # NOTE:  "bad" return code(s) OVERRIDE configuration errors!
-        if [ ${errors} -eq 1 ]; then
-            # Since only ONE error exists, return that "bad" error code.
-            rv=${error_rv}
-        elif [ ${errors} -gt 1 ]; then
-            # Since MORE than ONE error exists, return an OVERALL status
-            # of "1 generic or unspecified error (current practice)"
-            rv=1
-        fi
-
-        if [ ${errors} -ge 1 ]; then
-            echo
-            echo -n "WARNING:  "
-            echo -n "${errors} of ${TOTAL_PKI_REGISTRY_ENTRIES} "
-            echo -n "'${PKI_TYPE}' instances failed to start!"
-            echo
-        fi
-
-        echo
-        echo "FINISHED STARTING '${PKI_TYPE}' INSTANCE(S)."
-    fi
 
     return $rv
 }
@@ -1003,24 +965,11 @@ registry_status()
     rv=0
     errors=0
 
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -eq 0 ]; then
-        echo
-        echo "ERROR:  No '${PKI_TYPE}' instances installed!"
-        # 4 program or service status is unknown
-        return 4
-    fi
-
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
-        echo "REPORT STATUS OF '${PKI_TYPE}' INSTANCE(S):"
-    fi
-
     # Obtain status of every PKI instance of this type
     for PKI_REGISTRY_ENTRY in ${PKI_REGISTRY_ENTRIES}; do
         # Source values associated with this particular PKI instance
         [ -f ${PKI_REGISTRY_ENTRY} ] &&
         . ${PKI_REGISTRY_ENTRY}
-
-        [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] && echo
 
         display_instance_status_systemd
         rv=$?
@@ -1029,30 +978,6 @@ registry_status()
             error_rv=$rv
         fi
     done
-
-    # ONLY print a "WARNING" message if multiple
-    # instances are being examined
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
-        if [ ${errors} -eq 1 ]; then
-            # Since only ONE error exists, return that "bad" error code.
-            rv=${error_rv}
-        elif [ ${errors} -gt 1 ]; then
-            # Since MORE than ONE error exists, return an OVERALL status
-            # of "4 - program or service status is unknown"
-            rv=4
-        fi
-
-        if [ ${errors} -ge 1 ]; then
-            echo
-            echo -n "WARNING:  "
-            echo -n "${errors} of ${TOTAL_PKI_REGISTRY_ENTRIES} "
-            echo -n "'${PKI_TYPE}' instances reported status failures!"
-            echo
-        fi
-
-        echo
-        echo "FINISHED REPORTING STATUS OF '${PKI_TYPE}' INSTANCE(S)."
-    fi
 
     return $rv
 }
