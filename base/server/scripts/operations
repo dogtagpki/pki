@@ -97,39 +97,16 @@ if [ ! -d ${PKI_CA_PATH} ]   &&
     fi
 fi
 
-PKI_REGISTRY_ENTRIES=""
+PKI_REGISTRY_ENTRIES="${PKI_REGISTRY}/${pki_instance_id}/${pki_instance_id}"
 PKI_SUBSYSTEMS=""
-TOTAL_PKI_REGISTRY_ENTRIES=0
-
-# Gather ALL registered instances of this PKI web server type
-for INSTANCE in ${PKI_REGISTRY}/*; do
-    if [ -d "$INSTANCE" ] ; then
-        for REGISTRY in ${INSTANCE}/*; do
-            if [ -f "$REGISTRY" ] ; then
-                PKI_REGISTRY_ENTRIES="${PKI_REGISTRY_ENTRIES} $REGISTRY"
-                TOTAL_PKI_REGISTRY_ENTRIES=`expr ${TOTAL_PKI_REGISTRY_ENTRIES} + 1`
-            fi
-        done
-    fi
-done
-
-# Execute the specified registered instance of this PKI web server type
-if [ -n "${pki_instance_id}" ]; then
-    for INSTANCE in ${PKI_REGISTRY_ENTRIES}; do
-        if [ "`basename ${INSTANCE}`" == "${pki_instance_id}" ]; then
-            PKI_REGISTRY_ENTRIES="${INSTANCE}"
-            TOTAL_PKI_REGISTRY_ENTRIES=1
-            break
-        fi
-    done
-fi
+TOTAL_PKI_REGISTRY_ENTRIES=1
 
 usage()
 {
     echo -n "Usage: /usr/bin/pkidaemon "
-    echo -n "{start"
-    echo -n "|status} "
-    echo -n "[instance-name]"
+    echo -n "<start"
+    echo -n "|status> "
+    echo -n "<instance-name>"
     echo
     echo
 }
@@ -162,7 +139,7 @@ get_subsystems()
 }
 
 # Check arguments
-if [ $# -lt 1 ] ; then
+if [ $# -lt 2 ] ; then
     #     [insufficient arguments]
     echo "$PROG_NAME:  Insufficient arguments!"
     echo
@@ -197,8 +174,7 @@ fi
 if [ -n "${pki_instance_id}" ]; then
     valid=0
     for PKI_REGISTRY_ENTRY in $PKI_REGISTRY_ENTRIES; do
-        instance_name=`basename $PKI_REGISTRY_ENTRY`
-        if [ "${pki_instance_id}" == "${instance_name}" ]; then
+        if [ -f ${PKI_REGISTRY_ENTRY} ]; then
             valid=1
             break
         fi
