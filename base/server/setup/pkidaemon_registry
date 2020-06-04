@@ -1,8 +1,5 @@
 # Establish PKI Variable "Slot" Substitutions
 
-PKI_WEB_SERVER_TYPE=[PKI_WEB_SERVER_TYPE]
-export PKI_WEB_SERVER_TYPE
-
 PKI_USER=[PKI_USER]
 export PKI_USER
 

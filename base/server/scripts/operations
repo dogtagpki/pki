@@ -151,23 +151,15 @@ get_subsystems()
 {
     # Re-initialize PKI_SUBSYSTEMS for each instance
     PKI_SUBSYSTEMS=""
-    case ${PKI_WEB_SERVER_TYPE} in
-        tomcat)
-            for SUBSYSTEM in ca kra ocsp tks tps; do
-                if [ -d ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM} ]; then
-                    if [ '${PKI_SUBSYSTEMS}' == "" ] ; then
-                        PKI_SUBSYSTEMS="${SUBSYSTEM}"
-                    else
-                        PKI_SUBSYSTEMS="${PKI_SUBSYSTEMS} ${SUBSYSTEM}"
-                    fi
-                fi
-            done
-            ;;
-        *)
-            echo "Unknown web server type ($PKI_WEB_SERVER_TYPE)"
-            exit ${default_error}
-            ;;
-    esac
+    for SUBSYSTEM in ca kra ocsp tks tps; do
+        if [ -d ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM} ]; then
+            if [ '${PKI_SUBSYSTEMS}' == "" ] ; then
+                PKI_SUBSYSTEMS="${SUBSYSTEM}"
+            else
+                PKI_SUBSYSTEMS="${PKI_SUBSYSTEMS} ${SUBSYSTEM}"
+            fi
+        fi
+    done
 }
 
 # Check arguments
@@ -229,20 +221,12 @@ fi
 check_pki_configuration_status()
 {
     rv=0
-    case ${PKI_WEB_SERVER_TYPE} in
-        tomcat)
-            for SUBSYSTEM in ca kra ocsp tks tps; do
-                if [ -d ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM} ]; then
-                    rv=`grep -c ^preop ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM}/CS.cfg`
-                    rv=`expr ${rv} + 0`
-                fi
-            done
-            ;;
-        *)
-            echo "Unknown web server type ($PKI_WEB_SERVER_TYPE)"
-            exit ${default_error}
-            ;;
-    esac
+    for SUBSYSTEM in ca kra ocsp tks tps; do
+        if [ -d ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM} ]; then
+            rv=`grep -c ^preop ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM}/CS.cfg`
+            rv=`expr ${rv} + 0`
+        fi
+    done
     if [ $rv -ne 0 ] ; then
         echo "    '${PKI_INSTANCE_NAME}' must still be CONFIGURED!"
         echo "    (see /var/log/${PKI_INSTANCE_NAME}-install.log)"
@@ -272,17 +256,9 @@ check_pki_configuration_status()
 
 get_pki_status_definitions()
 {
-    case $PKI_WEB_SERVER_TYPE in
-        tomcat)
-            PKI_SERVER_XML_CONF=${PKI_INSTANCE_PATH}/conf/server.xml
-            get_pki_status_definitions_tomcat
-            return $?
-            ;;
-        *)
-            echo "Unknown web server type ($PKI_WEB_SERVER_TYPE)"
-            exit ${default_error}
-            ;;
-    esac
+    PKI_SERVER_XML_CONF=${PKI_INSTANCE_PATH}/conf/server.xml
+    get_pki_status_definitions_tomcat
+    return $?
 }
 
 get_pki_status_definitions_tomcat()
@@ -1081,12 +1057,8 @@ registry_status()
 
         [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] && echo
 
-        case $PKI_WEB_SERVER_TYPE in
-            tomcat)
-                display_instance_status_systemd
-                rv=$?
-                ;;
-        esac
+        display_instance_status_systemd
+        rv=$?
         if [ $rv -ne 0 ] ; then
             errors=`expr $errors + 1`
             error_rv=$rv

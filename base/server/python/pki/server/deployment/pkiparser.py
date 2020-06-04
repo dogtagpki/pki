@@ -827,8 +827,6 @@ class PKIConfigParser:
                 "<!-- Shared Ports:  Unsecure Port Connector -->"
             self.mdict['PKI_USER_SLOT'] = \
                 self.mdict['pki_user']
-            self.mdict['PKI_WEB_SERVER_TYPE_SLOT'] = \
-                "tomcat"
             self.mdict['PKI_WEBAPPS_NAME_SLOT'] = \
                 "webapps"
 

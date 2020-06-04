@@ -245,7 +245,6 @@ class PKIInstance(pki.server.PKIServer):
             PKIInstance.REGISTRY_FILE,
             self.registry_file,
             params={
-                'PKI_WEB_SERVER_TYPE': 'tomcat',
                 'PKI_USER': self.user,
                 'PKI_GROUP': self.group,
                 'PKI_INSTANCE_NAME': self.name,
