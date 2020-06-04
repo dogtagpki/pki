@@ -31,7 +31,6 @@ export SERVICE_NAME="pki-tpsd"
 export SERVICE_PROG="/sbin/service"
 export PKI_PATH="/usr/share/pki/tps"
 export PKI_REGISTRY="/etc/sysconfig/pki/tps"
-export PKI_TYPE="pki-tps"
 export PKI_TOTAL_PORTS=3
 
 # Avoid using 'systemctl' for now

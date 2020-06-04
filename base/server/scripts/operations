@@ -76,26 +76,6 @@ if [ $? -ne 0 ] ; then
     exit ${default_error}
 fi
 
-# Check to insure that this script's associated PKI
-# subsystem currently resides on this system.
-PKI_CA_PATH="/usr/share/pki/ca"
-PKI_KRA_PATH="/usr/share/pki/kra"
-PKI_OCSP_PATH="/usr/share/pki/ocsp"
-PKI_TKS_PATH="/usr/share/pki/tks"
-PKI_TPS_PATH="/usr/share/pki/tps"
-if [ ! -d ${PKI_CA_PATH} ]   &&
-   [ ! -d ${PKI_KRA_PATH} ]  &&
-   [ ! -d ${PKI_OCSP_PATH} ] &&
-   [ ! -d ${PKI_TKS_PATH} ]  &&
-   [ ! -d ${PKI_TPS_PATH} ] ; then
-    echo "This machine is missing all PKI '${PKI_TYPE}' subsystems!"
-    if [ "${command}" != "status" ]; then
-        # 5 program is not installed
-        exit 5
-    else
-        exit ${default_error}
-    fi
-fi
 
 PKI_REGISTRY_ENTRY="${PKI_REGISTRY}/${pki_instance_id}/${pki_instance_id}"
 PKI_SUBSYSTEMS=""
@@ -170,7 +150,7 @@ elif [ $# -gt 2 ] ; then
 fi
 
 if [ ! -f ${PKI_REGISTRY_ENTRY} ]; then
-    echo -n "${pki_instance_id} is an invalid '${PKI_TYPE}' instance"
+    echo -n "${pki_instance_id} is an invalid instance"
     echo
 
     if [ "${command}" != "status" ]; then
