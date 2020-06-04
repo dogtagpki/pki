@@ -353,8 +353,8 @@ BuildArch:        noarch
 
 Requires:         nss >= 3.36.1
 
-Requires:         python3-pki = %{version}
-Requires(post):   python3-pki = %{version}
+Requires:         python3-pki = %{version}-%{release}
+Requires(post):   python3-pki = %{version}-%{release}
 
 # Ensure we end up with a useful installation
 Conflicts:        pki-symkey < %{version}
@@ -379,7 +379,7 @@ Provides:         pki-base-python3 = %{version}
 %{?python_provide:%python_provide python3-pki}
 %endif
 
-Requires:         pki-base = %{version}
+Requires:         pki-base = %{version}-%{release}
 Requires:         python3 >= 3.5
 Requires:         python3-cryptography
 Requires:         python3-lxml
@@ -411,7 +411,7 @@ Requires:         slf4j-jdk14
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.7.0
 Requires:         ldapjdk >= 4.21.0
-Requires:         pki-base = %{version}
+Requires:         pki-base = %{version}-%{release}
 
 %if 0%{?rhel}
 Requires:         resteasy >= 3.0.26
@@ -440,7 +440,7 @@ Summary:          PKI Tools Package
 
 Requires:         openldap-clients
 Requires:         nss-tools >= 3.36.1
-Requires:         pki-base-java = %{version}
+Requires:         pki-base-java = %{version}-%{release}
 Requires:         p11-kit-trust
 
 # PKICertImport depends on certutil and openssl
@@ -469,8 +469,8 @@ Requires:         policycoreutils
 Requires:         procps-ng
 Requires:         openldap-clients
 Requires:         openssl
-Requires:         pki-symkey = %{version}
-Requires:         pki-tools = %{version}
+Requires:         pki-symkey = %{version}-%{release}
+Requires:         pki-tools = %{version}-%{release}
 
 Requires:         keyutils
 
@@ -538,7 +538,7 @@ following PKI subsystems:
 Summary:          PKI CA Package
 BuildArch:        noarch
 
-Requires:         pki-server = %{version}
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -563,7 +563,7 @@ where it obtains its own signing certificate from a public CA.
 Summary:          PKI KRA Package
 BuildArch:        noarch
 
-Requires:         pki-server = %{version}
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
