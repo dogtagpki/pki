@@ -100,7 +100,6 @@ fi
 PKI_REGISTRY_ENTRIES=""
 PKI_SUBSYSTEMS=""
 TOTAL_PKI_REGISTRY_ENTRIES=0
-TOTAL_UNCONFIGURED_PKI_ENTRIES=0
 
 # Gather ALL registered instances of this PKI web server type
 for INSTANCE in ${PKI_REGISTRY}/*; do
@@ -237,7 +236,6 @@ check_pki_configuration_status()
             # 4 program or service status is unknown
             rv=4
         fi
-        TOTAL_UNCONFIGURED_PKI_ENTRIES=`expr ${TOTAL_UNCONFIGURED_PKI_ENTRIES} + 1`
     elif [ -f ${RESTART_SERVER} ] ; then
         echo -n "    Although '${PKI_INSTANCE_NAME}' has been CONFIGURED, "
         echo -n "it must still be RESTARTED!"
@@ -1016,15 +1014,6 @@ start()
             echo
         fi
 
-        if [ ${TOTAL_UNCONFIGURED_PKI_ENTRIES} -ge 1 ]; then
-            echo
-            echo -n "WARNING:  "
-            echo -n "${TOTAL_UNCONFIGURED_PKI_ENTRIES} "
-            echo -n "of ${TOTAL_PKI_REGISTRY_ENTRIES} "
-            echo -n "'${PKI_TYPE}' instances MUST be configured!"
-            echo
-        fi
-
         echo
         echo "FINISHED STARTING '${PKI_TYPE}' INSTANCE(S)."
     fi
@@ -1082,15 +1071,6 @@ registry_status()
             echo -n "WARNING:  "
             echo -n "${errors} of ${TOTAL_PKI_REGISTRY_ENTRIES} "
             echo -n "'${PKI_TYPE}' instances reported status failures!"
-            echo
-        fi
-
-        if [ ${TOTAL_UNCONFIGURED_PKI_ENTRIES} -ge 1 ]; then
-            echo
-            echo -n "WARNING:  "
-            echo -n "${TOTAL_UNCONFIGURED_PKI_ENTRIES} "
-            echo -n "of ${TOTAL_PKI_REGISTRY_ENTRIES} "
-            echo -n "'${PKI_TYPE}' instances MUST be configured!"
             echo
         fi
 
