@@ -29,7 +29,7 @@ class DogtagCACertsConnectivityCheck(MetaPlugin):
         ca = self.instance.get_subsystem('ca')
 
         if not ca:
-            logger.debug("No CA configured, skipping dogtag CA connectivity check")
+            logger.info("No CA configured, skipping dogtag CA connectivity check")
             return
 
         try:
@@ -100,7 +100,7 @@ class DogtagKRAConnectivityCheck(MetaPlugin):
         kra = self.instance.get_subsystem('kra')
 
         if not kra:
-            logger.debug("No KRA configured, skipping dogtag KRA connectivity check")
+            logger.info("No KRA configured, skipping dogtag KRA connectivity check")
             return
 
         try:
@@ -178,7 +178,7 @@ class DogtagOCSPConnectivityCheck(MetaPlugin):
         ocsp = self.instance.get_subsystem('ocsp')
 
         if not ocsp:
-            logger.debug("No OCSP configured, skipping dogtag OCSP connectivity check")
+            logger.info("No OCSP configured, skipping dogtag OCSP connectivity check")
             return
 
         try:
@@ -226,7 +226,7 @@ class DogtagTKSConnectivityCheck(MetaPlugin):
         tks = self.instance.get_subsystem('tks')
 
         if not tks:
-            logger.debug("No TKS configured, skipping dogtag TKS connectivity check")
+            logger.info("No TKS configured, skipping dogtag TKS connectivity check")
             return
 
         try:
@@ -274,7 +274,7 @@ class DogtagTPSConnectivityCheck(MetaPlugin):
         tps = self.instance.get_subsystem('tps')
 
         if not tps:
-            logger.debug("No TPS configured, skipping dogtag TPS connectivity check")
+            logger.info("No TPS configured, skipping dogtag TPS connectivity check")
             return
 
         try:

@@ -43,7 +43,7 @@ class CASystemCertTrustFlagCheck(CertsPlugin):
         ca = self.instance.get_subsystem('ca')
 
         if not ca:
-            logger.debug("No CA configured, skipping CA System Cert Trust Flag check")
+            logger.info("No CA configured, skipping CA System Cert Trust Flag check")
             return
 
         certs = ca.find_system_certs()
@@ -108,7 +108,7 @@ class KRASystemCertTrustFlagCheck(CertsPlugin):
         kra = self.instance.get_subsystem('kra')
 
         if not kra:
-            logger.debug("No KRA configured, skipping KRA System Cert Trust Flag check")
+            logger.info("No KRA configured, skipping KRA System Cert Trust Flag check")
             return
 
         certs = kra.find_system_certs()
@@ -172,7 +172,7 @@ class OCSPSystemCertTrustFlagCheck(CertsPlugin):
         ocsp = self.instance.get_subsystem('ocsp')
 
         if not ocsp:
-            logger.debug("No OCSP configured, skipping OCSP System Cert Trust Flag check")
+            logger.info("No OCSP configured, skipping OCSP System Cert Trust Flag check")
             return
 
         certs = ocsp.find_system_certs()
@@ -235,7 +235,7 @@ class TKSSystemCertTrustFlagCheck(CertsPlugin):
         tks = self.instance.get_subsystem('tks')
 
         if not tks:
-            logger.debug("No TKS configured, skipping TKS System Cert Trust Flag check")
+            logger.info("No TKS configured, skipping TKS System Cert Trust Flag check")
             return
 
         certs = tks.find_system_certs()
@@ -298,7 +298,7 @@ class TPSSystemCertTrustFlagCheck(CertsPlugin):
         tps = self.instance.get_subsystem('tps')
 
         if not tps:
-            logger.debug("No TPS configured, skipping TPS System Cert Trust Flag check")
+            logger.info("No TPS configured, skipping TPS System Cert Trust Flag check")
             return
 
         certs = tps.find_system_certs()
