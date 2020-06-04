@@ -1342,6 +1342,7 @@ class NSSDatabase(object):
 
         cert['not_before'] = self.convert_time_to_millis(cert_obj.not_valid_before)
         cert['not_after'] = self.convert_time_to_millis(cert_obj.not_valid_after)
+        cert['trust_flags'] = self.get_trust(nickname=nickname, token=token)
 
         return cert
 

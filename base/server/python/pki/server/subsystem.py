@@ -155,6 +155,8 @@ class PKISubsystem(object):
     def get_subsystem_cert(self, cert_id):
 
         cert = self.get_cert_info(cert_id)
+
+        # If nickname is empty, then cert cannot be queried for in NSSDB
         if not cert['nickname']:
             return cert
 
