@@ -26,6 +26,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,22 +41,34 @@ public class NSSDatabase {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NSSDatabase.class);
 
-    File directory;
+    Path path;
+
+    public NSSDatabase(Path path) {
+        this.path = path;
+    }
 
     public NSSDatabase(File directory) {
-        this.directory = directory;
+        this(directory.toPath());
+    }
+
+    public Path getPath() {
+        return path;
+    }
+
+    public void setPath(Path path) {
+        this.path = path;
     }
 
     public File getDirectory() {
-        return directory;
+        return path.toFile();
     }
 
     public void setDirectory(File directory) {
-        this.directory = directory;
+        path = directory.toPath();
     }
 
     public boolean exists() {
-        return directory.exists();
+        return Files.exists(path);
     }
 
     public void create() throws Exception {
@@ -67,29 +81,29 @@ public class NSSDatabase {
 
     public void create(String password, boolean enableTrustPolicy) throws Exception {
 
-        logger.info("Creating NSS database in " + directory);
+        logger.info("Creating NSS database in " + path);
 
-        directory.mkdirs();
+        Files.createDirectories(path);
 
-        File passwordFile = new File(directory, "password.txt");
+        Path passwordPath = path.resolve("password.txt");
 
         try {
             List<String> command = new ArrayList<>();
             command.add("certutil");
             command.add("-N");
             command.add("-d");
-            command.add(directory.getAbsolutePath());
+            command.add(path.toAbsolutePath().toString());
 
             if (password == null) {
                 command.add("--empty-password");
 
             } else {
-                try (PrintWriter out = new PrintWriter(new FileWriter(passwordFile))) {
+                try (PrintWriter out = new PrintWriter(new FileWriter(passwordPath.toFile()))) {
                     out.println(password);
                 }
 
                 command.add("-f");
-                command.add(passwordFile.getAbsolutePath());
+                command.add(passwordPath.toAbsolutePath().toString());
             }
 
             debug(command);
@@ -105,7 +119,7 @@ public class NSSDatabase {
             }
 
         } finally {
-            if (passwordFile.exists()) passwordFile.delete();
+            if (Files.exists(passwordPath)) Files.delete(passwordPath);
         }
 
         if (enableTrustPolicy && !moduleExists("p11-kit-trust")) {
@@ -120,7 +134,7 @@ public class NSSDatabase {
         List<String> command = new ArrayList<>();
         command.add("modutil");
         command.add("-dbdir");
-        command.add(directory.getAbsolutePath());
+        command.add(path.toAbsolutePath().toString());
         command.add("-rawlist");
 
         debug(command);
@@ -159,7 +173,7 @@ public class NSSDatabase {
         List<String> command = new ArrayList<>();
         command.add("modutil");
         command.add("-dbdir");
-        command.add(directory.getAbsolutePath());
+        command.add(path.toAbsolutePath().toString());
         command.add("-add");
         command.add(name);
         command.add("-libfile");
@@ -196,7 +210,7 @@ public class NSSDatabase {
     }
 
     public void delete() throws Exception {
-        FileUtils.deleteDirectory(directory);
+        FileUtils.deleteDirectory(path.toFile());
     }
 
     public void debug(Collection<String> command) {
