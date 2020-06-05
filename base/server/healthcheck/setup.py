@@ -34,6 +34,7 @@ setup(
         # plugin modules for pkihealthcheck.certs registry
         'pkihealthcheck.certs': [
             'trust_flags = pki.server.healthcheck.certs.trustflags',
+            'expiration = pki.server.healthcheck.certs.expiration',
         ],
     },
     classifiers=[
