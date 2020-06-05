@@ -313,6 +313,8 @@ class CreateCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server create [OPTIONS] [<instance ID>]')
         print()
+        print('      --user <name>             User (default: pkiuser).')
+        print('      --group <name>            Group (default: pkiuser).')
         print('      --with-maven-deps         Install Maven dependencies.')
         print('      --force                   Force creation.')
         print('  -v, --verbose                 Run in verbose mode.')
@@ -324,6 +326,7 @@ class CreateCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
+                'user=', 'group=',
                 'with-maven-deps', 'force',
                 'verbose', 'debug', 'help'])
 
@@ -333,11 +336,19 @@ class CreateCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        user = 'pkiuser'
+        group = 'pkiuser'
         with_maven_deps = False
         force = False
 
-        for o, _ in opts:
-            if o == '--with-maven-deps':
+        for o, a in opts:
+            if o == '--user':
+                user = a
+
+            elif o == '--group':
+                group = a
+
+            elif o == '--with-maven-deps':
                 with_maven_deps = True
 
             elif o == '--force':
@@ -369,7 +380,10 @@ class CreateCLI(pki.cli.CLI):
 
         logger.info('Creating instance: %s', instance_name)
 
+        instance.user = user
+        instance.group = group
         instance.with_maven_deps = with_maven_deps
+
         instance.create(force=force)
 
 
