@@ -34,6 +34,8 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
+import com.netscape.cmsutil.password.IPasswordStore;
+
 /**
  * @author Endi S. Dewata
  */
@@ -42,6 +44,7 @@ public class NSSDatabase {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NSSDatabase.class);
 
     Path path;
+    IPasswordStore passwordStore;
 
     public NSSDatabase(Path path) {
         this.path = path;
@@ -65,6 +68,14 @@ public class NSSDatabase {
 
     public void setDirectory(File directory) {
         path = directory.toPath();
+    }
+
+    public IPasswordStore getPasswordStore() {
+        return passwordStore;
+    }
+
+    public void setPasswordStore(IPasswordStore passwordStore) {
+        this.passwordStore = passwordStore;
     }
 
     public boolean exists() {
