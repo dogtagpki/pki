@@ -23,6 +23,8 @@ import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWS;
 import org.dogtagpki.acme.issuer.ACMEIssuer;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * @author Endi S. Dewata
@@ -73,7 +75,11 @@ public class ACMEFinalizeOrderService {
 
         String csr = request.getCSR();
         logger.info("CSR: " + csr);
-        engine.validateCSR(account, order, csr);
+
+        byte[] csrBytes = Utils.base64decode(csr);
+        PKCS10 pkcs10 = new PKCS10(csrBytes);
+
+        engine.validateCSR(account, order, pkcs10);
 
         ACMEIssuer issuer = engine.getIssuer();
         String certID = issuer.issueCertificate(csr);

@@ -71,8 +71,6 @@ import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.cmsutil.crypto.CryptoUtil;
-
 /**
  * @author Endi S. Dewata
  */
@@ -730,7 +728,7 @@ public class ACMEEngine implements ServletContextListener {
         database.updateOrder(order);
     }
 
-    public void validateCSR(ACMEAccount account, ACMEOrder order, String csr) throws Exception {
+    public void validateCSR(ACMEAccount account, ACMEOrder order, PKCS10 pkcs10) throws Exception {
 
         logger.info("Getting authorized identifiers");
         Set<String> authorizedDNSNames = new HashSet<>();
@@ -765,7 +763,7 @@ public class ACMEEngine implements ServletContextListener {
 
         logger.info("Parsing CSR");
         Set<String> dnsNames = new HashSet<>();
-        parseCSR(csr, dnsNames);
+        parseCSR(pkcs10, dnsNames);
 
         logger.info("Validating DNS names in CSR");
         for (String dnsName : dnsNames) {
@@ -800,11 +798,7 @@ public class ACMEEngine implements ServletContextListener {
         logger.info("CSR is valid");
     }
 
-    public void parseCSR(String csr, Set<String> dnsNames) throws Exception {
-
-        String strCSR = CryptoUtil.normalizeCertAndReq(csr);
-        byte[] binCSR = Utils.base64decode(strCSR);
-        PKCS10 pkcs10 = new PKCS10(binCSR);
+    public void parseCSR(PKCS10 pkcs10, Set<String> dnsNames) throws Exception {
 
         X500Name subjectDN = pkcs10.getSubjectName();
         logger.info("Parsing subject DN: " + subjectDN);
