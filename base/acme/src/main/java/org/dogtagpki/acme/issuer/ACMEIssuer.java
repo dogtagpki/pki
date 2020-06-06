@@ -11,6 +11,7 @@ import java.security.cert.X509Certificate;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.NotImplementedException;
 import org.dogtagpki.acme.ACMERevocation;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 
 /**
  * @author Endi S. Dewata
@@ -53,11 +54,11 @@ public class ACMEIssuer {
      * This method generates a certificate using the provided certificate signing request,
      * then returns the new certificate.
      *
-     * @param csr Certificate signing request.
+     * @param pkcs10 PKCS #10 certificate signing request.
      * @return Certificate.
      * @throws Exception
      */
-    public X509Certificate generateCertificate(String csr) throws Exception {
+    public X509Certificate generateCertificate(PKCS10 pkcs10) throws Exception {
         throw new NotImplementedException();
     }
 
@@ -65,12 +66,12 @@ public class ACMEIssuer {
      * This method generates a certificate using the provided certificate signing request,
      * then returns a unique ID for the new certificate.
      *
-     * @param csr Certificate signing request.
+     * @param pkcs10 PKCS #10 certificate signing request.
      * @return Unique ID for the new certificate.
      * @throws Exception
      */
-    public String issueCertificate(String csr) throws Exception {
-        X509Certificate cert = generateCertificate(csr);
+    public String issueCertificate(PKCS10 pkcs10) throws Exception {
+        X509Certificate cert = generateCertificate(pkcs10);
         return getCertificateID(cert);
     }
 

@@ -16,6 +16,7 @@ import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.acme.ACMERevocation;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -116,7 +117,7 @@ public class PKIIssuer extends ACMEIssuer {
         caClient = new CAClient(pkiClient);
     }
 
-    public String issueCertificate(String csr) throws Exception {
+    public String issueCertificate(PKCS10 pkcs10) throws Exception {
 
         logger.info("Issuing certificate");
 
@@ -136,7 +137,7 @@ public class PKIIssuer extends ACMEIssuer {
 
             ProfileAttribute csrAttr = input.getAttribute("cert_request");
             if (csrAttr != null) {
-                csrAttr.setValue(csr);
+                csrAttr.setValue(Utils.base64encodeSingleLine(pkcs10.toByteArray()));
             }
         }
 

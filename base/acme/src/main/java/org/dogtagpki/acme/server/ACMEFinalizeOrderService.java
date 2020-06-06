@@ -82,7 +82,7 @@ public class ACMEFinalizeOrderService {
         engine.validateCSR(account, order, pkcs10);
 
         ACMEIssuer issuer = engine.getIssuer();
-        String certID = issuer.issueCertificate(csr);
+        String certID = issuer.issueCertificate(pkcs10);
         logger.info("Certificate issued: " + certID);
 
         order.setStatus("valid");
