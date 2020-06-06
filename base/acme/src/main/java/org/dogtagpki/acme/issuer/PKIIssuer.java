@@ -210,7 +210,7 @@ public class PKIIssuer extends ACMEIssuer {
         return sw.toString();
     }
 
-    public void revokeCert(ACMERevocation revocation) throws Exception {
+    public void revokeCertificate(ACMERevocation revocation) throws Exception {
 
         String certBase64 = revocation.getCertificate();
         byte[] certBytes = Utils.base64decode(certBase64);

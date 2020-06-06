@@ -93,7 +93,7 @@ public class ACMERevokeCertificateService {
         }
 
         ACMEIssuer issuer = engine.getIssuer();
-        issuer.revokeCert(revocation);
+        issuer.revokeCertificate(revocation);
 
         logger.info("Certificate revoked");
 

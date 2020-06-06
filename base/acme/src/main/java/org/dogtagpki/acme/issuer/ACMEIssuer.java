@@ -98,7 +98,7 @@ public class ACMEIssuer {
      * an arbitrary (or targeted) certificate to be revoked.
      *
      */
-    public void revokeCert(ACMERevocation revocation) throws Exception {
+    public void revokeCertificate(ACMERevocation revocation) throws Exception {
         throw new NotImplementedException();
     }
 }
