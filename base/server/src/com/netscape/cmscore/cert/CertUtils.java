@@ -76,7 +76,9 @@ import org.xml.sax.SAXException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -1198,6 +1200,36 @@ public class CertUtils {
 
         logger.info("CertUtils: Cert info:\n" + info);
         return info;
+    }
+
+    public static void createCertRecord(
+            IRequest request,
+            CertInfoProfile profile,
+            X509CertImpl cert) throws Exception {
+
+        logger.debug("CertUtils: createCertRecord(" +
+                cert.getSerialNumber() + ", " +
+                cert.getSubjectDN() + ")");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        ICertificateRepository cr = ca.getCertificateRepository();
+
+        MetaInfo meta = new MetaInfo();
+        meta.set(ICertRecord.META_REQUEST_ID, request.getRequestId().toString());
+        meta.set(ICertRecord.META_PROFILE_ID, profile.getProfileIDMapping());
+
+        ICertRecord record = cr.createCertRecord(cert.getSerialNumber(), cert, meta);
+        cr.addCertificateRecord(record);
+    }
+
+    public static void createCertRecord(
+            IRequest request,
+            CertInfoProfile profile,
+            X509Certificate cert) throws Exception {
+
+        X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
+        createCertRecord(request, profile, certImpl);
     }
 
     public static X509CertImpl createRemoteCert(

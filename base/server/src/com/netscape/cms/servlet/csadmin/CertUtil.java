@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -29,13 +28,9 @@ import org.mozilla.jss.pkcs11.PK11Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CertUtil {
@@ -55,42 +50,12 @@ public class CertUtil {
 
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, caSigningKeyAlgo);
 
-        createCertRecord(req, profile, cert);
+        CertUtils.createCertRecord(req, profile, cert);
 
         // update request with cert
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
 
         return cert;
-    }
-
-    public static void createCertRecord(
-            IRequest request,
-            CertInfoProfile profile,
-            X509Certificate cert) throws Exception {
-
-        X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
-        createCertRecord(request, profile, certImpl);
-    }
-
-    public static void createCertRecord(
-            IRequest request,
-            CertInfoProfile profile,
-            X509CertImpl cert) throws Exception {
-
-        logger.debug("CertUtil: createCertRecord(" +
-                cert.getSerialNumber() + ", " +
-                cert.getSubjectDN() + ")");
-
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        ICertificateRepository cr = ca.getCertificateRepository();
-
-        MetaInfo meta = new MetaInfo();
-        meta.set(ICertRecord.META_REQUEST_ID, request.getRequestId().toString());
-        meta.set(ICertRecord.META_PROFILE_ID, profile.getProfileIDMapping());
-
-        ICertRecord record = cr.createCertRecord(cert.getSerialNumber(), cert, meta);
-        cr.addCertificateRecord(record);
     }
 
     /*

@@ -53,13 +53,13 @@ import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.CertInfoProfile;
-import com.netscape.cms.servlet.csadmin.CertUtil;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -523,7 +523,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             RequestId reqId = req.getRequestId();
             preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
 
-            CertUtil.createCertRecord(req, profile, certImpl);
+            CertUtils.createCertRecord(req, profile, certImpl);
 
             return cert;
         }
