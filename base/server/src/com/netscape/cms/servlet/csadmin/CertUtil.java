@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -46,13 +45,11 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs11.PK11Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.request.IRequest;
@@ -63,57 +60,12 @@ import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.xml.XMLObject;
 
 public class CertUtil {
 
     public final static Logger logger = LoggerFactory.getLogger(CertUtil.class);
 
     static final int LINE_COUNT = 76;
-
-    public static X509CertImpl createRemoteCert(String hostname,
-            int port, MultivaluedMap<String, String> content)
-            throws Exception {
-
-        logger.debug("CertUtil: content: " + content);
-
-        String serverURL = "https://" + hostname + ":" + port;
-        PKIClient client = Configurator.createClient(serverURL, null, null);
-        String c = client.post("/ca/ee/ca/profileSubmit", content);
-
-        if (c != null) {
-            ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-            XMLObject parser;
-            try {
-                parser = new XMLObject(bis);
-            } catch (SAXException e) {
-                logger.error("Response: " + c);
-                logger.error("CertUtil: Unable to parse XML response: " + e, e);
-                throw e;
-            }
-
-            String status = parser.getValue("Status");
-
-            logger.debug("CertUtil: status: " + status);
-            if (!status.equals("0")) {
-                String error = parser.getValue("Error");
-                logger.error("CertUtil: error: " + error);
-                throw new IOException(error);
-            }
-
-            String b64 = parser.getValue("b64");
-
-            logger.debug("CertUtil: cert: " + b64);
-            b64 = CryptoUtil.normalizeCertAndReq(b64);
-            byte[] b = CryptoUtil.base64Decode(b64);
-
-            return new X509CertImpl(b);
-
-        } else {
-            logger.error("CertUtil: Missing CA response");
-            throw new Exception("Missing CA response");
-        }
-    }
 
     // Dynamically apply the SubjectAlternativeName extension to a
     // remote PKI instance's request for its SSL Server Certificate.

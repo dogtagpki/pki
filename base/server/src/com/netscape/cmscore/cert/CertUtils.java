@@ -37,6 +37,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import javax.ws.rs.core.MultivaluedMap;
+
 import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
@@ -62,8 +64,10 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
+import org.xml.sax.SAXException;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -74,6 +78,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * Utility class with assorted methods to check for
@@ -957,6 +962,49 @@ public class CertUtils {
         }
 
         return tmp.toString();
+    }
+
+    public static X509CertImpl createRemoteCert(
+            PKIClient client,
+            MultivaluedMap<String, String> content)
+            throws Exception {
+
+        logger.debug("CertUtils: Calling profileSubmit");
+        logger.debug("CertUtils: content: " + content);
+
+        String c = client.post("/ca/ee/ca/profileSubmit", content);
+
+        if (c == null) {
+            logger.error("CertUtils: Missing CA response");
+            throw new Exception("Missing CA response");
+        }
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        XMLObject parser;
+        try {
+            parser = new XMLObject(bis);
+        } catch (SAXException e) {
+            logger.error("Response: " + c);
+            logger.error("CertUtils: Unable to parse XML response: " + e, e);
+            throw e;
+        }
+
+        String status = parser.getValue("Status");
+        logger.debug("CertUtils: status: " + status);
+
+        if (!status.equals("0")) {
+            String error = parser.getValue("Error");
+            logger.error("CertUtils: error: " + error);
+            throw new IOException(error);
+        }
+
+        String b64 = parser.getValue("b64");
+        logger.debug("CertUtils: cert: " + b64);
+
+        b64 = CryptoUtil.normalizeCertAndReq(b64);
+        byte[] b = CryptoUtil.base64Decode(b64);
+
+        return new X509CertImpl(b);
     }
 
     public static void verifySystemCertValidityByNickname(String nickname) throws Exception {

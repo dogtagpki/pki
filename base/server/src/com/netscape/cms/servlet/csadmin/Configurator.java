@@ -106,6 +106,7 @@ import com.netscape.cmscore.apps.SubsystemConfig;
 import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -924,7 +925,9 @@ public class Configurator {
             CertUtil.buildSANSSLserverURLExtension(cs, content);
         }
 
-        cert = CertUtil.createRemoteCert(hostname, port, content);
+        String serverURL = "https://" + hostname + ":" + port;
+        PKIClient client = Configurator.createClient(serverURL, null, null);
+        cert = CertUtils.createRemoteCert(client, content);
 
         if (cert == null) {
             throw new IOException("Unable to create remote certificate");
