@@ -733,12 +733,6 @@ public class CertUtils {
         return crl;
     }
 
-    public static String getEncodedCert(X509Certificate cert) throws Exception {
-        return Cert.HEADER + "\n" +
-                Utils.base64encodeMultiLine(cert.getEncoded()) +
-                Cert.FOOTER + "\n";
-    }
-
     public static String normalizeCertStr(String s) {
         StringBuffer val = new StringBuffer();
 

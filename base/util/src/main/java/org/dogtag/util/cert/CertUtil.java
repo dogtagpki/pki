@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtag.util.cert;
 
+import java.security.cert.X509Certificate;
 import java.util.StringTokenizer;
 
 import org.mozilla.jss.CryptoManager;
@@ -67,6 +68,12 @@ public class CertUtil {
         }
 
         return Utils.base64decode(sb.toString());
+    }
+
+    public static String toPEM(X509Certificate cert) throws Exception {
+        return Cert.HEADER + "\n" +
+                Utils.base64encodeMultiLine(cert.getEncoded()) +
+                Cert.FOOTER + "\n";
     }
 
     /*

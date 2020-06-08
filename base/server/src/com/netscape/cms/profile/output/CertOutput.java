@@ -20,6 +20,7 @@ package com.netscape.cms.profile.output;
 import java.util.Locale;
 import java.util.Map;
 
+import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.profile.EProfileException;
@@ -29,7 +30,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertPrettyPrint;
-import com.netscape.cmscore.cert.CertUtils;
 
 /**
  * This class implements the pretty print certificate output
@@ -102,7 +102,7 @@ public class CertOutput extends EnrollOutput {
             if (cert == null)
                 return null;
             try {
-                return CertUtils.getEncodedCert(cert);
+                return CertUtil.toPEM(cert);
             } catch (Exception e) {
                 throw new EProfileException(e);
             }

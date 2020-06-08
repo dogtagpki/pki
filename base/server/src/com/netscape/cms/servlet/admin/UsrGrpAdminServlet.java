@@ -31,6 +31,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authorization.IAuthzSubsystem;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
@@ -63,7 +64,6 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -518,7 +518,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 CertPrettyPrint print = new CertPrettyPrint(certs[i]);
 
                 // add base64 encoding
-                String base64 = CertUtils.getEncodedCert(certs[i]);
+                String base64 = CertUtil.toPEM(certs[i]);
 
                 // pretty print certs
                 params.put(getCertificateString(certs[i]),

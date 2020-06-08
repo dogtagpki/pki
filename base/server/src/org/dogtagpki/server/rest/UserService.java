@@ -35,6 +35,7 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtag.util.cert.CertUtil;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
@@ -71,7 +72,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertPrettyPrint;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -787,7 +787,7 @@ public class UserService extends SubsystemService implements UserResource {
                 userCertData.setPrettyPrint(print.toString(getLocale(headers)));
 
                 // add base64 encoding
-                String base64 = CertUtils.getEncodedCert(cert);
+                String base64 = CertUtil.toPEM(cert);
                 userCertData.setEncoded(base64);
 
                 return userCertData;

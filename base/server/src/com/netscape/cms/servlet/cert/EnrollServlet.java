@@ -32,6 +32,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
@@ -1551,7 +1552,7 @@ public class EnrollServlet extends CMSServlet {
             X509CertImpl certs[] =
                     cmsReq.getIRequest().getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
-            out.println(CertUtils.getEncodedCert(certs[0]));
+            out.println(CertUtil.toPEM(certs[0]));
             out.println("</PRE>");
             out.println("<P>");
             out.println("<!HTTP_OUTPUT REQUEST_CREATION_TIME=" +
@@ -1561,7 +1562,7 @@ public class EnrollServlet extends CMSServlet {
             out.println("<!HTTP_OUTPUT REQUEST_ID=" +
                     cmsReq.getIRequest().getRequestId().toString() + ">");
             out.println("<!HTTP_OUTPUT X509_CERTIFICATE=" +
-                    CertUtils.getEncodedCert(certs[0]) + ">");
+                    CertUtil.toPEM(certs[0]) + ">");
         } else if (cmsReq.getIRequest().getRequestStatus().equals(RequestStatus.PENDING)) {
             out.println("<H1>");
             out.println("PENDING");

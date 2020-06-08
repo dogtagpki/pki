@@ -36,6 +36,7 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.catalina.realm.GenericPrincipal;
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.ca.CAEngine;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
@@ -81,7 +82,6 @@ import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -520,7 +520,7 @@ public class CertService extends PKIService implements CertResource {
         Principal subjectDN = cert.getSubjectDN();
         if (subjectDN != null) certData.setSubjectDN(subjectDN.toString());
 
-        String base64 = CertUtils.getEncodedCert(cert);
+        String base64 = CertUtil.toPEM(cert);
         certData.setEncoded(base64);
 
         CertPrettyPrint print = new CertPrettyPrint(cert);
