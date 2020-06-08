@@ -26,8 +26,6 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.ws.rs.core.MultivaluedMap;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.ca.ICertificateAuthority;
@@ -48,7 +46,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
@@ -66,52 +63,6 @@ public class CertUtil {
     public final static Logger logger = LoggerFactory.getLogger(CertUtil.class);
 
     static final int LINE_COUNT = 76;
-
-    // Dynamically apply the SubjectAlternativeName extension to a
-    // remote PKI instance's request for its SSL Server Certificate.
-    //
-    // Since this information may vary from instance to
-    // instance, obtain the necessary information from the
-    // 'service.sslserver.san' value(s) in the instance's
-    // CS.cfg, process these values converting each item into
-    // its individual SubjectAlternativeName components, and
-    // build an SSL Server Certificate URL extension consisting
-    // of this information.
-    //
-    // 03/27/2013 - Should consider removing this
-    //              "buildSANSSLserverURLExtension()"
-    //              method if it becomes possible to
-    //              embed a certificate extension into
-    //              a PKCS #10 certificate request.
-    //
-    public static void buildSANSSLserverURLExtension(IConfigStore config, MultivaluedMap<String, String> content)
-           throws Exception {
-
-        logger.debug("CertUtil: buildSANSSLserverURLExtension() " +
-                  "building SAN SSL Server Certificate URL extension . . .");
-
-        if (config == null) {
-            throw new EBaseException("injectSANextensionIntoRequest: parameter config cannot be null");
-        }
-
-        String sanHostnames = config.getString("service.sslserver.san");
-        String sans[] = StringUtils.split(sanHostnames, ",");
-
-        int i = 0;
-        for (String san : sans) {
-            logger.debug("CertUtil: buildSANSSLserverURLExtension() processing " +
-                      "SAN hostname: " + san);
-            // Add the DNSName for all SANs
-            content.putSingle("req_san_pattern_" + i, san);
-            i++;
-        }
-
-        content.putSingle("req_san_entries", "" + i);
-
-        logger.debug("CertUtil: buildSANSSLserverURLExtension() " + "placed " +
-                  i + " SAN entries into SSL Server Certificate URL.");
-    }
-
 
     /*
      * create requests so renewal can work on these initial certs

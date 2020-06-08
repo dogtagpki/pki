@@ -922,7 +922,7 @@ public class Configurator {
         logger.debug("Configurator: injectSAN: " + injectSAN);
 
         if (certTag.equals("sslserver") && injectSAN) {
-            CertUtil.buildSANSSLserverURLExtension(cs, content);
+            CertUtils.buildSANSSLserverURLExtension(cs, content);
         }
 
         String serverURL = "https://" + hostname + ":" + port;
