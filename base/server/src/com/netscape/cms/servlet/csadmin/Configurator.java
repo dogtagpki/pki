@@ -1260,7 +1260,7 @@ public class Configurator {
         String profileFile = cs.getString("profile.caAdminCert.config");
         String defaultSigningAlgsAllowed = cs.getString(
                 "ca.profiles.defaultSigningAlgsAllowed", "SHA256withRSA,SHA256withEC,SHA1withDSA");
-        String keyAlgorithm = CertUtil.getAdminProfileAlgorithm(
+        String keyAlgorithm = CertUtils.getAdminProfileAlgorithm(
                 caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
 
         X509CertInfo info = CertUtil.createCertInfo(dn, issuerdn, keyAlgorithm, x509key, caType);
