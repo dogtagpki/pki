@@ -15,13 +15,12 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.csadmin;
+package org.dogtag.util.cert;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +56,7 @@ public class CertUtil {
         return result.toString();
     }
 
-    public static X509Certificate findCertificate(String fullnickname)
+    public static org.mozilla.jss.crypto.X509Certificate findCertificate(String fullnickname)
             throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
@@ -71,7 +70,7 @@ public class CertUtil {
         }
     }
 
-    public static void deleteCert(String tokenname, X509Certificate cert)
+    public static void deleteCert(String tokenname, org.mozilla.jss.crypto.X509Certificate cert)
             throws Exception {
 
         logger.debug("CertUtil: deleting cert " + cert.getNickname());
