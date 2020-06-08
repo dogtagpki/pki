@@ -1067,7 +1067,7 @@ public class Configurator {
 
         boolean installAdjustValidity = !tag.equals("signing");
 
-        return CertUtil.createLocalRequest(
+        return CertUtils.createLocalRequest(
                 queue,
                 profile,
                 info,
@@ -1278,7 +1278,7 @@ public class Configurator {
         // cfu - create request to enable renewal
         IRequestQueue queue = ca.getRequestQueue();
 
-        IRequest req = CertUtil.createLocalRequest(
+        IRequest req = CertUtils.createLocalRequest(
                 queue,
                 profile,
                 info,

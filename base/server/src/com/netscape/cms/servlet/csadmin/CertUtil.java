@@ -34,7 +34,6 @@ import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -52,7 +51,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -63,96 +61,6 @@ public class CertUtil {
     public final static Logger logger = LoggerFactory.getLogger(CertUtil.class);
 
     static final int LINE_COUNT = 76;
-
-    /*
-     * create requests so renewal can work on these initial certs
-     */
-    public static IRequest createLocalRequest(
-            IRequestQueue queue,
-            CertInfoProfile profile,
-            X509CertInfo info,
-            X509Key x509key,
-            String[] sanHostnames,
-            boolean installAdjustValidity)
-            throws Exception {
-
-        //        RequestId rid = new RequestId(serialNum);
-        // just need a request, no need to get into a queue
-        //        IRequest r = new EnrollmentRequest(rid);
-
-        logger.info("CertUtil: Creating local request");
-
-        IRequest req = queue.newRequest("enrollment");
-
-        req.setExtData("profile", "true");
-        req.setExtData("requestversion", "1.0.0");
-        req.setExtData("req_seq_num", "0");
-
-        req.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
-        req.setExtData(EnrollProfile.REQUEST_EXTENSIONS, new CertificateExtensions());
-
-        req.setExtData("requesttype", "enrollment");
-        req.setExtData("requestor_name", "");
-        req.setExtData("requestor_email", "");
-        req.setExtData("requestor_phone", "");
-        req.setExtData("profileRemoteHost", "");
-        req.setExtData("profileRemoteAddr", "");
-        req.setExtData("requestnotes", "");
-        req.setExtData("isencryptioncert", "false");
-        req.setExtData("profileapprovedby", "system");
-
-        if (sanHostnames != null) {
-
-            logger.info("CertUtil: Injecting SAN extension:");
-
-            // Dynamically inject the SubjectAlternativeName extension to a
-            // local/self-signed master CA's request for its SSL Server Certificate.
-            //
-            // Since this information may vary from instance to
-            // instance, obtain the necessary information from the
-            // 'service.sslserver.san' value(s) in the instance's
-            // CS.cfg, process these values converting each item into
-            // its individual SubjectAlternativeName components, and
-            // inject these values into the local request.
-
-            int i = 0;
-            for (String sanHostname : sanHostnames) {
-                logger.info("CertUtil: - " + sanHostname);
-                req.setExtData("req_san_pattern_" + i, sanHostname);
-                i++;
-            }
-        }
-
-        req.setExtData("req_key", x509key.toString());
-
-        String origProfileID = profile.getID();
-        int idx = origProfileID.lastIndexOf('.');
-        if (idx > 0) {
-            origProfileID = origProfileID.substring(0, idx);
-        }
-
-        // store original profile id in cert request
-        req.setExtData("origprofileid", origProfileID);
-
-        // store mapped profile ID for use in renewal
-        req.setExtData("profileid", profile.getProfileIDMapping());
-        req.setExtData("profilesetid", profile.getProfileSetIDMapping());
-
-        if (installAdjustValidity) {
-            /*
-             * (applies to non-CA-signing cert only)
-             * installAdjustValidity tells ValidityDefault to adjust the
-             * notAfter value to that of the CA's signing cert if needed
-             */
-            req.setExtData("installAdjustValidity", "true");
-        }
-
-        // mark request as complete
-        logger.debug("certUtil: calling setRequestStatus");
-        req.setRequestStatus(RequestStatus.COMPLETE);
-
-        return req;
-    }
 
     /**
      * update local cert request with the actual request
