@@ -17,10 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtag.util.cert;
 
+import java.util.StringTokenizer;
+
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.pkcs11.PK11Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +36,38 @@ public class CertUtil {
     public final static Logger logger = LoggerFactory.getLogger(CertUtil.class);
 
     static final int LINE_COUNT = 76;
+
+    public static byte[] parseCSR(String csr) {
+
+        if (csr == null) {
+            return null;
+        }
+
+        csr = csr.replaceAll(Cert.REQUEST_HEADER, "");
+        csr = csr.replaceAll("-----BEGIN NEW CERTIFICATE REQUEST-----", "");
+        csr = csr.replaceAll(Cert.REQUEST_FOOTER, "");
+        csr = csr.replaceAll("-----END NEW CERTIFICATE REQUEST-----", "");
+
+        StringBuffer sb = new StringBuffer();
+        StringTokenizer st = new StringTokenizer(csr, "\r\n ");
+
+        while (st.hasMoreTokens()) {
+            String nextLine = st.nextToken();
+
+            nextLine = nextLine.trim();
+            if (nextLine.equals(Cert.REQUEST_HEADER))
+                continue;
+            if (nextLine.equals("-----BEGIN NEW CERTIFICATE REQUEST-----"))
+                continue;
+            if (nextLine.equals(Cert.REQUEST_FOOTER))
+                continue;
+            if (nextLine.equals("-----END NEW CERTIFICATE REQUEST-----"))
+                continue;
+            sb.append(nextLine);
+        }
+
+        return Utils.base64decode(sb.toString());
+    }
 
     /*
      * formats a cert fingerprints

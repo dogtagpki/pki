@@ -37,6 +37,7 @@ import java.util.Map;
 
 import javax.crypto.Mac;
 
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authentication.IAuthManager;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.ca.ICertificateAuthority;
@@ -729,9 +730,8 @@ public abstract class EnrollProfile extends Profile {
         //logger.debug(method + " Start: " + certReqBlob);
         logger.debug(method + "starts");
 
-        String creq = CertUtils.normalizeCertReq(certReqBlob);
+        byte[] data = CertUtil.parseCSR(certReqBlob);
         try {
-            byte data[] = Utils.base64decode(creq);
             ByteArrayInputStream cmcBlobIn = new ByteArrayInputStream(data);
             PKIData pkiData = null;
 

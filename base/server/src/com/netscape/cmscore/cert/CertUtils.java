@@ -45,6 +45,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
@@ -119,38 +120,6 @@ public class CertUtils {
             "-----BEGIN CERTIFICATE REVOCATION LIST-----";
     public static final String END_CRL_HEADER =
             "-----END CERTIFICATE REVOCATION LIST-----";
-
-    public static String normalizeCertReq(String s) {
-
-        if (s == null) {
-            return s;
-        }
-
-        s = s.replaceAll(org.mozilla.jss.netscape.security.util.Cert.REQUEST_HEADER, "");
-        s = s.replaceAll("-----BEGIN NEW CERTIFICATE REQUEST-----", "");
-        s = s.replaceAll(org.mozilla.jss.netscape.security.util.Cert.REQUEST_FOOTER, "");
-        s = s.replaceAll("-----END NEW CERTIFICATE REQUEST-----", "");
-
-        StringBuffer sb = new StringBuffer();
-        StringTokenizer st = new StringTokenizer(s, "\r\n ");
-
-        while (st.hasMoreTokens()) {
-            String nextLine = st.nextToken();
-
-            nextLine = nextLine.trim();
-            if (nextLine.equals(org.mozilla.jss.netscape.security.util.Cert.REQUEST_HEADER))
-                continue;
-            if (nextLine.equals("-----BEGIN NEW CERTIFICATE REQUEST-----"))
-                continue;
-            if (nextLine.equals(org.mozilla.jss.netscape.security.util.Cert.REQUEST_FOOTER))
-                continue;
-            if (nextLine.equals("-----END NEW CERTIFICATE REQUEST-----"))
-                continue;
-            sb.append(nextLine);
-        }
-
-        return sb.toString();
-    }
 
     public static DerInputStream parseKeyGen(Locale locale, String certreq) throws Exception {
         byte[] data = Utils.base64decode(certreq);
@@ -248,8 +217,7 @@ public class CertUtils {
 
         logger.debug(certreq);
 
-        String creq = normalizeCertReq(certreq);
-        byte[] data = Utils.base64decode(creq);
+        byte[] data = CertUtil.parseCSR(certreq);
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
@@ -297,10 +265,9 @@ public class CertUtils {
             throw new EProfileException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
         }
 
-        String creq = normalizeCertReq(certreq);
+        byte[] data = CertUtil.parseCSR(certreq);
 
         try {
-            byte[] data = Utils.base64decode(creq);
             ByteArrayInputStream crmfBlobIn = new ByteArrayInputStream(data);
             SEQUENCE crmfMsgs = (SEQUENCE) new SEQUENCE.OF_Template(
                     new CertReqMsg.Template()).decode(crmfBlobIn);
