@@ -854,7 +854,7 @@ public class Configurator {
 
             PublicKey publicKey = keyPair.getPublic();
             X509Key x509key = CryptoUtil.createX509Key(publicKey);
-            X509CertInfo info = CertUtil.createCertInfo(dn, issuerDN, algorithm, x509key, certType);
+            X509CertInfo info = CertUtils.createCertInfo(dn, issuerDN, algorithm, x509key, certType);
 
             java.security.PrivateKey signingPrivateKey;
             String signingAlgorithm;
@@ -1263,7 +1263,7 @@ public class Configurator {
         String keyAlgorithm = CertUtils.getAdminProfileAlgorithm(
                 caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
 
-        X509CertInfo info = CertUtil.createCertInfo(dn, issuerdn, keyAlgorithm, x509key, caType);
+        X509CertInfo info = CertUtils.createCertInfo(dn, issuerdn, keyAlgorithm, x509key, caType);
 
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         java.security.PrivateKey signingPrivateKey = ca.getSigningUnit().getPrivateKey();

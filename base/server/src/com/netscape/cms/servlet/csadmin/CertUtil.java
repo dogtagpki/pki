@@ -17,20 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.math.BigInteger;
-import java.util.Date;
-
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs11.PK11Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,52 +43,6 @@ public class CertUtil {
     public final static Logger logger = LoggerFactory.getLogger(CertUtil.class);
 
     static final int LINE_COUNT = 76;
-
-    public static X509CertInfo createCertInfo(
-            String dn,
-            String issuerdn,
-            String keyAlgorithm,
-            X509Key x509key,
-            String type) throws Exception {
-
-        logger.info("CertUtil: Creating certificate info for " + dn);
-
-        Date date = new Date();
-
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        ICertificateRepository cr = ca.getCertificateRepository();
-        BigInteger serialNo = cr.getNextSerialNumber();
-
-        X509CertInfo info;
-
-        if (type.equals("selfsign")) {
-
-            logger.debug("CertUtil: Creating self-signed certificate");
-            CertificateIssuerName issuerdnObj = new CertificateIssuerName(new X500Name(dn));
-            info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
-
-        } else {
-
-            logger.debug("CertUtil: Creating CA-signed certificate");
-            CertificateIssuerName issuerdnObj = ca.getIssuerObj();
-
-            if (issuerdnObj != null) {
-
-                logger.debug("CertUtil: Reusing CA's CertificateIssuerName to preserve the DN encoding");
-                info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
-
-            } else {
-
-                logger.debug("CertUtil: Creating new CertificateIssuerName");
-                issuerdnObj = new CertificateIssuerName(new X500Name(issuerdn));
-                info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
-            }
-        }
-
-        logger.info("CertUtil: Cert info:\n" + info);
-        return info;
-    }
 
     public static X509CertImpl createLocalCert(
             IRequest req,
