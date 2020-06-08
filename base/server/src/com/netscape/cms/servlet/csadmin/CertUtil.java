@@ -22,15 +22,10 @@ import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.pkcs11.PK11Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CertUtil {
@@ -38,25 +33,6 @@ public class CertUtil {
     public final static Logger logger = LoggerFactory.getLogger(CertUtil.class);
 
     static final int LINE_COUNT = 76;
-
-    public static X509CertImpl createLocalCert(
-            IRequest req,
-            CertInfoProfile profile,
-            X509CertInfo info,
-            java.security.PrivateKey signingPrivateKey,
-            String caSigningKeyAlgo) throws Exception {
-
-        profile.populate(req, info);
-
-        X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, caSigningKeyAlgo);
-
-        CertUtils.createCertRecord(req, profile, cert);
-
-        // update request with cert
-        req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
-
-        return cert;
-    }
 
     /*
      * formats a cert fingerprints

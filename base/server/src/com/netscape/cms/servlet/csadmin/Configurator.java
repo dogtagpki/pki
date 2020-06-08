@@ -872,7 +872,7 @@ public class Configurator {
             RequestId reqId = req.getRequestId();
             preopConfig.putString("cert." + certTag + ".reqId", reqId.toString());
 
-            X509CertImpl cert = CertUtil.createLocalCert(
+            X509CertImpl cert = CertUtils.createLocalCert(
                     req,
                     profile,
                     info,
@@ -1297,7 +1297,7 @@ public class Configurator {
         }
         logger.debug("Configurator: CA signing key algorithm: " + caSigningKeyAlgo);
 
-        X509CertImpl impl = CertUtil.createLocalCert(
+        X509CertImpl impl = CertUtils.createLocalCert(
                 req,
                 profile,
                 info,
