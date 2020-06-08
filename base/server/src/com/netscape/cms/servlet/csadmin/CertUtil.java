@@ -44,13 +44,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -61,45 +58,6 @@ public class CertUtil {
     public final static Logger logger = LoggerFactory.getLogger(CertUtil.class);
 
     static final int LINE_COUNT = 76;
-
-    /**
-     * update local cert request with the actual request
-     * called from CertRequestPanel.java
-     * @throws EBaseException
-     * @throws EPropertyNotFound
-     */
-    public static void updateLocalRequest(
-            String reqId,
-            byte[] certReq,
-            String reqType,
-            String subjectName
-            ) throws Exception {
-
-        logger.debug("CertUtil: updateLocalRequest(" + reqId + ")");
-
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        IRequestQueue queue = ca.getRequestQueue();
-
-        IRequest req = queue.findRequest(new RequestId(reqId));
-
-        if (certReq != null) {
-            logger.debug("CertUtil: updating cert request");
-            String certReqs = CryptoUtil.base64Encode(certReq);
-            String certReqf = CryptoUtil.reqFormat(certReqs);
-            req.setExtData("cert_request", certReqf);
-        }
-
-        req.setExtData("cert_request_type", reqType);
-
-        if (subjectName != null) {
-            logger.debug("CertUtil: updating request subject: " + subjectName);
-            req.setExtData("subject", subjectName);
-            new X500Name(subjectName); // check for errors
-        }
-
-        queue.updateRequest(req);
-    }
 
     /**
      * reads from the admin cert profile caAdminCert.profile and determines the algorithm as follows:

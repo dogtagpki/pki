@@ -1103,7 +1103,7 @@ public class Configurator {
 
             } else {
                 // update requests in request queue for local certs to allow renewal
-                CertUtil.updateLocalRequest(reqId, cert.getRequest(), "pkcs10", null);
+                CertUtils.updateLocalRequest(reqId, cert.getRequest(), "pkcs10", null);
             }
         }
     }
@@ -1308,7 +1308,7 @@ public class Configurator {
         queue.updateRequest(req);
 
         // update the locally created request for renewal
-        CertUtil.updateLocalRequest(reqId.toString(), binRequest, certRequestType, subject);
+        CertUtils.updateLocalRequest(reqId.toString(), binRequest, certRequestType, subject);
 
         if (ca != null) {
             PKCS7 pkcs7 = createPKCS7(impl);
