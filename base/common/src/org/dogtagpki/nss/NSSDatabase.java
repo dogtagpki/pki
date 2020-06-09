@@ -33,6 +33,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +44,7 @@ import org.apache.commons.io.FileUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CLIException;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -338,6 +340,133 @@ public class NSSDatabase {
 
         } finally {
             if (passwordPath != null) Files.delete(passwordPath);
+        }
+    }
+
+    public PKCS10 createRequest(
+            String subject,
+            String keyID,
+            String keyType,
+            String keySize,
+            String curve,
+            String hash) throws Exception {
+
+        logger.info("Creating certificate signing request for " + subject);
+
+        if (keyID != null) {
+            logger.info("- key ID: " + keyID);
+        }
+
+        if (keyType != null) {
+            logger.info("- key type: " + keyType);
+        }
+
+        if (keySize != null) {
+            logger.info("- key size: " + keySize);
+        }
+
+        if (curve != null) {
+            logger.info("- curve: " + curve);
+        }
+
+        Path csrPath = null;
+        Path passwordPath = null;
+        Path noisePath = null;
+
+        try {
+            csrPath = Files.createTempFile("nss-request-", ".csr", FILE_PERMISSIONS);
+
+            // TODO: Use JSS to generate the request.
+
+            List<String> cmd = new ArrayList<>();
+            cmd.add("certutil");
+            cmd.add("-R");
+            cmd.add("-d");
+            cmd.add(path.toString());
+
+            if (passwordStore != null) {
+
+                // TODO: Add support for HSM.
+                String password = passwordStore.getPassword("internal", 0);
+
+                if (password != null) {
+                    passwordPath = Files.createTempFile("nss-password-", ".txt", FILE_PERMISSIONS);
+                    logger.info("Storing password into " + passwordPath);
+
+                    Files.write(passwordPath, password.getBytes());
+
+                    cmd.add("-f");
+                    cmd.add(passwordPath.toString());
+                }
+            }
+
+            cmd.add("-s");
+            cmd.add(subject);
+
+            cmd.add("-o");
+            cmd.add(csrPath.toString());
+
+            if (keyID != null) { // use existing key
+
+                cmd.add("-k");
+                cmd.add(keyID);
+
+            } else { // generate new key
+
+                if (keyType != null) {
+                    cmd.add("-k");
+                    cmd.add(keyType.toLowerCase());
+                }
+
+                if (keySize != null) {
+                    cmd.add("-g");
+                    cmd.add(keySize);
+
+                }
+
+                if (curve != null) {
+                    cmd.add("-q");
+                    cmd.add(curve);
+                }
+
+                noisePath = Files.createTempFile("nss-noise-", ".bin", FILE_PERMISSIONS);
+                logger.info("Storing noise into " + noisePath);
+
+                byte[] bytes = new byte[2048];
+                SecureRandom random = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
+                random.nextBytes(bytes);
+
+                Files.write(noisePath, bytes);
+
+                cmd.add("-z");
+                cmd.add(noisePath.toString());
+            }
+
+            if (hash != null) {
+                cmd.add("-Z");
+                cmd.add(hash);
+            }
+
+            debug(cmd);
+            Process p = new ProcessBuilder(cmd).start();
+
+            readStdout(p);
+            readStderr(p);
+
+            int rc = p.waitFor();
+
+            if (rc != 0) {
+                throw new CLIException("Command failed. RC: " + rc, rc);
+            }
+
+            logger.info("Loading CSR from " + csrPath);
+            byte[] csrBytes = Files.readAllBytes(csrPath);
+            return new PKCS10(csrBytes);
+
+        } finally {
+            if (noisePath != null) Files.delete(noisePath);
+            if (passwordPath != null) Files.delete(passwordPath);
+            if (csrPath != null) Files.delete(csrPath);
         }
     }
 
