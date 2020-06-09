@@ -101,7 +101,11 @@ public class CertOutput extends EnrollOutput {
                     EnrollProfile.REQUEST_ISSUED_CERT);
             if (cert == null)
                 return null;
-            return CertUtils.getEncodedCert(cert);
+            try {
+                return CertUtils.getEncodedCert(cert);
+            } catch (Exception e) {
+                throw new EProfileException(e);
+            }
         } else {
             return null;
         }

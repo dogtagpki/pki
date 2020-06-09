@@ -475,8 +475,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
      */
     private synchronized void findUserCerts(HttpServletRequest req,
             HttpServletResponse resp, Locale clientLocale)
-            throws ServletException,
-            IOException, EBaseException {
+            throws Exception {
 
         //get id first
         String id = super.getParameter(req, Constants.RS_ID);

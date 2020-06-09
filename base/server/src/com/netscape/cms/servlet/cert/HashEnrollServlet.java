@@ -598,7 +598,7 @@ public class HashEnrollServlet extends CMSServlet {
             try {
                 renderServerEnrollResult(cmsReq);
                 cmsReq.setStatus(ICMSRequest.SUCCESS); // no default render
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 cmsReq.setStatus(ICMSRequest.ERROR);
             }
             return;
@@ -1016,8 +1016,7 @@ public class HashEnrollServlet extends CMSServlet {
         }
     }
 
-    protected void renderServerEnrollResult(CMSRequest cmsReq) throws
-            IOException {
+    protected void renderServerEnrollResult(CMSRequest cmsReq) throws Exception {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         httpResp.setContentType("text/html");

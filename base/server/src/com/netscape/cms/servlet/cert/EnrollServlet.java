@@ -1339,7 +1339,7 @@ public class EnrollServlet extends CMSServlet {
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                     issuedCerts[i]));
                     }
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     cmsReq.setStatus(ICMSRequest.ERROR);
 
                     // (automated "agent" cert request processed - "rejected")
@@ -1515,8 +1515,7 @@ public class EnrollServlet extends CMSServlet {
         }
     }
 
-    protected void renderServerEnrollResult(CMSRequest cmsReq) throws
-            IOException {
+    protected void renderServerEnrollResult(CMSRequest cmsReq) throws Exception {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         httpResp.setContentType("text/html");
