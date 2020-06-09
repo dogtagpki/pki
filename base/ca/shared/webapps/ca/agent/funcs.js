@@ -671,19 +671,21 @@ function writeError(errorDetails)
                 "request or the values that were entered into the form." +
                 "The following message supplies more information " +
                 "about the error that occurred.<p>");
-        document.write("<blockquote><b><pre>");
         if (errorDetails != null) {
-                document.write(errorDetails);
+		var block = document.createElement('div');
+                block.setAttribute('style', 'font-weight: bold; margin-left: 50px;');
+                block.appendChild(document.createTextNode(errorDetails));
+		document.body.appendChild(block);
         } else {
                 document.write("Unable to provide details. " +
                  "Contact Administrator.");
         }
-        document.write("</pre></b></blockquote>");
         if (result.header.errorDescription != null) {
                 document.write('<p>Additional Information:<p>');
-                document.write('<blockquote><b>');
-                document.write(result.header.errorDescription);
-                document.write('</b></blockquote>');
+		var block = document.createElement('div');
+                block.setAttribute('style', 'font-weight: bold; margin-left: 50px;');
+                block.appendChild(document.createTextNode(result.header.errorDescription));
+		document.body.appendChild(block);
         }
         document.write("<p>");
         document.write("Please consult your local administrator for " +
