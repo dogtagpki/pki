@@ -713,6 +713,8 @@ class PKIConfigParser:
                 self.mdict['pki_ajp_port']
             self.mdict['PKI_AJP_HOST_SLOT'] = \
                 self.mdict['pki_ajp_host']
+            self.mdict['PKI_AJP_SECRET_SLOT'] = \
+                self.mdict['pki_ajp_secret']
             self.mdict['PKI_AJP_REDIRECT_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
             self.mdict['PKI_CA_HOSTNAME_SLOT'] = \
