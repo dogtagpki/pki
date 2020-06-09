@@ -51,7 +51,8 @@ CERT_FOOTER = "-----END CERTIFICATE-----"
 # This is based on string.punctuation except:
 #  - equal sign since it's used as delimiter in password.conf
 #  - backslash since it's causing SSL handshake failure
-PUNCTUATIONS = '!"#$%&\'()*+,-./:;<>?@[]^_`{|}~'
+#  - it should be relatively safe in an XML attribute
+PUNCTUATIONS = '!#*+,-./:;^_|~'
 
 # Map from X.509 attribute OID to short name.
 # Source: https://github.com/freeipa/freeipa/blob/master/ipapython/dn.py

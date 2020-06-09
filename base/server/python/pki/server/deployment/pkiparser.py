@@ -282,7 +282,8 @@ class PKIConfigParser:
             'nss_default_db_type': self.deployer.nss_db_type,
             'java_home': java_home,
             'home_dir': os.path.expanduser("~"),
-            'pki_hostname': self.deployer.hostname})
+            'pki_hostname': self.deployer.hostname,
+            'pki_random_ajp_secret': pki.generate_password()})
 
         # Make keys case-sensitive!
         self.deployer.main_config.optionxform = str
