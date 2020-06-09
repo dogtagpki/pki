@@ -13,5 +13,6 @@ public class NSSCertCLI extends CLI {
         super("cert", "NSS certificate management commands", nssCLI);
 
         addModule(new NSSCertImportCLI(this));
+        addModule(new NSSCertRequestCLI(this));
     }
 }
