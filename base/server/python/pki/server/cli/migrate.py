@@ -162,7 +162,10 @@ class MigrateCLI(pki.cli.CLI):
 
         document = etree.parse(filename, self.parser)
 
-        if tomcat_version >= pki.util.Version('8.5.0'):
+        if tomcat_version >= pki.util.Version('9.0.31'):
+            self.migrate_server_xml_to_tomcat9031(instance, document)
+
+        elif tomcat_version >= pki.util.Version('8.5.0'):
             self.migrate_server_xml_to_tomcat85(instance, document)
 
         elif tomcat_version >= pki.util.Version('8.0.0'):
@@ -480,6 +483,42 @@ class MigrateCLI(pki.cli.CLI):
 
             full_name = instance.get_sslserver_cert_nickname()
             certificate.set('certificateKeyAlias', full_name)
+
+    def migrate_server_xml_to_tomcat9031(self, instance, document):
+
+        self.migrate_server_xml_to_tomcat85(instance, document)
+
+        server = document.getroot()
+
+        # Migrate requiredSecret -> secret on AJP connectors
+
+        services = server.findall('Service')
+        for service in services:
+
+            children = list(service)
+            for child in children:
+                if isinstance(child, etree._Comment):  # pylint: disable=protected-access
+                    if 'protocol="AJP/1.3"' in child.text:
+                        child.text = re.sub(r'requiredSecret=',
+                                            r'secret=',
+                                            child.text,
+                                            flags=re.MULTILINE)
+
+        connectors = server.findall('Service/Connector')
+        for connector in connectors:
+            if connector.get('protocol') != 'AJP/1.3':
+                # Only modify AJP connectors.
+                continue
+            if connector.get('secret'):
+                # Nothing to migrate because the secret attribute already
+                # exists.
+                continue
+            if connector.get('requiredSecret') is None:
+                # No requiredSecret field either; nothing to do.
+                continue
+
+            connector.set('secret', connector.get('requiredSecret'))
+            connector.attrib.pop('requiredSecret', None)
 
     def migrate_subsystems(self, instance, tomcat_version):
         for subsystem in instance.get_subsystems():
