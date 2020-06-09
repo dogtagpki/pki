@@ -36,7 +36,7 @@ public class SCTProcessor {
     }
 
     public boolean isCTEnabled() throws EPropertyNotFound, EBaseException {
-        return mConfig.getBoolean("enable");
+        return mConfig.getBoolean("enable", false);
     }
 
     /**
