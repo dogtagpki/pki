@@ -9,19 +9,10 @@ import org.dogtagpki.cli.CLI;
 
 public class NSSKeyCLI extends CLI {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NSSKeyCLI.class);
-
-    public NSSCLI nssCLI;
-
-    public NSSKeyCLI(NSSCLI tksCLI) {
-        super("key", "NSS key management commands", tksCLI);
-        this.nssCLI = tksCLI;
+    public NSSKeyCLI(NSSCLI nssCLI) {
+        super("key", "NSS key management commands", nssCLI);
 
         addModule(new NSSKeyExportCLI(this));
         addModule(new NSSKeyImportCLI(this));
-    }
-
-    public String getFullName() {
-        return parent.getFullName() + "-" + name;
     }
 }
