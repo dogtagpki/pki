@@ -146,6 +146,10 @@ jobs:
         - name: Install TPS
           run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/tps-create.sh
 
+        - name: Gather instance config
+          if: always()
+          run: docker exec -i ${CONTAINER} bash -c "cp -rf /etc/pki /var/log/pki/etc-pki"
+
         - name: Remove TPS
           run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/tps-remove.sh
 
@@ -165,6 +169,7 @@ jobs:
           run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ds-remove.sh
 
         - name: Gather journalctl logs
+          if: always()
           run: docker exec -i ${CONTAINER} bash -c "journalctl -u pki-tomcatd@pkitest > /var/log/pki/pki-journalctl.log"
 
         - name: Compress logs
