@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtag.util.cert;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.security.cert.X509Certificate;
 import java.util.StringTokenizer;
 
@@ -24,6 +26,7 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.pkcs11.PK11Store;
@@ -68,6 +71,14 @@ public class CertUtil {
         }
 
         return Utils.base64decode(sb.toString());
+    }
+
+    public static String toPEM(PKCS10 pkcs10) throws Exception {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try (PrintStream out = new PrintStream(os)) {
+            pkcs10.print(out);
+        }
+        return os.toString();
     }
 
     public static String toPEM(X509Certificate cert) throws Exception {

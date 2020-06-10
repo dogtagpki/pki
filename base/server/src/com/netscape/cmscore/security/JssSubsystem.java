@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -47,6 +46,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.NicknameConflictException;
@@ -863,10 +863,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             throws EBaseException {
         try {
             org.mozilla.jss.netscape.security.pkcs.PKCS10 pkcs = KeyCertUtil.getCertRequest(subjectName, kp);
-            ByteArrayOutputStream bs = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(bs);
-            pkcs.print(ps);
-            return bs.toString();
+            return CertUtil.toPEM(pkcs);
         } catch (NoSuchAlgorithmException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", ""));
@@ -885,6 +882,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
         } catch (SignatureException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_SIGNATURE"));
+        } catch (Exception e) {
+            throw new EBaseException(e);
         }
     }
 

@@ -26,6 +26,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 
+import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.asn1.BMPString;
@@ -341,11 +342,12 @@ public class PKCS10Client {
                 System.out.println("");
             }
 
-            certReq.print(System.out);
+            String pem = CertUtil.toPEM(certReq);
+            System.out.print(pem);
 
             try (FileOutputStream fos = new FileOutputStream(ofilename);
                     PrintStream ps = new PrintStream(fos)) {
-                certReq.print(ps);
+                ps.print(pem);
             }
 
             System.out.println("PKCS10Client: Certificate request written into " + ofilename);

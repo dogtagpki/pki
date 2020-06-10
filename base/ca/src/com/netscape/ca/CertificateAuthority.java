@@ -18,12 +18,10 @@
 package com.netscape.ca;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.MessageDigest;
@@ -52,6 +50,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.ca.CAConfig;
@@ -2878,9 +2877,7 @@ public class CertificateAuthority
             signature.initSign(keypair.getPrivate());
             pkcs10.encodeAndSign(
                 new X500Signer(signature, subjectX500Name));
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            pkcs10.print(new PrintStream(out));
-            String pkcs10String = out.toString();
+            String pkcs10String = CertUtil.toPEM(pkcs10);
 
             // Sign certificate
             Locale locale = Locale.getDefault();
