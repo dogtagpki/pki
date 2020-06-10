@@ -17,6 +17,72 @@ from ipahealthcheck.core import constants
 logger = logging.getLogger(__name__)
 
 
+def check_cert_expiry_date(class_instance, cert):
+    """
+    Calculate the expiry status of the given cert
+
+    :param class_instance: Reporting Class Instance
+    :type class_instance: object
+    :param cert: Certificate
+    :type cert: dict
+    :return: Result object with prefilled args
+    :rtype: Result
+    """
+
+    # Get the current time in seconds
+    current_time = int(round(time.time()))
+
+    # Get the cert's expiry date in Milli seconds
+    cert_expiry_time = cert.get('not_after')
+
+    if cert_expiry_time is None:
+        logger.critical("Unable to retrieve cert: %s", cert['nickname'])
+        return Result(class_instance, constants.ERROR,
+                      cert_id=cert['id'],
+                      msg='Unable to get cert\'s expiry date')
+
+    # Convert to seconds
+    cert_expiry_time = cert_expiry_time / 1000
+
+    # Calculate the difference in seconds
+    delta_sec = cert_expiry_time - current_time
+
+    # Calculate the number of days left/passed
+    current_date = datetime.fromtimestamp(current_time)
+    cert_expiry_date = datetime.fromtimestamp(cert_expiry_time)
+    delta_days = (cert_expiry_date - current_date).days
+
+    expiry_date_human = cert_expiry_date.strftime("%b %d %Y")
+
+    if delta_sec <= 0:
+        logger.error("Expired Cert: %s", cert['id'])
+        return Result(class_instance, constants.ERROR,
+                      cert_id=cert['id'],
+                      expiry_date=expiry_date_human,
+                      msg='Certificate has ALREADY EXPIRED')
+
+    elif delta_days == 0 and delta_sec <= 86400:
+        # Expiring in less than a day
+        logger.warning("Expiring in a day: %s", cert['id'])
+        return Result(class_instance, constants.WARNING,
+                      cert_id=cert['id'],
+                      msg='Expiring within next 24 hours')
+
+    elif delta_days < 30:
+        # Expiring in a month
+        logger.warning("Expiring in less than 30 days: %s", cert['id'])
+        return Result(class_instance, constants.WARNING,
+                      cert_id=cert['id'],
+                      expiry_date=expiry_date_human,
+                      msg='Your certificate expires within 30 days.')
+    else:
+        # Valid certificate
+        logger.info("VALID certificate: %s", cert['id'])
+        return Result(class_instance, constants.SUCCESS,
+                      cert_id=cert['id'],
+                      expiry_date=expiry_date_human)
+
+
 @registry
 class CASystemCertExpiryCheck(CertsPlugin):
     """
@@ -43,51 +109,7 @@ class CASystemCertExpiryCheck(CertsPlugin):
         certs = ca.find_system_certs()
 
         for cert in certs:
-            # Get current server date in millis and convert it into timestamp
-            current_date = datetime.fromtimestamp(int(round(time.time())))
-
-            # Cert's expiry date is returned in millis. Convert to timestamp
-            expiry_date = datetime.fromtimestamp(cert.get('not_after') / 1000.0)
-
-            # Throw an error if expiry date cannot be retrieved
-            if expiry_date is None:
-                logger.error("Expiry date of %s is None", cert['nickname'])
-                yield Result(self, constants.ERROR,
-                             nickname=cert['nickname'],
-                             cert_id=cert['id'],
-                             msg='Unable to get cert\'s expiry date')
-
-                continue
-
-            expiry_date_human = expiry_date.strftime("%b %d %Y")
-
-            # Check if expired
-            delta = (expiry_date - current_date).days
-            if delta < 0:
-                logger.error("Certificate has expired")
-                yield Result(self, constants.ERROR,
-                             nickname=cert['nickname'],
-                             cert_id=cert['id'],
-                             expiry_date=expiry_date_human,
-                             no_of_days_passed=-delta,
-                             msg='Certificate has ALREADY EXPIRED')
-            else:
-                # Check if certificate is expiring soon
-                if delta < 30:
-                    logger.warning("Certificate is expiring in less than a month")
-                    yield Result(self, constants.WARNING,
-                                 nickname=cert['nickname'],
-                                 cert_id=cert['id'],
-                                 expiry_date=expiry_date_human,
-                                 remaining_days=delta,
-                                 msg='Your certificate is ABOUT to expire. Certificate'
-                                     ' expires in %s days' % delta)
-                else:
-                    logger.debug("Certificate is valid")
-                    yield Result(self, constants.SUCCESS,
-                                 cert_id=cert['id'],
-                                 expiry_date=expiry_date_human,
-                                 remaining_days=delta)
+            yield check_cert_expiry_date(class_instance=self, cert=cert)
 
 
 @registry
@@ -116,48 +138,4 @@ class KRASystemCertExpiryCheck(CertsPlugin):
         certs = kra.find_system_certs()
 
         for cert in certs:
-            # Get current server date in millis and convert it into timestamp
-            current_date = datetime.fromtimestamp(int(round(time.time())))
-
-            # Cert's expiry date is returned in millis. Convert to timestamp
-            expiry_date = datetime.fromtimestamp(cert.get('not_after') / 1000.0)
-
-            # Throw an error if expiry date cannot be retrieved
-            if expiry_date is None:
-                logger.error("Expiry date of %s is None", cert['nickname'])
-                yield Result(self, constants.ERROR,
-                             nickname=cert['nickname'],
-                             cert_id=cert['id'],
-                             msg='Unable to get cert\'s expiry date')
-
-                continue
-
-            expiry_date_human = expiry_date.strftime("%b %d %Y")
-
-            # Check if expired
-            delta = (expiry_date - current_date).days
-            if delta < 0:
-                logger.error("Certificate has expired")
-                yield Result(self, constants.ERROR,
-                             nickname=cert['nickname'],
-                             cert_id=cert['id'],
-                             expiry_date=expiry_date_human,
-                             no_of_days_passed=-delta,
-                             msg='Certificate has ALREADY EXPIRED')
-            else:
-                # Check if certificate is expiring soon
-                if delta < 30:
-                    logger.warning("Certificate is expiring in less than a month")
-                    yield Result(self, constants.WARNING,
-                                 nickname=cert['nickname'],
-                                 cert_id=cert['id'],
-                                 expiry_date=expiry_date_human,
-                                 remaining_days=delta,
-                                 msg='Your certificate is ABOUT to expire. Certificate'
-                                     ' expires in %s days' % delta)
-                else:
-                    logger.debug("Certificate is valid")
-                    yield Result(self, constants.SUCCESS,
-                                 cert_id=cert['id'],
-                                 expiry_date=expiry_date_human,
-                                 remaining_days=delta)
+            yield check_cert_expiry_date(class_instance=self, cert=cert)

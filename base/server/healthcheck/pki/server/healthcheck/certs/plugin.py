@@ -11,6 +11,8 @@ from pki.server.instance import PKIInstance
 
 import logging
 
+# Temporary workaround to skip VERBOSE data. Fix already pushed to upstream
+# freeipa-healthcheck: https://github.com/freeipa/freeipa-healthcheck/pull/126
 logging.getLogger().setLevel(logging.WARNING)
 
 
