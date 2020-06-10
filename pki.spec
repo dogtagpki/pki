@@ -11,8 +11,8 @@ URL:              http://www.dogtagpki.org/
 License:          GPLv2 and LGPLv2
 
 Version:          10.9.0
-Release:          0.1%{?_timestamp}%{?_commit_id}%{?dist}
-%global           _phase -a1
+Release:          0.2%{?_timestamp}%{?_commit_id}%{?dist}
+%global           _phase -a2
 
 # To create a tarball from a version tag:
 # $ git archive \
@@ -151,7 +151,7 @@ BuildRequires:    gcc-c++
 BuildRequires:    zip
 BuildRequires:    java-1.8.0-openjdk-devel
 BuildRequires:    redhat-rpm-config
-BuildRequires:    ldapjdk >= 4.21.0
+BuildRequires:    ldapjdk >= 4.22.0
 BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
@@ -402,7 +402,7 @@ Requires:         slf4j
 Requires:         slf4j-jdk14
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.7.0
-Requires:         ldapjdk >= 4.21.0
+Requires:         ldapjdk >= 4.22.0
 Requires:         pki-base = %{version}-%{release}
 
 %if 0%{?rhel}
