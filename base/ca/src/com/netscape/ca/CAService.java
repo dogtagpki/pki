@@ -887,6 +887,7 @@ public class CAService implements ICAService, IService {
             // Initialize Signed Certificate Timestamp class
             sct.init();
 
+            // Todo: add "per-profile" control
             if(sct.isCTEnabled()) {
                 String method = "CAService: issueX509Cert - CT:";
 
@@ -899,25 +900,31 @@ public class CAService implements ICAService, IService {
                         logger.debug(method + " ctPoison not found, no CT processing needed");
                     } else {
                         logger.debug(method + " ctPoison found");
+                        // debug print with poison ext
+                        printExtensions(exts);
+
                         logger.debug(method + " About to ca.sign CT pre-cert.");
                         cert = ca.sign(certi, algname);
+                        // compose CTRequest
+                        CTRequest ctRequest = createCTRequest(cert);
 
                         /*
                          * remove the poison extension from certi
                          */
                         exts.delete("1.3.6.1.4.1.11129.2.4.3");
+                        logger.debug(method + " ctPoison deleted");
+                        // debug print without poison ext
+                        printExtensions(exts);
                         certi.delete(X509CertInfo.EXTENSIONS);
                         certi.set(X509CertInfo.EXTENSIONS, exts);
                         /*
-                         * This tbsCert does not contain poison ext.
+                         * tbsCert is the tbsCert after poision ext was deleted
+                         *
                          * It is intended to be used for verifying
-                         * the SCT signature in the CT response,
+                         * the SCT signature in the CT response later,
                          * if possible (see verifySCT for detail)
                          */
-                        byte[] tbsCert = certi.getEncodedInfo();
-
-                        // compose CTRequest
-                        CTRequest ctRequest = createCTRequest(cert);
+                        byte[] tbsCert = certi.getEncodedInfo(true);
 
                         List<LogServer> logServers= sct.getLogServerConfig();
                         List<String> ctResponses = new ArrayList<>();
@@ -941,8 +948,8 @@ public class CAService implements ICAService, IService {
                             if (respS == null) {
                                 errMsg = method + "Response from CT log server null";
                                 logger.warn(errMsg);
+                                // allow for CT log to fail to respond
                                 // skip to next CT log server
-                                //throw new EBaseException(errMsg);
                                 continue;
                             }
                             logger.debug(method + "Response from CT log server " + respS);
@@ -953,15 +960,16 @@ public class CAService implements ICAService, IService {
                             if (verified)
                                 ctResponses.add(respS);
                             else { // not verified
-                                logger.warn(method + "verifySCT returns false; SCT failed to verify");
-                                // skip to next CT log server for now
-                                continue;
+                                errMsg = method + "verifySCT returns false; SCT failed to verify";
+                                logger.error(errMsg);
+                                // disallow failed verification
+                                throw new EBaseException(errMsg);
                             }
                         }
 
                         /**
                          * Now onto turning the precert into a real cert
-                         * with the SCT extension
+                         * with the SCT list extension
                          */
 
                         // create SCT extension
@@ -977,6 +985,7 @@ public class CAService implements ICAService, IService {
 
                         certi.delete(X509CertInfo.EXTENSIONS);
                         certi.set(X509CertInfo.EXTENSIONS, exts);
+                        printExtensions(exts);
                     }
                 } catch (Exception e) {
                     logger.debug(method + " failure:" + e.getMessage());
@@ -990,6 +999,30 @@ public class CAService implements ICAService, IService {
         logger.debug("CAService: issueX509Cert: About to ca.sign cert.");
         cert = ca.sign(certi, algname);
         return cert;
+    }
+
+    /*
+     * for debugging
+     */
+    protected void printExtensions(CertificateExtensions exts) {
+
+        String method = "CAService.printExtensions: ";
+        logger.debug(method + "begins");
+        try {
+            if (exts == null)
+                return;
+
+            Enumeration<String> e = exts.getNames();
+            while (e.hasMoreElements()) {
+                String n = e.nextElement();
+                Extension ext = (Extension) exts.get(n);
+
+                logger.debug(" ---- " + ext.getExtensionId().toString());
+            }
+        } catch (Exception e) {
+            logger.debug(method + e.toString());
+        }
+        logger.debug(method + "ends");
     }
 
     /**
@@ -1206,44 +1239,42 @@ public class CAService implements ICAService, IService {
     * @return boolean true for verified; false for not verified
     * @author cfu
     */
-    boolean verifySCT(CTResponse response, byte[] tbsCert, String logPublicKey)
-            throws Exception {
-
+    boolean verifySCT(CTResponse response, byte[] tbsCert, String logPublicKey) {
         String method = "CAService:verifySCT: ";
         String errMsg = "";
         logger.debug(method + "begins");
 
-        long timestamp_l = response.getTimestamp();
-        TimeStamp timestamp_t = new TimeStamp(timestamp_l);
-        String timestamp_s = timestamp_t.toString();
-        logger.debug(method + " ct_timestamp: " + timestamp_s);
-        // timestamp
-        byte timestamp[] = timeStampHexStringToByteArray(timestamp_s);
-        byte ct_signature[] = CryptoUtil.base64Decode(response.getSignature());
-        logger.debug(method + " ct_signature len = "+ ct_signature.length);
-        // hard code for now for SHA256withEC signature size is 64
-        int sig_index = ct_signature.length - 64;
-        /*
-         * first 4 bytes are for algorithms
-         * e.g. 04030047 (sha256, ecdsa)
-         */
-        byte[] signature = Arrays.copyOfRange(ct_signature, sig_index, ct_signature.length);
-        logger.debug(method + " signature len = "+ signature.length);
-
-        /* compose data */
-        byte[] version = new byte[] {0}; // v1(0)
-        byte[] signature_type = new byte[] {0}; // certificate_timestamp(0)
-        byte[] entry_type = new byte[] {1}; // LogEntryType: precert_entry(1)
-
-        logger.debug(method + "using CT log public key: " + logPublicKey);
-        byte logPublicKey_b[] = CryptoUtil.base64Decode(logPublicKey);
-
-        // First, verify the log id
-        PublicKey log_pubKey = KeyFactory.getInstance("EC", "Mozilla-JSS").generatePublic(
-                new X509EncodedKeySpec(logPublicKey_b));
-
-        byte[] log_key_hash = null;
         try {
+            long timestamp_l = response.getTimestamp();
+            TimeStamp timestamp_t = new TimeStamp(timestamp_l);
+            String timestamp_s = timestamp_t.toString();
+            logger.debug(method + " ct_timestamp: " + timestamp_s);
+            // timestamp
+            byte timestamp[] = timeStampHexStringToByteArray(timestamp_s);
+            byte ct_signature[] = CryptoUtil.base64Decode(response.getSignature());
+            logger.debug(method + " ct_signature len = "+ ct_signature.length);
+            // hard code for now for SHA256withEC signature size is 64
+            int sig_index = ct_signature.length - 64;
+            /*
+             * first 4 bytes are for algorithms
+             * e.g. 04030047 (sha256, ecdsa)
+             */
+            byte[] signature = Arrays.copyOfRange(ct_signature, sig_index, ct_signature.length);
+            logger.debug(method + " signature len = "+ signature.length);
+
+            /* compose data */
+            byte[] version = new byte[] {0}; // 1 byte; v1(0)
+            byte[] signature_type = new byte[] {0}; // 1 byte; certificate_timestamp(0)
+            byte[] entry_type = new byte[] {0, 1}; // 2 bytes; LogEntryType: precert_entry(1)
+
+            logger.debug(method + "using CT log public key: " + logPublicKey);
+            byte logPublicKey_b[] = CryptoUtil.base64Decode(logPublicKey);
+
+            // First, verify the log id
+            PublicKey log_pubKey = KeyFactory.getInstance("EC", "Mozilla-JSS").generatePublic(
+                    new X509EncodedKeySpec(logPublicKey_b));
+
+            byte[] log_key_hash = null;
             MessageDigest SHA256Digest = MessageDigest.getInstance("SHA256");
 
             log_key_hash = SHA256Digest.digest(log_pubKey.getEncoded());
@@ -1256,73 +1287,95 @@ public class CAService implements ICAService, IService {
                 logger.error(method +  errMsg);
                 return false;
             }
-        } catch (NoSuchAlgorithmException ex) {
-            logger.error(method + ex.toString());
-            return false;
-        } catch (Exception e) {
-            logger.error(method + e.toString());
-            return false;
-        }
 
-        /** per rfc 6962 -
-         * "issuer_key_hash" is the SHA-256 hash of the certificate issuer's
-         * public key, calculated over the DER encoding of the key represented
-         * as SubjectPublicKeyInfo.  This is needed to bind the issuer to the
-         * final certificate.
-         */
-        X509CertImpl cacert = mCA.getCACert();
-        byte[] issuer_key = cacert.getPublicKey().getEncoded();
-        //SubjectPublicKeyInfo issuer_spki = new SubjectPublicKeyInfo(cacert.getPublicKey());
-        //byte[] issuer_key = issuer_spki.getEncoded();
-        byte[] issuer_key_hash = null;
-        try {
-            MessageDigest SHA256Digest = MessageDigest.getInstance("SHA256");
+            /** per rfc 6962 -
+             * "issuer_key_hash" is the SHA-256 hash of the certificate issuer's
+             * public key, calculated over the DER encoding of the key represented
+             * as SubjectPublicKeyInfo.  This is needed to bind the issuer to the
+             * final certificate.
+             */
+            X509CertImpl cacert = mCA.getCACert();
+            /* cfu: Todo: not sure which is expected,
+             *       (tried both but still failed at verify below):
+             *   - public key DER, or
+             *   - SubjectPublicKeyInfo DER
+             */
+            byte[] issuer_key = cacert.getPublicKey().getEncoded();
+            //SubjectPublicKeyInfo issuer_spki = new SubjectPublicKeyInfo(cacert.getPublicKey());
+            //byte[] issuer_key = issuer_spki.getEncoded();
+            byte[] issuer_key_hash = null;
 
             issuer_key_hash = SHA256Digest.digest(issuer_key);
-        } catch (NoSuchAlgorithmException ex) {
-            logger.error(method + " getting hash of CA signing key:" + ex.toString());
+
+            String extensions_s = response.getExtensions();
+            byte[] extensions = null;
+            int extensions_len = 0;
+            if (extensions_s != null && !extensions_s.equals("")) {
+                extensions = CryptoUtil.base64Decode(extensions_s);
+                extensions_len = extensions.length;
+            }
+
+            // piece them together
+            int data_len = version.length + signature_type.length +
+                     timestamp.length + entry_type.length +
+                     issuer_key_hash.length
+                     + 3 + tbsCert.length
+                     + 2 + extensions_len;
+            logger.debug(method + " data_len = "+ data_len);
+
+            ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+
+            ostream.write(version);
+            ostream.write(signature_type);
+            ostream.write(timestamp);
+
+            ostream.write(entry_type);
+            ostream.write(issuer_key_hash);
+
+            logger.debug("tbsCert.length = "+ tbsCert.length);
+            ByteBuffer tbsCertLen_bb = ByteBuffer.allocate(4);
+            tbsCertLen_bb.putInt(tbsCert.length);
+            // 3 bytes for length of tbsCert
+            byte[] tbsCertLen_b = tbsCertLen_bb.array();
+            ostream.write(Arrays.copyOfRange(tbsCertLen_b, 1, 4));
+            /* verify tbsCertLen -- checked out
+            int out = tbsCertLen_b[1] << 16 | (tbsCertLen_b[2] & 0xFF) << 8 | (tbsCertLen_b[3] & 0xFF);
+            logger.debug(method + "out tbsCertLen len = " + out);
+            */
+            ostream.write(tbsCert);
+
+            // 2 bytes for extensions len
+            ByteBuffer extensions_len_bb = ByteBuffer.allocate(2);
+            extensions_len_bb.putShort((short)extensions_len);
+            byte[] extensions_len_b = extensions_len_bb.array();
+            ostream.write(extensions_len_b);
+            if (extensions_len > 0)
+                ostream.write(extensions);
+
+            byte[] data = ostream.toByteArray();
+            logger.debug(method + "actual data len = " + data.length);
+
+            // Now, verify the signature
+            // Note: this part currently does not work; see method comment above
+
+            // cfu ToDo: interpret the alg bytes later; hardcode for now
+            Signature signer = Signature.getInstance("SHA256withEC", "Mozilla-JSS");
+            signer.initVerify(log_pubKey);
+            signer.update(data);
+
+            if (!signer.verify(signature)) {
+                logger.error(method + "failed to verify SCT signature; pass for now");
+                // this method is not yet working;  Let this pass for now
+                // return false;
+            } else {
+                logger.debug(method + "SCT signature verified successfully");
+            }
+            logger.debug(method + "ends");
+        } catch (Exception e) {
+            logger.debug(method + "Exception thrown: " + e.toString());
+            logger.debug(method + "ends");
             return false;
         }
-
-        byte[] extensions = new byte[] {0, 0};
-
-        // piece them together
-
-        int data_len = version.length + signature_type.length +
-                 timestamp.length + entry_type.length +
-                 issuer_key_hash.length + tbsCert.length + extensions.length;
-
-        logger.debug(method + " data_len = "+ data_len);
-        ByteArrayOutputStream ostream = new ByteArrayOutputStream();
-
-        ostream.write(version);
-        ostream.write(signature_type);
-        ostream.write(timestamp);
-
-        ostream.write(entry_type);
-        ostream.write(issuer_key_hash);
-        ostream.write(tbsCert);
-
-        ostream.write(extensions);
-
-        byte[] data = ostream.toByteArray();
-
-        // Now, verify the signature
-        // Note: this part currently does not work; see method comment above
-
-        // cfu ToDo: interpret the alg bytes later; hardcode for now
-        Signature signer = Signature.getInstance("SHA256withEC", "Mozilla-JSS");
-        signer.initVerify(log_pubKey);
-        signer.update(data);
-
-        if (!signer.verify(signature)) {
-            logger.error(method + "failed to verify SCT signature; pass for now");
-            // this method is not yet working;  Let this pass for now
-            // return false;
-        } else {
-            logger.debug(method + "SCT signature verified successfully");
-        }
-        logger.debug("verifySCT ends");
 
         return true;
     }
