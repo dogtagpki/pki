@@ -73,6 +73,33 @@ configFile=conf/ca/CS.cfg
 basedn=dc=acme,dc=pki,dc=example,dc=com
 ```
 
+## Configuring PosgreSQL Database
+
+Prepare a database (e.g. acme) and a user (e.g. acme) to access the database,
+then create the ACME tables by executing the [create.sql](../../../base/acme/conf/database/postgresql/create.sql)
+with the following command:
+
+```
+$ psql -h $HOSTNAME -d acme -U acme \
+    -f /usr/share/pki/acme/conf/database/postgresql/create.sql
+```
+
+Then copy the sample [database.conf](../../../base/acme/conf/database/postgresql/database.conf) with the following command:
+
+```
+$ cp /usr/share/pki/acme/conf/database/postgresql/database.conf \
+    /etc/pki/pki-tomcat/acme/database.conf
+```
+
+Customize the configuration as needed. The database.conf should look like the following:
+
+```
+class=org.dogtagpki.acme.database.PostgreSQLDatabase
+url=jdbc:postgresql://<hostname>:5432/acme
+user=acme
+password=Secret.123
+```
+
 ## See Also
 
 * [Configuring ACME Responder](https://www.dogtagpki.org/wiki/Configuring_ACME_Responder)
