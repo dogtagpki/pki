@@ -31,10 +31,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
@@ -185,11 +182,8 @@ public class ClientCertImportCLI extends CommandCLI {
                 return;
             }
 
-            importCACert(
-                    nssdb.getDirectory(),
-                    nssdbPasswordFile,
-                    caCertPath,
-                    trustAttributes);
+            org.mozilla.jss.crypto.X509Certificate cert = nssdb.addCertificate(caCertPath, trustAttributes);
+            System.out.println("Imported certificate \"" + cert.getNickname() + "\"");
 
         } else if (pkcs7Path != null) {
 
@@ -324,23 +318,6 @@ public class ClientCertImportCLI extends CommandCLI {
         }
 
         System.out.println("Imported certificate \"" + nickname + "\"");
-    }
-
-    public void importCACert(
-            File dbPath,
-            File dbPasswordFile,
-            String certFile,
-            String trustAttributes) throws Exception {
-
-        // import CA certificate chain with auto-generated nicknames
-        String pemCert = new String(Files.readAllBytes(Paths.get(certFile))).trim();
-        byte[] binCert = Cert.parseCertificate(pemCert);
-
-        CryptoManager manager = CryptoManager.getInstance();
-        X509Certificate cert = manager.importCACertPackage(binCert);
-        CryptoUtil.setTrustFlags(cert, trustAttributes);
-
-        System.out.println("Imported certificate \"" + cert.getNickname() + "\"");
     }
 
     public void importPKCS7(

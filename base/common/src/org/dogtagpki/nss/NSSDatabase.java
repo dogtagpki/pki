@@ -34,7 +34,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.netscape.security.util.Cert;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
 
 /**
@@ -223,6 +226,20 @@ public class NSSDatabase {
         if (rc != 0) {
             throw new Exception("Command failed: rc=" + rc);
         }
+    }
+
+    public org.mozilla.jss.crypto.X509Certificate addCertificate(
+            String certFile,
+            String trustAttributes) throws Exception {
+
+        byte[] bytes = Files.readAllBytes(Paths.get(certFile));
+        String pemCert = new String(bytes).trim();
+        byte[] binCert = Cert.parseCertificate(pemCert);
+
+        CryptoManager manager = CryptoManager.getInstance();
+        org.mozilla.jss.crypto.X509Certificate cert = manager.importCACertPackage(binCert);
+        CryptoUtil.setTrustFlags(cert, trustAttributes);
+        return cert;
     }
 
     public void delete() throws Exception {
