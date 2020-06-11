@@ -53,10 +53,12 @@ class PKCS12ImportCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki pkcs12-import [OPTIONS]')
         print()
-        print('      --pkcs12-file <path>           PKCS #12 file containing certificates and '
-              'keys.')
-        print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
-        print('      --pkcs12-password-file <path>  containing the PKCS #12 password.')
+        print('      --pkcs12 <path>                PKCS #12 file')
+        print('      --pkcs12-file <path>           DEPRECATED: PKCS #12 file')
+        print('      --password <password>          PKCS #12 password')
+        print('      --pkcs12-password <password>   DEPRECATED: PKCS #12 password')
+        print('      --password-file <path>         PKCS #12 password file')
+        print('      --pkcs12-password-file <path>  DEPRECATED: PKCS #12 password file')
         print('      --no-trust-flags               Do not include trust flags')
         print('      --no-user-certs                Do not import user certificates')
         print('      --no-ca-certs                  Do not import CA certificates')
@@ -70,6 +72,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'v', [
+                'pkcs12=', 'password=', 'password-file=',
                 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
                 'no-trust-flags', 'no-user-certs', 'no-ca-certs', 'overwrite',
                 'verbose', 'debug', 'help'])
@@ -88,11 +91,20 @@ class PKCS12ImportCLI(pki.cli.CLI):
         overwrite = False
 
         for o, a in opts:
-            if o == '--pkcs12-file':
+            if o == '--pkcs12':
                 pkcs12_file = a
+
+            elif o == '--pkcs12-file':
+                pkcs12_file = a
+
+            elif o == '--password':
+                pkcs12_password = a
 
             elif o == '--pkcs12-password':
                 pkcs12_password = a
+
+            elif o == '--password-file':
+                password_file = a
 
             elif o == '--pkcs12-password-file':
                 password_file = a
@@ -300,13 +312,13 @@ class PKCS12ImportCLI(pki.cli.CLI):
             cmd = ['pkcs12-import']
 
             if pkcs12_file:
-                cmd.extend(['--pkcs12-file', pkcs12_file])
+                cmd.extend(['--pkcs12', pkcs12_file])
 
             if pkcs12_password:
-                cmd.extend(['--pkcs12-password', pkcs12_password])
+                cmd.extend(['--password', pkcs12_password])
 
             if password_file:
-                cmd.extend(['--pkcs12-password-file', password_file])
+                cmd.extend(['--password-file', password_file])
 
             if no_trust_flags:
                 cmd.extend(['--no-trust-flags'])

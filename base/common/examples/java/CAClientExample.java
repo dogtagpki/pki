@@ -33,7 +33,7 @@ import com.netscape.certsrv.client.PKIClient;
  * $ pki -c Secret.123 client-init
  *
  * Then import CA admin certificate and key from PKCS #12 file:
- * $ pki -c Secret.123 client-cert-import --pkcs12 &lt;file&gt; --pkcs12-password &lt;password&gt;
+ * $ pki -c Secret.123 pkcs12-import --pkcs12 &lt;file&gt; --password &lt;password&gt;
  *
  * To compile the program:
  * $ javac -cp "/usr/lib/java/jss4.jar:../../lib/*" CAClientExample.java

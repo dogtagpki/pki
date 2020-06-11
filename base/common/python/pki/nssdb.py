@@ -1652,8 +1652,8 @@ class NSSDatabase(object):
 
             cmd.extend([
                 'pkcs12-import',
-                '--pkcs12-file', pkcs12_file,
-                '--pkcs12-password-file', password_file
+                '--pkcs12', pkcs12_file,
+                '--password-file', password_file
             ])
 
             if no_user_certs:
