@@ -13,7 +13,9 @@ import org.apache.commons.cli.Option;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
+import org.dogtagpki.nss.NSSExtensionGenerator;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.MainCLI;
@@ -55,6 +57,10 @@ public class NSSCertRequestCLI extends CommandCLI {
         option.setArgName("name");
         options.addOption(option);
 
+        option = new Option(null, "ext", true, "Certificate extensions configuration");
+        option.setArgName("path");
+        options.addOption(option);
+
         option = new Option(null, "csr", true, "Certificate signing request");
         option.setArgName("path");
         options.addOption(option);
@@ -72,6 +78,7 @@ public class NSSCertRequestCLI extends CommandCLI {
         String keySize = cmd.getOptionValue("key-size");
         String curve = cmd.getOptionValue("curve");
         String hash = cmd.getOptionValue("hash");
+        String extConf = cmd.getOptionValue("ext");
 
         if (subject == null) {
             throw new Exception("Missing subject name");
@@ -83,13 +90,21 @@ public class NSSCertRequestCLI extends CommandCLI {
         ClientConfig clientConfig = mainCLI.getConfig();
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
 
+        CertificateExtensions extensions = null;
+        if (extConf != null) {
+            NSSExtensionGenerator generator = new NSSExtensionGenerator();
+            generator.init(extConf);
+            extensions = generator.createExtensions();
+        }
+
         PKCS10 pkcs10 = nssdb.createRequest(
                 subject,
                 keyID,
                 keyType,
                 keySize,
                 curve,
-                hash);
+                hash,
+                extensions);
 
         String format = cmd.getOptionValue("format");
         byte[] bytes;
