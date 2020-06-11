@@ -21,6 +21,7 @@ package com.netscape.cmstools.client;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.nss.NSSDatabase;
 
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -64,11 +65,12 @@ public class ClientCertModifyCLI extends CommandCLI {
 
         String nickname = cmdArgs[0];
 
+        NSSDatabase nssdb = mainCLI.getNSSDatabase();
         String trustAttributes = cmd.getOptionValue("trust", "u,u,u");
 
         String[] command = {
                 "/usr/bin/certutil", "-M",
-                "-d", mainCLI.certDatabase.getAbsolutePath(),
+                "-d", nssdb.getPath().toString(),
                 "-n", nickname,
                 "-t", trustAttributes
         };

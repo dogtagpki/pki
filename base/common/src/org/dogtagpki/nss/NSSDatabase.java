@@ -28,6 +28,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -52,6 +53,10 @@ public class NSSDatabase {
 
     public NSSDatabase(File directory) {
         this(directory.toPath());
+    }
+
+    public NSSDatabase(String directory) {
+        this(Paths.get(directory));
     }
 
     public Path getPath() {

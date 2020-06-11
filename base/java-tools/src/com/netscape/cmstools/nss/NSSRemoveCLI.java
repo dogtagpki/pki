@@ -6,7 +6,6 @@
 package com.netscape.cmstools.nss;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 
 import org.apache.commons.cli.CommandLine;
@@ -46,17 +45,16 @@ public class NSSRemoveCLI extends CommandCLI {
         }
 
         MainCLI mainCLI = nssCLI.mainCLI;
-        File certDatabase = mainCLI.getNSSDatabase();
-        NSSDatabase nssdb = new NSSDatabase(certDatabase);
+        NSSDatabase nssdb = mainCLI.getNSSDatabase();
 
         if (!nssdb.exists()) {
-            throw new Exception("There is no NSS database in " + certDatabase.getAbsolutePath());
+            throw new Exception("There is no NSS database in " + nssdb.getPath());
         }
 
         boolean force = cmd.hasOption("force");
 
         if (!force) {
-            System.out.println("Removing NSS database in " + certDatabase.getAbsolutePath() + ".");
+            System.out.println("Removing NSS database in " + nssdb.getPath() + ".");
             System.out.print("Are you sure (y/N)? ");
             System.out.flush();
 

@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.nss.NSSDatabase;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -135,6 +136,7 @@ public class ClientCertImportCLI extends CommandCLI {
         String serialNumber = cmd.getOptionValue("serial");
         String trustAttributes = cmd.getOptionValue("trust");
 
+        NSSDatabase nssdb = mainCLI.getNSSDatabase();
         File nssdbPasswordFile = null;
 
         if (mainCLI.config.getNSSPassword() != null) {
@@ -158,7 +160,7 @@ public class ClientCertImportCLI extends CommandCLI {
                 trustAttributes = "u,u,u";
 
             importCert(
-                    mainCLI.certDatabase,
+                    nssdb.getDirectory(),
                     nssdbPasswordFile,
                     certPath,
                     nickname,
@@ -172,7 +174,7 @@ public class ClientCertImportCLI extends CommandCLI {
                 trustAttributes = "CT,C,C";
 
             importCACert(
-                    mainCLI.certDatabase,
+                    nssdb.getDirectory(),
                     nssdbPasswordFile,
                     caCertPath,
                     nickname,
@@ -214,7 +216,7 @@ public class ClientCertImportCLI extends CommandCLI {
 
             // import certificates and private key into PKCS #12 file
             importPKCS12(
-                    mainCLI.certDatabase,
+                    nssdb.getDirectory(),
                     nssdbPasswordFile,
                     pkcs12Path,
                     pkcs12PasswordPath);
@@ -261,7 +263,7 @@ public class ClientCertImportCLI extends CommandCLI {
                 trustAttributes = "u,u,u";
 
             importCert(
-                    mainCLI.certDatabase,
+                    nssdb.getDirectory(),
                     nssdbPasswordFile,
                     certFile.getAbsolutePath(),
                     nickname,

@@ -26,6 +26,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.RandomStringUtils;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.nss.NSSDatabase;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
@@ -145,9 +146,11 @@ public class ClientCertShowCLI extends CommandCLI {
             out.print(pkcs12Password);
         }
 
+        NSSDatabase nssdb = mainCLI.getNSSDatabase();
+
         logger.info("Exporting certificate chain and private key to " + pkcs12File);
         exportPKCS12(
-                mainCLI.certDatabase.getAbsolutePath(),
+                nssdb.getPath().toString(),
                 mainCLI.config.getNSSPassword(),
                 pkcs12File.getAbsolutePath(),
                 pkcs12PasswordFile.getAbsolutePath(),

@@ -19,7 +19,6 @@
 package com.netscape.cmstools.client;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 
 import org.apache.commons.cli.CommandLine;
@@ -60,8 +59,7 @@ public class ClientInitCLI extends CommandCLI {
         }
 
         MainCLI mainCLI = clientCLI.mainCLI;
-        File certDatabase = mainCLI.getNSSDatabase();
-        NSSDatabase nssdb = new NSSDatabase(certDatabase);
+        NSSDatabase nssdb = mainCLI.getNSSDatabase();
 
         // Make sure existing NSS database is deleted
         if (nssdb.exists()) {
@@ -69,7 +67,7 @@ public class ClientInitCLI extends CommandCLI {
             boolean force = cmd.hasOption("force");
 
             if (!force) {
-                System.out.println("NSS database already exists in " + certDatabase.getAbsolutePath() + ".");
+                System.out.println("NSS database already exists in " + nssdb.getPath() + ".");
                 System.out.print("Overwrite (y/N)? ");
                 System.out.flush();
 

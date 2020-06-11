@@ -79,6 +79,7 @@ import com.netscape.cmstools.tks.TKSCLI;
 import com.netscape.cmstools.tps.TPSCLI;
 import com.netscape.cmstools.user.ProxyUserCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.password.PlainPasswordFile;
 
 /**
  * @author Endi S. Dewata
@@ -87,11 +88,12 @@ public class MainCLI extends CLI {
 
     public ClientConfig config = new ClientConfig();
 
+    NSSDatabase nssdb;
+
     public Collection<Integer> rejectedCertStatuses = new HashSet<Integer>();
     public Collection<Integer> ignoredCertStatuses = new HashSet<Integer>();
 
     public boolean ignoreBanner;
-    public File certDatabase;
 
     String output;
 
@@ -130,8 +132,8 @@ public class MainCLI extends CLI {
         return config;
     }
 
-    public File getNSSDatabase() {
-        return certDatabase;
+    public NSSDatabase getNSSDatabase() {
+        return nssdb;
     }
 
     public String getFullModuleName(String moduleName) {
@@ -422,6 +424,21 @@ public class MainCLI extends CLI {
             config.setNSSPasswords(nssPasswords);
         }
 
+        PlainPasswordFile passwordStore = new PlainPasswordFile();
+
+        if (nssPassword != null) {
+            String token = tokenName;
+            if (token == null) token = "internal";
+            passwordStore.putPassword(token, nssPassword);
+
+        } else if (nssPasswordConfig != null) {
+            passwordStore.init(nssPasswordConfig);
+        }
+
+        logger.info("NSS database: " + config.getNSSDatabase());
+        nssdb = new NSSDatabase(config.getNSSDatabase());
+        nssdb.setPasswordStore(passwordStore);
+
         // store user name
         config.setUsername(username);
 
@@ -444,9 +461,6 @@ public class MainCLI extends CLI {
         convertCertStatusList(list, ignoredCertStatuses);
 
         ignoreBanner = cmd.hasOption("ignore-banner");
-
-        this.certDatabase = new File(config.getNSSDatabase());
-        logger.info("NSS database: " + this.certDatabase.getAbsolutePath());
 
         String messageFormat = cmd.getOptionValue("message-format");
         config.setMessageFormat(messageFormat);
@@ -476,15 +490,13 @@ public class MainCLI extends CLI {
             return;
         }
 
-        NSSDatabase nssdb = new NSSDatabase(certDatabase);
-
         if (!nssdb.exists()) {
             // Create a default NSS database without password
             nssdb.create();
         }
 
         logger.info("Initializing NSS");
-        CryptoManager.initialize(certDatabase.getAbsolutePath());
+        CryptoManager.initialize(nssdb.getPath().toString());
 
         CryptoManager manager;
         try {

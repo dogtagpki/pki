@@ -6,7 +6,6 @@
 package com.netscape.cmstools.nss;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 
 import org.apache.commons.cli.CommandLine;
@@ -47,8 +46,7 @@ public class NSSCreateCLI extends CommandCLI {
         }
 
         MainCLI mainCLI = nssCLI.mainCLI;
-        File certDatabase = mainCLI.getNSSDatabase();
-        NSSDatabase nssdb = new NSSDatabase(certDatabase);
+        NSSDatabase nssdb = mainCLI.getNSSDatabase();
 
         // Make sure existing NSS database is deleted
         if (nssdb.exists()) {
@@ -56,7 +54,7 @@ public class NSSCreateCLI extends CommandCLI {
             boolean force = cmd.hasOption("force");
 
             if (!force) {
-                System.out.println("NSS database already exists in " + certDatabase.getAbsolutePath() + ".");
+                System.out.println("NSS database already exists in " + nssdb.getPath() + ".");
                 System.out.print("Overwrite (y/N)? ");
                 System.out.flush();
 

@@ -35,6 +35,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.ca.CASystemCertClient;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.nss.NSSDatabase;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -238,7 +239,7 @@ public class ClientCertRequestCLI extends CommandCLI {
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
-        File certDatabase = mainCLI.certDatabase;
+        NSSDatabase nssdb = mainCLI.getNSSDatabase();
 
         String password = mainCLI.config.getNSSPassword();
 
@@ -246,12 +247,21 @@ public class ClientCertRequestCLI extends CommandCLI {
         PKIClient client;
         if ("pkcs10".equals(requestType)) {
             if ("rsa".equals(algorithm)) {
-                csr = generatePkcs10Request(certDatabase, password, algorithm,
-                        Integer.toString(length), subjectDN);
+                csr = generatePkcs10Request(
+                        nssdb.getDirectory(),
+                        password,
+                        algorithm,
+                        Integer.toString(length),
+                        subjectDN);
             }
 
             else if ("ec".equals(algorithm)) {
-                csr = generatePkcs10Request(certDatabase, password, algorithm, curve, subjectDN);
+                csr = generatePkcs10Request(
+                        nssdb.getDirectory(),
+                        password,
+                        algorithm,
+                        curve,
+                        subjectDN);
             } else {
                 throw new Exception("Error: Unknown algorithm: " + algorithm);
             }
