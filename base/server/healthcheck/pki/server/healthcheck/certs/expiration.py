@@ -197,3 +197,32 @@ class TKSSystemCertExpiryCheck(CertsPlugin):
 
         for cert in certs:
             yield check_cert_expiry_date(class_instance=self, cert=cert)
+
+
+@registry
+class TPSSystemCertExpiryCheck(CertsPlugin):
+    """
+    Check the expiry of TPS's system certs
+    """
+
+    @duration
+    def check(self):
+
+        if not self.instance.exists():
+            logger.debug('Invalid instance: %s', self.instance.name)
+            yield Result(self, constants.CRITICAL,
+                         msg='Invalid PKI instance: %s' % self.instance.name)
+            return
+
+        self.instance.load()
+
+        tps = self.instance.get_subsystem('tps')
+
+        if not tps:
+            logger.info("No TPS configured, skipping TPS System Cert Expiry check")
+            return
+
+        certs = tps.find_system_certs()
+
+        for cert in certs:
+            yield check_cert_expiry_date(class_instance=self, cert=cert)
