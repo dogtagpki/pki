@@ -25,7 +25,6 @@ import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
 
-import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -82,8 +81,6 @@ public class ClientInitCLI extends CommandCLI {
             nssdb.delete();
         }
 
-        // Create NSS database with the provided password
-        ClientConfig config = mainCLI.getConfig();
-        nssdb.create(config.getNSSPassword());
+        nssdb.create();
     }
 }

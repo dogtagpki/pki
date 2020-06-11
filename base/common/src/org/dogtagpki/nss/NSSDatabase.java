@@ -100,7 +100,8 @@ public class NSSDatabase {
     }
 
     public void create() throws Exception {
-        create(null);
+        String password = passwordStore.getPassword("internal", 0);
+        create(password);
     }
 
     public void create(String password) throws Exception {
