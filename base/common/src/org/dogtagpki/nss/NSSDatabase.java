@@ -33,15 +33,18 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CLIException;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
@@ -239,22 +242,51 @@ public class NSSDatabase {
     }
 
     public org.mozilla.jss.crypto.X509Certificate addCertificate(
-            String certFile,
+            X509Certificate cert,
             String trustAttributes) throws Exception {
 
-        byte[] bytes = Files.readAllBytes(Paths.get(certFile));
-        String pemCert = new String(bytes).trim();
-        byte[] binCert = Cert.parseCertificate(pemCert);
-
+        byte[] bytes = cert.getEncoded();
         CryptoManager manager = CryptoManager.getInstance();
-        org.mozilla.jss.crypto.X509Certificate cert = manager.importCACertPackage(binCert);
-        CryptoUtil.setTrustFlags(cert, trustAttributes);
-        return cert;
+        org.mozilla.jss.crypto.X509Certificate jssCert = manager.importCACertPackage(bytes);
+
+        if (trustAttributes != null) CryptoUtil.setTrustFlags(jssCert, trustAttributes);
+
+        return jssCert;
+    }
+
+    public org.mozilla.jss.crypto.X509Certificate addPEMCertificate(
+            String filename,
+            String trustAttributes) throws Exception {
+
+        String pemCert = new String(Files.readAllBytes(Paths.get(filename)));
+        byte[] bytes = Cert.parseCertificate(pemCert);
+        X509CertImpl cert = new X509CertImpl(bytes);
+
+        return addCertificate(cert, trustAttributes);
     }
 
     public void addCertificate(
             String nickname,
-            String certFile,
+            X509Certificate cert,
+            String trustAttributes) throws Exception {
+
+        byte[] bytes = CertUtil.toPEM(cert).getBytes();
+        Path certPath = null;
+
+        try {
+            certPath = Files.createTempFile("nss-cert-", ".crt", FILE_PERMISSIONS);
+            Files.write(certPath, bytes);
+
+            addPEMCertificate(nickname, certPath.toString(), trustAttributes);
+
+        } finally {
+            if (certPath != null) Files.delete(certPath);
+        }
+    }
+
+    public void addPEMCertificate(
+            String nickname,
+            String filename,
             String trustAttributes) throws Exception {
 
         Path passwordPath = null;
@@ -289,7 +321,7 @@ public class NSSDatabase {
             cmd.add(trustAttributes);
 
             cmd.add("-i");
-            cmd.add(certFile);
+            cmd.add(filename);
 
             debug(cmd);
 

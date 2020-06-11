@@ -162,7 +162,7 @@ public class ClientCertImportCLI extends CommandCLI {
             if (trustAttributes == null)
                 trustAttributes = "u,u,u";
 
-            nssdb.addCertificate(nickname, certPath, trustAttributes);
+            nssdb.addPEMCertificate(nickname, certPath, trustAttributes);
             System.out.println("Imported certificate \"" + nickname + "\"");
 
         } else if (caCertPath != null) {
@@ -174,12 +174,12 @@ public class ClientCertImportCLI extends CommandCLI {
 
             if (nickname != null) {
                 // import a single CA certificate with the provided nickname
-                nssdb.addCertificate(nickname, caCertPath, trustAttributes);
+                nssdb.addPEMCertificate(nickname, caCertPath, trustAttributes);
                 System.out.println("Imported certificate \"" + nickname + "\"");
                 return;
             }
 
-            org.mozilla.jss.crypto.X509Certificate cert = nssdb.addCertificate(caCertPath, trustAttributes);
+            org.mozilla.jss.crypto.X509Certificate cert = nssdb.addPEMCertificate(caCertPath, trustAttributes);
             System.out.println("Imported certificate \"" + cert.getNickname() + "\"");
 
         } else if (pkcs7Path != null) {
@@ -268,7 +268,7 @@ public class ClientCertImportCLI extends CommandCLI {
             if (trustAttributes == null)
                 trustAttributes = "u,u,u";
 
-            nssdb.addCertificate(nickname, certFile.getAbsolutePath(), trustAttributes);
+            nssdb.addPEMCertificate(nickname, certFile.getAbsolutePath(), trustAttributes);
             System.out.println("Imported certificate \"" + nickname + "\"");
 
         } else {
