@@ -511,7 +511,7 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def add_ca_cert(self, cert_file, trust_attributes=None):
+    def add_ca_cert(self, cert_file, trust_attributes='CT,C,C'):
 
         # Import CA certificate into internal token with automatically
         # assigned nickname.
@@ -534,8 +534,8 @@ class NSSDatabase(object):
             cmd.extend(['-C', self.internal_password_file])
 
         cmd.extend([
-            'client-cert-import',
-            '--ca-cert', cert_file
+            'nss-cert-import',
+            '--cert', cert_file
         ])
 
         if trust_attributes:
