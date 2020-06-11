@@ -21,6 +21,7 @@ package org.dogtagpki.nss;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -29,11 +30,16 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.dogtagpki.cli.CLIException;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.util.Cert;
 
@@ -46,6 +52,9 @@ import com.netscape.cmsutil.password.IPasswordStore;
 public class NSSDatabase {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NSSDatabase.class);
+
+    FileAttribute<Set<PosixFilePermission>> FILE_PERMISSIONS =
+            PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------"));
 
     Path path;
     IPasswordStore passwordStore;
@@ -242,6 +251,63 @@ public class NSSDatabase {
         return cert;
     }
 
+    public void addCertificate(
+            String nickname,
+            String certFile,
+            String trustAttributes) throws Exception {
+
+        Path passwordPath = null;
+
+        try {
+            List<String> cmd = new ArrayList<>();
+            cmd.add("certutil");
+            cmd.add("-A");
+            cmd.add("-d");
+            cmd.add(path.toString());
+
+            // TODO: Add support for HSM.
+            String password = passwordStore.getPassword("internal", 0);
+
+            if (password != null) {
+                passwordPath = Files.createTempFile("nss-password-", ".txt", FILE_PERMISSIONS);
+                logger.info("Storing password into " + passwordPath);
+
+                Files.write(passwordPath, password.getBytes());
+
+                cmd.add("-f");
+                cmd.add(passwordPath.toString());
+            }
+
+            // accept PEM or PKCS #7 certificate
+            cmd.add("-a");
+
+            cmd.add("-n");
+            cmd.add(nickname);
+
+            cmd.add("-t");
+            cmd.add(trustAttributes);
+
+            cmd.add("-i");
+            cmd.add(certFile);
+
+            debug(cmd);
+
+            Process p = new ProcessBuilder(cmd).start();
+
+            readStdout(p);
+            readStderr(p);
+
+            int rc = p.waitFor();
+
+            if (rc != 0) {
+                throw new CLIException("Command failed. RC: " + rc, rc);
+            }
+
+        } finally {
+            if (passwordPath != null) Files.delete(passwordPath);
+        }
+    }
+
     public void delete() throws Exception {
         FileUtils.deleteDirectory(path.toFile());
     }
@@ -265,5 +331,43 @@ public class NSSDatabase {
 
             logger.debug(sb.toString());
         }
+    }
+
+    public void readStdout(Process process) {
+        new Thread() {
+            public void run() {
+                try (InputStream is = process.getInputStream();
+                        InputStreamReader isr = new InputStreamReader(is);
+                        BufferedReader in = new BufferedReader(isr)) {
+
+                    String line;
+                    while ((line = in.readLine()) != null) {
+                        logger.info(line);
+                    }
+
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }.start();
+    }
+
+    public void readStderr(Process process) {
+        new Thread() {
+            public void run() {
+                try (InputStream is = process.getErrorStream();
+                        InputStreamReader isr = new InputStreamReader(is);
+                        BufferedReader in = new BufferedReader(isr)) {
+
+                    String line;
+                    while ((line = in.readLine()) != null) {
+                        logger.warn(line);
+                    }
+
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }.start();
     }
 }

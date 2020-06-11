@@ -162,12 +162,8 @@ public class ClientCertImportCLI extends CommandCLI {
             if (trustAttributes == null)
                 trustAttributes = "u,u,u";
 
-            importCert(
-                    nssdb.getDirectory(),
-                    nssdbPasswordFile,
-                    certPath,
-                    nickname,
-                    trustAttributes);
+            nssdb.addCertificate(nickname, certPath, trustAttributes);
+            System.out.println("Imported certificate \"" + nickname + "\"");
 
         } else if (caCertPath != null) {
 
@@ -178,7 +174,8 @@ public class ClientCertImportCLI extends CommandCLI {
 
             if (nickname != null) {
                 // import a single CA certificate with the provided nickname
-                importCert(nssdb.getDirectory(), nssdbPasswordFile, caCertPath, nickname, trustAttributes);
+                nssdb.addCertificate(nickname, caCertPath, trustAttributes);
+                System.out.println("Imported certificate \"" + nickname + "\"");
                 return;
             }
 
@@ -271,53 +268,12 @@ public class ClientCertImportCLI extends CommandCLI {
             if (trustAttributes == null)
                 trustAttributes = "u,u,u";
 
-            importCert(
-                    nssdb.getDirectory(),
-                    nssdbPasswordFile,
-                    certFile.getAbsolutePath(),
-                    nickname,
-                    trustAttributes);
+            nssdb.addCertificate(nickname, certFile.getAbsolutePath(), trustAttributes);
+            System.out.println("Imported certificate \"" + nickname + "\"");
 
         } else {
             throw new Exception("Missing certificate to import");
         }
-    }
-
-    public void importCert(
-            File dbPath,
-            File dbPasswordFile,
-            String certFile,
-            String nickname,
-            String trustAttributes) throws Exception {
-
-        List<String> command = new ArrayList<>();
-        command.add("/usr/bin/certutil");
-        command.add("-A");
-        command.add("-d");
-        command.add(dbPath.getAbsolutePath());
-
-        if (dbPasswordFile != null) {
-            command.add("-f");
-            command.add(dbPasswordFile.getAbsolutePath());
-        }
-
-        // accept PEM or PKCS #7 certificate
-        command.add("-a");
-
-        command.add("-i");
-        command.add(certFile);
-        command.add("-n");
-        command.add(nickname);
-        command.add("-t");
-        command.add(trustAttributes);
-
-        try {
-            runExternal(command);
-        } catch (Exception e) {
-            throw new Exception("Unable to import certificate file", e);
-        }
-
-        System.out.println("Imported certificate \"" + nickname + "\"");
     }
 
     public void importPKCS7(
