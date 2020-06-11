@@ -139,3 +139,32 @@ class KRASystemCertExpiryCheck(CertsPlugin):
 
         for cert in certs:
             yield check_cert_expiry_date(class_instance=self, cert=cert)
+
+
+@registry
+class OCSPSystemCertExpiryCheck(CertsPlugin):
+    """
+    Check the expiry of OCSP's system certs
+    """
+
+    @duration
+    def check(self):
+
+        if not self.instance.exists():
+            logger.debug('Invalid instance: %s', self.instance.name)
+            yield Result(self, constants.CRITICAL,
+                         msg='Invalid PKI instance: %s' % self.instance.name)
+            return
+
+        self.instance.load()
+
+        ocsp = self.instance.get_subsystem('ocsp')
+
+        if not ocsp:
+            logger.info("No OCSP configured, skipping OCSP System Cert Expiry check")
+            return
+
+        certs = ocsp.find_system_certs()
+
+        for cert in certs:
+            yield check_cert_expiry_date(class_instance=self, cert=cert)
