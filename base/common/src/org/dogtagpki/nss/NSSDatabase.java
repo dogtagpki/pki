@@ -470,6 +470,88 @@ public class NSSDatabase {
         }
     }
 
+    public X509Certificate createCertificate(
+            org.mozilla.jss.crypto.X509Certificate issuer,
+            PKCS10 pkcs10,
+            Integer monthsValid) throws Exception {
+
+        Path csrPath = null;
+        Path certPath = null;
+        Path passwordPath = null;
+
+        try {
+            csrPath = Files.createTempFile("nss-request-", ".csr", FILE_PERMISSIONS);
+            certPath = Files.createTempFile("nss-cert-", ".crt", FILE_PERMISSIONS);
+
+            logger.info("Storing CSR into " + csrPath);
+            Files.write(csrPath, pkcs10.toByteArray());
+
+            // TODO: Use JSS to issue the certificate.
+
+            List<String> cmd = new ArrayList<>();
+            cmd.add("certutil");
+            cmd.add("-C");
+            cmd.add("-d");
+            cmd.add(path.toString());
+
+            if (passwordStore != null) {
+
+                // TODO: Add support for HSM.
+                String password = passwordStore.getPassword("internal", 0);
+
+                if (password != null) {
+                    passwordPath = Files.createTempFile("nss-password-", ".txt", FILE_PERMISSIONS);
+                    logger.info("Storing password into " + passwordPath);
+
+                    Files.write(passwordPath, password.getBytes());
+
+                    cmd.add("-f");
+                    cmd.add(passwordPath.toString());
+                }
+            }
+
+            if (issuer == null) {
+                cmd.add("-x");
+
+            } else {
+                cmd.add("-c");
+                cmd.add(issuer.getNickname());
+            }
+
+            cmd.add("-i");
+            cmd.add(csrPath.toString());
+
+            cmd.add("-o");
+            cmd.add(certPath.toString());
+
+            if (monthsValid != null) {
+                cmd.add("-v");
+                cmd.add(monthsValid.toString());
+            }
+
+            debug(cmd);
+            Process p = new ProcessBuilder(cmd).start();
+
+            readStdout(p);
+            readStderr(p);
+
+            int rc = p.waitFor();
+
+            if (rc != 0) {
+                throw new CLIException("Command failed. RC: " + rc, rc);
+            }
+
+            logger.info("Loading certificate from " + certPath);
+            byte[] certBytes = Files.readAllBytes(certPath);
+            return new X509CertImpl(certBytes);
+
+        } finally {
+            if (passwordPath != null) Files.delete(passwordPath);
+            if (certPath != null) Files.delete(certPath);
+            if (csrPath != null) Files.delete(csrPath);
+        }
+    }
+
     public void delete() throws Exception {
         FileUtils.deleteDirectory(path.toFile());
     }
