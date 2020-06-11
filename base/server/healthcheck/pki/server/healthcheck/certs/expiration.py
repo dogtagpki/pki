@@ -168,3 +168,32 @@ class OCSPSystemCertExpiryCheck(CertsPlugin):
 
         for cert in certs:
             yield check_cert_expiry_date(class_instance=self, cert=cert)
+
+
+@registry
+class TKSSystemCertExpiryCheck(CertsPlugin):
+    """
+    Check the expiry of TKS's system certs
+    """
+
+    @duration
+    def check(self):
+
+        if not self.instance.exists():
+            logger.debug('Invalid instance: %s', self.instance.name)
+            yield Result(self, constants.CRITICAL,
+                         msg='Invalid PKI instance: %s' % self.instance.name)
+            return
+
+        self.instance.load()
+
+        tks = self.instance.get_subsystem('tks')
+
+        if not tks:
+            logger.info("No TKS configured, skipping TKS System Cert Expiry check")
+            return
+
+        certs = tks.find_system_certs()
+
+        for cert in certs:
+            yield check_cert_expiry_date(class_instance=self, cert=cert)
