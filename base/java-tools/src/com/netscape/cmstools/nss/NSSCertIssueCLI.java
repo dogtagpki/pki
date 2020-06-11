@@ -14,8 +14,10 @@ import org.apache.commons.cli.Option;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
+import org.dogtagpki.nss.NSSExtensionGenerator;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.MainCLI;
@@ -41,6 +43,10 @@ public class NSSCertIssueCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
+        option = new Option(null, "ext", true, "Certificate extensions configuration");
+        option.setArgName("path");
+        options.addOption(option);
+
         option = new Option(null, "months-valid", true, "Months valid (default is 3)");
         option.setArgName("months");
         options.addOption(option);
@@ -58,6 +64,7 @@ public class NSSCertIssueCLI extends CommandCLI {
 
         String issuerNickname = cmd.getOptionValue("issuer");
         String csrFile = cmd.getOptionValue("csr");
+        String extConf = cmd.getOptionValue("ext");
         String monthsValid = cmd.getOptionValue("months-valid");
 
         if (csrFile == null) {
@@ -83,10 +90,18 @@ public class NSSCertIssueCLI extends CommandCLI {
         byte[] csrBytes = CertUtil.parseCSR(csrPEM);
         PKCS10 pkcs10 = new PKCS10(csrBytes);
 
+        CertificateExtensions extensions = null;
+        if (extConf != null) {
+            NSSExtensionGenerator generator = new NSSExtensionGenerator();
+            generator.init(extConf);
+            extensions = generator.createExtensions(issuer, pkcs10);
+        }
+
         X509Certificate cert = nssdb.createCertificate(
                 issuer,
                 pkcs10,
-                monthsValid == null ? null : new Integer(monthsValid));
+                monthsValid == null ? null : new Integer(monthsValid),
+                extensions);
 
         String format = cmd.getOptionValue("format");
         byte[] bytes;

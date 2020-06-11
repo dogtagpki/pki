@@ -23,9 +23,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,6 +48,9 @@ import org.dogtagpki.cli.CLIException;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -343,13 +348,69 @@ public class NSSDatabase {
         }
     }
 
+    /**
+     * This method provides the arguments and the standard input for certutil
+     * to create a cert/CSR with basic constraints extension.
+     *
+     * @param cmd certutil command and arguments
+     * @param stdin certutil's standard input
+     * @param extension The extension to add
+     */
+    public void addBasicConstraintsExtension(
+            List<String> cmd,
+            PrintWriter stdin,
+            BasicConstraintsExtension extension) throws Exception {
+
+        logger.info("Adding basic constraints extension:");
+
+        cmd.add("-2");
+
+        // Is this a CA certificate [y/N]?
+        boolean ca = (boolean) extension.get(BasicConstraintsExtension.IS_CA);
+        logger.info("- CA: " + ca);
+        if (ca) {
+            stdin.print("y");
+        }
+        stdin.println();
+
+        // Enter the path length constraint, enter to skip [<0 for unlimited path]: >
+        int pathLength = (int) extension.get(BasicConstraintsExtension.PATH_LEN);
+        logger.info("- path length: " + pathLength);
+        stdin.print(pathLength);
+        stdin.println();
+
+        // Is this a critical extension [y/N]?
+        if (extension.isCritical()) {
+            logger.info("- critical");
+            stdin.print("y");
+        }
+        stdin.println();
+    }
+
+    public void addExtensions(
+            List<String> cmd,
+            StringWriter sw,
+            CertificateExtensions extensions) throws Exception {
+
+        PrintWriter stdin = new PrintWriter(sw, true);
+
+        for (Extension extension : extensions) {
+
+            if (extension instanceof BasicConstraintsExtension) {
+                BasicConstraintsExtension basicConstraintsExtension = (BasicConstraintsExtension) extension;
+                addBasicConstraintsExtension(cmd, stdin, basicConstraintsExtension);
+            }
+        }
+    }
+
     public PKCS10 createRequest(
             String subject,
             String keyID,
             String keyType,
             String keySize,
             String curve,
-            String hash) throws Exception {
+            String hash,
+            CertificateExtensions extensions) throws Exception {
 
         logger.info("Creating certificate signing request for " + subject);
 
@@ -447,11 +508,20 @@ public class NSSDatabase {
                 cmd.add(hash);
             }
 
+            StringWriter stdin = new StringWriter();
+            if (extensions != null) {
+                addExtensions(cmd, stdin, extensions);
+            }
+
             debug(cmd);
             Process p = new ProcessBuilder(cmd).start();
 
             readStdout(p);
             readStderr(p);
+
+            if (extensions != null) {
+                writeStdin(p, stdin.toString());
+            }
 
             int rc = p.waitFor();
 
@@ -473,7 +543,8 @@ public class NSSDatabase {
     public X509Certificate createCertificate(
             org.mozilla.jss.crypto.X509Certificate issuer,
             PKCS10 pkcs10,
-            Integer monthsValid) throws Exception {
+            Integer monthsValid,
+            CertificateExtensions extensions) throws Exception {
 
         Path csrPath = null;
         Path certPath = null;
@@ -529,11 +600,20 @@ public class NSSDatabase {
                 cmd.add(monthsValid.toString());
             }
 
+            StringWriter stdin = new StringWriter();
+            if (extensions != null) {
+                addExtensions(cmd, stdin, extensions);
+            }
+
             debug(cmd);
             Process p = new ProcessBuilder(cmd).start();
 
             readStdout(p);
             readStderr(p);
+
+            if (extensions != null) {
+                writeStdin(p, stdin.toString());
+            }
 
             int rc = p.waitFor();
 
@@ -613,5 +693,12 @@ public class NSSDatabase {
                 }
             }
         }.start();
+    }
+
+    public void writeStdin(Process process, String input) throws Exception {
+        try (OutputStream os = process.getOutputStream();
+                PrintWriter out = new PrintWriter(os)) {
+            out.print(input);
+        }
     }
 }
