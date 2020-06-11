@@ -21,7 +21,7 @@ The database.conf should look like the following:
 class=org.dogtagpki.acme.database.InMemoryDatabase
 ```
 
-Currently there are no parameters to configure for in-memory database.
+There are no parameters to configure for in-memory database.
 
 ## Configuring LDAP Database
 
@@ -49,7 +49,7 @@ $ cp /usr/share/pki/acme/conf/database/ldap/database.conf \
     /etc/pki/pki-tomcat/acme/database.conf
 ```
 
-In a standalone ACME deployment, the database.conf should look like the following:
+Customize the configuration as needed. In a standalone ACME deployment, the database.conf should look like the following:
 
 ```
 class=org.dogtagpki.acme.database.LDAPDatabase
@@ -57,7 +57,7 @@ basedn=dc=acme,dc=pki,dc=example,dc=com
 internaldb.ldapauth.authtype=BasicAuth
 internaldb.ldapauth.bindDN=cn=Directory Manager
 internaldb.ldapauth.bindPWPrompt=internaldb
-internaldb.ldapconn.host=localhost.localdomain
+internaldb.ldapconn.host=<hostname>
 internaldb.ldapconn.port=389
 internaldb.ldapconn.secureConn=false
 internaldb.maxConns=15
