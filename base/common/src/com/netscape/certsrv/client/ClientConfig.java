@@ -22,7 +22,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -92,31 +91,6 @@ public class ClientConfig {
         password = config.password;
 
         messageFormat = config.messageFormat;
-    }
-
-    /**
-     * @deprecated Use getServerURL() instead.
-     */
-    @XmlElement(name="ServerURI")
-    @Deprecated
-    public URI getServerURI() {
-        try {
-            return serverURL.toURI();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * @deprecated Use setServerURL() instead.
-     */
-    @Deprecated
-    public void setServerURI(String serverUri) throws URISyntaxException {
-        try {
-            this.serverURL = new URI(serverUri).toURL();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setServerURI(URI serverUri) {
@@ -228,23 +202,6 @@ public class ClientConfig {
 
         @XmlValue
         public String value;
-    }
-
-    /**
-     * @deprecated Use getNSSDatabase() instead.
-     */
-    @XmlElement(name="CertDatabase")
-    @Deprecated
-    public String getCertDatabase() {
-        return nssDatabase;
-    }
-
-    /**
-     * @deprecated Use setNSSDatabase() instead.
-     */
-    @Deprecated
-    public void setCertDatabase(String certDatabase) {
-        this.nssDatabase = certDatabase;
     }
 
     @XmlElement(name="Token")
