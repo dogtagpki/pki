@@ -14,5 +14,6 @@ public class NSSCertCLI extends CLI {
 
         addModule(new NSSCertImportCLI(this));
         addModule(new NSSCertRequestCLI(this));
+        addModule(new NSSCertIssueCLI(this));
     }
 }
