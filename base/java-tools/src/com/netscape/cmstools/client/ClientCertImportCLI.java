@@ -110,6 +110,7 @@ public class ClientCertImportCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
+        ClientConfig clientConfig = mainCLI.getConfig();
         String nickname = null;
 
         // Get nickname from command argument if specified.
@@ -121,7 +122,7 @@ public class ClientCertImportCLI extends CommandCLI {
         // This code is used to provide backward compatibility.
         // TODO: deprecate/remove this code in 10.3.
         if (nickname == null) {
-            nickname = mainCLI.config.getCertNickname();
+            nickname = clientConfig.getCertNickname();
         }
 
         // nickname is not required to import PKCS #12 file
@@ -139,7 +140,8 @@ public class ClientCertImportCLI extends CommandCLI {
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
         File nssdbPasswordFile = null;
 
-        if (mainCLI.config.getNSSPassword() != null) {
+        String password = clientConfig.getNSSPassword();
+        if (password != null) {
 
             // store NSS database password in a temporary file
 
@@ -147,7 +149,7 @@ public class ClientCertImportCLI extends CommandCLI {
             nssdbPasswordFile.deleteOnExit();
 
             try (PrintWriter out = new PrintWriter(new FileWriter(nssdbPasswordFile))) {
-                out.print(mainCLI.config.getNSSPassword());
+                out.print(password);
             }
         }
 
@@ -155,6 +157,10 @@ public class ClientCertImportCLI extends CommandCLI {
         if (certPath != null) {
 
             logger.info("Importing certificate from " + certPath);
+
+            if (nickname == null) {
+                throw new Exception("Missing certificate nickname");
+            }
 
             if (trustAttributes == null)
                 trustAttributes = "u,u,u";
@@ -173,11 +179,16 @@ public class ClientCertImportCLI extends CommandCLI {
             if (trustAttributes == null)
                 trustAttributes = "CT,C,C";
 
+            if (nickname != null) {
+                // import a single CA certificate with the provided nickname
+                importCert(nssdb.getDirectory(), nssdbPasswordFile, caCertPath, nickname, trustAttributes);
+                return;
+            }
+
             importCACert(
                     nssdb.getDirectory(),
                     nssdbPasswordFile,
                     caCertPath,
-                    nickname,
                     trustAttributes);
 
         } else if (pkcs7Path != null) {
@@ -223,7 +234,7 @@ public class ClientCertImportCLI extends CommandCLI {
 
         } else if (importFromCAServer) {
 
-            logger.info("Importing CA certificate from " + mainCLI.getConfig().getServerURL());
+            logger.info("Importing CA certificate from " + clientConfig.getServerURL());
 
             PKIClient client = getClient();
             CAClient caClient = new CAClient(client);
@@ -237,7 +248,7 @@ public class ClientCertImportCLI extends CommandCLI {
         } else if (serialNumber != null) {
 
             // connect to CA anonymously
-            ClientConfig config = new ClientConfig(mainCLI.config);
+            ClientConfig config = new ClientConfig(clientConfig);
             config.setNSSDatabase(null);
             config.setNSSPassword(null);
             config.setCertNickname(null);
@@ -257,6 +268,10 @@ public class ClientCertImportCLI extends CommandCLI {
             String encoded = certData.getEncoded();
             try (PrintWriter out = new PrintWriter(new FileWriter(certFile))) {
                 out.write(encoded);
+            }
+
+            if (nickname == null) {
+                throw new Exception("Missing certificate nickname");
             }
 
             if (trustAttributes == null)
@@ -280,10 +295,6 @@ public class ClientCertImportCLI extends CommandCLI {
             String certFile,
             String nickname,
             String trustAttributes) throws Exception {
-
-        if (nickname == null) {
-            throw new Exception("Missing certificate nickname");
-        }
 
         List<String> command = new ArrayList<>();
         command.add("/usr/bin/certutil");
@@ -319,14 +330,7 @@ public class ClientCertImportCLI extends CommandCLI {
             File dbPath,
             File dbPasswordFile,
             String certFile,
-            String nickname,
             String trustAttributes) throws Exception {
-
-        if (nickname != null) {
-            // import a single CA certificate with the provided nickname
-            importCert(dbPath, dbPasswordFile, certFile, nickname, trustAttributes);
-            return;
-        }
 
         // import CA certificate chain with auto-generated nicknames
         String pemCert = new String(Files.readAllBytes(Paths.get(certFile))).trim();
