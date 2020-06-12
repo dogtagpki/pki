@@ -1553,10 +1553,10 @@ class NSSDatabase(object):
             cmd.extend(['pkcs7-import'])
 
             if pkcs7_file:
-                cmd.extend(['--input-file', pkcs7_file])
+                cmd.extend(['--pkcs7', pkcs7_file])
 
             if trust_attributes:
-                cmd.extend(['--trust-flags', trust_attributes])
+                cmd.extend(['--trust', trust_attributes])
 
             logger.debug('Command: %s', ' '.join(map(str, cmd)))
 

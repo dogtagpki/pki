@@ -33,12 +33,20 @@ public class PKCS7ImportCLI extends CommandCLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "input-file", true, "Input file");
+        Option option = new Option(null, "pkcs7", true, "PKCS #7 file");
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "trust-flags", true, "Trust flags");
-        option.setArgName("flags");
+        option = new Option(null, "input-file", true, "DEPRECATED: PKCS #7 file");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "trust", true, "Trust attributes");
+        option.setArgName("attributes");
+        options.addOption(option);
+
+        option = new Option(null, "trust-flags", true, "DEPRECATED: Trust attributes");
+        option.setArgName("attributes");
         options.addOption(option);
     }
 
@@ -53,8 +61,15 @@ public class PKCS7ImportCLI extends CommandCLI {
             nickname = null;
         }
 
-        String filename = cmd.getOptionValue("input-file");
-        String trustFlags = cmd.getOptionValue("trust-flags");
+        String filename = cmd.getOptionValue("pkcs7");
+        if (filename == null) {
+            filename = cmd.getOptionValue("input-file");
+        }
+
+        String trustAttributes = cmd.getOptionValue("trust");
+        if (trustAttributes == null) {
+            trustAttributes = cmd.getOptionValue("trust-flags");
+        }
 
         String input;
         if (filename == null) {
@@ -70,6 +85,6 @@ public class PKCS7ImportCLI extends CommandCLI {
         mainCLI.init();
 
         PKCS7 pkcs7 = new PKCS7(input);
-        CryptoUtil.importPKCS7(pkcs7, nickname, trustFlags);
+        CryptoUtil.importPKCS7(pkcs7, nickname, trustAttributes);
     }
 }

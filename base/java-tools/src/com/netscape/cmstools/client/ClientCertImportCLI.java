@@ -185,7 +185,7 @@ public class ClientCertImportCLI extends CommandCLI {
         } else if (pkcs7Path != null) {
 
             logger.warn("The --pkcs7 option has been deprecated. Use the following command instead:");
-            logger.warn("  $ pki pkcs7-import --input-file <filename>");
+            logger.warn("  $ pki pkcs7-import --pkcs7 <filename>");
 
             logger.info("Importing certificates from " + pkcs7Path);
 
