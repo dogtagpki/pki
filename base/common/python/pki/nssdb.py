@@ -1717,8 +1717,8 @@ class NSSDatabase(object):
             cmd.extend(['pkcs12-export'])
 
             cmd.extend([
-                '--pkcs12-file', pkcs12_file,
-                '--pkcs12-password-file', password_file
+                '--pkcs12', pkcs12_file,
+                '--password-file', password_file
             ])
 
             if cert_encryption:

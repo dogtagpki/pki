@@ -306,8 +306,8 @@ class PKISubsystem(object):
 
             cmd.extend([
                 'pkcs12-export',
-                '--pkcs12-file', pkcs12_file,
-                '--pkcs12-password-file', pkcs12_password_file,
+                '--pkcs12', pkcs12_file,
+                '--password-file', pkcs12_password_file,
                 nickname
             ])
 

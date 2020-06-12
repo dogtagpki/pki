@@ -65,8 +65,8 @@ Export the system keys and certificates from the existing CA into a PKCS #12 fil
 
 ```
 $ pki -d /etc/pki/pki-tomcat/alias -c Secret.123 pkcs12-export \
-  --pkcs12-file ca-certs.p12 \
-  --pkcs12-password Secret.123
+  --pkcs12 ca-certs.p12 \
+  --password Secret.123
 $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 sslserver/server.example.com
 $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 subsystem/server.example.com
 ```
