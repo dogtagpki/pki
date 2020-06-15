@@ -893,11 +893,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
             config.wait_to_attach_an_external_java_debugger()
 
+        ca_cert = os.path.join(instance.nssdb_dir, "ca.crt")
+
         connection = pki.client.PKIConnection(
             protocol='https',
             hostname=deployer.mdict['pki_hostname'],
             port=deployer.mdict['pki_https_port'],
-            trust_env=False)
+            trust_env=False,
+            cert_paths=ca_cert)
 
         client = pki.system.SystemConfigClient(
             connection,

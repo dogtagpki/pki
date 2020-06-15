@@ -193,6 +193,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             finally:
                 nssdb.close()
 
+        ca_cert_path = deployer.mdict.get('pki_cert_chain_path')
+        if ca_cert_path and os.path.exists(ca_cert_path):
+            destination = os.path.join(instance.nssdb_dir, "ca.crt")
+            if not os.path.exists(destination):
+                # When we're passed a CA certificate file and we don't already
+                # have a CA file for some reason, we need to copy the passed
+                # file as the root CA certificate to establish trust in the
+                # Python code. It doesn't import it into the NSS DB for Java
+                # code, but so far we haven't had any issues with certificate
+                # validation there. This is only usually necessary when
+                # installing a non-CA subsystem on a fresh system.
+                instance.copyfile(ca_cert_path, destination)
+
         if len(deployer.instance.tomcat_instance_subsystems()) < 2:
 
             # Check to see if a secure connection is being used for the DS
