@@ -41,7 +41,6 @@ import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
@@ -126,7 +125,6 @@ public class CMSEngine {
     private boolean mAutoSD_Restart = false;
     private int mAutoSD_RestartMax = 3;
     private int mAutoSD_RestartCount = 0;
-    private String mSAuditCertNickName = null;
     private PrivateKey mSigningKey = null;
     private byte[] mSigningData = null;
     private long mStartupTime = 0;
@@ -449,7 +447,10 @@ public class CMSEngine {
         loadSubsystems();
         initSubsystems();
 
-        configureAutoShutdown();
+        if (!isPreOpMode()) {
+            configureAutoShutdown();
+        }
+
         configureServerCertNickname();
         configureExcludedLdapAttrs();
 
@@ -849,22 +850,14 @@ public class CMSEngine {
          * establish signing key reference using audit signing cert
          * for HSM failover detection
          */
-        mSAuditCertNickName = mConfig.getString(PROP_SIGNED_AUDIT_CERT_NICKNAME);
-        logger.debug("CMSEngine: about to look for cert for auto-shutdown support:" + mSAuditCertNickName);
+        String mSAuditCertNickName = mConfig.getString(PROP_SIGNED_AUDIT_CERT_NICKNAME);
+        logger.debug("CMSEngine: audit signing cert: " + mSAuditCertNickName);
 
         CryptoManager mManager = CryptoManager.getInstance();
-        org.mozilla.jss.crypto.X509Certificate cert = null;
-        try {
-            cert = mManager.findCertByNickname(mSAuditCertNickName);
-        } catch (ObjectNotFoundException as) {
-            logger.warn("CMSEngine: Unable to support auto-shutdown: " + as.getMessage());
-        }
+        org.mozilla.jss.crypto.X509Certificate cert = mManager.findCertByNickname(mSAuditCertNickName);
 
-        if (cert != null) {
-            logger.debug("CMSEngine: found cert:" + mSAuditCertNickName);
-            mSigningKey = mManager.findPrivKeyByCert(cert);
-            mSigningData = cert.getPublicKey().getEncoded();
-        }
+        mSigningKey = mManager.findPrivKeyByCert(cert);
+        mSigningData = cert.getPublicKey().getEncoded();
     }
 
     public void configureServerCertNickname() throws EBaseException {
