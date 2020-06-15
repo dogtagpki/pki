@@ -714,6 +714,10 @@ client_main(
             /* do SSL configuration. */
 
             rv = SSL_OptionSet(model_sock, SSL_SECURITY, 1);
+#ifdef SSL_ENABLE_POST_HANDSHAKE_AUTH
+            SSL_OptionSet(model_sock,
+                          SSL_ENABLE_POST_HANDSHAKE_AUTH, PR_TRUE);
+#endif
 
             if (rv < 0) {
                 if( model_sock != NULL ) {

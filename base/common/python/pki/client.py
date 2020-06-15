@@ -21,12 +21,15 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import functools
 import inspect
 import logging
+import ssl
 import warnings
 
 import requests
+from requests import adapters
 try:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
 except ImportError:
@@ -49,6 +52,25 @@ def catch_insecure_warning(func):
             warnings.simplefilter('ignore', InsecureRequestWarning)
             return func(self, *args, **kwargs)
     return wrapper
+
+
+class SSLContextAdapter(adapters.HTTPAdapter):
+    """Custom SSLContext Adapter for requests
+    """
+    def init_poolmanager(self, connections, maxsize,
+                         block=adapters.DEFAULT_POOLBLOCK, **pool_kwargs):
+        context = ssl.SSLContext(
+            ssl.PROTOCOL_TLS  # pylint: disable=no-member
+        )
+
+        # Enable post handshake authentication for TLS 1.3
+        if getattr(context, "post_handshake_auth", None) is not None:
+            context.post_handshake_auth = True
+
+        pool_kwargs['ssl_context'] = context
+        return super().init_poolmanager(
+            connections, maxsize, block, **pool_kwargs
+        )
 
 
 class PKIConnection:
@@ -101,6 +123,7 @@ class PKIConnection:
             self.serverURI = self.rootURI
 
         self.session = requests.Session()
+        self.session.mount("https://", SSLContextAdapter())
         self.session.trust_env = trust_env
         self.session.verify = verify
 
