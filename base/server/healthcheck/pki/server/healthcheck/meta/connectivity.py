@@ -1,4 +1,5 @@
 import logging
+import os
 
 from pki.server.healthcheck.meta.plugin import MetaPlugin, registry
 from ipahealthcheck.core.plugin import Result, duration
@@ -27,6 +28,7 @@ class DogtagCACertsConnectivityCheck(MetaPlugin):
         self.instance.load()
 
         ca = self.instance.get_subsystem('ca')
+        ca_cert = os.path.join(self.instance.nssdb_dir, "ca.crt")
 
         if not ca:
             logger.info("No CA configured, skipping dogtag CA connectivity check")
@@ -38,11 +40,12 @@ class DogtagCACertsConnectivityCheck(MetaPlugin):
             if ca.is_ready():
                 logger.debug("CA instance is running")
 
-                # Make a plain HTTP GET to "find" one certificate, to test that
+                # Make a plain HTTPS GET to "find" one certificate, to test that
                 # the server is up AND is able to respond back
                 connection = PKIConnection(protocol='https',
                                            hostname='localhost',
-                                           port='8443')
+                                           port='8443',
+                                           cert_paths=ca_cert)
 
                 cert_client = CertClient(connection)
                 cert = cert_client.list_certs(size=1)
@@ -98,6 +101,7 @@ class DogtagKRAConnectivityCheck(MetaPlugin):
         self.instance.load()
 
         kra = self.instance.get_subsystem('kra')
+        ca_cert = os.path.join(self.instance.nssdb_dir, "ca.crt")
 
         if not kra:
             logger.info("No KRA configured, skipping dogtag KRA connectivity check")
@@ -109,11 +113,12 @@ class DogtagKRAConnectivityCheck(MetaPlugin):
             if kra.is_ready():
                 logger.info("KRA instance is running.")
 
-                # Make a plain HTTP GET to retrieve KRA transport cert, to test that
+                # Make a plain HTTPS GET to retrieve KRA transport cert, to test that
                 # the server is up AND is able to respond back
                 connection = PKIConnection(protocol='https',
                                            hostname='localhost',
-                                           port='8443')
+                                           port='8443',
+                                           cert_paths=ca_cert)
 
                 system_cert_client = SystemCertClient(connection)
 
