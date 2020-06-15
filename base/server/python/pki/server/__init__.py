@@ -924,9 +924,25 @@ class PKIServer(object):
         return subsystem_name, cert_tag
 
     @staticmethod
-    def setup_password_authentication(username, password, subsystem_name='ca', secure_port='8443'):
-        """Return a PKIConnection, logged in using username and password."""
-        connection = pki.client.PKIConnection('https', os.environ['HOSTNAME'], secure_port)
+    def build_ca_files(client_nssdb):
+        if not client_nssdb:
+            return None
+
+        ca_cert = os.path.join(client_nssdb, "ca.crt")
+        if os.path.exists(ca_cert):
+            return ca_cert
+
+        return None
+
+    @staticmethod
+    def setup_password_authentication(username, password, subsystem_name='ca', secure_port='8443',
+                                      client_nssdb=None):
+        """
+        Return a PKIConnection, logged in using username and password.
+        """
+        ca_cert = PKIServer.build_ca_files(client_nssdb)
+        connection = pki.client.PKIConnection('https', os.environ['HOSTNAME'], secure_port,
+                                              cert_paths=ca_cert)
         connection.authenticate(username, password)
         account_client = pki.account.AccountClient(connection, subsystem=subsystem_name)
         account_client.login()
@@ -970,10 +986,6 @@ class PKIServer(object):
         if not client_cert:
             raise PKIServerException('Client cert nickname is required.')
 
-        # Create a PKIConnection object that stores the details of subsystem.
-        connection = pki.client.PKIConnection('https', os.environ['HOSTNAME'], secure_port,
-                                              subsystem_name)
-
         # Create a p12 file using
         # pk12util -o <p12 file name> -n <cert nick name> -d <NSS db path>
         # -W <pkcs12 password> -K <NSS db pass>
@@ -992,8 +1004,19 @@ class PKIServer(object):
             'pkcs12',
             '-in', temp_auth_p12,
             '-out', temp_auth_cert,
-            '-nodes',
+            '-nodes'
+        ]
 
+        # The PEM file containing the CA certificate. Created from a p12 file
+        # using the command:
+        # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes -cacerts -nokeys
+        cmd_generate_ca = [
+            'openssl', 'pkcs12',
+            '-in', temp_auth_p12,
+            '-out', os.path.join(client_nssdb, "ca.crt"),
+            '-nodes',
+            '-cacerts',
+            '-nokeys'
         ]
 
         if client_nssdb_pass_file:
@@ -1001,11 +1024,13 @@ class PKIServer(object):
             cmd_generate_pk12.extend(['-k', client_nssdb_pass_file,
                                       '-w', client_nssdb_pass_file])
             cmd_generate_pem.extend(['-passin', 'file:' + client_nssdb_pass_file])
+            cmd_generate_ca.extend(['-passin', 'file:' + client_nssdb_pass_file])
         else:
             # Use the same password for the generated pk12 file
             cmd_generate_pk12.extend(['-K', client_nssdb_pass,
                                       '-W', client_nssdb_pass])
             cmd_generate_pem.extend(['-passin', 'pass:' + client_nssdb_pass])
+            cmd_generate_ca.extend(['-passin', 'pass:' + client_nssdb_pass])
 
         # Generate temp_auth_p12 file
         res_pk12 = subprocess.check_output(cmd_generate_pk12,
@@ -1017,6 +1042,21 @@ class PKIServer(object):
         res_pem = subprocess.check_output(cmd_generate_pem,
                                           stderr=subprocess.STDOUT).decode('utf-8')
         logger.debug('Result of pem generation: %s', res_pem)
+
+        # When we generate the .p12 file, we can extract the ca certificate
+        # if it doesn't already exist.
+        ca_cert = PKIServer.build_ca_files(client_nssdb)
+        if not ca_cert:
+            # This method returns a value iff the ca.crt file actually
+            # exists. Since its value is False-y, we must create it.
+            res_ca = subprocess.check_output(cmd_generate_ca,
+                                             stderr=subprocess.STDOUT).decode('utf-8')
+            logger.debug('Result of CA generation: %s', res_ca)
+            ca_cert = PKIServer.build_ca_files(client_nssdb)
+
+        # Create a PKIConnection object that stores the details of subsystem.
+        connection = pki.client.PKIConnection('https', os.environ['HOSTNAME'], secure_port,
+                                              subsystem_name, cert_paths=ca_cert)
 
         # Bind the authentication with the connection object
         connection.set_authentication_cert(temp_auth_cert)
