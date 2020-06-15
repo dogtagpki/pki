@@ -7,10 +7,11 @@ package org.dogtagpki.acme.database;
 
 import java.io.FileReader;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,38 +34,23 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PostgreSQLDatabase.class);
 
-    protected Properties statements = new Properties();
+    protected Properties info;
+    protected String url;
+
+    protected Properties statements;
     protected Connection connection;
 
     public void init() throws Exception {
 
         logger.info("Initializing PostgreSQL database");
 
-        Properties info = new Properties();
+        info = new Properties();
         for (String name : config.getParameterNames()) {
             String value = config.getParameter(name);
             info.put(name, value);
         }
 
-        String url = (String) info.remove("url");
-        logger.info("Connecting to " + url);
-        connection = DriverManager.getConnection(url, info);
-
-        DatabaseMetaData md = connection.getMetaData();
-        ResultSet rs = null;
-
-        try {
-            logger.info("Tables:");
-            rs = md.getTables(null, null, "%", new String[] { "TABLE" });
-
-            while (rs.next()) {
-                String name = rs.getString(3);
-                logger.info("- " + name);
-            }
-
-        } finally {
-            if (rs != null) rs.close();
-        }
+        url = (String) info.remove("url");
 
         String statementsFilename = info.getProperty(
                 "statements",
@@ -72,6 +58,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
         logger.info("Loading statements from " + statementsFilename);
 
+        statements = new Properties();
         try (FileReader reader = new FileReader(statementsFilename)) {
             statements.load(reader);
         }
@@ -79,6 +66,45 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         for (String name : statements.stringPropertyNames()) {
             String value = statements.getProperty(name);
             logger.info("- " + name + ": " + value);
+        }
+    }
+
+    /**
+     * This method will create the initial connection, validate
+     * the current connection, or reestablish the connection if
+     * it's closed.
+     *
+     * This method should only be called by methods implementing
+     * ACMEDatabase.
+     *
+     * TODO: Use connection pool.
+     */
+    public void connect() throws Exception {
+
+        if (connection == null) { // create the initial connection
+            logger.info("Connecting to " + url);
+            connection = DriverManager.getConnection(url, info);
+            return;
+        }
+
+        // validate the current connection
+        try (Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery("SELECT 1")) {
+
+        } catch (SQLException e) {
+
+            if (connection.isClosed()) { // reestablish the connection
+                logger.info("Reconnecting to " + url);
+                connection = DriverManager.getConnection(url, info);
+                return;
+            }
+
+            logger.error("Unable to access database: " + e.getMessage());
+
+            // https://www.postgresql.org/docs/current/errcodes-appendix.html
+            logger.error("SQL state: " + e.getSQLState());
+
+            throw e;
         }
     }
 
@@ -123,6 +149,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         String sql = statements.getProperty("addNonce");
         logger.info("SQL: " + sql);
 
+        connect();
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, value);
@@ -135,6 +163,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
     }
 
     public ACMENonce removeNonce(String value) throws Exception {
+
+        connect();
 
         ACMENonce nonce = getNonce(value);
         if (nonce == null) return null;
@@ -153,6 +183,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
     }
 
     public void removeExpiredNonces(Date currentTime) throws Exception {
+
+        connect();
 
         Collection<ACMENonce> nonces = getExpiredNonces(currentTime);
 
@@ -201,6 +233,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         logger.info("SQL: " + sql);
 
         ACMEAccount account = new ACMEAccount();
+        connect();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, accountID);
@@ -259,6 +292,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         String sql = statements.getProperty("addAccount");
         logger.info("SQL: " + sql);
 
+        connect();
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, accountID);
@@ -278,6 +313,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
         String sql = statements.getProperty("updateAccount");
         logger.info("SQL: " + sql);
+
+        connect();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -338,6 +375,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         logger.info("SQL: " + sql);
 
         ACMEOrder order = new ACMEOrder();
+        connect();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, orderID);
@@ -380,6 +418,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         logger.info("SQL: " + sql);
 
         Collection<ACMEOrder> orders = new ArrayList<>();
+        connect();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, authzID);
@@ -423,6 +462,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         logger.info("SQL: " + sql);
 
         ACMEOrder order = new ACMEOrder();
+        connect();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, certID);
@@ -523,6 +563,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         String sql = statements.getProperty("addOrder");
         logger.info("SQL: " + sql);
 
+        connect();
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, orderID);
@@ -602,6 +644,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         String sql = statements.getProperty("updateOrder");
         logger.info("SQL: " + sql);
 
+        connect();
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, order.getStatus());
@@ -620,6 +664,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         logger.info("SQL: " + sql);
 
         ACMEAuthorization authorization = new ACMEAuthorization();
+        connect();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, authzID);
@@ -660,6 +705,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         logger.info("SQL: " + sql);
 
         ACMEAuthorization authorization = new ACMEAuthorization();
+        connect();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, challengeID);
@@ -700,6 +746,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         logger.info("SQL: " + sql);
 
         Collection<ACMEAuthorization> authorizations = new ArrayList<>();
+        connect();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, accountID);
@@ -781,6 +828,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         String sql = statements.getProperty("addAuthorization");
         logger.info("SQL: " + sql);
 
+        connect();
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, authzID);
@@ -810,6 +859,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
         String sql = statements.getProperty("updateAuthorization");
         logger.info("SQL: " + sql);
+
+        connect();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
