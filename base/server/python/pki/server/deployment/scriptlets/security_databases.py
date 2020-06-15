@@ -22,6 +22,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import logging
 import os
+import subprocess
 
 import pki.nssdb
 import pki.pkcs12
@@ -143,6 +144,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # import CA certificates from PKCS #12 file for cloning
         pki_clone_pkcs12_path = deployer.mdict['pki_clone_pkcs12_path']
+        pki_server_database_path = deployer.mdict['pki_server_database_path']
 
         if pki_clone_pkcs12_path:
 
@@ -152,7 +154,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 raise Exception('Missing pki_clone_pkcs12_password property.')
 
             nssdb = pki.nssdb.NSSDatabase(
-                directory=deployer.mdict['pki_server_database_path'],
+                directory=pki_server_database_path,
                 password_file=deployer.mdict['pki_shared_pfile'])
 
             try:
@@ -186,12 +188,27 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     trust_attributes='u,u,Pu')
 
                 print('Imported certificates into %s:' %
-                      deployer.mdict['pki_server_database_path'])
+                      pki_server_database_path)
 
                 nssdb.show_certs()
 
             finally:
                 nssdb.close()
+
+            # Export CA certificate to PEM file; same command as in
+            # PKIServer.setup_cert_authentication().
+            # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes -nokeys
+            cmd_export_ca = [
+                'openssl', 'pkcs12',
+                '-in', pki_clone_pkcs12_path,
+                '-out', os.path.join(pki_server_database_path, 'ca.crt'),
+                '-nodes',
+                '-nokeys',
+                '-passin', 'pass:' + pki_clone_pkcs12_password
+            ]
+            res_ca = subprocess.check_output(cmd_export_ca,
+                                             stderr=subprocess.STDOUT).decode('utf-8')
+            logger.debug('Result of CA certificate export: %s', res_ca)
 
         ca_cert_path = deployer.mdict.get('pki_cert_chain_path')
         if ca_cert_path and os.path.exists(ca_cert_path):
