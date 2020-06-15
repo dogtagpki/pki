@@ -245,11 +245,15 @@ class PKIDeployer:
 
         logger.info('Connecting to security domain at %s', sd_url)
 
+        ca_cert = os.path.join(self.mdict['pki_server_database_path'],
+                               "ca.crt")
+
         self.sd_connection = pki.client.PKIConnection(
             protocol='https',
             hostname=sd_hostname,
             port=sd_port,
-            trust_env=False)
+            trust_env=False,
+            cert_paths=ca_cert)
 
         return self.sd_connection
 
