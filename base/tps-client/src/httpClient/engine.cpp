@@ -612,6 +612,12 @@ PRFileDesc * Engine::_doConnect(PRNetAddr *addr, PRBool SSLOn,
         if ( SECSuccess == rv ) {
 			rv = SSL_OptionSet(sock, SSL_ENABLE_TLS, PR_TRUE);
 		}
+#ifdef SSL_ENABLE_POST_HANDSHAKE_AUTH
+        if ( SECSuccess == rv ) {
+            rv = SSL_OptionSet(sock,
+                               SSL_ENABLE_POST_HANDSHAKE_AUTH, PR_TRUE);
+        }
+#endif
         if ( SECSuccess != rv ) {
             error = PORT_GetError();
             if( sock != NULL ) {
