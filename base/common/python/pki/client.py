@@ -25,11 +25,13 @@ from __future__ import print_function
 import functools
 import inspect
 import logging
+import os
 import ssl
 import warnings
 
 import requests
 from requests import adapters
+from requests.adapters import DEFAULT_POOLBLOCK, DEFAULT_POOLSIZE, DEFAULT_RETRIES
 try:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
 except ImportError:
@@ -55,8 +57,41 @@ def catch_insecure_warning(func):
 
 
 class SSLContextAdapter(adapters.HTTPAdapter):
-    """Custom SSLContext Adapter for requests
     """
+    Custom SSLContext Adapter for requests
+    """
+
+    def __init__(self, pool_connections=DEFAULT_POOLSIZE,
+                 pool_maxsize=DEFAULT_POOLSIZE, max_retries=DEFAULT_RETRIES,
+                 pool_block=DEFAULT_POOLBLOCK, verify=True,
+                 cert_paths=None):
+        self.verify = verify
+        self.cafiles = []
+        self.capaths = []
+
+        cert_paths = cert_paths or []
+
+        if isinstance(cert_paths, str):
+            cert_paths = [cert_paths]
+
+        for path in cert_paths:
+            path = path and os.path.expanduser(path)
+
+            if os.path.isdir(path):
+                self.capaths.append(path)
+            elif os.path.exists(path):
+                self.cafiles.append(path)
+            else:
+                logger.warning("cert_path missing; not used for validation: %s",
+                               path)
+
+        # adapters.HTTPAdapter.__init__ calls our init_poolmanager, which needs
+        # our cafiles/capaths variables we set up above.
+        super(SSLContextAdapter, self).__init__(pool_connections=pool_connections,
+                                                pool_maxsize=pool_maxsize,
+                                                max_retries=max_retries,
+                                                pool_block=pool_block)
+
     def init_poolmanager(self, connections, maxsize,
                          block=adapters.DEFAULT_POOLBLOCK, **pool_kwargs):
         context = ssl.SSLContext(
@@ -66,6 +101,23 @@ class SSLContextAdapter(adapters.HTTPAdapter):
         # Enable post handshake authentication for TLS 1.3
         if getattr(context, "post_handshake_auth", None) is not None:
             context.post_handshake_auth = True
+
+        # Load from the system trust store when possible; per documentation
+        # this call could silently fail and refuse to configure any
+        # certificates. In this instance, the user should provide a
+        # certificate manually.
+        context.set_default_verify_paths()
+
+        # Load any specific certificate paths that have been specified during
+        # adapter initialization.
+        for cafile in self.cafiles:
+            context.load_verify_locations(cafile=cafile)
+        for capath in self.capaths:
+            context.load_verify_locations(capath=capath)
+
+        if self.verify:
+            # Enable certificate verification
+            context.verify_mode = ssl.VerifyMode.CERT_REQUIRED  # pylint: disable=no-member
 
         pool_kwargs['ssl_context'] = context
         return super().init_poolmanager(
@@ -81,7 +133,7 @@ class PKIConnection:
 
     def __init__(self, protocol='http', hostname='localhost', port='8080',
                  subsystem=None, accept='application/json',
-                 trust_env=None, verify=False):
+                 trust_env=None, verify=True, cert_paths=None):
         """
         Set the parameters for a python-requests based connection to a
         Dogtag subsystem.
@@ -103,6 +155,9 @@ class PKIConnection:
         :param verify: verify TLS/SSL connections and configure CA certs
            (default: no)
         :type verify: None, bool, str
+        :param cert_paths: paths to CA certificates / directories in OpenSSL
+          format. (default: None)
+        :type cert_paths: None, str, list
         :return: PKIConnection object.
         """
 
@@ -123,7 +178,7 @@ class PKIConnection:
             self.serverURI = self.rootURI
 
         self.session = requests.Session()
-        self.session.mount("https://", SSLContextAdapter())
+        self.session.mount("https://", SSLContextAdapter(verify=verify, cert_paths=cert_paths))
         self.session.trust_env = trust_env
         self.session.verify = verify
 
