@@ -748,9 +748,10 @@ class PKIInstance(pki.server.PKIServer):
         :raises pki.server.PKIServerException
 
         Either supply both username and password, or supply
-        client_nssdb and client_cert and
-        (client_nssdb_pass or client_nssdb_pass_file).
+        client_cert and (client_nssdb_pass or client_nssdb_pass_file).
 
+        Note that client_nssdb should be specified in either case, as it
+        contains the CA Certificate.
         """
         nssdb = self.open_nssdb()
         tmpdir = tempfile.mkdtemp()
@@ -804,7 +805,8 @@ class PKIInstance(pki.server.PKIServer):
                 logger.info('Trying to setup a secure connection to CA subsystem.')
                 if username and password:
                     connection = pki.server.PKIServer.setup_password_authentication(
-                        username, password, subsystem_name='ca', secure_port=secure_port)
+                        username, password, subsystem_name='ca', secure_port=secure_port,
+                        client_nssdb=client_nssdb)
                 else:
                     if not client_cert:
                         raise pki.server.PKIServerException('Client cert nick name required.')
