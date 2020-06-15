@@ -2062,6 +2062,7 @@ class KRAConnector:
     def __init__(self, deployer):
         self.mdict = deployer.mdict
         self.password = deployer.password
+        self.ca_cert = os.path.join(self.mdict['pki_server_database_path'], "ca.crt")
 
     def deregister(self, critical_failure=False):
         krahost = None
@@ -2133,7 +2134,7 @@ class KRAConnector:
 
             try:
                 ca_list = self.get_ca_list_from_security_domain(
-                    sechost, secport)
+                    sechost, secport, self.ca_cert)
             except Exception as e:
                 logger.error(
                     "unable to access security domain. Continuing .. %s ",
@@ -2170,12 +2171,13 @@ class KRAConnector:
         return
 
     @staticmethod
-    def get_ca_list_from_security_domain(sechost, secport):
+    def get_ca_list_from_security_domain(sechost, secport, cert_paths):
         sd_connection = pki.client.PKIConnection(
             protocol='https',
             hostname=sechost,
             port=secport,
-            trust_env=False)
+            trust_env=False,
+            cert_paths=cert_paths)
         sd = pki.system.SecurityDomainClient(sd_connection)
         try:
             info = sd.get_domain_info()
