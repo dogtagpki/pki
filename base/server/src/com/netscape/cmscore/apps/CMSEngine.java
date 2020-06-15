@@ -830,19 +830,15 @@ public class CMSEngine {
             logger.debug("CMSEngine: current restart count: " + mAutoSD_RestartCount);
 
         } else { //!mAutoSD_Restart
+
             mAutoSD_CrumbFile = mConfig.getString("autoShutdown.crumbFile",
                 instanceDir + "/logs/autoShutdown.crumb");
-            logger.debug("CMSEngine: autoShutdown crumb file path: " + mAutoSD_CrumbFile);
+            logger.info("CMSEngine: auto-shutdown crumb file: " + mAutoSD_CrumbFile);
 
             File crumb = new File(mAutoSD_CrumbFile);
-            try {
-                if (crumb.exists()) {
-                    logger.debug("CMSEngine: delete autoShutdown crumb file");
-                    crumb.delete();
-                }
-            } catch (Exception e) {
-                logger.warn("Delete autoShutdown crumb file failed: " + e.getMessage(), e);
-                logger.warn("Continue with initialization");
+            if (crumb.exists()) {
+                logger.info("CMSEngine: deleting auto-shutdown crumb file: " + mAutoSD_CrumbFile);
+                crumb.delete();
             }
         }
 
