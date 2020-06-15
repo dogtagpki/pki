@@ -533,11 +533,15 @@ class PKIConfigParser:
 
     def get_server_status(self, system_type, system_uri):
         parse = urlparse(self.mdict[system_uri])
+        # Because this is utilized exclusively during pkispawn, we can safely
+        # ignore validating the certificate; it might not yet have been
+        # configured anyways.
         conn = pki.client.PKIConnection(
             protocol=parse.scheme,
             hostname=parse.hostname,
             port=str(parse.port),
-            trust_env=False)
+            trust_env=False,
+            verify=False)
         client = pki.system.SystemStatusClient(conn, subsystem=system_type)
         response = client.get_status()
         root = ET.fromstring(response)

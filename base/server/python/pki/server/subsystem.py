@@ -371,12 +371,15 @@ class PKISubsystem(object):
             protocol = 'http'
             port = server_config.get_unsecure_port()
 
+        # When waiting for a connection to come alive, don't bother verifying
+        # the certificate at this stage.
         connection = pki.client.PKIConnection(
             protocol=protocol,
             hostname=socket.getfqdn(),
             port=port,
             accept='application/xml',
-            trust_env=False)
+            trust_env=False,
+            verify=False)
 
         client = pki.system.SystemStatusClient(connection, subsystem=self.name)
         response = client.get_status(timeout=timeout)
