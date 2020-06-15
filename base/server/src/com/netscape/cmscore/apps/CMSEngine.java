@@ -97,7 +97,6 @@ import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
-import com.netscape.cmsutil.password.NuxwdogPasswordStore;
 import com.netscape.cmsutil.util.NuxwdogUtil;
 
 import netscape.ldap.LDAPConnection;
@@ -807,69 +806,64 @@ public class CMSEngine {
         ss.init(ssConfig);
     }
 
-    public void configureAutoShutdown() throws EBaseException {
+    public void configureAutoShutdown() throws Exception {
 
         logger.info("CMSEngine: Configuring auto shutdown");
 
-        try {
-            /*
-             * autoShutdown.allowed=false
-             * autoShutdown.crumbFile=[PKI_INSTANCE_PATH]/logs/autoShutdown.crumb
-             * autoShutdown.restart.enable=false
-             * autoShutdown.restart.max=3
-             * autoShutdown.restart.count=0
-             */
+        /*
+         * autoShutdown.allowed=false
+         * autoShutdown.crumbFile=[PKI_INSTANCE_PATH]/logs/autoShutdown.crumb
+         * autoShutdown.restart.enable=false
+         * autoShutdown.restart.max=3
+         * autoShutdown.restart.count=0
+         */
 
-            mAutoSD_Restart = mConfig.getBoolean("autoShutdown.restart.enable", false);
-            logger.debug("CMSEngine: restart at autoShutdown: " + mAutoSD_Restart);
+        mAutoSD_Restart = mConfig.getBoolean("autoShutdown.restart.enable", false);
+        logger.debug("CMSEngine: restart at autoShutdown: " + mAutoSD_Restart);
 
-            if (mAutoSD_Restart) {
-                mAutoSD_RestartMax = mConfig.getInteger("autoShutdown.restart.max", 3);
-                logger.debug("CMSEngine: restart max: " + mAutoSD_RestartMax);
+        if (mAutoSD_Restart) {
+            mAutoSD_RestartMax = mConfig.getInteger("autoShutdown.restart.max", 3);
+            logger.debug("CMSEngine: restart max: " + mAutoSD_RestartMax);
 
-                mAutoSD_RestartCount = mConfig.getInteger("autoShutdown.restart.count", 0);
-                logger.debug("CMSEngine: current restart count: " + mAutoSD_RestartCount);
+            mAutoSD_RestartCount = mConfig.getInteger("autoShutdown.restart.count", 0);
+            logger.debug("CMSEngine: current restart count: " + mAutoSD_RestartCount);
 
-            } else { //!mAutoSD_Restart
-                mAutoSD_CrumbFile = mConfig.getString("autoShutdown.crumbFile",
-                    instanceDir + "/logs/autoShutdown.crumb");
-                logger.debug("CMSEngine: autoShutdown crumb file path: " + mAutoSD_CrumbFile);
+        } else { //!mAutoSD_Restart
+            mAutoSD_CrumbFile = mConfig.getString("autoShutdown.crumbFile",
+                instanceDir + "/logs/autoShutdown.crumb");
+            logger.debug("CMSEngine: autoShutdown crumb file path: " + mAutoSD_CrumbFile);
 
-                File crumb = new File(mAutoSD_CrumbFile);
-                try {
-                    if (crumb.exists()) {
-                        logger.debug("CMSEngine: delete autoShutdown crumb file");
-                        crumb.delete();
-                    }
-                } catch (Exception e) {
-                    logger.warn("Delete autoShutdown crumb file failed: " + e.getMessage(), e);
-                    logger.warn("Continue with initialization");
-                }
-            }
-
-            /*
-             * establish signing key reference using audit signing cert
-             * for HSM failover detection
-             */
-            mSAuditCertNickName = mConfig.getString(PROP_SIGNED_AUDIT_CERT_NICKNAME);
-            logger.debug("CMSEngine: about to look for cert for auto-shutdown support:" + mSAuditCertNickName);
-
-            CryptoManager mManager = CryptoManager.getInstance();
-            org.mozilla.jss.crypto.X509Certificate cert = null;
+            File crumb = new File(mAutoSD_CrumbFile);
             try {
-                cert = mManager.findCertByNickname(mSAuditCertNickName);
-            } catch (ObjectNotFoundException as) {
-                logger.warn("CMSEngine: Unable to support auto-shutdown: " + as.getMessage());
+                if (crumb.exists()) {
+                    logger.debug("CMSEngine: delete autoShutdown crumb file");
+                    crumb.delete();
+                }
+            } catch (Exception e) {
+                logger.warn("Delete autoShutdown crumb file failed: " + e.getMessage(), e);
+                logger.warn("Continue with initialization");
             }
+        }
 
-            if (cert != null) {
-                logger.debug("CMSEngine: found cert:" + mSAuditCertNickName);
-                mSigningKey = mManager.findPrivKeyByCert(cert);
-                mSigningData = cert.getPublicKey().getEncoded();
-            }
+        /*
+         * establish signing key reference using audit signing cert
+         * for HSM failover detection
+         */
+        mSAuditCertNickName = mConfig.getString(PROP_SIGNED_AUDIT_CERT_NICKNAME);
+        logger.debug("CMSEngine: about to look for cert for auto-shutdown support:" + mSAuditCertNickName);
 
-        } catch (Exception e) {
-            logger.warn("CMSEngine: Unable to configure auto-shutdown: " + e.getMessage(), e);
+        CryptoManager mManager = CryptoManager.getInstance();
+        org.mozilla.jss.crypto.X509Certificate cert = null;
+        try {
+            cert = mManager.findCertByNickname(mSAuditCertNickName);
+        } catch (ObjectNotFoundException as) {
+            logger.warn("CMSEngine: Unable to support auto-shutdown: " + as.getMessage());
+        }
+
+        if (cert != null) {
+            logger.debug("CMSEngine: found cert:" + mSAuditCertNickName);
+            mSigningKey = mManager.findPrivKeyByCert(cert);
+            mSigningData = cert.getPublicKey().getEncoded();
         }
     }
 
