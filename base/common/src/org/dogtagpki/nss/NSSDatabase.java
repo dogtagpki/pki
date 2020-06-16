@@ -43,6 +43,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -60,12 +61,18 @@ import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CPSuri;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificatePoliciesExtension;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyId;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyInfo;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo;
+import org.mozilla.jss.netscape.security.x509.PolicyQualifiers;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -670,6 +677,88 @@ public class NSSDatabase {
         cmd.add(StringUtils.join(options, ","));
     }
 
+    /**
+     * This method provides the arguments and the standard input for certutil
+     * to create a cert/CSR with certificate policies extension.
+     *
+     * @param cmd certutil command and arguments
+     * @param stdin certutil's standard input
+     * @param extension The extension to add
+     */
+    public void addCertificatePoliciesExtension(
+            List<String> cmd,
+            PrintWriter stdin,
+            CertificatePoliciesExtension extension) throws Exception {
+
+        logger.info("Adding certificate policies extension:");
+
+        cmd.add("--extCP");
+
+        Vector<CertificatePolicyInfo> infos = (Vector<CertificatePolicyInfo>)
+                extension.get(CertificatePoliciesExtension.INFOS);
+
+        for (int i = 0; i < infos.size(); i++) {
+            CertificatePolicyInfo info = infos.get(i);
+
+            CertificatePolicyId policyID = info.getPolicyIdentifier();
+            ObjectIdentifier policyOID = policyID.getIdentifier();
+            logger.info("- " + policyOID);
+
+            // Enter a CertPolicy Object Identifier (dotted decimal format)
+            // or "any" for AnyPolicy: >
+            stdin.println(policyOID);
+
+            PolicyQualifiers qualifiers = info.getPolicyQualifiers();
+
+            if (qualifiers == null || qualifiers.size() == 0) {
+                // Choose the type of qualifier for policy:
+                stdin.println();
+
+            } else {
+
+                int size = qualifiers.size();
+                for (int j = 0; j < size; j++) {
+                    PolicyQualifierInfo qualifierInfo = qualifiers.getInfoAt(j);
+                    ObjectIdentifier qualifierOID = qualifierInfo.getId();
+
+                    if (PolicyQualifierInfo.QT_CPS.equals(qualifierOID)) {
+
+                        CPSuri cpsURI = (CPSuri) qualifierInfo.getQualifier();
+                        String uri = cpsURI.getURI();
+                        logger.info("  - CPS: " + uri);
+
+                        // Choose the type of qualifier for policy:
+                        stdin.println("1");
+
+                        // Enter CPS pointer URI:
+                        stdin.println(uri);
+
+                        // Enter another policy qualifier [y/N]
+                        if (j < size - 1) {
+                            stdin.print("y");
+                        }
+                        stdin.println();
+
+                    } else {
+                        throw new Exception("Unsupported certificate policy qualifier: " + qualifierOID);
+                    }
+                }
+            }
+
+            // Enter another PolicyInformation field [y/N]
+            if (i < infos.size() - 1) {
+                stdin.print("y");
+            }
+            stdin.println();
+        }
+
+        // Is this a critical extension [y/N]?
+        if (extension.isCritical()) {
+            stdin.print("y");
+        }
+        stdin.println();
+    }
+
     public void addExtensions(
             List<String> cmd,
             StringWriter sw,
@@ -702,6 +791,10 @@ public class NSSDatabase {
             } else if (extension instanceof ExtendedKeyUsageExtension) {
                 ExtendedKeyUsageExtension extendedKeyUsageExtension = (ExtendedKeyUsageExtension) extension;
                 addExtendedKeyUsageExtension(cmd, extendedKeyUsageExtension);
+
+            } else if (extension instanceof CertificatePoliciesExtension) {
+                CertificatePoliciesExtension certificatePoliciesExtension = (CertificatePoliciesExtension) extension;
+                addCertificatePoliciesExtension(cmd, stdin, certificatePoliciesExtension);
             }
         }
     }
