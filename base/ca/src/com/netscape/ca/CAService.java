@@ -1251,16 +1251,35 @@ public class CAService implements ICAService, IService {
             logger.debug(method + " ct_timestamp: " + timestamp_s);
             // timestamp
             byte timestamp[] = timeStampHexStringToByteArray(timestamp_s);
-            byte ct_signature[] = CryptoUtil.base64Decode(response.getSignature());
-            logger.debug(method + " ct_signature len = "+ ct_signature.length);
-            // hard code for now for SHA256withEC signature size is 64
-            int sig_index = ct_signature.length - 64;
-            /*
-             * first 4 bytes are for algorithms
-             * e.g. 04030047 (sha256, ecdsa)
+
+            /* Signature hash and algorithm; values defined in
+             * https://tools.ietf.org/html/rfc5246#section-7.4.1.4.1
+             * and elsewhere.
+             *
+             * First byte is hash alg.
+             * Second byte is sig alg.
+             * Bytes 3 and 4 are length of signature data.
+             *
+             * struct {
+             *   SignatureAndHashAlgorithm algorithm;
+             *   opaque signature<0..2^16-1>;
+             * } DigitallySigned;
+             *
+             * enum {
+             *     none(0), md5(1), sha1(2), sha224(3), sha256(4), sha384(5),
+             *     sha512(6), (255)
+             * } HashAlgorithm;
+             *
+             * enum { anonymous(0), rsa(1), dsa(2), ecdsa(3), (255) }
+             *   SignatureAlgorithm;
+             *
+             * struct {
+             *       HashAlgorithm hash;
+             *       SignatureAlgorithm signature;
+             * } SignatureAndHashAlgorithm;
              */
-            byte[] signature = Arrays.copyOfRange(ct_signature, sig_index, ct_signature.length);
-            logger.debug(method + " signature len = "+ signature.length);
+            byte ct_signature[] = CryptoUtil.base64Decode(response.getSignature());
+            byte[] signature = Arrays.copyOfRange(ct_signature, 4, ct_signature.length);
 
             /* compose data */
             byte[] version = new byte[] {0}; // 1 byte; v1(0)
