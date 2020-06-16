@@ -15,8 +15,13 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * @author Endi S. Dewata
@@ -121,6 +126,43 @@ public class NSSExtensionGenerator {
         return new BasicConstraintsExtension(ca, critical, pathLength);
     }
 
+    public AuthorityKeyIdentifierExtension createAKIDExtension(
+            org.mozilla.jss.crypto.X509Certificate issuer) throws Exception {
+
+        if (issuer == null) return null;
+
+        String authorityKeyIdentifier = getParameter("authorityKeyIdentifier");
+        if (authorityKeyIdentifier == null) return null;
+
+        logger.info("Creating AKID extension:");
+
+        boolean keyid = false;
+
+        List<String> options = Arrays.asList(authorityKeyIdentifier.split("\\s*,\\s*"));
+        for (String option : options) {
+            option = option.trim();
+            logger.info("- " + option);
+
+            if (option.equals("keyid") || option.equals("keyid:always")) {
+                keyid = true;
+                continue;
+            }
+
+            throw new Exception("Unsupported option: " + option);
+        }
+
+        X509CertImpl issuerImpl = new X509CertImpl(issuer.getEncoded());
+
+        SubjectKeyIdentifierExtension skidExtension = (SubjectKeyIdentifierExtension)
+                issuerImpl.getExtension("2.5.29.14");
+
+        KeyIdentifier keyID = (KeyIdentifier) skidExtension.get(SubjectKeyIdentifierExtension.KEY_ID);
+        String akid = "0x" + Utils.HexEncode(keyID.getIdentifier());
+        logger.info("- AKID: " + akid);
+
+        return new AuthorityKeyIdentifierExtension(keyID, null, null);
+    }
+
     public CertificateExtensions createExtensions() throws Exception {
         return createExtensions(null, null);
     }
@@ -134,6 +176,11 @@ public class NSSExtensionGenerator {
         BasicConstraintsExtension basicConstraintsExtension = createBasicConstraintsExtension();
         if (basicConstraintsExtension != null) {
             extensions.parseExtension(basicConstraintsExtension);
+        }
+
+        AuthorityKeyIdentifierExtension akidExtension = createAKIDExtension(issuer);
+        if (akidExtension != null) {
+            extensions.parseExtension(akidExtension);
         }
 
         return extensions;
