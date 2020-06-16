@@ -54,6 +54,7 @@ import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -430,6 +431,37 @@ public class NSSDatabase {
         stdin.println();
     }
 
+    /**
+     * This method provides the arguments and the standard input for certutil
+     * to create a cert/CSR with SKID extension.
+     *
+     * @param cmd certutil command and arguments
+     * @param stdin certutil's standard input
+     * @param extension The extension to add
+     */
+    public void addSKIDExtension(
+            List<String> cmd,
+            PrintWriter stdin,
+            SubjectKeyIdentifierExtension extension) throws Exception {
+
+        logger.info("Adding SKID extension:");
+
+        cmd.add("--extSKID");
+
+        KeyIdentifier keyID = (KeyIdentifier) extension.get(SubjectKeyIdentifierExtension.KEY_ID);
+        String skid = "0x" + Utils.HexEncode(keyID.getIdentifier());
+        logger.info("- SKID: " + skid);
+
+        // Enter value for the key identifier fields,enter to omit:
+        stdin.println(skid);
+
+        // Is this a critical extension [y/N]?
+        if (extension.isCritical()) {
+            stdin.print("y");
+        }
+        stdin.println();
+    }
+
     public void addExtensions(
             List<String> cmd,
             StringWriter sw,
@@ -446,6 +478,10 @@ public class NSSDatabase {
             } else if (extension instanceof AuthorityKeyIdentifierExtension) {
                 AuthorityKeyIdentifierExtension akidExtension = (AuthorityKeyIdentifierExtension) extension;
                 addAKIDExtension(cmd, stdin, akidExtension);
+
+            } else if (extension instanceof SubjectKeyIdentifierExtension) {
+                SubjectKeyIdentifierExtension skidExtension = (SubjectKeyIdentifierExtension) extension;
+                addSKIDExtension(cmd, stdin, skidExtension);
             }
         }
     }
