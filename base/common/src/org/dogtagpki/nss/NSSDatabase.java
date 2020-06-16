@@ -40,6 +40,7 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 
@@ -50,6 +51,7 @@ import org.dogtagpki.cli.CLIException;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.extensions.AccessDescription;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
+import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
@@ -624,6 +626,50 @@ public class NSSDatabase {
         cmd.add(StringUtils.join(options, ","));
     }
 
+    /**
+     * This method provides the arguments for certutil to create a cert/CSR
+     * with extended key usage extension.
+     *
+     * @param cmd certutil command and arguments
+     * @param extension The extension to add
+     */
+    public void addExtendedKeyUsageExtension(
+            List<String> cmd,
+            ExtendedKeyUsageExtension extension) throws Exception {
+
+        logger.info("Adding extended key usage extension:");
+
+        cmd.add("--extKeyUsage");
+
+        List<String> options = new ArrayList<>();
+
+        if (extension.isCritical()) {
+            logger.info("- critical");
+            options.add("critical");
+        }
+
+        Enumeration<ObjectIdentifier> e = extension.getOIDs();
+        while (e.hasMoreElements()) {
+            ObjectIdentifier oid = e.nextElement();
+
+            if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.1").equals(oid)) {
+                logger.info("- serverAuth");
+                options.add("serverAuth");
+
+            } else if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.2").equals(oid)) {
+                logger.info("- clientAuth");
+                options.add("clientAuth");
+
+            } else {
+                throw new Exception("Unsupported extended key usage: " + oid);
+            }
+
+            // TODO: Support other extended key usages.
+        }
+
+        cmd.add(StringUtils.join(options, ","));
+    }
+
     public void addExtensions(
             List<String> cmd,
             StringWriter sw,
@@ -652,6 +698,10 @@ public class NSSDatabase {
             } else if (extension instanceof KeyUsageExtension) {
                 KeyUsageExtension keyUsageExtension = (KeyUsageExtension) extension;
                 addKeyUsageExtension(cmd, keyUsageExtension);
+
+            } else if (extension instanceof ExtendedKeyUsageExtension) {
+                ExtendedKeyUsageExtension extendedKeyUsageExtension = (ExtendedKeyUsageExtension) extension;
+                addExtendedKeyUsageExtension(cmd, extendedKeyUsageExtension);
             }
         }
     }
