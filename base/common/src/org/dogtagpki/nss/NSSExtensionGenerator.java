@@ -6,6 +6,7 @@
 package org.dogtagpki.nss;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -22,10 +23,16 @@ import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CPSuri;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificatePoliciesExtension;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyId;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyInfo;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo;
+import org.mozilla.jss.netscape.security.x509.PolicyQualifiers;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -333,6 +340,68 @@ public class NSSExtensionGenerator {
         return new ExtendedKeyUsageExtension(critical, oids);
     }
 
+    public CertificatePoliciesExtension createCertificatePoliciesExtension() throws Exception {
+
+        String certificatePolicies = getParameter("certificatePolicies");
+        if (certificatePolicies == null) return null;
+
+        logger.info("Creating certificate policies extension:");
+
+        Vector<CertificatePolicyInfo> infos = new Vector<>();
+
+        List<String> options = Arrays.asList(certificatePolicies.split("\\s*,\\s*"));
+
+        for (int i = 0; i < options.size(); i++) {
+            String option = options.get(i);
+
+            CertificatePolicyInfo info;
+
+            if (option.startsWith("@")) {
+                String section = option.substring(1);
+                String oid = getParameter(section + ".id");
+                logger.info("- " + oid);
+
+                CertificatePolicyId policyID = new CertificatePolicyId(
+                        ObjectIdentifier.getObjectIdentifier(oid));
+
+                PolicyQualifiers qualifiers = new PolicyQualifiers();
+
+                // create CPS qualifiers
+                String cpsProperty = section + ".CPS";
+                List<String> cpsIDs = new ArrayList<>(getParameterNames(cpsProperty));
+
+                for (int j = 0; j < cpsIDs.size(); j++) {
+                    String cpsID = cpsIDs.get(j);
+                    String uri = getParameter(cpsProperty + "." + cpsID);
+                    logger.info("  - CPS: " + uri);
+
+                    CPSuri cpsURI = new CPSuri(uri);
+
+                    PolicyQualifierInfo cpsQualifierInfo = new PolicyQualifierInfo(
+                            PolicyQualifierInfo.QT_CPS, cpsURI);
+
+                    qualifiers.add(cpsQualifierInfo);
+                }
+
+                // TODO: Add support for user notice qualifiers.
+
+                if (qualifiers.size() == 0) qualifiers = null;
+                info = new CertificatePolicyInfo(policyID, qualifiers);
+
+            } else {
+                logger.info("- " + option);
+
+                CertificatePolicyId policyID = new CertificatePolicyId(
+                        ObjectIdentifier.getObjectIdentifier(option));
+                info = new CertificatePolicyInfo(policyID);
+            }
+
+            infos.add(info);
+        }
+
+        return new CertificatePoliciesExtension(infos);
+    }
+
     public CertificateExtensions createExtensions() throws Exception {
         return createExtensions(null, null);
     }
@@ -371,6 +440,11 @@ public class NSSExtensionGenerator {
         ExtendedKeyUsageExtension extendedKeyUsageExtension = createExtendedKeyUsageExtension();
         if (extendedKeyUsageExtension != null) {
             extensions.parseExtension(extendedKeyUsageExtension);
+        }
+
+        CertificatePoliciesExtension certificatePoliciesExtension = createCertificatePoliciesExtension();
+        if (certificatePoliciesExtension != null) {
+            extensions.parseExtension(certificatePoliciesExtension);
         }
 
         return extensions;
