@@ -132,6 +132,10 @@ class MigrateCLI(pki.cli.CLI):
             # Only attempt to convert if target format is sql and DB is dbm
             if nssdb.needs_conversion():
                 nssdb.convert_db()
+
+            ca_path = os.path.join(instance.nssdb_dir, 'ca.crt')
+            nickname = instance.get_sslserver_cert_nickname()
+            nssdb.extract_ca_cert(ca_path, nickname)
         finally:
             nssdb.close()
 

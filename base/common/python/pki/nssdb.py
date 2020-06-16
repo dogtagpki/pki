@@ -1751,6 +1751,37 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
+    def extract_ca_cert(self, ca_path, nickname):
+        tmpdir = tempfile.mkdtemp()
+
+        try:
+            p12_file = os.path.join(tmpdir, "sslserver.p12")
+            password = pki.generate_password()
+
+            # Build a chain containing the certificate we're trying to
+            # export. OpenSSL gets confused if we don't have a key for
+            # the end certificate: rh-bz#1246371
+            self.export_pkcs12(p12_file, pkcs12_password=password,
+                               nicknames=[nickname], include_key=False,
+                               include_chain=True)
+
+            # This command is similar to the one from server/__init__.py.
+            # However, to work during the initial startup, we do not
+            # specify the cacerts option! This ensures we always get
+            cmd_export_ca = [
+                'openssl', 'pkcs12',
+                '-in', p12_file,
+                '-out', ca_path,
+                '-nodes', '-nokeys',
+                '-passin', 'pass:' + password
+            ]
+
+            res_ca = subprocess.check_output(cmd_export_ca,
+                                             stderr=subprocess.STDOUT).decode('utf-8')
+            logger.debug('Result of CA cert export: %s', res_ca)
+        finally:
+            shutil.rmtree(tmpdir)
+
     @staticmethod
     def __generate_key_args(key_type=None, key_size=None, curve=None):
         """
