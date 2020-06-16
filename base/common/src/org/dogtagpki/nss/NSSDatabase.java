@@ -48,9 +48,12 @@ import org.dogtagpki.cli.CLIException;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -387,6 +390,46 @@ public class NSSDatabase {
         stdin.println();
     }
 
+    /**
+     * This method provides the arguments and the standard input for certutil
+     * to create a cert/CSR with AKID extension.
+     *
+     * @param cmd certutil command and arguments
+     * @param stdin certutil's standard input
+     * @param extension The extension to add
+     */
+    public void addAKIDExtension(
+            List<String> cmd,
+            PrintWriter stdin,
+            AuthorityKeyIdentifierExtension extension) throws Exception {
+
+        logger.info("Adding AKID extension:");
+
+        cmd.add("-3");
+
+        // Enter value for the authKeyID extension [y/N]?
+        stdin.println("y");
+
+        KeyIdentifier keyID = (KeyIdentifier) extension.get(AuthorityKeyIdentifierExtension.KEY_ID);
+        String akid = "0x" + Utils.HexEncode(keyID.getIdentifier());
+        logger.info("- AKID: " + akid);
+
+        // Enter value for the key identifier fields,enter to omit:
+        stdin.println(akid);
+
+        // Select one of the following general name type:
+        stdin.println();
+
+        // Enter value for the authCertSerial field, enter to omit:
+        stdin.println();
+
+        // Is this a critical extension [y/N]?
+        if (extension.isCritical()) {
+            stdin.print("y");
+        }
+        stdin.println();
+    }
+
     public void addExtensions(
             List<String> cmd,
             StringWriter sw,
@@ -399,6 +442,10 @@ public class NSSDatabase {
             if (extension instanceof BasicConstraintsExtension) {
                 BasicConstraintsExtension basicConstraintsExtension = (BasicConstraintsExtension) extension;
                 addBasicConstraintsExtension(cmd, stdin, basicConstraintsExtension);
+
+            } else if (extension instanceof AuthorityKeyIdentifierExtension) {
+                AuthorityKeyIdentifierExtension akidExtension = (AuthorityKeyIdentifierExtension) extension;
+                addAKIDExtension(cmd, stdin, akidExtension);
             }
         }
     }
