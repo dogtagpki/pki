@@ -14,13 +14,17 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
@@ -193,6 +197,55 @@ public class NSSExtensionGenerator {
         return new SubjectKeyIdentifierExtension(bytes);
     }
 
+    public AuthInfoAccessExtension createAIAExtension() throws Exception {
+
+        String authorityInfoAccess = getParameter("authorityInfoAccess");
+        if (authorityInfoAccess == null) return null;
+
+        logger.info("Creating AIA extension:");
+
+        AuthInfoAccessExtension extension = new AuthInfoAccessExtension(false);
+
+        List<String> options = Arrays.asList(authorityInfoAccess.split("\\s*,\\s*"));
+        for (int i = 0; i < options.size(); i++) {
+            String option = options.get(i).trim();
+
+            ObjectIdentifier method;
+            String value;
+
+            if (option.startsWith("caIssuers;")) {
+                value = option.substring(10);
+                logger.info("- CA issuers");
+
+                method = AuthInfoAccessExtension.METHOD_CA_ISSUERS;
+
+            } else if (option.startsWith("OCSP;")) {
+                value = option.substring(5);
+                logger.info("- OCSP");
+
+                method = AuthInfoAccessExtension.METHOD_OCSP;
+
+            } else {
+                throw new Exception("Unsupported AIA method: " + option);
+            }
+
+            GeneralName location;
+            if (value.startsWith("URI:")) {
+                String uri = value.substring(4);
+                logger.info("  - URI: " + uri);
+
+                location = new GeneralName(new URIName(uri));
+
+            } else {
+                throw new Exception("Unsupported AIA location: " + value);
+            }
+
+            extension.addAccessDescription(method, location);
+        }
+
+        return extension;
+    }
+
     public CertificateExtensions createExtensions() throws Exception {
         return createExtensions(null, null);
     }
@@ -216,6 +269,11 @@ public class NSSExtensionGenerator {
         SubjectKeyIdentifierExtension skidExtension = createSKIDExtension(pkcs10);
         if (skidExtension != null) {
             extensions.parseExtension(skidExtension);
+        }
+
+        AuthInfoAccessExtension aiaExtension = createAIAExtension();
+        if (aiaExtension != null) {
+            extensions.parseExtension(aiaExtension);
         }
 
         return extensions;

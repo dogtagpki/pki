@@ -19,6 +19,7 @@
 package org.dogtagpki.nss;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
@@ -46,13 +47,20 @@ import org.apache.commons.io.FileUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CLIException;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.netscape.security.extensions.AccessDescription;
+import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -462,6 +470,89 @@ public class NSSDatabase {
         stdin.println();
     }
 
+    /**
+     * This method provides the arguments and the standard input for certutil
+     * to create a cert/CSR with AIA extension.
+     *
+     * @param cmd certutil command and arguments
+     * @param stdin certutil's standard input
+     * @param extension The extension to add
+     */
+    public void addAIAExtension(
+            List<String> cmd,
+            PrintWriter stdin,
+            AuthInfoAccessExtension extension) throws Exception {
+
+        logger.info("Adding AIA extension:");
+
+        cmd.add("--extAIA");
+
+        int size = extension.numberOfAccessDescription();
+        for (int i = 0; i < size; i++) {
+            AccessDescription ad = extension.getAccessDescription(i);
+
+            ObjectIdentifier method = ad.getMethod();
+            if (AuthInfoAccessExtension.METHOD_CA_ISSUERS.equals(method)) {
+                logger.info("- CA issuers");
+
+                // Enter access method type for Authority Information Access extension:
+                stdin.println("1");
+
+            } else if (AuthInfoAccessExtension.METHOD_OCSP.equals(method)) {
+                logger.info("- OCSP");
+
+                // Enter access method type for Authority Information Access extension:
+                stdin.println("2");
+
+            } else {
+                throw new Exception("Unsupported AIA method: " + method);
+            }
+
+            GeneralName location = ad.getLocation();
+            if (GeneralNameInterface.NAME_URI == location.getType()) {
+
+                // TODO: Fix JSS to support the following code.
+                // URIName uriName = (URIName) location;
+                // String uri = uriName.getURI();
+
+                byte[] bytes;
+                try (DerOutputStream derOS = new DerOutputStream()) {
+                    location.encode(derOS);
+                    bytes = derOS.toByteArray();
+                }
+
+                DerValue derValue = new DerValue(new ByteArrayInputStream(bytes));
+                derValue.resetTag(DerValue.tag_IA5String);
+                String uri = derValue.getIA5String();
+                logger.info("  - URI: " + uri);
+
+                // Select one of the following general name type:
+                stdin.println("7");
+
+                // Enter data:
+                stdin.println(uri);
+
+            } else {
+                throw new Exception("Unsupported AIA location: " + location);
+            }
+
+            // Any other number to finish
+            stdin.println();
+
+            // Add another location to the Authority Information Access extension [y/N]
+            if (i < size - 1) {
+                stdin.print("y");
+            }
+            stdin.println();
+        }
+
+        // Is this a critical extension [y/N]?
+        if (extension.isCritical()) {
+            stdin.print("y");
+        }
+        stdin.println();
+    }
+
     public void addExtensions(
             List<String> cmd,
             StringWriter sw,
@@ -482,6 +573,10 @@ public class NSSDatabase {
             } else if (extension instanceof SubjectKeyIdentifierExtension) {
                 SubjectKeyIdentifierExtension skidExtension = (SubjectKeyIdentifierExtension) extension;
                 addSKIDExtension(cmd, stdin, skidExtension);
+
+            } else if (extension instanceof AuthInfoAccessExtension) {
+                AuthInfoAccessExtension aiaExtension = (AuthInfoAccessExtension) extension;
+                addAIAExtension(cmd, stdin, aiaExtension);
             }
         }
     }
