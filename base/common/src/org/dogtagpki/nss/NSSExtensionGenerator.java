@@ -12,9 +12,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.stream.Collectors;
 
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
+import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -298,6 +300,39 @@ public class NSSExtensionGenerator {
         return extension;
     }
 
+    public ExtendedKeyUsageExtension createExtendedKeyUsageExtension() throws Exception {
+
+        String extendedKeyUsage = getParameter("extendedKeyUsage");
+        if (extendedKeyUsage == null) return null;
+
+        logger.info("Creating extended key usage extension:");
+
+        boolean critical = false;
+        Vector<ObjectIdentifier> oids = new Vector<>();
+
+        List<String> options = Arrays.asList(extendedKeyUsage.split("\\s*,\\s*"));
+        for (String option : options) {
+            logger.info("- " + option);
+
+            if ("critical".equals(option)) {
+                critical = true;
+
+            } else if ("serverAuth".equals(option)) {
+                oids.add(ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.1"));
+
+            } else if ("clientAuth".equals(option)) {
+                oids.add(ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.2"));
+
+            } else {
+                throw new Exception("Unsupported extended key usage: " + option);
+            }
+
+            // TODO: Support other extended key usages.
+        }
+
+        return new ExtendedKeyUsageExtension(critical, oids);
+    }
+
     public CertificateExtensions createExtensions() throws Exception {
         return createExtensions(null, null);
     }
@@ -331,6 +366,11 @@ public class NSSExtensionGenerator {
         KeyUsageExtension keyUsageExtension = createKeyUsageExtension();
         if (keyUsageExtension != null) {
             extensions.parseExtension(keyUsageExtension);
+        }
+
+        ExtendedKeyUsageExtension extendedKeyUsageExtension = createExtendedKeyUsageExtension();
+        if (extendedKeyUsageExtension != null) {
+            extensions.parseExtension(extendedKeyUsageExtension);
         }
 
         return extensions;
