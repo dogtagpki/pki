@@ -22,6 +22,9 @@ import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
+
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author Endi S. Dewata
@@ -163,6 +166,33 @@ public class NSSExtensionGenerator {
         return new AuthorityKeyIdentifierExtension(keyID, null, null);
     }
 
+    public SubjectKeyIdentifierExtension createSKIDExtension(PKCS10 pkcs10) throws Exception {
+
+        if (pkcs10 == null) return null;
+
+        String subjectKeyIdentifier = getParameter("subjectKeyIdentifier");
+        if (subjectKeyIdentifier == null) return null;
+
+        logger.info("Creating SKID extension:");
+
+        byte[] bytes;
+
+        if (subjectKeyIdentifier.equals("hash")) {
+            logger.info("- hash");
+
+            X509Key subjectKey = pkcs10.getSubjectPublicKeyInfo();
+            bytes = CryptoUtil.generateKeyIdentifier(subjectKey.getKey());
+
+        } else {
+            throw new Exception("Unsupported subjectKeyIdentifier: " + subjectKeyIdentifier);
+        }
+
+        String skid = "0x" + Utils.HexEncode(bytes);
+        logger.info("- SKID: " + skid);
+
+        return new SubjectKeyIdentifierExtension(bytes);
+    }
+
     public CertificateExtensions createExtensions() throws Exception {
         return createExtensions(null, null);
     }
@@ -181,6 +211,11 @@ public class NSSExtensionGenerator {
         AuthorityKeyIdentifierExtension akidExtension = createAKIDExtension(issuer);
         if (akidExtension != null) {
             extensions.parseExtension(akidExtension);
+        }
+
+        SubjectKeyIdentifierExtension skidExtension = createSKIDExtension(pkcs10);
+        if (skidExtension != null) {
+            extensions.parseExtension(skidExtension);
         }
 
         return extensions;
