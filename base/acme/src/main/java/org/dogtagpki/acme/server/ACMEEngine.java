@@ -363,7 +363,7 @@ public class ACMEEngine implements ServletContextListener {
 
     public void contextInitialized(ServletContextEvent event) {
 
-        logger.info("Initializing ACME engine");
+        logger.info("Starting ACME engine");
 
         String path = event.getServletContext().getContextPath();
         if ("".equals(path)) {
@@ -409,14 +409,16 @@ public class ACMEEngine implements ServletContextListener {
             initIssuer();
 
         } catch (Exception e) {
-            logger.error("Unable to initialize ACME engine: " + e.getMessage(), e);
-            throw new RuntimeException("Unable to initialize ACME engine: " + e.getMessage(), e);
+            logger.error("Unable to start ACME engine: " + e.getMessage(), e);
+            throw new RuntimeException("Unable to start ACME engine: " + e.getMessage(), e);
         }
+
+        logger.info("ACME engine started");
     }
 
     public void contextDestroyed(ServletContextEvent event) {
 
-        logger.info("Shutting down ACME engine");
+        logger.info("Stopping ACME engine");
 
         if (engineConfigSource != null) {
             engineConfigSource.shutdown();
@@ -429,9 +431,11 @@ public class ACMEEngine implements ServletContextListener {
             shutdownDatabase();
 
         } catch (Exception e) {
-            logger.error("Unable to initialize ACME engine: " + e.getMessage(), e);
-            throw new RuntimeException("Unable to shutdown ACME engine: " + e.getMessage(), e);
+            logger.error("Unable to stop ACME engine: " + e.getMessage(), e);
+            throw new RuntimeException("Unable to stop ACME engine: " + e.getMessage(), e);
         }
+
+        logger.info("ACME engine stopped");
     }
 
     public ACMENonce createNonce() throws Exception {
