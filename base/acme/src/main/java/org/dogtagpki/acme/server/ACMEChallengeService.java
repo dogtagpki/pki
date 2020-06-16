@@ -6,8 +6,6 @@
 package org.dogtagpki.acme.server;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Date;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -24,7 +22,6 @@ import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMEHeader;
 import org.dogtagpki.acme.ACMENonce;
-import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWS;
 import org.dogtagpki.acme.validator.ACMEValidator;
 
@@ -73,71 +70,46 @@ public class ACMEChallengeService {
             throw new Exception("Unknown challenge: " + challengeID);
         }
 
-        String type = challenge.getType();
-        logger.info("Challenge Type: " + type);
-
-        ACMEValidator validator = engine.getValidator(type);
-        if (validator == null) {
-            // TODO: generate proper exception
-            throw new Exception("Unsupported challenge type: " + type);
-        }
-
         String challengeStatus = challenge.getStatus();
         if (challengeStatus.equals("pending")) {
+
+            String type = challenge.getType();
+            logger.info("Challenge Type: " + type);
+
+            ACMEValidator validator = engine.getValidator(type);
+            if (validator == null) {
+                // TODO: generate proper exception
+                throw new Exception("Unsupported challenge type: " + type);
+            }
+
             challenge.setStatus("processing");
             engine.updateAuthorization(account, authorization);
 
+            ACMEChallengeProcessor processor = new ACMEChallengeProcessor(
+                    account,
+                    authorization,
+                    challenge,
+                    validator);
+
+            // TODO: use thread pool
+            new Thread(processor).start();
+
         } else if (challengeStatus.equals("processing")) {
-            // retrying the challenge, ignore
+            // TODO: retry the challenge
+
+            // RFC 8555 Section 8.2: Retrying Challenges
+            //
+            // Clients can explicitly request a retry by re-sending their response
+            // to a challenge in a new POST request (with a new nonce, etc.).  This
+            // allows clients to request a retry when the state has changed (e.g.,
+            // after firewall rules have been updated).  Servers SHOULD retry a
+            // request immediately on receiving such a POST request.  In order to
+            // avoid denial-of-service attacks via client-initiated retries, servers
+            // SHOULD rate-limit such requests.
 
         } else {
             // TODO: generate proper exception
             throw new Exception("Challenge is already " + challengeStatus);
-        }
-
-        try {
-            validator.validateChallenge(authorization, challenge);
-
-        } catch (Exception e) {
-            logger.info("Challenge " + challengeID + " is invalid");
-            challenge.setStatus("invalid");
-            engine.updateAuthorization(account, authorization);
-            throw e;
-        }
-
-        logger.info("Challenge " + challengeID + " is valid");
-        challenge.setStatus("valid");
-        challenge.setValidationTime(new Date());
-
-        logger.info("Authorization " + authzID + " is valid");
-        authorization.setStatus("valid");
-
-        engine.updateAuthorization(account, authorization);
-
-        logger.info("Checking associated pending orders for validity");
-        Collection<ACMEOrder> orders =
-            engine.getOrdersByAuthorizationAndStatus(account, authzID, "pending");
-
-        for (ACMEOrder order : orders) {
-            boolean allAuthorizationsValid = true;
-
-            for (String orderAuthzID : order.getAuthzIDs()) {
-                ACMEAuthorization authz = engine.getAuthorization(account, orderAuthzID);
-                if (authz.getStatus().equals("valid")) {
-                    continue;
-                } else {
-                    allAuthorizationsValid = false;
-                    break;
-                }
-            }
-
-            if (allAuthorizationsValid) {
-                logger.info("Order " + order.getID() + " is ready");
-                order.setStatus("ready");
-                engine.updateOrder(account, order);
-            } else {
-                logger.info("Order " + order.getID() + " is not ready");
-            }
         }
 
         URI challengeURL = uriInfo.getBaseUriBuilder().path("chall").path(challengeID).build();

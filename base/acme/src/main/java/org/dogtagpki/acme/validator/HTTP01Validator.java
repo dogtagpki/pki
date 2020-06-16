@@ -49,6 +49,7 @@ public class HTTP01Validator extends ACMEValidator {
         String validationPath = "/.well-known/acme-challenge/" + token;
         URI validationURL = new URI("http", hostname, validationPath, null);
 
+        // TODO: move retry to ACMEChallengeProcessor.processChallenge()
         // TODO: make it configurable
 
         int maxCount = 5;

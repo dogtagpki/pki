@@ -55,6 +55,7 @@ public class DNS01Validator extends ACMEValidator {
         String hostname = identifier.getValue();
         String recordName = "_acme-challenge." + hostname;
 
+        // TODO: move retry to ACMEChallengeProcessor.processChallenge()
         // TODO: make it configurable
 
         int maxCount = 5;
