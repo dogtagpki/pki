@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CLIException;
 import org.mozilla.jss.CryptoManager;
@@ -62,6 +63,7 @@ import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -553,6 +555,75 @@ public class NSSDatabase {
         stdin.println();
     }
 
+    /**
+     * This method provides the arguments for certutil to create a cert/CSR
+     * with key usage extension.
+     *
+     * @param cmd certutil command and arguments
+     * @param extension The extension to add
+     */
+    public void addKeyUsageExtension(
+            List<String> cmd,
+            KeyUsageExtension extension) throws Exception {
+
+        logger.info("Adding key usage extension:");
+
+        cmd.add("--keyUsage");
+
+        List<String> options = new ArrayList<>();
+
+        if (extension.isCritical()) {
+            logger.info("- critical");
+            options.add("critical");
+        }
+
+        Boolean digitalSignature = (Boolean) extension.get(KeyUsageExtension.DIGITAL_SIGNATURE);
+        if (digitalSignature) {
+            logger.info("- digitalSignature");
+            options.add("digitalSignature");
+        }
+
+        Boolean nonRepudiation = (Boolean) extension.get(KeyUsageExtension.NON_REPUDIATION);
+        if (nonRepudiation) {
+            logger.info("- nonRepudiation");
+            options.add("nonRepudiation");
+        }
+
+        Boolean keyEncipherment = (Boolean) extension.get(KeyUsageExtension.KEY_ENCIPHERMENT);
+        if (keyEncipherment) {
+            logger.info("- keyEncipherment");
+            options.add("keyEncipherment");
+        }
+
+        Boolean dataEncipherment = (Boolean) extension.get(KeyUsageExtension.DATA_ENCIPHERMENT);
+        if (dataEncipherment) {
+            logger.info("- dataEncipherment");
+            options.add("dataEncipherment");
+        }
+
+        Boolean keyAgreement = (Boolean) extension.get(KeyUsageExtension.KEY_AGREEMENT);
+        if (keyAgreement) {
+            logger.info("- keyAgreement");
+            options.add("keyAgreement");
+        }
+
+        Boolean certSigning = (Boolean) extension.get(KeyUsageExtension.KEY_CERTSIGN);
+        if (certSigning) {
+            logger.info("- certSigning");
+            options.add("certSigning");
+        }
+
+        Boolean crlSigning = (Boolean) extension.get(KeyUsageExtension.CRL_SIGN);
+        if (crlSigning) {
+            logger.info("- crlSigning");
+            options.add("crlSigning");
+        }
+
+        // TODO: Support other key usages.
+
+        cmd.add(StringUtils.join(options, ","));
+    }
+
     public void addExtensions(
             List<String> cmd,
             StringWriter sw,
@@ -577,6 +648,10 @@ public class NSSDatabase {
             } else if (extension instanceof AuthInfoAccessExtension) {
                 AuthInfoAccessExtension aiaExtension = (AuthInfoAccessExtension) extension;
                 addAIAExtension(cmd, stdin, aiaExtension);
+
+            } else if (extension instanceof KeyUsageExtension) {
+                KeyUsageExtension keyUsageExtension = (KeyUsageExtension) extension;
+                addKeyUsageExtension(cmd, keyUsageExtension);
             }
         }
     }

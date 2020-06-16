@@ -23,6 +23,7 @@ import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -246,6 +247,57 @@ public class NSSExtensionGenerator {
         return extension;
     }
 
+    public KeyUsageExtension createKeyUsageExtension() throws Exception {
+
+        String keyUsage = getParameter("keyUsage");
+        if (keyUsage == null) return null;
+
+        logger.info("Creating key usage extension:");
+
+        KeyUsageExtension extension = new KeyUsageExtension(false, new boolean[0]);
+
+        List<String> options = Arrays.asList(keyUsage.split("\\s*,\\s*"));
+        for (String option : options) {
+            logger.info("- " + option);
+
+            if ("critical".equals(option)) {
+                extension.setCritical(true);
+
+            } else if ("digitalSignature".equals(option)) {
+                extension.set(KeyUsageExtension.DIGITAL_SIGNATURE, true);
+
+            } else if ("nonRepudiation".equals(option)) {
+                extension.set(KeyUsageExtension.NON_REPUDIATION, true);
+
+            } else if ("keyEncipherment".equals(option)) {
+                extension.set(KeyUsageExtension.KEY_ENCIPHERMENT, true);
+
+            } else if ("dataEncipherment".equals(option)) {
+                extension.set(KeyUsageExtension.DATA_ENCIPHERMENT, true);
+
+            } else if ("keyAgreement".equals(option)) {
+                extension.set(KeyUsageExtension.KEY_AGREEMENT, true);
+
+            } else if ("keyCertSign".equals(option)) {
+                extension.set(KeyUsageExtension.KEY_CERTSIGN, true);
+
+            } else if ("cRLSign".equals(option)) {
+                extension.set(KeyUsageExtension.CRL_SIGN, true);
+
+            } else if ("encipherOnly".equals(option)) {
+                extension.set(KeyUsageExtension.ENCIPHER_ONLY, true);
+
+            } else if ("decipherOnly".equals(option)) {
+                extension.set(KeyUsageExtension.DECIPHER_ONLY, true);
+
+            } else {
+                throw new Exception("Unsupported key usage: " + option);
+            }
+        }
+
+        return extension;
+    }
+
     public CertificateExtensions createExtensions() throws Exception {
         return createExtensions(null, null);
     }
@@ -274,6 +326,11 @@ public class NSSExtensionGenerator {
         AuthInfoAccessExtension aiaExtension = createAIAExtension();
         if (aiaExtension != null) {
             extensions.parseExtension(aiaExtension);
+        }
+
+        KeyUsageExtension keyUsageExtension = createKeyUsageExtension();
+        if (keyUsageExtension != null) {
+            extensions.parseExtension(keyUsageExtension);
         }
 
         return extensions;
