@@ -1144,13 +1144,22 @@ public class CAService implements ICAService, IService {
                 // timestamp
                 byte ct_timestamp[] = timeStampHexStringToByteArray(timestamp_s);
 
-                byte ct_ext[] = new byte[] {0, 0}; // CT extension
+                String extensions_s = response.getExtensions();
+                if (extensions_s == null) {
+                    extensions_s = "";
+                }
+                byte[] ct_extensions = CryptoUtil.base64Decode(extensions_s);
+
                 // signature
                 byte ct_signature[] = CryptoUtil.base64Decode(response.getSignature());
                 logger.debug(method + " ct_signature: " + bytesToHex(ct_signature));
 
-                int sct_len = ct_version.length + ct_id.length +
-                        ct_timestamp.length + 2 /* ext */ + ct_signature.length;
+                int sct_len =
+                    ct_version.length
+                    + ct_id.length
+                    + ct_timestamp.length
+                    + 2 + ct_extensions.length
+                    + ct_signature.length;
                 ByteBuffer sct_len_bytes = ByteBuffer.allocate(4);
                 //sct_len_bytes.order(ByteOrder.BIG_ENDIAN);
                 sct_len_bytes.putInt(sct_len);
@@ -1165,7 +1174,11 @@ public class CAService implements ICAService, IService {
                 sct_ostream.write(ct_version);
                 sct_ostream.write(ct_id);
                 sct_ostream.write(ct_timestamp);
-                sct_ostream.write(ct_ext);
+
+                // 2 bytes for extensions len
+                sct_ostream.write(intToFixedWidthBytes(ct_extensions.length, 2));
+                sct_ostream.write(ct_extensions);
+
                 sct_ostream.write(ct_signature);
             }
 
