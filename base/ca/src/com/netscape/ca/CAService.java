@@ -955,14 +955,26 @@ public class CAService implements ICAService, IService {
                             logger.debug(method + "Response from CT log server " + respS);
 
                             // verify the sct
+
+                            /* TODO this should be a configurable; hardcoded for now */
+                            boolean allowFailedSCTVerification = true;
+
                             boolean verified =
                                     verifySCT(CTResponse.fromJSON(respS), tbsCert, ls.getPublicKey());
-                            if (verified)
+                            if (verified) {
+                                logger.info("verifySCT returned true; SCT is valid");
+                            } else {
+                                // log at WARN if !verified, regardless of how we are treating
+                                // failed verifications, because it is indicative of log server
+                                // misbehavoiur
+                                logger.warn(
+                                    method
+                                    + "verifySCT returns false; SCT failed to verify"
+                                );
+                            }
+                            if (verified || allowFailedSCTVerification) {
                                 ctResponses.add(respS);
-                            else { // not verified
-                                errMsg = method + "verifySCT returns false; SCT failed to verify";
-                                logger.error(errMsg);
-                                // disallow failed verification
+                            } else {
                                 throw new EBaseException(errMsg);
                             }
                         }
