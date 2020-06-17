@@ -51,6 +51,13 @@ It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and 
 * server NSS database: /etc/pki/pki-tomcat/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ocsp/alias
 
+**Note**: When OCSP is installed on a new system without any other subsystems,
+it is necessary to provide the CA's root certificate. Specify the path to
+the CA PKCS#7 PEM file in the `pki_cert_chain_path`. This will allow the server
+to verify the CA's SSL server certificate when contacting the security domain.
+It is up to the administrator to securely transport the CA root certificate
+(public key only!) to the system prior to OCSP installation.
+
 Verifying System Certificates
 -----------------------------
 

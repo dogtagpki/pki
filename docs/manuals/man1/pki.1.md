@@ -211,11 +211,20 @@ created during the configuration portion of the basic PKI installation of the as
 
 The third command shows the information about the imported client certificate (including its nickname).
 
-**Note:** When issuing the first **pki** command using the authentication parameters
-(after completion of the setup of the NSS database),
-a user may be greeted with a warning message which indicates that an untrusted issuer was encountered.
-Simply reply 'Y' to import the CA certificate, and, presuming that the displayed CA server URL is valid,
-press the carriage return.
+Additionally, provision the root CA certificate into this NSS DB.
+This certificate must be imported into the NSS DB and copied as a PEM format
+certificate into the NSS DB directory, named 'ca.crt'.
+To do so:
+
+```
+$ certutil -A -d <NSS database location> -n "CA Root Certificate" -a -i /path/to/ca.crt
+$ cp /path/to/ca.crt <NSS database location>/ca.crt
+```
+
+This will ensure all parts of the client can successfully connect with the
+PKI instance and validate the certificate used to sign the web UI. If an
+external CA certificate was used to approve the sslserver certificate, import
+that certificate instead.
 
 ### Client Authentication
 
