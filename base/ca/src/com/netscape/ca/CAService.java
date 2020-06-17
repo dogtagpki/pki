@@ -1302,7 +1302,7 @@ public class CAService implements ICAService, IService {
             if (log_key_hash_s.compareTo(response.getId()) == 0) {
                 logger.debug(method + "CT log signer key hash matches key id");
             } else {
-                errMsg = "CT log signer key hash does not matche key id!!";
+                errMsg = "CT log signer key hash does not match key id!!";
                 logger.error(method +  errMsg);
                 return false;
             }
@@ -1314,32 +1314,21 @@ public class CAService implements ICAService, IService {
              * final certificate.
              */
             X509CertImpl cacert = mCA.getCACert();
-            /* cfu: Todo: not sure which is expected,
-             *       (tried both but still failed at verify below):
-             *   - public key DER, or
-             *   - SubjectPublicKeyInfo DER
-             */
             byte[] issuer_key = cacert.getPublicKey().getEncoded();
-            //SubjectPublicKeyInfo issuer_spki = new SubjectPublicKeyInfo(cacert.getPublicKey());
-            //byte[] issuer_key = issuer_spki.getEncoded();
-            byte[] issuer_key_hash = null;
-
-            issuer_key_hash = SHA256Digest.digest(issuer_key);
+            byte[] issuer_key_hash = SHA256Digest.digest(issuer_key);
 
             String extensions_s = response.getExtensions();
-            byte[] extensions = null;
-            int extensions_len = 0;
-            if (extensions_s != null && !extensions_s.equals("")) {
-                extensions = CryptoUtil.base64Decode(extensions_s);
-                extensions_len = extensions.length;
+            if (extensions_s == null) {
+                extensions_s = "";
             }
+            byte[] extensions = CryptoUtil.base64Decode(extensions_s);
 
             // piece them together
             int data_len = version.length + signature_type.length +
                      timestamp.length + entry_type.length +
                      issuer_key_hash.length
                      + 3 + tbsCert.length
-                     + 2 + extensions_len;
+                     + 2 + extensions.length;
             logger.debug(method + " data_len = "+ data_len);
 
             ByteArrayOutputStream ostream = new ByteArrayOutputStream();
@@ -1351,52 +1340,33 @@ public class CAService implements ICAService, IService {
             ostream.write(entry_type);
             ostream.write(issuer_key_hash);
 
-            logger.debug("tbsCert.length = "+ tbsCert.length);
-            ByteBuffer tbsCertLen_bb = ByteBuffer.allocate(4);
-            tbsCertLen_bb.putInt(tbsCert.length);
             // 3 bytes for length of tbsCert
-            byte[] tbsCertLen_b = tbsCertLen_bb.array();
-            ostream.write(Arrays.copyOfRange(tbsCertLen_b, 1, 4));
-            /* verify tbsCertLen -- checked out
-            int out = tbsCertLen_b[1] << 16 | (tbsCertLen_b[2] & 0xFF) << 8 | (tbsCertLen_b[3] & 0xFF);
-            logger.debug(method + "out tbsCertLen len = " + out);
-            */
+            ostream.write((byte) (tbsCert.length >> 16));
+            ostream.write((byte) (tbsCert.length >> 8));
+            ostream.write((byte) tbsCert.length);
             ostream.write(tbsCert);
 
             // 2 bytes for extensions len
-            ByteBuffer extensions_len_bb = ByteBuffer.allocate(2);
-            extensions_len_bb.putShort((short)extensions_len);
-            byte[] extensions_len_b = extensions_len_bb.array();
-            ostream.write(extensions_len_b);
-            if (extensions_len > 0)
-                ostream.write(extensions);
+            ostream.write((byte) (extensions.length >> 8));
+            ostream.write((byte) extensions.length);
 
             byte[] data = ostream.toByteArray();
             logger.debug(method + "actual data len = " + data.length);
-
-            // Now, verify the signature
-            // Note: this part currently does not work; see method comment above
 
             // cfu ToDo: interpret the alg bytes later; hardcode for now
             Signature signer = Signature.getInstance("SHA256withEC", "Mozilla-JSS");
             signer.initVerify(log_pubKey);
             signer.update(data);
 
-            if (!signer.verify(signature)) {
-                logger.error(method + "failed to verify SCT signature; pass for now");
-                // this method is not yet working;  Let this pass for now
-                // return false;
-            } else {
-                logger.debug(method + "SCT signature verified successfully");
-            }
-            logger.debug(method + "ends");
-        } catch (Exception e) {
-            logger.debug(method + "Exception thrown: " + e.toString());
-            logger.debug(method + "ends");
+            return signer.verify(signature);
+        } catch (Throwable e) {
+            logger.debug(method + "Exception thrown: " + e.toString(), e);
             return false;
+        } finally {
+            logger.debug(method + "ends");
         }
+    }
 
-        return true;
     }
 
     /**
