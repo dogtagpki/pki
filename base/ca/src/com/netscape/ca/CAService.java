@@ -21,7 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.Integer;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -1160,17 +1159,10 @@ public class CAService implements ICAService, IService {
                     + ct_timestamp.length
                     + 2 + ct_extensions.length
                     + ct_signature.length;
-                ByteBuffer sct_len_bytes = ByteBuffer.allocate(4);
-                //sct_len_bytes.order(ByteOrder.BIG_ENDIAN);
-                sct_len_bytes.putInt(sct_len);
-
                 logger.debug(method + " sct_len = "+ sct_len);
-                byte sct_len_ba[] = sct_len_bytes.array();
-                // stuff into 2 byte len
-                byte sct_len_b2[] = {sct_len_ba[2], sct_len_ba[3]};
-                tls_len += (2 + sct_len); // add 2 bytes for sct len ltself
+                tls_len += (2 + sct_len); // add 2 bytes for sct len itself
 
-                sct_ostream.write(sct_len_b2);
+                sct_ostream.write(intToFixedWidthBytes(sct_len, 2));
                 sct_ostream.write(ct_version);
                 sct_ostream.write(ct_id);
                 sct_ostream.write(ct_timestamp);
@@ -1182,17 +1174,9 @@ public class CAService implements ICAService, IService {
                 sct_ostream.write(ct_signature);
             }
 
-            // collection of sct bytes that comes after tls_len bytes
-            byte[] sct_bytes = sct_ostream.toByteArray();
-            ByteBuffer tls_len_bytes = ByteBuffer.allocate(4);
-            tls_len_bytes.putInt(tls_len);
-            byte tls_len_ba[] = tls_len_bytes.array();
-            // stuff into 2 byte len
-            byte tls_len_b2[] = {tls_len_ba[2], tls_len_ba[3]};
-
             ByteArrayOutputStream tls_sct_ostream = new ByteArrayOutputStream();
-            tls_sct_ostream.write(tls_len_b2);
-            tls_sct_ostream.write(sct_bytes);
+            tls_sct_ostream.write(intToFixedWidthBytes(tls_len, 2));
+            sct_ostream.writeTo(tls_sct_ostream);
             byte[] tls_sct_bytes = tls_sct_ostream.toByteArray();
 
             Extension ct_sct_ext = new Extension();
@@ -1366,14 +1350,12 @@ public class CAService implements ICAService, IService {
             ostream.write(issuer_key_hash);
 
             // 3 bytes for length of tbsCert
-            ostream.write((byte) (tbsCert.length >> 16));
-            ostream.write((byte) (tbsCert.length >> 8));
-            ostream.write((byte) tbsCert.length);
+            ostream.write(intToFixedWidthBytes(tbsCert.length, 3));
             ostream.write(tbsCert);
 
             // 2 bytes for extensions len
-            ostream.write((byte) (extensions.length >> 8));
-            ostream.write((byte) extensions.length);
+            ostream.write(intToFixedWidthBytes(extensions.length, 2));
+            ostream.write(extensions);
 
             byte[] data = ostream.toByteArray();
             logger.debug(method + "actual data len = " + data.length);
@@ -1392,6 +1374,15 @@ public class CAService implements ICAService, IService {
         }
     }
 
+    /**
+     * Write the int as a big-endian byte[] of fixed width (in bytes).
+     */
+    public static byte[] intToFixedWidthBytes(int n, int width) {
+        byte[] out = new byte[width];
+        for (int i = 0; i < width; i++) {
+            out[i] = (byte) (n >> ((width - i - 1) * 8));
+        }
+        return out;
     }
 
     /**
