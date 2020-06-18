@@ -52,7 +52,7 @@ public class PKCS12ImportCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "pkcs12-file", true, "DEPRECATED: PKCS #12 file.");
+        option = new Option(null, "pkcs12-file", true, "DEPRECATED: PKCS #12 file");
         option.setArgName("path");
         options.addOption(option);
 

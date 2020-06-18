@@ -49,15 +49,27 @@ public class PKCS12CertFindCLI extends CommandCLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "pkcs12-file", true, "PKCS #12 file");
+        Option option = new Option(null, "pkcs12", true, "PKCS #12 file");
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "pkcs12-password", true, "PKCS #12 password");
+        option = new Option(null, "pkcs12-file", true, "DEPRECATED: PKCS #12 file");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "password", true, "PKCS #12 password");
         option.setArgName("password");
         options.addOption(option);
 
-        option = new Option(null, "pkcs12-password-file", true, "PKCS #12 password file");
+        option = new Option(null, "pkcs12-password", true, "DEPRECATED: PKCS #12 password");
+        option.setArgName("password");
+        options.addOption(option);
+
+        option = new Option(null, "password-file", true, "PKCS #12 password file");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "pkcs12-password-file", true, "DEPRECATED: PKCS #12 password file");
         option.setArgName("path");
         options.addOption(option);
     }
@@ -70,17 +82,27 @@ public class PKCS12CertFindCLI extends CommandCLI {
             throw new Exception("Too many arguments specified.");
         }
 
-        String filename = cmd.getOptionValue("pkcs12-file");
+        String filename = cmd.getOptionValue("pkcs12");
+        if (filename == null) {
+            filename = cmd.getOptionValue("pkcs12-file");
+        }
 
         if (filename == null) {
             throw new Exception("Missing PKCS #12 file.");
         }
 
-        String passwordString = cmd.getOptionValue("pkcs12-password");
+        String passwordString = cmd.getOptionValue("password");
+        if (passwordString == null) {
+            passwordString = cmd.getOptionValue("pkcs12-password");
+        }
 
         if (passwordString == null) {
 
-            String passwordFile = cmd.getOptionValue("pkcs12-password-file");
+            String passwordFile = cmd.getOptionValue("password-file");
+            if (passwordFile == null) {
+                passwordFile = cmd.getOptionValue("pkcs12-password-file");
+            }
+
             if (passwordFile != null) {
                 try (BufferedReader in = new BufferedReader(new FileReader(passwordFile))) {
                     passwordString = in.readLine();

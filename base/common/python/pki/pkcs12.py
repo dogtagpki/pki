@@ -66,8 +66,8 @@ class PKCS12(object):
 
         cmd.extend([
             'pkcs12-cert-find',
-            '--pkcs12-file', self.path,
-            '--pkcs12-password-file', self.password_file
+            '--pkcs12', self.path,
+            '--password-file', self.password_file
         ])
 
         subprocess.check_call(cmd)

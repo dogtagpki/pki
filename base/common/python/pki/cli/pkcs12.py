@@ -166,13 +166,13 @@ class PKCS12ImportCLI(pki.cli.CLI):
                 cmd = ['pkcs12-cert-find']
 
                 if pkcs12_file:
-                    cmd.extend(['--pkcs12-file', pkcs12_file])
+                    cmd.extend(['--pkcs12', pkcs12_file])
 
                 if pkcs12_password:
-                    cmd.extend(['--pkcs12-password', pkcs12_password])
+                    cmd.extend(['--password', pkcs12_password])
 
                 if password_file:
-                    cmd.extend(['--pkcs12-password-file', password_file])
+                    cmd.extend(['--password-file', password_file])
 
                 if logger.isEnabledFor(logging.DEBUG):
                     cmd.extend(['--debug'])
