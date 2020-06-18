@@ -132,11 +132,6 @@ class ACMECreateCLI(pki.cli.CLI):
         logger.info('Creating %s', database_conf)
         instance.copy(database_template, database_conf, force=force)
 
-        validators_template = os.path.join(acme_share_dir, 'conf', 'validators.conf')
-        validators_conf = os.path.join(acme_conf_dir, 'validators.conf')
-        logger.info('Creating %s', validators_conf)
-        instance.copy(validators_template, validators_conf, force=force)
-
         issuer_template = os.path.join(acme_share_dir, 'conf', 'issuer.conf')
         issuer_conf = os.path.join(acme_conf_dir, 'issuer.conf')
         logger.info('Creating %s', issuer_conf)

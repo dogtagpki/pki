@@ -284,18 +284,16 @@ public class ACMEEngine implements ServletContextListener {
 
         File validatorsConfigFile = new File(filename);
 
-        if (validatorsConfigFile.exists()) {
-            logger.info("Loading ACME validators config from " + validatorsConfigFile);
-            Properties props = new Properties();
-            try (FileReader reader = new FileReader(validatorsConfigFile)) {
-                props.load(reader);
-            }
-            validatorsConfig = ACMEValidatorsConfig.fromProperties(props);
-
-        } else {
-            logger.info("Loading default ACME validators config");
-            validatorsConfig = new ACMEValidatorsConfig();
+        if (!validatorsConfigFile.exists()) {
+            validatorsConfigFile = new File("/usr/share/pki/acme/conf/validators.conf");
         }
+
+        logger.info("Loading ACME validators config from " + validatorsConfigFile);
+        Properties props = new Properties();
+        try (FileReader reader = new FileReader(validatorsConfigFile)) {
+            props.load(reader);
+        }
+        validatorsConfig = ACMEValidatorsConfig.fromProperties(props);
     }
 
     public void initValidators() throws Exception {
