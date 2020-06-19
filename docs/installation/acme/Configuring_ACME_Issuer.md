@@ -15,17 +15,15 @@ $ cp /usr/share/pki/acme/conf/issuer/pki/issuer.conf \
     /etc/pki/pki-tomcat/acme/issuer.conf
 ```
 
-The issuer.conf should look like the following:
+Customize the configuration as needed. The issuer.conf should look like the following:
 
 ```
 class=org.dogtagpki.acme.issuer.PKIIssuer
-url=https://localhost:8443
+url=https://localhost.localdomain:8443
 profile=acmeServerCert
 username=caadmin
 password=Secret.123
 ```
-
-Configure the parameters as needed.
 
 ## See Also
 
