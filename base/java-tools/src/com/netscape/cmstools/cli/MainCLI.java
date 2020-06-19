@@ -98,6 +98,7 @@ public class MainCLI extends CLI {
     String output;
 
     boolean initialized;
+    boolean optionsParsed;
 
     public MainCLI() throws Exception {
         super("pki", "PKI command-line interface");
@@ -465,6 +466,8 @@ public class MainCLI extends CLI {
         String messageFormat = cmd.getOptionValue("message-format");
         config.setMessageFormat(messageFormat);
         logger.info("Message format: " + messageFormat);
+
+        optionsParsed = true;
     }
 
     public void convertCertStatusList(String list, Collection<Integer> statuses) throws Exception {
@@ -490,9 +493,18 @@ public class MainCLI extends CLI {
             return;
         }
 
+        if (!optionsParsed) {
+            throw new Exception("Unable to call MainCLI.init() without first calling MainCLI.parseOptions()");
+        }
+
         if (!nssdb.exists()) {
-            // Create a default NSS database without password
-            nssdb.create();
+            // Create the NSS DB with the specified password, if one has been
+            // specified.
+            if (config.getNSSPassword() != null) {
+                nssdb.create(config.getNSSPassword());
+            } else {
+                nssdb.create();
+            }
         }
 
         logger.info("Initializing NSS");
