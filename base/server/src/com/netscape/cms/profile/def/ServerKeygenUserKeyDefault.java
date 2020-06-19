@@ -292,7 +292,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             try {
                 CMSEngine engine = CMS.getCMSEngine();
                 ICertificateAuthority CA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-                String transportNickname = CA.getConfigStore().getString("ca.connector.KRA.transportCertNickname", "KRA Transport Certificate");
+                String transportNickname = CA.getConfigStore().getString("connector.KRA.transportCertNickname", "KRA Transport Certificate");
                 transCert = cm.findCertByNickname(transportNickname);
             } catch (Exception e) {
                 logger.debug(method + "'KRA transport certificate' not found in nssdb; need to be manually setup for Server-Side keygen enrollment");
