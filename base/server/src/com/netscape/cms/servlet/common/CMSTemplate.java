@@ -30,6 +30,8 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Enumeration;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cmscore.apps.CMS;
@@ -333,7 +335,7 @@ public class CMSTemplate extends CMSFile {
                 ((Character) v).equals(Character.valueOf((char) 0))) {
             s = "null";
         } else {
-            s = "\"" + v.toString() + "\"";
+            s = "\"" + CMSTemplate.escapeJavaScriptString(v.toString()) + "\"";
         }
 
         return s;
@@ -343,248 +345,20 @@ public class CMSTemplate extends CMSFile {
      * Escape the contents of src string in preparation to be enclosed in
      * double quotes as a JavaScript String Literal within an &lt;script&gt;
      * portion of an HTML document.
-     * stevep - performance improvements - about 4 times faster than before.
      */
 
     public static String escapeJavaScriptString(String v) {
-        int l = v.length();
-        char in[] = new char[l];
-        char out[] = new char[l * 4];
-        int j = 0;
-
-        v.getChars(0, l, in, 0);
-
-        for (int i = 0; i < l; i++) {
-            char c = in[i];
-
-            if ((c > 0x23) && (c != 0x5c) && (c != 0x3c) && (c != 0x3e) && (c != 0x3b)) {
-                out[j++] = c;
-                continue;
-            }
-
-            /* some inputs are coming in as '\' and 'n' */
-            /* see BZ 500736 for details */
-            if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n' ||
-                 in[i+1] == 'r' || in[i+1] == 'f' || in[i+1] == 't' ||
-                 in[i+1] == '<' || in[i+1] == '>' ||
-                 in[i+1] == 'x' || in[i+1] == ';' ||
-                 in[i+1] == '\"' || in[i+1] == '\'' || in[i+1] == '\\')) {
-                if (in[i+1] == 'x' && ((i+3)<l) && in[i+2] == '3' &&
-                    (in[i+3] == 'c' || in[i+3] == 'e')) {
-                    out[j++] = '\\';
-                    out[j++] = in[i+1];
-                    out[j++] = in[i+2];
-                    out[j++] = in[i+3];
-                    i += 3;
-                    continue;
-                } else if (in[i+1] == '<' || in[i+1] == '>') {
-                    c = in[i+1];
-                    i++;
-                } else if (in[i+1] == ';') {
-                    out[j++] = in[i+1];
-                    i++;
-                    continue;
-                } else {
-                    out[j++] = '\\';
-                    out[j++] = in[i+1];
-                    i++;
-                    continue;
-                }
-            }
-            if (c == '&') {
-                int k;
-                for (k = 0; k < 8 && (i+k) < l; k++) {
-                    out[j+k] = in[i+k];
-                    if (in[i+k] == ';') break;
-                    if (in[i+k] == '<' || in[i+k] == '>') {
-                        k = 8;
-                        break;
-                    }
-                }
-                if (k < 8) {
-                    i += k;
-                    j += k + 1;
-                    continue;
-                }
-            }
-
-            switch (c) {
-            case '\n':
-                out[j++] = '\\';
-                out[j++] = 'n';
-                break;
-
-            case '\\':
-                out[j++] = '\\';
-                out[j++] = '\\';
-                break;
-
-            case '\"':
-                out[j++] = '\\';
-                out[j++] = '\"';
-                break;
-
-            case '\r':
-                out[j++] = '\\';
-                out[j++] = 'r';
-                break;
-
-            case '\f':
-                out[j++] = '\\';
-                out[j++] = 'f';
-                break;
-
-            case '\t':
-                out[j++] = '\\';
-                out[j++] = 't';
-                break;
-
-            case '<':
-                out[j++] = '\\';
-                out[j++] = 'x';
-                out[j++] = '3';
-                out[j++] = 'c';
-                break;
-
-            case '>':
-                out[j++] = '\\';
-                out[j++] = 'x';
-                out[j++] = '3';
-                out[j++] = 'e';
-                break;
-
-            case '&':
-                out[j++] = '&';
-                out[j++] = 'a';
-                out[j++] = 'm';
-                out[j++] = 'p';
-                out[j++] = ';';
-                break;
-
-            default:
-                out[j++] = c;
-            }
-        }
-        return new String(out, 0, j);
+        return StringEscapeUtils.escapeJavaScript(v);
     }
 
     /**
-     * Like escapeJavaScriptString(String s) but also escape '[' for
-     * HTML processing.
+     * Like escapeJavaScriptString(String s) but also escapes for HTML
+     * processing; i.e., first encode for HTML and then encode for
+     * outputting in JavaScript.
      */
 
     public static String escapeJavaScriptStringHTML(String v) {
-        int l = v.length();
-        char in[] = new char[l];
-        char out[] = new char[l * 8];
-        int j = 0;
-
-        v.getChars(0, l, in, 0);
-
-        for (int i = 0; i < l; i++) {
-            char c = in[i];
-
-            if (c > 0x5C) {
-                out[j++] = c;
-                continue;
-            }
-
-            if ((c == 0x5c) && ((i + 1) < l) && (in[i + 1] == 'n' ||
-                    in[i + 1] == 'r' || in[i + 1] == 'f' || in[i + 1] == 't' ||
-                    in[i + 1] == '<' || in[i + 1] == '>' ||
-                    in[i + 1] == 'x' || in[i + 1] == ';' ||
-                    in[i + 1] == '\"' || in[i + 1] == '\'' || in[i + 1] == '\\')) {
-                if (in[i + 1] == 'x' && ((i + 3) < l) && in[i + 2] == '3' &&
-                        (in[i + 3] == 'c' || in[i + 3] == 'e')) {
-                    out[j++] = '\\';
-                    out[j++] = in[i + 1];
-                    out[j++] = in[i + 2];
-                    out[j++] = in[i + 3];
-                    i += 3;
-
-                    continue;
-                } else if (in[i + 1] == '<' || in[i + 1] == '>') {
-                    c = in[i + 1];
-                    i++;
-                } else if (in[i + 1] == ';') {
-                    out[j++] = in[i + 1];
-                    i++;
-                    continue;
-                } else {
-                    out[j++] = '\\';
-                    out[j++] = in[i + 1];
-                    i++;
-                    continue;
-                }
-            }
-            if (c == '&') {
-                int k;
-                for (k = 0; k < 8 && (i + k) < l; k++) {
-                    out[j + k] = in[i + k];
-                    if (in[i + k] == ';')
-                        break;
-                    if (in[i + k] == '<' || in[i + k] == '>') {
-                        k = 8;
-                        break;
-                    }
-                }
-                if (k < 8) {
-                    i += k;
-                    j += k + 1;
-                    continue;
-                }
-            }
-
-            switch (c) {
-            case '\n':
-                out[j++] = '\\';
-                out[j++] = 'n';
-                break;
-
-            case '\\':
-                out[j++] = '\\';
-                out[j++] = '\\';
-                break;
-
-            case '\"':
-                out[j++] = '\\';
-                out[j++] = '\"';
-                break;
-
-            case '\r':
-                out[j++] = '\\';
-                out[j++] = 'r';
-                break;
-
-            case '\f':
-                out[j++] = '\\';
-                out[j++] = 'f';
-                break;
-
-            case '\t':
-                out[j++] = '\\';
-                out[j++] = 't';
-                break;
-
-            case '<':
-                out[j++] = '&';
-                out[j++] = 'l';
-                out[j++] = 't';
-                out[j++] = ';';
-                break;
-
-            case '>':
-                out[j++] = '&';
-                out[j++] = 'g';
-                out[j++] = 't';
-                out[j++] = ';';
-                break;
-
-            default:
-                out[j++] = c;
-            }
-        }
-        return new String(out, 0, j);
+        return StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(v));
     }
 
     /**
