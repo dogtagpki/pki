@@ -76,12 +76,11 @@ public class NSSIssuer extends ACMEIssuer {
         }
 
         String nickname = config.getParameter("nickname");
-        if (nickname != null) {
-            logger.info("- nickname: " + nickname);
+        if (nickname == null) nickname = "ca_signing";
+        logger.info("- nickname: " + nickname);
 
-            CryptoManager cm = CryptoManager.getInstance();
-            issuer = cm.findCertByNickname(nickname);
-        }
+        CryptoManager cm = CryptoManager.getInstance();
+        issuer = cm.findCertByNickname(nickname);
 
         String monthsValid = config.getParameter("monthsValid");
         if (monthsValid != null) {
