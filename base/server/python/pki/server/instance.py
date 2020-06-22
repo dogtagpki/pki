@@ -143,10 +143,6 @@ class PKIInstance(pki.server.PKIServer):
         return os.path.join(pki.server.PKIServer.CONFIG_DIR, self.name)
 
     @property
-    def nssdb_dir(self):
-        return os.path.join(self.conf_dir, 'alias')
-
-    @property
     def log_dir(self):
         return os.path.join(pki.server.PKIServer.LOG_DIR, self.name)
 
@@ -340,14 +336,6 @@ class PKIInstance(pki.server.PKIServer):
             logger.info('Linking %s to %s', dest, source)
             self.symlink(source, dest, force=force)
 
-    def create_nssdb(self, force=False):
-
-        super(PKIInstance, self).create_nssdb(force=force)
-
-        nssdb_link = os.path.join(self.base_dir, 'alias')
-        logger.info('Creating %s', nssdb_link)
-        self.symlink(self.nssdb_dir, nssdb_link, force=force)
-
     def load(self):
 
         super(PKIInstance, self).load()
@@ -406,14 +394,6 @@ class PKIInstance(pki.server.PKIServer):
             pki.util.unlink(self.lib_dir, force=force)
         else:
             pki.util.rmtree(self.lib_dir, force=force)
-
-    def remove_nssdb(self, force=False):
-
-        nssdb_link = os.path.join(self.base_dir, 'alias')
-        logger.info('Removing %s', nssdb_link)
-        pki.util.unlink(nssdb_link, force=force)
-
-        super(PKIInstance, self).remove_nssdb(force=force)
 
     @staticmethod
     def read_external_certs(conf_file):

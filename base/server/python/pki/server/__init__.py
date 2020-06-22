@@ -227,6 +227,10 @@ class PKIServer(object):
 
     @property
     def nssdb_dir(self):
+        return os.path.join(self.conf_dir, 'alias')
+
+    @property
+    def nssdb_link(self):
         return os.path.join(self.base_dir, 'alias')
 
     @property
@@ -604,6 +608,9 @@ class PKIServer(object):
 
         self.makedirs(self.nssdb_dir, force=force)
 
+        logger.info('Creating %s', self.nssdb_link)
+        self.symlink(self.nssdb_dir, self.nssdb_link, force=force)
+
         password = self.passwords.get(pki.nssdb.INTERNAL_TOKEN_NAME)
 
         nssdb = pki.nssdb.NSSDatabase(
@@ -771,6 +778,9 @@ class PKIServer(object):
         pki.util.unlink(self.lib_dir, force=force)
 
     def remove_nssdb(self, force=False):
+
+        logger.info('Removing %s', self.nssdb_link)
+        pki.util.unlink(self.nssdb_link, force=force)
 
         logger.info('Removing %s', self.nssdb_dir)
         pki.util.rmtree(self.nssdb_dir, force=force)
