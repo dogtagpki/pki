@@ -10,10 +10,10 @@ The issuer configuration is located at /etc/pki/pki-tomcat/acme/issuer.conf.
 
 The ACME responder can be configured to issue certificates using a PKI issuer.
 
-To configure a PKI issuer, copy the sample [issuer.conf](../../../base/acme/conf/issuer/pki/issuer.conf) with the following command:
+To configure a PKI issuer, copy the sample [issuer.conf](../../../base/acme/issuer/pki/issuer.conf) with the following command:
 
 ```
-$ cp /usr/share/pki/acme/conf/issuer/pki/issuer.conf \
+$ cp /usr/share/pki/acme/issuer/pki/issuer.conf \
     /etc/pki/pki-tomcat/acme/issuer.conf
 ```
 
@@ -41,10 +41,10 @@ and the password in the **password** parameter.
 
 The ACME responder can be configured to issue certificates using a local NSS database.
 
-To configure an NSS issuer, copy the sample [issuer.conf](../../../base/acme/conf/issuer/nss/issuer.conf) with the following command:
+To configure an NSS issuer, copy the sample [issuer.conf](../../../base/acme/issuer/nss/issuer.conf) with the following command:
 
 ```
-$ cp /usr/share/pki/acme/conf/issuer/nss/issuer.conf \
+$ cp /usr/share/pki/acme/issuer/nss/issuer.conf \
     /etc/pki/pki-tomcat/acme/issuer.conf
 ```
 
@@ -53,7 +53,7 @@ Customize the configuration as needed. The issuer.conf should look like the foll
 ```
 class=org.dogtagpki.acme.issuer.NSSIssuer
 issuer=ca_signing
-extensions=/usr/share/pki/acme/conf/issuer/nss/sslserver.conf
+extensions=/usr/share/pki/acme/issuer/nss/sslserver.conf
 ```
 
 The **issuer** parameter is used to specify the nickname of the CA signing certificate
@@ -62,8 +62,8 @@ in the NSS database.
 The **extensions** parameter can be used to configure the certificate extensions for the issued certificates.
 Sample extension configuration files are available at:
 
-* [/usr/share/pki/acme/conf/issuer/nss/sslserver.conf](../../../base/acme/conf/issuer/nss/sslserver.conf)
-* [/usr/share/pki/acme/conf/issuer/nss/ca_signing.conf](../../../base/acme/conf/issuer/nss/ca_signing.conf)
+* [/usr/share/pki/acme/issuer/nss/sslserver.conf](../../../base/acme/issuer/nss/sslserver.conf)
+* [/usr/share/pki/acme/issuer/nss/ca_signing.conf](../../../base/acme/issuer/nss/ca_signing.conf)
 
 Customize the configuration as needed. The format is based on [OpenSSL x509v3_config](https://www.openssl.org/docs/manmaster/man5/x509v3_config.html).
 

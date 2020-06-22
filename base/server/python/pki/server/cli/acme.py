@@ -25,7 +25,7 @@ DATABASE_CLASSES = {
 
 DATABASE_TYPES = {value: key for key, value in DATABASE_CLASSES.items()}
 
-# TODO: auto-populate this map from /usr/share/pki/acme/conf/issuer
+# TODO: auto-populate this map from /usr/share/pki/acme/issuer
 ISSUER_CLASSES = {
     'pki': 'org.dogtagpki.acme.issuer.PKIIssuer'
 }

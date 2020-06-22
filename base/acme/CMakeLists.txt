@@ -75,6 +75,13 @@ install(
         ${DATA_INSTALL_DIR}/acme/database/
 )
 
+install(
+    DIRECTORY
+        issuer/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/acme/issuer/
+)
+
 # install deployment descriptor
 install(
     DIRECTORY
