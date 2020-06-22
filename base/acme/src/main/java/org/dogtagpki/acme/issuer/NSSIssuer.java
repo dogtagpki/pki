@@ -66,15 +66,6 @@ public class NSSIssuer extends ACMEIssuer {
         passwordStore.init(passwordsPath.toString());
         nssDatabase.setPasswordStore(passwordStore);
 
-        String extensions = config.getParameter("extensions");
-        if (extensions != null) {
-            logger.info("- extensions: " + extensions);
-
-            Path extPath = instanceDir.resolve(extensions);
-            extGenerator = new NSSExtensionGenerator();
-            extGenerator.init(extPath.toString());
-        }
-
         String nickname = config.getParameter("nickname");
         if (nickname == null) nickname = "ca_signing";
         logger.info("- nickname: " + nickname);
@@ -88,6 +79,14 @@ public class NSSIssuer extends ACMEIssuer {
 
             this.monthsValid = new Integer(monthsValid);
         }
+
+        String extensions = config.getParameter("extensions");
+        if (extensions == null) extensions = "/usr/share/pki/acme/issuer/nss/sslserver.conf";
+        logger.info("- extensions: " + extensions);
+
+        Path extPath = instanceDir.resolve(extensions);
+        extGenerator = new NSSExtensionGenerator();
+        extGenerator.init(extPath.toString());
     }
 
     public String issueCertificate(PKCS10 pkcs10) throws Exception {
