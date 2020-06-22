@@ -1,0 +1,187 @@
+#!/bin/sh -e
+#
+# Copyright Red Hat, Inc.
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+
+. /usr/share/pki/scripts/config
+
+echo "################################################################################"
+
+# import ca_signing.cert and ca_signing.key if available
+if [ -f /var/lib/tomcats/pki/conf/certs/ca_signing.crt ] && \
+   [ -f /var/lib/tomcats/pki/conf/certs/ca_signing.key ]
+then
+    echo "INFO: Importing CA Signing Certificate and Key"
+
+    # generate random password
+    openssl rand -hex 8 > /tmp/password
+
+    # import PEM cert and key into PKCS #12 file
+    openssl pkcs12 -export \
+        -in /var/lib/tomcats/pki/conf/certs/ca_signing.crt \
+        -inkey /var/lib/tomcats/pki/conf/certs/ca_signing.key \
+        -out /tmp/certs.p12 \
+        -name ca_signing \
+        -passout file:/tmp/password
+
+    # import PKCS #12 file into NSS database
+    pki -d /var/lib/tomcats/pki/conf/alias pkcs12-import \
+        --pkcs12 /tmp/certs.p12 \
+        --password-file /tmp/password
+
+    # trust imported CA signing cert
+    certutil -M -d /var/lib/tomcats/pki/conf/alias -n ca_signing -t CT,C,C
+
+    rm /tmp/certs.p12
+    rm /tmp/password
+fi
+
+# import certs.p12 if available
+if [ -f /var/lib/tomcats/pki/conf/certs/certs.p12 ]
+then
+    echo "INFO: Importing Certificates and Keys from PKCS #12 File"
+
+    # import PKCS #12 file into NSS database
+    pki -d /var/lib/tomcats/pki/conf/alias pkcs12-import \
+        --pkcs12 /var/lib/tomcats/pki/conf/certs/certs.p12 \
+        --password-file /var/lib/tomcats/pki/conf/certs/password
+fi
+
+# check whether CA signing certificate is available
+rc=0
+certutil -L -d /var/lib/tomcats/pki/conf/alias -n ca_signing -a > /dev/null 2>&1 || rc=$?
+
+# generate a CA signing certificate if not available
+if [ $rc -ne 0 ]
+then
+    echo "INFO: Issuing Self-signed CA Signing Certificate"
+
+    # generate CA signing CSR
+    pki -d /var/lib/tomcats/pki/conf/alias nss-cert-request \
+        --subject "CN=CA Signing Certificate" \
+        --csr /tmp/ca_signing.csr
+
+    # issue self-signed CA signing cert
+    pki -d /var/lib/tomcats/pki/conf/alias nss-cert-issue \
+        --csr /tmp/ca_signing.csr \
+        --ext /usr/share/pki/acme/issuer/nss/ca_signing.conf \
+        --months-valid 12 \
+        --cert /tmp/ca_signing.crt
+
+    # import and trust CA signing cert into NSS database
+    pki -d /var/lib/tomcats/pki/conf/alias nss-cert-import \
+        --cert /tmp/ca_signing.crt \
+        --trust CT,C,C \
+        ca_signing
+
+    rm /tmp/ca_signing.crt
+    rm /tmp/ca_signing.csr
+fi
+
+echo "INFO: CA Signing Certificate:"
+certutil -L -d /var/lib/tomcats/pki/conf/alias -n ca_signing
+
+echo "################################################################################"
+
+# check whether SSL server certificate is available
+rc=0
+certutil -L -d /var/lib/tomcats/pki/conf/alias -n sslserver -a > /dev/null 2>&1 || rc=$?
+
+# generate a SSL server certificate if not available
+if [ $rc -ne 0 ]
+then
+    echo "INFO: Issuing SSL Server Certificate"
+
+    # generate SSL server CSR
+    pki -d /var/lib/tomcats/pki/conf/alias nss-cert-request \
+        --subject "CN=$HOSTNAME" \
+        --csr /tmp/sslserver.csr
+
+    # issue SSL server cert
+    pki -d /var/lib/tomcats/pki/conf/alias nss-cert-issue \
+        --issuer ca_signing \
+        --csr /tmp/sslserver.csr \
+        --ext /usr/share/pki/acme/issuer/nss/sslserver.conf \
+        --cert /tmp/sslserver.crt
+
+    # import SSL server cert into NSS database
+    pki -d /var/lib/tomcats/pki/conf/alias nss-cert-import \
+        --cert /tmp/sslserver.crt \
+        sslserver
+
+    rm /tmp/sslserver.crt
+    rm /tmp/sslserver.csr
+fi
+
+echo "INFO: SSL Server Certificate:"
+certutil -L -d /var/lib/tomcats/pki/conf/alias -n sslserver
+
+echo "################################################################################"
+
+# import metadata configuration if available
+if [ -d /var/lib/tomcats/pki/conf/acme/metadata ] && \
+   [ "$(ls /var/lib/tomcats/pki/conf/acme/metadata)" ]
+then
+    echo "INFO: Importing metadata configuration"
+
+    # empty current metadata configuration
+    > /var/lib/tomcats/pki/conf/acme/metadata.conf
+
+    # import metadata configuration parameters
+    for filename in $(ls /var/lib/tomcats/pki/conf/acme/metadata)
+    do
+        value=$(cat /var/lib/tomcats/pki/conf/acme/metadata/$filename)
+        echo "$filename=$value" >> /var/lib/tomcats/pki/conf/acme/metadata.conf
+    done
+else
+    echo "INFO: Using default metadata configuration"
+fi
+
+echo "################################################################################"
+
+# import database configuration if available
+if [ -d /var/lib/tomcats/pki/conf/acme/database ] && \
+   [ "$(ls /var/lib/tomcats/pki/conf/acme/database)" ]
+then
+    echo "INFO: Importing database configuration"
+
+    # empty current database configuration
+    > /var/lib/tomcats/pki/conf/acme/database.conf
+
+    # import database configuration parameters
+    for filename in $(ls /var/lib/tomcats/pki/conf/acme/database)
+    do
+        value=$(cat /var/lib/tomcats/pki/conf/acme/database/$filename)
+        echo "$filename=$value" >> /var/lib/tomcats/pki/conf/acme/database.conf
+    done
+else
+    echo "INFO: Using default database configuration"
+fi
+
+echo "################################################################################"
+
+# import issuer configuration if available
+if [ -d /var/lib/tomcats/pki/conf/acme/issuer ] && \
+   [ "$(ls /var/lib/tomcats/pki/conf/acme/issuer)" ]
+then
+    echo "INFO: Importing issuer configuration"
+
+    # empty current issuer configuration
+    > /var/lib/tomcats/pki/conf/acme/issuer.conf
+
+    # import issuer configuration parameters
+    for filename in $(ls /var/lib/tomcats/pki/conf/acme/issuer)
+    do
+        value=$(cat /var/lib/tomcats/pki/conf/acme/issuer/$filename)
+        echo "$filename=$value" >> /var/lib/tomcats/pki/conf/acme/issuer.conf
+    done
+else
+    echo "INFO: Using default issuer configuration"
+fi
+
+echo "################################################################################"
+echo "INFO: Starting PKI ACME responder"
+
+${PYTHON_EXECUTABLE} -I -m pki.server.pkiserver run tomcat@pki --as-current-user

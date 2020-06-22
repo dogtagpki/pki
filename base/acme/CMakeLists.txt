@@ -60,6 +60,24 @@ install(
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
 
+install(
+    FILES
+        Dockerfile
+    DESTINATION
+        ${DATA_INSTALL_DIR}/acme/
+)
+
+install(
+    DIRECTORY
+        sbin/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/acme/sbin/
+    FILE_PERMISSIONS
+        OWNER_EXECUTE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
+)
+
 # install configuration files
 install(
     DIRECTORY
@@ -80,6 +98,13 @@ install(
         issuer/
     DESTINATION
         ${DATA_INSTALL_DIR}/acme/issuer/
+)
+
+install(
+    DIRECTORY
+        openshift/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/acme/openshift/
 )
 
 # install deployment descriptor
