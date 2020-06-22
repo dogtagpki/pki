@@ -87,7 +87,7 @@ public class LDAPConfigurator {
         importSchemaFile("/usr/share/pki/server/conf/schema.ldif");
 
         logger.info("Setting up ACME schema");
-        importSchemaFile("/usr/share/pki/acme/conf/database/ldap/schema.ldif");
+        importSchemaFile("/usr/share/pki/acme/database/ldap/schema.ldif");
     }
 
     public void createContainers(String subsystem) throws Exception {

@@ -17,7 +17,7 @@ import pki.cli
 import pki.server
 import pki.server.instance
 
-# TODO: auto-populate this map from /usr/share/pki/acme/conf/database
+# TODO: auto-populate this map from /usr/share/pki/acme/database
 DATABASE_CLASSES = {
     'in-memory': 'org.dogtagpki.acme.database.InMemoryDatabase',
     'postgresql': 'org.dogtagpki.acme.database.PostgreSQLDatabase'

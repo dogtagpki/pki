@@ -68,6 +68,13 @@ install(
         ${DATA_INSTALL_DIR}/acme/conf/
 )
 
+install(
+    DIRECTORY
+        database/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/acme/database/
+)
+
 # install deployment descriptor
 install(
     DIRECTORY

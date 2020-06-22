@@ -8,10 +8,10 @@ The database configuration is located at /etc/pki/pki-tomcat/acme/database.conf.
 
 ## Configuring In-Memory Database
 
-To configure an in-memory database, copy the sample [database.conf](../../../base/acme/conf/database/in-memory/database.conf) with the following command:
+To configure an in-memory database, copy the sample [database.conf](../../../base/acme/database/in-memory/database.conf) with the following command:
 
 ```
-$ cp /usr/share/pki/acme/conf/database/in-memory/database.conf \
+$ cp /usr/share/pki/acme/database/in-memory/database.conf \
     /etc/pki/pki-tomcat/acme/database.conf
 ```
 
@@ -25,27 +25,27 @@ There are no parameters to configure for in-memory database.
 
 ## Configuring LDAP Database
 
-First, add the ACME LDAP schema by importing the [schema.ldif](../../../base/acme/conf/database/ldap/schema.ldif) with the following command:
+First, add the ACME LDAP schema by importing the [schema.ldif](../../../base/acme/database/ldap/schema.ldif) with the following command:
 
 ```
 $ ldapmodify -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/conf/database/ldap/schema.ldif
+    -f /usr/share/pki/acme/database/ldap/schema.ldif
 ```
 
 Next, prepare an LDIF file to create the ACME LDAP tree.
-An sample LDIF file is available at [/usr/share/pki/acme/conf/database/ldap/create.ldif](../../../base/acme/conf/database/ldap/create.ldif).
+An sample LDIF file is available at [/usr/share/pki/acme/database/ldap/create.ldif](../../../base/acme/database/ldap/create.ldif).
 This example uses dc=acme,dc=pki,dc=example,dc=com as the base DN.
 Import the file with the following command:
 
 ```
 $ ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/conf/database/ldap/create.ldif
+    -f /usr/share/pki/acme/database/ldap/create.ldif
 ```
 
-Then copy the sample [database.conf](../../../base/acme/conf/database/ldap/database.conf) with the following command:
+Then copy the sample [database.conf](../../../base/acme/database/ldap/database.conf) with the following command:
 
 ```
-$ cp /usr/share/pki/acme/conf/database/ldap/database.conf \
+$ cp /usr/share/pki/acme/database/ldap/database.conf \
     /etc/pki/pki-tomcat/acme/database.conf
 ```
 
@@ -76,18 +76,18 @@ basedn=dc=acme,dc=pki,dc=example,dc=com
 ## Configuring PosgreSQL Database
 
 Prepare a database (e.g. acme) and a user (e.g. acme) to access the database,
-then create the ACME tables by executing the [create.sql](../../../base/acme/conf/database/postgresql/create.sql)
+then create the ACME tables by executing the [create.sql](../../../base/acme/database/postgresql/create.sql)
 with the following command:
 
 ```
 $ psql -h $HOSTNAME -d acme -U acme \
-    -f /usr/share/pki/acme/conf/database/postgresql/create.sql
+    -f /usr/share/pki/acme/database/postgresql/create.sql
 ```
 
-Then copy the sample [database.conf](../../../base/acme/conf/database/postgresql/database.conf) with the following command:
+Then copy the sample [database.conf](../../../base/acme/database/postgresql/database.conf) with the following command:
 
 ```
-$ cp /usr/share/pki/acme/conf/database/postgresql/database.conf \
+$ cp /usr/share/pki/acme/database/postgresql/database.conf \
     /etc/pki/pki-tomcat/acme/database.conf
 ```
 

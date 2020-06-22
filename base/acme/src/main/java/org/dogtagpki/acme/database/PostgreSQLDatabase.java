@@ -56,7 +56,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
         String statementsFilename = info.getProperty(
                 "statements",
-                "/usr/share/pki/acme/conf/database/postgresql/statements.conf");
+                "/usr/share/pki/acme/database/postgresql/statements.conf");
 
         logger.info("Loading statements from " + statementsFilename);
 
