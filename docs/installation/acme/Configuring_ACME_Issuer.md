@@ -52,12 +52,11 @@ Customize the configuration as needed. The issuer.conf should look like the foll
 
 ```
 class=org.dogtagpki.acme.issuer.NSSIssuer
-issuer=ca_signing
+nickname=ca_signing
 extensions=/usr/share/pki/acme/issuer/nss/sslserver.conf
 ```
 
-The **issuer** parameter is used to specify the nickname of the CA signing certificate
-in the NSS database.
+The **nickname** parameter can be used to specify the nickname of the CA signing certificate.
 
 The **extensions** parameter can be used to configure the certificate extensions for the issued certificates.
 Sample extension configuration files are available at:

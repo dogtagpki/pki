@@ -50,6 +50,7 @@ public class NSSIssuer extends ACMEIssuer {
 
         String database = config.getParameter("database");
         if (database == null) database = "conf/alias";
+
         Path databasePath = instanceDir.resolve(database);
         logger.info("- database: " + databasePath);
 
@@ -58,9 +59,9 @@ public class NSSIssuer extends ACMEIssuer {
         String passwords = config.getParameter("passwords");
         if (passwords == null) passwords = "conf/password.conf";
 
-        logger.info("- passwords: " + passwords);
-
         Path passwordsPath = instanceDir.resolve(passwords);
+        logger.info("- passwords: " + passwordsPath);
+
         passwordStore = new PlainPasswordFile();
         passwordStore.init(passwordsPath.toString());
         nssDatabase.setPasswordStore(passwordStore);
@@ -74,12 +75,12 @@ public class NSSIssuer extends ACMEIssuer {
             extGenerator.init(extPath.toString());
         }
 
-        String issuer = config.getParameter("issuer");
-        if (issuer != null) {
-            logger.info("- issuer: " + issuer);
+        String nickname = config.getParameter("nickname");
+        if (nickname != null) {
+            logger.info("- nickname: " + nickname);
 
             CryptoManager cm = CryptoManager.getInstance();
-            this.issuer = cm.findCertByNickname(issuer);
+            issuer = cm.findCertByNickname(nickname);
         }
 
         String monthsValid = config.getParameter("monthsValid");
