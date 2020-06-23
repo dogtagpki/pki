@@ -190,6 +190,7 @@ BuildRequires:    resteasy-jackson2-provider >= 3.0.17-1
 
 BuildRequires:    python3 >= 3.5
 BuildRequires:    python3-devel
+BuildRequires:    python3-setuptools
 BuildRequires:    python3-cryptography
 BuildRequires:    python3-lxml
 BuildRequires:    python3-ldap
