@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: pki-acme-database
+stringData:
+  class: org.dogtagpki.acme.database.InMemoryDatabase
+  # class: org.dogtagpki.acme.database.PostgreSQLDatabase
+  # password: Secret.123
+  # url: jdbc:postgresql://postgresql:5432/acme
+  # user: acme

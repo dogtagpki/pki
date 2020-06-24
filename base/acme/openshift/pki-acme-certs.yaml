@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: pki-acme-certs
+# data:
+#   certs.p12: <base64-encoded PKCS #12 file>
+# stringData:
+#   password: <PKCS #12 password>
+#   ca_signing.crt: |-
+#     -----BEGIN CERTIFICATE-----
+#     ...
+#     -----END CERTIFICATE-----
+#   ca_signing.key: |-
+#     -----BEGIN PRIVATE KEY-----
+#     ...
+#     -----END PRIVATE KEY-----

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pki-acme
+  name: pki-acme
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pki-acme
+  template:
+    metadata:
+      labels:
+        app: pki-acme
+    spec:
+      containers:
+        - name: pki-acme
+          image: 'quay.io/dogtagpki/pki-acme:latest'
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /var/lib/tomcats/pki/conf/certs
+              name: pki-acme-certs
+            - mountPath: /var/lib/tomcats/pki/conf/acme/metadata
+              name: pki-acme-metadata
+            - mountPath: /var/lib/tomcats/pki/conf/acme/database
+              name: pki-acme-database
+            - mountPath: /var/lib/tomcats/pki/conf/acme/issuer
+              name: pki-acme-issuer
+      volumes:
+        - name: pki-acme-certs
+          secret:
+            secretName: pki-acme-certs
+        - name: pki-acme-metadata
+          secret:
+            secretName: pki-acme-metadata
+        - name: pki-acme-database
+          secret:
+            secretName: pki-acme-database
+        - name: pki-acme-issuer
+          secret:
+            secretName: pki-acme-issuer
+  triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - pki-acme
+        from:
+          kind: ImageStreamTag
+          name: 'pki-acme:latest'
+      type: ImageChange
+    - type: ConfigChange

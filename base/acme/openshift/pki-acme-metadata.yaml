@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: pki-acme-metadata
+stringData:
+  caaIdentities: dogtagpki.org
+  externalAccountRequired: 'false'
+  termsOfService: https://www.dogtagpki.org/wiki/PKI_ACME_Responder
+  website: https://www.dogtagpki.org
