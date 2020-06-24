@@ -1776,6 +1776,10 @@ class NSSDatabase(object):
                 '-passin', 'pass:' + password
             ]
 
+            # Remove CA.crt prior to starting; openssl gets annoyed otherwise.
+            if os.path.exists(ca_path):
+                os.remove(ca_path)
+
             res_ca = subprocess.check_output(cmd_export_ca,
                                              stderr=subprocess.STDOUT).decode('utf-8')
             logger.debug('Result of CA cert export: %s', res_ca)

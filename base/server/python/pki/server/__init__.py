@@ -1053,16 +1053,19 @@ class PKIServer(object):
                                           stderr=subprocess.STDOUT).decode('utf-8')
         logger.debug('Result of pem generation: %s', res_pem)
 
-        # When we generate the .p12 file, we can extract the ca certificate
-        # if it doesn't already exist.
+        # When we generate the .p12 file, we can extract the ca certificate.
+        # We remove it when it already exists. This ensures we always have
+        # an up-to-date CA certificate.
         ca_cert = PKIServer.build_ca_files(client_nssdb)
-        if not ca_cert:
-            # This method returns a value iff the ca.crt file actually
-            # exists. Since its value is False-y, we must create it.
-            res_ca = subprocess.check_output(cmd_generate_ca,
-                                             stderr=subprocess.STDOUT).decode('utf-8')
-            logger.debug('Result of CA generation: %s', res_ca)
-            ca_cert = PKIServer.build_ca_files(client_nssdb)
+        if ca_cert and os.path.exists(ca_cert):
+            os.remove(ca_cert)
+
+        # Export the CA each time. This ensures it is always up to date when
+        # trying to connect.
+        res_ca = subprocess.check_output(cmd_generate_ca,
+                                         stderr=subprocess.STDOUT).decode('utf-8')
+        logger.debug('Result of CA generation: %s', res_ca)
+        ca_cert = PKIServer.build_ca_files(client_nssdb)
 
         # Create a PKIConnection object that stores the details of subsystem.
         connection = pki.client.PKIConnection('https', os.environ['HOSTNAME'], secure_port,
