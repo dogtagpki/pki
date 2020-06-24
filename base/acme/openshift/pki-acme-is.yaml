@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ImageStream
+metadata:
+  labels:
+    app: pki-acme
+  name: pki-acme
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - from:
+        kind: DockerImage
+        name: quay.io/dogtagpki/pki-acme:latest
+      name: latest
+      referencePolicy:
+        type: Source
