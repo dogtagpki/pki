@@ -150,10 +150,10 @@ public class PKIIssuer extends ACMEIssuer {
 
         RequestId requestId = info.getRequestId();
 
-        logger.info(" - Request ID: " + requestId);
-        logger.info("   Type: " + info.getRequestType());
-        logger.info("   Request Status: " + info.getRequestStatus());
-        logger.info("   Operation Result: " + info.getOperationResult());
+        logger.info("- Request ID: " + requestId);
+        logger.info("  Type: " + info.getRequestType());
+        logger.info("  Request Status: " + info.getRequestStatus());
+        logger.info("  Operation Result: " + info.getOperationResult());
 
         String error = info.getErrorMessage();
         if (error != null) {
