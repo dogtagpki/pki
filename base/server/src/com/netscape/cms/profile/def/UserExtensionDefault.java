@@ -124,7 +124,12 @@ public class UserExtensionDefault extends EnrollExtDefault {
         }
 
         // user supplied the ext that's allowed, replace the def set by system
-        deleteExtension(oid, info);
+        try {
+            deleteExtension(oid, info);
+        } catch (Exception e) {
+            throw new EProfileException(e);
+        }
+
         logger.debug("UserExtensionDefault: using user supplied ext for " + oid);
         addExtension(oid, ext, info);
     }

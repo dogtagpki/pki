@@ -305,22 +305,23 @@ public abstract class EnrollDefault extends PolicyDefault {
         mValueNames.removeAllElements();
     }
 
-    protected void deleteExtension(String name, X509CertInfo info) {
+    protected void deleteExtension(String extID, X509CertInfo info) throws Exception {
         CertificateExtensions exts = null;
 
         try {
-            exts = (CertificateExtensions)
-                    info.get(X509CertInfo.EXTENSIONS);
-            if (exts == null)
+            exts = (CertificateExtensions) info.get(X509CertInfo.EXTENSIONS);
+            if (exts == null) {
                 return;
+            }
+
             Enumeration<String> e = exts.getNames();
 
             while (e.hasMoreElements()) {
-                String n = e.nextElement();
-                Extension ext = (Extension) exts.get(n);
+                String name = e.nextElement();
+                Extension ext = (Extension) exts.get(name);
 
-                if (ext.getExtensionId().toString().equals(name)) {
-                    exts.delete(n);
+                if (ext.getExtensionId().toString().equals(extID)) {
+                    exts.delete(name);
                 }
             }
         } catch (Exception e) {
@@ -410,7 +411,12 @@ public abstract class EnrollDefault extends PolicyDefault {
 
     protected void replaceExtension(String name, Extension ext, X509CertInfo info)
             throws EProfileException {
-        deleteExtension(name, info);
+        try {
+            deleteExtension(name, info);
+        } catch (Exception e) {
+            throw new EProfileException(e);
+        }
+
         addExtension(name, ext, info);
     }
 

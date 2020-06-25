@@ -174,11 +174,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
             replaceExtension(
                     PKIXExtensions.IssuerAlternativeName_Id.toString(),
                     ext, info);
-        } catch (IOException e) {
-            logger.error("IssuerAltNameExtDefault: setValue " + e.getMessage(), e);
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
-        } catch (EProfileException e) {
+        } catch (Exception e) {
             logger.error("IssuerAltNameExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));

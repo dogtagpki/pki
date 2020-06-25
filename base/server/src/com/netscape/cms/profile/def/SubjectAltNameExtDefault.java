@@ -258,11 +258,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
             replaceExtension(
                     PKIXExtensions.SubjectAlternativeName_Id.toString(),
                     ext, info);
-        } catch (IOException e) {
-            logger.error("SubjectAltNameExtDefault: setValue " + e.getMessage(), e);
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
-        } catch (EProfileException e) {
+        } catch (Exception e) {
             logger.error("SubjectAltNameExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
