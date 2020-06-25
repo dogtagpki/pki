@@ -531,28 +531,30 @@ public class CAProcessor extends Processor {
         return authenticate(httpReq, authMgr);
     }
 
-    public void saveAuthToken(IAuthToken token, IRequest req) {
+    public void saveAuthToken(IAuthToken token, IRequest request) {
 
-        req.setExtData(IRequest.AUTH_TOKEN, token);
+        logger.info("CAProcessor: saving authentication token into request:");
+        request.setExtData(IRequest.AUTH_TOKEN, token);
 
         // # 56230 - expose auth token parameters to the policy predicate
         Enumeration<String> e = token.getElements();
 
         while (e.hasMoreElements()) {
-            String n = e.nextElement();
+            String name = e.nextElement();
+            logger.info("- " + name + ":");
 
-            String[] x1 = token.getInStringArray(n);
-            if (x1 != null) {
-                for (int i = 0; i < x1.length; i++) {
-                    logger.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n + "(" + i + ")=" + x1[i]);
-                    req.setExtData(IRequest.AUTH_TOKEN + "-" + n + "(" + i + ")", x1[i]);
+            String[] values = token.getInStringArray(name);
+            if (values != null) {
+                for (int i = 0; i < values.length; i++) {
+                    logger.debug("  - " + values[i]);
+                    request.setExtData(IRequest.AUTH_TOKEN + "-" + name + "(" + i + ")", values[i]);
                 }
 
             } else {
-                String x = token.getInString(n);
-                if (x != null) {
-                    logger.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n + "=" + x);
-                    req.setExtData(IRequest.AUTH_TOKEN + "-" + n, x);
+                String value = token.getInString(name);
+                if (value != null) {
+                    logger.debug("  - " + value);
+                    request.setExtData(IRequest.AUTH_TOKEN + "-" + name, value);
                 }
             }
         }
