@@ -247,6 +247,9 @@ class PKIDeployer:
 
         ca_cert = os.path.join(self.mdict['pki_server_database_path'],
                                "ca.crt")
+        if not os.path.exists(ca_cert):
+            if os.path.exists(self.mdict['pki_cert_chain_path']):
+                ca_cert = self.mdict['pki_cert_chain_path']
 
         self.sd_connection = pki.client.PKIConnection(
             protocol='https',

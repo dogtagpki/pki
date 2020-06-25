@@ -366,6 +366,12 @@ def main(argv):
 
             else:
                 while True:
+                    ca_cert = os.path.join(deployer.mdict['pki_server_database_path'], "ca.crt")
+                    if not os.path.exists(ca_cert):
+                        parser.read_text('Security Domain CA Root Certificate',
+                                         deployer.subsystem_name,
+                                         'pki_cert_chain_path')
+
                     parser.read_text('Hostname',
                                      deployer.subsystem_name,
                                      'pki_security_domain_hostname')
