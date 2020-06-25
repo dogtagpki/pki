@@ -18,6 +18,8 @@
 package com.netscape.cms.profile.def;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -306,26 +308,29 @@ public abstract class EnrollDefault extends PolicyDefault {
     }
 
     protected void deleteExtension(String extID, X509CertInfo info) throws Exception {
-        CertificateExtensions exts = null;
 
-        try {
-            exts = (CertificateExtensions) info.get(X509CertInfo.EXTENSIONS);
-            if (exts == null) {
-                return;
+        CertificateExtensions exts = (CertificateExtensions) info.get(X509CertInfo.EXTENSIONS);
+
+        if (exts == null) {
+            return;
+        }
+
+        Collection<String> names = new ArrayList<>();
+        Enumeration<String> e = exts.getNames();
+
+        // get names of extensions to remove
+        while (e.hasMoreElements()) {
+            String name = e.nextElement();
+            Extension ext = (Extension) exts.get(name);
+
+            if (ext.getExtensionId().toString().equals(extID)) {
+                names.add(name);
             }
+        }
 
-            Enumeration<String> e = exts.getNames();
-
-            while (e.hasMoreElements()) {
-                String name = e.nextElement();
-                Extension ext = (Extension) exts.get(name);
-
-                if (ext.getExtensionId().toString().equals(extID)) {
-                    exts.delete(name);
-                }
-            }
-        } catch (Exception e) {
-            logger.warn("EnrollDefault: " + e.getMessage(), e);
+        // remove extensions in separate loop to avoid ConcurrentModificationException
+        for (String name : names) {
+            exts.delete(name);
         }
     }
 
