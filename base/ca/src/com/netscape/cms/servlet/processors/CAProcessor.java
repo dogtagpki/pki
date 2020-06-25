@@ -531,32 +531,31 @@ public class CAProcessor extends Processor {
         return authenticate(httpReq, authMgr);
     }
 
-    public static void saveAuthToken(IAuthToken token, IRequest req) {
-        if (token != null && req != null)
-            req.setExtData(IRequest.AUTH_TOKEN, token);
+    public void saveAuthToken(IAuthToken token, IRequest req) {
+
+        req.setExtData(IRequest.AUTH_TOKEN, token);
 
         // # 56230 - expose auth token parameters to the policy predicate
-        if (token != null && req != null) {
-            Enumeration<String> e = token.getElements();
-            while (e.hasMoreElements()) {
-                String n = e.nextElement();
-                String[] x1 = token.getInStringArray(n);
-                if (x1 != null) {
-                    for (int i = 0; i < x1.length; i++) {
-                        logger.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n +
-                                "(" + i + ")=" + x1[i]);
-                        req.setExtData(IRequest.AUTH_TOKEN + "-" + n + "(" + i + ")",
-                                x1[i]);
-                    }
-                } else {
-                    String x = token.getInString(n);
-                    if (x != null) {
-                        logger.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n + "=" + x);
-                        req.setExtData(IRequest.AUTH_TOKEN + "-" + n, x);
-                    }
+        Enumeration<String> e = token.getElements();
+
+        while (e.hasMoreElements()) {
+            String n = e.nextElement();
+
+            String[] x1 = token.getInStringArray(n);
+            if (x1 != null) {
+                for (int i = 0; i < x1.length; i++) {
+                    logger.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n + "(" + i + ")=" + x1[i]);
+                    req.setExtData(IRequest.AUTH_TOKEN + "-" + n + "(" + i + ")", x1[i]);
                 }
-            } // while
-        } // if
+
+            } else {
+                String x = token.getInString(n);
+                if (x != null) {
+                    logger.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n + "=" + x);
+                    req.setExtData(IRequest.AUTH_TOKEN + "-" + n, x);
+                }
+            }
+        }
     }
 
     public IAuthToken authenticate(HttpServletRequest httpReq, String authMgrName)

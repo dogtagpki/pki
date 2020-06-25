@@ -137,8 +137,10 @@ public class RequestProcessor extends CertProcessor {
                         requestId.toString()));
             }
 
-            // save auth token in request
-            saveAuthToken(authToken, req);
+            if (authToken != null && req != null) {
+                // save auth token in request
+                saveAuthToken(authToken, req);
+            }
 
             String profileId = req.getExtDataInString(IRequest.PROFILE_ID);
             if (profileId == null || profileId.equals("")) {
