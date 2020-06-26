@@ -1213,15 +1213,12 @@ public class CAService implements ICAService, IService {
      *      signer public key hash;
      *      - cfu ToDo: consider putting the hash in CS.cfg to avoid run time
      *        calculation
-     *   2. (doesn't work) verify the signature in the CT against the SCT in
+     *   2. verify the signature in the CT against the SCT in
      *        response
-     *      - cfu ToDo: ===this is not yet working===;
      *      - concern: what if the extensions become out of order
      *        during removal of the poison extension on the CT log server?
      *        This could make it very difficult to check the signature,
      *        since the CT response does not contain the tbsCert it signs.
-     *      - and because of the concern above, and perhaps other things I
-     *        missed, this is not yet working
      *
      * (Certificate Transparency)
 
@@ -1289,6 +1286,18 @@ public class CAService implements ICAService, IService {
              */
             byte ct_signature[] = CryptoUtil.base64Decode(response.getSignature());
             byte[] signature = Arrays.copyOfRange(ct_signature, 4, ct_signature.length);
+//cfu
+            String hashAlg = getHashAlgFromSig(ct_signature);
+            if (hashAlg == null) {
+                logger.debug(method + "invalid hashing algorithms");
+                return false;
+            }
+
+            String sigAlg = getSigAlgFromSig(ct_signature);
+            if (sigAlg == null) {
+                logger.debug(method + "invalid sig algorithms");
+                return false;
+            }
 
             /* compose data */
             byte[] version = new byte[] {0}; // 1 byte; v1(0)
@@ -1360,8 +1369,8 @@ public class CAService implements ICAService, IService {
             byte[] data = ostream.toByteArray();
             logger.debug(method + "actual data len = " + data.length);
 
-            // cfu ToDo: interpret the alg bytes later; hardcode for now
-            Signature signer = Signature.getInstance("SHA256withEC", "Mozilla-JSS");
+            Signature signer = Signature.getInstance(
+                    hashAlg + "with"+ sigAlg, "Mozilla-JSS");
             signer.initVerify(log_pubKey);
             signer.update(data);
 
@@ -1372,6 +1381,43 @@ public class CAService implements ICAService, IService {
         } finally {
             logger.debug(method + "ends");
         }
+    }
+
+    /**
+     * parses and gleans the hashing algorithm from the returned
+     * CT signature
+     * cfu
+     */
+    /*
+       enum HashAlgorithm {
+            none, md5, sha1, sha224, sha256, sha384, sha512};
+    */
+    enum HashAlgorithm {none, MD5, SHA1, SHA224, SHA256, SHA384, SHA512};
+    public String getHashAlgFromSig(byte[] ct_signature) {
+
+        int hashingAlg = Byte.toUnsignedInt(ct_signature[0]);
+        if (hashingAlg != 4) // only SHA256 supported for v1
+            return null;
+
+        return HashAlgorithm.values()[hashingAlg].name();
+    }
+
+    /**
+     * parses and gleans the signature algorithm from the returned
+     * CT signature
+     * cfu
+     */
+    /*
+       enum SignatureAlgorithm { anonymous, rsa, dsa, ecdsa}
+    */
+    enum SignatureAlgorithm {anonymous, RSA, DSA, EC};
+    public String getSigAlgFromSig(byte[] ct_signature) {
+
+        int signingAlg = Byte.toUnsignedInt(ct_signature[1]);
+        if (signingAlg < 1 || signingAlg > 3)
+            return null;
+
+        return SignatureAlgorithm.values()[signingAlg].name();
     }
 
     /**
