@@ -366,6 +366,30 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     private boolean mAutoUpdateIntervalEffectiveAtStart = false;
 
+
+     /* Optional future value for thisUpdate field of generated CRL
+      * Feature for now only available by command line "sslget" examples:
+      *
+      * # with future update date:
+
+       sslget -n "PKI Administrator for localhost.localdomain"
+             -e "crlIssuingPoint=MasterCRL&signatureAlgorithm&waitForUpdate=true&clearCRLCache=true&customFutureThisUpdateDateValue=2020:9:22:13:0:0"
+             -v -d . -p ""  -r /ca/agent/ca/updateCRL localhost.localdomain:8443
+
+
+       # Cancel any outstanding future thisUpdate value already established, if necessary to recover
+       sslget -n "PKI Administrator for localhost.localdomain"
+             -e "crlIssuingPoint=MasterCRL&signatureAlgorithm&waitForUpdate=true&clearCRLCache=true&cancelCurCustomFutureThisUpdateValue=true"
+             -v -d . -p ""  -r /ca/agent/ca/updateCRL localhost.localdomain:8443
+
+
+     */
+    private Date mCustomFutureThisUpdateValue = null;
+
+    private boolean mForbidCustomFutureThisUpdateValue = true;
+
+    private boolean mCancelCurFutureThisUpdateValue=false;
+
     /**
      * Constructs a CRL issuing point from instantiating from class name.
      * CRL Issuing point must be followed by method call init(CA, id, config);
@@ -419,6 +443,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     public ICMSCRLExtensions getCRLExtensions() {
         return mCMSCRLExtensions;
+    }
+
+    public void setCustomFutureThisUpdateValue(Date futureThisUpdate) {
+        mCustomFutureThisUpdateValue = futureThisUpdate;
+    }
+
+    public void setCancelCurFutureThisUpdateValue(boolean b) {
+        mCancelCurFutureThisUpdateValue = b;
+
     }
 
     public boolean isCRLIssuingPointInitialized() {
@@ -807,6 +840,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         mAutoUpdateIntervalEffectiveAtStart = config.getAutoUpdateIntervalEffectiveAtStart();
         logger.debug("CRLIssuingPoint.initConfig : mAutoUpdateIntervalEffectiveAtStart: " +  mAutoUpdateIntervalEffectiveAtStart);
+	mForbidCustomFutureThisUpdateValue = config.getBoolean("forbidCustomFutureThisUpdateValue",true);
+        logger.debug("CRLIssuingPoint.initConfig: mForbidCustomFutureThisUpdateValue " + mForbidCustomFutureThisUpdateValue);
     }
 
     /**
@@ -1599,6 +1634,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      */
     private long findNextUpdate(boolean fromLastUpdate, boolean delta) {
         long now = System.currentTimeMillis();
+
+        //If we have already created a future thisUpdate value, make "now" this time in the future.
+        long futureNow = 0;
+        if(mCustomFutureThisUpdateValue!= null) {
+            futureNow = mCustomFutureThisUpdateValue.getTime();
+            if(futureNow > now) {
+                now = futureNow;
+            }
+        }
         TimeZone tz = TimeZone.getDefault();
         int offset = tz.getOffset(now);
         long oneDay = 1440L * MINUTE;
@@ -2531,7 +2575,38 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if (signingAlgorithm == null || signingAlgorithm.length() == 0)
             signingAlgorithm = mSigningAlgorithm;
         mLastSigningAlgorithm = signingAlgorithm;
-        Date thisUpdate = new Date();
+        Date thisUpdate = null;
+        Date nowDate = new Date();
+
+	if(mForbidCustomFutureThisUpdateValue == true && mCustomFutureThisUpdateValue != null) {
+            logger.debug("CRLIssuingPoint:updateCRLNow : Policy forbids use of the futerUpdate values feature.");
+            mUpdatingCRL = CRL_UPDATE_DONE;
+            mCustomFutureThisUpdateValue = null;
+            throw new EBaseException("Can not update the CRL Now with future this update value, policy forbids it.");
+        }
+
+        if (mCustomFutureThisUpdateValue != null && mCustomFutureThisUpdateValue.after(nowDate)) {
+            logger.debug("CRLIssuingPoint:updateCRLNow : Future thisUpdate value requested: " + mCustomFutureThisUpdateValue.toString());
+            thisUpdate = mCustomFutureThisUpdateValue;
+        } else {
+            logger.debug("CRLIssuingPoint:updateCRLNow : mCancelCurFutureThisUpdateValue: " + mCancelCurFutureThisUpdateValue);
+            //Check to see if the crl already has a future thisUpdate value. Thus we can't proceed
+            if(nowDate.before(getLastUpdate()) && !mCancelCurFutureThisUpdateValue) {
+                //Here we have a case where the optional custom future thisUpdate feature
+                //has been employed. If this is the case, abort.
+
+                //If the cancel custom future thisUpdate option is set,  proceed and allow a normal update now.
+                //operation to take place.
+
+                logger.debug("CRLIssuingPoint:updateCRLNow : Future thisUpdate has been set, exit this attempt to update the CRL.");
+                mUpdatingCRL = CRL_UPDATE_DONE;
+                mCancelCurFutureThisUpdateValue = false;
+                throw new EBaseException("Can not update the CR Now : thisUpdate Field of CRL set to future date.");
+            }
+            thisUpdate = nowDate;
+        }
+        mCancelCurFutureThisUpdateValue = false;
+
         Date nextUpdate = null;
         Date nextDeltaUpdate = null;
 
@@ -2568,6 +2643,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
 
         mLastUpdate = thisUpdate;
+
+        //Clear this value since it is no longer needed
+        mCustomFutureThisUpdateValue = null;
         // mNextUpdate = nextUpdate;
         mNextDeltaUpdate = (nextDeltaUpdate != null) ? new Date(nextDeltaUpdate.getTime()) : null;
         if (mNextAsThisUpdateExtension > 0) {
