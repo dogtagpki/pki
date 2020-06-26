@@ -10,6 +10,8 @@
 from ipahealthcheck.core.plugin import Plugin, Registry
 from pki.server.instance import PKIInstance
 
+from pki.server.healthcheck.core.main import merge_dogtag_config
+
 import logging
 
 logging.getLogger().setLevel(logging.WARNING)
@@ -25,7 +27,11 @@ class MetaPlugin(Plugin):
 
 class MetaRegistry(Registry):
     def initialize(self, framework, config):
-        pass
+        # Read dogtag specific config values and merge with already existing config
+        # before adding it to registry
+        merge_dogtag_config(config)
+
+        super(MetaRegistry, self).initialize(framework, config)
 
 
 registry = MetaRegistry()
