@@ -22,8 +22,8 @@ class CertsPlugin(Plugin):
     def __init__(self, registry):
         # pylint: disable=redefined-outer-name
         super(CertsPlugin, self).__init__(registry)
-        # TODO: Support custom instance names
-        self.instance = PKIInstance('pki-tomcat')
+
+        self.instance = PKIInstance(self.config.instance_name)
 
 
 class CertsRegistry(Registry):
@@ -33,7 +33,6 @@ class CertsRegistry(Registry):
         merge_dogtag_config(config)
 
         super(CertsRegistry, self).initialize(framework, config)
-        pass
 
 
 registry = CertsRegistry()

@@ -8,6 +8,8 @@
 import logging
 from contextlib import contextmanager
 
+from pki.server.instance import PKIInstance
+
 from pki.server.healthcheck.certs.plugin import CertsPlugin, registry
 from ipahealthcheck.core.plugin import Result, duration
 from ipahealthcheck.core import constants
@@ -22,7 +24,6 @@ class CASystemCertTrustFlagCheck(CertsPlugin):
     """
     @duration
     def check(self):
-
         if not self.instance.exists():
             logger.debug('Invalid instance: %s', self.instance.name)
             yield Result(self, constants.CRITICAL,
@@ -87,7 +88,6 @@ class KRASystemCertTrustFlagCheck(CertsPlugin):
     """
     @duration
     def check(self):
-
         if not self.instance.exists():
             logger.debug('Invalid instance: %s', self.instance.name)
             yield Result(self, constants.CRITICAL,
@@ -152,7 +152,6 @@ class OCSPSystemCertTrustFlagCheck(CertsPlugin):
     """
     @duration
     def check(self):
-
         if not self.instance.exists():
             logger.debug('Invalid instance: %s', self.instance.name)
             yield Result(self, constants.CRITICAL,
@@ -216,7 +215,6 @@ class TKSSystemCertTrustFlagCheck(CertsPlugin):
     """
     @duration
     def check(self):
-
         if not self.instance.exists():
             logger.debug('Invalid instance: %s', self.instance.name)
             yield Result(self, constants.CRITICAL,
@@ -279,7 +277,6 @@ class TPSSystemCertTrustFlagCheck(CertsPlugin):
     """
     @duration
     def check(self):
-
         if not self.instance.exists():
             logger.debug('Invalid instance: %s', self.instance.name)
             yield Result(self, constants.CRITICAL,

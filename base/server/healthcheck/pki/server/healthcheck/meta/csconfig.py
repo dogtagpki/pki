@@ -14,7 +14,6 @@ from pki.server.healthcheck.meta.plugin import MetaPlugin, registry
 from ipahealthcheck.core.plugin import Result, duration
 from ipahealthcheck.core import constants
 
-from pki.server.subsystem import PKISubsystem
 from pki.server.instance import PKIInstance
 
 logger = logging.getLogger(__name__)
@@ -27,7 +26,7 @@ def compare_nssdb_with_cs(class_instance, subsystem, cert_tag):
     :param class_instance: Reporting Class Instance
     :type class_instance: object
     :param subsystem: Subsystem
-    :type subsystem: PKISubsystem
+    :type subsystem: pki.server.subsystem.PKISubsystem
     :param cert_tag: Certificate tag name
     :type cert_tag: str
     :return: Result object with prefilled args
