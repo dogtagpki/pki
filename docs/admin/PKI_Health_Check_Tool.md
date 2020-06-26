@@ -34,6 +34,9 @@ Severity of a problem is defined as:
 ### Checks Included
 
 1. System certificate sync between CS.cfg and NSS database
+2. System certificate expiry
+3. System certificate trust flags in NSS database
+4. Subsystem connectivity check
 
 (More checks will be added in the future)
 
@@ -43,10 +46,15 @@ The `pki-healthcheck` tool will store its configuration in `/etc/pki/healthcheck
 
     [global]
     plugin_timeout=300
+    cert_expiration_days=30
+
+    # Dogtag specific section
+    [dogtag]
+    instance_name=pki-tomcat
 
 ### Limitations
 
-Due to [bug](https://bugzilla.redhat.com/show_bug.cgi?id=1789991) in the base framework, currently the healthcheck can only be executed on a system with **single** pki instance named **pki-tomcat**
+Currently, the healthcheck tool can only be executed on a **single machine** with **single PKI instance**.
 
 ### Testing
 

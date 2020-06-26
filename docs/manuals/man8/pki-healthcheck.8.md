@@ -81,11 +81,16 @@ The results are displayed in a more human-readable format.
 ### CHECKS INCLUDED
 
 **Certificate sync between CS.cfg and NSS database**  
-Checks whether the system certificates in CS.cfg and NSS database are the same
+    Checks whether the system certificates in CS.cfg and NSS database are the same
 
-## BUGS
+**System certificate expiry**  
+    Checks the expiry status of the installed system certificates
 
-**pki-healthcheck** tool can operate only on a *single instance* PKI installation with the instance name as *pki-tomcat*
+**System certificate trust flags**  
+    Checks whether the installed system certificates carry the correct Trust flags
+
+**Subsystem connectivity check**  
+    Checks whether a subsystem is running and able to respond to requests
 
 ## EXAMPLES
 
