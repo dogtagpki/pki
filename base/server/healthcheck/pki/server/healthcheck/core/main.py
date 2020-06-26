@@ -39,7 +39,7 @@ def merge_dogtag_config(config):
     :param config: config object containing prefilled values
     :return: None
     """
-    global dogtag_config_parsed
+    global dogtag_config_parsed  # pylint: disable=global-statement
 
     if not dogtag_config_parsed:
         logger.info("Reading Dogtag specific config values")
@@ -48,7 +48,7 @@ def merge_dogtag_config(config):
         try:
             parser.read(DOGTAG_CONFIG_FILE)
         except ParsingError as e:
-            logger.error("Unable to parse {}: {}".format(DOGTAG_CONFIG_FILE, e))
+            logger.error("Unable to parse %s: %s", DOGTAG_CONFIG_FILE, e)
             return
 
         if not parser.has_section(DOGTAG_CONFIG_SECTION):

@@ -6,6 +6,7 @@ from ipahealthcheck.core import constants
 from pki.client import PKIConnection
 from pki.cert import CertClient
 from pki.systemcert import SystemCertClient
+from pki.server.instance import PKIInstance
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,7 @@ class DogtagCACertsConnectivityCheck(MetaPlugin):
 
     @duration
     def check(self):
-        if not self.instance.is_valid():
+        if not self.instance.exists():
             logger.debug('Invalid instance: %s', self.instance.name)
             yield Result(self, constants.CRITICAL,
                          msg='Invalid PKI instance: %s' % self.instance.name)
@@ -90,7 +91,7 @@ class DogtagKRAConnectivityCheck(MetaPlugin):
 
     @duration
     def check(self):
-        if not self.instance.is_valid():
+        if not self.instance.exists():
             logger.debug('Invalid instance: %s', self.instance.name)
             yield Result(self, constants.CRITICAL,
                          msg='Invalid PKI instance: %s' % self.instance.name)
@@ -169,7 +170,7 @@ class DogtagOCSPConnectivityCheck(MetaPlugin):
 
     @duration
     def check(self):
-        if not self.instance.is_valid():
+        if not self.instance.exists():
             logger.debug('Invalid instance: %s', self.instance.name)
             yield Result(self, constants.CRITICAL,
                          msg='Invalid PKI instance: %s' % self.instance.name)
@@ -217,7 +218,7 @@ class DogtagTKSConnectivityCheck(MetaPlugin):
 
     @duration
     def check(self):
-        if not self.instance.is_valid():
+        if not self.instance.exists():
             logger.debug('Invalid instance: %s', self.instance.name)
             yield Result(self, constants.CRITICAL,
                          msg='Invalid PKI instance: %s' % self.instance.name)
@@ -265,7 +266,7 @@ class DogtagTPSConnectivityCheck(MetaPlugin):
 
     @duration
     def check(self):
-        if not self.instance.is_valid():
+        if not self.instance.exists():
             logger.debug('Invalid instance: %s', self.instance.name)
             yield Result(self, constants.CRITICAL,
                          msg='Invalid PKI instance: %s' % self.instance.name)
