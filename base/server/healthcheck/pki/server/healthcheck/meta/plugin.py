@@ -21,8 +21,8 @@ class MetaPlugin(Plugin):
     def __init__(self, registry):
         # pylint: disable=redefined-outer-name
         super(MetaPlugin, self).__init__(registry)
-        # TODO: Support custom instance names
-        self.instance = PKIInstance('pki-tomcat')
+
+        self.instance = PKIInstance(self.config.instance_name)
 
 
 class MetaRegistry(Registry):

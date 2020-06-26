@@ -14,16 +14,74 @@ from pki.server.healthcheck.meta.plugin import MetaPlugin, registry
 from ipahealthcheck.core.plugin import Result, duration
 from ipahealthcheck.core import constants
 
-from pki.server import PKIServer
+from pki.server.subsystem import PKISubsystem
+from pki.server.instance import PKIInstance
 
 logger = logging.getLogger(__name__)
 
 
+def compare_nssdb_with_cs(class_instance, subsystem, cert_tag):
+    """
+    Check whether the System Certs in NSSDB match with certs in CS.cfg
+
+    :param class_instance: Reporting Class Instance
+    :type class_instance: object
+    :param subsystem: Subsystem
+    :type subsystem: PKISubsystem
+    :param cert_tag: Certificate tag name
+    :type cert_tag: str
+    :return: Result object with prefilled args
+    :rtype: Result
+    """
+
+    # Generate cert_id for logging purpose
+    cert_id = '{}_{}'.format(subsystem.name, cert_tag)
+
+    # Load cert from CS
+    cert = subsystem.get_cert_info(cert_tag)
+    cert_cs = cert['data']
+
+    # Load cert from NSSDB
+    with nssdb_connection(subsystem.instance) as nssdb:
+        try:
+            # Retrieve the nickname and token from CS.cfg and then load
+            # the corresponding cert from NSSDB
+            cert_nssdb = nssdb.get_cert(
+                nickname=cert['nickname'],
+                token=cert['token'],
+                output_format='base64'
+            )
+        except Exception as e:  # pylint: disable=broad-except
+            logger.debug('Unable to load cert from NSSDB: %s', str(e))
+            return Result(class_instance, constants.ERROR,
+                          key=cert_id,
+                          nssdbDir=subsystem.instance.nssdb_dir,
+                          msg='Unable to load cert from NSSDB: %s' % str(e))
+
+    # Compare whether the certs match
+    if cert_nssdb != cert_cs:
+        directive = '%s.%s.cert' % (subsystem.name, cert_tag)
+        return Result(class_instance, constants.ERROR,
+                      key=cert_id,
+                      nickname=cert['nickname'],
+                      directive=directive,
+                      configfile=subsystem.cs_conf,
+                      msg='Certificate \'%s\' does not match the value '
+                          'of %s in %s' % (cert['nickname'],
+                                           directive,
+                                           subsystem.cs_conf))
+    else:
+        return Result(class_instance, constants.SUCCESS,
+                      key=cert_id,
+                      configfile=subsystem.cs_conf)
+
+
 @registry
-class DogtagCertsConfigCheck(MetaPlugin):
+class CADogtagCertsConfigCheck(MetaPlugin):
     """
-    Compare the cert blob in the NSS database to that stored in CS.cfg
+    Compare the cert blob in the NSS database to that stored in CA's CS.cfg
     """
+
     @duration
     def check(self):
         if not self.instance.exists():
@@ -37,82 +95,165 @@ class DogtagCertsConfigCheck(MetaPlugin):
         ca = self.instance.get_subsystem('ca')
 
         if not ca:
-            logger.debug("No CA configured, skipping dogtag config check")
+            logger.info("No CA configured, skipping dogtag config check")
             return
 
         cert_nicknames = [
             'sslserver',
             'subsystem',
-            'ca_audit_signing',
-            'ca_ocsp_signing',
-            'ca_signing'
+            'audit_signing',
+            'ocsp_signing',
+            'signing'
         ]
+
+        # Run the sync check
+        for cert_tag in cert_nicknames:
+            yield compare_nssdb_with_cs(class_instance=self,
+                                        subsystem=ca,
+                                        cert_tag=cert_tag)
+
+
+@registry
+class KRADogtagCertsConfigCheck(MetaPlugin):
+    """
+    Compare the cert blob in the NSS database to that stored in KRA's CS.cfg
+    """
+
+    @duration
+    def check(self):
+        if not self.instance.exists():
+            logger.debug('Invalid instance: %s', self.instance.name)
+            yield Result(self, constants.CRITICAL,
+                         msg='Invalid PKI instance: %s' % self.instance.name)
+            return
+
+        self.instance.load()
 
         kra = self.instance.get_subsystem('kra')
 
-        if kra:
-            logger.debug("KRA is installed, adding corresponding system certs")
+        if not kra:
+            logger.info("No KRA configured, skipping dogtag config check")
+            return
 
-            cert_nicknames.append('kra_transport')
-            cert_nicknames.append('kra_storage')
-            cert_nicknames.append('kra_audit_signing')
-
-        cert_nssdb = None
+        cert_nicknames = [
+            'sslserver',
+            'subsystem',
+            'transport',
+            'storage',
+            'audit_signing'
+        ]
 
         # Run the sync check
-        for cert_id in cert_nicknames:
-            subsystem_name, cert_tag = PKIServer.split_cert_id(cert_id)
+        for cert_tag in cert_nicknames:
+            yield compare_nssdb_with_cs(class_instance=self,
+                                        subsystem=kra,
+                                        cert_tag=cert_tag)
 
-            if not subsystem_name or subsystem_name == 'ca':
-                subsystem = ca
-            elif subsystem_name == 'kra':
-                subsystem = kra
-            else:
-                logger.error('Subsystem not supported yet')
-                yield Result(self, constants.ERROR,
-                             key=cert_id,
-                             subsystem=subsystem_name,
-                             msg='Subsystem not supported yet: %s' % subsystem_name)
-                continue
 
-            # Load cert from CS
-            cert = subsystem.get_cert_info(cert_tag)
-            cert_cs = cert['data']
+@registry
+class OCSPDogtagCertsConfigCheck(MetaPlugin):
+    """
+    Compare the cert blob in the NSS database to that stored in OCSP's CS.cfg
+    """
 
-            # Load cert from NSSDB
-            with nssdb_connection(self.instance) as nssdb:
-                try:
-                    # Retrieve the nickname and token from CS.cfg and then load
-                    # the corresponding cert from NSSDB
-                    cert_nssdb = nssdb.get_cert(
-                        nickname=cert['nickname'],
-                        token=cert['token'],
-                        output_format='base64'
-                    )
-                except Exception as e:  # pylint: disable=broad-except
-                    logger.debug('Unable to load cert from NSSDB: %s', str(e))
-                    yield Result(self, constants.ERROR,
-                                 key=cert_id,
-                                 nssdbDir=self.instance.nssdb_dir,
-                                 msg='Unable to load cert from NSSDB: %s' % str(e))
-                    continue
+    @duration
+    def check(self):
+        if not self.instance.exists():
+            logger.debug('Invalid instance: %s', self.instance.name)
+            yield Result(self, constants.CRITICAL,
+                         msg='Invalid PKI instance: %s' % self.instance.name)
+            return
 
-            # Compare whether the certs match
-            if cert_nssdb != cert_cs:
-                directive = '%s.%s.cert' % (subsystem.name, cert_tag)
-                yield Result(self, constants.ERROR,
-                             key=cert_id,
-                             nickname=cert['nickname'],
-                             directive=directive,
-                             configfile=subsystem.cs_conf,
-                             msg='Certificate \'%s\' does not match the value '
-                                 'of %s in %s' % (cert['nickname'],
-                                                  directive,
-                                                  subsystem.cs_conf))
-            else:
-                yield Result(self, constants.SUCCESS,
-                             key=cert_id,
-                             configfile=subsystem.cs_conf)
+        self.instance.load()
+
+        ocsp = self.instance.get_subsystem('ocsp')
+
+        if not ocsp:
+            logger.info("No OCSP configured, skipping dogtag config check")
+            return
+
+        cert_nicknames = [
+            'sslserver',
+            'subsystem',
+            'signing',
+            'audit_signing'
+        ]
+
+        # Run the sync check
+        for cert_tag in cert_nicknames:
+            yield compare_nssdb_with_cs(class_instance=self,
+                                        subsystem=ocsp,
+                                        cert_tag=cert_tag)
+
+
+@registry
+class TKSDogtagCertsConfigCheck(MetaPlugin):
+    """
+    Compare the cert blob in the NSS database to that stored in TKS's CS.cfg
+    """
+
+    @duration
+    def check(self):
+        if not self.instance.exists():
+            logger.debug('Invalid instance: %s', self.instance.name)
+            yield Result(self, constants.CRITICAL,
+                         msg='Invalid PKI instance: %s' % self.instance.name)
+            return
+
+        self.instance.load()
+
+        tks = self.instance.get_subsystem('tks')
+
+        if not tks:
+            logger.info("No TKS configured, skipping dogtag config check")
+            return
+
+        cert_nicknames = [
+            'sslserver',
+            'subsystem',
+            'audit_signing'
+        ]
+
+        # Run the sync check
+        for cert_tag in cert_nicknames:
+            yield compare_nssdb_with_cs(class_instance=self,
+                                        subsystem=tks,
+                                        cert_tag=cert_tag)
+
+
+@registry
+class TPSDogtagCertsConfigCheck(MetaPlugin):
+    """
+    Compare the cert blob in the NSS database to that stored in TPS's CS.cfg
+    """
+
+    @duration
+    def check(self):
+        if not self.instance.exists():
+            logger.debug('Invalid instance: %s', self.instance.name)
+            yield Result(self, constants.CRITICAL,
+                         msg='Invalid PKI instance: %s' % self.instance.name)
+            return
+
+        self.instance.load()
+
+        tps = self.instance.get_subsystem('tps')
+
+        if not tps:
+            logger.info("No TPS configured, skipping dogtag config check")
+            return
+
+        cert_nicknames = [
+            'sslserver',
+            'subsystem',
+            'audit_signing'
+        ]
+
+        # Run the sync check
+        for cert_tag in cert_nicknames:
+            yield compare_nssdb_with_cs(class_instance=self,
+                                        subsystem=tps,
+                                        cert_tag=cert_tag)
 
 
 @contextmanager
