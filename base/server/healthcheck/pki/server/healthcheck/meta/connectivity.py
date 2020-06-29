@@ -6,7 +6,6 @@ from ipahealthcheck.core import constants
 from pki.client import PKIConnection
 from pki.cert import CertClient
 from pki.systemcert import SystemCertClient
-from pki.server.instance import PKIInstance
 
 logger = logging.getLogger(__name__)
 

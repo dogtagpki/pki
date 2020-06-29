@@ -10,8 +10,6 @@ import time
 
 from datetime import datetime
 
-from pki.server.instance import PKIInstance
-
 from pki.server.healthcheck.certs.plugin import CertsPlugin, registry
 from ipahealthcheck.core.plugin import Result, duration
 from ipahealthcheck.core import constants
@@ -70,13 +68,16 @@ def check_cert_expiry_date(class_instance, cert):
                       cert_id=cert['id'],
                       msg='Expiring within next 24 hours')
 
-    elif delta_days < 30:
+    elif delta_days < int(class_instance.config.cert_expiration_days):
         # Expiring in a month
-        logger.warning("Expiring in less than 30 days: %s", cert['id'])
+        logger.warning("Expiring in less than %s days: %s",
+                       class_instance.config.cert_expiration_days,
+                       cert['id'])
         return Result(class_instance, constants.WARNING,
                       cert_id=cert['id'],
                       expiry_date=expiry_date_human,
-                      msg='Your certificate expires within 30 days.')
+                      msg='Your certificate expires within %s days.' %
+                          class_instance.config.cert_expiration_days)
     else:
         # Valid certificate
         logger.info("VALID certificate: %s", cert['id'])

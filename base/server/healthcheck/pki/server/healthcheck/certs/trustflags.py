@@ -8,8 +8,6 @@
 import logging
 from contextlib import contextmanager
 
-from pki.server.instance import PKIInstance
-
 from pki.server.healthcheck.certs.plugin import CertsPlugin, registry
 from ipahealthcheck.core.plugin import Result, duration
 from ipahealthcheck.core import constants
