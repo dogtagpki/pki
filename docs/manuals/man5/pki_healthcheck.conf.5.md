@@ -46,11 +46,7 @@ The following options are relevant for the healthcheck tool:
 cert_expiration_days = 30  
 
 [dogtag]  
-ca_instance_name = pki-ca  
-kra_instance_name = pki-kra  
-ocsp_instance_name = pki-ocsp  
-tks_instance_name = pki-tks  
-tps_instance_name = pki-tps  
+instance_name = pki-tomcat
 
 ## FILES
 

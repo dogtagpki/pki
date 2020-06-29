@@ -14,8 +14,6 @@ from pki.server.healthcheck.meta.plugin import MetaPlugin, registry
 from ipahealthcheck.core.plugin import Result, duration
 from ipahealthcheck.core import constants
 
-from pki.server.instance import PKIInstance
-
 logger = logging.getLogger(__name__)
 
 

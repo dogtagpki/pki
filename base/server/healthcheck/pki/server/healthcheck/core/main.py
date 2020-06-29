@@ -18,7 +18,9 @@ logger = logging.getLogger()
 
 DOGTAG_CONFIG_FILE = "/etc/pki/healthcheck.conf"
 DOGTAG_CONFIG_SECTION = "dogtag"
-DOGTAG_DEFAULT_INSTANCE = "pki-tomcat"
+DOGTAG_DEFAULT_CONFIG = {
+    'instance_name': 'pki-tomcat',
+}
 
 dogtag_config_parsed = False
 
@@ -51,15 +53,11 @@ def merge_dogtag_config(config):
             logger.error("Unable to parse %s: %s", DOGTAG_CONFIG_FILE, e)
             return
 
-        if not parser.has_section(DOGTAG_CONFIG_SECTION):
-            # If "dogtag" section is missing, initialize with default instance name
-            config['ca_instance_name'] = DOGTAG_DEFAULT_INSTANCE
-            config['kra_instance_name'] = DOGTAG_DEFAULT_INSTANCE
-            config['ocsp_instance_name'] = DOGTAG_DEFAULT_INSTANCE
-            config['tks_instance_name'] = DOGTAG_DEFAULT_INSTANCE
-            config['tps_instance_name'] = DOGTAG_DEFAULT_INSTANCE
+        # Initialize with default config values
+        config.merge(DOGTAG_DEFAULT_CONFIG)
 
-            # There is no point in re-reading the config file.
+        if not parser.has_section(DOGTAG_CONFIG_SECTION):
+            # There is no point in re-reading the config file. So, mark it as processed
             dogtag_config_parsed = True
             return
 
