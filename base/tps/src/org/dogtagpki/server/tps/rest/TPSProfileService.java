@@ -54,10 +54,6 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSProfileService.class);
 
-    public TPSProfileService() {
-        logger.debug("TPSProfileService.<init>()");
-    }
-
     public ProfileData createProfileData(ProfileRecord profileRecord) throws UnsupportedEncodingException {
 
         String profileID = profileRecord.getID();
@@ -87,7 +83,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
     @Override
     public Response findProfiles(String filter, Integer start, Integer size) {
 
-        logger.debug("TPSProfileService.findProfiles()");
+        logger.info("TPSProfileService: Searching for profiles with filter " + filter);
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -145,10 +141,11 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
     @Override
     public Response getProfile(String profileID) {
 
-        if (profileID == null)
-            throw new BadRequestException("Profile ID is null.");
+        logger.info("TPSProfileService: Retrieving profile " + profileID);
 
-        logger.debug("TPSProfileService.getProfile(\"" + profileID + "\")");
+        if (profileID == null) {
+            throw new BadRequestException("Missing profile ID");
+        }
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
@@ -169,15 +166,15 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
 
     @Override
     public Response addProfile(ProfileData profileData) {
+
         String method = "TPSProfileService.addProfile";
 
         if (profileData == null) {
-            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
-                    "Profile data is null.");
-            throw new BadRequestException("Profile data is null.");
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing profile data");
+            throw new BadRequestException("Missing profile data");
         }
 
-        logger.debug("TPSProfileService.addProfile(\"" + profileData.getID() + "\")");
+        logger.info("TPSProfileService: Adding profile " + profileData.getID());
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
@@ -222,21 +219,19 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
 
     @Override
     public Response updateProfile(String profileID, ProfileData profileData) {
+
+        logger.info("TPSProfileService: Updating profile " + profileID);
         String method = "TPSProfileService.updateProfile";
 
         if (profileID == null) {
-            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
-                    "Profile id is null.");
-            throw new BadRequestException("Profile ID is null.");
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing profile ID");
+            throw new BadRequestException("Missing profile ID");
         }
 
         if (profileData == null) {
-            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
-                    "Profile data is null.");
-            throw new BadRequestException("Profile data is null.");
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing profile data");
+            throw new BadRequestException("Missing profile data");
         }
-
-        logger.debug("TPSProfileService.updateProfile(\"" + profileID + "\")");
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
@@ -306,24 +301,23 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
 
     @Override
     public Response changeStatus(String profileID, String action) {
+
+        logger.info("TPSProfileService: Changing profile " + profileID + " status: " + action);
         String method = "TPSProfileService.changeStatus";
+
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (profileID == null) {
-            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
-                    "Profile id is null.");
-            throw new BadRequestException("Profile ID is null.");
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missin profile ID");
+            throw new BadRequestException("Missing profile ID");
         }
         auditModParams.put("profileID", profileID);
 
         if (action == null) {
-            auditConfigTokenGeneral(ILogger.FAILURE, method, auditModParams,
-                    "action is null.");
-            throw new BadRequestException("Action is null.");
+            auditConfigTokenGeneral(ILogger.FAILURE, method, auditModParams, "Missing action");
+            throw new BadRequestException("Missing action");
         }
         auditModParams.put("Action", action);
-
-        logger.debug("TPSProfileService.changeStatus(\"" + profileID + "\", \"" + action + "\")");
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
@@ -427,7 +421,10 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
 
     @Override
     public Response removeProfile(String profileID) {
+
+        logger.info("TPSProfileService: Removing profile " + profileID);
         String method = "TPSProfileService.removeProfile";
+
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (profileID == null) {
@@ -436,8 +433,6 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             throw new BadRequestException("Profile ID is null.");
         }
         auditModParams.put("profileID", profileID);
-
-        logger.debug("TPSProfileService.removeProfile(\"" + profileID + "\")");
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
@@ -473,7 +468,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
         }
     }
 
-    /*
+    /**
      * Service can be any of the methods offered
      */
     public void auditTPSProfileChange(String status, String service, String profileID, Map<String, String> params,
@@ -489,5 +484,4 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
                 info);
         signedAuditLogger.log(msg);
     }
-
 }
