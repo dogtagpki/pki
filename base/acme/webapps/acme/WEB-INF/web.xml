@@ -6,7 +6,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 -->
 <web-app>
 
-    <display-name>ACME Service</display-name>
+    <display-name>ACME Responder</display-name>
 
     <listener>
         <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
@@ -18,7 +18,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     </context-param>
 
     <servlet>
-        <servlet-name>Resteasy</servlet-name>
+        <servlet-name>ACME</servlet-name>
         <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
@@ -27,7 +27,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>Resteasy</servlet-name>
+        <servlet-name>ACME</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 
