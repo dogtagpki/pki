@@ -89,7 +89,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response getRequestInfo(RequestId id) {
 
-        logger.info("Retrieving certificate request " + id);
+        logger.info("CertRequestService: Retrieving certificate request " + id);
 
         if (id == null) {
             String message = "Unable to get certificate request info: Missing request ID";
@@ -117,7 +117,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response enrollCert(CertEnrollmentRequest data, String aidString, String adnString) {
 
-        logger.info("Receiving certificate request");
+        logger.info("CertRequestService: Receiving certificate request");
 
         if (data == null) {
             String message = "Unable to create enrollment request: Missing input data";
@@ -204,7 +204,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response approveRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("Approving certificate request " + id);
+        logger.info("CertRequestService: Approving certificate request " + id);
 
         changeRequestState(id, data, "approve");
         return createNoContentResponse();
@@ -213,7 +213,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response rejectRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("Rejecting certificate request " + id);
+        logger.info("CertRequestService: Rejecting certificate request " + id);
 
         changeRequestState(id, data, "reject");
         return createNoContentResponse();
@@ -222,7 +222,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response cancelRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("Canceling certificate request " + id);
+        logger.info("CertRequestService: Canceling certificate request " + id);
 
         changeRequestState(id, data, "cancel");
         return createNoContentResponse();
@@ -231,7 +231,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response updateRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("Updating certificate request " + id);
+        logger.info("CertRequestService: Updating certificate request " + id);
 
         changeRequestState(id, data, "update");
         return createNoContentResponse();
@@ -240,7 +240,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response validateRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("Validating certificate request " + id);
+        logger.info("CertRequestService: Validating certificate request " + id);
 
         changeRequestState(id, data, "validate");
         return createNoContentResponse();
@@ -249,7 +249,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response unassignRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("Unassigning certificate request " + id);
+        logger.info("CertRequestService: Unassigning certificate request " + id);
 
         changeRequestState(id, data, "unassign");
         return createNoContentResponse();
@@ -258,7 +258,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response assignRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("Assigning certificate request " + id);
+        logger.info("CertRequestService: Assigning certificate request " + id);
 
         changeRequestState(id, data, "assign");
         return createNoContentResponse();
@@ -332,7 +332,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response reviewRequest(@PathParam("id") RequestId id) {
 
-        logger.info("Reviewing certificate request " + id);
+        logger.info("CertRequestService: Reviewing certificate request " + id);
 
         if (id == null) {
             String message = "Unable to review cert request: Missing request ID";
@@ -354,6 +354,10 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             // request does not exist
             throw new RequestNotFoundException(id);
         }
+
+        logger.info("CertRequestService:   Profile: " + info.getProfileName());
+        logger.info("CertRequestService:   Type: " + info.getRequestType());
+        logger.info("CertRequestService:   Status: " + info.getRequestStatus());
 
         return createOKResponse(info);
     }
