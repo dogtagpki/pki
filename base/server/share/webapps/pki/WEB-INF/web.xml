@@ -35,6 +35,11 @@
         <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
 
+    <mime-mapping>
+        <extension>properties</extension>
+        <mime-type>text/plain</mime-type>
+    </mime-mapping>
+
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>PKI UI</web-resource-name>
