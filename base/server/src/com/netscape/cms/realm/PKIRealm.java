@@ -48,7 +48,8 @@ public class PKIRealm extends RealmBase {
 
     @Override
     public Principal authenticate(String username, String password) {
-        logger.info("Authenticating user " + username + " with password.");
+
+        logger.info("PKIRealm: Authenticating user " + username + " with password");
 
         CMSEngine engine = CMS.getCMSEngine();
         String auditSubjectID = ILogger.UNIDENTIFIED;
@@ -72,22 +73,28 @@ public class PKIRealm extends RealmBase {
 
             return getPrincipal(username, authToken);
 
-        } catch (Throwable e) {
+        } catch (Exception e) {
+
+            logger.warn("Unable to authenticate user " + username + ": " + e.getMessage());
 
             signedAuditLogger.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
                         IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID,
                         attemptedAuditUID));
 
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
-        return null;
     }
 
     @Override
     public Principal authenticate(final X509Certificate[] certs) {
-        logger.info("Authenticating certificate chain:");
+
+        logger.info("PKIRealm: Authenticating certificate chain:");
+
+        for (int i=0; i<certs.length; i++) {
+            X509Certificate cert = certs[i];
+            logger.info("PKIRealm: - " + cert.getSubjectDN());
+        }
 
         // get the cert from the ssl client auth
         // in cert based auth, subject id from cert has already passed SSL authentication
@@ -101,11 +108,9 @@ public class PKIRealm extends RealmBase {
             X509CertImpl certImpls[] = new X509CertImpl[certs.length];
             for (int i=0; i<certs.length; i++) {
                 X509Certificate cert = certs[i];
-                logger.info("- " + cert.getSubjectDN());
-
-                // Convert sun.security.x509.X509CertImpl to org.mozilla.jss.netscape.security.x509.X509CertImpl
                 certImpls[i] = new X509CertImpl(cert.getEncoded());
             }
+
             IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
             IAuthManager authMgr = authSub.getAuthManager(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
@@ -119,7 +124,7 @@ public class PKIRealm extends RealmBase {
             // reset it to the one authenticated with authManager
             auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
 
-            logger.info("User ID: " + username);
+            logger.info("PKIRealm: User ID: " + username);
 
             signedAuditLogger.log(AuthEvent.createSuccessEvent(
                         auditSubjectID,
@@ -127,17 +132,17 @@ public class PKIRealm extends RealmBase {
 
             return getPrincipal(username, authToken);
 
-        } catch (Throwable e) {
+        } catch (Exception e) {
+
+            logger.warn("Unable to authenticate cert chain: " + e.getMessage());
 
             signedAuditLogger.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
                         IAuthSubsystem.CERTUSERDB_AUTHMGR_ID,
                         attemptedAuditUID));
 
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
-        return null;
     }
 
     private String getAuditUserfromCert(X509Certificate clientCert) {
@@ -147,18 +152,21 @@ public class PKIRealm extends RealmBase {
 
     @Override
     protected Principal getPrincipal(String username) {
-        return getPrincipal(username, (IAuthToken)null);
+
+        logger.info("PKIRealm: Getting principal for " + username);
+
+        try {
+            return getPrincipal(username, (IAuthToken)null);
+
+        } catch (Exception e) {
+            logger.warn("Unable to get principal for " + username + ": " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
-    protected Principal getPrincipal(String username, IAuthToken authToken) {
-        try {
-            IUser user = getUser(username);
-            return getPrincipal(user, authToken);
-
-        } catch (Throwable e) {
-            e.printStackTrace();
-            return null;
-        }
+    protected Principal getPrincipal(String username, IAuthToken authToken) throws Exception {
+        IUser user = getUser(username);
+        return getPrincipal(user, authToken);
     }
 
     protected Principal getPrincipal(IUser user, IAuthToken authToken) throws EUsrGrpException {
@@ -170,7 +178,7 @@ public class PKIRealm extends RealmBase {
         CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem ugSub = engine.getUGSubsystem();
         IUser user = ugSub.getUser(username);
-        logger.info("User DN: " + user.getUserDN());
+        logger.info("PKIRealm: User DN: " + user.getUserDN());
         return user;
     }
 
@@ -182,12 +190,12 @@ public class PKIRealm extends RealmBase {
         UGSubsystem ugSub = engine.getUGSubsystem();
         Enumeration<IGroup> groups = ugSub.findGroupsByUser(user.getUserDN(), null);
 
-        logger.info("Roles:");
+        logger.info("PKIRealm: Roles:");
         while (groups.hasMoreElements()) {
             IGroup group = groups.nextElement();
 
             String name = group.getName();
-            logger.info("- " + name);
+            logger.info("PKIRealm: - " + name);
             roles.add(name);
         }
 
