@@ -6,14 +6,6 @@ Installing ACME Responder
 This document describes the process to install an ACME responder on a PKI server that already has a CA subsystem.
 It assumes that the CA was [installed](../Installing_CA.md) with the default instance name (i.e. pki-tomcat).
 
-**Note:** The ACME responder is currently a tech preview which means:
-* It is not intended for production.
-* It may corrupt your data.
-* There is no guarantee for correctness, security, or performance.
-* There is no guarantee for documentation or support.
-* The API, configuration, or the database may change in the future.
-* There may be no easy upgrade path to the future version.
-
 ## Installing ACME Responder
 
 To install the ACME responder on PKI server, execute the following command:
