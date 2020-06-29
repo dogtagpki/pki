@@ -50,12 +50,12 @@ import com.netscape.cmscore.apps.CMSEngine;
 /**
  * @author Endi S. Dewata
  */
-public class ProfileService extends SubsystemService implements ProfileResource {
+public class TPSProfileService extends SubsystemService implements ProfileResource {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileService.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSProfileService.class);
 
-    public ProfileService() {
-        logger.debug("ProfileService.<init>()");
+    public TPSProfileService() {
+        logger.debug("TPSProfileService.<init>()");
     }
 
     public ProfileData createProfileData(ProfileRecord profileRecord) throws UnsupportedEncodingException {
@@ -87,7 +87,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     @Override
     public Response findProfiles(String filter, Integer start, Integer size) {
 
-        logger.debug("ProfileService.findProfiles()");
+        logger.debug("TPSProfileService.findProfiles()");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -133,11 +133,11 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return createOKResponse(response);
 
         } catch (PKIException e) {
-            logger.error("ProfileService: " + e.getMessage(), e);
+            logger.error("TPSProfileService: " + e.getMessage(), e);
             throw e;
 
         } catch (Exception e) {
-            logger.error("ProfileService: " + e.getMessage(), e);
+            logger.error("TPSProfileService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -148,7 +148,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         if (profileID == null)
             throw new BadRequestException("Profile ID is null.");
 
-        logger.debug("ProfileService.getProfile(\"" + profileID + "\")");
+        logger.debug("TPSProfileService.getProfile(\"" + profileID + "\")");
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
@@ -158,18 +158,18 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return createOKResponse(createProfileData(database.getRecord(profileID)));
 
         } catch (PKIException e) {
-            logger.error("ProfileService: " + e.getMessage(), e);
+            logger.error("TPSProfileService: " + e.getMessage(), e);
             throw e;
 
         } catch (Exception e) {
-            logger.error("ProfileService: " + e.getMessage(), e);
+            logger.error("TPSProfileService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response addProfile(ProfileData profileData) {
-        String method = "ProfileService.addProfile";
+        String method = "TPSProfileService.addProfile";
 
         if (profileData == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null,
@@ -177,7 +177,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             throw new BadRequestException("Profile data is null.");
         }
 
-        logger.debug("ProfileService.addProfile(\"" + profileData.getID() + "\")");
+        logger.debug("TPSProfileService.addProfile(\"" + profileData.getID() + "\")");
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
@@ -209,12 +209,12 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return createCreatedResponse(profileData, profileData.getLink().getHref());
 
         } catch (PKIException e) {
-            logger.error("ProfileService: " + e.getMessage(), e);
+            logger.error("TPSProfileService: " + e.getMessage(), e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileData.getID(), null, e.toString());
             throw e;
 
         } catch (Exception e) {
-            logger.error("ProfileService: " + e.getMessage(), e);
+            logger.error("TPSProfileService: " + e.getMessage(), e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileData.getID(), null, e.toString());
             throw new PKIException(e);
         }
@@ -222,7 +222,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     @Override
     public Response updateProfile(String profileID, ProfileData profileData) {
-        String method = "ProfileService.updateProfile";
+        String method = "TPSProfileService.updateProfile";
 
         if (profileID == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null,
@@ -236,7 +236,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             throw new BadRequestException("Profile data is null.");
         }
 
-        logger.debug("ProfileService.updateProfile(\"" + profileID + "\")");
+        logger.debug("TPSProfileService.updateProfile(\"" + profileID + "\")");
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
@@ -293,12 +293,12 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return createOKResponse(profileData);
 
         } catch (PKIException e) {
-            logger.error("ProfileService: " + e.getMessage(), e);
+            logger.error("TPSProfileService: " + e.getMessage(), e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileID, profileData.getProperties(), e.toString());
             throw e;
 
         } catch (Exception e) {
-            logger.error("ProfileService: " + e.getMessage(), e);
+            logger.error("TPSProfileService: " + e.getMessage(), e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileID, profileData.getProperties(), e.toString());
             throw new PKIException(e);
         }
@@ -306,7 +306,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     @Override
     public Response changeStatus(String profileID, String action) {
-        String method = "ProfileService.changeStatus";
+        String method = "TPSProfileService.changeStatus";
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (profileID == null) {
@@ -323,7 +323,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
         auditModParams.put("Action", action);
 
-        logger.debug("ProfileService.changeStatus(\"" + profileID + "\", \"" + action + "\")");
+        logger.debug("TPSProfileService.changeStatus(\"" + profileID + "\", \"" + action + "\")");
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
@@ -412,13 +412,13 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return createOKResponse(profileData);
 
         } catch (PKIException e) {
-            logger.error("ProfileService: " + e.getMessage(), e);
+            logger.error("TPSProfileService: " + e.getMessage(), e);
             auditConfigTokenGeneral(ILogger.FAILURE, method,
                     auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            logger.error("ProfileService: " + e.getMessage(), e);
+            logger.error("TPSProfileService: " + e.getMessage(), e);
             auditConfigTokenGeneral(ILogger.FAILURE, method,
                     auditModParams, e.toString());
             throw new PKIException(e);
@@ -427,7 +427,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     @Override
     public Response removeProfile(String profileID) {
-        String method = "ProfileService.removeProfile";
+        String method = "TPSProfileService.removeProfile";
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (profileID == null) {
@@ -437,7 +437,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
         auditModParams.put("profileID", profileID);
 
-        logger.debug("ProfileService.removeProfile(\"" + profileID + "\")");
+        logger.debug("TPSProfileService.removeProfile(\"" + profileID + "\")");
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
@@ -460,13 +460,13 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return createNoContentResponse();
 
         } catch (PKIException e) {
-            logger.error("ProfileService: " + e.getMessage(), e);
+            logger.error("TPSProfileService: " + e.getMessage(), e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileID,
                     auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            logger.error("ProfileService: " + e.getMessage(), e);
+            logger.error("TPSProfileService: " + e.getMessage(), e);
             auditTPSProfileChange(ILogger.FAILURE, method, profileID,
                     auditModParams, e.toString());
             throw new PKIException(e);
