@@ -949,6 +949,7 @@ class PKISubsystem(object):
         cmd = [
             'pki',
             '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
             '-U', master_url,
             '%s-range-request' % self.name,
             range_type,
@@ -996,6 +997,7 @@ class PKISubsystem(object):
         cmd = [
             'pki',
             '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
             '-U', master_url,
             '%s-config-export' % self.name,
             '--names', ','.join(names),
