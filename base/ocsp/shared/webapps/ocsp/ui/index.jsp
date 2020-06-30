@@ -19,6 +19,7 @@
 <head>
     <title>OCSP Manager</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/pki/css/bootstrap.css" rel="stylesheet" media="screen, print">
     <link href="/pki/css/patternfly.css" rel="stylesheet" media="screen, print">
     <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
     <script src="/pki/js/jquery.js"></script>
