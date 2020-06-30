@@ -196,17 +196,23 @@ var ErrorDialog = Backbone.View.extend({
         ErrorDialog.__super__.initialize.call(self, options);
 
         var response = options.response;
-        if (response && response.responseJSON) {
+        if (response && response.responseJSON !== undefined) {
             self.title = "HTTP Error " + response.responseJSON.Code;
             self.content = response.responseJSON.Message;
 
-        } else if (response && response.responseText) {
+        } else if (response && response.responseText !== undefined) {
             self.title = "HTTP Error " + response.status;
-            self.content = response.responseText;
+
+            if (response.getResponseHeader("Content-Type") === "text/html") {
+                self.htmlContent = response.responseText;
+            } else {
+                self.content = response.responseText;
+            }
 
         } else {
             self.title = options.title;
             self.content = options.content;
+            self.htmlContent = options.htmlContent;
         }
     },
     render: function() {
@@ -217,7 +223,10 @@ var ErrorDialog = Backbone.View.extend({
         }
 
         if (self.content) {
-            self.$("span[name=content]").html(self.content);
+            self.$("span[name=content]").text(self.content);
+
+        } else if (self.htmlContent) {
+            self.$("span[name=content]").html(self.htmlContent);
         }
 
         self.$("button[name=close]").click(function(e) {
