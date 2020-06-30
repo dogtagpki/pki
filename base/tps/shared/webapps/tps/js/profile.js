@@ -31,7 +31,8 @@ var ProfileModel = Model.extend({
     },
     createRequest: function(attributes) {
         return {
-            id: attributes.profileID,
+            id: attributes.id,
+            ProfileID: attributes.profileID,
             Status: attributes.status,
             Properties: {
                 Property: attributes.properties

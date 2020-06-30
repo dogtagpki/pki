@@ -60,6 +60,7 @@ public class ProfileData {
     }
 
     String id;
+    String profileID;
     String status;
     Map<String, String> properties;
 
@@ -72,6 +73,15 @@ public class ProfileData {
 
     public void setID(String id) {
         this.id = id;
+    }
+
+    @XmlElement(name="ProfileID")
+    public String getProfileID() {
+        return profileID;
+    }
+
+    public void setProfileID(String profileID) {
+        this.profileID = profileID;
     }
 
     @XmlElement(name="Status")
@@ -144,6 +154,7 @@ public class ProfileData {
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((link == null) ? 0 : link.hashCode());
+        result = prime * result + ((profileID == null) ? 0 : profileID.hashCode());
         result = prime * result + ((properties == null) ? 0 : properties.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         return result;
@@ -167,6 +178,11 @@ public class ProfileData {
             if (other.link != null)
                 return false;
         } else if (!link.equals(other.link))
+            return false;
+        if (profileID == null) {
+            if (other.profileID != null)
+                return false;
+        } else if (!profileID.equals(other.profileID))
             return false;
         if (properties == null) {
             if (other.properties != null)

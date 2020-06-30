@@ -60,6 +60,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
 
         ProfileData profileData = new ProfileData();
         profileData.setID(profileID);
+        profileData.setProfileID(profileID);
         profileData.setStatus(profileRecord.getStatus());
         profileData.setProperties(profileRecord.getProperties());
 
@@ -174,7 +175,12 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             throw new BadRequestException("Missing profile data");
         }
 
-        logger.info("TPSProfileService: Adding profile " + profileData.getID());
+        String id = profileData.getID();
+        if (id == null) {
+            id = profileData.getProfileID();
+        }
+
+        logger.info("TPSProfileService: Adding profile " + id);
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
@@ -192,27 +198,27 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
                 statusChanged = true;
             }
 
-            database.addRecord(profileData.getID(), createProfileRecord(profileData));
+            database.addRecord(id, createProfileRecord(profileData));
 
-            profileData = createProfileData(database.getRecord(profileData.getID()));
+            profileData = createProfileData(database.getRecord(id));
 
             //Map<String, String> properties = database.getRecord(profileData.getID()).getProperties();
             Map<String, String> properties = profileData.getProperties();
             if (statusChanged) {
                 properties.put("Status", status);
             }
-            auditTPSProfileChange(ILogger.SUCCESS, method, profileData.getID(), properties, null);
+            auditTPSProfileChange(ILogger.SUCCESS, method, id, properties, null);
 
             return createCreatedResponse(profileData, profileData.getLink().getHref());
 
         } catch (PKIException e) {
             logger.error("TPSProfileService: " + e.getMessage(), e);
-            auditTPSProfileChange(ILogger.FAILURE, method, profileData.getID(), null, e.toString());
+            auditTPSProfileChange(ILogger.FAILURE, method, id, null, e.toString());
             throw e;
 
         } catch (Exception e) {
             logger.error("TPSProfileService: " + e.getMessage(), e);
-            auditTPSProfileChange(ILogger.FAILURE, method, profileData.getID(), null, e.toString());
+            auditTPSProfileChange(ILogger.FAILURE, method, id, null, e.toString());
             throw new PKIException(e);
         }
     }
