@@ -20,6 +20,8 @@
  */
 
 var TPS = {
+    PROFILE_ID_PATTERN: /^[a-zA-Z0-9_]+$/,
+    PROPERTY_NAME_PATTERN: /^[a-zA-Z0-9_\.]+$/,
     getElementName: function (component) {
 
         if (component == "Generals") {
@@ -127,6 +129,15 @@ var PropertiesTable = Table.extend({
         self.filteredEntries = _.sortBy(self.filteredEntries, function(entry) {
             return entry.name;
         });
+    },
+    addEntry: function(entry) {
+        var self = this;
+
+        if (!entry.name.match(TPS.PROPERTY_NAME_PATTERN)) {
+            throw "Invalid property name: " + entry.name;
+        }
+
+        PropertiesTable.__super__.addEntry.call(self, entry);
     },
     remove: function(items) {
         var self = this;
@@ -418,6 +429,15 @@ var ConfigEntryPage = EntryPage.extend({
         ConfigEntryPage.__super__.saveFields.call(self);
 
         self.entry.properties = self.getProperties();
+    },
+    saveEntry: function() {
+        var self = this;
+
+        if (!self.entry.profileID.match(TPS.PROFILE_ID_PATTERN)) {
+            throw "Invalid profile ID: " + self.entry.profileID;
+        }
+
+        ConfigEntryPage.__super__.saveEntry.call(self);
     },
     setProperties: function(properties) {
         var self = this;
