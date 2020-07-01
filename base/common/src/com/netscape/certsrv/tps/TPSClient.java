@@ -47,7 +47,7 @@ public class TPSClient extends SubsystemClient {
         addClient(new AuthenticatorClient(client, name));
         addClient(new TPSCertClient(client, name));
         addClient(new ConnectorClient(client, name));
-        addClient(new GroupClient(client, name));
+        addClient(new GroupClient(this));
         addClient(new ProfileClient(client, name));
         addClient(new ProfileMappingClient(client, name));
         addClient(new SelfTestClient(client, name));

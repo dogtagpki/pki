@@ -19,7 +19,7 @@ public class KRAClient extends SubsystemClient {
 
     public void init() throws Exception {
 
-        addClient(new GroupClient(client, name));
+        addClient(new GroupClient(this));
         addClient(new KeyClient(client, name));
         addClient(new SelfTestClient(client, name));
         addClient(new KRASystemCertClient(client, name));

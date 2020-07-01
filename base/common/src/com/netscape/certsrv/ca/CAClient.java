@@ -51,7 +51,7 @@ public class CAClient extends SubsystemClient {
         addClient(new AuthorityClient(client, name));
         addClient(new CACertClient(client, name));
         addClient(new FeatureClient(client, name));
-        addClient(new GroupClient(client, name));
+        addClient(new GroupClient(this));
         addClient(new ProfileClient(client, name));
         addClient(new SelfTestClient(client, name));
         addClient(new UserClient(this));
