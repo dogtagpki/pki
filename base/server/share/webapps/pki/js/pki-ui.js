@@ -242,6 +242,7 @@ var ErrorDialog = Backbone.View.extend({
     close: function() {
         var self = this;
         self.$el.hide();
+        self.trigger("close");
     }
 });
 
