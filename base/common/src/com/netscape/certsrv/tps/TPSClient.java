@@ -52,6 +52,6 @@ public class TPSClient extends SubsystemClient {
         addClient(new ProfileMappingClient(client, name));
         addClient(new SelfTestClient(client, name));
         addClient(new TokenClient(client, name));
-        addClient(new UserClient(client, name));
+        addClient(new UserClient(this));
     }
 }

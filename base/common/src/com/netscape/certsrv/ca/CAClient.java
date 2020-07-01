@@ -54,7 +54,7 @@ public class CAClient extends SubsystemClient {
         addClient(new GroupClient(client, name));
         addClient(new ProfileClient(client, name));
         addClient(new SelfTestClient(client, name));
-        addClient(new UserClient(client, name));
+        addClient(new UserClient(this));
     }
 
     public PKCS7 getCertChain() throws Exception {

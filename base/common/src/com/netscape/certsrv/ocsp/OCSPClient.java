@@ -35,6 +35,6 @@ public class OCSPClient extends SubsystemClient {
     public void init() throws URISyntaxException {
         addClient(new GroupClient(client, name));
         addClient(new SelfTestClient(client, name));
-        addClient(new UserClient(client, name));
+        addClient(new UserClient(this));
     }
 }

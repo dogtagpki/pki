@@ -23,7 +23,7 @@ public class KRAClient extends SubsystemClient {
         addClient(new KeyClient(client, name));
         addClient(new SelfTestClient(client, name));
         addClient(new KRASystemCertClient(client, name));
-        addClient(new UserClient(client, name));
+        addClient(new UserClient(this));
         addClient(new KRAInfoClient(client, name));
     }
 }

@@ -37,6 +37,6 @@ public class TKSClient extends SubsystemClient {
         addClient(new GroupClient(client, name));
         addClient(new SelfTestClient(client, name));
         addClient(new TPSConnectorClient(client, name));
-        addClient(new UserClient(client, name));
+        addClient(new UserClient(this));
     }
 }

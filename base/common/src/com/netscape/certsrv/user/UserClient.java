@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 
 /**
  * @author Endi S. Dewata
@@ -34,6 +35,10 @@ public class UserClient extends Client {
     public UserClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "user");
         init();
+    }
+
+    public UserClient(SubsystemClient subsystemClient) throws URISyntaxException {
+        this(subsystemClient.client, subsystemClient.getName());
     }
 
     public void init() throws URISyntaxException {
