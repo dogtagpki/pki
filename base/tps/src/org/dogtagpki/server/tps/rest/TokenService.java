@@ -65,10 +65,6 @@ public class TokenService extends SubsystemService implements TokenResource {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenService.class);
 
-    public TokenService() throws Exception {
-        logger.debug("TokenService.<init>()");
-    }
-
     public void setTokenStatus(TokenRecord tokenRecord, TokenStatus tokenState, String ipAddress, String remoteUser,
             Map<String, String> auditModParams)
                     throws Exception {
@@ -246,10 +242,10 @@ public class TokenService extends SubsystemService implements TokenResource {
             Integer start,
             Integer size) {
 
-        logger.debug("TokenService.findTokens()");
+        logger.info("TokenService: Searching for tokens with filter " + filter);
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
-            throw new BadRequestException("Filter is too short.");
+            throw new BadRequestException("Filter too short");
         }
 
         Map<String, String> attributes = new HashMap<String, String>();
@@ -330,8 +326,8 @@ public class TokenService extends SubsystemService implements TokenResource {
             TokenRecord record = list.getElementAt(i);
 
             if (record == null) {
-                logger.error("TokenService: Token record not found");
-                throw new PKIException("Token record not found");
+                logger.error("TokenService: Missing token record");
+                throw new PKIException("Missing token record");
             }
 
             response.addEntry(createTokenData(record));
@@ -376,10 +372,11 @@ public class TokenService extends SubsystemService implements TokenResource {
     @Override
     public Response getToken(String tokenID) {
 
-        if (tokenID == null)
-            throw new BadRequestException("Token ID is null.");
+        logger.info("TokenService: Retrieving token " + tokenID);
 
-        logger.debug("TokenService.getToken(\"" + tokenID + "\")");
+        if (tokenID == null) {
+            throw new BadRequestException("Missing token ID");
+        }
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
@@ -406,20 +403,23 @@ public class TokenService extends SubsystemService implements TokenResource {
 
     @Override
     public Response addToken(TokenData tokenData) {
+
+        logger.info("TokenService: Adding token");
         String method = "TokenService.addToken";
+
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (tokenData == null) {
-            BadRequestException ex = new BadRequestException("Token data is null.");
+            BadRequestException ex = new BadRequestException("Missing token data");
             auditConfigTokenGeneral(ILogger.FAILURE, method, null,
                     ex.toString());
             throw ex;
         }
 
         String tokenID = tokenData.getTokenID();
-        auditModParams.put("tokenID", tokenID);
+        logger.info("TokenService:   Token ID: " + tokenID);
 
-        logger.debug("TokenService.addToken(\"" + tokenID + "\")");
+        auditModParams.put("tokenID", tokenID);
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
@@ -492,21 +492,21 @@ public class TokenService extends SubsystemService implements TokenResource {
 
     @Override
     public Response replaceToken(String tokenID, TokenData tokenData) {
+
+        logger.info("TokenService: Replacing token " + tokenID);
         String method = "TokenService.replaceToken";
+
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (tokenID == null) {
-            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
-                    "Token ID is null.");
-            throw new BadRequestException("Token ID is null.");
-        }
-        if (tokenData == null) {
-            auditConfigTokenGeneral(ILogger.FAILURE, method, auditModParams,
-                    "Token data is null.");
-            throw new BadRequestException("Token data is null.");
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing token ID");
+            throw new BadRequestException("Missing token ID");
         }
 
-        logger.debug("TokenService.replaceToken(\"" + tokenID + "\")");
+        if (tokenData == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, auditModParams, "Missing token data");
+            throw new BadRequestException("Missing token data");
+        }
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
@@ -572,23 +572,25 @@ public class TokenService extends SubsystemService implements TokenResource {
 
     @Override
     public Response modifyToken(String tokenID, TokenData tokenData) {
+
+        logger.info("TokenService: Modifying token " + tokenID);
         String method = "TokenService.modifyToken";
+
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (tokenID == null) {
-            BadRequestException e = new BadRequestException("Token ID is null.");
-            auditConfigTokenRecord(ILogger.FAILURE, "modify", tokenID,
-                    auditModParams, e.toString());
-            throw e;
-        }
-        if (tokenData == null) {
-            BadRequestException e = new BadRequestException("Token data is null.");
+            BadRequestException e = new BadRequestException("Missing token ID");
             auditConfigTokenRecord(ILogger.FAILURE, "modify", tokenID,
                     auditModParams, e.toString());
             throw e;
         }
 
-        logger.debug("TokenService.modifyToken(\"" + tokenID + "\")");
+        if (tokenData == null) {
+            BadRequestException e = new BadRequestException("Missing token data");
+            auditConfigTokenRecord(ILogger.FAILURE, "modify", tokenID,
+                    auditModParams, e.toString());
+            throw e;
+        }
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
@@ -668,25 +670,23 @@ public class TokenService extends SubsystemService implements TokenResource {
 
     @Override
     public Response changeTokenStatus(String tokenID, TokenStatus tokenStatus) {
+
+        logger.info("TokenService: Changing token " + tokenID + " status to " + tokenStatus);
         String method = "TokenService.changeTokenStatus";
-        logger.debug(method + "begins: with tokenStatus=" + tokenStatus.getName());
-        Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (tokenID == null) {
-            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
-                    "Token ID is null.");
-            throw new BadRequestException("Token ID is null.");
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing token ID");
+            throw new BadRequestException("Missing token ID");
         }
 
-        auditModParams.put("tokenID", tokenID);
         if (tokenStatus == null) {
-            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
-                    "Token state is null.");
-            throw new BadRequestException("Token state is null.");
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing token status");
+            throw new BadRequestException("Missing token status");
         }
-        auditModParams.put("tokenStatus", tokenStatus.toString());
 
-        logger.debug("TokenService.changeTokenStatus(\"" + tokenID + "\", \"" + tokenStatus + "\")");
+        Map<String, String> auditModParams = new HashMap<String, String>();
+        auditModParams.put("tokenID", tokenID);
+        auditModParams.put("tokenStatus", tokenStatus.toString());
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
@@ -789,17 +789,18 @@ public class TokenService extends SubsystemService implements TokenResource {
 
     @Override
     public Response removeToken(String tokenID) {
+
+        logger.info("TokenService: Removing token " + tokenID);
         String method = "TokenService.removeToken";
+
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (tokenID == null) {
-            BadRequestException ex = new BadRequestException("Token ID is null.");
+            BadRequestException ex = new BadRequestException("Missing token ID");
             auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
                     auditModParams, ex.toString());
             throw ex;
         }
-
-        logger.debug("TokenService.removeToken(\"" + tokenID + "\")");
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
