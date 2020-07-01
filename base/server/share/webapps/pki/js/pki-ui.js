@@ -902,8 +902,8 @@ var EntryPage = Page.extend({
         });
 
         self.saveAction.click(function(e) {
-            self.save();
             e.preventDefault();
+            self.saveEntry();
         });
 
     },
@@ -1002,7 +1002,7 @@ var EntryPage = Page.extend({
         var self = this;
         self.close();
     },
-    save: function() {
+    saveEntry: function() {
         var self = this;
 
         self.saveFields();
