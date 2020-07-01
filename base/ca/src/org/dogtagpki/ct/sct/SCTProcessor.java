@@ -35,8 +35,34 @@ public class SCTProcessor {
         mConfig = cs.getCAConfig().getSubStore("certTransparency");
     }
 
-    public boolean isCTEnabled() throws EPropertyNotFound, EBaseException {
-        return mConfig.getBoolean("enable", false);
+    /*
+     *  CT mode is controlled by ca.certTransparency.mode
+     *  There are three CT modes:
+     *      disabled: issued certs will not carry SCT extension
+     *      enabled: issued certs will carry SCT extension   
+     *      perProfile: certs enrolled through those profiles
+     *          that contain the following policyset
+     *          will carry SCT extension
+     *             SignedCertificateTimestampListExtDefaultImpl
+     *  cfu
+     */
+
+    public enum CTmode { disabled, enabled, perProfile };
+    public CTmode getCTmode()
+            throws EPropertyNotFound, EBaseException {
+        String method = "SCTProcessor.CTmode: ";
+        String mode = mConfig.getString("mode", "disabled");
+        logger.debug(method + "CT mode =" + mode);
+        switch (mode) {
+            case "disabled":
+                return CTmode.disabled;
+            case "enabled":
+                return CTmode.enabled;
+            case "perProfile":
+                return CTmode.perProfile;
+            default:
+                throw new EPropertyNotFound(method + "unknown CT mode: " + mode);
+        }
     }
 
     /**

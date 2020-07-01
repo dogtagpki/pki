@@ -34,6 +34,9 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.cert.CertUtils;
+
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * This class implements an enrollment default policy
@@ -86,22 +89,12 @@ public class SignedCertificateTimestampListExtDefault extends EnrollExtDefault {
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         String method = "SignedCertificateTimestampListExtDefault: populate:";
-        CertificateExtensions inExts = null;
 
-        ObjectIdentifier ct_poison_oid = new ObjectIdentifier(CT_POISON_OID);
-        Extension ct_poison_ext = null;
-        try (DerOutputStream out = new DerOutputStream()) {
-            out.putOctetString(CT_POISON_DATA);
-            ct_poison_ext = new Extension(ct_poison_oid, CT_POISON_CRITICAL, out.toByteArray());
-            logger.debug(method + " ct_poison_ext id = " +
-            ct_poison_ext.getExtensionId().toString());
-            addExtension(CT_POISON_OID, ct_poison_ext, info);
-        } catch (IOException e) {
-//cfu
-            logger.debug(method + e.toString());
+        try {
+            CertUtils.addCTv1PoisonExt(info);
         } catch (Exception e) {
-//cfu
-            logger.debug(method + e.toString());
+            logger.debug(method + "addCTv1PoisonExt failed");
+            throw new EProfileException(method + "addCTv1PoisonExt failed");
         }
 
         logger.debug(method + " Certificate Transparency Poison extension set");

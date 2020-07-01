@@ -67,6 +67,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -1656,6 +1657,89 @@ public class CertUtils {
                 logger.debug("  req entry - " + reqKey + ": no value");
             }
         }
+    }
+
+    /*
+     * addCTpoisonExt adds the Certificate Transparency V1 poison extension
+     * to the Ceritificate Info
+     *
+     * @param certinfo X509CertInfo where the poison extension is to be added
+     *
+     * @author cfu
+     */
+    public static final String CT_POISON_OID = "1.3.6.1.4.1.11129.2.4.3";
+    public static final boolean CT_POISON_CRITICAL = true;
+    public static final byte CT_POISON_DATA[] =  new byte[] { 0x05, 0x00 };
+
+    public static void addCTv1PoisonExt(X509CertInfo certinfo)
+                throws CertificateException, IOException, EBaseException {
+        String method = "CryptoUtil:addCTv1PoisonExt: ";
+        ObjectIdentifier ct_poison_oid = new ObjectIdentifier(CT_POISON_OID);
+        Extension ct_poison_ext = null;
+        CertificateExtensions exts =  null;
+
+        exts = (CertificateExtensions)
+                certinfo.get(X509CertInfo.EXTENSIONS);
+        if (exts == null) {
+            logger.debug(method + " X509CertInfo.EXTENSIONS not found inf cetinfo");
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", " X509CertInfo.EXTENSIONS not found inf cetinfo"));
+        }
+        DerOutputStream out = new DerOutputStream();
+        out.putOctetString(CT_POISON_DATA);
+        ct_poison_ext = new Extension(ct_poison_oid, CT_POISON_CRITICAL, out.toByteArray());
+        //System.out.println(method + " ct_poison_ext id = " +
+        //        ct_poison_ext.getExtensionId().toString());
+        certinfo.set(X509CertInfo.EXTENSIONS, exts);
+
+        exts.set(CT_POISON_OID, ct_poison_ext);
+        certinfo.delete(X509CertInfo.EXTENSIONS);
+        certinfo.set(X509CertInfo.EXTENSIONS, exts);
+    }
+
+    /*
+     * for debugging
+     */
+    public static void printExtensions(CertificateExtensions exts) {
+
+        String method = "CryptoUtil.printExtensions: ";
+        System.out.println(method + "begins");
+        try {
+            if (exts == null)
+                return;
+
+            Enumeration<String> e = exts.getNames();
+            while (e.hasMoreElements()) {
+                String n = e.nextElement();
+                Extension ext = (Extension) exts.get(n);
+
+                System.out.println(" ---- " + ext.getExtensionId().toString());
+            }
+        } catch (Exception e) {
+            System.out.println(method + e.toString());
+        }
+        System.out.println(method + "ends");
+    }
+
+    /**
+     * Write the int as a big-endian byte[] of fixed width (in bytes).
+     */
+    public static byte[] intToFixedWidthBytes(int n, int width) {
+        byte[] out = new byte[width];
+        for (int i = 0; i < width; i++) {
+            out[i] = (byte) (n >> ((width - i - 1) * 8));
+        }
+        return out;
+    }
+
+    /*
+     * from byte array to hex in String
+     */
+    public static String bytesToHex(byte[] bytes) {
+        final StringBuilder sb = new StringBuilder();
+        for(byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 
     /**
