@@ -25,6 +25,7 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.core.Response;
 
@@ -53,6 +54,9 @@ import com.netscape.cmscore.apps.CMSEngine;
 public class TPSProfileService extends SubsystemService implements ProfileResource {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSProfileService.class);
+
+    public static Pattern PROFILE_ID_PATTERN = Pattern.compile("^[a-zA-Z0-9_]+$");
+    public static Pattern PROPERTY_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\.]+$");
 
     public ProfileData createProfileData(ProfileRecord profileRecord) throws UnsupportedEncodingException {
 
@@ -182,6 +186,17 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
 
         logger.info("TPSProfileService: Adding profile " + id);
 
+        if (!PROFILE_ID_PATTERN.matcher(id).matches()) {
+            throw new BadRequestException("Invalid profile ID: " + id);
+        }
+
+        Map<String, String> properties = profileData.getProperties();
+        for (String name : properties.keySet()) {
+            if (!PROPERTY_NAME_PATTERN.matcher(name).matches()) {
+                throw new BadRequestException("Invalid profile property: " + name);
+            }
+        }
+
         CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
@@ -203,7 +218,6 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             profileData = createProfileData(database.getRecord(id));
 
             //Map<String, String> properties = database.getRecord(profileData.getID()).getProperties();
-            Map<String, String> properties = profileData.getProperties();
             if (statusChanged) {
                 properties.put("Status", status);
             }
@@ -237,6 +251,13 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
         if (profileData == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null, "Missing profile data");
             throw new BadRequestException("Missing profile data");
+        }
+
+        Map<String, String> properties = profileData.getProperties();
+        for (String name : properties.keySet()) {
+            if (!PROPERTY_NAME_PATTERN.matcher(name).matches()) {
+                throw new BadRequestException("Invalid profile property: " + name);
+            }
         }
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -277,7 +298,6 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             }
 
             // update properties if specified
-            Map<String, String> properties = profileData.getProperties();
             if (properties != null) {
                 record.setProperties(properties);
                 if (statusChanged) {
