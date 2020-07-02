@@ -845,7 +845,6 @@ class CertExportCLI(pki.cli.CLI):
             sys.exit(1)
 
         if cert_id == 'sslserver':
-            # get nickname and token from serverCertNick.conf
             full_name = instance.get_sslserver_cert_nickname()
             i = full_name.find(':')
             if i < 0:

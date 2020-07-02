@@ -22,6 +22,7 @@
 from __future__ import absolute_import
 
 import functools
+import inspect
 import io
 import logging
 import os
@@ -152,6 +153,10 @@ class PKIInstance(pki.server.PKIServer):
 
     @property
     def server_cert_nick_conf(self):
+        logger.warning(
+            '%s:%s: The PKIInstance.server_cert_nick_conf() has '
+            'been deprecated (https://www.dogtagpki.org/wiki/PKI_10.9_Python_Changes).',
+            inspect.stack()[1].filename, inspect.stack()[1].lineno)
         return os.path.join(self.conf_dir, 'serverCertNick.conf')
 
     @property
@@ -488,7 +493,23 @@ class PKIInstance(pki.server.PKIServer):
                 shutil.rmtree(tmpdir)
 
     def get_sslserver_cert_nickname(self):
-        with open(self.server_cert_nick_conf) as f:
+
+        # Load SSL server cert nickname from server.xml
+
+        server_config = self.get_server_config()
+        connector = server_config.get_connector('Secure')
+        sslhost = server_config.get_sslhost(connector)
+        sslcert = server_config.get_sslcert(sslhost)
+        nickname = sslcert.get('certificateKeyAlias')
+
+        if nickname:
+            return nickname
+
+        # If not available, load SSL server cert nickname from serverCertNick.conf
+        # TODO: Remove serverCertNick.conf
+
+        server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
+        with open(server_cert_nick_conf) as f:
             return f.readline().strip()
 
     def set_sslserver_cert_nickname(self, nickname, token=None):
@@ -496,14 +517,18 @@ class PKIInstance(pki.server.PKIServer):
         if pki.nssdb.normalize_token(token):
             nickname = token + ':' + nickname
 
-        # update serverCertNick.conf
-        with open(self.server_cert_nick_conf, 'w') as f:
+        # Store SSL server cert nickname into serverCertNick.conf
+        # TODO: Remove serverCertNick.conf
+
+        server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
+        with open(server_cert_nick_conf, 'w') as f:
             f.write(nickname + '\n')
 
-        os.chown(self.server_cert_nick_conf, self.uid, self.gid)
-        os.chmod(self.server_cert_nick_conf, 0o0660)
+        os.chown(server_cert_nick_conf, self.uid, self.gid)
+        os.chmod(server_cert_nick_conf, 0o0660)
 
-        # update server.xml
+        # Store SSL server cert nickname into server.xml
+
         server_config = self.get_server_config()
         connector = server_config.get_connector('Secure')
         sslhost = server_config.get_sslhost(connector)
