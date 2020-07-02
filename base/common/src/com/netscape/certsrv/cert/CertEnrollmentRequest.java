@@ -110,6 +110,14 @@ public class CertEnrollmentRequest extends ResourceMessage {
         this.profileId = profileId;
     }
 
+    public String getServerSideKeygenP12Passwd() {
+        return serverSideKeygenP12Passwd;
+    }
+
+    public void setServerSideKeygenP12Passwd(String serverSideKeygenP12Passwd) {
+        this.serverSideKeygenP12Passwd = serverSideKeygenP12Passwd;
+    }
+
     /**
      * @return renewal
      */
