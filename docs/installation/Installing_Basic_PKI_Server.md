@@ -145,7 +145,7 @@ See also [PKI Server HTTP Connector Cert CLI](https://www.dogtagpki.org/wiki/PKI
 
 ### Configuring SSL Certificate with NSS Database via PKCS \#11
 
-To create NSS database:
+First, create an NSS database:
 
 ```
 $ pki-server nss-create --no-password
@@ -153,26 +153,52 @@ $ pki-server nss-create --no-password
 
 See also [NSS Database](https://www.dogtagpki.org/wiki/NSS_Database).
 
-To create a self-signed SSL certificate:
+Specify the SSL certificate extensions in a file (e.g. /var/lib/pki/pki-tomcat/conf/sslserver.conf):
 
 ```
-$ openssl rand -out noise.bin 2048
-$ certutil -S \
-  -x \
-  -d /var/lib/pki/pki-tomcat/alias \
-  -z noise.bin \
-  -n sslserver \
-  -s "CN=$HOSTNAME" \
-  -t "CT,C,C" \
-  -m $RANDOM \
-  -k rsa \
-  -g 2048 \
-  --keyUsage certSigning,keyEncipherment
+basicConstraints       = critical, CA:FALSE
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always
+authorityInfoAccess    = OCSP;URI:http://ocsp.example.com
+keyUsage               = critical, digitalSignature, keyEncipherment
+extendedKeyUsage       = serverAuth, clientAuth
 ```
 
-See also [Creating Self-Signed SSL Server Certificate with NSS](https://www.dogtagpki.org/wiki/Creating_Self-Signed_SSL_Server_Certificate_with_NSS).
+Generate a SSL certificate request:
 
-To enable JSS in Tomcat:
+```
+$ pki -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
+    nss-cert-request \
+    --subject "CN=$HOSTNAME" \
+    --ext /var/lib/pki/pki-tomcat/conf/sslserver.conf \
+    --csr /var/lib/pki/pki-tomcat/conf/sslserver.csr
+```
+
+Create a self-signed SSL certificate:
+
+```
+$ pki -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
+    nss-cert-issue \
+    --csr /var/lib/pki/pki-tomcat/conf/sslserver.csr \
+    --ext /var/lib/pki/pki-tomcat/conf/sslserver.conf \
+    --cert /var/lib/pki/pki-tomcat/conf/sslserver.crt
+```
+
+Import the certificate into the NSS database:
+
+```
+$ pki -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
+    nss-cert-import \
+    --cert /var/lib/pki/pki-tomcat/conf/sslserver.crt \
+    sslserver
+```
+
+See also [PKI NSS CLI](https://www.dogtagpki.org/wiki/PKI_NSS_CLI).
+
+Enable JSS in Tomcat:
 
 ```
 $ pki-server jss-enable
@@ -181,7 +207,7 @@ $ pki-server jss-enable
 This command will install JSS libraries and create the initial JSS configuration
 in /var/lib/pki/pki-tomcat/conf/jss.conf which can be customized as needed.
 
-To configure SSL connector with JSS implementation:
+Configure SSL connector with JSS implementation:
 
 ```
 $ pki-server http-connector-mod \
@@ -189,7 +215,7 @@ $ pki-server http-connector-mod \
   Secure
 ```
 
-To configure SSL certificate with NSS database via PKCS \#11:
+Finally, configure SSL certificate with NSS database via PKCS \#11:
 
 ```
 $ pki-server http-connector-cert-add \
