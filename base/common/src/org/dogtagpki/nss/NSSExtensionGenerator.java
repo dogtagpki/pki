@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.nss;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -251,6 +252,16 @@ public class NSSExtensionGenerator {
             }
 
             extension.addAccessDescription(method, location);
+        }
+
+        // Call AuthInfoAccessExtension.encode() to generate the extensionValue,
+        // otherwise the extensionValue will be null.
+        //
+        // TODO: Implement AuthInfoAccessExtension.getExtensionValue() to generate
+        // the extensionValue whenever it's needed.
+
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            extension.encode(os);
         }
 
         return extension;
