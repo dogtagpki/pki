@@ -117,7 +117,7 @@ Restart the responder by deleting the current pods with the following command:
 $ oc delete pods -l app=pki-acme
 ```
 
-To initialize the database, list the responder's pods with the following command:
+To verify the database connection, list the responder's pods with the following command:
 
 ```
 $ oc get pods -l app=pki-acme
@@ -127,8 +127,7 @@ Select one of the pods, then execute the following command:
 
 ```
 $ oc rsh <pod name> \
-    psql postgres://acme:Secret.123@postgresql/acme \
-    -f /usr/share/pki/acme/database/postgresql/create.sql
+    psql postgres://acme:Secret.123@postgresql/acme
 ```
 
 ## Deploying Secure Route

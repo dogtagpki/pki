@@ -112,12 +112,11 @@ $ podman run \
     quay.io/dogtagpki/pki-acme
 ```
 
-To initialize the database, execute the following command:
+Verify the database connection with the following command:
 
 ```
 $ podman exec -ti pki-acme \
-    psql postgres://acme:Secret.123@localhost.localdomain/acme \
-    -f /usr/share/pki/acme/database/postgresql/create.sql
+    psql postgres://acme:Secret.123@localhost.localdomain/acme
 ```
 
 ## See also
