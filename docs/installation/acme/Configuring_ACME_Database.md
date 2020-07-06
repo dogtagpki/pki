@@ -75,13 +75,11 @@ basedn=dc=acme,dc=pki,dc=example,dc=com
 
 ## Configuring PosgreSQL Database
 
-Prepare a database (e.g. acme) and a user (e.g. acme) to access the database,
-then create the ACME tables by executing the [create.sql](../../../base/acme/database/postgresql/create.sql)
-with the following command:
+Prepare a database (e.g. acme) and a user (e.g. acme) to access the database.
+Verify the database connection with the following command:
 
 ```
-$ psql -h $HOSTNAME -d acme -U acme \
-    -f /usr/share/pki/acme/database/postgresql/create.sql
+$ psql -h $HOSTNAME -d acme -U acme
 ```
 
 Then copy the sample [database.conf](../../../base/acme/database/postgresql/database.conf) with the following command:

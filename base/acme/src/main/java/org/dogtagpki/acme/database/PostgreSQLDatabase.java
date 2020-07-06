@@ -6,6 +6,8 @@
 package org.dogtagpki.acme.database;
 
 import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -86,6 +88,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         if (connection == null) { // create the initial connection
             logger.info("Connecting to " + url);
             connection = DriverManager.getConnection(url, info);
+            setup();
             return;
         }
 
@@ -107,6 +110,39 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             logger.error("SQL state: " + e.getSQLState());
 
             throw e;
+        }
+    }
+
+    /**
+     * This method will create the tables if they do not exist.
+     */
+    public void setup() throws Exception {
+
+        logger.info("Setting up database");
+
+        String filename = "/usr/share/pki/acme/database/postgresql/create.sql";
+        String content = new String(Files.readAllBytes(Paths.get(filename)));
+
+        String[] statements = content.split(";");
+        for (String sql : statements) {
+            logger.info("SQL: " + sql);
+
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.executeUpdate();
+
+            } catch (SQLException e) {
+
+                // https://www.postgresql.org/docs/current/errcodes-appendix.html
+                String sqlState = e.getSQLState();
+
+                // If table already exists, ignore
+                if ("42P07".equals(sqlState)) continue;
+
+                logger.error("Unable to set up database: " + e.getMessage());
+                logger.error("SQL state: " + sqlState);
+
+                throw e;
+            }
         }
     }
 
