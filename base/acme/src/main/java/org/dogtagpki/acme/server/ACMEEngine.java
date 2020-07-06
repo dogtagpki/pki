@@ -85,6 +85,8 @@ public class ACMEEngine implements ServletContextListener {
 
     private String name;
 
+    private ACMEEngineConfig config;
+
     private Properties monitorsConfig;
     private ACMEEngineConfigSource engineConfigSource = null;
 
@@ -98,8 +100,6 @@ public class ACMEEngine implements ServletContextListener {
 
     private ACMEIssuerConfig issuerConfig;
     private ACMEIssuer issuer;
-
-    private boolean enabled = true;
 
     private ACMEPolicy policy;
 
@@ -179,11 +179,7 @@ public class ACMEEngine implements ServletContextListener {
      * Whether the whole ACME service is enabled or not.
      */
     public boolean isEnabled() {
-        return this.enabled;
-    }
-
-    private void setEnabled(boolean b) {
-        this.enabled = b;
+        return config.isEnabled();
     }
 
     /**
@@ -191,6 +187,24 @@ public class ACMEEngine implements ServletContextListener {
      */
     public ACMEPolicy getPolicy() {
         return policy;
+    }
+
+    public void loadConfig(String filename) throws Exception {
+
+        File configFile = new File(filename);
+
+        if (!configFile.exists()) {
+            configFile = new File("/usr/share/pki/acme/conf/engine.conf");
+        }
+
+        logger.info("Loading ACME engine config from " + configFile);
+        Properties props = new Properties();
+        try (FileReader reader = new FileReader(configFile)) {
+            props.load(reader);
+        }
+
+        config = ACMEEngineConfig.fromProperties(props);
+        logger.info("- enabled: " + config.isEnabled());
     }
 
     public void initMetadata(String filename) throws Exception {
@@ -351,7 +365,7 @@ public class ACMEEngine implements ServletContextListener {
 
         engineConfigSource.setEnabledConsumer(new Consumer<Boolean>() {
             @Override public void accept(Boolean b) {
-                setEnabled(b);
+                config.setEnabled(b);
                 logger.info(
                     "ACME service is "
                     + (b ? "enabled" : "DISABLED")
@@ -383,6 +397,7 @@ public class ACMEEngine implements ServletContextListener {
         String acmeConfDir = serverConfDir + File.separator + name;
 
         logger.info("ACME configuration directory: " + acmeConfDir);
+        loadConfig(acmeConfDir + File.separator + "engine.conf");
 
         initMetadata(acmeConfDir + File.separator + "metadata.conf");
         initDatabase(acmeConfDir + File.separator + "database.conf");
