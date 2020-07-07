@@ -3,7 +3,7 @@
 ## Overview
 
 This page describes the process to create and configure a basic PKI server without any of the PKI subsystems.
-This would be useful to troubleshoot infrastructure issues (e.g. SSL in Tomcat) without the complexity of a fully functional PKI server.
+This would be useful to troubleshoot general server issues (e.g. SSL).
 
 ## Installation
 
@@ -11,21 +11,31 @@ This would be useful to troubleshoot infrastructure issues (e.g. SSL in Tomcat) 
 $ dnf install pki-server
 ```
 
-## Creating Tomcat Instance
+## Creating PKI Server
 
-To create Tomcat instance:
+To create a PKI server:
 
 ```
 $ pki-server create
 ```
 
-This will create a Tomcat instance in /var/lib/pki/pki-tomcat.
+This will create a PKI server in /var/lib/pki/pki-tomcat.
 
 See also [PKI Server CLI](https://www.dogtagpki.org/wiki/PKI_Server_CLI).
 
+## Starting PKI Server
+
+To start PKI server:
+
+```
+$ pki-server run
+```
+
+To stop the server, press Ctrl-C.
+
 ## Configuring SSL Connector
 
-To configure SSL connector, execute the following command:
+To create an SSL connector, execute the following command:
 
 ```
 $ pki-server http-connector-add \
@@ -43,7 +53,7 @@ See also [PKI Server HTTP Connector CLI](https://www.dogtagpki.org/wiki/PKI_Serv
 
 ## Configuring SSL Certificate
 
-There are several ways to provide an SSL certificate to Tomcat:
+There are several ways to configure an SSL certificate:
 
  - with PKCS \#8 files
  - with JKS keystore
@@ -198,7 +208,7 @@ $ pki -d /var/lib/pki/pki-tomcat/conf/alias \
 
 See also [PKI NSS CLI](https://www.dogtagpki.org/wiki/PKI_NSS_CLI).
 
-Enable JSS in Tomcat:
+Enable JSS with the following command:
 
 ```
 $ pki-server jss-enable
@@ -226,29 +236,9 @@ $ pki-server http-connector-cert-add \
 
 See also [PKI Server HTTP Connector Cert CLI](https://www.dogtagpki.org/wiki/PKI_Server_HTTP_Connector_Cert_CLI).
 
-## Starting Tomcat Instance
-
-To start Tomcat instance in the foreground:
-
-```
-$ pki-server run
-```
-
-To start Tomcat instance as a systemd service:
-
-```
-$ pki-server start
-```
-
-To view Tomcat instance's systemd journal:
-
-```
-$ journalctl -u pki-tomcatd@pki-tomcat.service
-```
-
 ## Verifying SSL Configuration
 
-To validate SSL configuration:
+To verify SSL configuration, restart the server and execute the following command:
 
 ```
 $ sslscan $HOSTNAME:8443
