@@ -28,6 +28,7 @@ parser.add_argument("--port", help="<CA Port Number>")
 parser.add_argument("--client-cert", help="path for admin.pem certificate")
 parser.add_argument("--number-of-clients", help="Number of thread", type=int)
 parser.add_argument("--number-of-tests-per-client", help="Number of test per thread", type=int)
+parser.add_argument("--ca-cert-path", help="path for CA signing certifcate")
 
 log = logging.getLogger()
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -35,7 +36,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 args = parser.parse_args()
 
 # Create a PKIConnection object that stores the details of the CA.
-connection = PKIConnection('https', args.hostname, args.port)
+connection = PKIConnection('https', args.hostname, args.port, cert_paths=args.ca_cert_path)
 
 # The pem file used for authentication. Created from a p12 file using the
 # command -

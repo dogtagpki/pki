@@ -1,0 +1,66 @@
+- name: Installing ACME Responder
+  shell: pki-server acme-create --instance {{topology}}-CA
+  notify:
+    - INC_CONSTANTS
+
+- meta: flush_handlers
+
+- name: Adding the ACME LDAP schema
+  shell: ldapmodify -h {{variable.MASTER_HOSTNAME}} -p {{variable.LDAP_PORT}} -x -D "cn=Directory Manager" -w {{variable.LDAP_PASSWD}} -f "{{variable.ACME_CONFIG_PATH}}/database/ldap/schema.ldif"
+
+- name: Updating acme base DN
+  replace:
+   dest: '{{variable.ACME_CONFIG_PATH}}/database/ldap/{{item}}'
+   regexp: "dc=acme,dc=pki,dc=example,dc=com"
+   replace: "{{variable.LDAP_BASE_DN}}"
+  with_items:
+    - create.ldif
+    - database.conf
+
+- name: Updating acme ldap port
+  replace:
+   dest: "{{variable.ACME_CONFIG_PATH}}/database/ldap/database.conf"
+   regexp: '389'
+   replace: "{{variable.LDAP_PORT}}"
+
+- name: Updating acme ldap password
+  replace:
+   path: "{{variable.ACME_CONFIG_PATH}}/database/ldap/database.conf"
+   regexp: 'password.internaldb=.*'
+   replace: 'password.internaldb={{variable.LDAP_PASSWD}}'
+
+- name: Removing existing ldap entry
+  command: sed -i 1,3d "{{variable.ACME_CONFIG_PATH}}/database/ldap/create.ldif"
+
+- name: Adding the ACME LDAP schema
+  command: ldapadd -h {{variable.MASTER_HOSTNAME}} -p {{variable.LDAP_PORT}} -x -D "cn=Directory Manager" -w {{variable.LDAP_PASSWD}} -f "{{variable.ACME_CONFIG_PATH}}/database/ldap/create.ldif"
+
+- name: Configuring ACME Responder Database
+  copy:
+    src: "{{variable.ACME_CONFIG_PATH}}/database/ldap/database.conf"
+    dest: /etc/pki/{{topology}}-CA/acme/database.conf
+    remote_src: yes
+    force: yes
+
+- name: Configuring ACME Responder Issuer
+  copy:
+    src: "{{variable.ACME_CONFIG_PATH}}/issuer/pki/issuer.conf"
+    dest: /etc/pki/{{topology}}-CA/acme/issuer.conf
+    remote_src: yes
+    force: yes
+
+- name: Configuring ACME Responder Issuer
+  replace:
+    path: /etc/pki/{{topology}}-CA/acme/issuer.conf
+    regexp: 'password=.*'
+    replace: 'password={{variable.CA_PASSWORD}}'
+
+- name: Deploying ACME Responder
+  shell: pki-server acme-deploy --instance {{topology}}-CA
+
+- name: Install certbot for acme
+  command: pip-3 install {{item}}
+  with_items:
+    - certbot
+  tags: platform-ci
+  when: topology == "acme"

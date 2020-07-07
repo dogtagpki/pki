@@ -29,6 +29,7 @@ parser.add_argument("--client-cert", help="path for admin.pem certificate")
 parser.add_argument("--number-of-clients", help="Number of thread", type=int)
 parser.add_argument("--number-of-tests-per-client", help="Number of test per thread", type=int)
 parser.add_argument("--cert_sn_file", help="path for certificate serial number file")
+parser.add_argument("--ca-cert-path", help="path for CA signing certifcate")
 
 log = logging.getLogger()
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -36,7 +37,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 args = parser.parse_args()
 
 # Create a PKIConnection object that stores the details of the CA.
-connection = PKIConnection('https', args.hostname, args.port)
+connection = PKIConnection('https', args.hostname, args.port, cert_paths=args.ca_cert_path)
 
 # The pem file used for authentication. Created from a p12 file using the
 # command -
@@ -57,6 +58,7 @@ def run_test(cert_sn, number_of_tests_per_thread):
         if revoke_data.operation_result != 'success':
             raise Exception("Cert enrollment failed : {}".format(revoke_data.request_id))
 
+
 if __name__ == "__main__":
     # get test parameters from CLI parameters
     number_of_threads = args.number_of_clients
@@ -64,11 +66,11 @@ if __name__ == "__main__":
     # execute the test_cert_enrollement.py script and store Serial Number data into file
     # provide that file path to this script by using --cert_sn_file <file path>
     cert_sn_file = open(args.cert_sn_file, 'r')
-    cert_list=json.load(cert_sn_file)
+    cert_list = json.load(cert_sn_file)
 
-    #Dividing the list into small sublist
-    sub_list = lambda cert_list, n: [cert_list[x: x+n] for x in range(0, len(cert_list), n)]
-    sub_list=sub_list(cert_list,number_of_tests_per_thread)
+    # Dividing the list into small sublist
+    sub_list = lambda cert_list, n: [cert_list[x: x + n] for x in range(0, len(cert_list), n)]
+    sub_list = sub_list(cert_list, number_of_tests_per_thread)
 
     # create the specified number of threads
     threads = []
