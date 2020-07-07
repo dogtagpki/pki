@@ -129,3 +129,25 @@ pki_server:
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE pytest/pki_server/test_pki_server_instance*.py -qs --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_instance_junit.xml -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE pytest/pki_server/test_pki_server_subsystem*.py -qs --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_subsystem_junit.xml -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE pytest/pki_server/test_pki_server_migrate.py pytest/pki_server/test_pki_server_db*.py -qs --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_migrate_db_junit.xml -vv
+
+role-user-creation-topo-02:
+  stage: tier0
+  <<: *job_definition
+  script:
+    - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
+    - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+    - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/sanity/test_role_users_kra.py --junitxml $CI_PROJECT_DIR/role-user-creation_junit.xml -qsvvvv
+
+topo-01-role-user-creation:
+  stage: tier0
+  <<: *job_definition
+  script:
+    - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-01" -vv
+    - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+    - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/sanity/test_role_users_kra.py --junitxml $CI_PROJECT_DIR/role-user-creation_kra_junit.xml -qsvvvv
+
+installation-acme:
+  <<: *job_definition
+  stage: tier0
+  script:
+    - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=acme" -vv

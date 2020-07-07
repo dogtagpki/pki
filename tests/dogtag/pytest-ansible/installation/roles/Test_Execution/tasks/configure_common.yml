@@ -9,7 +9,7 @@
 - name: Install a required package for modify hostname task below
   dnf: pkg={{item}} state=latest
   with_items:
-    - libselinux-python
+    - python3-libselinux
   when: ansible_distribution == "Fedora"
 
 - name : Modify hostname for master in  /etc/hosts
@@ -34,7 +34,7 @@
   when:  inventory_ip not in private_ip
 
 - name: pip install pexpect
-  shell: pip2 install pexpect
+  shell: pip3 install pexpect
 
 - name : fetch file in  master in  /etc/hosts
   fetch: src=/etc/hosts dest=/etc/ flat=yes validate_checksum=no
@@ -66,7 +66,7 @@
     - dogtag-pki
     - dogtag-pki-console-theme
     - dogtag-pki-server-theme
-    - policycoreutils-python
+    - policycoreutils-python-utils
     - expect
   when: ansible_distribution == "Fedora"
   tags: platform-ci

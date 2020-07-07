@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 # (c) 2016, Geetika Kapoor <gkapoor@redhat.com>
 #
@@ -26,7 +26,7 @@ DOCUMENTATION = '''
 module: pki
 short_description: Execute dogtag "pki" commands remotely on any machine.
 Point it to the host where you want them to run.
-This utility supports all the authentication modes as mentioned in 
+This utility supports all the authentication modes as mentioned in
 man pages of pki. Refer 'man pki' for supported options.
 
 Usage: This can be added as mentioned in the example.
@@ -37,7 +37,7 @@ Authentication types supported:
 conn_args: Name assigned to variable that has common arguments
 needed for all types of connection.
 auth_args: Name assigned to authentication commands that are run using pki.
-cli_args: Name assigned to sub-cli-commands that are run underneath 
+cli_args: Name assigned to sub-cli-commands that are run underneath
 pki command.
 
 Example:
@@ -46,75 +46,73 @@ Example:
 
 '''
 
-import datetime
-import glob
-import shlex
 import os
+import sys
+import socket
 
 if os.path.isfile('/tmp/test_dir/constants.py'):
-    import sys
     sys.path.append('/tmp/test_dir')
     import constants
 else:
     from pki.testlib.common import constants
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.six import b
 
 
 def main():
-
     # the command module is the one ansible module that does not take key=value args
     # hence don't copy this one if you are looking to build others!
     module = AnsibleModule(
-        argument_spec=dict(
-            raw_params = dict(default='pki'),
-	    port = dict(default=''),
-	    cli = dict(default='--help'),
-	    extra_args = dict(default=''),
-	    certnick = dict(default="'PKI CA Administrator for Example.Org'"),
-	    username = dict(default='caadmin'),
-	    userpassword = dict(default='SECret.123'),
-	    userpwdfile = dict(default='SECret.123'),
-	    dbpassword = dict(default='SECret.123'),
-	    nssdb = dict(default='/opt/pkitest/certdb'),
-	    protocol = dict(default='http'),
-	    hostname = dict(default='localhost'),
-	    authType = dict(default='clientAuth', choices=['connection', 'basicAuth', 'clientAuth'])
-        )
+        argument_spec=dict(raw_params=dict(default='pki'),
+                           port=dict(default=''),
+                           cli=dict(default='--help'),
+                           extra_args=dict(default=''),
+                           certnick=dict(default="'PKI CA Administrator for Example.Org'"),
+                           username=dict(default='caadmin'),
+                           userpassword=dict(default='SECret.123'),
+                           userpwdfile=dict(default='SECret.123'),
+                           dbpassword=dict(default='SECret.123'),
+                           nssdb=dict(default='/opt/pki/certdb'),
+                           protocol=dict(default='http'),
+                           hostname=dict(default=socket.gethostname()),
+                           authType=dict(default='clientAuth',
+                                         choices=['connection', 'basicAuth', 'clientAuth'])
+                           )
     )
     if module.params['port']:
-	port = module.params['port']
+        port = module.params['port']
     else:
-    	Subsystem=map(lambda x: {"True" if x in module.params['cli'] else False: x } ,["ca", "kra", "ocsp", "tks", "tps"])
-    	for idx, val in enumerate(Subsystem):
-		for key, value in val.iteritems():
-			if key == 'True':
-				sub = value
-    	port = '_'.join([sub.upper(), module.params['protocol'].upper(), "PORT"])
+        Subsystem = map(lambda x: {"True" if x in module.params['cli'] else False: x},
+                        ["ca", "kra", "ocsp", "tks", "tps"])
+        for idx, val in enumerate(Subsystem):
+            for key, value in val.items():
+                if key == 'True':
+                    sub = value
+        port = '_'.join([sub.upper(), module.params['protocol'].upper(), "PORT"])
         port = getattr(constants, port)
-    conn_args = [module.params['raw_params'], '-d', module.params['nssdb'], '-P', module.params['protocol'], '-p', '%s' %(port), '-h', module.params['hostname'], '-c', module.params['dbpassword']]
+    conn_args = [module.params['raw_params'],
+                 '-d', module.params['nssdb'],
+                 '-P', module.params['protocol'],
+                 '-p', '{}'.format(port),
+                 '-h', module.params['hostname'],
+                 '-c', module.params['dbpassword']]
     cli_args = [module.params['cli'], module.params['extra_args']]
 
     if module.params['authType'] == 'clientAuth':
         auth_args = ['-n', module.params['certnick']]
         args = ' '.join(conn_args + auth_args + cli_args)
-
-    if module.params['authType'] == 'basicAuth':
-	auth_args = ['-u', module.params['username'], '-w', module.params['userpassword']]
+    elif module.params['authType'] == 'basicAuth':
+        auth_args = ['-u', module.params['username'], '-w', module.params['userpassword']]
         args = ' '.join(conn_args + auth_args + cli_args)
-
-    if module.params['authType'] == 'connection':
-         args = ' '.join(conn_args)
+    elif module.params['authType'] == 'connection':
+        args = ' '.join(conn_args)
 
     rc, out, err = module.run_command(args)
 
     result = dict(
-        cmd      = args,
-        stdout   = out.rstrip(b("\r\n")),
-        stderr   = err.rstrip(b("\r\n")),
-        rc       = rc,
-        changed  = True,
-    )
+        cmd=args,
+        stdout=out.rstrip("\r\n"),
+        stderr=err.rstrip("\r\n"),
+        rc=rc, changed=True)
 
     if rc != 0:
         module.fail_json(msg='non-zero return code', **result)
@@ -124,4 +122,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

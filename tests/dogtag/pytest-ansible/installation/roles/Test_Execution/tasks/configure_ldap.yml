@@ -9,7 +9,7 @@
 
 - name: Setup DS Service
   shell: dscreate from-file /tmp/test_dir/ldap.cfg
-  when: (topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology  == "topology-05" or topology == "topology-ecc") and pkg.results[0].version >= "1.4.0.20"
+  when: (topology == "acme" or topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology  == "topology-05" or topology == "topology-ecc") and pkg.results[0].version >= "1.4.0.20"
 
 
 - name: Setup DS Service
