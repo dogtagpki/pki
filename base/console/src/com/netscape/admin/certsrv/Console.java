@@ -53,6 +53,8 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
+import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.util.logging.PKILogger.Level;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -98,6 +100,9 @@ import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.util.DN;
 
 public class Console implements CommClient {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Console.class);
+
     // Capture the time before any class is loaded so that we can measure JVM load time
     static long _t0 = System.currentTimeMillis();
 
@@ -128,7 +133,6 @@ public class Console implements CommClient {
     //
     // global values
     //
-    public static boolean verbose;
     public static Preferences _preferences;
     public static ConsoleInfo _info;
     public static String _consoleAdminURL;
@@ -1600,6 +1604,7 @@ public class Console implements CommClient {
         options.addOption(option);
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
+        options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption("h", "help", false, "Show help message.");
 
         CommandLineParser parser = new PosixParser();
@@ -1607,7 +1612,12 @@ public class Console implements CommClient {
 
         String[] cmdArgs = cmd.getArgs();
 
-        verbose = cmd.hasOption("verbose");
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(Level.INFO);
+        }
 
         String outFile = cmd.getOptionValue("f");
         if (outFile != null) {
@@ -1786,7 +1796,7 @@ public class Console implements CommClient {
 
     public static void handleException(Throwable t) {
 
-        if (verbose) {
+        if (logger.isInfoEnabled()) {
             t.printStackTrace(System.err);
 
         } else if (t.getClass() == Exception.class) {
