@@ -359,16 +359,9 @@ public class ACMEEngine implements ServletContextListener {
             issuer.close();
     }
 
-    public void contextInitialized(ServletContextEvent event) {
+    public void start() throws Exception {
 
         logger.info("Starting ACME engine");
-
-        String path = event.getServletContext().getContextPath();
-        if ("".equals(path)) {
-            name = "ROOT";
-        } else {
-            name = path.substring(1);
-        }
 
         String catalinaBase = System.getProperty("catalina.base");
         String serverConfDir = catalinaBase + File.separator + "conf";
@@ -376,45 +369,39 @@ public class ACMEEngine implements ServletContextListener {
 
         logger.info("ACME configuration directory: " + acmeConfDir);
 
-        try {
-            // load config source configuration
-            Properties monitorCfg = new Properties();
-            String monitorCfgFilename = acmeConfDir + File.separator + "configsources.conf";
-            logger.info("Loading ACME engine config from " + monitorCfgFilename);
-            File f = new File(monitorCfgFilename);
-            if (f.exists()) {
-                try (FileReader reader = new FileReader(f)) {
-                    monitorCfg.load(reader);
-                }
-            } else {
-                logger.info(
-                    "  '" + monitorCfgFilename + "' does not exist; "
-                    + "proceeding with default config sources"
-                );
+        // load config source configuration
+        Properties monitorCfg = new Properties();
+        String monitorCfgFilename = acmeConfDir + File.separator + "configsources.conf";
+        logger.info("Loading ACME engine config from " + monitorCfgFilename);
+        File f = new File(monitorCfgFilename);
+        if (f.exists()) {
+            try (FileReader reader = new FileReader(f)) {
+                monitorCfg.load(reader);
             }
-
-            loadEngineConfig(monitorCfg);
-
-            loadMetadata(acmeConfDir + File.separator + "metadata.conf");
-
-            loadDatabaseConfig(acmeConfDir + File.separator + "database.conf");
-            initDatabase();
-
-            loadValidatorsConfig(acmeConfDir + File.separator + "validators.conf");
-            initValidators();
-
-            loadIssuerConfig(acmeConfDir + File.separator + "issuer.conf");
-            initIssuer();
-
-        } catch (Exception e) {
-            logger.error("Unable to start ACME engine: " + e.getMessage(), e);
-            throw new RuntimeException("Unable to start ACME engine: " + e.getMessage(), e);
+        } else {
+            logger.info(
+                "  '" + monitorCfgFilename + "' does not exist; "
+                + "proceeding with default config sources"
+            );
         }
+
+        loadEngineConfig(monitorCfg);
+
+        loadMetadata(acmeConfDir + File.separator + "metadata.conf");
+
+        loadDatabaseConfig(acmeConfDir + File.separator + "database.conf");
+        initDatabase();
+
+        loadValidatorsConfig(acmeConfDir + File.separator + "validators.conf");
+        initValidators();
+
+        loadIssuerConfig(acmeConfDir + File.separator + "issuer.conf");
+        initIssuer();
 
         logger.info("ACME engine started");
     }
 
-    public void contextDestroyed(ServletContextEvent event) {
+    public void stop() throws Exception {
 
         logger.info("Stopping ACME engine");
 
@@ -423,15 +410,9 @@ public class ACMEEngine implements ServletContextListener {
             engineConfigSource = null;
         }
 
-        try {
-            shutdownIssuer();
-            shutdownValidators();
-            shutdownDatabase();
-
-        } catch (Exception e) {
-            logger.error("Unable to stop ACME engine: " + e.getMessage(), e);
-            throw new RuntimeException("Unable to stop ACME engine: " + e.getMessage(), e);
-        }
+        shutdownIssuer();
+        shutdownValidators();
+        shutdownDatabase();
 
         logger.info("ACME engine stopped");
     }
@@ -1038,5 +1019,34 @@ public class ACMEEngine implements ServletContextListener {
         }
 
         return identifiers;
+    }
+
+    public void contextInitialized(ServletContextEvent event) {
+
+        String path = event.getServletContext().getContextPath();
+        if ("".equals(path)) {
+            name = "ROOT";
+        } else {
+            name = path.substring(1);
+        }
+
+        try {
+            start();
+
+        } catch (Exception e) {
+            logger.error("Unable to start ACME engine: " + e.getMessage(), e);
+            throw new RuntimeException("Unable to start ACME engine: " + e.getMessage(), e);
+        }
+    }
+
+    public void contextDestroyed(ServletContextEvent event) {
+
+        try {
+            stop();
+
+        } catch (Exception e) {
+            logger.error("Unable to stop ACME engine: " + e.getMessage(), e);
+            throw new RuntimeException("Unable to stop ACME engine: " + e.getMessage(), e);
+        }
     }
 }
