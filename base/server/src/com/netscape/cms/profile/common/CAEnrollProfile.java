@@ -354,11 +354,13 @@ public class CAEnrollProfile extends EnrollProfile {
             request.setExtData(IRequest.SSK_STAGE, IRequest.SSK_STAGE_KEY_RETRIEVE);
             request.setExtData(IRequest.REQ_STATUS, "begin");
             request.setExtData("requestType", "recovery");
-            request.setExtData("cert", theCert); //recognized by kra
 
             // putting them back
             request.setExtData("serverSideKeygenP12PasswdEnc", sessionWrappedPassphrase);
             request.setExtData("serverSideKeygenP12PasswdTransSession", transWrappedSessionKey);
+
+            // debug
+            // CertUtils.printRequestContent(request);
 
             try {
                 IConnector kraConnector = caService.getKRAConnector();

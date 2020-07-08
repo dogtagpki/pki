@@ -113,6 +113,8 @@ public class RecoveryService implements IService {
     private IKeyRecoveryAuthority mKRA = null;
     private IKeyRepository mStorage = null;
     private IStorageKeyUnit mStorageUnit = null;
+    // must match with EnrollProfile.REQUEST_ISSUED_CERT
+    public static final String REQUEST_ISSED_CERT = "req_issued_cert";
 
     /**
      * Constructs request processor.
@@ -263,10 +265,15 @@ public class RecoveryService implements IService {
 
         // see if the certificate matches the key
         byte pubData[] = keyRecord.getPublicKeyData();
+        // first check the cert expected from SSK
         X509Certificate x509cert =
-                request.getExtDataInCert(ATTR_USER_CERT);
+                request.getExtDataInCert(REQUEST_ISSED_CERT);
         if (x509cert == null) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
+            x509cert =
+                    request.getExtDataInCert(ATTR_USER_CERT);
+            if (x509cert == null) {
+                throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
+            }
         }
         byte inputPubData[] = x509cert.getPublicKey().getEncoded();
 
@@ -560,10 +567,15 @@ public class RecoveryService implements IService {
 
         try {
             // create p12
+            // first check the cert expected from SSK
             X509Certificate x509cert =
-                    request.getExtDataInCert(ATTR_USER_CERT);
+                    request.getExtDataInCert(REQUEST_ISSED_CERT);
             if (x509cert == null) {
-                throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1","Missing Certificate"));
+                x509cert =
+                        request.getExtDataInCert(ATTR_USER_CERT);
+                if (x509cert == null) {
+                    throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1","Missing Certificate"));
+                }
             }
 
             logger.info("KRA adds certificate to P12");
@@ -752,10 +764,15 @@ public class RecoveryService implements IService {
 
         try {
             // create p12
+            // first check the cert expected from SSK
             X509Certificate x509cert =
-                    request.getExtDataInCert(ATTR_USER_CERT);
+                    request.getExtDataInCert(REQUEST_ISSED_CERT);
             if (x509cert == null) {
-                throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1","Missing Certificate"));
+                x509cert =
+                        request.getExtDataInCert(ATTR_USER_CERT);
+                if (x509cert == null) {
+                    throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1","Missing Certificate"));
+                }
             }
 
             logger.info("KRA adds certificate to P12");

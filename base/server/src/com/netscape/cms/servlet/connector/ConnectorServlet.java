@@ -74,6 +74,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
 
@@ -495,19 +496,8 @@ public class ConnectorServlet extends CMSServlet {
 
             // if not found process request.
             thisreq = queue.newRequest(msg.getReqType());
-            /* cfu: let's find out what's in the request
-            logger.debug("ConnectorServlet: cfu see what's in request");
-            Enumeration<String> ereq = thisreq.getExtDataKeys();
-            while (ereq.hasMoreElements()) {
-                String reqKey = ereq.nextElement();
-                String reqVal = thisreq.getExtDataInString(reqKey);
-                if (reqVal != null) {
-                    logger.debug("ConnectorServlet: - " + reqKey + ": " + reqVal);
-                } else {
-                    logger.debug("ConnectorServlet: - " + reqKey + ": no value");
-                }
-            }
-            */
+            // debug
+            // CertUtils.printRequestContent(thisreq);
 
             logger.debug("ConnectorServlet: created requestId=" +
                     thisreq.getRequestId().toString());

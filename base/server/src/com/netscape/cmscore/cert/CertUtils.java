@@ -35,6 +35,7 @@ import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
@@ -1640,6 +1641,21 @@ public class CertUtils {
             return "tps";
         }
         return null;
+    }
+
+    public static void printRequestContent(IRequest request) {
+        String method = "CertUtils.printRequestContent: ";
+        logger.debug(method + "Content of request: ");
+        Enumeration<String> ereq = request.getExtDataKeys();
+        while (ereq.hasMoreElements()) {
+            String reqKey = ereq.nextElement();
+            String reqVal = request.getExtDataInString(reqKey);
+            if (reqVal != null) {
+                logger.debug("  req entry - " + reqKey + ": " + reqVal);
+            } else {
+                logger.debug("  req entry - " + reqKey + ": no value");
+            }
+        }
     }
 
     /**
