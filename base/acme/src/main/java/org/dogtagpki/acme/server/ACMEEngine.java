@@ -202,29 +202,30 @@ public class ACMEEngine implements ServletContextListener {
         // We pass to the ConfigSource only the callbacks needed to set
         // the configuration (Consumer<T>).  This abstraction ensures the
         // ConfigSource has no direct access to the ACMEEngine instance.
-        engineConfigSource.init(
-            cfg,
-            new Consumer<Boolean>() {
-                @Override public void accept(Boolean b) {
-                    setEnabled(b);
-                    logger.info(
-                        "ACME service is "
-                        + (b ? "enabled" : "DISABLED")
-                        + " by configuration"
-                    );
-                }
-            },
-            new Consumer<Boolean>() {
-                @Override public void accept(Boolean b) {
-                    getPolicy().setEnableWildcards(b);
-                    logger.info(
-                        "ACME wildcard issuance is "
-                        + (b ? "enabled" : "DISABLED")
-                        + " by configuration"
-                    );
-                }
+
+        engineConfigSource.setEnabledConsumer(new Consumer<Boolean>() {
+            @Override public void accept(Boolean b) {
+                setEnabled(b);
+                logger.info(
+                    "ACME service is "
+                    + (b ? "enabled" : "DISABLED")
+                    + " by configuration"
+                );
             }
-        );
+        });
+
+        engineConfigSource.setWildcardConsumer(new Consumer<Boolean>() {
+            @Override public void accept(Boolean b) {
+                getPolicy().setEnableWildcards(b);
+                logger.info(
+                    "ACME wildcard issuance is "
+                    + (b ? "enabled" : "DISABLED")
+                    + " by configuration"
+                );
+            }
+        });
+
+        engineConfigSource.init(cfg);
     }
 
     public void loadMetadata(String filename) throws Exception {

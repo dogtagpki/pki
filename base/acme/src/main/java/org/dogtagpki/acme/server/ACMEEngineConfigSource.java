@@ -37,11 +37,7 @@ abstract class ACMEEngineConfigSource {
         this.wildcardConsumer = wildcardConsumer;
     }
 
-    public abstract void init(
-        Properties cfg,
-        Consumer<Boolean> enabledConsumer,
-        Consumer<Boolean> wildcardConsumer)
-        throws Exception;
+    public abstract void init(Properties cfg) throws Exception;
 
     /**
      * Shut down the engine config source.  Subclasses that e.g. create

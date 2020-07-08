@@ -6,7 +6,6 @@
 package org.dogtagpki.acme.server;
 
 import java.util.Properties;
-import java.util.function.Consumer;
 
 /**
  * Default values for ACME engine configuration.
@@ -14,7 +13,8 @@ import java.util.function.Consumer;
  * No updates are ever performed.
  */
 class ACMEEngineConfigDefaultSource extends ACMEEngineConfigSource {
-    public void init(Properties _cfg, Consumer<Boolean> enabledConsumer, Consumer<Boolean> wildcardConsumer) {
+
+    public void init(Properties _cfg) {
         enabledConsumer.accept(true);
         wildcardConsumer.accept(true);
     }

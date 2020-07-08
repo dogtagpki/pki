@@ -16,7 +16,6 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.function.Consumer;
 
 /**
  * Monitor the file for configuration changes.
@@ -35,14 +34,7 @@ class ACMEEngineConfigFileSource
     Optional<Boolean> cacheEnabled = Optional.empty();
     Optional<Boolean> cacheWildcard = Optional.empty();
 
-    public void init(
-            Properties cfg,
-            Consumer<Boolean> enabledConsumer,
-            Consumer<Boolean> wildcardConsumer)
-            throws Exception {
-
-        setEnabledConsumer(enabledConsumer);
-        setWildcardConsumer(wildcardConsumer);
+    public void init(Properties cfg) throws Exception {
 
         filename = cfg.getProperty("engine.filename");
         if (null == filename) {
