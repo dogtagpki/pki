@@ -5,8 +5,8 @@
 //
 package org.dogtagpki.acme.server;
 
-import java.util.function.Consumer;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 /**
  * Source of ACME engine configuration.
@@ -17,19 +17,31 @@ import java.util.Properties;
  * is first read, and when changes to those values are detected.
  */
 abstract class ACMEEngineConfigSource {
-    Consumer<Boolean> setEnabled;
-    Consumer<Boolean> setWildcard;
+
+    Consumer<Boolean> enabledConsumer;
+    Consumer<Boolean> wildcardConsumer;
+
+    Consumer<Boolean> getEnabledConsumer() {
+        return enabledConsumer;
+    }
+
+    void setEnabledConsumer(Consumer<Boolean> enabledConsumer) {
+        this.enabledConsumer = enabledConsumer;
+    }
+
+    Consumer<Boolean> getWildcardConsumer() {
+        return wildcardConsumer;
+    }
+
+    void setWildcardConsumer(Consumer<Boolean> wildcardConsumer) {
+        this.wildcardConsumer = wildcardConsumer;
+    }
 
     public abstract void init(
         Properties cfg,
-        Consumer<Boolean> setEnabled,
-        Consumer<Boolean> setWildcard)
+        Consumer<Boolean> enabledConsumer,
+        Consumer<Boolean> wildcardConsumer)
         throws Exception;
-
-    void init(Consumer<Boolean> setEnabled, Consumer<Boolean> setWildcard) {
-        this.setEnabled = setEnabled;
-        this.setWildcard = setWildcard;
-    }
 
     /**
      * Shut down the engine config source.  Subclasses that e.g. create

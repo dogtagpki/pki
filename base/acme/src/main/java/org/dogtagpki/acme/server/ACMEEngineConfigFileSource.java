@@ -8,7 +8,6 @@ package org.dogtagpki.acme.server;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Properties;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
@@ -16,6 +15,7 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Consumer;
 
 /**
@@ -37,10 +37,12 @@ class ACMEEngineConfigFileSource
 
     public void init(
             Properties cfg,
-            Consumer<Boolean> setEnabled,
-            Consumer<Boolean> setWildcard)
+            Consumer<Boolean> enabledConsumer,
+            Consumer<Boolean> wildcardConsumer)
             throws Exception {
-        init(setEnabled, setWildcard);
+
+        setEnabledConsumer(enabledConsumer);
+        setWildcardConsumer(wildcardConsumer);
 
         filename = cfg.getProperty("engine.filename");
         if (null == filename) {
@@ -83,13 +85,13 @@ class ACMEEngineConfigFileSource
         // send changed values and update cache
         Optional<Boolean> v = Optional.of(enabled);
         if (!cacheEnabled.equals(v)) {
-            setEnabled.accept(enabled);
+            enabledConsumer.accept(enabled);
             cacheEnabled = v;
         }
 
         v = Optional.of(wildcard);
         if (!cacheWildcard.equals(v)) {
-            setWildcard.accept(enabled);
+            wildcardConsumer.accept(wildcard);
             cacheWildcard = v;
         }
     }
