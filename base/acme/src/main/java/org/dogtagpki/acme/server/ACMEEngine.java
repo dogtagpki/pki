@@ -53,6 +53,8 @@ import org.dogtagpki.acme.database.ACMEDatabase;
 import org.dogtagpki.acme.database.ACMEDatabaseConfig;
 import org.dogtagpki.acme.issuer.ACMEIssuer;
 import org.dogtagpki.acme.issuer.ACMEIssuerConfig;
+import org.dogtagpki.acme.scheduler.ACMEScheduler;
+import org.dogtagpki.acme.scheduler.ACMESchedulerConfig;
 import org.dogtagpki.acme.validator.ACMEValidator;
 import org.dogtagpki.acme.validator.ACMEValidatorConfig;
 import org.dogtagpki.acme.validator.ACMEValidatorsConfig;
@@ -99,6 +101,9 @@ public class ACMEEngine implements ServletContextListener {
     private boolean enabled = true;
 
     private ACMEPolicy policy;
+
+    private ACMESchedulerConfig schedulerConfig;
+    private ACMEScheduler scheduler;
 
     public static ACMEEngine getInstance() {
         return INSTANCE;
@@ -355,6 +360,33 @@ public class ACMEEngine implements ServletContextListener {
         issuer.init();
     }
 
+    public void loadSchedulerConfig(String filename) throws Exception {
+
+        File schedulerConfigFile = new File(filename);
+
+        if (!schedulerConfigFile.exists()) {
+            schedulerConfigFile = new File("/usr/share/pki/acme/conf/scheduler.conf");
+        }
+
+        logger.info("Loading ACME scheduler config from " + schedulerConfigFile);
+        Properties props = new Properties();
+        try (FileReader reader = new FileReader(schedulerConfigFile)) {
+            props.load(reader);
+        }
+        schedulerConfig = ACMESchedulerConfig.fromProperties(props);
+    }
+
+    public void initScheduler() throws Exception {
+        scheduler = new ACMEScheduler();
+        scheduler.setConfig(schedulerConfig);
+        scheduler.init();
+    }
+
+    public void shutdownScheduler() throws Exception {
+        if (scheduler != null)
+            scheduler.shutdown();
+    }
+
     public void shutdownIssuer() throws Exception {
         if (issuer != null)
             issuer.close();
@@ -399,6 +431,9 @@ public class ACMEEngine implements ServletContextListener {
         loadIssuerConfig(acmeConfDir + File.separator + "issuer.conf");
         initIssuer();
 
+        loadSchedulerConfig(acmeConfDir + File.separator + "scheduler.conf");
+        initScheduler();
+
         logger.info("ACME engine started");
     }
 
@@ -411,6 +446,7 @@ public class ACMEEngine implements ServletContextListener {
             engineConfigSource = null;
         }
 
+        shutdownScheduler();
         shutdownIssuer();
         shutdownValidators();
         shutdownDatabase();
