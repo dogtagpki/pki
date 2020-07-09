@@ -48,7 +48,6 @@ public class ACMENewNonceService {
         logger.info("Creating nonce");
 
         ACMEEngine engine = ACMEEngine.getInstance();
-        engine.purgeNonces();
 
         ACMENonce nonce = engine.createNonce();
         builder.header("Replay-Nonce", nonce.getValue());

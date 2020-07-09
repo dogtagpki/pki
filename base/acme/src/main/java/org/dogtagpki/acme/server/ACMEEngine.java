@@ -502,10 +502,6 @@ public class ACMEEngine implements ServletContextListener {
         logger.info("Valid nonce: " + value);
     }
 
-    public void purgeNonces() throws Exception {
-        database.removeExpiredNonces(new Date());
-    }
-
     public void validateJWS(JWS jws, String alg, JWK jwk) throws Exception {
 
         // TODO: support other algorithms
