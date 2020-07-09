@@ -708,6 +708,18 @@ public class LDAPDatabase extends ACMEDatabase {
         return !entries.isEmpty();
     }
 
+    public void removeExpiredAuthorizations(Date currentTime) throws Exception {
+        String[] attrs = {"1.1"};  // suppress attrs for performance; we only need DN
+        List<LDAPEntry> entries = ldapSearch(
+            RDN_AUTHORIZATION + "," + basedn,
+            "(" + ATTR_EXPIRES + "<=" + dateFormat.format(currentTime) + ")",
+            attrs
+        );
+        for (LDAPEntry entry : entries) {
+            ldapDelete(entry.getDN(), OnNoSuchObject.Ignore);
+        }
+    }
+
     public X509Certificate getCertificate(String certID) throws Exception {
         String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + basedn;
         LDAPEntry entry = ldapGet(dn);

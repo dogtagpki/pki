@@ -200,6 +200,11 @@ public class InMemoryDatabase extends ACMEDatabase {
         authorizations.put(authorization.getID(), authorization);
     }
 
+    public void removeExpiredAuthorizations(Date currentTime) throws Exception {
+        authorizations.values().removeIf(
+                n -> n.getExpirationTime() != null && !currentTime.before(n.getExpirationTime()));
+    }
+
     public X509Certificate getCertificate(String certID) throws Exception {
         return certificates.get(certID);
     }
