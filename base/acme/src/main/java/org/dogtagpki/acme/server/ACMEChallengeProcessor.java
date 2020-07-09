@@ -136,5 +136,36 @@ public class ACMEChallengeProcessor implements Runnable {
         authorization.setStatus("invalid");
 
         engine.updateAuthorization(account, authorization);
+
+        // RFC 8555 Section 7.1.6: Status Changes
+        //
+        // The order also moves to the "invalid" state if it expires or one of
+        // its authorizations enters a final state other than "valid" ("expired",
+        // "revoked", or "deactivated").
+
+        logger.info("Updating pending orders");
+
+        Collection<ACMEOrder> orders =
+            engine.getOrdersByAuthorizationAndStatus(account, authzID, "pending");
+
+        for (ACMEOrder order : orders) {
+            boolean allAuthorizationsValid = true;
+
+            for (String orderAuthzID : order.getAuthzIDs()) {
+
+                ACMEAuthorization authz = engine.getAuthorization(account, orderAuthzID);
+                if (authz.getStatus().equals("valid")) continue;
+
+                allAuthorizationsValid = false;
+                break;
+            }
+
+            if (allAuthorizationsValid) continue;
+
+            logger.info("Order " + order.getID() + " is invalid");
+            order.setStatus("invalid");
+
+            engine.updateOrder(account, order);
+        }
     }
 }
