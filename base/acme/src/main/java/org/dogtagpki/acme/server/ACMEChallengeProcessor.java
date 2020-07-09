@@ -48,34 +48,23 @@ public class ACMEChallengeProcessor implements Runnable {
 
     public void processChallenge() throws Exception {
 
-        String authzID = authorization.getID();
         String challengeID = challenge.getID();
-
         logger.info("Processing challenge " + challengeID);
-
-        ACMEEngine engine = ACMEEngine.getInstance();
 
         try {
             validator.validateChallenge(authorization, challenge);
+            finalizeValidAuthorization();
 
         } catch (Exception e) {
-
-            // RFC 8555 Section 8.2: Retrying Challenges
-            //
-            // The server MUST provide information about its retry state to the
-            // client via the "error" field in the challenge and the Retry-After
-            // HTTP header field in response to requests to the challenge resource.
-            // The server MUST add an entry to the "error" field in the challenge
-            // after each failed validation query.  The server SHOULD set the Retry-
-            // After header field to a time after the server's next validation
-            // query, since the status of the challenge will not change until that
-            // time.
-
-            logger.info("Challenge " + challengeID + " is invalid");
-            challenge.setStatus("invalid");
-            engine.updateAuthorization(account, authorization);
-            throw e;
+            finalizeInvalidAuthorization(e);
         }
+    }
+
+    public void finalizeValidAuthorization() throws Exception {
+
+        ACMEEngine engine = ACMEEngine.getInstance();
+        String authzID = authorization.getID();
+        String challengeID = challenge.getID();
 
         logger.info("Challenge " + challengeID + " is valid");
         challenge.setStatus("valid");
@@ -86,7 +75,8 @@ public class ACMEChallengeProcessor implements Runnable {
 
         engine.updateAuthorization(account, authorization);
 
-        logger.info("Checking associated pending orders for validity");
+        logger.info("Updating pending orders");
+
         Collection<ACMEOrder> orders =
             engine.getOrdersByAuthorizationAndStatus(account, authzID, "pending");
 
@@ -94,20 +84,43 @@ public class ACMEChallengeProcessor implements Runnable {
             boolean allAuthorizationsValid = true;
 
             for (String orderAuthzID : order.getAuthzIDs()) {
+
                 ACMEAuthorization authz = engine.getAuthorization(account, orderAuthzID);
-                if (!authz.getStatus().equals("valid")) {
-                    allAuthorizationsValid = false;
-                    break;
-                }
+                if (authz.getStatus().equals("valid")) continue;
+
+                allAuthorizationsValid = false;
+                break;
             }
 
-            if (allAuthorizationsValid) {
-                logger.info("Order " + order.getID() + " is ready");
-                order.setStatus("ready");
-                engine.updateOrder(account, order);
-            } else {
-                logger.info("Order " + order.getID() + " is not ready");
-            }
+            if (!allAuthorizationsValid) continue;
+
+            logger.info("Order " + order.getID() + " is ready");
+            order.setStatus("ready");
+
+            engine.updateOrder(account, order);
         }
+    }
+
+    public void finalizeInvalidAuthorization(Exception e) throws Exception {
+
+        ACMEEngine engine = ACMEEngine.getInstance();
+        String authzID = authorization.getID();
+        String challengeID = challenge.getID();
+
+        // RFC 8555 Section 8.2: Retrying Challenges
+        //
+        // The server MUST provide information about its retry state to the
+        // client via the "error" field in the challenge and the Retry-After
+        // HTTP header field in response to requests to the challenge resource.
+        // The server MUST add an entry to the "error" field in the challenge
+        // after each failed validation query.  The server SHOULD set the Retry-
+        // After header field to a time after the server's next validation
+        // query, since the status of the challenge will not change until that
+        // time.
+
+        logger.info("Challenge " + challengeID + " is invalid");
+        challenge.setStatus("invalid");
+
+        engine.updateAuthorization(account, authorization);
     }
 }
