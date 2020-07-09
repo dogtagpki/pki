@@ -50,7 +50,10 @@ cert_client = CertClient(connection)
 def run_test(cert_sn, number_of_tests_per_thread):
     # execute the specified number of tests
     for sn in range(number_of_tests_per_thread):
+        start = timer()
         revoke_data = cert_client.revoke_cert(cert_sn[sn], revocation_reason='Key_Compromise')
+        end = timer()
+        revocation_times.append(int(end - start))
         if revoke_data.operation_result != 'success':
             raise Exception("Cert enrollment failed : {}".format(revoke_data.request_id))
 
@@ -69,6 +72,7 @@ if __name__ == "__main__":
 
     # create the specified number of threads
     threads = []
+    revocation_times = []
 
     start = timer()
     for nth in range(number_of_threads):
@@ -81,8 +85,15 @@ if __name__ == "__main__":
         t.join()
     end = timer()
 
+    with open("revocation_times.json", "w") as cf:
+        json.dump(revocation_times, cf)
+
     T = int(end - start)
     N = number_of_threads * number_of_tests_per_thread
+
     log.info("Number of certs Revoked (N)={}".format(N))
+    log.info("Minimum execution time (T)={}".format(min(revocation_times)))
+    log.info("Maximum execution time (T)={}".format(max(revocation_times)))
+    log.info("Average execution time (T)={}".format(sum(revocation_times)/len(revocation_times))
     log.info("Test execution time (T)={}".format(T))
     log.info("Throughput (V = N/T)={}".format(N / T))
