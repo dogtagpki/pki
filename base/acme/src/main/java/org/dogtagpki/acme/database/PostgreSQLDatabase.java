@@ -224,21 +224,23 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
         connect();
 
-        Collection<ACMENonce> nonces = getExpiredNonces(currentTime);
+        logger.info("Getting expired nonces");
 
-        for (ACMENonce nonce : nonces) {
-            removeNonce(nonce.getValue());
+        Collection<String> values = getExpiredNonces(currentTime);
+
+        logger.info("Removing expired nonces");
+
+        for (String value : values) {
+            removeNonce(value);
         }
     }
 
-    public Collection<ACMENonce> getExpiredNonces(Date currentTime) throws Exception {
-
-        logger.info("Getting expired nonces at " + currentTime);
+    public Collection<String> getExpiredNonces(Date currentTime) throws Exception {
 
         String sql = statements.getProperty("getExpiredNonces");
         logger.info("SQL: " + sql);
 
-        Collection<ACMENonce> nonces = new ArrayList<>();
+        Collection<String> nonces = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setTimestamp(1, new Timestamp(currentTime.getTime()));
@@ -246,16 +248,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             try (ResultSet rs = ps.executeQuery()) {
 
                 while (rs.next()) {
-
-                    ACMENonce nonce = new ACMENonce();
-
                     String value = rs.getString("value");
-                    nonce.setValue(value);
-
-                    Timestamp expires = rs.getTimestamp("expires");
-                    nonce.setExpirationTime(new Date(expires.getTime()));
-
-                    nonces.add(nonce);
+                    nonces.add(value);
                 }
             }
         }
