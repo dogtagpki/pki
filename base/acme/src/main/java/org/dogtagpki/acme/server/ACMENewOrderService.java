@@ -7,6 +7,7 @@ package org.dogtagpki.acme.server;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -24,7 +25,6 @@ import org.dogtagpki.acme.ACMEHeader;
 import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
-import org.dogtagpki.acme.ACMEPolicy;
 import org.dogtagpki.acme.JWS;
 
 /**
@@ -120,12 +120,27 @@ public class ACMENewOrderService {
 
         ACMEOrder order = new ACMEOrder();
         order.setID(orderID);
-        order.setStatus("pending");
         order.setIdentifiers(request.getIdentifiers());
         order.setNotBefore(request.getNotBefore());
         order.setNotAfter(request.getNotAfter());
 
         order.setAuthzIDs(authzIDs.toArray(new String[authzIDs.size()]));
+
+        // RFC 8555 Section 7.1.3: Order Objects
+        //
+        // expires (optional, string):  The timestamp after which the server
+        //    will consider this order invalid, encoded in the format specified
+        //    in [RFC3339].  This field is REQUIRED for objects with "pending"
+        //    or "valid" in the status field.
+
+        // set pending order to expire in 30 minutes
+        // TODO: make it configurable
+
+        long currentTime = System.currentTimeMillis();
+        Date expirationTime = new Date(currentTime + 30 * 60 * 1000);
+
+        order.setStatus("pending");
+        order.setExpirationTime(expirationTime);
 
         engine.addOrder(account, order);
 

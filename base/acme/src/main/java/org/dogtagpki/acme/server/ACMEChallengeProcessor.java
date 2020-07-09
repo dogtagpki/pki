@@ -124,6 +124,7 @@ public class ACMEChallengeProcessor implements Runnable {
 
             logger.info("Order " + order.getID() + " is ready");
             order.setStatus("ready");
+            order.setExpirationTime(null);
 
             engine.updateOrder(account, order);
         }
@@ -197,6 +198,7 @@ public class ACMEChallengeProcessor implements Runnable {
 
             logger.info("Order " + order.getID() + " is invalid");
             order.setStatus("invalid");
+            order.setExpirationTime(null);
 
             engine.updateOrder(account, order);
         }

@@ -363,10 +363,16 @@ public class LDAPDatabase extends ACMEDatabase {
             new LDAPAttribute(ATTR_ORDER_ID, order.getID()),
             new LDAPAttribute(ATTR_ACCOUNT_ID, order.getAccountID()),
             new LDAPAttribute(ATTR_STATUS, order.getStatus()),
-            new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(order.getExpirationTime())),
             new LDAPAttribute(ATTR_AUTHORIZATION_ID, order.getAuthzIDs())
         };
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
+
+        Date expirationTime = order.getExpirationTime();
+        if (expirationTime != null) {
+            attrSet.add(
+                new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(expirationTime))
+            );
+        }
 
         // identifiers
         ACMEIdentifier[] identifiers = order.getIdentifiers();
@@ -411,6 +417,18 @@ public class LDAPDatabase extends ACMEDatabase {
             attrError = new LDAPAttribute(ATTR_ERROR, error);
         }
         mods.add(LDAPModification.REPLACE, attrError);
+
+        // update expiration time
+        Date expirationTime = order.getExpirationTime();
+        LDAPAttribute attrExpires;
+        if (expirationTime == null) {
+            // LDAP attribute with no value in REPLACE change causes
+            // attribute to be removed.
+            attrExpires = new LDAPAttribute(ATTR_EXPIRES);
+        } else {
+            attrExpires = new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(expirationTime));
+        }
+        mods.add(LDAPModification.REPLACE, attrExpires);
 
         ldapModify(dn, mods);
     }
