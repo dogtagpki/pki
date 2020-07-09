@@ -773,6 +773,28 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return authorization;
     }
 
+    public Collection<String> getExpiredAuthorizationIDs(Date currentTime) throws Exception {
+
+        String sql = statements.getProperty("getExpiredAuthorizationIDs");
+        logger.info("SQL: " + sql);
+
+        Collection<String> authzIDs = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setTimestamp(1, new Timestamp(currentTime.getTime()));
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    String authzID = rs.getString("id");
+                    authzIDs.add(authzID);
+                }
+            }
+        }
+
+        return authzIDs;
+    }
+
     public Collection<ACMEAuthorization> getRevocationAuthorizations(String accountID, Date time) throws Exception {
 
         logger.info("Getting authorizations for account " + accountID);
@@ -952,6 +974,36 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 ps.executeUpdate();
             }
+        }
+    }
+
+    public void removeAuthorization(String authzID) throws Exception {
+
+        removeAuthorizationChallenges(authzID);
+
+        logger.info("Removing authorization " + authzID);
+
+        String sql = statements.getProperty("removeAuthorization");
+        logger.info("SQL: " + sql);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, authzID);
+            ps.executeUpdate();
+        }
+    }
+
+    public void removeExpiredAuthorizations(Date currentTime) throws Exception {
+
+        connect();
+
+        logger.info("Getting expired authorization IDs");
+
+        Collection<String> authzIDs = getExpiredAuthorizationIDs(currentTime);
+
+        logger.info("Removing expired authorization");
+
+        for (String authzID : authzIDs) {
+            removeAuthorization(authzID);
         }
     }
 

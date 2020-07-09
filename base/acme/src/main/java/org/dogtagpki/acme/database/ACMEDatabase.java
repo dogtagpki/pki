@@ -113,6 +113,10 @@ public abstract class ACMEDatabase {
     public abstract void addAuthorization(ACMEAuthorization authorization) throws Exception;
     public abstract void updateAuthorization(ACMEAuthorization authorization) throws Exception;
 
+    public void removeExpiredAuthorizations(Date currentTime) throws Exception {
+        throw new NotImplementedException();
+    }
+
     public X509Certificate getCertificate(String certID) throws Exception {
         throw new NotImplementedException();
     }
