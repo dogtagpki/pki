@@ -362,7 +362,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.executeUpdate();
         }
 
-        deleteAccountContacts(account);
+        removeAccountContacts(accountID);
         addAccountContacts(account);
     }
 
@@ -389,12 +389,11 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
-    public void deleteAccountContacts(ACMEAccount account) throws Exception {
+    public void removeAccountContacts(String accountID) throws Exception {
 
-        String accountID = account.getID();
-        logger.info("Deleting contacts for account " + accountID);
+        logger.info("Removing contacts for account " + accountID);
 
-        String sql = statements.getProperty("deleteAccountContacts");
+        String sql = statements.getProperty("removeAccountContacts");
         logger.info("SQL: " + sql);
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -1001,7 +1000,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
     public void removeCertificate(String certID) throws Exception {
 
-        logger.info("Deleting certificate " + certID);
+        logger.info("Removing certificate " + certID);
 
         String sql = statements.getProperty("removeCertificate");
         logger.info("SQL: " + sql);
@@ -1009,9 +1008,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         connect();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
             ps.setString(1, certID);
-
             ps.executeUpdate();
         }
     }
