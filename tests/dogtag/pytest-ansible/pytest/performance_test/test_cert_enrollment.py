@@ -91,7 +91,10 @@ class cert_enroll(object):
 def run_test(sn_uid, number_of_tests_per_thread):
     # execute the specified number of tests sequentially
     for i in range(number_of_tests_per_thread):
+        start = timer()
         serial_num = cert_enroll(sn_uid)
+        end = timer()
+        issuance_times.append(int(start - end))
         cert_list.append(serial_num.cert_serial_number)
     # call cert_enroll(sn_uid)
 
@@ -104,6 +107,7 @@ if __name__ == "__main__":
     # create the specified number of threads
     threads = []
     cert_list = []
+    issuance_times = []
     start = timer()
     for t in range(number_of_threads):
         t1 = threading.Thread(target=run_test, args=("testuser{}".format(t), number_of_tests_per_thread))
@@ -115,13 +119,19 @@ if __name__ == "__main__":
         t.join()
     end = timer()
 
-    cf = open("cert_file.txt", "w+")
-    json.dump(cert_list, cf)
-    cf.close()
+    with open("cert_file.txt", "w+") as cf:
+        json.dump(cert_list, cf)
+
+    with open("issuance_times.json", "w") as cf:
+        json.dump(issuance_times, cf)
 
     # Below part is for reporting purpose to calculate Throughput
     T = int(end - start)
     N = number_of_threads * number_of_tests_per_thread
+
     log.info("Number of certs enrolled (N)={}".format(N))
+    log.info("Minimum execution time (T)={}".format(min(issuance_times)))
+    log.info("Maximum execution time (T)={}".format(max(issuance_times)))
+    log.info("Average execution time (T)={}".format(sum(issuance_times)/len(issuance_times))
     log.info("Test execution time (T)={}".format(T))
     log.info("Throughput (V = N/T)={}".format(N / T))
