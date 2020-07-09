@@ -103,6 +103,11 @@ public class InMemoryDatabase extends ACMEDatabase {
         orders.put(order.getID(), order);
     }
 
+    public void removeExpiredOrders(Date currentTime) throws Exception {
+        orders.values().removeIf(
+                n -> n.getExpirationTime() != null && !currentTime.before(n.getExpirationTime()));
+    }
+
     public ACMEAuthorization getAuthorization(String authzID) throws Exception {
         return authorizations.get(authzID);
     }
