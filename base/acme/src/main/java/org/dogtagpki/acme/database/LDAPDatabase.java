@@ -545,10 +545,14 @@ public class LDAPDatabase extends ACMEDatabase {
             new LDAPAttribute(ATTR_AUTHORIZATION_ID, authorization.getID()),
             new LDAPAttribute(ATTR_ACCOUNT_ID, authorization.getAccountID()),
             new LDAPAttribute(ATTR_STATUS, authorization.getStatus()),
-            new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(authorization.getExpirationTime())),
             new LDAPAttribute(ATTR_IDENTIFIER + ";" + identifier.getType(), identifier.getValue())
         };
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
+
+        Date expirationTime = authorization.getExpirationTime();
+        if (expirationTime != null) {
+            attrSet.add(new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(expirationTime)));
+        }
 
         Boolean wildcard = authorization.getWildcard();
         String wildcardValue = wildcard != null && wildcard == true ? "TRUE" : "FALSE";
@@ -597,6 +601,19 @@ public class LDAPDatabase extends ACMEDatabase {
             LDAPModification.REPLACE,
             new LDAPAttribute(ATTR_STATUS, authorization.getStatus())
         );
+
+        // update expiration time
+        Date expirationTime = authorization.getExpirationTime();
+        LDAPAttribute attrExpires;
+        if (expirationTime == null) {
+            // LDAP attribute with no value in REPLACE change causes
+            // attribute to be removed.
+            attrExpires = new LDAPAttribute(ATTR_EXPIRES);
+        } else {
+            attrExpires = new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(expirationTime));
+        }
+        mods.add(LDAPModification.REPLACE, attrExpires);
+
         ldapModify(dn, mods);
 
         // Delete and re-add challenge objects.  First reload this
