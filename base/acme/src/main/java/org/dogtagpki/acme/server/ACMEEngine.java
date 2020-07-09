@@ -666,17 +666,7 @@ public class ACMEEngine implements ServletContextListener {
     }
 
     public void addOrder(ACMEAccount account, ACMEOrder order) throws Exception {
-
         order.setAccountID(account.getID());
-
-        // set order to expire in 30 minutes
-        // TODO: make it configurable
-
-        long currentTime = System.currentTimeMillis();
-        Date expirationTime = new Date(currentTime + 30 * 60 * 1000);
-
-        order.setExpirationTime(expirationTime);
-
         database.addOrder(order);
     }
 

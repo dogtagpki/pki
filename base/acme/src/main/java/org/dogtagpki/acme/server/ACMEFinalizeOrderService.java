@@ -6,6 +6,7 @@
 package org.dogtagpki.acme.server;
 
 import java.net.URI;
+import java.util.Date;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -69,6 +70,8 @@ public class ACMEFinalizeOrderService {
         }
 
         order.setStatus("processing");
+        order.setExpirationTime(null);
+
         engine.updateOrder(account, order);
 
         ACMEOrder request = ACMEOrder.fromJSON(payload);
@@ -85,8 +88,23 @@ public class ACMEFinalizeOrderService {
         String certID = issuer.issueCertificate(pkcs10);
         logger.info("Certificate issued: " + certID);
 
-        order.setStatus("valid");
         order.setCertID(certID);
+
+        // RFC 8555 Section 7.1.3: Order Objects
+        //
+        // expires (optional, string):  The timestamp after which the server
+        //    will consider this order invalid, encoded in the format specified
+        //    in [RFC3339].  This field is REQUIRED for objects with "pending"
+        //    or "valid" in the status field.
+
+        // set valid order to expire in 30 minutes
+        // TODO: make it configurable
+
+        long currentTime = System.currentTimeMillis();
+        Date expirationTime = new Date(currentTime + 30 * 60 * 1000);
+
+        order.setStatus("valid");
+        order.setExpirationTime(expirationTime);
 
         engine.updateOrder(account, order);
 

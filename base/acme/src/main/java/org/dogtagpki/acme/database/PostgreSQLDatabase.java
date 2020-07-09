@@ -603,7 +603,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.setString(3, order.getStatus());
 
             Date expirationTime = order.getExpirationTime();
-            ps.setTimestamp(4, new Timestamp(expirationTime.getTime()));
+            ps.setTimestamp(4, expirationTime == null ? null : new Timestamp(expirationTime.getTime()));
 
             Date notBefore = order.getNotBeforeTime();
             ps.setTimestamp(5, notBefore == null ? null : new Timestamp(notBefore.getTime()));
@@ -681,7 +681,11 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
             ps.setString(1, order.getStatus());
             ps.setString(2, order.getCertID());
-            ps.setString(3, orderID);
+
+            Date expirationTime = order.getExpirationTime();
+            ps.setTimestamp(3, expirationTime == null ? null : new Timestamp(expirationTime.getTime()));
+
+            ps.setString(4, orderID);
 
             ps.executeUpdate();
         }
