@@ -433,6 +433,18 @@ public class LDAPDatabase extends ACMEDatabase {
         ldapModify(dn, mods);
     }
 
+    public void removeExpiredOrders(Date currentTime) throws Exception {
+        String[] attrs = {"1.1"};  // suppress attrs for performance; we only need DN
+        List<LDAPEntry> entries = ldapSearch(
+            RDN_ORDER + "," + basedn,
+            "(" + ATTR_EXPIRES + "<=" + dateFormat.format(currentTime) + ")",
+            attrs
+        );
+        for (LDAPEntry entry : entries) {
+            ldapDelete(entry.getDN(), OnNoSuchObject.Ignore);
+        }
+    }
+
     public ACMEAuthorization getAuthorization(String authzID) throws Exception {
         return getAuthorization(authzID, LoadChallenges.DoLoad);
     }

@@ -71,6 +71,10 @@ public abstract class ACMEDatabase {
     public abstract void addOrder(ACMEOrder order) throws Exception;
     public abstract void updateOrder(ACMEOrder order) throws Exception;
 
+    public void removeExpiredOrders(Date currentTime) throws Exception {
+        throw new NotImplementedException();
+    }
+
     public abstract ACMEAuthorization getAuthorization(String authzID) throws Exception;
     public abstract ACMEAuthorization getAuthorizationByChallenge(String challengeID) throws Exception;
 

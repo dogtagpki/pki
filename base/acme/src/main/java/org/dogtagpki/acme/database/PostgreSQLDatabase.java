@@ -530,6 +530,28 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return order;
     }
 
+    public Collection<String> getExpiredOrderIDs(Date currentTime) throws Exception {
+
+        String sql = statements.getProperty("getExpiredOrderIDs");
+        logger.info("SQL: " + sql);
+
+        Collection<String> orderIDs = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setTimestamp(1, new Timestamp(currentTime.getTime()));
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    String orderID = rs.getString("id");
+                    orderIDs.add(orderID);
+                }
+            }
+        }
+
+        return orderIDs;
+    }
+
     public void getOrderIdentifiers(ACMEOrder order) throws Exception {
 
         String orderID = order.getID();
@@ -644,6 +666,19 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    public void removeOrderIdentifiers(String orderID) throws Exception {
+
+        logger.info("Removing identifiers for order " + orderID);
+
+        String sql = statements.getProperty("removeOrderIdentifiers");
+        logger.info("SQL: " + sql);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, orderID);
+            ps.executeUpdate();
+        }
+    }
+
     public void addOrderAuthorizations(ACMEOrder order) throws Exception {
 
         String[] authzIDs = order.getAuthzIDs();
@@ -664,6 +699,19 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 ps.executeUpdate();
             }
+        }
+    }
+
+    public void removeOrderAuthorizations(String orderID) throws Exception {
+
+        logger.info("Removing authorizations for order " + orderID);
+
+        String sql = statements.getProperty("removeOrderAuthorizations");
+        logger.info("SQL: " + sql);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, orderID);
+            ps.executeUpdate();
         }
     }
 
@@ -688,6 +736,37 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.setString(4, orderID);
 
             ps.executeUpdate();
+        }
+    }
+
+    public void removeOrder(String orderID) throws Exception {
+
+        removeOrderIdentifiers(orderID);
+        removeOrderAuthorizations(orderID);
+
+        logger.info("Removing order " + orderID);
+
+        String sql = statements.getProperty("removeOrder");
+        logger.info("SQL: " + sql);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, orderID);
+            ps.executeUpdate();
+        }
+    }
+
+    public void removeExpiredOrders(Date currentTime) throws Exception {
+
+        connect();
+
+        logger.info("Getting expired order IDs");
+
+        Collection<String> orderIDs = getExpiredOrderIDs(currentTime);
+
+        logger.info("Removing expired orders");
+
+        for (String orderID : orderIDs) {
+            removeOrder(orderID);
         }
     }
 
