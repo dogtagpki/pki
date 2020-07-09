@@ -13,8 +13,8 @@ License:          GPLv2 and LGPLv2
 # For development (unsupported) releases, use x.y.z-0.n.unstable with alpha/beta phase.
 # For official (supported) releases, use x.y.z-r where r >=1 without alpha/beta phase.
 Version:          10.9.0
-Release:          0.5.unstable%{?_timestamp}%{?_commit_id}%{?dist}
-%global           _phase -b3
+Release:          0.6.unstable%{?_timestamp}%{?_commit_id}%{?dist}
+%global           _phase -b4
 
 # To create a tarball from a version tag:
 # $ git archive \
