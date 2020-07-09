@@ -70,6 +70,11 @@ public class ACMEChallengeProcessor implements Runnable {
         challenge.setStatus("valid");
         challenge.setValidationTime(new Date());
 
+        // RFC 8555 Section 7.1.6: Status Changes
+        //
+        // If one of the challenges listed in the authorization transitions to the
+        // "valid" state, then the authorization also changes to the "valid" state.
+
         logger.info("Authorization " + authzID + " is valid");
         authorization.setStatus("valid");
 
@@ -120,6 +125,15 @@ public class ACMEChallengeProcessor implements Runnable {
 
         logger.info("Challenge " + challengeID + " is invalid");
         challenge.setStatus("invalid");
+
+        // RFC 8555 Section 7.1.6: Status Changes
+        //
+        // If the client attempts to fulfill a challenge and fails, or if there
+        // is an error while the authorization is still pending, then the
+        // authorization transitions to the "invalid" state.
+
+        logger.info("Authorization " + authzID + " is invalid");
+        authorization.setStatus("invalid");
 
         engine.updateAuthorization(account, authorization);
     }
