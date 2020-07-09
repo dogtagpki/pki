@@ -907,22 +907,19 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.executeUpdate();
         }
 
-        deleteAuthorizationChallenges(authorization);
+        removeAuthorizationChallenges(authzID);
         addAuthorizationChallenges(authorization);
     }
 
-    public void deleteAuthorizationChallenges(ACMEAuthorization authorization) throws Exception {
+    public void removeAuthorizationChallenges(String authzID) throws Exception {
 
-        String authzID = authorization.getID();
-        logger.info("Deleting challenges for authorization " + authzID);
+        logger.info("Removing challenges for authorization " + authzID);
 
-        String sql = statements.getProperty("deleteAuthorizationChallenges");
+        String sql = statements.getProperty("removeAuthorizationChallenges");
         logger.info("SQL: " + sql);
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
             ps.setString(1, authzID);
-
             ps.executeUpdate();
         }
     }
