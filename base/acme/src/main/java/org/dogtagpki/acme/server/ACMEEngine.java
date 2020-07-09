@@ -624,17 +624,7 @@ public class ACMEEngine implements ServletContextListener {
     }
 
     public void addAuthorization(ACMEAccount account, ACMEAuthorization authorization) throws Exception {
-
         authorization.setAccountID(account.getID());
-
-        // set authorizations to expire in 30 minutes
-        // TODO: make it configurable
-
-        long currentTime = System.currentTimeMillis();
-        Date expirationTime = new Date(currentTime + 30 * 60 * 1000);
-
-        authorization.setExpirationTime(expirationTime);
-
         database.addAuthorization(authorization);
     }
 

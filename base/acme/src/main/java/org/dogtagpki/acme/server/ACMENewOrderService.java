@@ -104,9 +104,11 @@ public class ACMENewOrderService {
 
             ACMEAuthorization authorization = new ACMEAuthorization();
             authorization.setID(authzID);
-            authorization.setStatus("pending");
             authorization.setIdentifier(identifier);
             authorization.setWildcard(wildcard);
+
+            authorization.setStatus("pending");
+            authorization.setExpirationTime(null);
 
             engine.addAuthorization(account, authorization);
 

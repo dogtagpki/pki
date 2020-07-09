@@ -868,7 +868,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.setString(3, authorization.getStatus());
 
             Date expirationTime = authorization.getExpirationTime();
-            ps.setTimestamp(4, new Timestamp(expirationTime.getTime()));
+            ps.setTimestamp(4, expirationTime == null ? null : new Timestamp(expirationTime.getTime()));
 
             ACMEIdentifier identifier = authorization.getIdentifier();
             ps.setString(5, identifier.getType());
@@ -896,7 +896,11 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, authorization.getStatus());
-            ps.setString(2, authzID);
+
+            Date expirationTime = authorization.getExpirationTime();
+            ps.setTimestamp(2, expirationTime == null ? null : new Timestamp(expirationTime.getTime()));
+
+            ps.setString(3, authzID);
 
             ps.executeUpdate();
         }
