@@ -20,6 +20,7 @@ import pki.server.instance
 # TODO: auto-populate this map from /usr/share/pki/acme/database
 DATABASE_CLASSES = {
     'in-memory': 'org.dogtagpki.acme.database.InMemoryDatabase',
+    'ldap': 'org.dogtagpki.acme.database.LDAPDatabase',
     'postgresql': 'org.dogtagpki.acme.database.PostgreSQLDatabase'
 }
 
@@ -600,7 +601,49 @@ class ACMEDatabaseShowCLI(pki.cli.CLI):
         database_type = DATABASE_TYPES.get(database_class)
         print('  Database Type: %s' % database_type)
 
-        if database_type == 'postgresql':
+        if database_type == 'ldap':
+
+            hostname = config.get('internaldb.ldapconn.host')
+            if hostname:
+                print('  Hostname: %s' % hostname)
+
+            port = config.get('internaldb.ldapconn.port')
+            if port:
+                print('  Port: %s' % port)
+
+            secure_connection = config.get('internaldb.ldapconn.secureConn')
+            if secure_connection:
+                print('  Secure Connection: %s' % secure_connection)
+
+            auth_type = config.get('internaldb.ldapauth.authtype')
+            if auth_type:
+                print('  Authentication Type: %s' % auth_type)
+
+            if auth_type == 'BasicAuth':
+
+                bind_dn = config.get('internaldb.ldapauth.bindDN')
+                if bind_dn:
+                    print('  Bind DN: %s' % bind_dn)
+
+                password_name = config.get('internaldb.ldapauth.bindPWPrompt')
+                if password_name:
+                    print('  Password Name: %s' % password_name)
+
+                password = config.get('password.%s' % password_name)
+                if password:
+                    print('  Password for %s: ********' % password_name)
+
+            elif auth_type == 'SslClientAuth':
+
+                nickname = config.get('internaldb.ldapauth.clientCertNickname')
+                if nickname:
+                    print('  Client Certificate: %s' % nickname)
+
+            base_dn = config.get('basedn')
+            if base_dn:
+                print('  Base DN: %s' % base_dn)
+
+        elif database_type == 'postgresql':
 
             url = config.get('url')
             if url:
