@@ -524,21 +524,17 @@ public class LDAPDatabase extends ACMEDatabase {
         return challenge;
     }
 
-    /** Get the authorization for the given challenge.
-     * NOTE: we do not load all challenges for the authorization,
-     * only the challenge with the given challengeID.
+    /**
+     * Get the authorization for the given challenge.
      */
     public ACMEAuthorization getAuthorizationByChallenge(String challengeID) throws Exception {
         ACMEChallenge challenge = getChallenge(challengeID);
         if (challenge == null) return null;
 
-        ACMEAuthorization authz = getAuthorization(challenge.getAuthzID(), LoadChallenges.DontLoad);
-        if (authz == null) return null;
-
-        List<ACMEChallenge> l = new ArrayList<>(1);
-        l.add(challenge);
-        authz.setChallenges(l);
-        return authz;
+        // Load all challenges for the authorization such that
+        // other challenges do not unintentionally get deleted
+        // when the authorization is updated.
+        return getAuthorization(challenge.getAuthzID());
     }
 
     public void addAuthorization(ACMEAuthorization authorization) throws Exception {
