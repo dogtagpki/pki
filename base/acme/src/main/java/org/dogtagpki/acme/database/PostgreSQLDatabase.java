@@ -422,7 +422,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 order.setStatus(rs.getString("status"));
 
                 Timestamp expires = rs.getTimestamp("expires");
-                order.setExpirationTime(new Date(expires.getTime()));
+                order.setExpirationTime(expires == null ? null : new Date(expires.getTime()));
 
                 Timestamp notBefore = rs.getTimestamp("not_before");
                 order.setNotBeforeTime(notBefore == null ? null : new Date(notBefore.getTime()));
@@ -464,7 +464,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                     order.setStatus(rs.getString("status"));
 
                     Timestamp expires = rs.getTimestamp("expires");
-                    order.setExpirationTime(new Date(expires.getTime()));
+                    order.setExpirationTime(expires == null ? null : new Date(expires.getTime()));
 
                     Timestamp notBefore = rs.getTimestamp("not_before");
                     order.setNotBeforeTime(notBefore == null ? null : new Date(notBefore.getTime()));
@@ -512,7 +512,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 order.setStatus(rs.getString("status"));
 
                 Timestamp expires = rs.getTimestamp("expires");
-                order.setExpirationTime(new Date(expires.getTime()));
+                order.setExpirationTime(expires == null ? null : new Date(expires.getTime()));
 
                 Timestamp notBefore = rs.getTimestamp("not_before");
                 order.setNotBeforeTime(notBefore == null ? null : new Date(notBefore.getTime()));

@@ -18,7 +18,7 @@ CREATE TABLE "orders" (
     "id"               VARCHAR PRIMARY KEY,
     "account_id"       VARCHAR NOT NULL,
     "status"           VARCHAR NOT NULL,
-    "expires"          TIMESTAMP NOT NULL,
+    "expires"          TIMESTAMP,
     "not_before"       TIMESTAMP,
     "not_after"        TIMESTAMP,
     "cert_id"          VARCHAR
