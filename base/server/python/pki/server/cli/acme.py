@@ -28,6 +28,7 @@ DATABASE_TYPES = {value: key for key, value in DATABASE_CLASSES.items()}
 
 # TODO: auto-populate this map from /usr/share/pki/acme/issuer
 ISSUER_CLASSES = {
+    'nss': 'org.dogtagpki.acme.issuer.NSSIssuer',
     'pki': 'org.dogtagpki.acme.issuer.PKIIssuer'
 }
 
@@ -921,7 +922,17 @@ class ACMEIssuerShowCLI(pki.cli.CLI):
         issuer_type = ISSUER_TYPES.get(issuer_class)
         print('  Issuer Type: %s' % issuer_type)
 
-        if issuer_type == 'pki':
+        if issuer_type == 'nss':
+
+            nickname = config.get('nickname')
+            if nickname:
+                print('  Signing Certificate: %s' % nickname)
+
+            extensions = config.get('extensions')
+            if extensions:
+                print('  Certificate Extensions: %s' % extensions)
+
+        elif issuer_type == 'pki':
 
             url = config.get('url')
             if url:
