@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.acme.server;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
@@ -70,6 +71,15 @@ public class ACMEChallengeProcessor implements Runnable {
         challenge.setStatus("valid");
         challenge.setValidationTime(new Date());
 
+        // RFC 8555 Section 7.5.1: Responding to Challenges
+        //
+        // When finalizing an authorization, the server MAY remove challenges other
+        // than the one that was completed, and it may modify the "expires" field.
+
+        Collection<ACMEChallenge> challenges = new ArrayList<>();
+        challenges.add(challenge);
+        authorization.setChallenges(challenges);
+
         // RFC 8555 Section 7.1.6: Status Changes
         //
         // If one of the challenges listed in the authorization transitions to the
@@ -125,6 +135,15 @@ public class ACMEChallengeProcessor implements Runnable {
 
         logger.info("Challenge " + challengeID + " is invalid");
         challenge.setStatus("invalid");
+
+        // RFC 8555 Section 7.5.1: Responding to Challenges
+        //
+        // When finalizing an authorization, the server MAY remove challenges other
+        // than the one that was completed, and it may modify the "expires" field.
+
+        Collection<ACMEChallenge> challenges = new ArrayList<>();
+        challenges.add(challenge);
+        authorization.setChallenges(challenges);
 
         // RFC 8555 Section 7.1.6: Status Changes
         //
