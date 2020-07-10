@@ -39,7 +39,7 @@ CREATE TABLE "authorizations" (
     "id"               VARCHAR PRIMARY KEY,
     "account_id"       VARCHAR NOT NULL,
     "status"           VARCHAR NOT NULL,
-    "expires"          TIMESTAMP NOT NULL,
+    "expires"          TIMESTAMP,
     "identifier_type"  VARCHAR NOT NULL,
     "identifier_value" VARCHAR NOT NULL,
     "wildcard"         BOOLEAN NOT NULL

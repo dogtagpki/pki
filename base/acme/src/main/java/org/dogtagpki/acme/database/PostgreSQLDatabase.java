@@ -711,7 +711,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 authorization.setStatus(rs.getString("status"));
 
                 Timestamp expires = rs.getTimestamp("expires");
-                authorization.setExpirationTime(new Date(expires.getTime()));
+                authorization.setExpirationTime(expires == null ? null : new Date(expires.getTime()));
 
                 ACMEIdentifier identifier = new ACMEIdentifier();
                 identifier.setType(rs.getString("identifier_type"));
@@ -752,7 +752,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 authorization.setStatus(rs.getString("status"));
 
                 Timestamp expires = rs.getTimestamp("expires");
-                authorization.setExpirationTime(new Date(expires.getTime()));
+                authorization.setExpirationTime(expires == null ? null : new Date(expires.getTime()));
 
                 ACMEIdentifier identifier = new ACMEIdentifier();
                 identifier.setType(rs.getString("identifier_type"));
@@ -794,7 +794,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                     authorization.setStatus(rs.getString("status"));
 
                     Timestamp expires = rs.getTimestamp("expires");
-                    authorization.setExpirationTime(new Date(expires.getTime()));
+                    authorization.setExpirationTime(expires == null ? null : new Date(expires.getTime()));
 
                     ACMEIdentifier identifier = new ACMEIdentifier();
                     identifier.setType(rs.getString("identifier_type"));
