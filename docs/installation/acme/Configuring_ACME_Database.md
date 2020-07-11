@@ -60,8 +60,6 @@ internaldb.ldapauth.bindPWPrompt=internaldb
 internaldb.ldapconn.host=<hostname>
 internaldb.ldapconn.port=389
 internaldb.ldapconn.secureConn=false
-internaldb.maxConns=15
-internaldb.minConns=3
 password.internaldb=Secret.123
 ```
 
