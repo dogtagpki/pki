@@ -1029,7 +1029,9 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
         issuer_class = config.get('class')
 
         print()
-        print('Enter the type of the certificate issuer. Available types: pki.')
+        print(
+            'Enter the type of the certificate issuer. '
+            'Available types: %s.' % ', '.join(ISSUER_TYPES.values()))
         issuer_type = ISSUER_TYPES.get(issuer_class)
         issuer_type = pki.util.read_text(
             '  Issuer Type',
@@ -1038,7 +1040,21 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
             required=True)
         pki.util.set_property(config, 'class', ISSUER_CLASSES.get(issuer_type))
 
-        if issuer_type == 'pki':
+        if issuer_type == 'nss':
+
+            print()
+            print('Enter the nickname of the signing certificate.')
+            nickname = config.get('nickname')
+            nickname = pki.util.read_text('  Signing Certificate', default=nickname)
+            pki.util.set_property(config, 'nickname', nickname)
+
+            print()
+            print('Enter the certificate extension configuration.')
+            extensions = config.get('extensions')
+            extensions = pki.util.read_text('  Certificate Extensions', default=extensions)
+            pki.util.set_property(config, 'extensions', extensions)
+
+        elif issuer_type == 'pki':
 
             print()
             print('Enter the location of the PKI server.')
