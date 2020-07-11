@@ -728,7 +728,9 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
         database_class = config.get('class')
 
         print()
-        print('Enter the type of the database. Available types: in-memory, postgresql.')
+        print(
+            'Enter the type of the database. '
+            'Available types: %s.' % ', '.join(DATABASE_TYPES.values()))
         database_type = DATABASE_TYPES.get(database_class)
         database_type = pki.util.read_text(
             '  Database Type',
@@ -741,6 +743,82 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
             config.pop('url', None)
             config.pop('user', None)
             config.pop('password', None)
+
+        elif database_type == 'ldap':
+
+            print()
+            print('Enter the server hostname.')
+            hostname = config.get('internaldb.ldapconn.host')
+            hostname = pki.util.read_text('  Hostname', default=hostname, required=True)
+            pki.util.set_property(config, 'internaldb.ldapconn.host', hostname)
+
+            print()
+            print('Enter the server port.')
+            port = config.get('internaldb.ldapconn.port')
+            port = pki.util.read_text('  Port', default=port, required=True)
+            pki.util.set_property(config, 'internaldb.ldapconn.port', port)
+
+            print()
+            print('Enter true for secure connection, and false otherwise.')
+            secure_connection = config.get('internaldb.ldapconn.secureConn')
+            secure_connection = pki.util.read_text(
+                '  Secure Connection',
+                options=['true', 'false'],
+                default=secure_connection,
+                required=True)
+            pki.util.set_property(config, 'internaldb.ldapconn.secureConn', secure_connection)
+
+            print()
+            print('Enter the authentication type. Available types: BasicAuth, SslClientAuth.')
+            auth_type = config.get('internaldb.ldapauth.authtype')
+            auth_type = pki.util.read_text(
+                '  Authentication Type',
+                options=['BasicAuth', 'SslClientAuth'],
+                default=auth_type,
+                required=True)
+            pki.util.set_property(config, 'internaldb.ldapauth.authtype', auth_type)
+
+            if auth_type == 'BasicAuth':
+
+                print()
+                print('Enter the bind DN.')
+                bind_dn = config.get('internaldb.ldapauth.bindDN')
+                bind_dn = pki.util.read_text('  Bind DN', default=bind_dn, required=True)
+                pki.util.set_property(config, 'internaldb.ldapauth.bindDN', bind_dn)
+
+                print()
+                print('Enter the password name.')
+                password_name = config.get('internaldb.ldapauth.bindPWPrompt')
+                password_name = pki.util.read_text(
+                    '  Password Name', default=password_name, required=True)
+                pki.util.set_property(config, 'internaldb.ldapauth.bindPWPrompt', password_name)
+
+                print()
+                print('Enter the password for %s.' % password_name)
+                password = config.get('password.%s' % password_name)
+                password = pki.util.read_text(
+                    '  Password for %s' % password_name,
+                    default=password,
+                    password=True,
+                    required=True)
+                pki.util.set_property(config, 'password.%s' % password_name, password)
+
+            elif auth_type == 'SslClientAuth':
+
+                print()
+                print('Enter the client certificate.')
+                nickname = config.get('internaldb.ldapauth.clientCertNickname')
+                nickname = pki.util.read_text(
+                    '  Client Certificate',
+                    default=nickname,
+                    required=True)
+                pki.util.set_property(config, 'internaldb.ldapauth.clientCertNickname', nickname)
+
+            print()
+            print('Enter the base DN for the ACME subtree.')
+            base_dn = config.get('basedn')
+            base_dn = pki.util.read_text('  Base DN', default=base_dn, required=True)
+            pki.util.set_property(config, 'basedn', base_dn)
 
         elif database_type == 'postgresql':
 
