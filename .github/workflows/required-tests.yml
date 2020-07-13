@@ -108,8 +108,11 @@ jobs:
         - name: Clone the repository
           uses: actions/checkout@v2
 
+        - name: Build pki-test container image with systemd
+          run: docker build ci/ -t pki-fedora-${{ matrix.os }} --build-arg OS_VERSION=${{ matrix.os }}
+
         - name: Setup required test environment
-          run: IMAGE=fedora:${{ matrix.os }} ci/runner-init.sh
+          run: IMAGE=pki-fedora-${{ matrix.os }} ci/runner-init.sh
 
         - name: Download PKI binaries from Build job
           uses: actions/download-artifact@v1
@@ -205,8 +208,11 @@ jobs:
         - name: Clone the repository
           uses: actions/checkout@v2
 
+        - name: Build pki-test container image with systemd
+          run: docker build ci/ -t pki-fedora-${{ matrix.os }} --build-arg OS_VERSION=${{ matrix.os }}
+
         - name: Setup required test environment
-          run: IMAGE=fedora:${{ matrix.os }} ci/runner-init.sh
+          run: IMAGE=pki-fedora-${{ matrix.os }} ci/runner-init.sh
 
         - name: Download PKI binaries from Build job
           uses: actions/download-artifact@v1
