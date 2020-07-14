@@ -990,7 +990,11 @@ public class KeyClient extends Client {
         data.setKeyAlgorithm(keyAlgorithm);
         data.setKeySize(keySize);
         data.setUsages(usages);
-        data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey, false));
+        if (transWrappedSessionKey !=null) {
+            // Caller by default calls in with transWrappedSessionKey null;
+            // And the underlying Java code does not like null;
+            data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey, false));
+        }
         data.setRealm(realm);
 
         return submitRequest(data);
