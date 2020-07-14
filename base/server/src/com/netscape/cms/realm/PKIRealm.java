@@ -13,6 +13,8 @@ import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.authentication.ICertUserDBAuthentication;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.certsrv.authentication.EInvalidCredentials;
+import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.SessionContext;
@@ -73,9 +75,20 @@ public class PKIRealm extends RealmBase {
 
             return getPrincipal(username, authToken);
 
-        } catch (Exception e) {
+        } catch (EMissingCredential | EInvalidCredentials e) { // authentication failure
 
             logger.warn("Unable to authenticate user " + username + ": " + e.getMessage());
+
+            signedAuditLogger.log(AuthEvent.createFailureEvent(
+                        auditSubjectID,
+                        IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID,
+                        attemptedAuditUID));
+
+            return null;
+
+        } catch (Exception e) { // internal server error (e.g. LDAP exceptions)
+
+            logger.warn("Unable to authenticate user " + username + ": " + e.getMessage(), e);
 
             signedAuditLogger.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
@@ -132,9 +145,20 @@ public class PKIRealm extends RealmBase {
 
             return getPrincipal(username, authToken);
 
-        } catch (Exception e) {
+        } catch (EMissingCredential | EInvalidCredentials e) { // authentication failure
 
             logger.warn("Unable to authenticate cert chain: " + e.getMessage());
+
+            signedAuditLogger.log(AuthEvent.createFailureEvent(
+                    auditSubjectID,
+                    IAuthSubsystem.CERTUSERDB_AUTHMGR_ID,
+                    attemptedAuditUID));
+
+            return null;
+
+        } catch (Exception e) { // internal server error (e.g. LDAP exceptions)
+
+            logger.warn("Unable to authenticate cert chain: " + e.getMessage(), e);
 
             signedAuditLogger.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
