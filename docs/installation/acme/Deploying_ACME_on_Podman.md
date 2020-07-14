@@ -84,7 +84,7 @@ $ podman run \
     --pod acme \
     -e POSTGRES_USER=acme \
     -e POSTGRES_PASSWORD=Secret.123 \
-    -e POSTGRESQL_DATABASE=acme \
+    -e POSTGRES_DB=acme \
     -it \
     postgres
 ```
