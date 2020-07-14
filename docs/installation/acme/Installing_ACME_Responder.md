@@ -4,7 +4,7 @@ Installing ACME Responder
 ## Overview
 
 This document describes the process to install an ACME responder on a PKI server that already has a CA subsystem.
-It assumes that the CA was [installed](../Installing_CA.md) with the default instance name (i.e. pki-tomcat).
+It assumes that the CA was [installed](../ca/Installing_CA.md) with the default instance name (i.e. pki-tomcat).
 
 ## Installing ACME Responder
 
@@ -62,5 +62,5 @@ See also [pki-server-acme(8)](../../manuals/man8/pki-server-acme.8.md).
 
 ## See Also
 
-* [Installing CA](../Installing_CA.md)
+* [Installing CA](../ca/Installing_CA.md)
 * [Using ACME Responder](../../user/acme/Using_ACME_Responder.md)
