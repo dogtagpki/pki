@@ -50,7 +50,9 @@ public class MessageFormatInterceptor implements ContainerRequestFilter {
         logger.debug("MessageFormatInterceptor: " + clazz.getSimpleName() + "." + method.getName() + "()");
 
         MediaType contentType = requestContext.getMediaType();
-        logger.debug("MessageFormatInterceptor: content-type: " + contentType);
+        if (contentType != null) {
+            logger.debug("MessageFormatInterceptor: content-type: " + contentType);
+        }
 
         List<MediaType> acceptableFormats = requestContext.getAcceptableMediaTypes();
         logger.debug("MessageFormatInterceptor: accept: " + acceptableFormats);
