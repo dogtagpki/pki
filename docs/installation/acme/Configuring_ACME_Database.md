@@ -8,7 +8,9 @@ The database configuration is located at /etc/pki/pki-tomcat/acme/database.conf.
 
 ## Configuring In-Memory Database
 
-To configure an in-memory database, copy the sample [database.conf](../../../base/acme/database/in-memory/database.conf) with the following command:
+The ACME responder can be configured with an in-memory database.
+
+First, copy the sample [database.conf](../../../base/acme/database/in-memory/database.conf) with the following command:
 
 ```
 $ cp /usr/share/pki/acme/database/in-memory/database.conf \
@@ -25,7 +27,9 @@ There are no parameters to configure for in-memory database.
 
 ## Configuring LDAP Database
 
-First, add the ACME LDAP schema by importing the [schema.ldif](../../../base/acme/database/ldap/schema.ldif) with the following command:
+The ACME responder can be configured with an LDAP database.
+
+First, add the ACME LDAP schema by importing [/usr/share/pki/acme/database/ldap/schema.ldif](../../../base/acme/database/ldap/schema.ldif) with the following command:
 
 ```
 $ ldapmodify -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
@@ -73,7 +77,9 @@ basedn=dc=acme,dc=pki,dc=example,dc=com
 
 ## Configuring PosgreSQL Database
 
-Prepare a database (e.g. acme) and a user (e.g. acme) to access the database.
+The ACME responder can be configured with a PostgreSQL database.
+
+First, prepare a database (e.g. acme) and a user (e.g. acme) to access the database.
 Verify the database connection with the following command:
 
 ```
