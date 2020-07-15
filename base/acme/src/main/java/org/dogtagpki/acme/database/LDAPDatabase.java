@@ -435,7 +435,9 @@ public class LDAPDatabase extends ACMEDatabase {
         authz.setAccountID(attr.getStringValues().nextElement());
 
         attr = entry.getAttribute(ATTR_EXPIRES);
-        authz.setExpirationTime(dateFormat.parse(attr.getStringValues().nextElement()));
+        if (attr != null) {
+            authz.setExpirationTime(dateFormat.parse(attr.getStringValues().nextElement()));
+        }
 
         attr = entry.getAttribute(ATTR_STATUS);
         authz.setStatus(attr.getStringValues().nextElement());

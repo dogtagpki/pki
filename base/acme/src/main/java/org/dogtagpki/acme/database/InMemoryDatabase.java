@@ -135,7 +135,7 @@ public class InMemoryDatabase extends ACMEDatabase {
             }
 
             Date expirationTime = authorization.getExpirationTime();
-            if (!expirationTime.after(time)) {
+            if (expirationTime != null && !expirationTime.after(time)) {
                 logger.info("Authorization " + authorization.getID() + " has expired");
                 continue;
             }
@@ -161,7 +161,7 @@ public class InMemoryDatabase extends ACMEDatabase {
             }
 
             Date expirationTime = authorization.getExpirationTime();
-            if (!expirationTime.after(time)) {
+            if (expirationTime != null && !expirationTime.after(time)) {
                 logger.info("Authorization " + authorization.getID() + " has expired");
                 continue;
             }

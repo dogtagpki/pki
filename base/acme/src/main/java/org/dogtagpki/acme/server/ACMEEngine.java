@@ -648,9 +648,9 @@ public class ACMEEngine implements ServletContextListener {
         }
 
         long currentTime = System.currentTimeMillis();
-        long expirationTime = authorization.getExpirationTime().getTime();
+        Date expirationTime = authorization.getExpirationTime();
 
-        if (expirationTime <= currentTime) {
+        if (expirationTime != null && expirationTime.getTime() <= currentTime) {
             // TODO: generate proper exception
             throw new Exception("Expired authorization: " + authzID);
         }
