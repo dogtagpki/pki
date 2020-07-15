@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.acme.database;
 
+import java.net.URI;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -131,15 +132,67 @@ public class LDAPDatabase extends ACMEDatabase {
             for (String name : config.getParameterNames()) {
                 String value = config.getParameter(name);
 
-                if (name.equals("basedn")) {
+                if (name.equals("baseDN") || name.equals("basedn")) {
                     continue;
 
-                } else if (name.startsWith("password.")) {
-                    name = name.substring(9);
-                    ps.putPassword(name, value);
+                } else if (name.equals("url")) {
+                    logger.info("- URL: " + value);
 
-                } else if (name.startsWith("internaldb.")) {
-                    name = name.substring(11);
+                    URI url = new URI(value);
+                    String host = url.getHost();
+                    String port = "" + url.getPort();
+
+                    String protocol = url.getScheme();
+                    String secureConn;
+                    if ("ldap".equals(protocol)) {
+                        secureConn = "false";
+                    } else if ("ldaps".equals(protocol)) {
+                        secureConn = "true";
+                    } else {
+                        throw new Exception("Unsupported LDAP protocol: " + protocol);
+                    }
+
+                    ldapConfig.put("ldapconn.host", host);
+                    ldapConfig.put("ldapconn.port", port);
+                    ldapConfig.put("ldapconn.secureConn", secureConn);
+
+                } else if (name.equals("authType")) {
+                    logger.info("- authentication type: " + value);
+                    ldapConfig.put("ldapauth.authtype", value);
+
+                } else if (name.equals("bindDN")) {
+                    logger.info("- bind DN: " + value);
+                    ldapConfig.put("ldapauth.bindDN", value);
+
+                } else if (name.equals("bindPassword")) {
+                    ldapConfig.put("ldapauth.bindPassword", value);
+
+                } else if (name.equals("nickname")) {
+                    logger.info("- nickname: " + value);
+                    ldapConfig.put("ldapauth.clientCertNickname", value);
+
+                } else if (name.equals("minConns")) {
+                    logger.info("- " + name + ": " + value);
+                    ldapConfig.put(name, value);
+
+                } else if (name.equals("maxConns")) {
+                    logger.info("- " + name + ": " + value);
+                    ldapConfig.put(name, value);
+
+                } else if (name.equals("maxResults")) {
+                    logger.info("- " + name + ": " + value);
+                    ldapConfig.put(name, value);
+
+                } else if (name.equals("errorIfDown")) {
+                    logger.info("- " + name + ": " + value);
+                    ldapConfig.put(name, value);
+
+                } else if (name.startsWith("ldapauth.")) {
+                    ldapConfig.put(name, value);
+                    logger.info("- " + name + ": " + value);
+
+                } else if (name.startsWith("ldapconn.")) {
+                    logger.info("- " + name + ": " + value);
                     ldapConfig.put(name, value);
 
                 } else {
@@ -159,6 +212,12 @@ public class LDAPDatabase extends ACMEDatabase {
         }
 
         basedn = config.getParameter("basedn");
+        if (basedn == null) {
+            basedn = config.getParameter("baseDN");
+        } else {
+            logger.warn("The basedn parameter has been deprecated. Use baseDN instead.");
+        }
+        logger.info("- base DN: " + basedn);
 
         connFactory = new LdapBoundConnFactory("acme");
         connFactory.init(cs, ldapConfig, ps);

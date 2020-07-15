@@ -57,22 +57,19 @@ or execute the following command to customize some of the parameters:
 
 ```
 $ pki-server acme-database-mod --type ldap \
-    -Dbasedn=dc=acme,dc=pki,dc=example,dc=com \
-    -Dpassword.internaldb=Secret.123
+    -DbaseDN=dc=acme,dc=pki,dc=example,dc=com \
+    -DbindPassword=Secret.123
 ```
 
 Customize the configuration as needed. In a standalone ACME deployment, the database.conf should look like the following:
 
 ```
 class=org.dogtagpki.acme.database.LDAPDatabase
-basedn=dc=acme,dc=pki,dc=example,dc=com
-internaldb.ldapauth.authtype=BasicAuth
-internaldb.ldapauth.bindDN=cn=Directory Manager
-internaldb.ldapauth.bindPWPrompt=internaldb
-internaldb.ldapconn.host=<hostname>
-internaldb.ldapconn.port=389
-internaldb.ldapconn.secureConn=false
-password.internaldb=Secret.123
+url=ldap://<hostname>:389
+authType=BasicAuth
+bindDN=cn=Directory Manager
+bindPassword=Secret.123
+baseDN=dc=acme,dc=pki,dc=example,dc=com
 ```
 
 In a shared CA and ACME deployment, the database.conf should look like the following:
@@ -80,7 +77,7 @@ In a shared CA and ACME deployment, the database.conf should look like the follo
 ```
 class=org.dogtagpki.acme.database.LDAPDatabase
 configFile=conf/ca/CS.cfg
-basedn=dc=acme,dc=pki,dc=example,dc=com
+baseDN=dc=acme,dc=pki,dc=example,dc=com
 ```
 
 ## Configuring PosgreSQL Database
