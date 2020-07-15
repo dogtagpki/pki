@@ -27,5 +27,7 @@ public class ACMEMaintenanceTask extends ACMETask {
         ACMEDatabase database = engine.getDatabase();
 
         database.removeExpiredNonces(currentTime);
+        database.removeExpiredAuthorizations(currentTime);
+        database.removeExpiredOrders(currentTime);
     }
 }
