@@ -669,6 +669,9 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
         print('Usage: pki-server acme-database-mod [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --type <type>                  Database type: {0}'
+              .format(', '.join(DATABASE_TYPES.values())))
+        print('      -D<name>=<value>               Set property value.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -677,8 +680,8 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
+            opts, _ = getopt.gnu_getopt(argv, 'i:vD:', [
+                'instance=', 'type=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -687,10 +690,23 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        database_type = None
+        props = {}
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--type':
+                database_type = a
+                if database_type not in DATABASE_TYPES.values():
+                    raise Exception('Invalid database type: {0}'.format(database_type))
+
+            elif o == '-D':
+                parts = a.split('=', 1)
+                name = parts[0]
+                value = parts[1]
+                props[name] = value
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -718,8 +734,28 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
         database_conf = os.path.join(acme_conf_dir, 'database.conf')
         config = {}
 
-        logger.info('Loading %s', database_conf)
-        pki.util.load_properties(database_conf, config)
+        if database_type:
+            # if --type is specified, load the database.conf template
+            source = '/usr/share/pki/acme/database/{0}/database.conf'.format(database_type)
+        else:
+            # otherwise, load the database.conf from the instance
+            source = database_conf
+
+        logger.info('Loading %s', source)
+        pki.util.load_properties(source, config)
+
+        # if --type or -D is specified, use silent mode
+        if database_type or props:
+
+            logger.info('Setting properties:')
+            for name, value in props.items():
+                logger.info('- %s: %s', name, value)
+                pki.util.set_property(config, name, value)
+
+            pki.util.store_properties(database_conf, config)
+            return
+
+        # otherwise, use interactive mode
 
         print('The current value is displayed in the square brackets.')
         print('To keep the current value, simply press Enter.')
