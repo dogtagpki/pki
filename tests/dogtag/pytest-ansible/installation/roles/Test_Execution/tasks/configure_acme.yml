@@ -26,8 +26,8 @@
 - name: Updating acme ldap password
   replace:
    path: "{{variable.ACME_CONFIG_PATH}}/database/ldap/database.conf"
-   regexp: 'password.internaldb=.*'
-   replace: 'password.internaldb={{variable.LDAP_PASSWD}}'
+   regexp: 'bindPassword=.*'
+   replace: 'bindPassword={{variable.LDAP_PASSWD}}'
 
 - name: Removing existing ldap entry
   command: sed -i 1,3d "{{variable.ACME_CONFIG_PATH}}/database/ldap/create.ldif"
