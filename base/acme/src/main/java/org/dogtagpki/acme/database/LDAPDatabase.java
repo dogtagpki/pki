@@ -334,8 +334,7 @@ public class LDAPDatabase extends ACMEDatabase {
 
         attr = entry.getAttribute(ATTR_EXPIRES);
         if (attr != null) {
-            order.setExpirationTime(
-                dateFormat.parse(attr.getStringValues().nextElement()));
+            order.setExpirationTime(dateFormat.parse(attr.getStringValues().nextElement()));
         }
 
         attr = entry.getAttribute(ATTR_CERTIFICATE_ID);

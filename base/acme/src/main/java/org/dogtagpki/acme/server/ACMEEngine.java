@@ -695,15 +695,17 @@ public class ACMEEngine implements ServletContextListener {
     public CheckOrderResult checkOrder(ACMEAccount account, ACMEOrder order) {
 
         String orderID = order.getID();
-
         if (!order.getAccountID().equals(account.getID())) {
             return CheckOrderResult.OrderAccountMismatch;
         }
 
-        long currentTime = System.currentTimeMillis();
-        long expirationTime = order.getExpirationTime().getTime();
+        Date expirationTime = order.getExpirationTime();
+        if (expirationTime == null) {
+            return CheckOrderResult.OrderAccessOK;
+        }
 
-        if (expirationTime <= currentTime) {
+        long currentTime = System.currentTimeMillis();
+        if (expirationTime.getTime() <= currentTime) {
             return CheckOrderResult.OrderExpired;
         }
 
