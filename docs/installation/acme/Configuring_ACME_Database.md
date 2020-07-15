@@ -10,11 +10,14 @@ The database configuration is located at /etc/pki/pki-tomcat/acme/database.conf.
 
 The ACME responder can be configured with an in-memory database.
 
-First, copy the sample [database.conf](../../../base/acme/database/in-memory/database.conf) with the following command:
+A sample in-memory database configuration is available at
+[/usr/share/pki/acme/database/in-memory/database.conf](../../../base/acme/database/in-memory/database.conf).
+
+To use an in-memory database, copy the sample database.conf into the /etc/pki/pki-tomcat/acme folder,
+or execute the following command:
 
 ```
-$ cp /usr/share/pki/acme/database/in-memory/database.conf \
-    /etc/pki/pki-tomcat/acme/database.conf
+$ pki-server acme-database-mod --type in-memory
 ```
 
 The database.conf should look like the following:
@@ -46,11 +49,16 @@ $ ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
     -f /usr/share/pki/acme/database/ldap/create.ldif
 ```
 
-Then copy the sample [database.conf](../../../base/acme/database/ldap/database.conf) with the following command:
+A sample LDAP database configuration is available at
+[/usr/share/pki/acme/database/ldap/database.conf](../../../base/acme/database/ldap/database.conf).
+
+To use the LDAP database, copy the sample database.conf into the /etc/pki/pki-tomcat/acme folder,
+or execute the following command to customize some of the parameters:
 
 ```
-$ cp /usr/share/pki/acme/database/ldap/database.conf \
-    /etc/pki/pki-tomcat/acme/database.conf
+$ pki-server acme-database-mod --type ldap \
+    -Dbasedn=dc=acme,dc=pki,dc=example,dc=com \
+    -Dpassword.internaldb=Secret.123
 ```
 
 Customize the configuration as needed. In a standalone ACME deployment, the database.conf should look like the following:
@@ -86,14 +94,18 @@ Verify the database connection with the following command:
 $ psql -h $HOSTNAME -d acme -U acme
 ```
 
-Then copy the sample [database.conf](../../../base/acme/database/postgresql/database.conf) with the following command:
+A sample PostgreSQL database configuration is available at
+[/usr/share/pki/acme/database/postgresql/database.conf](../../../base/acme/database/postgresql/database.conf).
+
+To use the PostgreSQL database, copy the sample database.conf into the /etc/pki/pki-tomcat/acme folder,
+or execute the following command to customize some of the parameters:
 
 ```
-$ cp /usr/share/pki/acme/database/postgresql/database.conf \
-    /etc/pki/pki-tomcat/acme/database.conf
+$ pki-server acme-database-mod --type postgresql \
+    -Dpassword=Secret.123
 ```
 
-Customize the configuration as needed. The database.conf should look like the following:
+The database.conf should look like the following:
 
 ```
 class=org.dogtagpki.acme.database.PostgreSQLDatabase
