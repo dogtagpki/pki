@@ -1005,6 +1005,9 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
         print('Usage: pki-server acme-issuer-mod [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --type <type>                  Issuer type: {0}'
+              .format(', '.join(ISSUER_TYPES.values())))
+        print('      -D<name>=<value>               Set property value.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -1013,8 +1016,8 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
+            opts, _ = getopt.gnu_getopt(argv, 'i:vD:', [
+                'instance=', 'type=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -1023,10 +1026,23 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        issuer_type = None
+        props = {}
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--type':
+                issuer_type = a
+                if issuer_type not in ISSUER_TYPES.values():
+                    raise Exception('Invalid issuer type: {0}'.format(issuer_type))
+
+            elif o == '-D':
+                parts = a.split('=', 1)
+                name = parts[0]
+                value = parts[1]
+                props[name] = value
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -1054,8 +1070,28 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
         issuer_conf = os.path.join(acme_conf_dir, 'issuer.conf')
         config = {}
 
-        logger.info('Loading %s', issuer_conf)
-        pki.util.load_properties(issuer_conf, config)
+        if issuer_type:
+            # if --type is specified, load the issuer.conf template
+            source = '/usr/share/pki/acme/issuer/{0}/issuer.conf'.format(issuer_type)
+        else:
+            # otherwise, load the issuer.conf from the instance
+            source = issuer_conf
+
+        logger.info('Loading %s', source)
+        pki.util.load_properties(source, config)
+
+        # if --type or -D is specified, use silent mode
+        if issuer_type or props:
+
+            logger.info('Setting properties:')
+            for name, value in props.items():
+                logger.info('- %s: %s', name, value)
+                pki.util.set_property(config, name, value)
+
+            pki.util.store_properties(issuer_conf, config)
+            return
+
+        # otherwise, use interactive mode
 
         print('The current value is displayed in the square brackets.')
         print('To keep the current value, simply press Enter.')
