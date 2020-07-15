@@ -10,11 +10,16 @@ The issuer configuration is located at /etc/pki/pki-tomcat/acme/issuer.conf.
 
 The ACME responder can be configured to issue certificates using a PKI issuer.
 
-To configure a PKI issuer, copy the sample [issuer.conf](../../../base/acme/issuer/pki/issuer.conf) with the following command:
+A sample PKI issuer configuration is available at
+[/usr/share/pki/acme/issuer/pki/issuer.conf](../../../base/acme/issuer/pki/issuer.conf).
+
+To configure a PKI issuer, copy the sample issuer.conf into the /etc/pki/pki-tomcat/acme folder,
+or execute the following command to customize some of the parameters:
 
 ```
-$ cp /usr/share/pki/acme/issuer/pki/issuer.conf \
-    /etc/pki/pki-tomcat/acme/issuer.conf
+$ pki-server acme-issuer-mod --type pki \
+    -Dusername=caadmin \
+    -Dpassword=Secret.123
 ```
 
 Customize the configuration as needed. The issuer.conf should look like the following:
@@ -41,17 +46,22 @@ and the password in the **password** parameter.
 
 The ACME responder can be configured to issue certificates using a local NSS database.
 
-To configure an NSS issuer, copy the sample [issuer.conf](../../../base/acme/issuer/nss/issuer.conf) with the following command:
+A sample NSS issuer configuration is available at
+[/usr/share/pki/acme/issuer/nss/issuer.conf](../../../base/acme/issuer/nss/issuer.conf).
+
+To configure an NSS issuer, copy the sample issuer.conf into the /etc/pki/pki-tomcat/acme folder,
+or execute the following command to customize some of the parameters:
 
 ```
-$ cp /usr/share/pki/acme/issuer/nss/issuer.conf \
-    /etc/pki/pki-tomcat/acme/issuer.conf
+$ pki-server acme-issuer-mod --type nss \
+    -Dnickname=ca_signing
 ```
 
 Customize the configuration as needed. The issuer.conf should look like the following:
 
 ```
 class=org.dogtagpki.acme.issuer.NSSIssuer
+nickname=ca_signing
 ```
 
 The **nickname** parameter can be used to specify the nickname of the CA signing certificate.
