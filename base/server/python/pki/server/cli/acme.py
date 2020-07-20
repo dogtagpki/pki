@@ -522,7 +522,7 @@ class ACMEMetadataModifyCLI(pki.cli.CLI):
             '  External Account Required', default=external_account_required)
         pki.util.set_property(config, 'externalAccountRequired', external_account_required)
 
-        pki.util.store_properties(metadata_conf, config)
+        instance.store_properties(metadata_conf, config)
 
 
 class ACMEDatabaseCLI(pki.cli.CLI):
@@ -752,7 +752,7 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
                 logger.info('- %s: %s', name, value)
                 pki.util.set_property(config, name, value)
 
-            pki.util.store_properties(database_conf, config)
+            instance.store_properties(database_conf, config)
             return
 
         # otherwise, use interactive mode
@@ -878,7 +878,7 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
                 '  Password', default=password, password=True, required=True)
             pki.util.set_property(config, 'password', password)
 
-        pki.util.store_properties(database_conf, config)
+        instance.store_properties(database_conf, config)
 
 
 class ACMEIssuerCLI(pki.cli.CLI):
@@ -1088,7 +1088,7 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
                 logger.info('- %s: %s', name, value)
                 pki.util.set_property(config, name, value)
 
-            pki.util.store_properties(issuer_conf, config)
+            instance.store_properties(issuer_conf, config)
             return
 
         # otherwise, use interactive mode
@@ -1173,4 +1173,4 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
             profile = pki.util.read_text('  Certificate Profile', default=profile, required=True)
             pki.util.set_property(config, 'profile', profile)
 
-        pki.util.store_properties(issuer_conf, config)
+        instance.store_properties(issuer_conf, config)
