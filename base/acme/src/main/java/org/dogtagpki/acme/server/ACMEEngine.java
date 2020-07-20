@@ -233,7 +233,7 @@ public class ACMEEngine implements ServletContextListener {
         engineConfigSource.init(cfg);
     }
 
-    public void loadMetadata(String filename) throws Exception {
+    public void initMetadata(String filename) throws Exception {
 
         File metadataConfigFile = new File(filename);
 
@@ -420,7 +420,7 @@ public class ACMEEngine implements ServletContextListener {
 
         loadEngineConfig(monitorCfg);
 
-        loadMetadata(acmeConfDir + File.separator + "metadata.conf");
+        initMetadata(acmeConfDir + File.separator + "metadata.conf");
 
         loadDatabaseConfig(acmeConfDir + File.separator + "database.conf");
         initDatabase();
