@@ -1123,7 +1123,9 @@ class PKISubsystem(object):
         ])
 
         if java_opts:
-            cmd.extend(java_opts.split(' '))
+            opts = java_opts.split(' ')
+            non_empty_opts = [opt for opt in opts if opt]
+            cmd.extend(non_empty_opts)
 
         cmd.extend(['org.dogtagpki.server.cli.PKIServerCLI'])
 
