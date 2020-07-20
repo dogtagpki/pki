@@ -96,16 +96,27 @@ class PKICLI(pki.cli.CLI):
 
         self.set_nss_default_db_type()
 
+        java_path = os.getenv('PKI_JAVA_PATH')
         java_home = os.getenv('JAVA_HOME')
         pki_lib = os.getenv('PKI_LIB')
         logging_config = os.getenv('PKI_LOGGING_CONFIG')
 
-        cmd = [
-            java_home + '/bin/java',
+        cmd = []
+
+        if os.path.exists(java_path):
+            cmd.extend([java_path])
+        elif os.path.exists(java_home + '/jre/bin/java'):
+            cmd.extend([java_home + '/jre/bin/java'])
+        elif os.path.exists(java_home + '/bin/java'):
+            cmd.extend([java_home + '/bin/java'])
+        else:
+            cmd.extend(['/usr/bin/env', 'java'])
+
+        cmd.extend([
             '-cp', pki_lib + '/*',
             '-Djava.util.logging.config.file=' + logging_config,
             'com.netscape.cmstools.cli.MainCLI'
-        ]
+        ])
 
         # restore options for Java commands
 
