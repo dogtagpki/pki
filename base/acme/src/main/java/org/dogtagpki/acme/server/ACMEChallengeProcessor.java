@@ -63,7 +63,7 @@ public class ACMEChallengeProcessor implements Runnable {
 
     public void finalizeValidAuthorization() throws Exception {
 
-        long currentTime = System.currentTimeMillis();
+        Date currentTime = new Date();
 
         ACMEEngine engine = ACMEEngine.getInstance();
         String authzID = authorization.getID();
@@ -71,7 +71,7 @@ public class ACMEChallengeProcessor implements Runnable {
 
         logger.info("Challenge " + challengeID + " is valid");
         challenge.setStatus("valid");
-        challenge.setValidationTime(new Date(currentTime));
+        challenge.setValidationTime(currentTime);
 
         // RFC 8555 Section 7.5.1: Responding to Challenges
         //
@@ -95,10 +95,7 @@ public class ACMEChallengeProcessor implements Runnable {
         // If the final state is "valid", then the server MUST include an "expires"
         // field.
 
-        // set valid authorization to expire in 30 minutes
-        // TODO: make it configurable
-
-        Date expirationTime = new Date(currentTime + 30 * 60 * 1000);
+        Date expirationTime = engine.getPolicy().getValidAuthorizationExpirationTime(currentTime);
         authorization.setExpirationTime(expirationTime);
 
         engine.updateAuthorization(account, authorization);

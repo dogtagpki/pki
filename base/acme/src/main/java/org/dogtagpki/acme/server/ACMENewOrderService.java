@@ -133,13 +133,9 @@ public class ACMENewOrderService {
         //    in [RFC3339].  This field is REQUIRED for objects with "pending"
         //    or "valid" in the status field.
 
-        // set pending order to expire in 30 minutes
-        // TODO: make it configurable
-
-        long currentTime = System.currentTimeMillis();
-        Date expirationTime = new Date(currentTime + 30 * 60 * 1000);
-
         order.setStatus("pending");
+
+        Date expirationTime = engine.getPolicy().getPendingOrderExpirationTime(new Date());
         order.setExpirationTime(expirationTime);
 
         engine.addOrder(account, order);

@@ -5,6 +5,8 @@
 //
 package org.dogtagpki.acme.server;
 
+import java.util.Date;
+
 import org.dogtagpki.acme.ACMEIdentifier;
 
 /**
@@ -86,5 +88,21 @@ public class ACMEPolicy {
         }
 
         return;
+    }
+
+    public Date getNonceExpirationTime(Date currentTime) {
+        return config.getNonceValidity().getExpirationTime(currentTime);
+    }
+
+    public Date getValidAuthorizationExpirationTime(Date currentTime) {
+        return config.getValidAuthorizationValidity().getExpirationTime(currentTime);
+    }
+
+    public Date getPendingOrderExpirationTime(Date currentTime) {
+        return config.getPendingOrderValidity().getExpirationTime(currentTime);
+    }
+
+    public Date getValidOrderExpirationTime(Date currentTime) {
+        return config.getValidOrderValidity().getExpirationTime(currentTime);
     }
 }
