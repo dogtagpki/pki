@@ -485,6 +485,7 @@ Requires:         tomcat >= 1:9.0.7
 %endif
 
 Requires:         velocity
+Requires:         systemd
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
