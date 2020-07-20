@@ -278,7 +278,7 @@ public class ACMEEngine implements ServletContextListener {
         database.init();
     }
 
-    public void loadValidatorsConfig(String filename) throws Exception {
+    public void initValidators(String filename) throws Exception {
 
         File validatorsConfigFile = new File(filename);
 
@@ -292,9 +292,6 @@ public class ACMEEngine implements ServletContextListener {
             props.load(reader);
         }
         validatorsConfig = ACMEValidatorsConfig.fromProperties(props);
-    }
-
-    public void initValidators() throws Exception {
 
         logger.info("Initializing ACME validators");
 
@@ -312,13 +309,6 @@ public class ACMEEngine implements ServletContextListener {
             validator.init();
 
             addValidator(name, validator);
-        }
-    }
-
-    public void shutdownValidators() throws Exception {
-
-        for (ACMEValidator validator : validators.values()) {
-            validator.close();
         }
     }
 
@@ -414,9 +404,7 @@ public class ACMEEngine implements ServletContextListener {
 
         initMetadata(acmeConfDir + File.separator + "metadata.conf");
         initDatabase(acmeConfDir + File.separator + "database.conf");
-
-        loadValidatorsConfig(acmeConfDir + File.separator + "validators.conf");
-        initValidators();
+        initValidators(acmeConfDir + File.separator + "validators.conf");
 
         loadIssuerConfig(acmeConfDir + File.separator + "issuer.conf");
         initIssuer();
@@ -432,6 +420,15 @@ public class ACMEEngine implements ServletContextListener {
 
         database.close();
         database = null;
+    }
+
+    public void shutdownValidators() throws Exception {
+
+        for (ACMEValidator validator : validators.values()) {
+            validator.close();
+        }
+
+        validators.clear();
     }
 
     public void stop() throws Exception {
