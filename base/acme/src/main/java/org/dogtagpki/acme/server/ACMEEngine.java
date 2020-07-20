@@ -339,7 +339,7 @@ public class ACMEEngine implements ServletContextListener {
         issuer.init();
     }
 
-    public void loadSchedulerConfig(String filename) throws Exception {
+    public void initScheduler(String filename) throws Exception {
 
         File schedulerConfigFile = new File(filename);
 
@@ -353,17 +353,12 @@ public class ACMEEngine implements ServletContextListener {
             props.load(reader);
         }
         schedulerConfig = ACMESchedulerConfig.fromProperties(props);
-    }
 
-    public void initScheduler() throws Exception {
+        logger.info("Initializing ACME scheduler");
+
         scheduler = new ACMEScheduler();
         scheduler.setConfig(schedulerConfig);
         scheduler.init();
-    }
-
-    public void shutdownScheduler() throws Exception {
-        if (scheduler != null)
-            scheduler.shutdown();
     }
 
     public void start() throws Exception {
@@ -398,9 +393,7 @@ public class ACMEEngine implements ServletContextListener {
         initDatabase(acmeConfDir + File.separator + "database.conf");
         initValidators(acmeConfDir + File.separator + "validators.conf");
         initIssuer(acmeConfDir + File.separator + "issuer.conf");
-
-        loadSchedulerConfig(acmeConfDir + File.separator + "scheduler.conf");
-        initScheduler();
+        initScheduler(acmeConfDir + File.separator + "scheduler.conf");
 
         logger.info("ACME engine started");
     }
@@ -426,6 +419,13 @@ public class ACMEEngine implements ServletContextListener {
 
         issuer.close();
         issuer = null;
+    }
+
+    public void shutdownScheduler() throws Exception {
+        if (scheduler == null) return;
+
+        scheduler.shutdown();
+        scheduler = null;
     }
 
     public void stop() throws Exception {
