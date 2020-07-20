@@ -85,6 +85,7 @@ public class ACMEEngine implements ServletContextListener {
 
     private String name;
 
+    private Properties monitorsConfig;
     private ACMEEngineConfigSource engineConfigSource = null;
 
     private ACMEMetadata metadata;
@@ -190,47 +191,6 @@ public class ACMEEngine implements ServletContextListener {
      */
     public ACMEPolicy getPolicy() {
         return policy;
-    }
-
-    public void loadEngineConfig(Properties cfg) throws Exception {
-        // the default class just sends the default config values
-        Class<? extends ACMEEngineConfigSource> configSourceClass
-            = ACMEEngineConfigDefaultSource.class;
-
-        String className = cfg.getProperty("engine.class");
-        if (className != null && !className.isEmpty()) {
-            configSourceClass =
-                (Class<ACMEEngineConfigSource>) Class.forName(className);
-        }
-        engineConfigSource = configSourceClass.newInstance();
-
-        // We pass to the ConfigSource only the callbacks needed to set
-        // the configuration (Consumer<T>).  This abstraction ensures the
-        // ConfigSource has no direct access to the ACMEEngine instance.
-
-        engineConfigSource.setEnabledConsumer(new Consumer<Boolean>() {
-            @Override public void accept(Boolean b) {
-                setEnabled(b);
-                logger.info(
-                    "ACME service is "
-                    + (b ? "enabled" : "DISABLED")
-                    + " by configuration"
-                );
-            }
-        });
-
-        engineConfigSource.setWildcardConsumer(new Consumer<Boolean>() {
-            @Override public void accept(Boolean b) {
-                getPolicy().setEnableWildcards(b);
-                logger.info(
-                    "ACME wildcard issuance is "
-                    + (b ? "enabled" : "DISABLED")
-                    + " by configuration"
-                );
-            }
-        });
-
-        engineConfigSource.init(cfg);
     }
 
     public void initMetadata(String filename) throws Exception {
@@ -361,6 +321,61 @@ public class ACMEEngine implements ServletContextListener {
         scheduler.init();
     }
 
+    public void initMonitors(String filename) throws Exception {
+
+        File monitorsConfigFile = new File(filename);
+        monitorsConfig = new Properties();
+
+        if (monitorsConfigFile.exists()) {
+            logger.info("Loading ACME monitors config from " + filename);
+            try (FileReader reader = new FileReader(monitorsConfigFile)) {
+                monitorsConfig.load(reader);
+            }
+
+        } else {
+            logger.info("Using default ACME monitors config");
+        }
+
+        // the default class just sends the default config values
+        Class<? extends ACMEEngineConfigSource> configSourceClass
+            = ACMEEngineConfigDefaultSource.class;
+
+        String className = monitorsConfig.getProperty("engine.class");
+        if (className != null && !className.isEmpty()) {
+            configSourceClass =
+                (Class<ACMEEngineConfigSource>) Class.forName(className);
+        }
+        engineConfigSource = configSourceClass.newInstance();
+
+        // We pass to the ConfigSource only the callbacks needed to set
+        // the configuration (Consumer<T>).  This abstraction ensures the
+        // ConfigSource has no direct access to the ACMEEngine instance.
+
+        engineConfigSource.setEnabledConsumer(new Consumer<Boolean>() {
+            @Override public void accept(Boolean b) {
+                setEnabled(b);
+                logger.info(
+                    "ACME service is "
+                    + (b ? "enabled" : "DISABLED")
+                    + " by configuration"
+                );
+            }
+        });
+
+        engineConfigSource.setWildcardConsumer(new Consumer<Boolean>() {
+            @Override public void accept(Boolean b) {
+                getPolicy().setEnableWildcards(b);
+                logger.info(
+                    "ACME wildcard issuance is "
+                    + (b ? "enabled" : "DISABLED")
+                    + " by configuration"
+                );
+            }
+        });
+
+        engineConfigSource.init(monitorsConfig);
+    }
+
     public void start() throws Exception {
 
         logger.info("Starting ACME engine");
@@ -371,29 +386,12 @@ public class ACMEEngine implements ServletContextListener {
 
         logger.info("ACME configuration directory: " + acmeConfDir);
 
-        // load config source configuration
-        Properties monitorCfg = new Properties();
-        String monitorCfgFilename = acmeConfDir + File.separator + "configsources.conf";
-        logger.info("Loading ACME engine config from " + monitorCfgFilename);
-        File f = new File(monitorCfgFilename);
-        if (f.exists()) {
-            try (FileReader reader = new FileReader(f)) {
-                monitorCfg.load(reader);
-            }
-        } else {
-            logger.info(
-                "  '" + monitorCfgFilename + "' does not exist; "
-                + "proceeding with default config sources"
-            );
-        }
-
-        loadEngineConfig(monitorCfg);
-
         initMetadata(acmeConfDir + File.separator + "metadata.conf");
         initDatabase(acmeConfDir + File.separator + "database.conf");
         initValidators(acmeConfDir + File.separator + "validators.conf");
         initIssuer(acmeConfDir + File.separator + "issuer.conf");
         initScheduler(acmeConfDir + File.separator + "scheduler.conf");
+        initMonitors(acmeConfDir + File.separator + "configsources.conf");
 
         logger.info("ACME engine started");
     }
@@ -428,15 +426,18 @@ public class ACMEEngine implements ServletContextListener {
         scheduler = null;
     }
 
+    public void shutdownMonitors() throws Exception {
+        if (engineConfigSource == null) return;
+
+        engineConfigSource.shutdown();
+        engineConfigSource = null;
+    }
+
     public void stop() throws Exception {
 
         logger.info("Stopping ACME engine");
 
-        if (engineConfigSource != null) {
-            engineConfigSource.shutdown();
-            engineConfigSource = null;
-        }
-
+        shutdownMonitors();
         shutdownScheduler();
         shutdownIssuer();
         shutdownValidators();
