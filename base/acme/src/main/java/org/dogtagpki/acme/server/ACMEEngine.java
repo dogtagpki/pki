@@ -251,7 +251,7 @@ public class ACMEEngine implements ServletContextListener {
         }
     }
 
-    public void loadDatabaseConfig(String filename) throws Exception {
+    public void initDatabase(String filename) throws Exception {
 
         File databaseConfigFile = new File(filename);
 
@@ -267,9 +267,6 @@ public class ACMEEngine implements ServletContextListener {
             logger.info("Loading default ACME database config");
             databaseConfig = new ACMEDatabaseConfig();
         }
-    }
-
-    public void initDatabase() throws Exception {
 
         logger.info("Initializing ACME database");
 
@@ -279,11 +276,6 @@ public class ACMEEngine implements ServletContextListener {
         database = databaseClass.newInstance();
         database.setConfig(databaseConfig);
         database.init();
-    }
-
-    public void shutdownDatabase() throws Exception {
-        if (database != null)
-            database.close();
     }
 
     public void loadValidatorsConfig(String filename) throws Exception {
@@ -421,9 +413,7 @@ public class ACMEEngine implements ServletContextListener {
         loadEngineConfig(monitorCfg);
 
         initMetadata(acmeConfDir + File.separator + "metadata.conf");
-
-        loadDatabaseConfig(acmeConfDir + File.separator + "database.conf");
-        initDatabase();
+        initDatabase(acmeConfDir + File.separator + "database.conf");
 
         loadValidatorsConfig(acmeConfDir + File.separator + "validators.conf");
         initValidators();
@@ -435,6 +425,13 @@ public class ACMEEngine implements ServletContextListener {
         initScheduler();
 
         logger.info("ACME engine started");
+    }
+
+    public void shutdownDatabase() throws Exception {
+        if (database == null) return;
+
+        database.close();
+        database = null;
     }
 
     public void stop() throws Exception {
