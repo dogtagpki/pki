@@ -70,45 +70,17 @@ invalid_architecture() {
 ###############################################################################
 
 OS=`uname -s`
-
-if [ "${OS}" = "Linux" ] ; then
-    ARCHITECTURE=`arch`
+ARCHITECTURE=`arch`
+if [ -e "${PKI_JAVA_PATH}" ]; then
+    JAVA="${PKI_JAVA_PATH}"
+elif [ -e "${JAVA_HOME}/jre/bin/java" ]; then
+    JAVA="${JAVA_HOME}/jre/bin/java"
+elif [ -e "${JAVA_HOME}/bin/java" ]; then
     JAVA="${JAVA_HOME}/bin/java"
-    JAVA_OPTIONS=""
-elif [ "${OS}" = "SunOS" ] ; then
-    ARCHITECTURE=`uname -p`
-    if [ "${ARCHITECTURE}" = "sparc" ] &&
-       [ -d "/usr/lib/sparcv9/" ] ; then
-        ARCHITECTURE="sparcv9"
-    fi
-    if [ "${ARCHITECTURE}" = "sparc" ] ; then
-        JAVA="/usr/jdk/instances/jdk1.5.0/jre/bin/java"
-        JAVA_OPTIONS=""
-
-        LD_LIBRARY_PATH=/usr/lib:/lib
-        LD_LIBRARY_PATH=/usr/lib/dirsec:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib/${PRODUCT}:${LD_LIBRARY_PATH}
-        export LD_LIBRARY_PATH
-    elif [ "${ARCHITECTURE}" = "sparcv9" ] ; then
-        JAVA="/usr/jdk/instances/jdk1.5.0/jre/bin/java"
-        JAVA_OPTIONS="-d64"
-
-        LD_LIBRARY_PATH=/usr/lib:/lib
-        LD_LIBRARY_PATH=/usr/lib/dirsec:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib/${PRODUCT}:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib/sparcv9:/lib/sparcv9:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib/sparcv9/dirsec:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib/sparcv9/${PRODUCT}:${LD_LIBRARY_PATH}
-        export LD_LIBRARY_PATH
-    else
-        invalid_architecture "${ARCHITECTURE}"
-        exit 255
-    fi
 else
-    invalid_operating_system "${OS}"
-    exit 255
+    JAVA="/usr/bin/env java"
 fi
-
+JAVA_OPTIONS=""
 
 ###############################################################################
 ##  (5) Set the CP environment variable to determine the search              ##

@@ -115,6 +115,11 @@ configure_file(cmake/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 add_definitions(-DHAVE_CONFIG_H)
 
+# handle custom PKI Java path
+if (PKI_JAVA_PATH STREQUAL "")
+    set(PKI_JAVA_PATH "${Java_JAVA_EXECUTABLE}")
+endif ()
+
 # uninstall target
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
                "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
