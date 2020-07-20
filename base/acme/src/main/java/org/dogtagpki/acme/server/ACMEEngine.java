@@ -197,18 +197,16 @@ public class ACMEEngine implements ServletContextListener {
 
         File metadataConfigFile = new File(filename);
 
-        if (metadataConfigFile.exists()) {
-            logger.info("Loading ACME metadata from " + metadataConfigFile);
-            Properties props = new Properties();
-            try (FileReader reader = new FileReader(metadataConfigFile)) {
-                props.load(reader);
-            }
-            metadata = ACMEMetadata.fromProperties(props);
-
-        } else {
-            logger.info("Loading default ACME metadata");
-            metadata = new ACMEMetadata();
+        if (!metadataConfigFile.exists()) {
+            metadataConfigFile = new File("/usr/share/pki/acme/conf/metadata.conf");
         }
+
+        logger.info("Loading ACME metadata from " + metadataConfigFile);
+        Properties props = new Properties();
+        try (FileReader reader = new FileReader(metadataConfigFile)) {
+            props.load(reader);
+        }
+        metadata = ACMEMetadata.fromProperties(props);
     }
 
     public void initDatabase(String filename) throws Exception {

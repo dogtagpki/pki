@@ -124,11 +124,6 @@ class ACMECreateCLI(pki.cli.CLI):
 
         acme_share_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'acme')
 
-        metadata_template = os.path.join(acme_share_dir, 'conf', 'metadata.conf')
-        metadata_conf = os.path.join(acme_conf_dir, 'metadata.conf')
-        logger.info('Creating %s', metadata_conf)
-        instance.copy(metadata_template, metadata_conf, force=force)
-
         database_template = os.path.join(acme_share_dir, 'conf', 'database.conf')
         database_conf = os.path.join(acme_conf_dir, 'database.conf')
         logger.info('Creating %s', database_conf)
@@ -410,8 +405,13 @@ class ACMEMetadataShowCLI(pki.cli.CLI):
         metadata_conf = os.path.join(acme_conf_dir, 'metadata.conf')
         config = {}
 
-        logger.info('Loading %s', metadata_conf)
-        pki.util.load_properties(metadata_conf, config)
+        if not os.path.exists(metadata_conf):
+            source = '/usr/share/pki/acme/conf/metadata.conf'
+        else:
+            source = metadata_conf
+
+        logger.info('Loading %s', source)
+        pki.util.load_properties(source, config)
 
         terms_of_service = config.get('termsOfService')
         if terms_of_service:
@@ -489,8 +489,13 @@ class ACMEMetadataModifyCLI(pki.cli.CLI):
         metadata_conf = os.path.join(acme_conf_dir, 'metadata.conf')
         config = {}
 
-        logger.info('Loading %s', metadata_conf)
-        pki.util.load_properties(metadata_conf, config)
+        if not os.path.exists(metadata_conf):
+            source = '/usr/share/pki/acme/conf/metadata.conf'
+        else:
+            source = metadata_conf
+
+        logger.info('Loading %s', source)
+        pki.util.load_properties(source, config)
 
         print('The current value is displayed in the square brackets.')
         print('To keep the current value, simply press Enter.')
