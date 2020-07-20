@@ -97,13 +97,9 @@ public class ACMEFinalizeOrderService {
         //    in [RFC3339].  This field is REQUIRED for objects with "pending"
         //    or "valid" in the status field.
 
-        // set valid order to expire in 30 minutes
-        // TODO: make it configurable
-
-        long currentTime = System.currentTimeMillis();
-        Date expirationTime = new Date(currentTime + 30 * 60 * 1000);
-
         order.setStatus("valid");
+
+        Date expirationTime = engine.getPolicy().getValidOrderExpirationTime(new Date());
         order.setExpirationTime(expirationTime);
 
         engine.updateOrder(account, order);

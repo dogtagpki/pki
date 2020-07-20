@@ -205,6 +205,10 @@ public class ACMEEngine implements ServletContextListener {
 
         ACMEPolicyConfig policyConfig = config.getPolicyConfig();
         logger.info("- wildcard: " + policyConfig.getEnableWildcards());
+        logger.info("- nonce validity: " + policyConfig.getNonceValidity());
+        logger.info("- valid authorization validity: " + policyConfig.getValidAuthorizationValidity());
+        logger.info("- pending order validity: " + policyConfig.getPendingOrderValidity());
+        logger.info("- valid order validity: " + policyConfig.getValidOrderValidity());
 
         policy = new ACMEPolicy(policyConfig);
     }
@@ -475,13 +479,8 @@ public class ACMEEngine implements ServletContextListener {
 
         nonce.setValue(value);
 
-        // set nonce to expire in 30 minutes
-        // TODO: make it configurable
-
-        long currentTime = System.currentTimeMillis();
-        long expirationTime = currentTime + 30 * 60 * 1000;
-
-        nonce.setExpirationTime(new Date(expirationTime));
+        Date expirationTime = policy.getNonceExpirationTime(new Date());
+        nonce.setExpirationTime(expirationTime);
 
         database.addNonce(nonce);
         logger.info("Created nonce: " + nonce);
