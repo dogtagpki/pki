@@ -807,8 +807,6 @@ else
     app_server=tomcat-$tomcat_version
 fi
 
-%{__mkdir_p} build
-cd build
 %cmake \
     --no-warn-unused-cli \
     -DVERSION=%{version}-%{release} \
@@ -830,7 +828,9 @@ cd build
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
     -DTHEME=%{?with_theme:%{vendor_id}} \
-    ..
+    -B %{_vpath_builddir}
+
+cd %{_vpath_builddir}
 
 # Do not use _smp_mflags to preserve build order
 %{__make} \
@@ -845,7 +845,7 @@ cd build
 %install
 ################################################################################
 
-cd build
+cd %{_vpath_builddir}
 
 %{__make} \
     VERBOSE=%{?_verbose} \
