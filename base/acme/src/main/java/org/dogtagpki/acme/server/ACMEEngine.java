@@ -312,7 +312,7 @@ public class ACMEEngine implements ServletContextListener {
         }
     }
 
-    public void loadIssuerConfig(String filename) throws Exception {
+    public void initIssuer(String filename) throws Exception {
 
         File issuerConfigFile = new File(filename);
 
@@ -328,9 +328,6 @@ public class ACMEEngine implements ServletContextListener {
             logger.info("Loading default ACME issuer config");
             issuerConfig = new ACMEIssuerConfig();
         }
-    }
-
-    public void initIssuer() throws Exception {
 
         logger.info("Initializing ACME issuer");
 
@@ -369,11 +366,6 @@ public class ACMEEngine implements ServletContextListener {
             scheduler.shutdown();
     }
 
-    public void shutdownIssuer() throws Exception {
-        if (issuer != null)
-            issuer.close();
-    }
-
     public void start() throws Exception {
 
         logger.info("Starting ACME engine");
@@ -405,9 +397,7 @@ public class ACMEEngine implements ServletContextListener {
         initMetadata(acmeConfDir + File.separator + "metadata.conf");
         initDatabase(acmeConfDir + File.separator + "database.conf");
         initValidators(acmeConfDir + File.separator + "validators.conf");
-
-        loadIssuerConfig(acmeConfDir + File.separator + "issuer.conf");
-        initIssuer();
+        initIssuer(acmeConfDir + File.separator + "issuer.conf");
 
         loadSchedulerConfig(acmeConfDir + File.separator + "scheduler.conf");
         initScheduler();
@@ -429,6 +419,13 @@ public class ACMEEngine implements ServletContextListener {
         }
 
         validators.clear();
+    }
+
+    public void shutdownIssuer() throws Exception {
+        if (issuer == null) return;
+
+        issuer.close();
+        issuer = null;
     }
 
     public void stop() throws Exception {
