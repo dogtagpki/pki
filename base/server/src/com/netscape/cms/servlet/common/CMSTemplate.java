@@ -348,7 +348,7 @@ public class CMSTemplate extends CMSFile {
      */
 
     public static String escapeJavaScriptString(String v) {
-        return StringEscapeUtils.escapeJavaScript(v);
+        return escapeJavaScriptStringHTML(v);
     }
 
     /**
