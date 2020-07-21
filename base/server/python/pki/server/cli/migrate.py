@@ -30,6 +30,7 @@ import sys
 from lxml import etree
 
 import pki.cli
+import pki.nssdb
 import pki.server.instance
 import pki.util
 
@@ -132,9 +133,19 @@ class MigrateCLI(pki.cli.CLI):
             # Only attempt to convert if target format is sql and DB is dbm
             if nssdb.needs_conversion():
                 nssdb.convert_db()
+        finally:
+            nssdb.close()
 
-            ca_path = os.path.join(instance.nssdb_dir, 'ca.crt')
-            nickname = instance.get_sslserver_cert_nickname()
+        ca_path = os.path.join(instance.nssdb_dir, 'ca.crt')
+        token = pki.nssdb.INTERNAL_TOKEN_NAME
+        nickname = instance.get_sslserver_cert_nickname()
+        if ':' in nickname:
+            token = nickname.split(':', 1)[0]
+
+        # Re-open NSS DB with correct token name
+        nssdb = instance.open_nssdb(token=token)
+
+        try:
             nssdb.extract_ca_cert(ca_path, nickname)
         finally:
             nssdb.close()
