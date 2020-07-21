@@ -11,6 +11,7 @@ import java.util.Properties;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -22,12 +23,23 @@ public class ACMEEngineConfig {
 
     private Boolean enabled = true;
 
+    @JsonProperty("policy")
+    private ACMEPolicyConfig policyConfig = new ACMEPolicyConfig();
+
     public Boolean isEnabled() {
         return enabled;
     }
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public ACMEPolicyConfig getPolicyConfig() {
+        return policyConfig;
+    }
+
+    public void setPolicyConfig(ACMEPolicyConfig wildcard) {
+        this.policyConfig = wildcard;
     }
 
     public String toJSON() throws Exception {
@@ -51,6 +63,13 @@ public class ACMEEngineConfig {
 
             if (key.equals("enabled")) {
                 config.setEnabled(new Boolean(value));
+
+            } else if (key.startsWith("policy.")) {
+
+                String policyKey = key.substring(7);
+
+                ACMEPolicyConfig policyConfig = config.getPolicyConfig();
+                policyConfig.setProperty(policyKey, value);
             }
         }
 

@@ -45,7 +45,6 @@ import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMEMetadata;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
-import org.dogtagpki.acme.ACMEPolicy;
 import org.dogtagpki.acme.ACMERevocation;
 import org.dogtagpki.acme.JWK;
 import org.dogtagpki.acme.JWS;
@@ -86,6 +85,7 @@ public class ACMEEngine implements ServletContextListener {
     private String name;
 
     private ACMEEngineConfig config;
+    private ACMEPolicy policy;
 
     private Properties monitorsConfig;
     private ACMEEngineConfigSource engineConfigSource = null;
@@ -101,8 +101,6 @@ public class ACMEEngine implements ServletContextListener {
     private ACMEIssuerConfig issuerConfig;
     private ACMEIssuer issuer;
 
-    private ACMEPolicy policy;
-
     private ACMESchedulerConfig schedulerConfig;
     private ACMEScheduler scheduler;
 
@@ -112,7 +110,6 @@ public class ACMEEngine implements ServletContextListener {
 
     public ACMEEngine() {
         INSTANCE = this;
-        policy = new ACMEPolicy(true /* enable wildcards by default */);
     }
 
     public String getName() {
@@ -121,6 +118,13 @@ public class ACMEEngine implements ServletContextListener {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Get the local policy configuration object.
+     */
+    public ACMEPolicy getPolicy() {
+        return policy;
     }
 
     public ACMEMetadata getMetadata() {
@@ -182,13 +186,6 @@ public class ACMEEngine implements ServletContextListener {
         return config.isEnabled();
     }
 
-    /**
-     * Get the local policy configuration object.
-     */
-    public ACMEPolicy getPolicy() {
-        return policy;
-    }
-
     public void loadConfig(String filename) throws Exception {
 
         File configFile = new File(filename);
@@ -205,6 +202,11 @@ public class ACMEEngine implements ServletContextListener {
 
         config = ACMEEngineConfig.fromProperties(props);
         logger.info("- enabled: " + config.isEnabled());
+
+        ACMEPolicyConfig policyConfig = config.getPolicyConfig();
+        logger.info("- wildcard: " + policyConfig.getEnableWildcards());
+
+        policy = new ACMEPolicy(policyConfig);
     }
 
     public void initMetadata(String filename) throws Exception {
@@ -376,7 +378,7 @@ public class ACMEEngine implements ServletContextListener {
 
         engineConfigSource.setWildcardConsumer(new Consumer<Boolean>() {
             @Override public void accept(Boolean b) {
-                getPolicy().setEnableWildcards(b);
+                config.getPolicyConfig().setEnableWildcards(b);
                 logger.info(
                     "ACME wildcard issuance is "
                     + (b ? "enabled" : "DISABLED")
