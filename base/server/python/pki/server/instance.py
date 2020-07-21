@@ -876,10 +876,22 @@ class PKIServerFactory(object):
             instance_type = parts[0]
             instance_name = parts[1]
 
+        sysconfig_file = os.path.join('/etc/sysconfig', instance_name)
+
+        with open(sysconfig_file) as f:
+
+            nuxwdog_status = re.search('^USE_NUXWDOG=\"(.*)\"', f.read(), re.MULTILINE)
+
+            # Check if the regex was matched and then check if nuxwdog is enabled.
+            if nuxwdog_status and nuxwdog_status.group(1) == "true":
+                instance_type += '-nuxwdog'
+
+        logger.info("Loading instance type: %s", instance_type)
+
         if instance_type == 'tomcat':
             return pki.server.PKIServer(instance_name)
 
-        if instance_type == 'pki-tomcatd':
-            return PKIInstance(instance_name)
+        if instance_type.startswith('pki-tomcatd'):
+            return PKIInstance(instance_name, instance_type=instance_type)
 
         raise Exception('Unsupported instance type: %s' % instance_type)
