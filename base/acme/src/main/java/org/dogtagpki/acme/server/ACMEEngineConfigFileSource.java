@@ -68,7 +68,7 @@ class ACMEEngineConfigFileSource
                 enabled = !("0".equals(s) || "false".equalsIgnoreCase(s));
             }
 
-            s = props.getProperty("wildcard");
+            s = props.getProperty("policy.wildcard");
             if (s != null) {
                 wildcard = !("0".equals(s) || "false".equalsIgnoreCase(s));
             }

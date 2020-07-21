@@ -3,27 +3,20 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-package org.dogtagpki.acme;
+package org.dogtagpki.acme.server;
+
+import org.dogtagpki.acme.ACMEIdentifier;
 
 /**
  * This class includes mechanisms to enforce various policy and security
  * restrictions explicitly or implicitly enumerated by ACME.
  */
 public class ACMEPolicy {
-    private boolean enableWildcardIssuance;
 
-    public ACMEPolicy() {}
+    private ACMEPolicyConfig config;
 
-    public ACMEPolicy(boolean wildcards) {
-        enableWildcardIssuance = wildcards;
-    }
-
-    public boolean getEnableWildcards() {
-        return enableWildcardIssuance;
-    }
-
-    public void setEnableWildcards(boolean on) {
-        enableWildcardIssuance = on;
+    public ACMEPolicy(ACMEPolicyConfig config) {
+        this.config = config;
     }
 
     /**
@@ -86,7 +79,7 @@ public class ACMEPolicy {
             throw new Exception(msg);
         }
 
-        if (!getEnableWildcards()) {
+        if (!config.getEnableWildcards()) {
             String msg = "ACME Order Identifier `" + record + "` disallowed ";
             msg += "by ACME Policy because it contains a wildcard.";
             throw new Exception(msg);
