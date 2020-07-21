@@ -176,8 +176,6 @@ public class AdminConnection {
             }
         }
 
-        b64.append('\n');
-
         return b64.toString();
     }
 
@@ -736,11 +734,11 @@ public class AdminConnection {
         } else {
           sb.append("POST /" + request.getPrefix());
         }
-            sb.append(" HTTP/1.0\n");
+            sb.append(" HTTP/1.0\r\n");
 
         StringBuffer sb1 = new StringBuffer();
         if (!useGET) {
-            sb.append("Content-type: application/x-www-form-urlencoded\n");
+            sb.append("Content-type: application/x-www-form-urlencoded\r\n");
           Enumeration names = request.getElements();
           while (names.hasMoreElements()) {
             String name = (String)names.nextElement();
@@ -752,12 +750,12 @@ public class AdminConnection {
             if (names.hasMoreElements())
               sb1.append("&");
           }
-            sb.append("Content-length: " + sb1.toString().length() + "\n");
+            sb.append("Content-length: " + sb1.toString().length() + "\r\n");
         }
 
-        sb.append("Pragma: no-cache\n");
+        sb.append("Pragma: no-cache\r\n");
         if (mIsKeepAlive) {
-                sb.append("Connection: Keep-Alive\n");
+                sb.append("Connection: Keep-Alive\r\n");
         }
 
         if (mAuthType.equals("") || mAuthType.equals("pwd")) {
@@ -765,15 +763,17 @@ public class AdminConnection {
             // sun.misc.BASE64Encoder encoder = new sun.misc.BASE64Encoder();
             // sb.append("Authorization: Basic " +
             //          encoder.encodeBuffer((auth.getUserid() +
-            //                               ":" + auth.getPassword()).getBytes()) + "\n");
+            //                               ":" + auth.getPassword()).getBytes()) + "\r\n");
             sb.append("Authorization: Basic " +
                       b64encode((auth.getUserid() +
-                                          ":" + auth.getPassword()).getBytes()) + "\n");
-        } else if (mAuthType.equals("sslclientauth")) {
-            sb.append("\n");
-        } else {
+                                          ":" + auth.getPassword()).getBytes()) + "\r\n");
+        } else if (!mAuthType.equals("sslclientauth")) {
             throw new EAdminException(CMSAdminResources.AUTHENNOTSUPPORTED, false);
         }
+
+        // Append a second CRLF after the request headers and before the
+        // request body.
+        sb.append("\r\n");
 
         if (!useGET) {
             sb.append(sb1.toString());
