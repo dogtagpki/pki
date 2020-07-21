@@ -179,6 +179,7 @@ class PKIServerCLI(pki.cli.CLI):
                 subsystem_type += ' (Security Domain)'
             print('    Type:                %s' % subsystem_type)
 
+            print('    SD Name:             %s' % ca.config['securitydomain.name'])
             url = 'https://%s:%s' % (
                 ca.config['securitydomain.host'],
                 ca.config['securitydomain.httpsadminport'])
@@ -209,6 +210,7 @@ class PKIServerCLI(pki.cli.CLI):
                 subsystem_type += ' (Standalone)'
             print('    Type:                %s' % subsystem_type)
 
+            print('    SD Name:             %s' % kra.config['securitydomain.name'])
             url = 'https://%s:%s' % (
                 kra.config['securitydomain.host'],
                 kra.config['securitydomain.httpsadminport'])
@@ -235,6 +237,7 @@ class PKIServerCLI(pki.cli.CLI):
                 subsystem_type += ' (Standalone)'
             print('    Type:                %s' % subsystem_type)
 
+            print('    SD Name:             %s' % ocsp.config['securitydomain.name'])
             url = 'https://%s:%s' % (
                 ocsp.config['securitydomain.host'],
                 ocsp.config['securitydomain.httpsadminport'])
@@ -263,6 +266,7 @@ class PKIServerCLI(pki.cli.CLI):
                 subsystem_type += ' Clone'
             print('    Type:                %s' % subsystem_type)
 
+            print('    SD Name:             %s' % tks.config['securitydomain.name'])
             url = 'https://%s:%s' % (
                 tks.config['securitydomain.host'],
                 tks.config['securitydomain.httpsadminport'])
@@ -287,6 +291,7 @@ class PKIServerCLI(pki.cli.CLI):
                 subsystem_type += ' Clone'
             print('    Type:                %s' % subsystem_type)
 
+            print('    SD Name:             %s' % tps.config['securitydomain.name'])
             url = 'https://%s:%s' % (
                 tps.config['securitydomain.host'],
                 tps.config['securitydomain.httpsadminport'])
