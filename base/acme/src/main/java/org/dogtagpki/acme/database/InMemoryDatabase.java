@@ -62,6 +62,19 @@ public class InMemoryDatabase extends ACMEDatabase {
         return orders.get(orderID);
     }
 
+    public Collection<ACMEOrder> getOrdersByAccount(String accountID) throws Exception {
+
+        Collection<ACMEOrder> results = new ArrayList<>();
+
+        for (ACMEOrder order : orders.values()) {
+            if (order.getAccountID().equals(accountID)) {
+                results.add(order);
+            }
+        }
+
+        return results;
+    }
+
     public Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(
             String authzID, String status) throws Exception {
 

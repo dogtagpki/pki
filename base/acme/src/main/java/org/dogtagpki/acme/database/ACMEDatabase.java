@@ -46,6 +46,20 @@ public abstract class ACMEDatabase {
     public abstract void updateAccount(ACMEAccount account) throws Exception;
 
     public abstract ACMEOrder getOrder(String orderID) throws Exception;
+
+    /**
+     * This method returns all order records created by an account. The
+     * order records may be purged by the server at some point, so these
+     * records are not guaranteed to be available for all accounts.
+     *
+     * @param accountID The ID of the account.
+     * @return A collection of order records created by the account.
+     * @throws Exception
+     */
+    public Collection<ACMEOrder> getOrdersByAccount(String accountID) throws Exception {
+        throw new NotImplementedException();
+    }
+
     public abstract Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(
             String authzID,
             String status)
