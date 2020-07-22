@@ -27,7 +27,7 @@ class CertsPlugin(Plugin):
 
 
 class CertsRegistry(Registry):
-    def initialize(self, framework, config):
+    def initialize(self, framework, config, options=None):
         # Read dogtag specific config values and merge with already existing config
         # before adding it to registry
         merge_dogtag_config(config)
