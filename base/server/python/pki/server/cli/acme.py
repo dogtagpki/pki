@@ -782,7 +782,8 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
         elif database_type == 'ldap':
 
             print()
-            print('Enter the location of the LDAP server.')
+            print('Enter the location of the LDAP server '
+                  '(e.g. ldap://localhost.localdomain:389).')
             url = config.get('url')
             url = pki.util.read_text('  Server URL', default=url, required=True)
             pki.util.set_property(config, 'url', url)
@@ -839,7 +840,8 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
         elif database_type == 'postgresql':
 
             print()
-            print('Enter the location of the PostgreSQL server.')
+            print('Enter the location of the PostgreSQL database '
+                  '(e.g. jdbc:postgresql://localhost.localdomain:5432/acme).')
             url = config.get('url')
             url = pki.util.read_text('  Server URL', default=url, required=True)
             pki.util.set_property(config, 'url', url)
