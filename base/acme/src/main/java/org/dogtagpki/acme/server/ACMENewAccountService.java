@@ -98,6 +98,11 @@ public class ACMENewAccountService {
             builder.location(accountURL);
         }
 
+        // RFC 8555 Section 7.1.2.1 Orders List
+        //
+        // Each account object includes an "orders" URL from which a list of
+        // orders created by the account can be fetched via POST-as-GET request.
+
         URI ordersURL = uriInfo.getBaseUriBuilder().path("acct").path(accountID).path("orders").build();
         account.setOrders(ordersURL);
 
