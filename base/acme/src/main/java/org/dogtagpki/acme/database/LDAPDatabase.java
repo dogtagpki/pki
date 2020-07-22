@@ -346,6 +346,20 @@ public class LDAPDatabase extends ACMEDatabase {
         return loadOrder(entry);
     }
 
+    public Collection<ACMEOrder> getOrdersByAccount(String accountID) throws Exception {
+        Collection<ACMEOrder> orders = new ArrayList<>();
+
+        List<LDAPEntry> entries = ldapSearch(
+            RDN_ORDER + "," + basedn,
+            "(&(" + ATTR_OBJECTCLASS + "=" + OBJ_ORDER +
+                ")(" + ATTR_ACCOUNT_ID + "=" + accountID + "))"
+        );
+        for (LDAPEntry entry : entries) {
+            orders.add(loadOrder(entry));
+        }
+        return orders;
+    }
+
     public Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(String authzID, String status)
             throws Exception {
         Collection<ACMEOrder> orders = new ArrayList<>();

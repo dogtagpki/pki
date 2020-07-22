@@ -456,6 +456,50 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return order;
     }
 
+    public Collection<ACMEOrder> getOrdersByAccount(String accountID) throws Exception {
+
+        connect();
+
+        logger.info("Getting orders for account " + accountID);
+
+        String sql = statements.getProperty("getOrdersByAccount");
+        logger.info("SQL: " + sql);
+
+        Collection<ACMEOrder> orders = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, accountID);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    ACMEOrder order = new ACMEOrder();
+                    order.setID(rs.getString("id"));
+                    order.setAccountID(accountID);
+                    order.setStatus(rs.getString("status"));
+
+                    Timestamp expires = rs.getTimestamp("expires");
+                    order.setExpirationTime(expires == null ? null : new Date(expires.getTime()));
+
+                    Timestamp notBefore = rs.getTimestamp("not_before");
+                    order.setNotBeforeTime(notBefore == null ? null : new Date(notBefore.getTime()));
+
+                    Timestamp notAfter = rs.getTimestamp("not_after");
+                    order.setNotAfterTime(notAfter == null ? null : new Date(notAfter.getTime()));
+
+                    order.setCertID(rs.getString("cert_id"));
+
+                    getOrderIdentifiers(order);
+                    getOrderAuthorizations(order);
+
+                    orders.add(order);
+                }
+            }
+        }
+
+        return orders;
+    }
+
     public Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(String authzID, String status)
             throws Exception {
 
