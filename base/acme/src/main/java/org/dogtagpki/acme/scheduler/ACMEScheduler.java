@@ -58,8 +58,7 @@ public class ACMEScheduler {
                     try {
                         task.run();
                     } catch (Exception e) {
-                        logger.error("Unable to run " + name + " task");
-                        throw new RuntimeException(e);
+                        logger.error("Unable to run " + name + " task: " + e.getMessage(), e);
                     }
                 }
             };
@@ -91,6 +90,7 @@ public class ACMEScheduler {
     }
 
     public void shutdown() throws Exception {
+        logger.info("Shutting down ACME scheduler");
         executorService.shutdown();
     }
 }
