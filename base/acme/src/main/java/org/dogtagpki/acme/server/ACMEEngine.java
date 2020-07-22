@@ -726,6 +726,10 @@ public class ACMEEngine implements ServletContextListener {
         return order;
     }
 
+    public Collection<ACMEOrder> getOrdersByAccount(ACMEAccount account) throws Exception {
+        return database.getOrdersByAccount(account.getID());
+    }
+
     public Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(
             ACMEAccount account, String authzID, String status)
             throws Exception {

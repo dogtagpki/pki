@@ -36,6 +36,7 @@ public class ACMEApplication extends Application {
         classes.add(ACMEOrderService.class);
         classes.add(ACMECertificateService.class);
         classes.add(ACMEAccountService.class);
+        classes.add(ACMEAccountOrdersService.class);
         classes.add(ACMERevokeCertificateService.class);
 
         singletons.add(new ACMERequestFilter());
