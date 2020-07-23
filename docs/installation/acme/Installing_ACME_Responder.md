@@ -54,7 +54,8 @@ $ curl -s -k https://$HOSTNAME:8443/acme/directory | python -m json.tool
     },
     "newAccount": "https://<hostname>:8443/acme/new-account",
     "newNonce": "https://<hostname>:8443/acme/new-nonce",
-    "newOrder": "https://<hostname>:8443/acme/new-order"
+    "newOrder": "https://<hostname>:8443/acme/new-order",
+    "revokeCert": "https://<hostname>:8443/acme/revoke-cert"
 }
 ```
 
