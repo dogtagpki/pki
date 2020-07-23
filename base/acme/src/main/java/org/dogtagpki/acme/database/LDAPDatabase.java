@@ -6,7 +6,6 @@
 package org.dogtagpki.acme.database;
 
 import java.net.URI;
-import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,12 +18,12 @@ import java.util.stream.Collectors;
 
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
+import org.dogtagpki.acme.ACMECertificate;
 import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWK;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
@@ -791,25 +790,42 @@ public class LDAPDatabase extends ACMEDatabase {
         }
     }
 
-    public X509Certificate getCertificate(String certID) throws Exception {
+    public ACMECertificate getCertificate(String certID) throws Exception {
         String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + basedn;
         LDAPEntry entry = ldapGet(dn);
         if (entry == null) return null;
 
-        LDAPAttribute userCertificate = entry.getAttribute(ATTR_USER_CERTIFICATE);
-        byte[] bytes = userCertificate.getByteValueArray()[0];
-        return new X509CertImpl(bytes);
+        ACMECertificate certificate = new ACMECertificate();
+        certificate.setID(certID);
+
+        LDAPAttribute attr = entry.getAttribute(ATTR_USER_CERTIFICATE);
+        certificate.setData(attr.getByteValueArray()[0]);
+
+        attr = entry.getAttribute(ATTR_EXPIRES);
+        if (attr != null) {
+            certificate.setExpirationTime(dateFormat.parse(attr.getStringValues().nextElement()));
+        }
+
+        return certificate;
     }
 
-    public void addCertificate(String certID, X509Certificate cert) throws Exception {
+    public void addCertificate(String certID, ACMECertificate certificate) throws Exception {
+
         String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + basedn;
         LDAPAttribute[] attrs = {
                 new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_CERTIFICATE),
                 new LDAPAttribute(ATTR_CERTIFICATE_ID, certID),
-                new LDAPAttribute(ATTR_USER_CERTIFICATE, cert.getEncoded()),
-                new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(cert.getNotAfter()))
+                new LDAPAttribute(ATTR_USER_CERTIFICATE, certificate.getData())
         };
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
+
+        Date expirationTime = certificate.getExpirationTime();
+        if (expirationTime != null) {
+            attrSet.add(
+                new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(expirationTime))
+            );
+        }
+
         LDAPEntry entry = new LDAPEntry(dn, attrSet);
         ldapAdd(entry);
     }

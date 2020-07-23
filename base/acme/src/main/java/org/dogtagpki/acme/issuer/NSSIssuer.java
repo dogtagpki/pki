@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 
 import org.apache.commons.codec.binary.Base64;
+import org.dogtagpki.acme.ACMECertificate;
 import org.dogtagpki.acme.database.ACMEDatabase;
 import org.dogtagpki.acme.server.ACMEEngine;
 import org.dogtagpki.nss.NSSDatabase;
@@ -109,7 +110,13 @@ public class NSSIssuer extends ACMEIssuer {
 
         BigInteger serialNumber = cert.getSerialNumber();
         String certID = Base64.encodeBase64URLSafeString(serialNumber.toByteArray());
-        acmeDatabase.addCertificate(certID, cert);
+
+        ACMECertificate certificate = new ACMECertificate();
+        certificate.setID(certID);
+        certificate.setData(cert.getEncoded());
+        certificate.setExpirationTime(cert.getNotAfter());
+
+        acmeDatabase.addCertificate(certID, certificate);
 
         return certID;
     }
@@ -135,7 +142,8 @@ public class NSSIssuer extends ACMEIssuer {
         ACMEEngine engine = ACMEEngine.getInstance();
         ACMEDatabase acmeDatabase = engine.getDatabase();
 
-        X509Certificate cert = acmeDatabase.getCertificate(certID);
+        ACMECertificate certificate = acmeDatabase.getCertificate(certID);
+        X509Certificate cert = new X509CertImpl(certificate.getData());
         X509Certificate[] certChain = getCACertificateChain();
 
         StringWriter sw = new StringWriter();

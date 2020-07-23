@@ -8,7 +8,6 @@ package org.dogtagpki.acme.database;
 import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -24,12 +23,12 @@ import java.util.Properties;
 
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
+import org.dogtagpki.acme.ACMECertificate;
 import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWK;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * @author Endi S. Dewata
@@ -1091,7 +1090,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
-    public X509Certificate getCertificate(String certID) throws Exception {
+    public ACMECertificate getCertificate(String certID) throws Exception {
 
         logger.info("Getting certificate " + certID);
 
@@ -1109,8 +1108,14 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                     return null;
                 }
 
-                byte[] bytes = rs.getBytes("data");
-                return new X509CertImpl(bytes);
+                ACMECertificate certificate = new ACMECertificate();
+                certificate.setID(certID);
+                certificate.setData(rs.getBytes("data"));
+
+                Timestamp expires = rs.getTimestamp("expires");
+                certificate.setExpirationTime(expires == null ? null : new Date(expires.getTime()));
+
+                return certificate;
             }
         }
     }
@@ -1137,7 +1142,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         return certIDs;
     }
 
-    public void addCertificate(String certID, X509Certificate cert) throws Exception {
+    public void addCertificate(String certID, ACMECertificate certificate) throws Exception {
 
         logger.info("Adding certificate " + certID);
 
@@ -1149,10 +1154,10 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, certID);
-            ps.setBytes(2, cert.getEncoded());
+            ps.setBytes(2, certificate.getData());
 
-            Date expirationTime = cert.getNotAfter();
-            ps.setTimestamp(3, new Timestamp(expirationTime.getTime()));
+            Date expirationTime = certificate.getExpirationTime();
+            ps.setTimestamp(3, expirationTime == null ? null : new Timestamp(expirationTime.getTime()));
 
             ps.executeUpdate();
         }
