@@ -806,16 +806,24 @@ public class LDAPDatabase extends ACMEDatabase {
         LDAPAttribute[] attrs = {
                 new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_CERTIFICATE),
                 new LDAPAttribute(ATTR_CERTIFICATE_ID, certID),
-                new LDAPAttribute(ATTR_USER_CERTIFICATE, cert.getEncoded())
+                new LDAPAttribute(ATTR_USER_CERTIFICATE, cert.getEncoded()),
+                new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(cert.getNotAfter()))
         };
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
         LDAPEntry entry = new LDAPEntry(dn, attrSet);
         ldapAdd(entry);
     }
 
-    public void removeCertificate(String certID) throws Exception {
-        String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + basedn;
-        ldapDelete(dn, OnNoSuchObject.Ignore);
+    public void removeExpiredCertificates(Date currentTime) throws Exception {
+        String[] attrs = {"1.1"};  // suppress attrs for performance; we only need DN
+        List<LDAPEntry> entries = ldapSearch(
+            RDN_CERTIFICATE + "," + basedn,
+            "(" + ATTR_EXPIRES + "<=" + dateFormat.format(currentTime) + ")",
+            attrs
+        );
+        for (LDAPEntry entry : entries) {
+            ldapDelete(entry.getDN(), OnNoSuchObject.Ignore);
+        }
     }
 
 

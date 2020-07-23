@@ -216,7 +216,7 @@ public class InMemoryDatabase extends ACMEDatabase {
         certificates.put(certID, cert);
     }
 
-    public void removeCertificate(String certID) throws Exception {
-        certificates.remove(certID);
+    public void removeExpiredCertificates(Date currentTime) throws Exception {
+        certificates.values().removeIf(n -> !currentTime.before(n.getNotAfter()));
     }
 }
