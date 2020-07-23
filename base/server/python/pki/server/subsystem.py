@@ -1100,7 +1100,7 @@ class PKISubsystem(object):
             # switch to systemd user if different from current user
             username = pwd.getpwuid(os.getuid()).pw_name
             if username != self.instance.user:
-                cmd.extend(['sudo', '-u', self.instance.user])
+                cmd.extend(['runuser', '-u', self.instance.user, '--'])
 
         if os.path.exists(java_path):
             cmd.extend([java_path])

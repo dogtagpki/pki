@@ -318,7 +318,7 @@ class PKIServer(object):
 
             # switch to systemd user if different from current user
             if current_user != self.user:
-                prefix.extend(['sudo', '-u', self.user])
+                prefix.extend(['runuser', '-u', self.user, '--'])
 
         java_path = os.getenv('PKI_JAVA_PATH')
         java_home = self.config.get('JAVA_HOME')
