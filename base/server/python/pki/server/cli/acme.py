@@ -767,12 +767,19 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
             'Enter the type of the database. '
             'Available types: %s.' % ', '.join(DATABASE_TYPES.values()))
         database_type = DATABASE_TYPES.get(database_class)
+        orig_database_type = database_type
+
         database_type = pki.util.read_text(
             '  Database Type',
             options=DATABASE_TYPES.values(),
             default=database_type,
             required=True)
         pki.util.set_property(config, 'class', DATABASE_CLASSES.get(database_type))
+
+        if orig_database_type != database_type:
+            source = '/usr/share/pki/acme/database/{0}/database.conf'.format(database_type)
+            logger.info('Loading %s', source)
+            pki.util.load_properties(source, config)
 
         if database_type == 'in-memory':
             config.pop('url', None)
@@ -1086,12 +1093,19 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
             'Enter the type of the certificate issuer. '
             'Available types: %s.' % ', '.join(ISSUER_TYPES.values()))
         issuer_type = ISSUER_TYPES.get(issuer_class)
+        orig_issuer_type = issuer_type
+
         issuer_type = pki.util.read_text(
             '  Issuer Type',
             options=ISSUER_TYPES.values(),
             default=issuer_type,
             required=True)
         pki.util.set_property(config, 'class', ISSUER_CLASSES.get(issuer_type))
+
+        if orig_issuer_type != issuer_type:
+            source = '/usr/share/pki/acme/issuer/{0}/issuer.conf'.format(issuer_type)
+            logger.info('Loading %s', source)
+            pki.util.load_properties(source, config)
 
         if issuer_type == 'nss':
 
