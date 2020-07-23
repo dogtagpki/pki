@@ -1110,7 +1110,8 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
         elif issuer_type == 'pki':
 
             print()
-            print('Enter the location of the PKI server.')
+            print('Enter the location of the PKI server '
+                  '(e.g. https://localhost.localdomain:8443).')
             url = config.get('url')
             url = pki.util.read_text('  Server URL', default=url, required=True)
             pki.util.set_property(config, 'url', url)
@@ -1149,7 +1150,8 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
                 pki.util.set_property(config, 'passwordFile', password_file)
 
             print()
-            print('Enter the certificate profile for issuing ACME certificates.')
+            print('Enter the certificate profile for issuing ACME certificates '
+                  '(e.g. acmeServerCert).')
             profile = config.get('profile')
             profile = pki.util.read_text('  Certificate Profile', default=profile, required=True)
             pki.util.set_property(config, 'profile', profile)
