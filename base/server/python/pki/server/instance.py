@@ -878,13 +878,14 @@ class PKIServerFactory(object):
 
         sysconfig_file = os.path.join('/etc/sysconfig', instance_name)
 
-        with open(sysconfig_file) as f:
+        if os.path.isfile(sysconfig_file):
 
-            nuxwdog_status = re.search('^USE_NUXWDOG=\"(.*)\"', f.read(), re.MULTILINE)
+            with open(sysconfig_file) as f:
+                nuxwdog_status = re.search('^USE_NUXWDOG=\"(.*)\"', f.read(), re.MULTILINE)
 
-            # Check if the regex was matched and then check if nuxwdog is enabled.
-            if nuxwdog_status and nuxwdog_status.group(1) == "true":
-                instance_type += '-nuxwdog'
+                # Check if the regex was matched and then check if nuxwdog is enabled.
+                if nuxwdog_status and nuxwdog_status.group(1) == "true":
+                    instance_type += '-nuxwdog'
 
         logger.info("Loading instance type: %s", instance_type)
 
