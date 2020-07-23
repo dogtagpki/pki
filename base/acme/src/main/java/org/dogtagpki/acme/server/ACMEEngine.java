@@ -216,6 +216,7 @@ public class ACMEEngine implements ServletContextListener {
         logger.info("  - ready: " + policyConfig.getRetention().getReadyOrders());
         logger.info("  - processing: " + policyConfig.getRetention().getProcessingOrders());
         logger.info("  - valid: " + policyConfig.getRetention().getValidOrders());
+        logger.info("- certificate retention: " + policyConfig.getRetention().getCertificates());
 
         policy = new ACMEPolicy(policyConfig);
     }

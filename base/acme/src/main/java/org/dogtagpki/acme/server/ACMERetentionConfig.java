@@ -28,6 +28,7 @@ public class ACMERetentionConfig {
     private ACMERetention readyOrders = new ACMERetention(30, ChronoUnit.MINUTES);
     private ACMERetention processingOrders = new ACMERetention(30, ChronoUnit.MINUTES);
     private ACMERetention validOrders = new ACMERetention(30, ChronoUnit.MINUTES);
+    private ACMERetention certificates = new ACMERetention(30, ChronoUnit.DAYS);
 
     public ACMERetentionConfig() {}
 
@@ -101,6 +102,14 @@ public class ACMERetentionConfig {
 
     public void setValidOrders(ACMERetention validOrders) {
         this.validOrders = validOrders;
+    }
+
+    public ACMERetention getCertificates() {
+        return certificates;
+    }
+
+    public void setCertificates(ACMERetention certificates) {
+        this.certificates = certificates;
     }
 
     public void setProperty(String key, String value) throws Exception {
