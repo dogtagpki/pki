@@ -5,13 +5,13 @@
 //
 package org.dogtagpki.acme.database;
 
-import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
+import org.dogtagpki.acme.ACMECertificate;
 import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
@@ -121,11 +121,11 @@ public abstract class ACMEDatabase {
         throw new NotImplementedException();
     }
 
-    public X509Certificate getCertificate(String certID) throws Exception {
+    public ACMECertificate getCertificate(String certID) throws Exception {
         throw new NotImplementedException();
     }
 
-    public void addCertificate(String certID, X509Certificate cert) throws Exception {
+    public void addCertificate(String certID, ACMECertificate certificate) throws Exception {
         throw new NotImplementedException();
     }
 

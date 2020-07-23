@@ -5,7 +5,6 @@
 //
 package org.dogtagpki.acme.database;
 
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -14,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
+import org.dogtagpki.acme.ACMECertificate;
 import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
@@ -29,7 +29,7 @@ public class InMemoryDatabase extends ACMEDatabase {
     private Map<String, ACMEAccount> accounts = new ConcurrentHashMap<>();
     private Map<String, ACMEOrder> orders = new ConcurrentHashMap<>();
     private Map<String, ACMEAuthorization> authorizations = new ConcurrentHashMap<>();
-    private Map<String, X509Certificate> certificates = new ConcurrentHashMap<>();
+    private Map<String, ACMECertificate> certificates = new ConcurrentHashMap<>();
 
     public void init() throws Exception {
         logger.info("Initializing in-memory database");
@@ -208,15 +208,16 @@ public class InMemoryDatabase extends ACMEDatabase {
                 n -> n.getExpirationTime() != null && !currentTime.before(n.getExpirationTime()));
     }
 
-    public X509Certificate getCertificate(String certID) throws Exception {
+    public ACMECertificate getCertificate(String certID) throws Exception {
         return certificates.get(certID);
     }
 
-    public void addCertificate(String certID, X509Certificate cert) throws Exception {
-        certificates.put(certID, cert);
+    public void addCertificate(String certID, ACMECertificate certificate) throws Exception {
+        certificates.put(certID, certificate);
     }
 
     public void removeExpiredCertificates(Date currentTime) throws Exception {
-        certificates.values().removeIf(n -> !currentTime.before(n.getNotAfter()));
+        certificates.values().removeIf(
+                n -> n.getExpirationTime() != null && !currentTime.before(n.getExpirationTime()));
     }
 }
