@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.acme.ACMECertificate;
@@ -114,7 +115,9 @@ public class NSSIssuer extends ACMEIssuer {
         ACMECertificate certificate = new ACMECertificate();
         certificate.setID(certID);
         certificate.setData(cert.getEncoded());
-        certificate.setExpirationTime(cert.getNotAfter());
+
+        Date expirationTime = engine.getPolicy().getCertificateExpirationTime(cert.getNotAfter());
+        certificate.setExpirationTime(expirationTime);
 
         acmeDatabase.addCertificate(certID, certificate);
 

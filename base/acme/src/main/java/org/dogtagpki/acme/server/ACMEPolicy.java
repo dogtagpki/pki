@@ -125,4 +125,8 @@ public class ACMEPolicy {
     public Date getValidOrderExpirationTime(Date currentTime) {
         return config.getRetention().getValidOrders().getExpirationTime(currentTime);
     }
+
+    public Date getCertificateExpirationTime(Date currentTime) {
+        return config.getRetention().getCertificates().getExpirationTime(currentTime);
+    }
 }
