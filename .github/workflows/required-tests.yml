@@ -123,7 +123,7 @@ jobs:
           run: tar -xzf pki-build-${{ matrix.os }}/pki-rpms.tar.gz
 
         - name: Install required packages
-          run: docker exec -i ${CONTAINER} dnf install -y findutils dnf-plugins-core sudo wget 389-ds-base
+          run: docker exec -i ${CONTAINER} dnf install -y findutils dnf-plugins-core wget 389-ds-base
 
         - name: Enable PKI COPR repo
           run: docker exec -i ${CONTAINER} dnf copr enable -y ${COPR_REPO}
