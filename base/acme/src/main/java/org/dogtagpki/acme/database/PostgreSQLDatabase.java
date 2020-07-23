@@ -443,7 +443,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
     public Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(String authzID, String status)
             throws Exception {
 
-        logger.info("Getting pending orders for authorization " + authzID);
+        logger.info("Getting " + status + " orders for authorization " + authzID);
 
         String sql = statements.getProperty("getOrdersByAuthorizationAndStatus");
         logger.info("SQL: " + sql);

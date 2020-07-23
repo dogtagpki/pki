@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.dogtagpki.acme.ACMEAccount;
@@ -65,22 +64,21 @@ public class InMemoryDatabase extends ACMEDatabase {
 
     public Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(
             String authzID, String status) throws Exception {
-        Vector<ACMEOrder> l = new Vector<>();
+
+        Collection<ACMEOrder> results = new ArrayList<>();
 
         for (ACMEOrder order : orders.values()) {
-
-            if (order.getAuthzIDs() == null) {
-                continue;
-            }
+            if (!order.getStatus().equals(status)) continue;
+            if (order.getAuthzIDs() == null) continue;
 
             for (String orderAuthzID : order.getAuthzIDs()) {
-                if (orderAuthzID.equals(authzID) && order.getStatus() == "pending") {
-                    l.add(order);
-                }
+                if (!orderAuthzID.equals(authzID)) continue;
+                results.add(order);
+                break;
             }
         }
 
-        return l;
+        return results;
     }
 
     public ACMEOrder getOrderByCertificate(String certID) throws Exception {
