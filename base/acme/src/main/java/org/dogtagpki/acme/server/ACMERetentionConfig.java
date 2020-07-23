@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ACMERetentionConfig {
 
     private ACMERetention nonces = new ACMERetention(30, ChronoUnit.MINUTES);
+    private ACMERetention pendingAuthorizations = new ACMERetention(30, ChronoUnit.MINUTES);
+    private ACMERetention invalidAuthorizations = new ACMERetention(30, ChronoUnit.MINUTES);
     private ACMERetention validAuthorizations = new ACMERetention(30, ChronoUnit.MINUTES);
     private ACMERetention pendingOrders = new ACMERetention(30, ChronoUnit.MINUTES);
     private ACMERetention validOrders = new ACMERetention(30, ChronoUnit.MINUTES);
@@ -32,6 +34,22 @@ public class ACMERetentionConfig {
 
     public void setNonces(ACMERetention nonces) {
         this.nonces = nonces;
+    }
+
+    public ACMERetention getPendingAuthorizations() {
+        return pendingAuthorizations;
+    }
+
+    public void setPendingAuthorizations(ACMERetention pendingAuthorizations) {
+        this.pendingAuthorizations = pendingAuthorizations;
+    }
+
+    public ACMERetention getInvalidAuthorizations() {
+        return invalidAuthorizations;
+    }
+
+    public void setInvalidAuthorizations(ACMERetention invalidAuthorizations) {
+        this.invalidAuthorizations = invalidAuthorizations;
     }
 
     public ACMERetention getValidAuthorizations() {

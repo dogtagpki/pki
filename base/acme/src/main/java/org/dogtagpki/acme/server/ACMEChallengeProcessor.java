@@ -129,6 +129,8 @@ public class ACMEChallengeProcessor implements Runnable {
 
     public void finalizeInvalidAuthorization(Exception e) throws Exception {
 
+        Date currentTime = new Date();
+
         ACMEEngine engine = ACMEEngine.getInstance();
         String authzID = authorization.getID();
         String challengeID = challenge.getID();
@@ -164,7 +166,9 @@ public class ACMEChallengeProcessor implements Runnable {
 
         logger.info("Authorization " + authzID + " is invalid");
         authorization.setStatus("invalid");
-        authorization.setExpirationTime(null);
+
+        Date expirationTime = engine.getPolicy().getInvalidAuthorizationExpirationTime(currentTime);
+        authorization.setExpirationTime(expirationTime);
 
         engine.updateAuthorization(account, authorization);
 

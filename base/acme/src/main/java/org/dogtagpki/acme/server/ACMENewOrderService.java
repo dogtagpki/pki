@@ -43,6 +43,7 @@ public class ACMENewOrderService {
     public Response createNewOrder(JWS jws) throws Exception {
 
         logger.info("Creating new order");
+        Date currentTime = new Date();
 
         String protectedHeader = new String(jws.getProtectedHeaderAsBytes(), "UTF-8");
         logger.info("Header: " + protectedHeader);
@@ -108,7 +109,9 @@ public class ACMENewOrderService {
             authorization.setWildcard(wildcard);
 
             authorization.setStatus("pending");
-            authorization.setExpirationTime(null);
+
+            Date expirationTime = engine.getPolicy().getPendingAuthorizationExpirationTime(currentTime);
+            authorization.setExpirationTime(expirationTime);
 
             engine.addAuthorization(account, authorization);
 
@@ -135,7 +138,7 @@ public class ACMENewOrderService {
 
         order.setStatus("pending");
 
-        Date expirationTime = engine.getPolicy().getPendingOrderExpirationTime(new Date());
+        Date expirationTime = engine.getPolicy().getPendingOrderExpirationTime(currentTime);
         order.setExpirationTime(expirationTime);
 
         engine.addOrder(account, order);
