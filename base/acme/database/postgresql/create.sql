@@ -56,5 +56,6 @@ CREATE TABLE "authorization_challenges" (
 
 CREATE TABLE "certificates" (
     "id"               VARCHAR PRIMARY KEY,
-    "data"             BYTEA
+    "data"             BYTEA,
+    "expires"          TIMESTAMP
 );

@@ -1115,6 +1115,28 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
+    private Collection<String> getExpiredCertificateIDs(Date currentTime) throws Exception {
+
+        String sql = statements.getProperty("getExpiredCertificateIDs");
+        logger.info("SQL: " + sql);
+
+        Collection<String> certIDs = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setTimestamp(1, new Timestamp(currentTime.getTime()));
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    String certID = rs.getString("id");
+                    certIDs.add(certID);
+                }
+            }
+        }
+
+        return certIDs;
+    }
+
     public void addCertificate(String certID, X509Certificate cert) throws Exception {
 
         logger.info("Adding certificate " + certID);
@@ -1129,22 +1151,38 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.setString(1, certID);
             ps.setBytes(2, cert.getEncoded());
 
+            Date expirationTime = cert.getNotAfter();
+            ps.setTimestamp(3, new Timestamp(expirationTime.getTime()));
+
             ps.executeUpdate();
         }
     }
 
-    public void removeCertificate(String certID) throws Exception {
+    private void removeCertificate(String certID) throws Exception {
 
         logger.info("Removing certificate " + certID);
 
         String sql = statements.getProperty("removeCertificate");
         logger.info("SQL: " + sql);
 
-        connect();
-
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, certID);
             ps.executeUpdate();
+        }
+    }
+
+    public void removeExpiredCertificates(Date currentTime) throws Exception {
+
+        connect();
+
+        logger.info("Getting expired certificaate IDs");
+
+        Collection<String> certIDs = getExpiredCertificateIDs(currentTime);
+
+        logger.info("Removing expired certificates");
+
+        for (String certID : certIDs) {
+            removeCertificate(certID);
         }
     }
 }

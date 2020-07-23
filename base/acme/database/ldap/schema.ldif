@@ -88,4 +88,5 @@ objectClasses: ( acmeChallengeHttp01-oid NAME 'acmeChallengeHttp01'
   MUST acmeToken )
 objectClasses: ( acmeCertificate-oid NAME 'acmeCertificate'
   STRUCTURAL
-  MUST ( acmeCertificateId $ userCertificate ) )
+  MUST ( acmeCertificateId $ userCertificate )
+  MAY acmeExpires )

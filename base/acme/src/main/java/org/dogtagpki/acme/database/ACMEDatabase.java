@@ -129,7 +129,7 @@ public abstract class ACMEDatabase {
         throw new NotImplementedException();
     }
 
-    public void removeCertificate(String certID) throws Exception {
+    public void removeExpiredCertificates(Date currentTime) throws Exception {
         throw new NotImplementedException();
     }
 }
