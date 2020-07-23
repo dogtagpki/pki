@@ -70,7 +70,9 @@ public class ACMEFinalizeOrderService {
         }
 
         order.setStatus("processing");
-        order.setExpirationTime(null);
+
+        Date processingOrderExpirationTime = engine.getPolicy().getProcessingOrderExpirationTime(new Date());
+        order.setExpirationTime(processingOrderExpirationTime);
 
         engine.updateOrder(account, order);
 
@@ -99,8 +101,8 @@ public class ACMEFinalizeOrderService {
 
         order.setStatus("valid");
 
-        Date expirationTime = engine.getPolicy().getValidOrderExpirationTime(new Date());
-        order.setExpirationTime(expirationTime);
+        Date validOrderExpirationTime = engine.getPolicy().getValidOrderExpirationTime(new Date());
+        order.setExpirationTime(validOrderExpirationTime);
 
         engine.updateOrder(account, order);
 

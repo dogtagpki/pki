@@ -24,6 +24,9 @@ public class ACMERetentionConfig {
     private ACMERetention invalidAuthorizations = new ACMERetention(30, ChronoUnit.MINUTES);
     private ACMERetention validAuthorizations = new ACMERetention(30, ChronoUnit.MINUTES);
     private ACMERetention pendingOrders = new ACMERetention(30, ChronoUnit.MINUTES);
+    private ACMERetention invalidOrders = new ACMERetention(30, ChronoUnit.MINUTES);
+    private ACMERetention readyOrders = new ACMERetention(30, ChronoUnit.MINUTES);
+    private ACMERetention processingOrders = new ACMERetention(30, ChronoUnit.MINUTES);
     private ACMERetention validOrders = new ACMERetention(30, ChronoUnit.MINUTES);
 
     public ACMERetentionConfig() {}
@@ -66,6 +69,30 @@ public class ACMERetentionConfig {
 
     public void setPendingOrders(ACMERetention pendingOrders) {
         this.pendingOrders = pendingOrders;
+    }
+
+    public ACMERetention getInvalidOrders() {
+        return invalidOrders;
+    }
+
+    public void setInvalidOrders(ACMERetention invalidOrders) {
+        this.invalidOrders = invalidOrders;
+    }
+
+    public ACMERetention getReadyOrders() {
+        return readyOrders;
+    }
+
+    public void setReadyOrders(ACMERetention readyOrders) {
+        this.readyOrders = readyOrders;
+    }
+
+    public ACMERetention getProcessingOrders() {
+        return processingOrders;
+    }
+
+    public void setProcessingOrders(ACMERetention processingOrders) {
+        this.processingOrders = processingOrders;
     }
 
     public ACMERetention getValidOrders() {
