@@ -94,6 +94,14 @@ public class ACMEPolicy {
         return config.getRetention().getNonces().getExpirationTime(currentTime);
     }
 
+    public Date getPendingAuthorizationExpirationTime(Date currentTime) {
+        return config.getRetention().getPendingAuthorizations().getExpirationTime(currentTime);
+    }
+
+    public Date getInvalidAuthorizationExpirationTime(Date currentTime) {
+        return config.getRetention().getInvalidAuthorizations().getExpirationTime(currentTime);
+    }
+
     public Date getValidAuthorizationExpirationTime(Date currentTime) {
         return config.getRetention().getValidAuthorizations().getExpirationTime(currentTime);
     }
