@@ -110,6 +110,18 @@ public class ACMEPolicy {
         return config.getRetention().getPendingOrders().getExpirationTime(currentTime);
     }
 
+    public Date getInvalidOrderExpirationTime(Date currentTime) {
+        return config.getRetention().getInvalidOrders().getExpirationTime(currentTime);
+    }
+
+    public Date getReadyOrderExpirationTime(Date currentTime) {
+        return config.getRetention().getReadyOrders().getExpirationTime(currentTime);
+    }
+
+    public Date getProcessingOrderExpirationTime(Date currentTime) {
+        return config.getRetention().getProcessingOrders().getExpirationTime(currentTime);
+    }
+
     public Date getValidOrderExpirationTime(Date currentTime) {
         return config.getRetention().getValidOrders().getExpirationTime(currentTime);
     }

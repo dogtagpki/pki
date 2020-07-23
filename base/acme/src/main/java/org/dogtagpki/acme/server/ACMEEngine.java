@@ -210,8 +210,12 @@ public class ACMEEngine implements ServletContextListener {
         logger.info("  - pending: " + policyConfig.getRetention().getPendingAuthorizations());
         logger.info("  - invalid: " + policyConfig.getRetention().getInvalidAuthorizations());
         logger.info("  - valid: " + policyConfig.getRetention().getValidAuthorizations());
-        logger.info("- pending order retention: " + policyConfig.getRetention().getPendingOrders());
-        logger.info("- valid order retention: " + policyConfig.getRetention().getValidOrders());
+        logger.info("- order retention:");
+        logger.info("  - pending: " + policyConfig.getRetention().getPendingOrders());
+        logger.info("  - invalid: " + policyConfig.getRetention().getInvalidOrders());
+        logger.info("  - ready: " + policyConfig.getRetention().getReadyOrders());
+        logger.info("  - processing: " + policyConfig.getRetention().getProcessingOrders());
+        logger.info("  - valid: " + policyConfig.getRetention().getValidOrders());
 
         policy = new ACMEPolicy(policyConfig);
     }
