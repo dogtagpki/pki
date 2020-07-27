@@ -51,6 +51,11 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         info = new Properties();
         for (String name : config.getParameterNames()) {
             String value = config.getParameter(name);
+
+            if (!"password".equals(name)) {
+                logger.info("- " + name + ": " + value);
+            }
+
             info.put(name, value);
         }
 
