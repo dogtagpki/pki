@@ -293,4 +293,12 @@ public class CRLIssuingPointConfig extends PropConfigStore {
     public void setCRLEndSerialNo(BigInteger crlEndSerialNo) {
         putBigInteger("crlEndSerialNo", crlEndSerialNo);
     }
+
+    public boolean getAutoUpdateIntervalEffectiveAtStart()  throws EBaseException {
+        return getBoolean("autoUpdateInterval.effectiveAtStart",false);
+    }
+
+    public void setAutoUpdateIntervalEffectiveAtStart(Boolean updated) {
+        putBoolean("autoUpdateInterval.effectiveAtStart",updated);
+    }
 }
