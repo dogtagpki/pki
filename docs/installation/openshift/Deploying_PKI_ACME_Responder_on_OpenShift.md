@@ -156,3 +156,4 @@ The responder should now be accessible at https://&lt;hostname&gt;/acme/director
 * [Configuring ACME Database](../acme/Configuring_ACME_Database.md)
 * [Configuring ACME Issuer](../acme/Configuring_ACME_Issuer.md)
 * [Using ACME Responder](../../user/acme/Using_ACME_Responder.md)
+* [Deploying openshift-acme on OpenShift](Deploying_openshift-acme_on_OpenShift.md)
