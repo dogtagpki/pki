@@ -87,11 +87,7 @@ JAVA_OPTIONS=""
 ##      order this command wrapper uses to find jar files.                   ##
 ###############################################################################
 
-CP=${JNI_JAR_DIR}/jss4.jar
-CP=/usr/share/java/commons-codec.jar:${CP}
-CP=/usr/share/java/ldapjdk.jar:${CP}
-CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}
-CP=/usr/share/java/${PRODUCT}/pki-tools.jar:${CP}
+CP="${PKI_LIB}/*"
 export CP
 
 
@@ -108,7 +104,7 @@ then
     then
         file $2 | grep -E 'ASCII text|PEM certificate' > /dev/null
         if [ $? -ne 0 ] ; then
-            ${JAVA} ${JAVA_OPTIONS} -cp ${CP} com.netscape.cmstools.${COMMAND}
+            ${JAVA} ${JAVA_OPTIONS} -cp "${CP}" com.netscape.cmstools.${COMMAND}
             printf "\n"
             printf " ERROR:  '$2' is not an ASCII file!\n\n"
             printf "         First, use 'BtoA $2 $2.b64'\n"
@@ -118,7 +114,7 @@ then
     else
         file $1 | grep -E 'ASCII text|PEM certificate' > /dev/null
         if [ $? -ne 0 ] ; then
-            ${JAVA} ${JAVA_OPTIONS} -cp ${CP} com.netscape.cmstools.${COMMAND}
+            ${JAVA} ${JAVA_OPTIONS} -cp "${CP}" com.netscape.cmstools.${COMMAND}
             printf "\n"
             printf " ERROR:  '$1' is not an ASCII file!\n\n"
             printf "         First, use 'BtoA $1 $1.b64'\n"
@@ -128,6 +124,6 @@ then
     fi
 fi
 
-${JAVA} ${JAVA_OPTIONS} -cp ${CP} com.netscape.cmstools.${COMMAND} "$@"
+${JAVA} ${JAVA_OPTIONS} -cp "${CP}" com.netscape.cmstools.${COMMAND} "$@"
 exit $?
 
