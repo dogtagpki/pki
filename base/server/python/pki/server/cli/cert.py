@@ -1232,8 +1232,9 @@ class CertFixCLI(pki.cli.CLI):
                     for cert_id in fix_certs:
                         logger.info('Requesting new cert for %s', cert_id)
                         instance.cert_create(
-                            cert_id=cert_id, renew=True,
-                            username=agent_uid, password=agent_pass, secure_port=port)
+                            cert_id=cert_id, renew=True, username=agent_uid,
+                            password=agent_pass, secure_port=port,
+                            client_nssdb=instance.nssdb_dir)
                     for serial in extra_certs:
                         output = instance.cert_file('{}-renewed'.format(serial))
                         logger.info(
@@ -1241,8 +1242,9 @@ class CertFixCLI(pki.cli.CLI):
                             serial, output)
                         try:
                             instance.cert_create(
-                                serial=serial, renew=True, output=output,
-                                username=agent_uid, password=agent_pass, secure_port=port)
+                                serial=serial, renew=True, output=output, username=agent_uid,
+                                password=agent_pass, secure_port=port,
+                                client_nssdb=instance.nssdb_dir)
                         except pki.PKIException as e:
                             logger.error("Failed to renew certificate %s: %s", serial, e)
 

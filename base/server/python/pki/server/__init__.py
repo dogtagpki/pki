@@ -33,6 +33,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import socket
 
 import ldap
 import ldap.filter
@@ -957,7 +958,7 @@ class PKIServer(object):
         Return a PKIConnection, logged in using username and password.
         """
         ca_cert = PKIServer.build_ca_files(client_nssdb)
-        connection = pki.client.PKIConnection('https', os.environ['HOSTNAME'], secure_port,
+        connection = pki.client.PKIConnection('https', socket.getfqdn(), secure_port,
                                               cert_paths=ca_cert)
         connection.authenticate(username, password)
         account_client = pki.account.AccountClient(connection, subsystem=subsystem_name)
@@ -1074,7 +1075,7 @@ class PKIServer(object):
         ca_cert = PKIServer.build_ca_files(client_nssdb)
 
         # Create a PKIConnection object that stores the details of subsystem.
-        connection = pki.client.PKIConnection('https', os.environ['HOSTNAME'], secure_port,
+        connection = pki.client.PKIConnection('https', socket.getfqdn(), secure_port,
                                               subsystem_name, cert_paths=ca_cert)
 
         # Bind the authentication with the connection object
