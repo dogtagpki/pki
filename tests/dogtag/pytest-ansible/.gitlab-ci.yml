@@ -1,9 +1,9 @@
 image: bbhavsar/dogtagpki-test-essentials-container
 
 variables:
-  HOSTFILE: $CI_PROJECT_DIR/linchpin-openstack/inventories/openstack_topo.inventory
-  IMG_BRANCH: fedora28_1master
-  POST_PROV: 'https://gitlab.cee.redhat.com/snippets/393/raw'
+  HOSTFILE: $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/provision/ansible_inventory
+  IMG_NAME: 'Fedora-Cloud-Base-32'
+  PYTEST_DIR: $CI_PROJECT_DIR/tests/dogtag/pytest-ansible
 
 stages:
   - tier0
@@ -26,47 +26,45 @@ before_script:
   - eval $(ssh-agent -s)
   - echo "$certsys_priv_key" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
-  - GIT_SSL_NO_VERIFY=true git clone -b $IMG_BRANCH https://gitlab.cee.redhat.com/idm/linchpin-openstack
-  - wget -O - https://gitlab.cee.redhat.com/snippets/250/raw --no-check-certificate | python
-  - linchpin -v -w linchpin-openstack --creds-path linchpin-openstack/credentials up
-  - cat linchpin-openstack/inventories/openstack_topo.inventory
-  - sleep 30s
-  - wget -O repo.yml $POST_PROV --no-check-certificate
-  - ansible-playbook -u fedora --become -i $HOSTFILE repo.yml -e 'ansible_python_interpreter="/usr/bin/python3"' -vv
+  - pip install -r $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/requirements.txt
   - pip install $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
-  - export ANSIBLE_LIBRARY=$CI_PROJECT_DIR/tests/dogtag/pytest-ansible/common-modules/
-
+  - python $PYTEST_DIR/provision/osp_provision.py up --image "$IMG_NAME" --server-type master --inventory $HOSTFILE
+  - mkdir -p /etc/ansible; echo -e "[ssh_connection]\nretries = 8" > /etc/ansible/ansible.cfg
+  - cat $HOSTFILE
+  - sleep 30s
+  - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/provision/post_provision.yml -e 'ansible_python_interpreter="/usr/bin/python3"' -vv
+  - export ANSIBLE_LIBRARY=$PYTEST_DIR/common-modules/
 
 after_script:
-  - linchpin -w linchpin-openstack --creds-path linchpin-openstack/credentials destroy
+  - python $PYTEST_DIR/provision/osp_provision.py down --inventory $HOSTFILE
 
 
 installation-sanity:
   stage: tier0
   <<: *job_definition
   script:
-  - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
+  - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
 
 installation-sanity-ecc:
   stage: tier1
   <<: *job_definition
   script:
-  - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-ecc" -vv  | sed 's/\\n/\n/g'
+  - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-ecc" -vv  | sed 's/\\n/\n/g'
 
 banner-cli:
   stage: tier1
   <<: *job_definition
   script:
-  - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
-  - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+  - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
+  - cd $PYTEST_DIR
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/banner/test_banner_cli.py -q -s --junitxml $CI_PROJECT_DIR/bannercli_junit.xml -vvvv
 
 tps-config-cli:
   stage: tier1
   <<: *job_definition
   script:
-  - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
-  - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+  - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
+  - cd $PYTEST_DIR
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/tps/tps_config/*.py -q -s --junitxml $CI_PROJECT_DIR/tps_config_cli_junit.xml -vv
 
 
@@ -74,8 +72,8 @@ tps-activity-cli:
   stage: tier1
   <<: *job_definition
   script:
-  - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
-  - cd $CI_PROJECT_DIR/pki/tests/dogtag/pytest-ansible/
+  - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
+  - cd $PYTEST_DIR
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE pytest/tps/tps_activity/*.py -q -s --junitxml $CI_PROJECT_DIR/tps_activity_junit.xml -vv
 
 
@@ -83,8 +81,8 @@ ca-bugzillas:
   stage: tier1
   <<: *job_definition
   script:
-  - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
-  - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+  - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
+  - cd $PYTEST_DIR
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/ca/ocsp/test_bug_1523443_HAProxy_rejection.py -q -s --junitxml $CI_PROJECT_DIR/BZ_1523443_junit.xml -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/ca/bugzilla/test_bug_1465103_missing_JDAP_filters.py -q -s --junitxml $CI_PROJECT_DIR/BZ_1465103_junit.xml -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/ca/bugzilla/test_bug_1539198_inconsistent_cert_req_outcomes.py -q -s --junitxml $CI_PROJECT_DIR/BZ_1539198_junit.xml -vv
@@ -93,8 +91,8 @@ ca_authplugins:
   stage: tier1
   <<: *job_definition
   script:
-  - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
-  - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+  - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
+  - cd $PYTEST_DIR
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/ca/auth_plugins/*.py -q -s --junitxml $CI_PROJECT_DIR/auth_plugins_junit.xml -vvvv
 
 
@@ -102,8 +100,8 @@ securitydomain-cli:
   stage: tier1
   <<: *job_definition
   script:
-  - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
-  - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+  - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
+  - cd $PYTEST_DIR
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/sanity/test_role_users.py -qsvvv --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml 
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/ca/securitydomain/*.py -qsvvv --junitxml $CI_PROJECT_DIR/securitydomain_junit.xml
 
@@ -111,17 +109,17 @@ pki-pkcs12-cli:
   <<: *job_definition
   stage: tier1
   script:
-  - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
-  - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+  - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
+  - cd $PYTEST_DIR
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/sanity/test_role_users.py -q -s --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
-  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE --ansible-playbook-directory $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/pytest/ca/pki_pkcs12/ pytest/ca/pki_pkcs12/*.py -qsvv --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_junit.xml
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE --ansible-playbook-directory $CI_PROJECT_DIR/$PYTEST_DIR/pytest/ca/pki_pkcs12/ pytest/ca/pki_pkcs12/*.py -qsvv --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_junit.xml
 
 pki_server:
   <<: *job_definition
   stage: tier1
   script:
-  - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
-  - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+  - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
+  - cd $PYTEST_DIR
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/sanity/test_role_users.py -q -s --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvvv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE pytest/ca/pki_server/*.py -qs --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_ca_junit.xml -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE pytest/kra/pki_server/*.py -qs --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_kra_junit.xml -vv
@@ -134,20 +132,20 @@ role-user-creation-topo-02:
   stage: tier0
   <<: *job_definition
   script:
-    - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
-    - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
+    - cd $PYTEST_DIR
     - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/sanity/test_role_users_kra.py --junitxml $CI_PROJECT_DIR/role-user-creation_junit.xml -qsvvvv
 
 topo-01-role-user-creation:
   stage: tier0
   <<: *job_definition
   script:
-    - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-01" -vv
-    - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-01" -vv
+    - cd $PYTEST_DIR
     - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/sanity/test_role_users_kra.py --junitxml $CI_PROJECT_DIR/role-user-creation_kra_junit.xml -qsvvvv
 
 installation-acme:
   <<: *job_definition
   stage: tier0
   script:
-    - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=acme" -vv
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=acme" -vv
