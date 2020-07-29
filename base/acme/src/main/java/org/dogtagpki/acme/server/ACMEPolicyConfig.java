@@ -5,8 +5,6 @@
 //
 package org.dogtagpki.acme.server;
 
-import java.lang.reflect.Field;
-import java.time.temporal.ChronoUnit;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -28,10 +26,8 @@ public class ACMEPolicyConfig {
     @JsonProperty("wildcard")
     private Boolean enableWildcardIssuance = true;
 
-    private ACMEValidityConfig nonceValidity = new ACMEValidityConfig(30l, ChronoUnit.MINUTES);
-    private ACMEValidityConfig validAuthorizationValidity = new ACMEValidityConfig(30l, ChronoUnit.MINUTES);
-    private ACMEValidityConfig pendingOrderValidity = new ACMEValidityConfig(30l, ChronoUnit.MINUTES);
-    private ACMEValidityConfig validOrderValidity = new ACMEValidityConfig(30l, ChronoUnit.MINUTES);
+    @JsonProperty("retention")
+    private ACMERetentionConfig retention = new ACMERetentionConfig();
 
     public ACMEPolicyConfig() {}
 
@@ -44,36 +40,12 @@ public class ACMEPolicyConfig {
         enableWildcardIssuance = on;
     }
 
-    public ACMEValidityConfig getNonceValidity() {
-        return nonceValidity;
+    public ACMERetentionConfig getRetention() {
+        return retention;
     }
 
-    public void setNonceValidity(ACMEValidityConfig nonceValidity) {
-        this.nonceValidity = nonceValidity;
-    }
-
-    public ACMEValidityConfig getValidAuthorizationValidity() {
-        return validAuthorizationValidity;
-    }
-
-    public void setValidAuthorizationValidity(ACMEValidityConfig validAuthorizationValidity) {
-        this.validAuthorizationValidity = validAuthorizationValidity;
-    }
-
-    public ACMEValidityConfig getPendingOrderValidity() {
-        return pendingOrderValidity;
-    }
-
-    public void setPendingOrderValidity(ACMEValidityConfig pendingOrderValidity) {
-        this.pendingOrderValidity = pendingOrderValidity;
-    }
-
-    public ACMEValidityConfig getValidOrderValidity() {
-        return validOrderValidity;
-    }
-
-    public void setValidOrderValidity(ACMEValidityConfig validOrderValidity) {
-        this.validOrderValidity = validOrderValidity;
+    public void setRetention(ACMERetentionConfig retentionPolicy) {
+        this.retention = retentionPolicy;
     }
 
     public void setProperty(String key, String value) throws Exception {
@@ -83,21 +55,10 @@ public class ACMEPolicyConfig {
             return;
         }
 
-        // split key by dots
-        String[] parts = key.split("\\.");
-        String validityName = parts[0];
-        String validityParam = parts[1];
-
-        Field field = ACMEPolicyConfig.class.getDeclaredField(validityName);
-        field.setAccessible(true);
-
-        ACMEValidityConfig validity = (ACMEValidityConfig) field.get(this);
-        if (validity == null) {
-            validity = new ACMEValidityConfig();
-            field.set(this, validity);
+        if (key.startsWith("retention.")) {
+            String retentionKey = key.substring(10);
+            retention.setProperty(retentionKey, value);
         }
-
-        validity.setProperty(validityParam, value);
     }
 
     public String toJSON() throws Exception {
@@ -132,7 +93,7 @@ public class ACMEPolicyConfig {
     }
 
     public static void main(String[] args) {
-        ACMEPolicyConfig policyConfig = new ACMEPolicyConfig();
-        System.out.println(policyConfig);
+        ACMEPolicyConfig config = new ACMEPolicyConfig();
+        System.out.println(config);
     }
 }

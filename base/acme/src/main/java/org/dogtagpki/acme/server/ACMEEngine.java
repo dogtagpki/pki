@@ -205,10 +205,10 @@ public class ACMEEngine implements ServletContextListener {
 
         ACMEPolicyConfig policyConfig = config.getPolicyConfig();
         logger.info("- wildcard: " + policyConfig.getEnableWildcards());
-        logger.info("- nonce validity: " + policyConfig.getNonceValidity());
-        logger.info("- valid authorization validity: " + policyConfig.getValidAuthorizationValidity());
-        logger.info("- pending order validity: " + policyConfig.getPendingOrderValidity());
-        logger.info("- valid order validity: " + policyConfig.getValidOrderValidity());
+        logger.info("- nonce retention: " + policyConfig.getRetention().getNonces());
+        logger.info("- valid authorization retention: " + policyConfig.getRetention().getValidAuthorizations());
+        logger.info("- pending order retention: " + policyConfig.getRetention().getPendingOrders());
+        logger.info("- valid order retention: " + policyConfig.getRetention().getValidOrders());
 
         policy = new ACMEPolicy(policyConfig);
     }
