@@ -108,7 +108,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         pki.util.chown(
             deployer.mdict['pki_server_database_path'],
             deployer.mdict['pki_uid'],
-            deployer.mdict['pki_uid'])
+            deployer.mdict['pki_gid'])
         pki.util.chmod(
             deployer.mdict['pki_server_database_path'],
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
