@@ -241,6 +241,7 @@ jobs:
           run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ipa-test.sh
 
         - name: Extract PKI related journalctl logs
+          if: always()
           run: docker exec -i ${CONTAINER} bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
 
         - name: Compress PKI and IPA related logs
