@@ -28,7 +28,7 @@ before_script:
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
   - pip install -r $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/requirements.txt
   - pip install $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
-  - python $PYTEST_DIR/provision/osp_provision.py up --image "$IMG_NAME" --server-type master --inventory $HOSTFILE
+  - python $PYTEST_DIR/provision/osp_provision.py up --image "$IMG_NAME" --server-type master --inventory $HOSTFILE || { echo 'Failed to get inventory for test runs.' ; exit 1; }
   - mkdir -p /etc/ansible; echo -e "[ssh_connection]\nretries = 8" > /etc/ansible/ansible.cfg
   - cat $HOSTFILE
   - sleep 30s
