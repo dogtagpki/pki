@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -43,6 +44,7 @@ import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author Ade Lee
@@ -99,7 +101,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
      * Apart from reading 'headers', this method doesn't access
      * any instance data.
      */
-    private void addKRAInfo(CAInfo info) {
+    private void addKRAInfo(CAInfo info) throws Exception {
         KRAConnectorInfo connInfo = null;
         try {
             KRAConnectorProcessor processor =
@@ -125,13 +127,15 @@ public class CAInfoService extends PKIService implements CAInfoResource {
         }
     }
 
-    private static void queryKRAInfo(KRAConnectorInfo connInfo) {
+    private static void queryKRAInfo(KRAConnectorInfo connInfo) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        KRAInfoClient kraInfoClient = getKRAInfoClient(connInfo);
+
         try {
-            KRAInfo kraInfo = getKRAInfoClient(connInfo).getInfo();
+            KRAInfo kraInfo = kraInfoClient.getInfo();
 
             archivalMechanism = kraInfo.getArchivalMechanism();
             encryptAlgorithm = kraInfo.getEncryptAlgorithm();
@@ -179,11 +183,23 @@ public class CAInfoService extends PKIService implements CAInfoResource {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
+        IConfigStore kraConnectorConfig = cs.getSubStore(KRAConnectorProcessor.PREFIX);
 
         ClientConfig config = new ClientConfig();
         int port = Integer.parseInt(connInfo.getPort());
         config.setServerURL("https", connInfo.getHost(), port);
         config.setNSSDatabase(cs.getInstanceDir() + "/alias");
+
+        // Use client cert specified in KRA connector
+        String nickname = kraConnectorConfig.getString("nickName", null);
+        if (nickname == null) {
+            // Use subsystem cert as client cert
+            nickname = cs.getString("ca.subsystem.nickname");
+
+            String tokenname = cs.getString("ca.subsystem.tokenname", "");
+            if (!CryptoUtil.isInternalToken(tokenname)) nickname = tokenname + ":" + nickname;
+        }
+        config.setCertNickname(nickname);
 
         return new KRAInfoClient(new PKIClient(config), "kra");
     }

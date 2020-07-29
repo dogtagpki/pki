@@ -19,7 +19,6 @@ package com.netscape.ca;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.Integer;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -39,7 +38,6 @@ import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.util.BigInt;
-import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
@@ -92,6 +90,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.LocalConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;
@@ -101,6 +100,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Request Service for CertificateAuthority.
@@ -235,6 +235,8 @@ public class CAService implements ICAService, IService {
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         IConnector connector = null;
 
         if (config == null || config.size() <= 0) {
@@ -277,7 +279,17 @@ public class CAService implements ICAService, IService {
             String host = config.getString("host");
             int port = config.getInteger("port");
             String uri = config.getString("uri");
+
+            // Use client cert specified in KRA connector
             String nickname = config.getString("nickName", null);
+            if (nickname == null) {
+                // Use subsystem cert as client cert
+                nickname = cs.getString("ca.subsystem.nickname");
+
+                String tokenname = cs.getString("ca.subsystem.tokenname", "");
+                if (!CryptoUtil.isInternalToken(tokenname)) nickname = tokenname + ":" + nickname;
+            }
+
             int resendInterval = config.getInteger("resendInterval", -1);
             // Inserted by beomsuk
             int timeout = config.getInteger("timeout", 0);
@@ -288,9 +300,6 @@ public class CAService implements ICAService, IService {
             RemoteAuthority remauthority =
                     new RemoteAuthority(host, port, uri, timeout);
 
-            // Change end
-            if (nickname == null)
-                nickname = mCA.getNickname();
             // Changed by beomsuk
             //connector =
             //	new HttpConnector(mCA, nickname, remauthority, resendInterval);
