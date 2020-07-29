@@ -91,18 +91,18 @@ public class ACMEPolicy {
     }
 
     public Date getNonceExpirationTime(Date currentTime) {
-        return config.getNonceValidity().getExpirationTime(currentTime);
+        return config.getRetention().getNonces().getExpirationTime(currentTime);
     }
 
     public Date getValidAuthorizationExpirationTime(Date currentTime) {
-        return config.getValidAuthorizationValidity().getExpirationTime(currentTime);
+        return config.getRetention().getValidAuthorizations().getExpirationTime(currentTime);
     }
 
     public Date getPendingOrderExpirationTime(Date currentTime) {
-        return config.getPendingOrderValidity().getExpirationTime(currentTime);
+        return config.getRetention().getPendingOrders().getExpirationTime(currentTime);
     }
 
     public Date getValidOrderExpirationTime(Date currentTime) {
-        return config.getValidOrderValidity().getExpirationTime(currentTime);
+        return config.getRetention().getValidOrders().getExpirationTime(currentTime);
     }
 }

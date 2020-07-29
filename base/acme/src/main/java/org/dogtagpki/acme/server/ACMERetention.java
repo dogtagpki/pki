@@ -21,16 +21,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ACMEValidityConfig {
+public class ACMERetention {
 
     private Long length;
     private ChronoUnit unit;
 
-    public ACMEValidityConfig() {
+    public ACMERetention() {
     }
 
-    public ACMEValidityConfig(Long length, ChronoUnit unit) {
+    public ACMERetention(Long length, ChronoUnit unit) {
         this.length = length;
+        this.unit = unit;
+    }
+
+    public ACMERetention(Integer length, ChronoUnit unit) {
+        this.length = Long.valueOf(length);
         this.unit = unit;
     }
 
@@ -81,9 +86,9 @@ public class ACMEValidityConfig {
         return mapper.writeValueAsString(this);
     }
 
-    public static ACMEValidityConfig fromJSON(String json) throws Exception {
+    public static ACMERetention fromJSON(String json) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, ACMEValidityConfig.class);
+        return mapper.readValue(json, ACMERetention.class);
     }
 
     public String toString() {
@@ -95,7 +100,7 @@ public class ACMEValidityConfig {
     }
 
     public static void main(String[] args) {
-        ACMEValidityConfig validityConfig = new ACMEValidityConfig(30l, ChronoUnit.MINUTES);
-        System.out.println(validityConfig);
+        ACMERetention retention = new ACMERetention(30, ChronoUnit.MINUTES);
+        System.out.println(retention);
     }
 }
