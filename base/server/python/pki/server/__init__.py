@@ -55,6 +55,7 @@ SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 
 DEFAULT_DIR_MODE = 0o0770
 DEFAULT_FILE_MODE = 0o0660
+DEFAULT_LINK_MODE = 0o0777
 
 SCHEMA_FILES = [
     '/usr/share/pki/server/conf/schema.ldif',
@@ -730,7 +731,7 @@ class PKIServer(object):
 
         # set deployment descriptor ownership and permission
         os.chown(context_xml, self.uid, self.gid)
-        os.chmod(context_xml, 0o0660)
+        os.chmod(context_xml, DEFAULT_FILE_MODE)
 
     def undeploy_webapp(self, webapp_id, force=False):
 

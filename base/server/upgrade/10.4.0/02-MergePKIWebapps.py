@@ -23,6 +23,7 @@ import os
 import shutil
 
 import pki
+import pki.server
 
 
 class MergePKIWebapps(
@@ -77,4 +78,4 @@ class MergePKIWebapps(
         self.backup(dest_pki_xml)
         shutil.copyfile(source_pki_xml, dest_pki_xml)
         os.chown(dest_pki_xml, instance.uid, instance.gid)
-        os.chmod(dest_pki_xml, 0o0660)
+        os.chmod(dest_pki_xml, pki.server.DEFAULT_FILE_MODE)

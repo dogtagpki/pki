@@ -1049,7 +1049,7 @@ class Directory:
             self, name, uid=None, gid=None,
             dir_perms=pki.server.DEFAULT_DIR_MODE,
             file_perms=pki.server.DEFAULT_FILE_MODE,
-            symlink_perms=config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS,
+            symlink_perms=pki.server.DEFAULT_LINK_MODE,
             dir_acls=None, file_acls=None, symlink_acls=None,
             recursive_flag=True, critical_failure=True):
 
@@ -1153,7 +1153,7 @@ class Directory:
     def copy(self, old_name, new_name, uid=None, gid=None,
              dir_perms=pki.server.DEFAULT_DIR_MODE,
              file_perms=pki.server.DEFAULT_FILE_MODE,
-             symlink_perms=config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS,
+             symlink_perms=pki.server.DEFAULT_LINK_MODE,
              dir_acls=None, file_acls=None, symlink_acls=None,
              recursive_flag=True, overwrite_flag=False, critical_failure=True,
              ignore_cb=None):
@@ -1481,7 +1481,7 @@ class Symlink:
                     manifest.RECORD_TYPE_SYMLINK,
                     uid,
                     gid,
-                    config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS,
+                    pki.server.DEFAULT_LINK_MODE,
                     acls)
             elif not os.path.islink(link):
                 logger.error(log.PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1, link)
@@ -1534,7 +1534,7 @@ class Symlink:
                         manifest.RECORD_TYPE_SYMLINK,
                         uid,
                         gid,
-                        config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS,
+                        pki.server.DEFAULT_LINK_MODE,
                         acls)
             else:
                 logger.error(log.PKI_SYMLINK_MISSING_OR_NOT_A_SYMLINK_1, link)

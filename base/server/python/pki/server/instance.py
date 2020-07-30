@@ -525,7 +525,7 @@ class PKIInstance(pki.server.PKIServer):
             f.write(nickname + '\n')
 
         os.chown(server_cert_nick_conf, self.uid, self.gid)
-        os.chmod(server_cert_nick_conf, 0o0660)
+        os.chmod(server_cert_nick_conf, pki.server.DEFAULT_FILE_MODE)
 
         # Store SSL server cert nickname into server.xml
 
