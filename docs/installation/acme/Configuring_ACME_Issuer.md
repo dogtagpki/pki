@@ -78,5 +78,5 @@ Customize the configuration as needed. The format is based on [OpenSSL x509v3_co
 
 ## See Also
 
-* [Configuring ACME Responder](https://www.dogtagpki.org/wiki/Configuring_ACME_Responder)
+* [Configuring PKI ACME Responder](https://www.dogtagpki.org/wiki/Configuring_PKI_ACME_Responder)
 * [Installing PKI ACME Responder](Installing_PKI_ACME_Responder.md)
