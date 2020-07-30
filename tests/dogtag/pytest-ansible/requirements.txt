@@ -3,3 +3,5 @@ pytest-ansible==2.0.2
 pytest-ansible-playbook
 pytest-logger
 pytest-autochecklog==0.2.0
+configparser
+pytest-html
