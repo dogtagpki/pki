@@ -1,0 +1,129 @@
+= Certificate Transparency
+
+== Overview
+
+A basic version of Certificate Transparency (CT) V1 support (rfc 6962) is offered in this release. It has the capability of issuing certificates with embedded Signed Certificate Time stamps (SCTs) from any trusted log where each deployment site chooses to have its root CA cert included. The system can also be configured to support multiple CT logs.  Minimum of one trusted CT log is required for this feature to work.
+
+IMPORTANT: It is the responsibility of the deployment site to establish its trust relationship with a trusted CT log server.
+
+== Configuration
+
+The configuration for CT is in the CA's CS.cfg (/var/lib/pki/<instance name>/ca/conf/CS.cfg).
+
+=== ca.certTransparency.mode
+
+ca.certTransparency.mode specifies CT mode. There are three Certificate Transparency modes:
+
+* *_disabled_*: issued certs will not carry SCT extension
+* *_enabled_*: issued certs will carry SCT extension
+* *_perProfile_*: certs enrolled through those profiles that contain the following policyset will carry SCT extension: SignedCertificateTimestampListExtDefaultImpl
+
+Default is _enabled_
+
+=== ca.certTransparency.log.num
+
+ca.certTransparency.log.num specifies the total number of CT logs defined in the configuration.  Not all defined CT log entries are considered active.  See <<ca.certTransparency.log.<id>.enable>>.
+
+=== ca.certTransparency.log.<id>.*
+
+ca.certTransparency.log.<id>.* specifies information pertaining to the log <id>, where <id> is a unique id you assign to the CT log server to differentiate it from other CT logs.
+
+The parameter names follow each _ca.certTransparency.log.<id>._ belongs to the _<id>_. and they are specified below:
+
+ca.certTransparency.log.<id>.enable:: specifies whether the <id> CT log is enabled (_true_) or disabled (_false_).
+
+ca.certTransparency.log.<id>.pubKey:: contains the base64 encoding of the CT log's public key
+
+ca.certTransparency.log.<id>.url:: contains the base64 encoding of the CT log's url.
+
+ca.certTransparency.log.<id>.version:: specifies the CT version number that the CT supports (as well as the CT log server);  It currently only supports version 1.
+
+== Example / Test
+
+The following is an actual test against Google CT test logs, which serves as an example on how to test a setup.
+A more comprehensive test procedure would involve setting up a TLS server and test for its cert's inclusion from it's specified CT logs.
+However, the following serves as a quick test that checks for inclusion of the SCT extension once a certificate has been issued.
+
+=== CT Test Configuration in CS.cfg
+
+[literal]
+ca.certTransparency.mode=enabled
+ca.certTransparency.log.1.enable=true
+ca.certTransparency.log.1.pubKey=MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEw8i8S7qiGEs9NXv0ZJFh6uuOm<snip>
+ca.certTransparency.log.1.url=http://ct.googleapis.com:80/testtube/
+ca.certTransparency.log.1.version=1
+ca.certTransparency.log.2.enable=true
+ca.certTransparency.log.2.pubKey=MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEKATl2B3SAbxyzGOfNRB+AytNTG<snip>
+ca.certTransparency.log.2.url=http://ct.googleapis.com:80/logs/crucible/
+ca.certTransparency.log.2.version=1
+ca.certTransparency.log.3.enable=false
+ca.certTransparency.log.3.pubKey=MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEiKfWtuoWCPMEzSKySjMjXpo38W<snip>
+ca.certTransparency.log.3.url=http://ct.googleapis.com:80/logs/solera2020/
+ca.certTransparency.log.3.version=1
+ca.certTransparency.log.num=3
+
+First, generate a CSR: e.g.
+
+[literal]
+  PKCS10Client -d . -p passwd -l 2048 -n "cn=ladycfu.test.redhat.com,OU=ladycfu-TEST,O=TestDomain" -o pkcs10-TLS.req
+
+Next, submit the CSR to an enrollment profile depending on the CT mode in CS.cfg:
+
+*  if ca.certTransparency.mode == enabled,
+        use any enrollment profile
+*  if ca.certTransparency.mode == perProfile,
+        using one of the CT profiles: e.g.
+            caServerCertWithSCT
+
+Finally, verify the SCT extension using openssl:
+
+. Copy the issued b64 cert into a file. E.g. ct1.pem
+. Convert the pem to binary:
+[literal]
+  AtoB ct1.pem ct1.bin
+. Display DER certificate content
+[literal]
+  openssl x509 -noout -text -inform der -in ct1.bin
+
+. Observe that the SCT extension is present. E.g.
+
+[literal]
+           CT Precertificate SCTs:  
+               Signed Certificate Timestamp:
+                   Version   : v1 (0x0)
+                   Log ID    : B0:CC:83:E5:A5:F9:7D:6B:AF:7C:09:CC:28:49:04:87:
+                               2A:C7:E8:8B:13:2C:63:50:B7:C6:FD:26:E1:6C:6C:77
+                   Timestamp : Jun 11 23:07:14.146 2020 GMT
+                   Extensions: none
+                   Signature : ecdsa-with-SHA256
+                               30:44:02:20:6E:E7:DC:D6:6B:A6:43:E3:BB:8E:1D:28:
+                               63:C6:6B:03:43:4E:7A:90:0F:D6:2B:E8:ED:55:1D:5F:
+                               86:0C:5A:CE:02:20:53:EB:75:FA:75:54:9C:9F:D3:7A:
+                               D4:E7:C6:6C:9B:33:2A:75:D8:AB:DE:7D:B9:FA:2B:19:
+                               56:22:BB:EF:19:AD
+               Signed Certificate Timestamp:
+                   Version   : v1 (0x0)
+                   Log ID    : C3:BF:03:A7:E1:CA:88:41:C6:07:BA:E3:FF:42:70:FC:
+                               A5:EC:45:B1:86:EB:BE:4E:2C:F3:FC:77:86:30:F5:F6
+                   Timestamp : Jun 11 23:07:14.516 2020 GMT
+                   Extensions: none
+                   Signature : ecdsa-with-SHA256
+                               30:44:02:20:4A:C9:4D:EF:64:02:A7:69:FF:34:4E:41:
+                               F4:87:E1:6D:67:B9:07:14:E6:01:47:C2:0A:72:88:7A:
+                               A9:C3:9C:90:02:20:31:26:15:75:60:1E:E2:C0:A3:C2:
+                               ED:CF:22:A0:3B:A4:10:86:D1:C1:A3:7F:68:CC:1A:DD:
+                               6A:5E:10:B2:F1:8F
+
+Alternatively, verify the SCT by running asn1 dump:
+
+[literal]
+  openssl asn1parse -i -inform der -in ct1.bin
+  
+and observe the hex dump. E.g.
+
+[literal]
+
+  740:d=4  hl=4 l= 258 cons:     SEQUENCE           
+  744:d=5  hl=2 l=  10 prim:      OBJECT            :CT Precertificate SCTs
+  756:d=5  hl=3 l= 243 prim:      OCTET STRING      [HEX DUMP]:0481F000EE007500B0CC83E5A5F97D6B<snip>
+
