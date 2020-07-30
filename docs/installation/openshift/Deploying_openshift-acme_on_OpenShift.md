@@ -8,7 +8,7 @@ to issue certificates for applications on OpenShift automatically using a PKI AC
 
 ## Prerequisite
 
-Prepare a PKI ACME responder either as a [standalone server](../acme/Installing_ACME_Responder.md)
+Prepare a PKI ACME responder either as a [standalone server](../acme/Installing_PKI_ACME_Responder.md)
 or as a [container deployed on OpenShift](Deploying_PKI_ACME_Responder_on_OpenShift.md).
 A demo PKI ACME responder is available at https://pki.demo.dogtagpki.org/acme/directory.
 
