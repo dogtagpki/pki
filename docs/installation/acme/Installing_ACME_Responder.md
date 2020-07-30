@@ -64,4 +64,4 @@ See also [pki-server-acme(8)](../../manuals/man8/pki-server-acme.8.md).
 ## See Also
 
 * [Installing CA](../ca/Installing_CA.md)
-* [Using ACME Responder](../../user/acme/Using_ACME_Responder.md)
+* [Using PKI ACME Responder with Certbot](../../user/acme/Using_PKI_ACME_Responder_with_Certbot.md)

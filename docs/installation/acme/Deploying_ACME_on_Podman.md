@@ -123,4 +123,4 @@ $ podman exec -ti pki-acme \
 
 * [Configuring ACME Database](Configuring_ACME_Database.md)
 * [Configuring ACME Issuer](Configuring_ACME_Issuer.md)
-* [Using ACME Responder](../../user/acme/Using_ACME_Responder.md)
+* [Using PKI ACME Responder with Certbot](../../user/acme/Using_PKI_ACME_Responder_with_Certbot.md)
