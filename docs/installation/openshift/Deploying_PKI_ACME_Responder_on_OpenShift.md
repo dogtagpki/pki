@@ -14,6 +14,14 @@ Also, by default the responder will use a temporary database.
 This temporary database is non-persistent, so if the responder is restarted the database will disappear.
 It is possible to replace it with a persistent database.
 
+**Note:** The PKI ACME responder is currently a tech preview which means:
+* It is not intended for production.
+* It may corrupt your data.
+* There is no guarantee for correctness, security, or performance.
+* There is no guarantee for documentation or support.
+* The API, configuration, or the database may change in the future.
+* There may be no easy upgrade path to the future version.
+
 ## Deploying PKI ACME Responder
 
 A sample configuration for PKI ACME responder is available at:

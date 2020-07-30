@@ -10,6 +10,14 @@ so the examples below are executed over insecure HTTP connections.
 | WARNING: Do not use ACME over insecure HTTP connections in production environment. |
 | --- |
 
+**Note:** The PKI ACME responder is currently a tech preview which means:
+* It is not intended for production.
+* It may corrupt your data.
+* There is no guarantee for correctness, security, or performance.
+* There is no guarantee for documentation or support.
+* The API, configuration, or the database may change in the future.
+* There may be no easy upgrade path to the future version.
+
 ## Certificate Enrollment
 
 The PKI ACME responder supports certificate enrollment using certbot.
