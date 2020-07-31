@@ -36,7 +36,7 @@ public class InMemoryDatabase extends ACMEDatabase {
     }
 
     public void addNonce(ACMENonce nonce) throws Exception {
-        nonces.put(nonce.getValue(), nonce);
+        nonces.put(nonce.getID(), nonce);
     }
 
     public ACMENonce removeNonce(String value) throws Exception {

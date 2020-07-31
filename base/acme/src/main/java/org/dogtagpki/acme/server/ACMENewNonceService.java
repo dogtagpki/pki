@@ -50,7 +50,7 @@ public class ACMENewNonceService {
         ACMEEngine engine = ACMEEngine.getInstance();
 
         ACMENonce nonce = engine.createNonce();
-        builder.header("Replay-Nonce", nonce.getValue());
+        builder.header("Replay-Nonce", nonce.getID());
 
         CacheControl cc = new CacheControl();
         cc.setNoStore(true);

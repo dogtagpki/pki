@@ -483,9 +483,9 @@ public class ACMEEngine implements ServletContextListener {
         byte[] bytes = new byte[16];
         SecureRandom random = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
         random.nextBytes(bytes);
-        String value = Base64.encodeBase64URLSafeString(bytes);
+        String nonceID = Base64.encodeBase64URLSafeString(bytes);
 
-        nonce.setValue(value);
+        nonce.setID(nonceID);
 
         Date expirationTime = policy.getNonceExpirationTime(new Date());
         nonce.setExpirationTime(expirationTime);

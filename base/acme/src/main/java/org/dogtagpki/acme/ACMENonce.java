@@ -20,18 +20,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ACMENonce {
 
-    private String value;
+    private String id;
     private String expires;
 
     @JsonIgnore
     private Date expirationTime;
 
-    public String getValue() {
-        return value;
+    public String getID() {
+        return id;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setID(String id) {
+        this.id = id;
     }
 
     public String getExpires() {

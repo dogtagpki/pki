@@ -115,7 +115,7 @@ public class ACMEFinalizeOrderService {
         ResponseBuilder builder = Response.ok();
 
         ACMENonce nonce = engine.createNonce();
-        builder.header("Replay-Nonce", nonce.getValue());
+        builder.header("Replay-Nonce", nonce.getID());
 
         /* This is not required by ACME protocol but mod_md has a
          * bug[1] causing it to fail if there is no Location header

@@ -156,15 +156,15 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
-    public ACMENonce getNonce(String value) throws Exception {
+    public ACMENonce getNonce(String nonceID) throws Exception {
 
-        logger.info("Getting nonce " + value);
+        logger.info("Getting nonce " + nonceID);
 
         String sql = statements.getProperty("getNonce");
         logger.info("SQL: " + sql);
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, value);
+            ps.setString(1, nonceID);
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -173,7 +173,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 }
 
                 ACMENonce nonce = new ACMENonce();
-                nonce.setValue(value);
+                nonce.setID(nonceID);
 
                 Timestamp expires = rs.getTimestamp("expires");
                 nonce.setExpirationTime(new Date(expires.getTime()));
@@ -185,8 +185,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
     public void addNonce(ACMENonce nonce) throws Exception {
 
-        String value = nonce.getValue();
-        logger.info("Adding nonce " + value);
+        String nonceID = nonce.getID();
+        logger.info("Adding nonce " + nonceID);
 
         String sql = statements.getProperty("addNonce");
         logger.info("SQL: " + sql);
@@ -195,7 +195,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            ps.setString(1, value);
+            ps.setString(1, nonceID);
 
             Date expirationTime = nonce.getExpirationTime();
             ps.setTimestamp(2, new Timestamp(expirationTime.getTime()));

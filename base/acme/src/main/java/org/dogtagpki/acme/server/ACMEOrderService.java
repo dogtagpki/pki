@@ -80,7 +80,7 @@ public class ACMEOrderService {
         ResponseBuilder builder = Response.ok();
 
         ACMENonce nonce = engine.createNonce();
-        builder.header("Replay-Nonce", nonce.getValue());
+        builder.header("Replay-Nonce", nonce.getID());
 
         URI indexURL = uriInfo.getBaseUriBuilder().path("directory").build();
         builder.link(indexURL, "index");

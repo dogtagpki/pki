@@ -97,7 +97,7 @@ public class ACMEAccountService {
         ResponseBuilder builder = Response.ok(account);
 
         ACMENonce nonce = engine.createNonce();
-        builder.header("Replay-Nonce", nonce.getValue());
+        builder.header("Replay-Nonce", nonce.getID());
 
         URI directoryURL = uriInfo.getBaseUriBuilder().path("directory").build();
         builder.link(directoryURL, "index");

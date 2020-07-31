@@ -222,13 +222,13 @@ public class LDAPDatabase extends ACMEDatabase {
         connFactory.init(cs, ldapConfig, ps);
     }
 
-    public ACMENonce getNonce(String value) throws Exception {
-        String dn = ATTR_NONCE_VALUE +  "=" + value + "," + RDN_NONCE + "," + basedn;
+    public ACMENonce getNonce(String nonceID) throws Exception {
+        String dn = ATTR_NONCE_VALUE +  "=" + nonceID + "," + RDN_NONCE + "," + basedn;
         LDAPEntry entry = ldapGet(dn);
         if (entry == null) return null;
 
         ACMENonce nonce = new ACMENonce();
-        nonce.setValue(value);
+        nonce.setID(nonceID);
 
         LDAPAttribute attrExpires = entry.getAttribute(ATTR_EXPIRES);
         nonce.setExpirationTime(dateFormat.parse(attrExpires.getStringValues().nextElement()));
@@ -239,11 +239,11 @@ public class LDAPDatabase extends ACMEDatabase {
     public void addNonce(ACMENonce nonce) throws Exception {
         LDAPAttribute[] attrs = {
             new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_NONCE),
-            new LDAPAttribute(ATTR_NONCE_VALUE, nonce.getValue()),
+            new LDAPAttribute(ATTR_NONCE_VALUE, nonce.getID()),
             new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(nonce.getExpirationTime()))
         };
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
-        String dn = ATTR_NONCE_VALUE + "=" + nonce.getValue() + "," + RDN_NONCE + "," + basedn;
+        String dn = ATTR_NONCE_VALUE + "=" + nonce.getID() + "," + RDN_NONCE + "," + basedn;
         LDAPEntry entry = new LDAPEntry(dn, attrSet);
         ldapAdd(entry);
     }
