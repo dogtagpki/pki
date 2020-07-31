@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.dogtagpki.acme.ACMEAccount;
@@ -104,6 +105,10 @@ public class LDAPDatabase extends ACMEDatabase {
 
     // The LDAP Generalized Time syntax
     static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssZ");
+
+    static {
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
 
     enum LoadChallenges { DoLoad , DontLoad };
     enum OnNoSuchObject { Ignore , Throw };
