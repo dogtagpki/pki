@@ -18,7 +18,7 @@ ca.certTransparency.mode specifies CT mode. There are three Certificate Transpar
 * *_enabled_*: issued certs will carry SCT extension
 * *_perProfile_*: certs enrolled through those profiles that contain the following policyset will carry SCT extension: SignedCertificateTimestampListExtDefaultImpl
 
-Default is _enabled_
+Default is _disabled_
 
 === ca.certTransparency.log.num
 
