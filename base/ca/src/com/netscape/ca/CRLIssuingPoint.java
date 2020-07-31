@@ -360,6 +360,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private boolean mSaveMemory = false;
 
     /**
+     * One time config flag that we have an updated schedule and we want it
+     * followed immediately after startup.
+     */
+
+    private boolean mAutoUpdateIntervalEffectiveAtStart = false;
+
+    /**
      * Constructs a CRL issuing point from instantiating from class name.
      * CRL Issuing point must be followed by method call init(CA, id, config);
      */
@@ -797,6 +804,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1",
                             PROP_END_SERIAL, "BigInteger", "positive number"));
         }
+
+        mAutoUpdateIntervalEffectiveAtStart = config.getAutoUpdateIntervalEffectiveAtStart();
+        logger.debug("CRLIssuingPoint.initConfig : mAutoUpdateIntervalEffectiveAtStart: " +  mAutoUpdateIntervalEffectiveAtStart);
     }
 
     /**
@@ -860,6 +870,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mLastFullUpdate = null;
 
             mNextUpdate = crlRecord.getNextUpdate();
+
+            logger.debug("CRLIssuingPoint.initCRL: mNextUpdate: " + mNextUpdate);
+
             if (isDeltaCRLEnabled()) {
                 mNextDeltaUpdate = (mNextUpdate != null) ? new Date(mNextUpdate.getTime()) : null;
             }
@@ -1603,7 +1616,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         long next = 0L;
         long nextUpdate = 0L;
 
-        logger.debug("findNextUpdate:  fromLastUpdate: " + fromLastUpdate + "  delta: " + delta);
+        logger.debug("CRLIssuingPoint.findNextUpdate: mLastUpdate: " + mLastUpdate);
+        logger.debug("CRLIssuingPoint.findNextUpdate: mNextUpdate: " + mNextUpdate);
+        logger.debug("CRLIssuingPoint.findNextUpdate: mAutoUpdateInterval: " + mAutoUpdateInterval / 60000);
+        logger.debug("CRLIssuingPOint.findNextUpdate: lastUpdate: " + new Date(lastUpdate));
 
         int numberOfDays = (int) ((startOfToday - lastUpdateDay) / oneDay);
         if (numberOfDays > 0 && mDailyUpdates.size() > 1 &&
@@ -1767,8 +1783,33 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
         }
 
+        logger.debug("CRLIssuingPoint.findNextUpdate: nextUpdate : " + new Date(nextUpdate) + " next: " + new Date(next));
+
         if (fromLastUpdate && nextUpdate > 0 && (nextUpdate < next || nextUpdate >= now)) {
-            next = nextUpdate;
+            // We have the one time schedule updated flag set in CS.cfg, which means
+            // we want the schedule adhered to now instead of waiting for the next update for it
+            // to take effect.
+            // Here the variable "next" has the newly calculated nextUpdate value
+            // Here the variable "nextUpdate" contains the nextUpdate value from the previous schedule
+            if (mAutoUpdateIntervalEffectiveAtStart) {
+                // Check and see if the new schedule has taken us into the past:
+                if(next <= now ) {
+                    mNextUpdate = new Date(now);
+                    logger.debug("CRLIssuingPoint.findNextUpdate: schedule updated to the past. Making mNextUpdate now: " +  mNextUpdate);
+                    next = now;
+                }  else {
+                    //alter the value of the nextUpdate to be the time calculated from the new schedule
+                    mNextUpdate = new Date(next);
+                }
+
+                logger.debug("CRLIssuingPoint.findNextUpdate: taking updated schedule value: " + mNextUpdate);
+                // Now clear it since we only want this once upon startup.
+                mAutoUpdateIntervalEffectiveAtStart = false;
+            } else {
+                logger.debug("CRLIssuingPoint.findNextUpdate: taking current schedule's nextUpdate value: " + new Date(nextUpdate));
+                //Normal behavior where the previous or current shedule's nextUpdate time is observed.
+                next = nextUpdate;
+            }
         }
 
         logger.debug("findNextUpdate:  "
@@ -2829,6 +2870,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             String signingAlgorithm,
             Date thisUpdate,
             Date nextUpdate) throws EBaseException {
+
+        logger.debug("generateFullCRL: thisUpdate: " + thisUpdate + " nextUpdate: " + nextUpdate);
 
         mSplits[6] -= System.currentTimeMillis();
         if (mNextDeltaCRLNumber.compareTo(mNextCRLNumber) > 0) {
