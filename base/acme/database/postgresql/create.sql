@@ -1,6 +1,6 @@
 CREATE TABLE "nonces" (
     "id"               VARCHAR PRIMARY KEY,
-    "expires"          TIMESTAMP NOT NULL
+    "expires"          TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE "accounts" (
@@ -18,9 +18,9 @@ CREATE TABLE "orders" (
     "id"               VARCHAR PRIMARY KEY,
     "account_id"       VARCHAR NOT NULL,
     "status"           VARCHAR NOT NULL,
-    "expires"          TIMESTAMP,
-    "not_before"       TIMESTAMP,
-    "not_after"        TIMESTAMP,
+    "expires"          TIMESTAMPTZ,
+    "not_before"       TIMESTAMPTZ,
+    "not_after"        TIMESTAMPTZ,
     "cert_id"          VARCHAR
 );
 
@@ -39,7 +39,7 @@ CREATE TABLE "authorizations" (
     "id"               VARCHAR PRIMARY KEY,
     "account_id"       VARCHAR NOT NULL,
     "status"           VARCHAR NOT NULL,
-    "expires"          TIMESTAMP,
+    "expires"          TIMESTAMPTZ,
     "identifier_type"  VARCHAR NOT NULL,
     "identifier_value" VARCHAR NOT NULL,
     "wildcard"         BOOLEAN NOT NULL
@@ -51,11 +51,11 @@ CREATE TABLE "authorization_challenges" (
     "type"             VARCHAR NOT NULL,
     "token"            VARCHAR NOT NULL,
     "status"           VARCHAR NOT NULL,
-    "validated"        TIMESTAMP
+    "validated"        TIMESTAMPTZ
 );
 
 CREATE TABLE "certificates" (
     "id"               VARCHAR PRIMARY KEY,
     "data"             BYTEA,
-    "expires"          TIMESTAMP
+    "expires"          TIMESTAMPTZ
 );
