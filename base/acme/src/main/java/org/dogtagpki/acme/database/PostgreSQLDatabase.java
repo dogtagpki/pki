@@ -16,10 +16,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
@@ -36,6 +38,7 @@ import org.dogtagpki.acme.JWK;
 public class PostgreSQLDatabase extends ACMEDatabase {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PostgreSQLDatabase.class);
+    public static Calendar UTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     protected Properties info;
     protected String url;
@@ -198,7 +201,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.setString(1, nonceID);
 
             Date expirationTime = nonce.getExpirationTime();
-            ps.setTimestamp(2, new Timestamp(expirationTime.getTime()));
+            ps.setTimestamp(2, new Timestamp(expirationTime.getTime()), UTC);
 
             ps.executeUpdate();
         }
@@ -247,7 +250,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         Collection<String> nonces = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setTimestamp(1, new Timestamp(currentTime.getTime()));
+            ps.setTimestamp(1, new Timestamp(currentTime.getTime()), UTC);
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -542,7 +545,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         Collection<String> orderIDs = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setTimestamp(1, new Timestamp(currentTime.getTime()));
+            ps.setTimestamp(1, new Timestamp(currentTime.getTime()), UTC);
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -629,13 +632,13 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.setString(3, order.getStatus());
 
             Date expirationTime = order.getExpirationTime();
-            ps.setTimestamp(4, expirationTime == null ? null : new Timestamp(expirationTime.getTime()));
+            ps.setTimestamp(4, expirationTime == null ? null : new Timestamp(expirationTime.getTime()), UTC);
 
             Date notBefore = order.getNotBeforeTime();
-            ps.setTimestamp(5, notBefore == null ? null : new Timestamp(notBefore.getTime()));
+            ps.setTimestamp(5, notBefore == null ? null : new Timestamp(notBefore.getTime()), UTC);
 
             Date notAfter = order.getNotAfterTime();
-            ps.setTimestamp(6, notAfter == null ? null : new Timestamp(notAfter.getTime()));
+            ps.setTimestamp(6, notAfter == null ? null : new Timestamp(notAfter.getTime()), UTC);
 
             ps.setString(7, order.getCertID());
 
@@ -735,7 +738,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.setString(2, order.getCertID());
 
             Date expirationTime = order.getExpirationTime();
-            ps.setTimestamp(3, expirationTime == null ? null : new Timestamp(expirationTime.getTime()));
+            ps.setTimestamp(3, expirationTime == null ? null : new Timestamp(expirationTime.getTime()), UTC);
 
             ps.setString(4, orderID);
 
@@ -864,7 +867,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         Collection<String> authzIDs = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setTimestamp(1, new Timestamp(currentTime.getTime()));
+            ps.setTimestamp(1, new Timestamp(currentTime.getTime()), UTC);
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -890,7 +893,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, accountID);
-            ps.setTimestamp(2, new Timestamp(time.getTime()));
+            ps.setTimestamp(2, new Timestamp(time.getTime()), UTC);
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -977,7 +980,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.setString(3, authorization.getStatus());
 
             Date expirationTime = authorization.getExpirationTime();
-            ps.setTimestamp(4, expirationTime == null ? null : new Timestamp(expirationTime.getTime()));
+            ps.setTimestamp(4, expirationTime == null ? null : new Timestamp(expirationTime.getTime()), UTC);
 
             ACMEIdentifier identifier = authorization.getIdentifier();
             ps.setString(5, identifier.getType());
@@ -1007,7 +1010,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.setString(1, authorization.getStatus());
 
             Date expirationTime = authorization.getExpirationTime();
-            ps.setTimestamp(2, expirationTime == null ? null : new Timestamp(expirationTime.getTime()));
+            ps.setTimestamp(2, expirationTime == null ? null : new Timestamp(expirationTime.getTime()), UTC);
 
             ps.setString(3, authzID);
 
@@ -1053,7 +1056,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 ps.setString(5, challenge.getStatus());
 
                 Date validationTime = challenge.getValidationTime();
-                ps.setTimestamp(6, validationTime == null ? null : new Timestamp(validationTime.getTime()));
+                ps.setTimestamp(6, validationTime == null ? null : new Timestamp(validationTime.getTime()), UTC);
 
                 ps.executeUpdate();
             }
@@ -1128,7 +1131,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         Collection<String> certIDs = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setTimestamp(1, new Timestamp(currentTime.getTime()));
+            ps.setTimestamp(1, new Timestamp(currentTime.getTime()), UTC);
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -1157,7 +1160,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             ps.setBytes(2, certificate.getData());
 
             Date expirationTime = certificate.getExpirationTime();
-            ps.setTimestamp(3, expirationTime == null ? null : new Timestamp(expirationTime.getTime()));
+            ps.setTimestamp(3, expirationTime == null ? null : new Timestamp(expirationTime.getTime()), UTC);
 
             ps.executeUpdate();
         }
