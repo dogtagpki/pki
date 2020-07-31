@@ -204,20 +204,20 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
-    public ACMENonce removeNonce(String value) throws Exception {
+    public ACMENonce removeNonce(String nonceID) throws Exception {
 
         connect();
 
-        ACMENonce nonce = getNonce(value);
+        ACMENonce nonce = getNonce(nonceID);
         if (nonce == null) return null;
 
-        logger.info("Removing nonce " + value);
+        logger.info("Removing nonce " + nonceID);
 
         String sql = statements.getProperty("removeNonce");
         logger.info("SQL: " + sql);
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, value);
+            ps.setString(1, nonceID);
             ps.executeUpdate();
         }
 
@@ -230,18 +230,18 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
         logger.info("Getting expired nonces");
 
-        Collection<String> values = getExpiredNonces(currentTime);
+        Collection<String> nonceIDs = getExpiredNonceIDs(currentTime);
 
         logger.info("Removing expired nonces");
 
-        for (String value : values) {
-            removeNonce(value);
+        for (String nonceID : nonceIDs) {
+            removeNonce(nonceID);
         }
     }
 
-    public Collection<String> getExpiredNonces(Date currentTime) throws Exception {
+    public Collection<String> getExpiredNonceIDs(Date currentTime) throws Exception {
 
-        String sql = statements.getProperty("getExpiredNonces");
+        String sql = statements.getProperty("getExpiredNonceIDs");
         logger.info("SQL: " + sql);
 
         Collection<String> nonces = new ArrayList<>();
@@ -252,8 +252,8 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             try (ResultSet rs = ps.executeQuery()) {
 
                 while (rs.next()) {
-                    String value = rs.getString("value");
-                    nonces.add(value);
+                    String nonceID = rs.getString("value");
+                    nonces.add(nonceID);
                 }
             }
         }

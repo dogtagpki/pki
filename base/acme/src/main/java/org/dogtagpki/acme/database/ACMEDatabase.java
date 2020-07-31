@@ -38,7 +38,7 @@ public abstract class ACMEDatabase {
     }
 
     public abstract void addNonce(ACMENonce nonce) throws Exception;
-    public abstract ACMENonce removeNonce(String value) throws Exception;
+    public abstract ACMENonce removeNonce(String nonceID) throws Exception;
     public abstract void removeExpiredNonces(Date currentTime) throws Exception;
 
     public abstract ACMEAccount getAccount(String accountID) throws Exception;

@@ -248,11 +248,11 @@ public class LDAPDatabase extends ACMEDatabase {
         ldapAdd(entry);
     }
 
-    public ACMENonce removeNonce(String value) throws Exception {
-        ACMENonce nonce = getNonce(value);
+    public ACMENonce removeNonce(String nonceID) throws Exception {
+        ACMENonce nonce = getNonce(nonceID);
         if (nonce == null) return null;
 
-        String dn = ATTR_NONCE_VALUE + "=" + value + "," + RDN_NONCE + "," + basedn;
+        String dn = ATTR_NONCE_VALUE + "=" + nonceID + "," + RDN_NONCE + "," + basedn;
         ldapDelete(dn, OnNoSuchObject.Ignore);
 
         return nonce;
