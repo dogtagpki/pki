@@ -18,7 +18,7 @@ attributeTypes: ( acmeStatus-oid NAME 'acmeStatus'
 attributeTypes: ( acmeError-oid NAME 'acmeError'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
-attributeTypes: ( acmeNonceValue-oid NAME 'acmeNonceValue'
+attributeTypes: ( acmeNonceId-oid NAME 'acmeNonceId'
   SUP name
   SINGLE-VALUE )
 attributeTypes: ( acmeAccountId-oid NAME 'acmeAccountId'
@@ -56,7 +56,7 @@ attributeTypes: ( acmeCertificateId-oid NAME 'acmeCertificateId'
 add: objectClasses
 objectClasses: ( acmeNonce-oid NAME 'acmeNonce'
   STRUCTURAL
-  MUST ( acmeNonceValue $ acmeExpires ) )
+  MUST ( acmeNonceId $ acmeExpires ) )
 objectClasses: ( acmeAccount-oid NAME 'acmeAccount'
   STRUCTURAL
   MUST ( acmeAccountId $ acmeAccountKey $ acmeStatus )

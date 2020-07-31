@@ -1,5 +1,5 @@
 CREATE TABLE "nonces" (
-    "value"            VARCHAR PRIMARY KEY,
+    "id"               VARCHAR PRIMARY KEY,
     "expires"          TIMESTAMP NOT NULL
 );
 

@@ -252,7 +252,7 @@ public class PostgreSQLDatabase extends ACMEDatabase {
             try (ResultSet rs = ps.executeQuery()) {
 
                 while (rs.next()) {
-                    String nonceID = rs.getString("value");
+                    String nonceID = rs.getString("id");
                     nonces.add(nonceID);
                 }
             }

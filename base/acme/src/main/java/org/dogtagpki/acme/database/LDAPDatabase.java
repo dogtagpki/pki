@@ -82,7 +82,7 @@ public class LDAPDatabase extends ACMEDatabase {
     static final String ATTR_ERROR = "acmeError";
     static final String ATTR_EXPIRES = "acmeExpires";
     static final String ATTR_IDENTIFIER = "acmeIdentifier";
-    static final String ATTR_NONCE_VALUE = "acmeNonceValue";
+    static final String ATTR_NONCE_ID = "acmeNonceId";
     static final String ATTR_ORDER_ID = "acmeOrderId";
     static final String ATTR_STATUS = "acmeStatus";
     static final String ATTR_TOKEN = "acmeToken";
@@ -223,7 +223,7 @@ public class LDAPDatabase extends ACMEDatabase {
     }
 
     public ACMENonce getNonce(String nonceID) throws Exception {
-        String dn = ATTR_NONCE_VALUE +  "=" + nonceID + "," + RDN_NONCE + "," + basedn;
+        String dn = ATTR_NONCE_ID +  "=" + nonceID + "," + RDN_NONCE + "," + basedn;
         LDAPEntry entry = ldapGet(dn);
         if (entry == null) return null;
 
@@ -239,11 +239,11 @@ public class LDAPDatabase extends ACMEDatabase {
     public void addNonce(ACMENonce nonce) throws Exception {
         LDAPAttribute[] attrs = {
             new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_NONCE),
-            new LDAPAttribute(ATTR_NONCE_VALUE, nonce.getID()),
+            new LDAPAttribute(ATTR_NONCE_ID, nonce.getID()),
             new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(nonce.getExpirationTime()))
         };
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
-        String dn = ATTR_NONCE_VALUE + "=" + nonce.getID() + "," + RDN_NONCE + "," + basedn;
+        String dn = ATTR_NONCE_ID + "=" + nonce.getID() + "," + RDN_NONCE + "," + basedn;
         LDAPEntry entry = new LDAPEntry(dn, attrSet);
         ldapAdd(entry);
     }
@@ -252,7 +252,7 @@ public class LDAPDatabase extends ACMEDatabase {
         ACMENonce nonce = getNonce(nonceID);
         if (nonce == null) return null;
 
-        String dn = ATTR_NONCE_VALUE + "=" + nonceID + "," + RDN_NONCE + "," + basedn;
+        String dn = ATTR_NONCE_ID + "=" + nonceID + "," + RDN_NONCE + "," + basedn;
         ldapDelete(dn, OnNoSuchObject.Ignore);
 
         return nonce;
