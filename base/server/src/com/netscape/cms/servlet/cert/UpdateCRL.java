@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -117,6 +118,7 @@ public class UpdateCRL extends CMSServlet {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
+	logger.debug("UpdateCRL:process: Incoming Request: " + req.toString());
         CMSEngine engine = CMS.getCMSEngine();
         IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
@@ -304,7 +306,14 @@ public class UpdateCRL extends CMSServlet {
         String reason = req.getParameter("reason");
         String invalidity = req.getParameter("invalidity");
         String results = req.getParameter("results");
+        String futureThisUpdateValue = req.getParameter("customFutureThisUpdateDateValue");
+        Date futureThisUpdate = getFutureUpdateFromString(futureThisUpdateValue);
+        String cancelCurFutureThisUpdateValue = req.getParameter("cancelCurCustomFutureThisUpdateValue");
 
+        if (futureThisUpdate == null) {
+            logger.debug(
+                    "UpdateCRL:process : customFutureThisUpdate value is either not present or an illegal value, treating as null. ");
+        }
         if (crlIssuingPointId != null) {
             Enumeration<ICRLIssuingPoint> ips = mCA.getCRLIssuingPoints();
 
@@ -332,6 +341,18 @@ public class UpdateCRL extends CMSServlet {
             logger.debug("UpdateCRL: no CRL issuing point");
             return;
         }
+
+        //Set optional thisUpdate future value if sent with this request.
+        if(futureThisUpdate != null) {
+            crlIssuingPoint.setCustomFutureThisUpdateValue(futureThisUpdate);
+            //param cancelCurFutureThisUpateValue is invalid here
+        } else {
+            if("true".equals(cancelCurFutureThisUpdateValue)) {
+                crlIssuingPoint.setCancelCurFutureThisUpdateValue(true);
+            }
+        }
+
+
 
         logger.debug("UpdateCRL: CRL issuing point: " + crlIssuingPoint.getId());
 
@@ -566,4 +587,63 @@ public class UpdateCRL extends CMSServlet {
             }
         }
     }
+
+    private static Date getFutureUpdateFromString(String futureThisUpdateValue) {
+
+        Date futureDate = null;
+        if (futureThisUpdateValue == null || futureThisUpdateValue.length() == 0) {
+            return null;
+        }
+
+        String[] date_values = null;
+
+        try {
+            date_values = futureThisUpdateValue.split(":", 6);
+        } catch (Exception e) {
+            return null;
+        }
+
+        if (date_values == null || date_values.length < 3) {
+            return null;
+        }
+
+        int date_len = date_values.length;
+
+        int year = 0, month = 0, day = 0, hour = 0, min = 0, seconds = 0;
+
+        try {
+            year = Integer.parseInt(date_values[0]);
+            month = Integer.parseInt(date_values[1]);
+            day = Integer.parseInt(date_values[2]);
+
+            if (date_len >= 4 && date_values[3] != null) {
+                hour = Integer.parseInt(date_values[3]);
+            }
+
+            if (date_len >= 5 && date_values[4] != null) {
+                min = Integer.parseInt(date_values[4]);
+            }
+
+            if (date_len == 6 && date_values[5] != null) {
+                seconds = Integer.parseInt(date_values[5]);
+            }
+
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        Calendar thisUpdate = Calendar.getInstance();
+        //Massage the month input, because the calendar class expects zero based months
+        //For instance 0 is Jaunuary and 1 is February in the Calendar class.
+        //The linux date utility, which can be used to format this date string
+        //uses 1 based months, such at 1 is Jan and 2 is Feb.
+
+        month -= 1;
+
+        thisUpdate.set(year, month, day, hour, min, seconds);
+        futureDate = thisUpdate.getTime();
+
+        return futureDate;
+    }
+
 }

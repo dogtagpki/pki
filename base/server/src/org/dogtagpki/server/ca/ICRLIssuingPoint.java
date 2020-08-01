@@ -540,4 +540,13 @@ public interface ICRLIssuingPoint {
      * @return list of CRL extensions
      */
     public ICMSCRLExtensions getCRLExtensions();
+
+    /**
+     * Set Optional Future thsUpdateValue to go into the CRL
+     *
+     */
+
+    public void setCustomFutureThisUpdateValue(Date futureThisUpdate);
+
+    public void setCancelCurFutureThisUpdateValue(boolean b);
 }
