@@ -44,7 +44,7 @@ class KeyringTests(unittest.TestCase):
 
     def get_key_id(self, key_name, orig_key_id):
         retrieved_key_id = self.keyring.get_key_id(key_name=key_name)
-        self.assertEquals(retrieved_key_id, orig_key_id)
+        self.assertEqual(retrieved_key_id, orig_key_id)
 
     def get_key_value_raw(self, key_name, orig_pass):
         retrieved_pass_raw = self.keyring.get_password(key_name=key_name, output_format='raw')
@@ -57,7 +57,7 @@ class KeyringTests(unittest.TestCase):
         retrieved_pass_hex = retrieved_pass_hex.split('\n')[1]
         # Remove spaces in the retrieved hex value
         retrieved_pass_hex = retrieved_pass_hex.replace(' ', '')
-        self.assertEquals(retrieved_pass_hex.strip(), orig_pass.encode().hex())
+        self.assertEqual(retrieved_pass_hex.strip(), orig_pass.encode().hex())
 
     def clear_pass(self, key_name):
         self.keyring.clear_keyring()
