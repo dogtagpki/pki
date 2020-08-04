@@ -75,7 +75,7 @@ class Version(tuple):
 
     def __getnewargs__(self):
         # pickle support
-        return str(self)
+        return (str(self),)
 
     @property
     def major(self):
