@@ -1,0 +1,111 @@
+- name: Enable TLS enabled LDAP server
+  block:
+  - name: Enable LDAP setup with trusted CA
+    shell: echo "Stopping LDAP"
+    notify:
+      - INC_CONSTANTS
+      - TEMPNSSDB
+
+  - meta: flush_handlers
+
+  - name: Get runtime password for LDAP
+    shell : cat /etc/dirsrv/slapd-{{ topology }}-testingmaster/pwdfile.txt
+    register: ldapPasswd
+
+  - name: Request for LDAP server certificate with our CA
+    pki:
+      cli: "client-cert-request"
+      hostname : "{{ variable.MASTER_HOSTNAME }}"
+      authType: "basicAuth"
+      nssdb : "/etc/dirsrv/slapd-{{ topology }}-testingmaster/"
+      dbpassword: "{{ ldapPasswd.stdout }}"
+      protocol: "http"
+      port: "{{ variable.CA_HTTP_PORT }}"
+      extra_args: "CN={{ variable.MASTER_HOSTNAME }} --profile caServerCert --type pkcs10"
+    register: serial
+
+  - name: Get request id for LDAP csr
+    set_fact : serialvar="{{ serial.stdout_lines[0].split(':')[1] }}"
+
+  - name: Sending this request for CA signing
+    pki:
+      cli: "ca-cert-request-review"
+      hostname : "{{ variable.MASTER_HOSTNAME }}"
+      nssdb : "/tmp/nssdb"
+      protocol: "http"
+      port: "{{ variable.CA_HTTP_PORT }}"
+      extra_args: "{{ serialvar }} --action approve"
+    register: cert
+
+  - name: Get request id for LDAP certificate
+    set_fact : serialvar="{{ cert.stdout_lines[-1].split(':')[1] }}"
+
+  - name: Get Ldap certificate to a file
+    pki:
+      cli: "cert-show"
+      hostname : "{{ variable.MASTER_HOSTNAME }}"
+      nssdb : "/tmp/nssdb"
+      protocol: "http"
+      port: "{{ variable.CA_HTTP_PORT }}"
+      extra_args: "{{ serialvar }} --output /etc/dirsrv/slapd-{{ topology }}-testingmaster/ds.crt"
+
+  - name: Get CA signing certificate file
+    shell : echo -e "n"|pki -d /tmp/nssdb -P http -p {{ variable.CA_HTTP_PORT }} -h {{ variable.MASTER_HOSTNAME }} -c {{ variable.CLIENT_DIR_PASSWORD }} -n "{{ variable.CA_ADMIN_NICK }}" cert-find --name 'CA Signing Certificate' | grep -i serial | awk -F':' ' { print $2 } '
+    register: cert
+
+  - name: Get Ldap certificate to a file
+    pki:
+      cli: "cert-show"
+      hostname : "{{ variable.MASTER_HOSTNAME }}"
+      protocol: "http"
+      nssdb : "/tmp/nssdb"
+      port: "{{ variable.CA_HTTP_PORT }}"
+      extra_args: "{{ cert.stdout }} --output /etc/dirsrv/slapd-{{ topology }}-testingmaster/ca.crt"
+
+  - name: Stopping LDAP
+    shell: echo "Stopping LDAP"
+    notify:
+      - STOPLDAP
+
+  - meta: flush_handlers
+
+  - name: Removing Existing certifcates
+    shell: certutil -D -d /etc/dirsrv/slapd-{{ topology }}-testingmaster/ -n {{ item }}
+    ignore_errors: True
+    with_items:
+        - "'CA certificate'"
+        - "Server-Cert"
+
+  - name: Get Ldap certificate to a file
+    pki:
+      cli: "client-cert-import"
+      hostname : "{{ variable.MASTER_HOSTNAME }}"
+      nssdb : "/etc/dirsrv/slapd-{{ topology }}-testingmaster/"
+      protocol: "http"
+      authType: "basicAuth"
+      dbpassword: "{{ ldapPasswd.stdout }}"
+      port: "{{ variable.CA_HTTP_PORT }}"
+      extra_args: "'CA Certificate' --ca-cert /etc/dirsrv/slapd-{{ topology }}-testingmaster/ca.crt"
+
+
+  - name: Get Ldap certificate to a file
+    pki:
+      cli: "client-cert-import"
+      hostname : "{{ variable.MASTER_HOSTNAME }}"
+      nssdb : "/etc/dirsrv/slapd-{{ topology }}-testingmaster/"
+      protocol: "http"
+      authType : "basicAuth"
+      dbpassword: "{{ ldapPasswd.stdout }}"
+      port: "{{ variable.CA_HTTP_PORT }}"
+      extra_args: "'Server-Cert' --cert /etc/dirsrv/slapd-{{ topology }}-testingmaster/ds.crt"
+
+  - name: Starting LDAP
+    shell: echo "Starting LDAP"
+    notify:
+      - STARTLDAP
+
+  - meta: flush_handlers
+
+  - name: Copy same CA cert for all the other subsystem usage
+    shell: cp /etc/dirsrv/slapd-{{ topology }}-testingmaster/ca.crt {{ variable.LDAP_SECURE_CON_PEM_FILE }}
+  when: tls_ldap == "true"

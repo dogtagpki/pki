@@ -3,7 +3,7 @@
   with_items:
   - "{{ playbook_dir }}/vars/ldap_shared.yml"
   - "{{ playbook_dir }}/vars/ca_shared.yml"
-  when: topology  == "topology-01" or topology == "acme"
+  when: topology == "topology-01" or topology == "acme"
 
 - name: Pick constants based on {{topology}}
   include_vars: "{{ item }}"
@@ -14,7 +14,7 @@
   - "{{ playbook_dir }}/vars/ocsp.yml"
   - "{{ playbook_dir }}/vars/tks.yml"
   - "{{ playbook_dir }}/vars/tps.yml"
-  when: topology  == "topology-02"
+  when: topology  == "topology-02" or topology  == "topology-00"
 
 - name: Pick constants based on {{topology}}
   include_vars: "{{ item }}"
@@ -57,6 +57,14 @@
   - "{{ playbook_dir }}/vars/tps.yml"
   when: topology  == "topology-ecc"
 
+- name: Pick constants based on {{topology}}
+  include_vars: "{{ item }}"
+  with_items:
+  - "{{ playbook_dir }}/vars/ldap.yml"
+  - "{{ playbook_dir }}/vars/ca.yml"
+  - "{{ playbook_dir }}/vars/subca.yml"
+  when: topology  == "topology-SubCA"
+
 - name: Creates directory
   file: path=/tmp/test_files state=directory
 
@@ -74,6 +82,13 @@
   - /tmp/test_dir/tks.cfg
   - /tmp/test_dir/tps.cfg
   - /tmp/test_dir/constants.py
+  - /tmp/test_dir/subca.cfg
+
+- name: Replace  Ldap server secure port in config files
+  replace: dest={{item}} regexp="ldapSecureServerPort" replace={{ldapSecureServerPort}}
+  with_items:
+    - /tmp/test_dir/ldap.cfg
+    - /tmp/test_dir/constants.py
 
 - name: Replace topology in use in all configuration files
   replace: dest={{item}} regexp="topology" replace={{topology}}
@@ -85,6 +100,7 @@
   - /tmp/test_dir/tks.cfg
   - /tmp/test_dir/tps.cfg
   - /tmp/test_dir/constants.py
+  - /tmp/test_dir/subca.cfg
 
 - name : Substitute SHA512withEC with SHA512withRSA when topology=topology-ecc
   replace: dest={{item}} regexp="SHA512withRSA" replace="SHA512withEC"
@@ -143,3 +159,12 @@
   - /tmp/test_dir/ldap_tks.cfg
   - /tmp/test_dir/ldap_tps.cfg
   when: topology  == "topology-05"
+
+- name: Replace RootCA path in all configuration files
+  replace: dest={{item}} regexp="rootCAcertpath" replace={{ROOT_CA_CERT_PATH}}
+  with_items:
+  - /tmp/test_dir/kra.cfg
+  - /tmp/test_dir/ocsp.cfg
+  - /tmp/test_dir/tks.cfg
+  - /tmp/test_dir/tps.cfg
+  - /tmp/test_dir/subca.cfg

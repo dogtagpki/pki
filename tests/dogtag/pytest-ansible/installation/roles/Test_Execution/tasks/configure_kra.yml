@@ -10,7 +10,7 @@
 - meta: flush_handlers
 
 - name: Enable SignedAudit
-  replace: dest=/etc/pki/{{ topology }}-KRA/kra/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
+  shell: pki-server kra-audit-config-mod -i {{ variable.KRA_INSTANCE_NAME }} --logSigning True
 
 - name: Enable OCSP for KRA
   replace: dest=/etc/pki/{{ topology }}-KRA/server.xml regexp='enableOCSP="false"' replace='enableOCSP="true"'
@@ -18,19 +18,32 @@
 - name: Pointing KRA to correct OCSP port
   replace: dest=/etc/pki/{{ topology }}-KRA/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.CA_HTTP_PORT }}/ca/ocsp
 
-- name: Picking the password in run-time from password.conf of KRA
-  shell: grep -i "internal=" /etc/pki/{{ topology }}-KRA/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
+- name: Set debug log level to 5
+  shell: pki-server -i {{ topology }}-KRA kra-config-set debug.level 5
+  when: debug == "true" or kra_debug == "true"
 
-- name: Importing OCSP certificate in kra nssdb
-  shell: certutil -A -d /etc/pki/{{ topology }}-KRA/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
-  notify:
-    - STARTKRA
-    
-- name: Removing file generated with password
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    -  /tmp/test_dir/certutil_password
+- name: Enable OCSP Policy to Native for tls as true
+  block:
+  - name: Checking for right CA certificate and picking default name
+    shell: sed -i "s/ocspSigningCert cert-pki-ca/Directory Server CA certificate/g" /etc/pki/{{ topology }}-KRA/server.xml
+    notify:
+      - STARTKRA
+  when: tls_ldap == "true"
 
+- name: Enable OCSP Policy to Native for tls as false
+  block:
+  - name: Picking the password in run-time from password.conf of KRA
+    shell: grep -i "internal=" /etc/pki/{{ topology }}-KRA/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
 
+  - name: Importing OCSP certificate in kra nssdb
+    shell: certutil -A -d /etc/pki/{{ topology }}-KRA/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
+    notify:
+      - STARTKRA
+
+  - name: Removing file generated with password
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+      -  /tmp/test_dir/certutil_password
+  when: tls_ldap == "false"

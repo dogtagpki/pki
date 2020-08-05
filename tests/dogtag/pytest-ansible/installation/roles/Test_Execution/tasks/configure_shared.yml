@@ -12,3 +12,20 @@
 
 - name: Install TPS master
   shell: pkispawn -s TPS -f /tmp/test_dir/tps.cfg
+
+- name : Stopping pki-tomcat Instance
+  shell: systemctl stop pki-tomcatd@pki-tomcat.service
+  notify:
+  - INC_CONSTANTS
+
+- name: Enable SignedAudit for ca and kra subsystem
+  replace: dest=/etc/pki/pki-tomcat/{{ item }}/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
+  with_items:
+    - ca
+    - kra
+    - ocsp
+    - tks
+    - tps
+
+- name : Starting pki-tomcat Instance
+  shell: systemctl start pki-tomcatd@pki-tomcat.service

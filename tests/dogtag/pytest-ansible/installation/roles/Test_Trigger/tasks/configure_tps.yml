@@ -37,3 +37,162 @@
 - name : Replace tks uri for TPS
   replace: dest=/tmp/test_dir/tps.cfg regexp="tkspki_https_port" replace={{tkspki_https_port}}
 
+- name: Replace authdb port for TPS
+  replace: dest={{item}} regexp="tps_authdb_port" replace={{ldapServerPort}}
+  with_items:
+  - /tmp/test_dir/tps.cfg
+  when: tls_ldap == "false"
+
+- name: Configure LDAPS in TPS config
+  block:
+  - name: Add ldaps port in the TPS file
+    lineinfile: dest={{item}} insertafter="^pki_ds_ldap_port" line="pki_ds_ldaps_port = ldapSecureServerPort"
+    with_items:
+      - /tmp/test_dir/tps.cfg
+
+  - name : Replace LDAPS port for TPS
+    replace: dest={{item}} regexp="ldapSecureServerPort" replace={{ldapSecureServerPort}}
+    with_items:
+    - /tmp/test_dir/tps.cfg
+    - /tmp/test_dir/constants.py
+
+  - name: Add LDAP secure conection file name
+    lineinfile: dest={{item}} insertafter="^pki_ds_ldap_port" line="pki_ds_secure_connection_ca_pem_file = ldapSecreConPemFile"
+    with_items:
+      - /tmp/test_dir/tps.cfg
+
+  - name : Replace LDAPS Certificate path for TPS
+    replace: dest={{item}} regexp="ldapSecreConPemFile" replace={{ldapSecreConPemFile}}
+    with_items:
+    - /tmp/test_dir/tps.cfg
+    - /tmp/test_dir/constants.py
+
+  - name: Add LDAP secure conection True param
+    lineinfile: dest={{item}} insertafter="^pki_ds_ldap_port" line="pki_ds_secure_connection = True"
+    with_items:
+      - /tmp/test_dir/tps.cfg
+
+  - name: Add LDAP secure conection True param
+    lineinfile: dest={{item}} insertafter="^pki_authdb_port" line="pki_authdb_secure_conn = True"
+    with_items:
+      - /tmp/test_dir/tps.cfg
+
+  - name: Replace authdb port for TPS
+    replace: dest={{item}} regexp="tps_authdb_port" replace={{ldapSecureServerPort}}
+    with_items:
+    - /tmp/test_dir/tps.cfg
+  when: tls_ldap == "true"
+
+- name: Configure RSA_PSS param in TPS config
+  block:
+  - name: Add subsystem signing algo param
+    lineinfile: dest=/tmp/test_dir/tps.cfg insertafter="^pki_client_database_password" line={{ item }}
+    with_items:
+      - "pki_subsystem_key_type=rsa"
+      - "pki_subsystem_key_size=2048"
+      - "pki_subsystem_key_algorithm=SHA512withRSA"
+      - "pki_subsystem_signing_algorithm=SHA512withRSA"
+
+  - name: Add sslserver signing algo param
+    lineinfile: dest=/tmp/test_dir/tps.cfg insertafter="^pki_subsystem_key_type" line={{ item }}
+    with_items:
+      - "pki_sslserver_key_type=rsa"
+      - "pki_sslserver_key_size=2048"
+      - "pki_sslserver_key_algorithm=SHA512withRSA"
+      - "pki_sslserver_signing_algorithm=SHA512withRSA"
+
+  - name: Add audit signing algo param
+    lineinfile: dest=/tmp/test_dir/tps.cfg insertafter="^pki_enable_server_side_keygen" line={{ item }}
+    with_items:
+      - "pki_audit_signing_key_type=rsa"
+      - "pki_audit_signing_key_size=2048"
+      - "pki_audit_signing_key_algorithm=SHA512withRSA"
+      - "pki_audit_signing_signing_algorithm=SHA512withRSA"
+
+  - name: Add RSA/PSS sign algo parameter in the TPS config file
+    lineinfile: dest={{item}} insertafter="^pki_http_port" line="pki_use_pss_rsa_signing_algorithm=True"
+    with_items:
+      - /tmp/test_dir/tps.cfg
+
+  - name : Replace default algorithm with SHA2564withRSA/PSS
+    replace: dest={{item}} regexp="SHA512withRSA" replace="SHA256withRSA/PSS"
+    with_items:
+      - /tmp/test_dir/tps.cfg
+
+  when: rsa_pss_256 == "true"
+
+- name: Configure RSA_PSS param in TPS config
+  block:
+  - name: Add subsystem signing algo param
+    lineinfile: dest=/tmp/test_dir/tps.cfg insertafter="^pki_client_database_password" line={{ item }}
+    with_items:
+      - "pki_subsystem_key_type=rsa"
+      - "pki_subsystem_key_size=2048"
+      - "pki_subsystem_key_algorithm=SHA512withRSA"
+      - "pki_subsystem_signing_algorithm=SHA512withRSA"
+
+  - name: Add sslserver signing algo param
+    lineinfile: dest=/tmp/test_dir/tps.cfg insertafter="^pki_subsystem_key_type" line={{ item }}
+    with_items:
+      - "pki_sslserver_key_type=rsa"
+      - "pki_sslserver_key_size=2048"
+      - "pki_sslserver_key_algorithm=SHA512withRSA"
+      - "pki_sslserver_signing_algorithm=SHA512withRSA"
+
+  - name: Add audit signing algo param
+    lineinfile: dest=/tmp/test_dir/tps.cfg insertafter="^pki_enable_server_side_keygen" line={{ item }}
+    with_items:
+      - "pki_audit_signing_key_type=rsa"
+      - "pki_audit_signing_key_size=2048"
+      - "pki_audit_signing_key_algorithm=SHA512withRSA"
+      - "pki_audit_signing_signing_algorithm=SHA512withRSA"
+
+  - name: Add RSA/PSS sign algo parameter in the TPS config file
+    lineinfile: dest={{item}} insertafter="^pki_http_port" line="pki_use_pss_rsa_signing_algorithm=True"
+    with_items:
+      - /tmp/test_dir/tps.cfg
+
+  - name : Replace default algorithm with SHA384withRSA/PSS
+    replace: dest={{item}} regexp="SHA512withRSA" replace="SHA384withRSA/PSS"
+    with_items:
+      - /tmp/test_dir/tps.cfg
+
+  when: rsa_pss_384 == "true"
+
+- name: Configure RSA_PSS param in TPS config
+  block:
+  - name: Add subsystem signing algo param
+    lineinfile: dest=/tmp/test_dir/tps.cfg insertafter="^pki_client_database_password" line={{ item }}
+    with_items:
+      - "pki_subsystem_key_type=rsa"
+      - "pki_subsystem_key_size=2048"
+      - "pki_subsystem_key_algorithm=SHA512withRSA"
+      - "pki_subsystem_signing_algorithm=SHA512withRSA"
+
+  - name: Add sslserver signing algo param
+    lineinfile: dest=/tmp/test_dir/tps.cfg insertafter="^pki_subsystem_key_type" line={{ item }}
+    with_items:
+      - "pki_sslserver_key_type=rsa"
+      - "pki_sslserver_key_size=2048"
+      - "pki_sslserver_key_algorithm=SHA512withRSA"
+      - "pki_sslserver_signing_algorithm=SHA512withRSA"
+
+  - name: Add audit signing algo param
+    lineinfile: dest=/tmp/test_dir/tps.cfg insertafter="^pki_enable_server_side_keygen" line={{ item }}
+    with_items:
+      - "pki_audit_signing_key_type=rsa"
+      - "pki_audit_signing_key_size=2048"
+      - "pki_audit_signing_key_algorithm=SHA512withRSA"
+      - "pki_audit_signing_signing_algorithm=SHA512withRSA"
+
+  - name: Add RSA/PSS sign algo parameter in the TPS config file
+    lineinfile: dest={{item}} insertafter="^pki_http_port" line="pki_use_pss_rsa_signing_algorithm=True"
+    with_items:
+      - /tmp/test_dir/tps.cfg
+
+  - name : Replace default algorithm with SHA512withRSA/PSS
+    replace: dest={{item}} regexp="SHA512withRSA" replace="SHA512withRSA/PSS"
+    with_items:
+      - /tmp/test_dir/tps.cfg
+
+  when: rsa_pss_512 == "true"

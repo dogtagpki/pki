@@ -9,6 +9,9 @@
 
 - meta: flush_handlers
 
+- name: Set debug log level to 5
+  shell: pki-server -i {{ topology }}-TPS tps-config-set debug.level 5
+  when: debug == "true" or tps_debug == "true"
 - name: Enable SignedAudit
   replace: dest=/etc/pki/{{ topology }}-TPS/tps/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
 
@@ -18,17 +21,32 @@
 - name: Pointing TPS to correct OCSP port
   replace: dest=/etc/pki/{{ topology }}-TPS/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.CA_HTTP_PORT }}/ca/ocsp
 
-- name: Picking the password in run-time from password.conf of TPS
-  shell: grep -i "internal=" /etc/pki/{{ topology }}-TPS/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
+# Replacing the TPS's phoneHome url port to match the unsecure tps port in the token_enroll.txt file
+- name: Pointing TPS phoneHome url to its unsecure port
+  replace: dest=/var/lib/pki/{{ topology }}-TPS/conf/tps/phoneHome.xml regexp="https://pki1.example.com:25443/tps/tps" replace="http://pki1.example.com:25080/tps/tps"
 
-- name: Importing OCSP certificate in tps nssdb
-  shell: certutil -A -d /etc/pki/{{ topology }}-TPS/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
-  notify:
-    - STARTTPS
-    
-- name: Removing file generated with password
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    -  /tmp/test_dir/certutil_password
+- name: Enable OCSP Policy to Native for tls as true
+  block:
+  - name: Checking for right CA certificate
+    shell: sed -i "s/ocspSigningCert cert-pki-ca/Directory Server CA certificate/g" /etc/pki/{{ topology }}-TPS/server.xml
+    notify:
+      - STARTTPS
+  when: tls_ldap == "true"
+
+- name: Enable OCSP Policy to Native for tls as false
+  block:
+  - name: Picking the password in run-time from password.conf of TPS
+    shell: grep -i "internal=" /etc/pki/{{ topology }}-TPS/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
+
+  - name: Importing OCSP certificate in tps nssdb
+    shell: certutil -A -d /etc/pki/{{ topology }}-TPS/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
+    notify:
+      - STARTTPS
+
+  - name: Removing file generated with password
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+      -  /tmp/test_dir/certutil_password
+  when: tls_ldap == "false"
