@@ -89,7 +89,7 @@ public class ConfigClient extends Client {
         logger.debug("Status: " + status);
 
         if (status.equals(ConfigResource.AUTH_FAILURE)) {
-            throw new EAuthException(ConfigResource.AUTH_FAILURE);
+            throw new EAuthException("Authentication failed");
         }
 
         if (!status.equals(ConfigResource.SUCCESS)) {
