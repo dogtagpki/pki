@@ -5,7 +5,7 @@
 #
 # https://docs.fedoraproject.org/en-US/containers/guidelines/guidelines/
 
-FROM registry.fedoraproject.org/fedora:30
+FROM registry.fedoraproject.org/fedora:31
 
 ARG NAME="pki-acme"
 ARG SUMMARY="Dogtag PKI ACME Responder"
