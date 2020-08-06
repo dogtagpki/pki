@@ -105,6 +105,7 @@ public class ACMENewOrderService {
 
             ACMEAuthorization authorization = new ACMEAuthorization();
             authorization.setID(authzID);
+            authorization.setCreationTime(currentTime);
             authorization.setIdentifier(identifier);
             authorization.setWildcard(wildcard);
 
@@ -123,6 +124,7 @@ public class ACMENewOrderService {
 
         ACMEOrder order = new ACMEOrder();
         order.setID(orderID);
+        order.setCreationTime(currentTime);
         order.setIdentifiers(request.getIdentifiers());
         order.setNotBefore(request.getNotBefore());
         order.setNotAfter(request.getNotAfter());

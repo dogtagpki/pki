@@ -6,6 +6,7 @@
 package org.dogtagpki.acme.server;
 
 import java.net.URI;
+import java.util.Date;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -38,6 +39,7 @@ public class ACMENewAccountService {
     public Response createNewAccount(JWS jws) throws Exception {
 
         logger.info("Creating new account");
+        Date currentTime = new Date();
 
         String protectedHeader = new String(jws.getProtectedHeaderAsBytes(), "UTF-8");
         logger.info("Header: " + protectedHeader);
@@ -81,6 +83,7 @@ public class ACMENewAccountService {
             }
 
             account.setID(accountID);
+            account.setCreationTime(currentTime);
             account.setJWK(jwk);
             account.setStatus("valid");
 

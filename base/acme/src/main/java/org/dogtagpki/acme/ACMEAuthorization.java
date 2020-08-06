@@ -28,6 +28,9 @@ public class ACMEAuthorization {
     private String accountID;
 
     @JsonIgnore
+    private Date creationTime;
+
+    @JsonIgnore
     private Date expirationTime;
 
     private String status;
@@ -50,6 +53,14 @@ public class ACMEAuthorization {
 
     public void setAccountID(String accountID) {
         this.accountID = accountID;
+    }
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
     }
 
     public Date getExpirationTime() {

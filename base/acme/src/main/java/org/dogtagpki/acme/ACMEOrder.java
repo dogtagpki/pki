@@ -28,6 +28,9 @@ public class ACMEOrder {
     private String accountID;
 
     @JsonIgnore
+    private Date creationTime;
+
+    @JsonIgnore
     private Date expirationTime;
 
     @JsonIgnore
@@ -68,6 +71,14 @@ public class ACMEOrder {
 
     public void setAccountID(String accountID) {
         this.accountID = accountID;
+    }
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
     }
 
     public Date getExpirationTime() {
