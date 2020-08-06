@@ -198,7 +198,7 @@ class PKIInstance(pki.server.PKIServer):
 
                 # switch to systemd user if different from current user
                 if current_user != self.user:
-                    prefix.extend(['runuser', '-u', self.user, '--'])
+                    prefix.extend(['/usr/sbin/runuser', '-u', self.user, '--'])
 
             cmd = prefix + ['/usr/sbin/pki-server', 'upgrade']
 
