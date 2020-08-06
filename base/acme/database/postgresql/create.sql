@@ -1,10 +1,12 @@
 CREATE TABLE "nonces" (
     "id"               VARCHAR PRIMARY KEY,
+    "created"          TIMESTAMPTZ NOT NULL,
     "expires"          TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE "accounts" (
     "id"               VARCHAR PRIMARY KEY,
+    "created"          TIMESTAMPTZ NOT NULL,
     "status"           VARCHAR NOT NULL,
     "jwk"              VARCHAR NOT NULL
 );
@@ -17,6 +19,7 @@ CREATE TABLE "account_contacts" (
 CREATE TABLE "orders" (
     "id"               VARCHAR PRIMARY KEY,
     "account_id"       VARCHAR NOT NULL,
+    "created"          TIMESTAMPTZ NOT NULL,
     "status"           VARCHAR NOT NULL,
     "expires"          TIMESTAMPTZ,
     "not_before"       TIMESTAMPTZ,
@@ -38,6 +41,7 @@ CREATE TABLE "order_authorizations" (
 CREATE TABLE "authorizations" (
     "id"               VARCHAR PRIMARY KEY,
     "account_id"       VARCHAR NOT NULL,
+    "created"          TIMESTAMPTZ NOT NULL,
     "status"           VARCHAR NOT NULL,
     "expires"          TIMESTAMPTZ,
     "identifier_type"  VARCHAR NOT NULL,
@@ -56,6 +60,7 @@ CREATE TABLE "authorization_challenges" (
 
 CREATE TABLE "certificates" (
     "id"               VARCHAR PRIMARY KEY,
+    "created"          TIMESTAMPTZ NOT NULL,
     "data"             BYTEA,
     "expires"          TIMESTAMPTZ
 );

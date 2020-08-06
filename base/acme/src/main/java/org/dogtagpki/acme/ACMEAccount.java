@@ -6,6 +6,7 @@
 package org.dogtagpki.acme;
 
 import java.net.URI;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -28,6 +29,9 @@ public class ACMEAccount {
     private Boolean termsOfServiceAgreed;
     private Boolean onlyReturnExisting;
     private URI orders;
+
+    @JsonIgnore
+    private Date creationTime;
 
     @JsonIgnore
     private JWK jwk;
@@ -78,6 +82,14 @@ public class ACMEAccount {
 
     public void setOrders(URI orders) {
         this.orders = orders;
+    }
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
     }
 
     public JWK getJWK() {

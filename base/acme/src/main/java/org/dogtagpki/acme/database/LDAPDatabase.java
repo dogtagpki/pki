@@ -80,6 +80,7 @@ public class LDAPDatabase extends ACMEDatabase {
     static final String ATTR_AUTHORIZATION_WILDCARD = "acmeAuthorizationWildcard";
     static final String ATTR_CERTIFICATE_ID = "acmeCertificateId";
     static final String ATTR_CHALLENGE_ID = "acmeChallengeId";
+    static final String ATTR_CREATED = "acmeCreated";
     static final String ATTR_ERROR = "acmeError";
     static final String ATTR_EXPIRES = "acmeExpires";
     static final String ATTR_IDENTIFIER = "acmeIdentifier";
@@ -235,6 +236,9 @@ public class LDAPDatabase extends ACMEDatabase {
         ACMENonce nonce = new ACMENonce();
         nonce.setID(nonceID);
 
+        LDAPAttribute attrCreated = entry.getAttribute(ATTR_CREATED);
+        nonce.setCreationTime(dateFormat.parse(attrCreated.getStringValues().nextElement()));
+
         LDAPAttribute attrExpires = entry.getAttribute(ATTR_EXPIRES);
         nonce.setExpirationTime(dateFormat.parse(attrExpires.getStringValues().nextElement()));
 
@@ -245,6 +249,7 @@ public class LDAPDatabase extends ACMEDatabase {
         LDAPAttribute[] attrs = {
             new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_NONCE),
             new LDAPAttribute(ATTR_NONCE_ID, nonce.getID()),
+            new LDAPAttribute(ATTR_CREATED, dateFormat.format(nonce.getCreationTime())),
             new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(nonce.getExpirationTime()))
         };
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
@@ -283,7 +288,10 @@ public class LDAPDatabase extends ACMEDatabase {
         ACMEAccount account = new ACMEAccount();
         account.setID(accountID);
 
-        LDAPAttribute attr = entry.getAttribute(ATTR_STATUS);
+        LDAPAttribute attr = entry.getAttribute(ATTR_CREATED);
+        account.setCreationTime(dateFormat.parse(attr.getStringValues().nextElement()));
+
+        attr = entry.getAttribute(ATTR_STATUS);
         account.setStatus(attr.getStringValues().nextElement());
 
         attr = entry.getAttribute(ATTR_ACCOUNT_KEY);
@@ -304,6 +312,7 @@ public class LDAPDatabase extends ACMEDatabase {
         LDAPAttribute[] attrs = {
             new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_ACCOUNT),
             new LDAPAttribute(ATTR_ACCOUNT_ID, account.getID()),
+            new LDAPAttribute(ATTR_CREATED, dateFormat.format(account.getCreationTime())),
             new LDAPAttribute(ATTR_ACCOUNT_KEY, account.getJWK().toJSON()),
             new LDAPAttribute(ATTR_STATUS, account.getStatus())
         };
@@ -401,6 +410,9 @@ public class LDAPDatabase extends ACMEDatabase {
         attr = entry.getAttribute(ATTR_ACCOUNT_ID);
         order.setAccountID(attr.getStringValues().nextElement());
 
+        attr = entry.getAttribute(ATTR_CREATED);
+        order.setCreationTime(dateFormat.parse(attr.getStringValues().nextElement()));
+
         attr = entry.getAttribute(ATTR_STATUS);
         order.setStatus(attr.getStringValues().nextElement());
 
@@ -439,6 +451,7 @@ public class LDAPDatabase extends ACMEDatabase {
             new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_ORDER),
             new LDAPAttribute(ATTR_ORDER_ID, order.getID()),
             new LDAPAttribute(ATTR_ACCOUNT_ID, order.getAccountID()),
+            new LDAPAttribute(ATTR_CREATED, dateFormat.format(order.getCreationTime())),
             new LDAPAttribute(ATTR_STATUS, order.getStatus()),
             new LDAPAttribute(ATTR_AUTHORIZATION_ID, order.getAuthzIDs())
         };
@@ -539,6 +552,9 @@ public class LDAPDatabase extends ACMEDatabase {
 
         attr = entry.getAttribute(ATTR_ACCOUNT_ID);
         authz.setAccountID(attr.getStringValues().nextElement());
+
+        attr = entry.getAttribute(ATTR_CREATED);
+        authz.setCreationTime(dateFormat.parse(attr.getStringValues().nextElement()));
 
         attr = entry.getAttribute(ATTR_EXPIRES);
         if (attr != null) {
@@ -651,6 +667,7 @@ public class LDAPDatabase extends ACMEDatabase {
             new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_AUTHORIZATION),
             new LDAPAttribute(ATTR_AUTHORIZATION_ID, authorization.getID()),
             new LDAPAttribute(ATTR_ACCOUNT_ID, authorization.getAccountID()),
+            new LDAPAttribute(ATTR_CREATED, dateFormat.format(authorization.getCreationTime())),
             new LDAPAttribute(ATTR_STATUS, authorization.getStatus()),
             new LDAPAttribute(ATTR_IDENTIFIER + ";" + identifier.getType(), identifier.getValue())
         };
@@ -817,7 +834,10 @@ public class LDAPDatabase extends ACMEDatabase {
         ACMECertificate certificate = new ACMECertificate();
         certificate.setID(certID);
 
-        LDAPAttribute attr = entry.getAttribute(ATTR_USER_CERTIFICATE);
+        LDAPAttribute attr = entry.getAttribute(ATTR_CREATED);
+        certificate.setCreationTime(dateFormat.parse(attr.getStringValues().nextElement()));
+
+        attr = entry.getAttribute(ATTR_USER_CERTIFICATE);
         certificate.setData(attr.getByteValueArray()[0]);
 
         attr = entry.getAttribute(ATTR_EXPIRES);
@@ -834,6 +854,7 @@ public class LDAPDatabase extends ACMEDatabase {
         LDAPAttribute[] attrs = {
                 new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_CERTIFICATE),
                 new LDAPAttribute(ATTR_CERTIFICATE_ID, certID),
+                new LDAPAttribute(ATTR_CREATED, dateFormat.format(certificate.getCreationTime())),
                 new LDAPAttribute(ATTR_USER_CERTIFICATE, certificate.getData())
         };
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);

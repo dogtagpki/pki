@@ -94,6 +94,7 @@ public class NSSIssuer extends ACMEIssuer {
     public String issueCertificate(PKCS10 pkcs10) throws Exception {
 
         logger.info("Issuing certificate");
+        Date currentTime = new Date();
 
         ACMEEngine engine = ACMEEngine.getInstance();
         ACMEDatabase acmeDatabase = engine.getDatabase();
@@ -114,6 +115,7 @@ public class NSSIssuer extends ACMEIssuer {
 
         ACMECertificate certificate = new ACMECertificate();
         certificate.setID(certID);
+        certificate.setCreationTime(currentTime);
         certificate.setData(cert.getEncoded());
 
         Date expirationTime = engine.getPolicy().getCertificateExpirationTime(cert.getNotAfter());

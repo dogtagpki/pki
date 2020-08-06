@@ -24,6 +24,9 @@ public class ACMECertificate {
     @JsonIgnore
     private String id;
 
+    @JsonIgnore
+    private Date creationTime;
+
     byte[] data;
 
     @JsonIgnore
@@ -35,6 +38,14 @@ public class ACMECertificate {
 
     public void setID(String id) {
         this.id = id;
+    }
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
     }
 
     public byte[] getData() {

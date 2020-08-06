@@ -1,6 +1,11 @@
 dn: cn=schema
 changetype: modify
 add: attributeTypes
+attributeTypes: ( acmeCreated-oid NAME 'acmeCreated'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+  EQUALITY generalizedTimeMatch
+  ORDERING generalizedTimeOrderingMatch
+  SINGLE-VALUE )
 attributeTypes: ( acmeExpires-oid NAME 'acmeExpires'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
   EQUALITY generalizedTimeMatch
@@ -56,18 +61,18 @@ attributeTypes: ( acmeCertificateId-oid NAME 'acmeCertificateId'
 add: objectClasses
 objectClasses: ( acmeNonce-oid NAME 'acmeNonce'
   STRUCTURAL
-  MUST ( acmeNonceId $ acmeExpires ) )
+  MUST ( acmeNonceId $ acmeCreated $ acmeExpires ) )
 objectClasses: ( acmeAccount-oid NAME 'acmeAccount'
   STRUCTURAL
-  MUST ( acmeAccountId $ acmeAccountKey $ acmeStatus )
+  MUST ( acmeAccountId $ acmeCreated $ acmeAccountKey $ acmeStatus )
   MAY acmeAccountContact )
 objectClasses: ( acmeOrder-oid NAME 'acmeOrder'
   STRUCTURAL
-  MUST ( acmeOrderId $ acmeAccountId $ acmeStatus $ acmeIdentifier $ acmeAuthorizationId )
+  MUST ( acmeOrderId $ acmeAccountId $ acmeCreated $ acmeStatus $ acmeIdentifier $ acmeAuthorizationId )
   MAY ( acmeError $ acmeCertificateId $ acmeExpires ) )
 objectClasses: ( acmeAuthorization-oid NAME 'acmeAuthorization'
   STRUCTURAL
-  MUST ( acmeAuthorizationId $ acmeAccountId $ acmeIdentifier $ acmeAuthorizationWildcard $ acmeStatus )
+  MUST ( acmeAuthorizationId $ acmeAccountId $ acmeCreated $ acmeIdentifier $ acmeAuthorizationWildcard $ acmeStatus )
   MAY acmeExpires )
 # Why have seperate object classes for different challenge types?
 # the dns-01 and http-01 challenge types both only store a 'token'.
@@ -88,5 +93,5 @@ objectClasses: ( acmeChallengeHttp01-oid NAME 'acmeChallengeHttp01'
   MUST acmeToken )
 objectClasses: ( acmeCertificate-oid NAME 'acmeCertificate'
   STRUCTURAL
-  MUST ( acmeCertificateId $ userCertificate )
+  MUST ( acmeCertificateId $ acmeCreated $ userCertificate )
   MAY acmeExpires )

@@ -475,6 +475,7 @@ public class ACMEEngine implements ServletContextListener {
 
     public ACMENonce createNonce() throws Exception {
 
+        Date currentTime = new Date();
         ACMENonce nonce = new ACMENonce();
 
         // generate 128-bit nonce with JSS
@@ -486,8 +487,9 @@ public class ACMEEngine implements ServletContextListener {
         String nonceID = Base64.encodeBase64URLSafeString(bytes);
 
         nonce.setID(nonceID);
+        nonce.setCreationTime(currentTime);
 
-        Date expirationTime = policy.getNonceExpirationTime(new Date());
+        Date expirationTime = policy.getNonceExpirationTime(currentTime);
         nonce.setExpirationTime(expirationTime);
 
         database.addNonce(nonce);

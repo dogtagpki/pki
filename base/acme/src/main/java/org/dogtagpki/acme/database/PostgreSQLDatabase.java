@@ -181,6 +181,9 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 ACMENonce nonce = new ACMENonce();
                 nonce.setID(nonceID);
 
+                Timestamp created = rs.getTimestamp("created");
+                nonce.setCreationTime(new Date(created.getTime()));
+
                 Timestamp expires = rs.getTimestamp("expires");
                 nonce.setExpirationTime(new Date(expires.getTime()));
 
@@ -203,8 +206,11 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
             ps.setString(1, nonceID);
 
+            Date creationTime = nonce.getCreationTime();
+            ps.setTimestamp(2, new Timestamp(creationTime.getTime()), UTC);
+
             Date expirationTime = nonce.getExpirationTime();
-            ps.setTimestamp(2, new Timestamp(expirationTime.getTime()), UTC);
+            ps.setTimestamp(3, new Timestamp(expirationTime.getTime()), UTC);
 
             ps.executeUpdate();
         }
@@ -292,6 +298,10 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                 }
 
                 account.setID(accountID);
+
+                Timestamp created = rs.getTimestamp("created");
+                account.setCreationTime(new Date(created.getTime()));
+
                 account.setStatus(rs.getString("status"));
 
                 String jwk = rs.getString("jwk");
@@ -344,8 +354,12 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, accountID);
-            ps.setString(2, account.getStatus());
-            ps.setString(3, account.getJWK().toJSON());
+
+            Date creationTime = account.getCreationTime();
+            ps.setTimestamp(2, creationTime == null ? null : new Timestamp(creationTime.getTime()), UTC);
+
+            ps.setString(3, account.getStatus());
+            ps.setString(4, account.getJWK().toJSON());
 
             ps.executeUpdate();
         }
@@ -435,6 +449,10 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 order.setID(orderID);
                 order.setAccountID(rs.getString("account_id"));
+
+                Timestamp created = rs.getTimestamp("created");
+                order.setCreationTime(created == null ? null : new Date(created.getTime()));
+
                 order.setStatus(rs.getString("status"));
 
                 Timestamp expires = rs.getTimestamp("expires");
@@ -476,6 +494,10 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                     ACMEOrder order = new ACMEOrder();
                     order.setID(rs.getString("id"));
                     order.setAccountID(accountID);
+
+                    Timestamp created = rs.getTimestamp("created");
+                    order.setCreationTime(created == null ? null : new Date(created.getTime()));
+
                     order.setStatus(rs.getString("status"));
 
                     Timestamp expires = rs.getTimestamp("expires");
@@ -522,6 +544,10 @@ public class PostgreSQLDatabase extends ACMEDatabase {
                     ACMEOrder order = new ACMEOrder();
                     order.setID(rs.getString("id"));
                     order.setAccountID(rs.getString("account_id"));
+
+                    Timestamp created = rs.getTimestamp("created");
+                    order.setCreationTime(created == null ? null : new Date(created.getTime()));
+
                     order.setStatus(rs.getString("status"));
 
                     Timestamp expires = rs.getTimestamp("expires");
@@ -571,6 +597,10 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 order.setID(rs.getString("id"));
                 order.setAccountID(rs.getString("account_id"));
+
+                Timestamp created = rs.getTimestamp("created");
+                order.setCreationTime(created == null ? null : new Date(created.getTime()));
+
                 order.setStatus(rs.getString("status"));
 
                 Timestamp expires = rs.getTimestamp("expires");
@@ -684,18 +714,22 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
             ps.setString(1, orderID);
             ps.setString(2, order.getAccountID());
-            ps.setString(3, order.getStatus());
+
+            Date creationTime = order.getCreationTime();
+            ps.setTimestamp(3, creationTime == null ? null : new Timestamp(creationTime.getTime()), UTC);
+
+            ps.setString(4, order.getStatus());
 
             Date expirationTime = order.getExpirationTime();
-            ps.setTimestamp(4, expirationTime == null ? null : new Timestamp(expirationTime.getTime()), UTC);
+            ps.setTimestamp(5, expirationTime == null ? null : new Timestamp(expirationTime.getTime()), UTC);
 
             Date notBefore = order.getNotBeforeTime();
-            ps.setTimestamp(5, notBefore == null ? null : new Timestamp(notBefore.getTime()), UTC);
+            ps.setTimestamp(6, notBefore == null ? null : new Timestamp(notBefore.getTime()), UTC);
 
             Date notAfter = order.getNotAfterTime();
-            ps.setTimestamp(6, notAfter == null ? null : new Timestamp(notAfter.getTime()), UTC);
+            ps.setTimestamp(7, notAfter == null ? null : new Timestamp(notAfter.getTime()), UTC);
 
-            ps.setString(7, order.getCertID());
+            ps.setString(8, order.getCertID());
 
             ps.executeUpdate();
         }
@@ -854,6 +888,10 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 authorization.setID(authzID);
                 authorization.setAccountID(rs.getString("account_id"));
+
+                Timestamp created = rs.getTimestamp("created");
+                authorization.setCreationTime(created == null ? null : new Date(created.getTime()));
+
                 authorization.setStatus(rs.getString("status"));
 
                 Timestamp expires = rs.getTimestamp("expires");
@@ -896,6 +934,10 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 authorization.setID(rs.getString("id"));
                 authorization.setAccountID(rs.getString("account_id"));
+
+                Timestamp created = rs.getTimestamp("created");
+                authorization.setCreationTime(created == null ? null : new Date(created.getTime()));
+
                 authorization.setStatus(rs.getString("status"));
 
                 Timestamp expires = rs.getTimestamp("expires");
@@ -961,6 +1003,10 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                     authorization.setID(rs.getString("id"));
                     authorization.setAccountID(accountID);
+
+                    Timestamp created = rs.getTimestamp("created");
+                    authorization.setCreationTime(created == null ? null : new Date(created.getTime()));
+
                     authorization.setStatus(rs.getString("status"));
 
                     Timestamp expires = rs.getTimestamp("expires");
@@ -1035,17 +1081,21 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
             ps.setString(1, authzID);
             ps.setString(2, authorization.getAccountID());
-            ps.setString(3, authorization.getStatus());
+
+            Date creationTime = authorization.getCreationTime();
+            ps.setTimestamp(3, creationTime == null ? null : new Timestamp(creationTime.getTime()), UTC);
+
+            ps.setString(4, authorization.getStatus());
 
             Date expirationTime = authorization.getExpirationTime();
-            ps.setTimestamp(4, expirationTime == null ? null : new Timestamp(expirationTime.getTime()), UTC);
+            ps.setTimestamp(5, expirationTime == null ? null : new Timestamp(expirationTime.getTime()), UTC);
 
             ACMEIdentifier identifier = authorization.getIdentifier();
-            ps.setString(5, identifier.getType());
-            ps.setString(6, identifier.getValue());
+            ps.setString(6, identifier.getType());
+            ps.setString(7, identifier.getValue());
 
             Boolean wildcard = authorization.getWildcard();
-            ps.setBoolean(7, wildcard == null ? false : wildcard);
+            ps.setBoolean(8, wildcard == null ? false : wildcard);
 
             ps.executeUpdate();
         }
@@ -1171,6 +1221,10 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
                 ACMECertificate certificate = new ACMECertificate();
                 certificate.setID(certID);
+
+                Timestamp created = rs.getTimestamp("created");
+                certificate.setCreationTime(created == null ? null : new Date(created.getTime()));
+
                 certificate.setData(rs.getBytes("data"));
 
                 Timestamp expires = rs.getTimestamp("expires");
@@ -1215,10 +1269,14 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, certID);
-            ps.setBytes(2, certificate.getData());
+
+            Date creationTime = certificate.getCreationTime();
+            ps.setTimestamp(2, creationTime == null ? null : new Timestamp(creationTime.getTime()), UTC);
+
+            ps.setBytes(3, certificate.getData());
 
             Date expirationTime = certificate.getExpirationTime();
-            ps.setTimestamp(3, expirationTime == null ? null : new Timestamp(expirationTime.getTime()), UTC);
+            ps.setTimestamp(4, expirationTime == null ? null : new Timestamp(expirationTime.getTime()), UTC);
 
             ps.executeUpdate();
         }

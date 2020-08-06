@@ -21,6 +21,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ACMENonce {
 
     private String id;
+
+    @JsonIgnore
+    private Date creationTime;
+
     private String expires;
 
     @JsonIgnore
@@ -32,6 +36,14 @@ public class ACMENonce {
 
     public void setID(String id) {
         this.id = id;
+    }
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
     }
 
     public String getExpires() {
