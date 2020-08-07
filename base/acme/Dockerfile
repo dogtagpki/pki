@@ -33,7 +33,7 @@ EXPOSE 8080 8443
 RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enable -y $COPR_REPO; fi
 
 # Install packages
-RUN dnf install -y bind-utils iputils abrt-java-connector postgresql postgresql-jdbc pki-server
+RUN dnf install -y bind-utils iputils abrt-java-connector postgresql postgresql-jdbc pki-acme
 
 # Install PostgreSQL JDBC driver
 RUN ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib/postgresql.jar
