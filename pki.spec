@@ -97,6 +97,7 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 
 %package_option base
 %package_option server
+%package_option acme
 %package_option ca
 %package_option kra
 %package_option ocsp
@@ -264,6 +265,7 @@ to manage enterprise Public Key Infrastructure deployments.
 
 PKI consists of the following components:
 
+  * Automatic Certificate Management Environment (ACME) Responder
   * Certificate Authority (CA)
   * Key Recovery Authority (KRA)
   * Online Certificate Status Protocol (OCSP) Manager
@@ -288,6 +290,7 @@ Requires:         %{vendor_id}-pki-console-theme = %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI core packages
+Requires:         pki-acme = %{version}
 Requires:         pki-ca = %{version}
 Requires:         pki-kra = %{version}
 Requires:         pki-ocsp = %{version}
@@ -315,6 +318,7 @@ to manage enterprise Public Key Infrastructure deployments.
 
 PKI consists of the following components:
 
+  * Automatic Certificate Management Environment (ACME) Responder
   * Certificate Authority (CA)
   * Key Recovery Authority (KRA)
   * Online Certificate Status Protocol (OCSP) Manager
@@ -521,16 +525,27 @@ Provides:         bundled(js-patternfly) = 3.59.2
 Provides:         bundled(js-underscore) = 1.9.2
 
 %description -n   pki-server
-The PKI Server Package contains libraries and utilities needed by the
-following PKI subsystems:
-
-    the Certificate Authority (CA),
-    the Key Recovery Authority (KRA),
-    the Online Certificate Status Protocol (OCSP) Manager,
-    the Token Key Service (TKS), and
-    the Token Processing Service (TPS).
+The PKI Server Package contains libraries and utilities needed by other
+PKI subsystems.
 
 # with server
+%endif
+
+%if %{with acme}
+################################################################################
+%package -n       pki-acme
+################################################################################
+
+Summary:          PKI ACME Package
+BuildArch:        noarch
+
+Requires:         pki-server = %{version}-%{release}
+
+%description -n   pki-acme
+The PKI ACME responder is a service that provides an automatic certificate
+management via ACME v2 protocol defined in RFC 8555.
+
+# with acme
 %endif
 
 %if %{with ca}
@@ -831,7 +846,7 @@ fi
     -DBUILD_PKI_CORE:BOOL=ON \
     -DPYTHON_EXECUTABLE=%{python_executable} \
     -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
-%if ! %{with server} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
+%if ! %{with server} && ! %{with acme} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
     -DWITH_SERVER:BOOL=OFF \
 %endif
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
@@ -1162,10 +1177,20 @@ fi
 %{_mandir}/man8/pki-healthcheck.8.gz
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
-%{_datadir}/pki/acme/
-%{_javadir}/pki/pki-acme.jar
 
 # with server
+%endif
+
+%if %{with acme}
+################################################################################
+%files -n pki-acme
+################################################################################
+
+%{_javadir}/pki/pki-acme.jar
+%dir %{_datadir}/pki/acme
+%{_datadir}/pki/acme/
+
+# with acme
 %endif
 
 %if %{with ca}

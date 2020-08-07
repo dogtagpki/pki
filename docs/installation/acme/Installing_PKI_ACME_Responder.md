@@ -16,7 +16,13 @@ It assumes that the CA was [installed](../ca/Installing_CA.md) with the default 
 
 ## Installing PKI ACME Responder
 
-To install PKI ACME responder on PKI server, execute the following command:
+To install PKI ACME responder RPM package, execute the following command:
+
+```
+$ dnf install pki-acme
+```
+
+To create PKI ACME responder in a PKI server instance, execute the following command:
 
 ```
 $ pki-server acme-create

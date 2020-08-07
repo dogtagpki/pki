@@ -786,7 +786,7 @@ public class ACMEEngine implements ServletContextListener {
             logger.info("- " + dnsName);
         }
 
-        // RFC 8555 §7.4 says: The CSR MUST indicate the exact same
+        // RFC 8555 Section 7.4 says: The CSR MUST indicate the exact same
         // set of requested identifiers as the initial newOrder request.
 
         // check for unauthorized names in CSR
@@ -891,7 +891,7 @@ public class ACMEEngine implements ServletContextListener {
                 // with unvalidated SAN values will be passed along to the
                 // CA, and these are likely to be accepted as-is.
                 //
-                // This is also required by RFC 8555 §7.4:
+                // This is also required by RFC 8555 Section 7.4:
                 //
                 //    The CSR MUST indicate the exact same set of requested
                 //    identifiers as the initial newOrder request.
