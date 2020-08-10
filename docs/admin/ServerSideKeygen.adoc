@@ -1,0 +1,177 @@
+= ServerSide Key Generation for EE
+Christina Fu <cfu@redhat.com>
+:toc:
+:imagesdir: images
+
+== Overview
+
+Many newer versions of browsers, including Firefox v69 and up, as well as Chrome, have removed the functionality to generate PKI keys and the support for CRMF for key archival. While CLIs such as CRMFPopClient (see "CRMFPopClient --help") or pki (see "pki client-cert-request --help") could be used as a workaround on the Fedora or RHEL platforms, clients on other platforms have been largely left out.
+
+Server-Side Keygen enrollment has been around for a long time since the introduction of Token Key Management System (TMS), where keys could be generated on KRA instead of locally on smart cards. Starting from PKI v.10.5, we adopt a similar mechanism to resolve the browser keygen deficiency issue.   Keys are generated on the server (KRA to be specific) and then transferred securely back to the client in PKCS#12.
+
+NOTE: It is highly recommended that the Server-Side Keygen mechanism only being employed for encryption certificates.
+
+== Functionality Highlights
+
+* Certificate request keys are generated on KRA (Note: KRA must be installed to work with the CA)
+* The profile default plugin, serverKeygenUserKeyDefaultImpl, provides selection to enable or disable key archival (i.e. the “enableArchival” parameter)
+* Support for both RSA and EC keys
+* Support for both manual (agent) approval and automatic approval (e.g. directory password-based)
+
+== Installation configuration
+
+NOTE: A KRA instance is required in addition to the CA for setting up Server-Side Keygen.
+
+NOTE: In the case when the CA and KRA are sharing a Tomcat instance, there is no need to execute the above step to import the transport certificate.
+
+After installing CA and KRA instances, in the case of stand-alone Tomcat web server instances, you’d need to add the KRA’s transport cert to the CA’s nssdb.
+
+First, shut down CA
+
+[literal]
+Systemctl stop pki-tomcatd@<ca_instance_name>.service
+e.g.
+# Systemctl stop pki-tomcatd@pki-ca.service
+
+Export KRA’s transport certificate into a file
+
+* Find and export KRA transport cert:
+
+[literal]
+grep "kra.transport.cert=" /var/lib/pki/<kra_instance_name>/kra/conf/CS.cfg | sed 's/kra.transport.cert=//' > <kra transport cert file>
+e.g.
+# grep "kra.transport.cert=" /var/lib/pki/pki-kra/kra/conf/CS.cfg | sed 's/kra.transport.cert=//' > /tmp/kraTransport.cert
+
+Import KRA’s transport cert into CA’s nssdb, using the nickname specified in CA’s CS.cfg
+
+* List the transport cert nickname:
+
+[literal]
+grep "ca.connector.KRA.transportCertNickname" /var/lib/pki/<ca_instance_name>/ca/conf/CS.cfg
+e.g.
+# grep "ca.connector.KRA.transportCertNickname" /var/lib/pki/pki-ca/ca/conf/CS.cfg
+ca.connector.KRA.transportCertNickname=KRA transport cert
+
+* Import using the nickname listed from above step:
+
+[literal]
+certutil -d /var/lib/pki/<ca_instance_name>/alias -A -t “,,” -n <transportNickName> -i <kra transport cert file>
+e.g.
+# certutil -d /var/lib/pki/pki-ca/alias -A -t “,,” -n "KRA transport cert" -i /tmp/kraTransport.cert
+
+Start CA
+
+[literal]
+systemctl start pki-tomcatd@<ca_instance_name>.service
+e.g.
+# Systemctl start pki-tomcatd@pki-ca.service
+
+== Profile Configuration
+
+Two default profiles, *_caServerKeygen_UserCert_* and *_caServerKeygen_DirUserCert_*, are provided by default to allow for certificate enrollments where keys are generated on the server side. However, any profile with the right input, output, and policy set could be turned into a server-side keygen profile.
+
+A Server-Side Keygen profile must contain the following components.
+
+=== Input
+
+[literal]
+input.i1.class_id=serverKeygenInputImpl
+
+=== Output
+
+[literal]
+output.o1.class_id=pkcs12OutputImpl
+
+=== Policyset
+
+Key type and key size parameters can be configured as exemplified below:
+
+[literal]
+policyset.userCertSet.3.constraint.class_id=keyConstraintImpl
+policyset.userCertSet.3.constraint.name=Key Constraint
+policyset.userCertSet.3.constraint.params.keyType=-
+policyset.userCertSet.3.constraint.params.keyParameters=1024,2048,3072,4096,nistp256,nistp384,nistp521
+policyset.userCertSet.3.default.class_id=serverKeygenUserKeyDefaultImpl
+policyset.userCertSet.3.default.name=Server-Side Keygen Default
+policyset.userCertSet.3.default.params.keyType=RSA
+policyset.userCertSet.3.default.params.keySize=2048
+policyset.userCertSet.3.default.params.enableArchival=true
+
+=== Authentication
+
+The two default server-side keygen enrollment profiles different in the authentication mechanism, where
+
+caServerKeygen_UserCert.cfg ::
+        contains empty value to *"auth.class_id="*, meaning that enrollment requests through this profile will require approval from a CA agent.
+caServerKeygen_DirUserCert.cfg ::
+        contains *"auth.instance_id=UserDirEnrollment"*, meaning that the user is required to pass LDAP uid/password authentication; Such authentication mechanism is considered as an automatic certificate issuance as it does not require per-request approval from a CA agent.
+
+Automatic approval could be configured by setting the auth.instance_id directive to any compatible authentication plugin class, as examplified in the caServerKeygen_DirUserCert.cfg profile mentioned above. Here is an example of such configuration in CS.cfg:
+
+[literal]
+auths.instance.UserDirEnrollment.dnpattern=
+auths.instance.UserDirEnrollment.ldap.basedn=ou=People,dc=example,dc=com
+auths.instance.UserDirEnrollment.ldap.ldapconn.host=host.example.com
+auths.instance.UserDirEnrollment.ldap.ldapconn.port=389
+auths.instance.UserDirEnrollment.ldap.ldapconn.secureConn=false
+auths.instance.UserDirEnrollment.ldap.maxConns=
+auths.instance.UserDirEnrollment.ldap.minConns=
+auths.instance.UserDirEnrollment.ldapByteAttributes=
+auths.instance.UserDirEnrollment.ldapStringAttributes=mail
+auths.instance.UserDirEnrollment.pluginName=UidPwdDirAuth
+
+== Enrolling a Certificate Using Server-Side Keygen
+
+The default Sever-Side Keygen enrollment profile can be found on the EE page, under the “List Certificate Profiles” tab:
+
+=== Manual User Dual-Use Certificate Enrollment Using server-side Key generation
+
+.Server-Side Keygen Enrollment that requires agent manual approval
+image::Server-SideKeygenEnroll_manual.png[]
+
+=== Directory-authenticated User Dual-Use Certificate Enrollment Using server-side Key generation
+
+.Server-Side Keygen Enrollment that will be automatically approved upon successful LDAP uid/pwd authentication
+image::Server-SideKeygen_LDAP_auth.png[]
+
+Regardless of how the request is approved, the Server-Side Keygen Enrollment mechanism requires the End Entity user to enter a password for the PKCS#12 package which will contain the issued certificate as well as the encrypted private key generated by the server once issued.
+
+IMPORTANT: Users should not share their passwords with anyone. Not even the CA or KRA agents.
+
+When the enrollment request is approved, the PKCS#12 package will be generated and,
+
+* In case of manual approval, the PKCS#12 file will be returned to the CA agent that approves the request; The agent is then expected to forward the PKCS#12 file to the user.
+* In case of automatic approval, the PKCS#12 file will be returned to the user who submitted the request
+
+.Enrollment manually approved by an agent
+image::Server-SideKeygenEnroll_approval.png[]
+
+Once the PKCS#12 is received, the user could use cli such as pkcs12util to import the PKCS#12 file into her/her own user internal cert/key database for each application. E.g. the user’s Firefox nss database.
+
+== Key Recovery
+
+If the *_enableArchival_* parameter is set to *_true_* in the certificate enrollment profile, then the private keys are archived at the time of Server-Side Keygen enrollment.  The archived private keys could then be recovered by the authorized KRA agents.
+
+== Additional Information
+
+=== KRA Request Records
+
+NOTE: due to the nature of this mechanism, in case when *_enableArchival_* parameter is set to *_true_* in the profile, there are two KRA requests records per Server-Side keygen request:
+
+* One for request type “asymkeyGenRequest”
+** This request type cannot be filtered at “List Requests” on KRA agent page; One could select “Show All Requests” to see them listed.
+* One for request type “recovery”
+
+=== Audit Records
+
+Some audit records could be observed if enabled:
+
+CA
+
+* SERVER_SIDE_KEYGEN_ENROLL_KEYGEN_REQUEST
+* SERVER_SIDE_KEYGEN_ENROLL_KEY_RETRIEVAL_REQUEST
+
+KRA
+
+* SERVER_SIDE_KEYGEN_ENROLL_KEYGEN_REQUEST_PROCESSED
+* SERVER_SIDE_KEYGEN_ENROLL_KEY_RETRIEVAL_REQUEST_PROCESSED (not yet implemented)
