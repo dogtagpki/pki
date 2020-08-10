@@ -146,6 +146,7 @@ class PKIServerCLI(pki.cli.CLI):
     def print_status(instance):
         print('  Instance ID: %s' % instance.name)
         print('  Active: %s' % instance.is_active())
+        print('  Nuxwdog Enabled: %s' % instance.type.endswith('-nuxwdog'))
 
         server_config = instance.get_server_config()
 
