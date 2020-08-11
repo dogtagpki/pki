@@ -1686,7 +1686,8 @@ class NSSDatabase(object):
                       append=False,
                       include_trust_flags=True,
                       include_key=True,
-                      include_chain=True):
+                      include_chain=True
+                      include_mac_data=True):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -1730,6 +1731,9 @@ class NSSDatabase(object):
             if append:
                 cmd.extend(['--append'])
 
+            if not include_mac_data:
+                cmd.extend(['--no-mac-data'])
+
             if not include_trust_flags:
                 cmd.extend(['--no-trust-flags'])
 
@@ -1763,7 +1767,8 @@ class NSSDatabase(object):
             # the end certificate: rh-bz#1246371
             self.export_pkcs12(p12_file, pkcs12_password=password,
                                nicknames=[nickname], include_key=False,
-                               include_chain=True)
+                               include_chain=True, include_trust_flags=False,
+                               include_mac_data=False)
 
             # This command is similar to the one from server/__init__.py.
             # However, to work during the initial startup, we do not

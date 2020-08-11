@@ -109,6 +109,7 @@ public class PKCS12ExportCLI extends CommandCLI {
         options.addOption(option);
 
         options.addOption(null, "append", false, "Append into an existing PKCS #12 file");
+        options.addOption(null, "no-mac-data", false, "Do not include optional MacData in PKCS #12");
         options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
         options.addOption(null, "no-key", false, "Do not include private key");
         options.addOption(null, "no-chain", false, "Do not include certificate chain");
@@ -154,6 +155,7 @@ public class PKCS12ExportCLI extends CommandCLI {
         String keyEncryption = cmd.getOptionValue("key-encryption");
 
         boolean append = cmd.hasOption("append");
+        boolean includeMacData = !cmd.hasOption("no-mac-data");
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
         boolean includeKey = !cmd.hasOption("no-key");
         boolean includeChain = !cmd.hasOption("no-chain");
@@ -195,7 +197,7 @@ public class PKCS12ExportCLI extends CommandCLI {
                 }
             }
 
-            util.storeIntoFile(pkcs12, filename, password);
+            util.storeIntoFile(pkcs12, filename, password, includeMacData);
 
         } finally {
             password.clear();
