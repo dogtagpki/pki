@@ -1351,6 +1351,38 @@ class NSSDatabase(object):
         epoch = datetime.datetime.utcfromtimestamp(0)
         return (date - epoch).total_seconds() * 1000
 
+    def export_cert_from_db(self,
+                            nickname,
+                            output_file,
+                            include_chain=False,
+                            output_format=None):
+        cmd = [
+            'pki',
+            '-d', self.directory
+        ]
+
+        if self.password_file:
+            cmd.extend(['-C', self.password_file])
+
+        if self.token:
+            cmd.extend(['--token', self.token])
+            full_name = self.token + ':' + nickname
+        else:
+            full_name = nickname
+
+        cmd.extend(['nss-cert-export'])
+
+        if include_chain:
+            cmd.extend(['--with-chain'])
+
+        if output_format:
+            cmd.extend(['--format', output_format])
+
+        cmd.extend([full_name, output_file])
+
+        logger.debug('Command: %s', ' '.join(map(str, cmd)))
+        subprocess.check_call(cmd)
+
     def export_cert(self,
                     nickname,
                     pkcs12_file,
@@ -1752,39 +1784,11 @@ class NSSDatabase(object):
             shutil.rmtree(tmpdir)
 
     def extract_ca_cert(self, ca_path, nickname):
-        tmpdir = tempfile.mkdtemp()
-
-        try:
-            p12_file = os.path.join(tmpdir, "sslserver.p12")
-            password = pki.generate_password()
-
-            # Build a chain containing the certificate we're trying to
-            # export. OpenSSL gets confused if we don't have a key for
-            # the end certificate: rh-bz#1246371
-            self.export_pkcs12(p12_file, pkcs12_password=password,
-                               nicknames=[nickname], include_key=False,
-                               include_chain=True)
-
-            # This command is similar to the one from server/__init__.py.
-            # However, to work during the initial startup, we do not
-            # specify the cacerts option! This ensures we always get
-            cmd_export_ca = [
-                'openssl', 'pkcs12',
-                '-in', p12_file,
-                '-out', ca_path,
-                '-nodes', '-nokeys',
-                '-passin', 'pass:' + password
-            ]
-
-            # Remove CA.crt prior to starting; openssl gets annoyed otherwise.
-            if os.path.exists(ca_path):
-                os.remove(ca_path)
-
-            res_ca = subprocess.check_output(cmd_export_ca,
-                                             stderr=subprocess.STDOUT).decode('utf-8')
-            logger.debug('Result of CA cert export: %s', res_ca)
-        finally:
-            shutil.rmtree(tmpdir)
+        # Build a chain containing the certificate we're trying to
+        # export. OpenSSL gets confused if we don't have a key for
+        # the end certificate: rh-bz#1246371
+        self.export_cert_from_db(nickname, ca_path, include_chain=True,
+                                 output_format="PEM")
 
     @staticmethod
     def __generate_key_args(key_type=None, key_size=None, curve=None):
