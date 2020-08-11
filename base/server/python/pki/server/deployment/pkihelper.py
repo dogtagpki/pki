@@ -861,8 +861,11 @@ class Instance:
 
         """
 
+        fips_mode = not pki.FIPS.is_enabled()
+        logger.info('FIPS mode: %s', fips_mode)
+
         # must use 'http' protocol when FIPS mode is enabled
-        secure_connection = not pki.FIPS.is_enabled()
+        secure_connection = not fips_mode
 
         start_time = datetime.today()
         ready = False

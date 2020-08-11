@@ -227,7 +227,6 @@ class FIPS:
 
         # Check if /proc/sys/crypto/fips_enabled exists
         if not os.path.exists('/proc/sys/crypto/fips_enabled'):
-            logger.info('FIPS mode is not enabled')
             return False
 
         # Check to see if FIPS is enabled on this system
@@ -237,11 +236,9 @@ class FIPS:
             output = subprocess.check_output(command, stderr=fnull).decode('utf-8')
 
         if output != '0':
-            logger.info('FIPS mode is enabled')
             return True
 
         else:
-            logger.info('FIPS mode is not enabled')
             return False
 
 
