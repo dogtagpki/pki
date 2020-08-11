@@ -1,0 +1,112 @@
+name: QE Tests
+
+on: [push, pull_request]
+
+jobs:
+    # "Build" job
+    build:
+      # This job tries to build PKI from src on a fresh docker container.
+      # The docker container is spawned by github itself and we merely just
+      # run the build commands. We then upload the artifact for consumption
+      # by the test jobs + for the public to consume. This job **does not**
+      # upload any build logs as they are visible in the log console itself.
+
+      name: Build PKI
+      runs-on: ubuntu-latest
+      container: fedora:${{ matrix.os }}
+      strategy:
+          matrix:
+            os: ['31', '32']
+      steps:
+          - name: Update base image
+            run: |
+                  set -x &&
+                  dnf update -y &&
+                  dnf install -y dnf-plugins-core rpm-build git
+
+          - name: Clone the repository
+            uses: actions/checkout@v2
+
+          - name: Install PKI build deps
+            run: |
+                  dnf copr enable -y @pki/master
+                  dnf builddep -y --allowerasing --spec ./pki.spec
+
+          - name: Build PKI packages
+            run: ./build.sh --with-timestamp --with-commit-id --work-dir=../packages rpm
+
+          - name: Compress RPMS
+            run: tar -czf pki-rpms.tar.gz ../packages/RPMS/*
+
+          # upload-artifact runs on host-vm rather than inside the container. Fixed in v2 (unreleased)
+          # Bug: https://github.com/actions/upload-artifact/issues/13#issuecomment-532936650
+          - name: Upload RPM artifacts
+            uses: actions/upload-artifact@v1
+            with:
+              name: pki-build-${{ matrix.os }}
+              path: pki-rpms.tar.gz
+
+    # Tier 0
+    installation-sanity:
+      # This job depends on the 'build' job and waits till it completes.
+      # This job needs container to be started manually, as Github provided
+      # container **does not** use /usr/bin/init as its ENTRYPOINT.
+      name: installation-sanity
+      needs: build
+      runs-on: macos-latest
+      env:
+        CONTAINER: pkitest
+        BUILDDIR: /tmp/workdir
+        PKIDIR: /tmp/workdir/pki
+        LOGS: ${GITHUB_WORKSPACE}/logs.txt
+        COPR_REPO: "@pki/master"
+        HOSTFILE: /tmp/hostfile
+        CONTROLLER_IP: "192.168.33.10"
+        MASTER_IP: "192.168.33.20"
+        TOPOLOGY: "topology-02"
+      strategy:
+        matrix:
+          os: ['31', '32']
+      steps:
+
+        - name: Clone the repository
+          uses: actions/checkout@v2
+
+        - name: Download PKI binaries from Build job
+          uses: actions/download-artifact@v1
+          with:
+            name: pki-build-${{ matrix.os }}
+
+        - name: Extract tar.gz for rpms
+          run: tar -xzf pki-build-${{ matrix.os }}/pki-rpms.tar.gz
+
+        - name: Modify the vagrant file per requirement
+          run: |
+                cd ci
+                sed -e "s/MASTER_IP/${MASTER_IP}/g" \
+                    -e "s/CONTROLLER_IP/${CONTROLLER_IP}/g" \
+                    -e "s/RELEASE/${{ matrix.os }}/g" \
+                    Vagrantfile > ../Vagrantfile
+
+                sed -e "s/MASTER_IP/${MASTER_IP}/g" \
+                    -e "s/TOPOLOGY/${TOPOLOGY}/g" \
+                    inventory > ../inventory
+                cd ../
+
+        # Let vagrant take care of installing the required Virtualbox guest additions
+        - name: Install Virtualbox guest additions plugin
+          run: vagrant plugin install vagrant-vbguest
+
+        # Don't provision the VMs as they might not be ready for inter communication
+        - name: Boot the VMs without provisioning
+          run: vagrant up --no-provision
+
+        - name: Install the built PKI packages on "master"
+          run: vagrant provision master
+
+        - name: Set up PKI deployment by running playbook on "controller"
+          run: vagrant provision controller
+
+        - name: Setup tmate session
+          if: failure()
+          uses: mxschmitt/action-tmate@v2
