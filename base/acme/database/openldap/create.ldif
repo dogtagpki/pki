@@ -1,0 +1,29 @@
+dn: dc=acme,dc=pki,dc=example,dc=com
+objectClass: dcObject
+objectclass: organization
+o: ACME
+dc: acme
+
+dn: ou=nonces,dc=acme,dc=pki,dc=example,dc=com
+objectClass: organizationalUnit
+ou: nonces
+
+dn: ou=accounts,dc=acme,dc=pki,dc=example,dc=com
+objectClass: organizationalUnit
+ou: accounts
+
+dn: ou=orders,dc=acme,dc=pki,dc=example,dc=com
+objectClass: organizationalUnit
+ou: orders
+
+dn: ou=authorizations,dc=acme,dc=pki,dc=example,dc=com
+objectClass: organizationalUnit
+ou: authorizations
+
+dn: ou=challenges,dc=acme,dc=pki,dc=example,dc=com
+objectClass: organizationalUnit
+ou: challenges
+
+dn: ou=certificates,dc=acme,dc=pki,dc=example,dc=com
+objectClass: organizationalUnit
+ou: certificates
