@@ -21,6 +21,7 @@ import pki.server.instance
 DATABASE_CLASSES = {
     'in-memory': 'org.dogtagpki.acme.database.InMemoryDatabase',
     'ldap': 'org.dogtagpki.acme.database.LDAPDatabase',
+    'openldap': 'org.dogtagpki.acme.database.OpenLDAPDatabase',
     'postgresql': 'org.dogtagpki.acme.database.PostgreSQLDatabase'
 }
 
@@ -607,7 +608,7 @@ class ACMEDatabaseShowCLI(pki.cli.CLI):
         database_type = DATABASE_TYPES.get(database_class)
         print('  Database Type: %s' % database_type)
 
-        if database_type == 'ldap':
+        if database_type in ['ldap', 'openldap']:
 
             url = config.get('url')
             if url:
@@ -786,7 +787,7 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
             config.pop('user', None)
             config.pop('password', None)
 
-        elif database_type == 'ldap':
+        elif database_type in ['ldap', 'openldap']:
 
             print()
             print('Enter the location of the LDAP server '
