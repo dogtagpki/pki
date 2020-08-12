@@ -407,19 +407,21 @@ class NSSDatabase(object):
         pattern = re.compile(r' name="%s"' % name)
 
         for line in output.splitlines():
+            line = line.strip()
+
+            if not line:
+                continue
 
             logger.info('Output: %s', line)
 
             if pattern.search(line):
-                logger.info('Module %s found', name)
                 return True
 
-        logger.info('Module %s not found', name)
         return False
 
     def add_module(self, name, library):
 
-        logger.info('Adding module %s (%s)', name, library)
+        logger.info('Adding module %s: %s', name, library)
 
         cmd = [
             'modutil',
