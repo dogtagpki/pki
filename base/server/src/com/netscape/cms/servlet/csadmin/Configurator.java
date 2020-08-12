@@ -360,38 +360,8 @@ public class Configurator {
         String token = preopConfig.getString("module.token", null);
         CryptoUtil.getKeyStorageToken(token); // throw exception if token doesn't exist
 
-        logger.debug("SystemConfigService: verify certificates");
-        verifySystemCertificates();
-
         if (request.getSetupReplication()) {
             setupReplication(request);
-        }
-    }
-
-    public void verifySystemCertificates() throws Exception {
-
-        CryptoManager cm = CryptoManager.getInstance();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String certList = preopConfig.getString("cert.list");
-        String cstype = cs.getType().toLowerCase();
-        StringTokenizer st = new StringTokenizer(certList, ",");
-
-        while (st.hasMoreTokens()) {
-            String tag = st.nextToken();
-
-            if (tag.equals("sslserver"))
-                continue;
-
-            String nickname = cs.getString(cstype + ".cert." + tag + ".nickname");
-            logger.info("Checking " + tag + " certificate: " + nickname);
-
-            try {
-                cm.findCertByNickname(nickname);
-
-            } catch (ObjectNotFoundException e) {
-                throw new Exception("Missing system certificate: " + nickname, e);
-            }
         }
     }
 
