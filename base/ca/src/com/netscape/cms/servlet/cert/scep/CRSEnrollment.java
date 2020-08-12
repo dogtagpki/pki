@@ -179,6 +179,7 @@ public class CRSEnrollment extends HttpServlet {
     private SecureRandom mRandom = null;
     private int mNonceSizeLimit = 0;
     private ICertificateAuthority ca;
+    private boolean mDynamicProfileId = false;
     /* for hashing challenge password */
     protected MessageDigest mSHADigest = null;
 
@@ -209,6 +210,8 @@ public class CRSEnrollment extends HttpServlet {
 
     public static final String CERTINFO = "CertInfo";
     public static final String SUBJECTNAME = "SubjectName";
+
+    public static final String SERVLET_NAME_DYN_PROFILE = "caDynamicProfileSCEP";
 
     public static ObjectIdentifier OID_UNSTRUCTUREDNAME = null;
     public static ObjectIdentifier OID_UNSTRUCTUREDADDRESS = null;
@@ -293,8 +296,14 @@ public class CRSEnrollment extends HttpServlet {
 
         try {
             mProfileSubsystem = engine.getProfileSubsystem();
-            mProfileId = sc.getInitParameter("profileId");
-            logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
+
+            if (sc.getServletName().equals(SERVLET_NAME_DYN_PROFILE)) {
+                mDynamicProfileId = true;
+                logger.debug("CRSEnrollment: init: expecting dynamic ProfileId in URL");
+            } else {
+                mProfileId = sc.getInitParameter("profileId");
+                logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
+            }
 
             mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
             mAuthManagerName = sc.getInitParameter(PROP_CRSAUTHMGR);
@@ -351,6 +360,12 @@ public class CRSEnrollment extends HttpServlet {
             throw new ServletException(
                     "CMS server is not ready to serve.");
 
+        // Retrieve the ProfileId from URI if this servlet was called as dynamic profile id servlet.
+        if (mDynamicProfileId) {
+            mProfileId = extractProfileIdFromURL(httpReq);
+            logger.debug("CRSEnrollment: service: (dynamic) mProfileId=" + mProfileId);
+        }
+
         String operation = null;
         String message = null;
         mEncryptionAlgorithm = mConfiguredEncryptionAlgorithm;
@@ -402,6 +417,25 @@ public class CRSEnrollment extends HttpServlet {
             logger.warn("CRSEnrollment: " + e.getMessage(), e);
         }
 
+    }
+
+    /**
+     *
+     * Extracts the ProfileId encoded in the URI.
+     * Expects URI in the form of "/scep/PROFILE_ID/pkiclient.exe".
+     *
+     * @param httpReq The HttpServletRequest.
+     *
+     */
+    private String extractProfileIdFromURL(HttpServletRequest httpReq) throws ServletException {
+        String pathInfo = httpReq.getPathInfo();
+
+        if (!pathInfo.matches("^/[^/]+/pkiclient\\.exe$")) {
+            throw new ServletException("dynamic ProfileId URL must be in the form of '" +
+                    httpReq.getContextPath() + httpReq.getServletPath() + "/PROFILE_ID/pkiclient.exe'");
+        }
+
+        return pathInfo.split("/")[1];
     }
 
     private boolean isAlgorithmAllowed(String[] allowedAlgorithm, String algorithm) {
@@ -1557,7 +1591,11 @@ public class CRSEnrollment extends HttpServlet {
             Profile profile = mProfileSubsystem.getProfile(mProfileId);
             if (profile == null) {
                 logger.error("profile " + mProfileId + " not found");
-                return null;
+                if (mDynamicProfileId) {
+                    throw new ServletException("Profile '" + mProfileId + "' not found.");
+                } else {
+                    return null;
+                }
             }
             Map<String, String> ctx = new HashMap<>();
 
