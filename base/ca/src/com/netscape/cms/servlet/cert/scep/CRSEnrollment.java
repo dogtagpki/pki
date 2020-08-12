@@ -141,7 +141,7 @@ import netscape.ldap.LDAPEntry;
  * The router is hardcoded to look for the http://host:80/cgi-bin/pkiclient.exe
  *
  * The HTTP parameters are 'operation' and 'message'
- * operation can be either 'GetCACert' or 'PKIOperation'
+ * operation can be either 'GetCACert', 'PKIOperation' or 'GetCACaps'.
  *
  * @version $Revision$, $Date$
  */
@@ -196,6 +196,7 @@ public class CRSEnrollment extends HttpServlet {
 
     // possible values for 'operation'
     private static final String OP_GETCACERT = "GetCACert";
+    private static final String OP_GETCACAPS = "GetCACaps";
     private static final String OP_PKIOPERATION = "PKIOperation";
 
     public static final String AUTH_PASSWORD = "pwd";
@@ -376,13 +377,16 @@ public class CRSEnrollment extends HttpServlet {
             }
 
             /**
-             * the router can make two kinds of requests
+             * the router can make three kinds of requests
              * 1) simple request for CA cert
-             * 2) encoded, signed, enveloped request for anything else (PKIOperation)
+             * 2) simple request for CA SCEP capabilities
+             * 3) encoded, signed, enveloped request for anything else (PKIOperation)
              */
 
             if (operation.equals(OP_GETCACERT)) {
                 handleGetCACert(httpReq, httpResp);
+            } else if (operation.equals(OP_GETCACAPS)) {
+                handleGetCACaps(httpReq, httpResp);
             } else if (operation.equals(OP_PKIOPERATION)) {
                 String decodeMode = (String) input.get("decode");
                 if (decodeMode == null || decodeMode.equals("false")) {
@@ -537,6 +541,60 @@ public class CRSEnrollment extends HttpServlet {
             throw new ServletException("Failed sending DER encoded version of CA cert to client");
         }
 
+    }
+
+    /**
+     * Returns the CA capabilities in a series of plaintext lines.
+     *
+     * @param httpReq The HttpServletRequest.
+     * @param httpResp The HttpServletResponse.
+     *
+     */
+
+    public void handleGetCACaps(HttpServletRequest httpReq,
+                              HttpServletResponse httpResp)
+            throws ServletException {
+
+        try {
+            StringBuilder response = new StringBuilder();
+
+            /*
+             Possible capabilities as of https://tools.ietf.org/html/draft-gutmann-scep-16#section-3.5.1:
+             - AES (currently not supported by Dogtag)
+             - DES3
+             - GetNextCACert (currently not supported by Dogtag)
+             - POSTPKIOperation
+             - Renewal (currently not supported by Dogtag)
+             - SHA-1
+             - SHA-256
+             - SHA-512
+             - SCEPStandard (currently not supported by Dogtag due to missing AES support)
+            */
+            if (isAlgorithmAllowed(mAllowedEncryptionAlgorithm, "DES3")) {
+                response.append("DES3\n");
+            }
+            response.append("POSTPKIOperation\n");
+            if (isAlgorithmAllowed(mAllowedHashAlgorithm, "SHA1")) {
+                response.append("SHA-1\n");
+            }
+            if (isAlgorithmAllowed(mAllowedHashAlgorithm, "SHA256")) {
+                response.append("SHA-256\n");
+            }
+            if (isAlgorithmAllowed(mAllowedHashAlgorithm, "SHA512")) {
+                response.append("SHA-512\n");
+            }
+
+            httpResp.setContentType("text/plain");
+            httpResp.setContentLength(response.length());
+            httpResp.getOutputStream().print(response.toString());
+            httpResp.getOutputStream().flush();
+
+            logger.debug("Output CA Capabilities:");
+            logger.debug(response.toString());
+        } catch (Exception e) {
+            logger.error("CRSEnrollment: failed sending CA capabilities", e);
+            throw new ServletException("Failed sending CA capabilities");
+        }
     }
 
     public String getPasswordFromP10(PKCS10 p10) {
