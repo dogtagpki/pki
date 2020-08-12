@@ -39,14 +39,10 @@ import org.apache.commons.lang.StringUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
-import org.mozilla.jss.UserCertConflictException;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.InternalCertificate;
-import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.TokenException;
@@ -364,11 +360,6 @@ public class Configurator {
         String token = preopConfig.getString("module.token", null);
         CryptoUtil.getKeyStorageToken(token); // throw exception if token doesn't exist
 
-        if (!CryptoUtil.isInternalToken(token)) {
-            logger.debug("SystemConfigService: import certificates from HSM and set permission");
-            importAndSetCertPermissionsFromHSM();
-        }
-
         logger.debug("SystemConfigService: verify certificates");
         verifySystemCertificates();
 
@@ -401,45 +392,6 @@ public class Configurator {
             } catch (ObjectNotFoundException e) {
                 throw new Exception("Missing system certificate: " + nickname, e);
             }
-        }
-    }
-
-    /* We need to import the audit signing cert and CA signing cert to the soft token in order to
-     * correctly set the trust permissions.
-     */
-    public void importAndSetCertPermissionsFromHSM() throws EBaseException, NotInitializedException,
-            IOException, CertificateEncodingException, NicknameConflictException, UserCertConflictException,
-            NoSuchItemOnTokenException, TokenException {
-
-        CryptoManager cm = CryptoManager.getInstance();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        // nickname has no token prepended to it, so no need to strip
-        String nickname = preopConfig.getString("cert.audit_signing.nickname");
-        String cstype = cs.getType();
-        cstype = cstype.toLowerCase();
-
-        //audit signing cert
-        String certStr = cs.getString(cstype + ".audit_signing.cert");
-        byte[] cert = CryptoUtil.base64Decode(certStr);
-        X509Certificate xcert = cm.importUserCACertPackage(cert, nickname);
-
-        InternalCertificate icert = (InternalCertificate) xcert;
-        icert.setObjectSigningTrust(InternalCertificate.USER
-                | InternalCertificate.VALID_PEER
-                | InternalCertificate.TRUSTED_PEER);
-
-        // ca signing cert
-        if (cstype.equals("ca")) {
-            // nickname has no token prepended to it, so no need to strip
-            nickname = preopConfig.getString("cert.signing.nickname");
-            certStr = cs.getString(cstype + ".signing.cert");
-            cert = CryptoUtil.base64Decode(certStr);
-            xcert = cm.importUserCACertPackage(cert, nickname);
-            icert = (InternalCertificate) xcert;
-            icert.setSSLTrust(InternalCertificate.TRUSTED_CA
-                    | InternalCertificate.TRUSTED_CLIENT_CA
-                    | InternalCertificate.VALID_CA);
         }
     }
 
