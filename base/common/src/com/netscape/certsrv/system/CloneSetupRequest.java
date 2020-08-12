@@ -46,9 +46,6 @@ public class CloneSetupRequest {
     protected Boolean systemCertsImported;
 
     @XmlElement
-    protected String setupReplication;
-
-    @XmlElement
     protected String masterReplicationPort;
 
     @XmlElement
@@ -101,14 +98,6 @@ public class CloneSetupRequest {
         this.systemCertsImported = systemCertsImported;
     }
 
-    public boolean getSetupReplication() {
-        return setupReplication != null && setupReplication.equalsIgnoreCase("true");
-    }
-
-    public void setSetupReplication(String setupReplication) {
-        this.setupReplication = setupReplication;
-    }
-
     public String getMasterReplicationPort() {
         return masterReplicationPort;
     }
@@ -139,7 +128,6 @@ public class CloneSetupRequest {
                ", installToken=XXXX" +
                ", cloneUri=" + cloneUri +
                ", systemCertsImported=" + systemCertsImported +
-               ", setupReplication=" + setupReplication +
                ", masterReplicationPort=" + masterReplicationPort +
                ", cloneReplicationPort=" + cloneReplicationPort +
                ", replicationSecurity=" + replicationSecurity +

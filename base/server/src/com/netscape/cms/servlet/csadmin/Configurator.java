@@ -354,15 +354,7 @@ public class Configurator {
     }
 
     public void setupClone(CloneSetupRequest request) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String token = preopConfig.getString("module.token", null);
-        CryptoUtil.getKeyStorageToken(token); // throw exception if token doesn't exist
-
-        if (request.getSetupReplication()) {
-            setupReplication(request);
-        }
+        setupReplication(request);
     }
 
     public void setupDatabase(DatabaseSetupRequest request) throws Exception {

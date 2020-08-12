@@ -2700,11 +2700,6 @@ class ConfigClient:
         request.pin = self.mdict['pki_one_time_pin']
         request.cloneUri = self.mdict['pki_clone_uri']
 
-        if config.str2bool(self.mdict['pki_clone_setup_replication']):
-            request.setupReplication = 'true'
-        else:
-            request.setupReplication = 'false'
-
         request.masterReplicationPort = self.mdict['pki_clone_replication_master_port']
         request.cloneReplicationPort = self.mdict['pki_clone_replication_clone_port']
 

@@ -912,7 +912,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Configuring %s subsystem', subsystem.type)
 
-        if clone:
+        if clone and config.str2bool(deployer.mdict['pki_clone_setup_replication']):
 
             logger.info('Setting up clone')
 
