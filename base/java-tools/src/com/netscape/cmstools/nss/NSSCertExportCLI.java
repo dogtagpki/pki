@@ -107,7 +107,7 @@ public class NSSCertExportCLI extends CommandCLI {
                 buffer.append("\r\n");
                 buffer.append(Utils.base64encodeMultiLine(encoded));
                 buffer.append(Cert.FOOTER);
-                buffer.append("\r\n\r\n");
+                buffer.append("\r\n");
             }
 
             output = buffer.toString().getBytes();
@@ -118,7 +118,8 @@ public class NSSCertExportCLI extends CommandCLI {
         }
 
         if (path == null) {
-            System.out.println(new String(output));
+            System.out.print(new String(output));
+            System.out.flush();
         } else {
             try (FileOutputStream fos = new FileOutputStream(path)) {
                 fos.write(output);
