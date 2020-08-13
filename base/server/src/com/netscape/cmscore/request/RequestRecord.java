@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -40,7 +39,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.ldap.IRequestMod;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.dbs.BigIntegerMapper;
 import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.IDBSubsystem;
 import com.netscape.cmscore.dbs.StringMapper;
@@ -408,68 +406,5 @@ class RequestStateMapper
 
     static {
         mAttrs.add(Schema.LDAP_ATTR_REQUEST_STATE);
-    }
-}
-
-//
-// A mapper between an request id object and
-// its LDAP attribute representation
-// <P>
-//
-// @author thayes
-// @version $Revision$ $Date$
-//
-class RequestIdMapper
-        implements IDBAttrMapper {
-    // IDBAttrMapper methods
-
-    //
-    //
-    public Enumeration<String> getSupportedLDAPAttributeNames() {
-        return mAttrs.elements();
-    }
-
-    //
-    public void mapObjectToLDAPAttributeSet(IDBObj parent,
-            String name, Object obj, LDAPAttributeSet attrs) throws EBaseException {
-        if (obj == null) {
-            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
-        }
-        RequestId rid = (RequestId) obj;
-
-        String v = BigIntegerMapper.BigIntegerToDB(new BigInteger(rid.toString()));
-
-        attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_ID, v));
-    }
-
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
-            String name, IDBObj parent)
-            throws EBaseException {
-        LDAPAttribute attr = attrs.getAttribute(Schema.LDAP_ATTR_REQUEST_ID);
-
-        if (attr == null)
-            throw new EBaseException("schema violation");
-
-        String value = attr.getStringValues().nextElement();
-
-        parent.set(name, new RequestId(
-                BigIntegerMapper.BigIntegerFromDB(value).toString()));
-    }
-
-    public String mapSearchFilter(String name, String op, String value) throws EBaseException {
-        String v = null;
-
-        try {
-            v = BigIntegerMapper.BigIntegerToDB(new BigInteger(value));
-        } catch (NumberFormatException e) {
-            v = value;
-        }
-        return Schema.LDAP_ATTR_REQUEST_ID + op + v;
-    }
-
-    protected final static Vector<String> mAttrs = new Vector<String>();
-
-    static {
-        mAttrs.add(Schema.LDAP_ATTR_REQUEST_ID);
     }
 }
