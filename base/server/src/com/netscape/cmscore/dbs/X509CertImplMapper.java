@@ -19,6 +19,8 @@ package com.netscape.cmscore.dbs;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -50,6 +52,8 @@ import netscape.ldap.LDAPAttributeSet;
  * @version $Revision$, $Date$
  */
 public class X509CertImplMapper implements IDBAttrMapper {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(X509CertImplMapper.class);
 
     public X509CertImplMapper() {
     }
@@ -98,6 +102,8 @@ public class X509CertImplMapper implements IDBAttrMapper {
             // make extension searchable
             Set<String> nonCritSet = cert.getNonCriticalExtensionOIDs();
 
+            Collection<String> extensions = new ArrayList<>();
+
             if (nonCritSet != null) {
                 for (Iterator<String> i = nonCritSet.iterator(); i.hasNext();) {
                     String oid = i.next();
@@ -115,10 +121,11 @@ public class X509CertImplMapper implements IDBAttrMapper {
                             oid = oid + ";" + extVal;
                         }
                     }
-                    attrs.add(new LDAPAttribute(
-                            CertDBSchema.LDAP_ATTR_EXTENSION, oid));
+                    logger.info("X509CertImplMapper: adding " + CertDBSchema.LDAP_ATTR_EXTENSION + ": " + oid);
+                    extensions.add(oid);
                 }
             }
+
             Set<String> critSet = cert.getCriticalExtensionOIDs();
 
             if (critSet != null) {
@@ -138,9 +145,15 @@ public class X509CertImplMapper implements IDBAttrMapper {
                             oid = oid + ";" + extVal;
                         }
                     }
-                    attrs.add(new LDAPAttribute(
-                            CertDBSchema.LDAP_ATTR_EXTENSION, oid));
+                    logger.info("X509CertImplMapper: adding " + CertDBSchema.LDAP_ATTR_EXTENSION + ": " + oid);
+                    extensions.add(oid);
                 }
+            }
+
+            if (!extensions.isEmpty()) {
+                attrs.add(new LDAPAttribute(
+                        CertDBSchema.LDAP_ATTR_EXTENSION,
+                        extensions.toArray(new String[extensions.size()])));
             }
 
             // something extra; so that we can rebuild the
