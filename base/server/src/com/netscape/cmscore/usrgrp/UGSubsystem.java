@@ -20,6 +20,7 @@ package com.netscape.cmscore.usrgrp;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -678,6 +679,9 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_USER_FAIL_NO_UID"));
         }
 
+        String dn = "uid=" + LDAPUtil.escapeRDNValue(id.getUserID()) + "," + getUserBaseDN();
+        logger.info("UGSubsystem: adding " + dn);
+
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         List<String> oclist = new ArrayList<String>();
         oclist.add("top");
@@ -731,17 +735,21 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
         // TODO add audit logging for profile
         List<String> profiles = id.getTpsProfiles();
         if (profiles != null && profiles.size() > 0) {
-            logger.debug("Adding " + LDAP_ATTR_PROFILE_ID + ":");
             LDAPAttribute attr = new LDAPAttribute(LDAP_ATTR_PROFILE_ID);
             for (String profile : profiles) {
-                logger.debug("- " + profile);
                 attr.addValue(profile);
             }
             attrs.add(attr);
         }
 
-        LDAPEntry entry = new LDAPEntry("uid=" + LDAPUtil.escapeRDNValue(id.getUserID()) +
-                "," + getUserBaseDN(), attrs);
+        for (Enumeration<LDAPAttribute> e = attrs.getAttributes(); e.hasMoreElements(); ) {
+            LDAPAttribute attr = e.nextElement();
+            String[] values = attr.getStringValueArray();
+            if (values == null) continue;
+            logger.info("UGSubsystem: - " + attr.getName() + ": " + Arrays.asList(values));
+        }
+
+        LDAPEntry entry = new LDAPEntry(dn, attrs);
         // for audit log
         SessionContext sessionContext = SessionContext.getContext();
         String adminId = (String) sessionContext.get(SessionContext.USER_ID);
