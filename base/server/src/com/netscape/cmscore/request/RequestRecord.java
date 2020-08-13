@@ -27,7 +27,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.Modification;
@@ -42,9 +41,6 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.IDBSubsystem;
 import com.netscape.cmscore.dbs.StringMapper;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
 
 //
 // A request record is the stored version of a request.
@@ -355,56 +351,4 @@ public class RequestRecord
         }
     }
 
-}
-
-//
-// A mapper between an request state object and
-// its LDAP attribute representation
-// <P>
-//
-// @author thayes
-// @version $Revision$ $Date$
-//
-class RequestStateMapper
-        implements IDBAttrMapper {
-
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestStateMapper.class);
-
-    public Enumeration<String> getSupportedLDAPAttributeNames() {
-        return mAttrs.elements();
-    }
-
-    public void mapObjectToLDAPAttributeSet(IDBObj parent,
-            String name, Object obj, LDAPAttributeSet attrs) throws EBaseException {
-        if (obj == null) {
-            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
-        }
-        RequestStatus rs = (RequestStatus) obj;
-
-        attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_STATE,
-                rs.toString()));
-    }
-
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
-            String name, IDBObj parent)
-            throws EBaseException {
-        LDAPAttribute attr = attrs.getAttribute(Schema.LDAP_ATTR_REQUEST_STATE);
-
-        if (attr == null)
-            throw new EBaseException("schema violation");
-
-        String value = attr.getStringValues().nextElement();
-
-        parent.set(name, RequestStatus.fromString(value));
-    }
-
-    public String mapSearchFilter(String name, String op, String value) {
-        return Schema.LDAP_ATTR_REQUEST_STATE + op + value;
-    }
-
-    protected final static Vector<String> mAttrs = new Vector<String>();
-
-    static {
-        mAttrs.add(Schema.LDAP_ATTR_REQUEST_STATE);
-    }
 }
