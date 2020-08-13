@@ -28,7 +28,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -1468,22 +1470,41 @@ public class Configurator {
         String secdomain = cs.getString("securitydomain.name");
 
         String dn = "ou=Security Domain," + basedn;
+        logger.info("Configurator: adding " + dn);
+
         attrs = new LDAPAttributeSet();
-        attrs.add(new LDAPAttribute("objectclass", "top"));
-        attrs.add(new LDAPAttribute("objectclass", "pkiSecurityDomain"));
+        attrs.add(new LDAPAttribute("objectclass", new String[] { "top", "pkiSecurityDomain" }));
         attrs.add(new LDAPAttribute("name", secdomain));
         attrs.add(new LDAPAttribute("ou", "Security Domain"));
+
+        for (Enumeration<LDAPAttribute> e = attrs.getAttributes(); e.hasMoreElements(); ) {
+            LDAPAttribute attr = e.nextElement();
+            String[] values = attr.getStringValueArray();
+            if (values == null) continue;
+            logger.info("Configurator: - " + attr.getName() + ": " + Arrays.asList(values));
+        }
+
         entry = new LDAPEntry(dn, attrs);
         conn.add(entry);
 
         // create list containers
         String clist[] = { "CAList", "OCSPList", "KRAList", "RAList", "TKSList", "TPSList" };
         for (int i = 0; i < clist.length; i++) {
+
             dn = "cn=" + LDAPUtil.escapeRDNValue(clist[i]) + ",ou=Security Domain," + basedn;
+            logger.info("Configurator: adding " + dn);
+
             attrs = new LDAPAttributeSet();
-            attrs.add(new LDAPAttribute("objectclass", "top"));
-            attrs.add(new LDAPAttribute("objectclass", "pkiSecurityGroup"));
+            attrs.add(new LDAPAttribute("objectclass", new String[] { "top", "pkiSecurityGroup" }));
             attrs.add(new LDAPAttribute("cn", clist[i]));
+
+            for (Enumeration<LDAPAttribute> e = attrs.getAttributes(); e.hasMoreElements(); ) {
+                LDAPAttribute attr = e.nextElement();
+                String[] values = attr.getStringValueArray();
+                if (values == null) continue;
+                logger.info("Configurator: - " + attr.getName() + ": " + Arrays.asList(values));
+            }
+
             entry = new LDAPEntry(dn, attrs);
             conn.add(entry);
         }
@@ -1491,11 +1512,12 @@ public class Configurator {
         // Add this host
         String cn = engine.getEESSLHost() + ":" + engine.getAdminPort();
         dn = "cn=" + LDAPUtil.escapeRDNValue(cn) + ",cn=CAList,ou=Security Domain," + basedn;
+        logger.info("Configurator: adding " + dn);
+
         String subsystemName = preopConfig.getString("subsystem.name");
 
         attrs = new LDAPAttributeSet();
-        attrs.add(new LDAPAttribute("objectclass", "top"));
-        attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
+        attrs.add(new LDAPAttribute("objectclass", new String[] { "top", "pkiSubsystem" }));
         attrs.add(new LDAPAttribute("Host", engine.getEESSLHost()));
         attrs.add(new LDAPAttribute("SecurePort", engine.getEESSLPort()));
         attrs.add(new LDAPAttribute("SecureAgentPort", engine.getAgentPort()));
@@ -1508,6 +1530,14 @@ public class Configurator {
         attrs.add(new LDAPAttribute("SubsystemName", subsystemName));
         attrs.add(new LDAPAttribute("cn", cn));
         attrs.add(new LDAPAttribute("DomainManager", "TRUE"));
+
+        for (Enumeration<LDAPAttribute> e = attrs.getAttributes(); e.hasMoreElements(); ) {
+            LDAPAttribute attr = e.nextElement();
+            String[] values = attr.getStringValueArray();
+            if (values == null) continue;
+            logger.info("Configurator: - " + attr.getName() + ": " + Arrays.asList(values));
+        }
+
         entry = new LDAPEntry(dn, attrs);
         conn.add(entry);
 
