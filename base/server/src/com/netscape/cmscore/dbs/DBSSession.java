@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -108,11 +109,18 @@ public class DBSSession implements IDBSSession {
      */
     public void add(String name, IDBObj obj) throws EBaseException {
 
-        logger.debug("DBSSession: add(" + name + ")");
-
         try {
-            LDAPAttributeSet attrs = mDBSystem.getRegistry(
-                    ).createLDAPAttributeSet(obj);
+            LDAPAttributeSet attrs = mDBSystem.getRegistry().createLDAPAttributeSet(obj);
+
+            logger.info("DBSSession: adding " + name);
+
+            for (Enumeration<LDAPAttribute> e = attrs.getAttributes(); e.hasMoreElements(); ) {
+                LDAPAttribute attr = e.nextElement();
+                String[] values = attr.getStringValueArray();
+                if (values == null) continue;
+                logger.info("DBSSession: - " + attr.getName() + ": " + Arrays.asList(values));
+            }
+
             LDAPEntry e = new LDAPEntry(name, attrs);
 
             /*LogDoc
@@ -149,8 +157,6 @@ public class DBSSession implements IDBSSession {
     public IDBObj read(String name, String attrs[])
             throws EBaseException {
 
-        logger.debug("DBSSession: read(" + name + ")");
-
         try {
             String ldapattrs[] = null;
 
@@ -158,6 +164,8 @@ public class DBSSession implements IDBSSession {
                 ldapattrs = mDBSystem.getRegistry(
                         ).getLDAPAttributes(attrs);
             }
+
+            logger.info("DBSSession: reading " + name);
 
             /*LogDoc
              *
@@ -168,9 +176,16 @@ public class DBSSession implements IDBSSession {
                     LDAPv2.SCOPE_BASE, "(objectclass=*)",
                     ldapattrs, false);
             LDAPEntry entry = (LDAPEntry) res.nextElement();
+            LDAPAttributeSet attrSet = entry.getAttributeSet();
 
-            return mDBSystem.getRegistry().createObject(
-                    entry.getAttributeSet());
+            for (Enumeration<LDAPAttribute> e = attrSet.getAttributes(); e.hasMoreElements(); ) {
+                LDAPAttribute attr = e.nextElement();
+                String[] values = attr.getStringValueArray();
+                if (values == null) continue;
+                logger.info("DBSSession: - " + attr.getName() + ": " + Arrays.asList(values));
+            }
+
+            return mDBSystem.getRegistry().createObject(attrSet);
 
         } catch (LDAPException e) {
 
