@@ -144,14 +144,14 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      * @param config configuration of this subsystem
      * @exception EBaseException failed to initialize this Subsystem.
      */
-    public synchronized void init(ISubsystem owner, IConfigStore config)
+    public synchronized void init(IAuthority owner, IConfigStore config)
             throws EBaseException {
         logger.debug("GenericPolicyProcessor::init begins");
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig configStore = engine.getConfig();
 
-        mAuthority = (IAuthority) owner;
+        mAuthority = owner;
         mConfig = config;
         mGlobalStore = configStore;
 
