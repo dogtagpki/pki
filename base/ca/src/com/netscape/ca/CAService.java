@@ -612,7 +612,7 @@ public class CAService implements ICAService, IService {
             AuthorityID aid, String rid, X509CertInfo certi,
             boolean renewal, BigInteger oldSerialNo
             ) throws EBaseException {
-        ICertificateAuthority ca = mCA.getCA(aid);
+        CertificateAuthority ca = mCA.getCA(aid);
         if (ca == null)
             throw new CANotFoundException("No such CA: " + aid);
 

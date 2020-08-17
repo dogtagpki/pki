@@ -26,6 +26,7 @@ import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.profile.EProfileException;
@@ -165,7 +166,7 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
             throws EProfileException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(CertificateAuthority.ID);
         String aidString = request.getExtDataInString(
                 IRequest.AUTHORITY_ID);
         if (aidString != null)

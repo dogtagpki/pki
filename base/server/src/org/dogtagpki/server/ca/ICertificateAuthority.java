@@ -553,11 +553,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public String getAuthorityDescription();
 
     /**
-     * Get the CA by ID.  Returns null if CA not found.
-     */
-    public ICertificateAuthority getCA(AuthorityID aid);
-
-    /**
      * Update authority configurables.
      *
      * @param enabled Whether CA is enabled or disabled

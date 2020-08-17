@@ -26,9 +26,9 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
@@ -339,7 +339,7 @@ public class RequestProcessor extends CertProcessor {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(CertificateAuthority.ID);
         if (ca == null)
             // this shouldn't happen
             throw new CANotFoundException("Could not get host authority");  // shouldn't happen

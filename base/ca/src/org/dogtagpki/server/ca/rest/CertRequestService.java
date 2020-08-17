@@ -138,7 +138,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             } catch (IllegalArgumentException e) {
                 throw new BadRequestException("invalid AuthorityID: " + aidString, e);
             }
-            ca = (CertificateAuthority) ca.getCA(aid);
+            ca = ca.getCA(aid);
             if (ca == null)
                 throw new ResourceNotFoundException("CA not found: " + aidString);
         }

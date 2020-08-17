@@ -80,7 +80,7 @@ public class CTEngine {
             throws EBaseException {
 
         String method = "CTEngine.process: ";
-        ICertificateAuthority ca = ctCA.getCA(aid);
+        CertificateAuthority ca = ctCA.getCA(aid);
         String errMsg = "";
 
         try {

@@ -2729,7 +2729,7 @@ public class CertificateAuthority
      *
      * @return the authority, or null if not found
      */
-    public ICertificateAuthority getCA(AuthorityID aid) {
+    public CertificateAuthority getCA(AuthorityID aid) {
         return aid == null ? hostCA : caMap.get(aid);
     }
 
@@ -2765,7 +2765,7 @@ public class CertificateAuthority
             String subjectDN, AuthorityID parentAID,
             String description)
             throws EBaseException {
-        CertificateAuthority parentCA = (CertificateAuthority) getCA(parentAID);
+        CertificateAuthority parentCA = getCA(parentAID);
         if (parentCA == null)
             throw new CANotFoundException(
                 "Parent CA \"" + parentAID + "\" does not exist");
@@ -2957,7 +2957,7 @@ public class CertificateAuthority
             authorityParentID != null
             && !authorityParentID.equals(authorityID)
         ) {
-            ICertificateAuthority issuer = getCA(authorityParentID);
+            CertificateAuthority issuer = getCA(authorityParentID);
             issuer.ensureReady();
         }
 

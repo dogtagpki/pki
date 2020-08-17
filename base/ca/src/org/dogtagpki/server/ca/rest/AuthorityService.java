@@ -113,7 +113,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
     @Override
     public Response getCA(String aidString) {
-        ICertificateAuthority ca = hostCA;
+        CertificateAuthority ca = hostCA;
 
         if (!AuthorityResource.HOST_AUTHORITY.equals(aidString)) {
             AuthorityID aid;
@@ -140,7 +140,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
-        ICertificateAuthority ca = hostCA.getCA(aid);
+        CertificateAuthority ca = hostCA.getCA(aid);
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
@@ -172,7 +172,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
-        ICertificateAuthority ca = hostCA.getCA(aid);
+        CertificateAuthority ca = hostCA.getCA(aid);
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
@@ -255,7 +255,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
-        ICertificateAuthority ca = hostCA.getCA(aid);
+        CertificateAuthority ca = hostCA.getCA(aid);
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
@@ -312,7 +312,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
-        ICertificateAuthority ca = hostCA.getCA(aid);
+        CertificateAuthority ca = hostCA.getCA(aid);
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
@@ -344,7 +344,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
-        ICertificateAuthority ca = hostCA.getCA(aid);
+        CertificateAuthority ca = hostCA.getCA(aid);
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 

@@ -236,7 +236,7 @@ public class AuthorityMonitor implements Runnable {
         if (attr != null) {
 
             aid = new AuthorityID(attr.getStringValueArray()[0]);
-            CertificateAuthority ca = (CertificateAuthority) this.certificateAuthority.getCA(aid);
+            CertificateAuthority ca = certificateAuthority.getCA(aid);
 
             if (ca == null)
                 return;  // shouldn't happen

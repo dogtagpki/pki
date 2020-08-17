@@ -174,7 +174,7 @@ public class KeyRetrieverRunner implements Runnable {
          * CertificateAuthority instance in the caMap might
          * have been replaced, so look it up afresh.
          */
-        CertificateAuthority ca = (CertificateAuthority) this.certificateAuthority.getCA(aid);
+        CertificateAuthority ca = certificateAuthority.getCA(aid);
         if (ca == null) {
             /* We got the key, but the authority has been
              * deleted.  Do not retry.

@@ -17,24 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
-import java.io.IOException;
-import java.io.OutputStream;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.w3c.dom.Node;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
@@ -49,8 +49,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.ProfileOutput;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfileOutput;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
@@ -266,7 +266,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             } catch (IllegalArgumentException e) {
                 throw new BadRequestDataException("invalid AuthorityID: " + aidString, e);
             }
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+            CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(CertificateAuthority.ID);
             ca = ca.getCA(aid);
             if (ca == null)
                 throw new CANotFoundException("CA not found: " + aidString);
