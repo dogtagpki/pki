@@ -34,9 +34,6 @@ public class CloneSetupRequest {
     protected String pin;
 
     @XmlElement
-    protected DomainInfo domainInfo;
-
-    @XmlElement
     protected InstallToken installToken;
 
     @XmlElement
@@ -64,14 +61,6 @@ public class CloneSetupRequest {
 
     public void setPin(String pin) {
         this.pin = pin;
-    }
-
-    public DomainInfo getDomainInfo() {
-        return domainInfo;
-    }
-
-    public void setDomainInfo(DomainInfo domainInfo) {
-        this.domainInfo = domainInfo;
     }
 
     public InstallToken getInstallToken() {
