@@ -301,7 +301,7 @@ class SecurityDomainClient(object):
 
 class CloneSetupRequest(object):
     def __init__(self):
-        self.installToken = None
+        pass
 
 
 class DatabaseSetupRequest(object):

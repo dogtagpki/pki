@@ -917,7 +917,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Setting up clone')
 
             clone_setup_request = deployer.config_client.create_clone_setup_request(subsystem)
-            clone_setup_request.installToken = deployer.install_token
             client.setupClone(clone_setup_request)
 
         logger.info('Setting up database')

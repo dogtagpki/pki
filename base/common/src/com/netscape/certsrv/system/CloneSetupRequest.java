@@ -34,9 +34,6 @@ public class CloneSetupRequest {
     protected String pin;
 
     @XmlElement
-    protected InstallToken installToken;
-
-    @XmlElement
     protected String cloneUri;
 
     @XmlElement
@@ -61,14 +58,6 @@ public class CloneSetupRequest {
 
     public void setPin(String pin) {
         this.pin = pin;
-    }
-
-    public InstallToken getInstallToken() {
-        return installToken;
-    }
-
-    public void setInstallToken(InstallToken installToken) {
-        this.installToken = installToken;
     }
 
     public String getCloneUri() {
@@ -114,7 +103,6 @@ public class CloneSetupRequest {
     @Override
     public String toString() {
         return "CloneSetupRequest [pin=XXXX" +
-               ", installToken=XXXX" +
                ", cloneUri=" + cloneUri +
                ", systemCertsImported=" + systemCertsImported +
                ", masterReplicationPort=" + masterReplicationPort +
