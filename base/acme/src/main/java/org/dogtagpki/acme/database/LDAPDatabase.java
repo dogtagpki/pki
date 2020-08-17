@@ -9,7 +9,6 @@ import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMECertificate;
@@ -101,8 +101,6 @@ public class LDAPDatabase extends ACMEDatabase {
     static final String OBJ_ORDER = "acmeOrder";
 
     static final String IDENTIFIER_TYPE_DNS = "dns";
-
-    static final List<String> IDENTIFIER_TYPES = Arrays.asList(IDENTIFIER_TYPE_DNS);
 
     // The LDAP Generalized Time syntax
     static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssZ");
@@ -400,8 +398,7 @@ public class LDAPDatabase extends ACMEDatabase {
         }
     }
 
-    private static ACMEOrder loadOrder(LDAPEntry entry)
-            throws ParseException {
+    private static ACMEOrder loadOrder(LDAPEntry entry) throws Exception {
         ACMEOrder order = new ACMEOrder();
 
         LDAPAttribute attr = entry.getAttribute(ATTR_ORDER_ID);
@@ -432,11 +429,17 @@ public class LDAPDatabase extends ACMEDatabase {
         }
 
         List<ACMEIdentifier> identifiers = new ArrayList<>();
-        for (String type : IDENTIFIER_TYPES) {
-            attr = entry.getAttribute(ATTR_IDENTIFIER + ";" + type);
-            for (String value : Collections.list(attr.getStringValues())) {
-                identifiers.add(new ACMEIdentifier(type, value));
+        attr = entry.getAttribute(ATTR_IDENTIFIER);
+        for (String identifier : attr.getStringValueArray()) {
+            String[] parts = StringUtils.split(identifier, ":", 2);
+            if (parts.length != 2) {
+                throw new Exception("Invalid order identifier: " + identifier);
             }
+
+            String type = parts[0];
+            String value = parts[1];
+
+            identifiers.add(new ACMEIdentifier(type, value));
         }
         order.setIdentifiers(identifiers.toArray(new ACMEIdentifier[0]));
 
@@ -466,11 +469,11 @@ public class LDAPDatabase extends ACMEDatabase {
 
         // identifiers
         ACMEIdentifier[] identifiers = order.getIdentifiers();
-        for (int i = 0; i < identifiers.length; i++) {
+        for (ACMEIdentifier identifier : identifiers) {
             attrSet.add(
                 new LDAPAttribute(
-                    ATTR_IDENTIFIER + ";" + identifiers[i].getType(),
-                    identifiers[i].getValue())
+                    ATTR_IDENTIFIER,
+                    identifier.getType() + ":" + identifier.getValue())
             );
         }
 
@@ -564,14 +567,18 @@ public class LDAPDatabase extends ACMEDatabase {
         attr = entry.getAttribute(ATTR_STATUS);
         authz.setStatus(attr.getStringValues().nextElement());
 
-        for (String type : IDENTIFIER_TYPES) {
-            attr = entry.getAttribute(ATTR_IDENTIFIER + ";" + type);
-            if (attr != null) {
-                authz.setIdentifier(
-                    new ACMEIdentifier(type, attr.getStringValues().nextElement()));
-                break;
-            }
+        attr = entry.getAttribute(ATTR_IDENTIFIER);
+        String identifier = attr.getStringValues().nextElement();
+
+        String[] parts = StringUtils.split(identifier, ":", 2);
+        if (parts.length != 2) {
+            throw new Exception("Invalid authorization identifier: " + identifier);
         }
+
+        String type = parts[0];
+        String value = parts[1];
+
+        authz.setIdentifier(new ACMEIdentifier(type, value));
 
         attr = entry.getAttribute(ATTR_AUTHORIZATION_WILDCARD);
         if (attr != null) {
@@ -669,7 +676,7 @@ public class LDAPDatabase extends ACMEDatabase {
             new LDAPAttribute(ATTR_ACCOUNT_ID, authorization.getAccountID()),
             new LDAPAttribute(ATTR_CREATED, dateFormat.format(authorization.getCreationTime())),
             new LDAPAttribute(ATTR_STATUS, authorization.getStatus()),
-            new LDAPAttribute(ATTR_IDENTIFIER + ";" + identifier.getType(), identifier.getValue())
+            new LDAPAttribute(ATTR_IDENTIFIER, identifier.getType() + ":" + identifier.getValue())
         };
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
 
@@ -807,7 +814,7 @@ public class LDAPDatabase extends ACMEDatabase {
                 + ")(" + ATTR_ACCOUNT_ID + "=" + accountID
                 + ")(!(" + ATTR_EXPIRES + "<=" + dateFormat.format(time) + ")"
                 + ")(" + ATTR_STATUS + "=valid"
-                + ")(" + ATTR_IDENTIFIER + ";" + identifier.getType() + "=" + ident
+                + ")(" + ATTR_IDENTIFIER + "=" + identifier.getType() + ":" + ident
                 + ")(" + ATTR_AUTHORIZATION_WILDCARD + "=" + (wildcard ? "TRUE" : "FALSE")
                 + "))"
         );
