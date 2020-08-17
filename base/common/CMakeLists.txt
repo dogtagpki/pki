@@ -18,7 +18,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_CODEC_JAR} lib/commons-codec.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_HTTPCLIENT_JAR} lib/commons-httpclient.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_IO_JAR} lib/commons-io.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LANG_JAR} lib/commons-lang.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LANG3_JAR} lib/commons-lang3.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LOGGING_JAR} lib/commons-logging.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCLIENT_JAR} lib/httpclient.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCORE_JAR} lib/httpcore.jar

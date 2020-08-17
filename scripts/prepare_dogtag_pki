@@ -204,11 +204,11 @@ TOMCAT6="tomcat6"
 TOMCAT6_LIB="tomcat6-lib"
 if [ ${FEDORA_VERSION} -ge 14 ]; then
     APACHE_COMMONS_LANG="apache-commons-daemon"
-    APACHE_COMMONS_LANG="apache-commons-lang"
+    APACHE_COMMONS_LANG="apache-commons-lang3"
     APACHE_COMMONS_LOGGING="apache-commons-logging"
 else
     APACHE_COMMONS_LANG="jakarta-commons-daemon"
-    APACHE_COMMONS_LANG="jakarta-commons-lang"
+    APACHE_COMMONS_LANG="jakarta-commons-lang3"
     APACHE_COMMONS_LOGGING="jakarta-commons-logging"
 fi
 APACHE_COMMONS_CODEC="apache-commons-codec"

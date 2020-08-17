@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.ProfileDatabase;
 import org.dogtagpki.server.tps.config.ProfileRecord;

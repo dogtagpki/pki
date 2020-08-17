@@ -55,7 +55,7 @@ import java.util.Vector;
 
 import javax.servlet.ServletException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;

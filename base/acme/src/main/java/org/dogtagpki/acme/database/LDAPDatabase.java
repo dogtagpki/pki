@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMECertificate;

@@ -46,7 +46,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CLIException;
 import org.mozilla.jss.CryptoManager;

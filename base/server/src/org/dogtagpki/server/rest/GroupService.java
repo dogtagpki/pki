@@ -25,7 +25,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;

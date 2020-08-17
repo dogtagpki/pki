@@ -19,7 +19,7 @@ package com.netscape.certsrv.dbs.certdb;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The CertIdAdapter class provides custom marshaling for CertId.

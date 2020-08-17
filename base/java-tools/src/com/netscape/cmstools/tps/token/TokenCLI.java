@@ -21,7 +21,7 @@ package com.netscape.cmstools.tps.token;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 

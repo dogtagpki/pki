@@ -6,7 +6,7 @@
 package com.netscape.cmstools.cli;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.common.Info;
 

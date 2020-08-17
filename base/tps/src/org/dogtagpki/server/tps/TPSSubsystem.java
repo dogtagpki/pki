@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.tps.authentication.AuthenticationManager;
 import org.dogtagpki.server.tps.cms.ConnectionManager;
 import org.dogtagpki.server.tps.config.AuthenticatorDatabase;

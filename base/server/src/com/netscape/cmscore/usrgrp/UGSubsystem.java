@@ -26,7 +26,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.BaseSubsystem;

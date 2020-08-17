@@ -22,7 +22,7 @@ import java.security.Principal;
 import java.util.Arrays;
 
 import org.apache.catalina.realm.GenericPrincipal;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.Constants;

@@ -35,7 +35,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;

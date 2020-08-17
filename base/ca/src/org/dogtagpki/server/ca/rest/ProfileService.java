@@ -37,7 +37,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.catalina.realm.GenericPrincipal;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.ca.CAEngine;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 

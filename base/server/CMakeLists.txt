@@ -34,7 +34,7 @@ javac(pki-server-classes
         src/*.java
     CLASSPATH
         ${SLF4J_API_JAR} ${JAXB_API_JAR}
-        ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR}
+        ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG3_JAR}
         ${COMMONS_CLI_JAR}
         ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
@@ -87,7 +87,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_CODEC_JAR} common/lib/commons-codec.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_COLLECTIONS_JAR} common/lib/commons-collections.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_IO_JAR} common/lib/commons-io.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LANG_JAR} common/lib/commons-lang.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LANG3_JAR} common/lib/commons-lang3.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LOGGING_JAR} common/lib/commons-logging.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCLIENT_JAR} common/lib/httpclient.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCORE_JAR} common/lib/httpcore.jar

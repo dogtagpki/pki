@@ -25,7 +25,7 @@ add_junit_test(test-pki-server
         ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSBUNDLE_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR}
-        ${COMMONS_CODEC_JAR} ${COMMONS_LANG_JAR}
+        ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
         ${CMAKE_BINARY_DIR}/test/classes

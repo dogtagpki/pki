@@ -21,7 +21,7 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The DateAdapter class provides custom marshaling for Date.

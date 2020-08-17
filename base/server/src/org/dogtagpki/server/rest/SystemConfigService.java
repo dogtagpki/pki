@@ -17,7 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.rest;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;

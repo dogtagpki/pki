@@ -9,7 +9,7 @@ import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.dogtagpki.acme.ACMERevocation;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 

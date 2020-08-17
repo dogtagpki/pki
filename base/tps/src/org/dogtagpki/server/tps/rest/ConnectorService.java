@@ -28,7 +28,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.ConnectorDatabase;
 import org.dogtagpki.server.tps.config.ConnectorRecord;

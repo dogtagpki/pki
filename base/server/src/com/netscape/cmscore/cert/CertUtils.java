@@ -44,8 +44,8 @@ import java.util.StringTokenizer;
 
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CertificateUsage;

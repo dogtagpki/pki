@@ -61,8 +61,8 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NoSuchTokenException;

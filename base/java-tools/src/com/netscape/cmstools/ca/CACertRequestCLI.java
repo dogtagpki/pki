@@ -18,7 +18,7 @@
 
 package com.netscape.cmstools.ca;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.ca.CACertClient;

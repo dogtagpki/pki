@@ -9,7 +9,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Keyring;

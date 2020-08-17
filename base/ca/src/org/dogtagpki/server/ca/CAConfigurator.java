@@ -26,7 +26,8 @@ import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
