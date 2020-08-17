@@ -28,10 +28,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
@@ -129,7 +129,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new BadRequestException("Cannot provide both issuer-id and issuer-dn");
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(CertificateAuthority.ID);
 
         AuthorityID aid = null;
         if (aidString != null) {
@@ -138,7 +138,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             } catch (IllegalArgumentException e) {
                 throw new BadRequestException("invalid AuthorityID: " + aidString, e);
             }
-            ca = ca.getCA(aid);
+            ca = (CertificateAuthority) ca.getCA(aid);
             if (ca == null)
                 throw new ResourceNotFoundException("CA not found: " + aidString);
         }

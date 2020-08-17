@@ -558,11 +558,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public ICertificateAuthority getCA(AuthorityID aid);
 
     /**
-     * Get the CA by DN.  Returns null if CA not found.
-     */
-    public ICertificateAuthority getCA(X500Name dn);
-
-    /**
      * Update authority configurables.
      *
      * @param enabled Whether CA is enabled or disabled

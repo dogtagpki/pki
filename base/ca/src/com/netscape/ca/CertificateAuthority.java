@@ -2436,7 +2436,7 @@ public class CertificateAuthority
          *    aggregate OCSP response.
          */
         CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ocspCA = this;
+        CertificateAuthority ocspCA = this;
         if (caMap.size() > 0 && tbsReq.getRequestCount() > 0) {
             Request req = tbsReq.getRequestAt(0);
             BigInteger serialNo = req.getCertID().getSerialNumber();
@@ -2733,7 +2733,7 @@ public class CertificateAuthority
         return aid == null ? hostCA : caMap.get(aid);
     }
 
-    public ICertificateAuthority getCA(X500Name dn) {
+    public CertificateAuthority getCA(X500Name dn) {
         for (CertificateAuthority ca : getCAs()) {
             if (ca.getX500Name().equals(dn))
                 return ca;
