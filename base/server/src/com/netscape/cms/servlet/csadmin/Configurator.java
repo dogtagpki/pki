@@ -28,7 +28,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
@@ -1481,7 +1480,7 @@ public class Configurator {
             LDAPAttribute attr = e.nextElement();
             String[] values = attr.getStringValueArray();
             if (values == null) continue;
-            logger.info("Configurator: - " + attr.getName() + ": " + Arrays.asList(values));
+            logger.info("Configurator: - " + attr.getName());
         }
 
         entry = new LDAPEntry(dn, attrs);
@@ -1502,7 +1501,7 @@ public class Configurator {
                 LDAPAttribute attr = e.nextElement();
                 String[] values = attr.getStringValueArray();
                 if (values == null) continue;
-                logger.info("Configurator: - " + attr.getName() + ": " + Arrays.asList(values));
+                logger.info("Configurator: - " + attr.getName());
             }
 
             entry = new LDAPEntry(dn, attrs);
@@ -1535,7 +1534,7 @@ public class Configurator {
             LDAPAttribute attr = e.nextElement();
             String[] values = attr.getStringValueArray();
             if (values == null) continue;
-            logger.info("Configurator: - " + attr.getName() + ": " + Arrays.asList(values));
+            logger.info("Configurator: - " + attr.getName());
         }
 
         entry = new LDAPEntry(dn, attrs);

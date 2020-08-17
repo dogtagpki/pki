@@ -694,42 +694,50 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
             oclist.add("tpsProfileID");
         }
 
-        String oc[] = new String[oclist.size()];
-        oc = oclist.toArray(oc);
-
+        logger.info("UGSubsystem: - " + OBJECTCLASS_ATTR + ": " + oclist);
+        String[] oc = oclist.toArray(new String[oclist.size()]);
         attrs.add(new LDAPAttribute(OBJECTCLASS_ATTR, oc));
+
+        logger.info("UGSubsystem: - uid: " + id.getUserID());
         attrs.add(new LDAPAttribute("uid", id.getUserID()));
+
+        logger.info("UGSubsystem: - sn: " + id.getFullName());
         attrs.add(new LDAPAttribute("sn", id.getFullName()));
+
+        logger.info("UGSubsystem: - cn: " + id.getFullName());
         attrs.add(new LDAPAttribute("cn", id.getFullName()));
+
+        logger.info("UGSubsystem: - mail: " + id.getEmail());
         attrs.add(new LDAPAttribute("mail", id.getEmail()));
 
-        if (id.getPhone() != null) {
-            // DS syntax checking requires a value for PrintableString syntax
-            if (!id.getPhone().equals("")) {
-                attrs.add(new LDAPAttribute("telephonenumber", id.getPhone()));
-            }
+        // DS syntax checking requires a value for PrintableString syntax
+        String phone = id.getPhone();
+        if (phone != null && !phone.equals("")) {
+            logger.info("UGSubsystem: - telephonenumber: " + phone);
+            attrs.add(new LDAPAttribute("telephonenumber", phone));
         }
 
-        attrs.add(new LDAPAttribute("userpassword",
-                id.getPassword()));
+        logger.info("UGSubsystem: - userpassword: ********");
+        attrs.add(new LDAPAttribute("userpassword", id.getPassword()));
 
-        if (id.getUserType() != null) {
+        String userType = id.getUserType();
+        if (userType != null) {
             // DS syntax checking requires a value for Directory String syntax
             // but usertype is a MUST attribute, so we need to add something here
             // if it is undefined.
-
-            if (!id.getUserType().equals("")) {
-                attrs.add(new LDAPAttribute("usertype", id.getUserType()));
-            } else {
-                attrs.add(new LDAPAttribute("usertype", "undefined"));
+            if (userType.equals("")) {
+                userType = "undefined";
             }
+
+            logger.info("UGSubsystem: - usertype: " + userType);
+            attrs.add(new LDAPAttribute("usertype", userType));
         }
 
-        if (id.getState() != null) {
-            // DS syntax checking requires a value for Directory String syntax
-            if (!id.getState().equals("")) {
-                attrs.add(new LDAPAttribute("userstate", id.getState()));
-            }
+        // DS syntax checking requires a value for Directory String syntax
+        String state = id.getState();
+        if (state != null && !state.equals("")) {
+            logger.info("UGSubsystem: - userstate: " + state);
+            attrs.add(new LDAPAttribute("userstate", state));
         }
 
         // TODO add audit logging for profile
@@ -737,16 +745,10 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
         if (profiles != null && profiles.size() > 0) {
             LDAPAttribute attr = new LDAPAttribute(LDAP_ATTR_PROFILE_ID);
             for (String profile : profiles) {
+                logger.info("UGSubsystem: - " + LDAP_ATTR_PROFILE_ID + ": " + profile);
                 attr.addValue(profile);
             }
             attrs.add(attr);
-        }
-
-        for (Enumeration<LDAPAttribute> e = attrs.getAttributes(); e.hasMoreElements(); ) {
-            LDAPAttribute attr = e.nextElement();
-            String[] values = attr.getStringValueArray();
-            if (values == null) continue;
-            logger.info("UGSubsystem: - " + attr.getName() + ": " + Arrays.asList(values));
         }
 
         LDAPEntry entry = new LDAPEntry(dn, attrs);
@@ -1701,17 +1703,20 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
 
         try {
             String dn = "cn=" + LDAPUtil.escapeRDNValue(grp.getGroupID()) + "," + getGroupBaseDN();
-            logger.debug("dn: " + dn);
+            logger.info("UGSubsystem: adding " + dn);
 
             LDAPAttributeSet attrs = new LDAPAttributeSet();
-            String oc[] = { "top", "groupOfUniqueNames" };
 
+            String[] oc = { "top", "groupOfUniqueNames" };
+            logger.info("UGSubsystem: - objectclass: " + Arrays.asList(oc));
             attrs.add(new LDAPAttribute("objectclass", oc));
+
+            logger.info("UGSubsystem: - cn: " + group.getGroupID());
             attrs.add(new LDAPAttribute("cn", group.getGroupID()));
 
             String description = group.getDescription();
             if (description != null) {
-                logger.debug("description: " + description);
+                logger.info("UGSubsystem: - description: " + description);
                 attrs.add(new LDAPAttribute("description", description));
             }
 
@@ -1724,11 +1729,10 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
                     String name = e.nextElement();
 
                     String memberDN = "uid=" + LDAPUtil.escapeRDNValue(name) + "," + getUserBaseDN();
-                    logger.debug("uniqueMember: " + memberDN);
-
-                    // DOES NOT SUPPORT NESTED GROUPS...
+                    logger.info("UGSubsystem: - uniqueMember: " + memberDN);
                     attrMembers.addValue(memberDN);
                 }
+
                 attrs.add(attrMembers);
             }
 
