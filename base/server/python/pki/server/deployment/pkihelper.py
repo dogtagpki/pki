@@ -2698,7 +2698,6 @@ class ConfigClient:
 
         request = pki.system.CloneSetupRequest()
         request.pin = self.mdict['pki_one_time_pin']
-        request.cloneUri = self.mdict['pki_clone_uri']
 
         request.masterReplicationPort = self.mdict['pki_clone_replication_master_port']
         request.cloneReplicationPort = self.mdict['pki_clone_replication_clone_port']
