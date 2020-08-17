@@ -65,7 +65,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
@@ -117,14 +116,14 @@ public class CAService implements ICAService, IService {
     // CCA->CLA connector
     protected static IConnector mCLAConnector = null;
 
-    private ICertificateAuthority mCA = null;
+    private CertificateAuthority mCA = null;
     private Hashtable<String, IServant> mServants = new Hashtable<String, IServant>();
     private IConnector mKRAConnector = null;
     private IConfigStore mConfig = null;
     private boolean mArchivalRequired = true;
     private Hashtable<String, ICRLIssuingPoint> mCRLIssuingPoints = new Hashtable<String, ICRLIssuingPoint>();
 
-    public CAService(ICertificateAuthority ca) {
+    public CAService(CertificateAuthority ca) {
         mCA = ca;
 
         // init services.
@@ -219,7 +218,7 @@ public class CAService implements ICAService, IService {
         }
     }
 
-    protected ICertificateAuthority getCA() {
+    protected CertificateAuthority getCA() {
         return mCA;
     }
 
@@ -273,7 +272,7 @@ public class CAService implements ICAService, IService {
                 logger.error(CMS.getLogMessage("CMSCORE_CA_AUTHORITY_NOT_FOUND", id));
                 throw new EBaseException(msg);
             }
-            connector = new LocalConnector((ICertAuthority) mCA, authority);
+            connector = new LocalConnector(mCA, authority);
             // logger.info("local Connector to "+id+" inited");
         } else {
             String host = config.getString("host");
@@ -306,11 +305,11 @@ public class CAService implements ICAService, IService {
 
             String clientCiphers = config.getString("clientCiphers", null);
             if (timeout == 0)
-                connector = new HttpConnector((IAuthority) mCA, nickname, clientCiphers, remauthority, resendInterval,
+                connector = new HttpConnector(mCA, nickname, clientCiphers, remauthority, resendInterval,
                         config);
             else
                 connector =
-                        new HttpConnector((IAuthority) mCA, nickname, clientCiphers, remauthority, resendInterval,
+                        new HttpConnector(mCA, nickname, clientCiphers, remauthority, resendInterval,
                                 config, timeout);
             // Change end
 
