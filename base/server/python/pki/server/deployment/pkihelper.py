@@ -2710,10 +2710,6 @@ class ConfigClient:
         elif not request.replicationSecurity:
             request.replicationSecurity = 'None'
 
-        request.systemCertsImported = \
-            self.mdict['pki_server_pkcs12_path'] != '' or \
-            self.mdict['pki_clone_pkcs12_path'] != ''
-
         return request
 
     def create_database_setup_request(self):
