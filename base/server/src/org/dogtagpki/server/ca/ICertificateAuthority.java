@@ -18,7 +18,6 @@
 package org.dogtagpki.server.ca;
 
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -516,11 +515,6 @@ public interface ICertificateAuthority extends ISubsystem {
 
     public CertificateIssuerName getIssuerObj();
     public CertificateSubjectName getSubjectObj();
-
-    /**
-     * Enumerate all authorities, including host authority.
-     */
-    public List<ICertificateAuthority> getCAs();
 
     /**
      * Return whether this CA is the host authority (not a

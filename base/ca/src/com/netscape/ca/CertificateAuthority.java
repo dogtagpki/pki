@@ -222,8 +222,8 @@ public class CertificateAuthority
      */
     static LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CertificateAuthority");
 
-    private static final Map<AuthorityID, ICertificateAuthority> caMap =
-        Collections.synchronizedSortedMap(new TreeMap<AuthorityID, ICertificateAuthority>());
+    private static final Map<AuthorityID, CertificateAuthority> caMap =
+        Collections.synchronizedSortedMap(new TreeMap<AuthorityID, CertificateAuthority>());
     static final Map<AuthorityID, Thread> keyRetrieverThreads =
         Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
     protected CertificateAuthority hostCA = null;
@@ -2711,10 +2711,10 @@ public class CertificateAuthority
     /**
      * Enumerate all authorities (including host authority)
      */
-    public List<ICertificateAuthority> getCAs() {
-        List<ICertificateAuthority> cas = new ArrayList<>();
+    public List<CertificateAuthority> getCAs() {
+        List<CertificateAuthority> cas = new ArrayList<>();
         synchronized (caMap) {
-            for (ICertificateAuthority ca : caMap.values()) {
+            for (CertificateAuthority ca : caMap.values()) {
                 cas.add(ca);
             }
         }
@@ -2734,7 +2734,7 @@ public class CertificateAuthority
     }
 
     public ICertificateAuthority getCA(X500Name dn) {
-        for (ICertificateAuthority ca : getCAs()) {
+        for (CertificateAuthority ca : getCAs()) {
             if (ca.getX500Name().equals(dn))
                 return ca;
         }
@@ -2778,7 +2778,7 @@ public class CertificateAuthority
 
     private void ensureAuthorityDNAvailable(X500Name dn)
             throws IssuerUnavailableException {
-        for (ICertificateAuthority ca : getCAs()) {
+        for (CertificateAuthority ca : getCAs()) {
             if (ca.getX500Name().equals(dn))
                 throw new IssuerUnavailableException(
                     "DN '" + dn + "' is used by an existing authority");
@@ -3189,7 +3189,7 @@ public class CertificateAuthority
             throw new CAEnabledException("Must disable CA before deletion");
 
         boolean hasSubCAs = false;
-        for (ICertificateAuthority ca : getCAs()) {
+        for (CertificateAuthority ca : getCAs()) {
             AuthorityID parentAID = ca.getAuthorityParentID();
             if (parentAID != null && parentAID.equals(this.authorityID)) {
                 hasSubCAs = true;

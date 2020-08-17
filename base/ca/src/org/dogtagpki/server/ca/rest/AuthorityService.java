@@ -85,7 +85,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
         List<AuthorityData> results = new ArrayList<>();
 
-        for (ICertificateAuthority ca : hostCA.getCAs()) {
+        for (CertificateAuthority ca : hostCA.getCAs()) {
 
             AuthorityData authority = readAuthorityData(ca);
 
