@@ -24,7 +24,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
@@ -65,9 +64,9 @@ public class CAPolicy implements IPolicy {
         return mPolicies;
     }
 
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(CertificateAuthority owner, IConfigStore config)
             throws EBaseException {
-        mCA = (CertificateAuthority) owner;
+        mCA = owner;
         mConfig = config;
 
         String processorType = // XXX - need to upgrade 4.2
