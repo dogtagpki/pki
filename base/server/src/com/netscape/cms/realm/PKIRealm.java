@@ -7,7 +7,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.catalina.realm.RealmBase;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.authentication.IAuthManager;
 import org.dogtagpki.server.authentication.ICertUserDBAuthentication;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;

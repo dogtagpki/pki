@@ -78,9 +78,9 @@ find_file(COMMONS_IO_JAR
         /usr/share/java
 )
 
-find_file(COMMONS_LANG_JAR
+find_file(COMMONS_LANG3_JAR
     NAMES
-        commons-lang.jar
+        commons-lang3.jar
     PATHS
         /usr/share/java
 )

@@ -44,7 +44,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.dogtagpki.server.authentication.IAuthManager;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.ICertificateAuthority;
@@ -758,7 +758,7 @@ public abstract class CMSServlet extends HttpServlet {
         if (tokenIdx != -1) {
             finalErrMsg =
                     mFinalErrorMsg.substring(0, tokenIdx) +
-                            StringEscapeUtils.escapeHtml(ex.toString()) +
+                            StringEscapeUtils.escapeHtml4(ex.toString()) +
                             mFinalErrorMsg.substring(
                                     tokenIdx + ERROR_MSG_TOKEN.length());
         }

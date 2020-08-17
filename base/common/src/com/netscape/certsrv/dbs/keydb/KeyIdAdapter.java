@@ -19,7 +19,7 @@ package com.netscape.certsrv.dbs.keydb;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The KeyIdAdapter class provides custom marshaling for KeyId.

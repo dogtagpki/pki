@@ -19,7 +19,7 @@ package com.netscape.certsrv.request;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The RequestStatusAdapter class provides custom marshaling for RequestStatus.

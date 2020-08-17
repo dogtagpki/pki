@@ -30,7 +30,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Enumeration;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -358,7 +358,7 @@ public class CMSTemplate extends CMSFile {
      */
 
     public static String escapeJavaScriptStringHTML(String v) {
-        return StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(v));
+        return StringEscapeUtils.escapeEcmaScript(StringEscapeUtils.escapeHtml4(v));
     }
 
     /**

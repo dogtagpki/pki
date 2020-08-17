@@ -8,7 +8,7 @@ package org.dogtagpki.acme.database;
 import java.util.Collection;
 import java.util.Date;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMECertificate;
