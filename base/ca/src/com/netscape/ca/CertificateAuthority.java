@@ -2765,12 +2765,12 @@ public class CertificateAuthority
             String subjectDN, AuthorityID parentAID,
             String description)
             throws EBaseException {
-        ICertificateAuthority parentCA = getCA(parentAID);
+        CertificateAuthority parentCA = (CertificateAuthority) getCA(parentAID);
         if (parentCA == null)
             throw new CANotFoundException(
                 "Parent CA \"" + parentAID + "\" does not exist");
 
-        ICertificateAuthority ca = parentCA.createSubCA(
+        CertificateAuthority ca = parentCA.createSubCA(
                 authToken, subjectDN, description);
         caMap.put(ca.getAuthorityID(), ca);
         return ca;
@@ -2791,7 +2791,7 @@ public class CertificateAuthority
      * This method DOES NOT add the new CA to caMap; it is the
      * caller's responsibility.
      */
-    public ICertificateAuthority createSubCA(
+    public CertificateAuthority createSubCA(
             IAuthToken authToken,
             String subjectDN, String description)
             throws EBaseException {

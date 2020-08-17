@@ -578,17 +578,6 @@ public interface ICertificateAuthority extends ISubsystem {
         throws EBaseException;
 
     /**
-     * Create a new sub-CA IMMEDIATELY beneath this one.
-     *
-     * This method DOES NOT add the new CA to caMap; it is the
-     * caller's responsibility.
-     */
-    public ICertificateAuthority createSubCA(
-            IAuthToken authToken,
-            String dn, String desc)
-        throws EBaseException;
-
-    /**
      * Update authority configurables.
      *
      * @param enabled Whether CA is enabled or disabled
