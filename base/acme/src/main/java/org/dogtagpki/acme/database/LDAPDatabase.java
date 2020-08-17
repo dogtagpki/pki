@@ -88,7 +88,7 @@ public class LDAPDatabase extends ACMEDatabase {
     static final String ATTR_ORDER_ID = "acmeOrderId";
     static final String ATTR_STATUS = "acmeStatus";
     static final String ATTR_TOKEN = "acmeToken";
-    static final String ATTR_USER_CERTIFICATE = "userCertificate";
+    static final String ATTR_USER_CERTIFICATE = "userCertificate;binary";
     static final String ATTR_VALIDATED_AT = "acmeValidatedAt";
 
     static final String OBJ_ACCOUNT = "acmeAccount";
