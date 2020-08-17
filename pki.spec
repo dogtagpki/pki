@@ -51,12 +51,21 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # Java
 ################################################################################
 
-%define java_home /usr/lib/jvm/jre-openjdk
+%define java_home /usr/lib/jvm/java-openjdk
+%define jre_home /usr/lib/jvm/jre-openjdk
 
 %if 0%{?fedora} && 0%{?fedora} >= 33
-%define min_java_version 1:11
+%define min_java_version 1:1.8.0
+%define java_devel java-1.8.0-openjdk-devel
+%define java_headless java-1.8.0-openjdk-headless
+%define java_home /usr/lib/jvm/java-1.8.0-openjdk
+%define jre_home /usr/lib/jvm/jre-1.8.0-openjdk
 %else
 %define min_java_version 1:1.8.0
+%define java_devel java-devel
+%define java_headless java-headless
+%define java_home /usr/lib/jvm/java-1.8.0-openjdk
+%define jre_home /usr/lib/jvm/jre-1.8.0-openjdk
 %endif
 
 ################################################################################
@@ -157,7 +166,7 @@ BuildRequires:    make
 BuildRequires:    cmake >= 3.0.2
 BuildRequires:    gcc-c++
 BuildRequires:    zip
-BuildRequires:    java-devel >= %{min_java_version}
+BuildRequires:    %java_devel >= %{min_java_version}
 BuildRequires:    javapackages-tools
 BuildRequires:    redhat-rpm-config
 BuildRequires:    ldapjdk >= 4.22.0
@@ -331,7 +340,7 @@ PKI consists of the following components:
 
 Summary:          PKI Symmetric Key Package
 
-Requires:         java-headless >= %{min_java_version}
+Requires:         %java_headless >= %{min_java_version}
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.7.0
 Requires:         nss >= 3.38.0
@@ -399,7 +408,7 @@ This package contains PKI client library for Python 3.
 Summary:          PKI Base Java Package
 BuildArch:        noarch
 
-Requires:         java-headless >= %{min_java_version}
+Requires:         %java_headless >= %{min_java_version}
 Requires:         apache-commons-cli
 Requires:         apache-commons-codec
 Requires:         apache-commons-io
@@ -492,6 +501,7 @@ Requires:         tomcat >= 1:9.0.7
 %endif
 
 Requires:         velocity
+Requires:         sudo
 Requires:         systemd
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -821,7 +831,8 @@ fi
     -DVAR_INSTALL_DIR:PATH=/var \
     -DP11_KIT_TRUST=/etc/alternatives/libnssckbi.so.%{_arch} \
     -DJAVA_HOME=%java_home \
-    -DPKI_JAVA_PATH=%java \
+    -DJRE_HOME=%jre_home \
+    -DPKI_JAVA_PATH=%jre_home/bin/java \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
     -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
     -DAPP_SERVER=$app_server \
