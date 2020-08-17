@@ -8,7 +8,6 @@ package org.dogtagpki.ct;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.Integer;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.PublicKey;
@@ -17,35 +16,29 @@ import java.security.cert.X509Certificate;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.commons.net.ntp.TimeStamp;
-import org.dogtagpki.ct.CTRequest;
-import org.dogtagpki.ct.CTResponse;
-import org.dogtagpki.ct.LogServer;
 import org.dogtagpki.ct.sct.SCTProcessor;
-import com.netscape.certsrv.ca.AuthorityID;
 import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.http.HttpClient;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.HttpResponse;
-
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.util.DerOutputStream;
-import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-
-import com.netscape.cmscore.cert.CertUtils;
 
 /**
  * Certificate Transparency (v1) engine for CA
@@ -70,7 +63,7 @@ public class CTEngine {
 
     /**
      * Process cert info for Certificate Transparency
-     * 
+     *
      * Check to see if certInfo contains Certificate Transparency poison
      * extension (from profile containig certTransparencyExtDefaultImpl);
      *
@@ -83,7 +76,7 @@ public class CTEngine {
      * in the cert to be issued.
      *
      */
-    public void process(X509CertInfo certi, ICertificateAuthority ctCA, AuthorityID aid, String algname)
+    public void process(X509CertInfo certi, CertificateAuthority ctCA, AuthorityID aid, String algname)
             throws EBaseException {
 
         String method = "CTEngine.process: ";
