@@ -34,6 +34,7 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.authority.AuthorityResource;
@@ -69,11 +70,11 @@ import com.netscape.cmscore.apps.CMSEngine;
 public class AuthorityService extends SubsystemService implements AuthorityResource {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthorityService.class);
-    ICertificateAuthority hostCA;
+    CertificateAuthority hostCA;
 
     public AuthorityService() {
         CMSEngine engine = CMS.getCMSEngine();
-        hostCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        hostCA = (CertificateAuthority) engine.getSubsystem(CertificateAuthority.ID);
     }
 
     @Override
@@ -221,7 +222,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             SessionContext.getContext().get(SessionContext.AUTH_TOKEN);
 
         try {
-            ICertificateAuthority subCA = hostCA.createCA(
+            CertificateAuthority subCA = hostCA.createCA(
                 authToken, data.getDN(), parentAID, data.getDescription());
             audit(ILogger.SUCCESS, OpDef.OP_ADD,
                     subCA.getAuthorityID().toString(), auditParams);

@@ -34,7 +34,6 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -568,14 +567,6 @@ public interface ICertificateAuthority extends ISubsystem {
      * Get the CA by DN.  Returns null if CA not found.
      */
     public ICertificateAuthority getCA(X500Name dn);
-
-    /**
-     * Create a new sub-CA under the specified parent CA.
-     */
-    public ICertificateAuthority createCA(
-            IAuthToken authToken,
-            String dn, AuthorityID parentAID, String desc)
-        throws EBaseException;
 
     /**
      * Update authority configurables.

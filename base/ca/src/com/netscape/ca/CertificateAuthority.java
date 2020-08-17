@@ -2760,7 +2760,7 @@ public class CertificateAuthority
      * @param parentAID ID of parent CA
      * @param description Optional string description of CA
      */
-    public ICertificateAuthority createCA(
+    public CertificateAuthority createCA(
             IAuthToken authToken,
             String subjectDN, AuthorityID parentAID,
             String description)
