@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -26,14 +25,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.tomcat.util.net.jss.TomcatJSS;
-import org.dogtagpki.server.PKIServerSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.common.Constants;
-import com.netscape.cms.realm.PKIRealm;
-import com.netscape.cms.tomcat.ProxyRealm;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -51,22 +46,6 @@ public class CMSStartServlet extends HttpServlet {
     public final static String PROP_CMS_ENGINE = "engine";
 
     public void init() throws ServletException {
-
-        // get web application context: /<subsystem>
-        String context = getServletContext().getContextPath();
-
-        // get subsystem name by removing the / prefix from the context
-        String subsystem = context.startsWith("/") ? context.substring(1) : context;
-
-        // catalina.base points to instance dir
-        // it's defined as CATALINA_BASE in <instance>/conf/tomcat.conf
-        String instanceDir = System.getProperty("catalina.base");
-
-        String serverConfDir = instanceDir + File.separator + "conf";
-        String subsystemConfDir = serverConfDir + File.separator + subsystem;
-
-        // path: <instance>/conf/<subsystem>/CS.cfg
-        String path = subsystemConfDir + File.separator + "CS.cfg";
 
         Class<?> engineClass = CMSEngine.class;
 
@@ -87,26 +66,7 @@ public class CMSStartServlet extends HttpServlet {
             logger.debug("CMSStartServlet: Creating CMS engine: " + engineClass.getName());
             engine = (CMSEngine) engineClass.newInstance();
 
-        } catch (Exception e) {
-            logger.error("Unable to create CMS engine: " + e.getMessage(), e);
-            throw new ServletException(e);
-        }
-
-        try {
-            logger.debug("CMSStartServlet: Loading CMS engine configuration: " + path);
-            engine.loadConfig(path);
-
-        } catch (Exception e) {
-            logger.error("Unable to load CMS engine configuration: " + e.getMessage(), e);
-            throw new ServletException(e);
-        }
-
-        CMS.setCMSEngine(engine);
-
-        try {
-            logger.debug("CMSStartServlet: Starting CMS engine: " + engineClass.getName());
-            engine.init();
-            engine.startup();
+            engine.start();
 
         } catch (Exception e) {
             logger.error("Unable to start CMS engine: " + e.getMessage(), e);
@@ -117,13 +77,6 @@ public class CMSStartServlet extends HttpServlet {
             }
             throw new ServletException(e);
         }
-
-        // Register realm for this subsystem
-        ProxyRealm.registerRealm(subsystem, new PKIRealm());
-
-        // Register TomcatJSS socket listener
-        TomcatJSS tomcatJss = TomcatJSS.getInstance();
-        tomcatJss.addSocketListener(new PKIServerSocketListener());
     }
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)

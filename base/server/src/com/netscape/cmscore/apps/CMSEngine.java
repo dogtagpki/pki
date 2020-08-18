@@ -38,6 +38,8 @@ import java.util.Timer;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tomcat.util.net.jss.TomcatJSS;
+import org.dogtagpki.server.PKIServerSocketListener;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -64,7 +66,9 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.realm.PKIRealm;
 import com.netscape.cms.servlet.csadmin.Configurator;
+import com.netscape.cms.tomcat.ProxyRealm;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.authentication.VerifiedCerts;
@@ -1013,14 +1017,33 @@ public class CMSEngine {
         mStartupTime = System.currentTimeMillis();
     }
 
-    public void startup() throws EBaseException {
+    public void start() throws Exception {
+
+        logger.info("Starting " + name + " engine");
+
+        String catalinaBase = System.getProperty("catalina.base");
+        String serverConfDir = catalinaBase + File.separator + "conf";
+        String subsystemConfDir = serverConfDir + File.separator + id;
+
+        String path = subsystemConfDir + File.separator + "CS.cfg";
+        loadConfig(path);
+
+        CMS.setCMSEngine(this);
+
+        init();
 
         startupSubsystems();
 
+        // Register realm for this subsystem
+        ProxyRealm.registerRealm(id, new PKIRealm());
+
+        // Register TomcatJSS socket listener
+        TomcatJSS tomcatJss = TomcatJSS.getInstance();
+        tomcatJss.addSocketListener(new PKIServerSocketListener());
+
         isStarted = true;
 
-        String type = mConfig.getType();
-        logger.info(type + " subsystem started");
+        logger.info(name + " engine started");
     }
 
     public boolean isInRunningState() {
