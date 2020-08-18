@@ -111,7 +111,9 @@ public class CMSEngine {
     public static final String PROP_SIGNED_AUDIT_CERT_NICKNAME =
                               "log.instance.SignedAudit.signedAuditCertNickname";
 
+    public String id;
     public String name;
+
     public String instanceDir; /* path to instance <server-root>/cert-<instance-name> */
     private String instanceId;
     private int pid;
@@ -161,6 +163,7 @@ public class CMSEngine {
 
 
     public CMSEngine(String name) {
+        this.id = name.toLowerCase();
         this.name = name;
 
         logger.info("Creating " + name + " engine");
@@ -1309,8 +1312,7 @@ public class CMSEngine {
         logger.info("CMSEngine: Disabling " + name + " subsystem");
 
         try {
-            String subsystemID = name.toLowerCase();
-            ProcessBuilder pb = new ProcessBuilder("pki-server", "subsystem-disable", "-i", instanceId, subsystemID);
+            ProcessBuilder pb = new ProcessBuilder("pki-server", "subsystem-disable", "-i", instanceId, id);
             logger.debug("Command: " + String.join(" ", pb.command()));
 
             Process process = pb.inheritIO().start();
