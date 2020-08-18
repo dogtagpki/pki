@@ -47,22 +47,16 @@ public class CMSStartServlet extends HttpServlet {
 
     public void init() throws ServletException {
 
-        Class<?> engineClass = CMSEngine.class;
-
         String className = getServletConfig().getInitParameter(PROP_CMS_ENGINE);
-        if (className != null) {
-            try {
-                logger.debug("CMSStartServlet: Loading CMS engine: " + className);
-                engineClass = Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                logger.error("Unable to load CMS engine: " + e.getMessage(), e);
-                throw new ServletException(e);
-            }
-        }
+        if (className == null) return;
 
+        Class<?> engineClass = CMSEngine.class;
         CMSEngine engine = null;
 
         try {
+            logger.debug("CMSStartServlet: Loading CMS engine: " + className);
+            engineClass = Class.forName(className);
+
             logger.debug("CMSStartServlet: Creating CMS engine: " + engineClass.getName());
             engine = (CMSEngine) engineClass.newInstance();
 
@@ -100,6 +94,10 @@ public class CMSStartServlet extends HttpServlet {
      * This method will be called when Tomcat is shutdown.
      */
     public void destroy() {
+
+        String className = getServletConfig().getInitParameter(PROP_CMS_ENGINE);
+        if (className == null) return;
+
         logger.debug("CMSStartServlet.destroy(): shutdown server");
         CMSEngine engine = CMS.getCMSEngine();
         engine.shutdown();
