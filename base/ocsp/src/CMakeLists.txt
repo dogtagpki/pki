@@ -6,9 +6,12 @@ javac(pki-ocsp-classes
         *.java
     CLASSPATH
         ${SLF4J_API_JAR}
+        ${COMMONS_CODEC_JAR}
+        ${SERVLET_JAR}
+        ${JAXRS_API_JAR}
+        ${JSS_JAR} ${SYMKEY_JAR}
+        ${LDAPJDK_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
-        ${LDAPJDK_JAR} ${JAXRS_API_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS

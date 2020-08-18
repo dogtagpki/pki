@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.lang.StringUtils;
@@ -105,7 +107,7 @@ import com.netscape.cmsutil.util.NuxwdogUtil;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 
-public class CMSEngine {
+public class CMSEngine implements ServletContextListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
 
@@ -1615,5 +1617,28 @@ public class CMSEngine {
 
     public UGSubsystem getUGSubsystem() {
         return ugSubsystem;
+    }
+
+    public void contextInitialized(ServletContextEvent event) {
+
+        String path = event.getServletContext().getContextPath();
+        if ("".equals(path)) {
+            id = "ROOT";
+        } else {
+            id = path.substring(1);
+        }
+
+        try {
+            start();
+
+        } catch (Exception e) {
+            logger.error("Unable to start " + name + " engine: " + e.getMessage(), e);
+            shutdown();
+            throw new RuntimeException("Unable to start " + name + " engine: " + e.getMessage(), e);
+        }
+    }
+
+    public void contextDestroyed(ServletContextEvent event) {
+        shutdown();
     }
 }
