@@ -2,10 +2,27 @@
 # Git clone and install ipa-pytests on Jenkins slave.
 - hosts: localhost
   gather_facts: true
+  vars:
+    tls_ldap: "false"
+    rsa_pss_256: "false"
+    rsa_pss_384: "false"
+    rsa_pss_512: "false"
   roles:
   - Test_Trigger
 
 # Git clone and install ipa-pytests on all SUT
 - hosts: master
+  vars:
+    tls_ldap: "false"
+    rsa_pss_256: "false"
+    rsa_pss_384: "false"
+    rsa_pss_512: "false"
+    fips_enable: "false"
+    ca_debug: "false"
+    kra_debug: "false"
+    ocsp_debug: "false"
+    tks_debug: "false"
+    tps_debug: "false"
+    debug: "false"
   roles:
   - Test_Execution

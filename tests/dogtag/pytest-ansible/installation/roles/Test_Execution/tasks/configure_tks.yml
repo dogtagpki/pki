@@ -9,6 +9,10 @@
 
 - meta: flush_handlers
 
+- name: Set debug log level to 5
+  shell: pki-server -i {{ topology }}-TKS tks-config-set debug.level 5
+  when: debug == "true" or tks_debug == "true"
+
 - name: Enable SignedAudit
   replace: dest=/etc/pki/{{ topology }}-TKS/tks/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
 
@@ -18,22 +22,33 @@
 - name: Pointing TKS to correct OCSP port
   replace: dest=/etc/pki/{{ topology }}-TKS/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.CA_HTTP_PORT }}/ca/ocsp
 
-- name: Picking the password in run-time from password.conf of TKS
-  shell: grep -i "internal=" /etc/pki/{{ topology }}-TKS/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
+- name: Enable OCSP Policy to Native for tls as true
+  block:
+  - name: Checking for right CA certificate
+    shell: sed -i "s/ocspSigningCert cert-pki-ca/Directory Server CA certificate/g" /etc/pki/{{ topology }}-TKS/server.xml
+    notify:
+      - STARTTKS
+  when: tls_ldap == "true"
 
-- name: Importing OCSP certificate in TKS nssdb
-  shell: certutil -A -d /etc/pki/{{ topology }}-TKS/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
-  notify:
-    - STARTTKS
+- name: Enable OCSP Policy to Native for tls as false
+  block:
+  - name: Picking the password in run-time from password.conf of TKS
+    shell: grep -i "internal=" /etc/pki/{{ topology }}-TKS/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
+
+  - name: Importing OCSP certificate in TKS nssdb
+    shell: certutil -A -d /etc/pki/{{ topology }}-TKS/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
+    notify:
+      - STARTTKS
+
+  - name: Removing file generated with password
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+      -  /tmp/test_dir/certutil_password
+  when: tls_ldap == "false"
 
 - meta: flush_handlers
 
 - name: Sleep for a while to start TKS
   shell: sleep 3s
-
-- name: Removing file generated with password
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    -  /tmp/test_dir/certutil_password

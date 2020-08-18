@@ -25,3 +25,105 @@
 - name : Replace tomcat port for KRA
   replace: dest=/tmp/test_dir/kra.cfg regexp="secure_domain_port" replace={{capki_https_port}}
 
+- name: Configure LDAPS in KRA config
+  block:
+  - name: Add ldaps port in the KRA file
+    lineinfile: dest={{item}} insertafter="^pki_ds_ldap_port" line="pki_ds_ldaps_port = ldapSecureServerPort"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  - name : Replace LDAPS port for KRA
+    replace: dest={{item}} regexp="ldapSecureServerPort" replace={{ldapSecureServerPort}}
+    with_items:
+    - /tmp/test_dir/kra.cfg
+    - /tmp/test_dir/constants.py
+
+  - name: Add LDAP secure conection file name
+    lineinfile: dest={{item}} insertafter="^pki_ds_ldap_port" line="pki_ds_secure_connection_ca_pem_file = ldapSecreConPemFile"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  - name : Replace LDAPS Certificate path for KRA
+    replace: dest={{item}} regexp="ldapSecreConPemFile" replace={{ldapSecreConPemFile}}
+    with_items:
+    - /tmp/test_dir/kra.cfg
+    - /tmp/test_dir/constants.py
+
+  - name: Add LDAP secure conection True param
+    lineinfile: dest={{item}} insertafter="^pki_ds_ldap_port" line="pki_ds_secure_connection = True"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  when: tls_ldap == "true"
+
+- name: Configure RSA_PSS param in KRA config
+  block:
+  - name: Add sslserver signing algo param
+    lineinfile: dest={{item}} insertafter="^pki_sslserver_key_type" line="pki_sslserver_signing_algorithm=SHA512withRSA"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  - name: Add subsystem signing algo param
+    lineinfile: dest={{item}} insertafter="^pki_subsystem_key_algorithm" line="pki_subsystem_signing_algorithm=SHA512withRSA"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  - name: Add RSA/PSS sign algo parameter in the KRA config file
+    lineinfile: dest={{item}} insertafter="^pki_http_port" line="pki_use_pss_rsa_signing_algorithm=True"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  - name : Replace default algorithm with SHA256withRSA/PSS
+    replace: dest={{item}} regexp="SHA512withRSA" replace="SHA256withRSA/PSS"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  when: rsa_pss_256 == "true"
+
+- name: Configure RSA_PSS param in KRA config
+  block:
+  - name: Add sslserver signing algo param
+    lineinfile: dest={{item}} insertafter="^pki_sslserver_key_type" line="pki_sslserver_signing_algorithm=SHA512withRSA"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  - name: Add subsystem signing algo param
+    lineinfile: dest={{item}} insertafter="^pki_subsystem_key_algorithm" line="pki_subsystem_signing_algorithm=SHA512withRSA"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  - name: Add RSA/PSS sign algo parameter in the KRA config file
+    lineinfile: dest={{item}} insertafter="^pki_http_port" line="pki_use_pss_rsa_signing_algorithm=True"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  - name : Replace default algorithm with SHA384withRSA/PSS
+    replace: dest={{item}} regexp="SHA512withRSA" replace="SHA384withRSA/PSS"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  when: rsa_pss_384 == "true"
+
+- name: Configure RSA_PSS param in KRA config
+  block:
+  - name: Add sslserver signing algo param
+    lineinfile: dest={{item}} insertafter="^pki_sslserver_key_type" line="pki_sslserver_signing_algorithm=SHA512withRSA"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  - name: Add subsystem signing algo param
+    lineinfile: dest={{item}} insertafter="^pki_subsystem_key_algorithm" line="pki_subsystem_signing_algorithm=SHA512withRSA"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  - name: Add RSA/PSS sign algo parameter in the KRA config file
+    lineinfile: dest={{item}} insertafter="^pki_http_port" line="pki_use_pss_rsa_signing_algorithm=True"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  - name : Replace default algorithm with SHA512withRSA/PSS
+    replace: dest={{item}} regexp="SHA512withRSA" replace="SHA512withRSA/PSS"
+    with_items:
+      - /tmp/test_dir/kra.cfg
+
+  when: rsa_pss_512 == "true"

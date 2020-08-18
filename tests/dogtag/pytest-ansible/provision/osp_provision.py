@@ -156,7 +156,7 @@ def up(inventory, image, image_type, server_type, verbose):
         data.insert(index + 1, "{} hostname={}".format(network['addr'], network['addr']))
     else:
         data.extend(["\n[{}]".format(server_type),
-                     "{} hostname={} {}".format(network['addr'], network['addr'])])
+                     "{} hostname={}".format(network['addr'], network['addr'])])
     with open(inventory, 'w') as f:
         print(data)
         file_data = "\n".join(data)

@@ -9,6 +9,10 @@
   notify:
     - STOPOCSP
 
+- name: Set debug log level to 5
+  shell: pki-server -i {{ topology }}-OCSP ocsp-config-set debug.level 5
+  when: debug == "true" or ocsp_debug == "true"
+
 - name: Enable SignedAudit
   replace: dest=/etc/pki/{{ topology }}-OCSP/ocsp/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
   notify:
@@ -19,17 +23,29 @@
 - name: Enable OCSP 
   replace: dest=/etc/pki/{{ topology }}-OCSP/server.xml regexp='enableOCSP="false"' replace='enableOCSP="true"'
 
-- name: Picking the password in run-time from password.conf of OCSP.
-  shell: grep -i "internal=" /etc/pki/{{ topology }}-OCSP/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
+- name: Enable OCSP Policy to Native for tls as true
+  block:
+  - name: Checking for right CA certificate
+    shell: sed -i "s/ocspSigningCert cert-pki-ca/Directory Server CA certificate/g" /etc/pki/{{ topology }}-OCSP/server.xml
+    notify:
+      - STARTOCSP
+  when: tls_ldap == "true"
 
-- name: Importing OCSP certificate in ocsp nssdb
-  shell: certutil -A -d /etc/pki/{{ topology }}-OCSP/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
-  notify:
-    - STARTOCSP
-    
-- name: Removing file generated with password
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    -  /tmp/test_dir/certutil_password
+
+- name: Enable OCSP Policy to Native for tls as false
+  block:
+  - name: Picking the password in run-time from password.conf of OCSP.
+    shell: grep -i "internal=" /etc/pki/{{ topology }}-OCSP/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
+
+  - name: Importing OCSP certificate in ocsp nssdb
+    shell: certutil -A -d /etc/pki/{{ topology }}-OCSP/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
+    notify:
+      - STARTOCSP
+
+  - name: Removing file generated with password
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+      -  /tmp/test_dir/certutil_password
+  when: tls_ldap == "false"

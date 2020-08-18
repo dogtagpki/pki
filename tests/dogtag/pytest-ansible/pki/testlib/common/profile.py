@@ -230,7 +230,8 @@ class Constraints(object):
         constraint_definition = etree.SubElement(
             policy_value, 'constraint', id='No Constraint')
         s1 = 'This constraint accepts only the Signing Algorithms of SHA1withRSA,SHA256withRSA,SHA512withRSA,'
-        s2 = 'SHA1withDSA,SHA1withEC,SHA256withEC,SHA384withEC,SHA512withEC'
+        s2 = 'SHA1withDSA,SHA1withEC,SHA256withEC,SHA384withEC,SHA512withEC,SHA256withRSA/PSS,SHA384withRSA/PSS,' \
+             'SHA512withRSA/PSS'
         constraint_description = etree.SubElement(
             constraint_definition, 'description').text = s1 + s2
         constraint_classid = etree.SubElement(
@@ -241,7 +242,8 @@ class Constraints(object):
              "SHA1withRSA,SHA1withDSA,SHA256withRSA," +
              "SHA512withRSA,SHA1withEC,SHA256withEC,SHA384withEC,SHA512withEC",
              "SHA1withRSA,SHA256withRSA,SHA512withRSA," +
-             "SHA1withEC,SHA256withEC,SHA384withEC,SHA512withEC")
+             "SHA1withEC,SHA256withEC,SHA384withEC,SHA512withEC,SHA256withRSA/PSS,SHA384withRSA/PSS,"
+             "SHA512withRSA/PSS")
         ]
         cls.constraint_attributes(
             constraint_definition, signingAlgConstraintImpl_attributes)
@@ -752,7 +754,8 @@ class Policy(object):
 
             # policy Attributes
             Signing_Alg_attributes = [('signingAlg', 'choice',
-                                       'SHA1withRSA,SHA256withRSA,SHA512withRSA',
+                                       'SHA1withRSA,SHA256withRSA,SHA512withRSA,SHA256withRSA/PSS,SHA384withRSA/PSS,'
+                                       'SHA512withRSA/PSS',
                                        'Signing Algorithm', 'NULL')]
             cls.add_policy_attributes(
                 Policy_definition, Signing_Alg_attributes)
