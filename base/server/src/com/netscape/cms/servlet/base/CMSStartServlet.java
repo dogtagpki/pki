@@ -48,7 +48,6 @@ public class CMSStartServlet extends HttpServlet {
     public static Logger logger = LoggerFactory.getLogger(CMSStartServlet.class);
 
     private static final long serialVersionUID = 515623839479425172L;
-    public final static String PROP_CMS_CFG = "cfgPath";
     public final static String PROP_CMS_ENGINE = "engine";
 
     public void init() throws ServletException {
@@ -59,19 +58,15 @@ public class CMSStartServlet extends HttpServlet {
         // get subsystem name by removing the / prefix from the context
         String subsystem = context.startsWith("/") ? context.substring(1) : context;
 
-        // get config path from web.xml
-        String path = getServletConfig().getInitParameter(PROP_CMS_CFG);
+        // catalina.base points to instance dir
+        // it's defined as CATALINA_BASE in <instance>/conf/tomcat.conf
+        String instanceDir = System.getProperty("catalina.base");
 
-        // if path not specified, use default path
-        if (path == null) {
-            // catalina.base points to instance dir
-            // it's defined as CATALINA_BASE in <instance>/conf/tomcat.conf
-            String instanceDir = System.getProperty("catalina.base");
+        String serverConfDir = instanceDir + File.separator + "conf";
+        String subsystemConfDir = serverConfDir + File.separator + subsystem;
 
-            // path: <instance>/conf/<subsystem>/CS.cfg
-            path = instanceDir + File.separator + "conf" + File.separator +
-                    subsystem + File.separator + "CS.cfg";
-        }
+        // path: <instance>/conf/<subsystem>/CS.cfg
+        String path = subsystemConfDir + File.separator + "CS.cfg";
 
         Class<?> engineClass = CMSEngine.class;
 
