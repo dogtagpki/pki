@@ -118,6 +118,7 @@ CLASSPATH=$CLASSPATH:/usr/share/java/idm-console-mcc.jar
 CLASSPATH=$CLASSPATH:/usr/share/java/idm-console-nmclf.jar
 CLASSPATH=$CLASSPATH:/usr/share/java/jakarta-commons-httpclient.jar
 CLASSPATH=$CLASSPATH:/usr/share/java/jaxb-api.jar
+CLASSPATH=$CLASSPATH:/usr/share/java/jaxb/jaxb-impl.jar
 CLASSPATH=$CLASSPATH:/usr/share/java/ldapjdk.jar
 CLASSPATH=$CLASSPATH:/usr/share/java/apache-commons-lang.jar
 CLASSPATH=$CLASSPATH:/usr/share/java/istack-commons-runtime.jar
