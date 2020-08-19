@@ -323,15 +323,10 @@
    <servlet>
       <servlet-name>  castart  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.CMSStartServlet  </servlet-class>
-             <init-param>
-                 <param-name>engine</param-name>
-                 <param-value>org.dogtagpki.server.ca.CAEngine</param-value>
-             </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
                          <param-value> BasicAclAuthz </param-value> </init-param>
              <init-param><param-name>  ID          </param-name>
                          <param-value> castart     </param-value> </init-param>
-      <load-on-startup>  1  </load-on-startup>
    </servlet>
 
    <servlet>

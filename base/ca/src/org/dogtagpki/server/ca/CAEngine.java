@@ -21,6 +21,9 @@ package org.dogtagpki.server.ca;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
+import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
+
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 
@@ -35,7 +38,8 @@ import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
-public class CAEngine extends CMSEngine {
+@WebListener
+public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public CAEngine() throws Exception {
         super("CA");
