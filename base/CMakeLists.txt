@@ -174,6 +174,14 @@ find_file(JAXB_API_JAR
         /usr/share/java
 )
 
+find_file(JAXB_IMPL_JAR
+    NAMES
+        jaxb-impl.jar
+    PATHS
+        /usr/share/java/jaxb
+        /usr/share/java
+)
+
 find_file(JSS_JAR
     NAMES
         jss4.jar
