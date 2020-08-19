@@ -18,6 +18,9 @@
 
 package org.dogtagpki.server.tks;
 
+import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -26,7 +29,8 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.tks.TKSAuthority;
 
-public class TKSEngine extends CMSEngine {
+@WebListener
+public class TKSEngine extends CMSEngine implements ServletContextListener {
 
     public TKSEngine() throws Exception {
         super("TKS");
