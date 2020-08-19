@@ -98,6 +98,7 @@ class PKICLI(pki.cli.CLI):
 
         java_path = os.getenv('PKI_JAVA_PATH')
         java_home = os.getenv('JAVA_HOME')
+        jre_home = os.getenv('JRE_HOME')
         pki_lib = os.getenv('PKI_LIB')
         logging_config = os.getenv('PKI_LOGGING_CONFIG')
 
@@ -105,6 +106,8 @@ class PKICLI(pki.cli.CLI):
 
         if os.path.exists(java_path):
             cmd.extend([java_path])
+        elif os.path.exists(jre_home + '/bin/java'):
+            cmd.extend([jre_home + '/bin/java'])
         elif os.path.exists(java_home + '/jre/bin/java'):
             cmd.extend([java_home + '/jre/bin/java'])
         elif os.path.exists(java_home + '/bin/java'):

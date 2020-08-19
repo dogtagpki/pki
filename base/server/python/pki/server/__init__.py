@@ -322,6 +322,7 @@ class PKIServer(object):
 
         java_path = os.getenv('PKI_JAVA_PATH')
         java_home = self.config.get('JAVA_HOME')
+        jre_home = self.config.get('JRE_HOME')
         java_opts = self.config.get('JAVA_OPTS')
         security_manager = self.config.get('SECURITY_MANAGER')
 
@@ -345,6 +346,8 @@ class PKIServer(object):
         else:
             if os.path.exists(java_path):
                 cmd.extend([java_path])
+            elif os.path.exists(jre_home + '/bin/java'):
+                cmd.extend([jre_home + '/bin/java'])
             elif os.path.exists(java_home + '/jre/bin/java'):
                 cmd.extend([java_home + '/jre/bin/java'])
             elif os.path.exists(java_home + '/bin/java'):

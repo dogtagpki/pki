@@ -73,6 +73,8 @@ ARCHITECTURE=`arch`
 
 if [ -e "${PKI_JAVA_PATH}" ]; then
     JAVA="${PKI_JAVA_PATH}"
+elif [ -e "${JRE_HOME}/bin/java" ]; then
+    JAVA="${JRE_HOME}/bin/java"
 elif [ -e "${JAVA_HOME}/jre/bin/java" ]; then
     JAVA="${JAVA_HOME}/jre/bin/java"
 elif [ -e "${JAVA_HOME}/bin/java" ]; then

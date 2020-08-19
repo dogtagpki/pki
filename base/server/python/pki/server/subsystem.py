@@ -1081,6 +1081,7 @@ class PKISubsystem(object):
 
         java_path = os.getenv('PKI_JAVA_PATH')
         java_home = self.instance.config['JAVA_HOME']
+        jre_home = self.instance.config['JRE_HOME']
         java_opts = self.instance.config['JAVA_OPTS']
 
         classpath = [
@@ -1104,6 +1105,8 @@ class PKISubsystem(object):
 
         if os.path.exists(java_path):
             cmd.extend([java_path])
+        elif os.path.exists(jre_home + '/bin/java'):
+            cmd.extend([jre_home + '/bin/java'])
         elif os.path.exists(java_home + '/jre/bin/java'):
             cmd.extend([java_home + '/jre/bin/java'])
         elif os.path.exists(java_home + '/bin/java'):

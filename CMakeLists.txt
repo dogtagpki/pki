@@ -83,6 +83,20 @@ endif ()
 find_package(Java REQUIRED)
 find_package(JNI REQUIRED)
 
+# For convenience, update helpful variables if unset.
+if (NOT JRE_HOME)
+    if (EXISTS "${JAVA_HOME}/jre")
+        set(JRE_HOME "${JAVA_HOME}/jre")
+    else ()
+        set(JRE_HOME "${JAVA_HOME}")
+    endif ()
+endif ()
+if (NOT PKI_JAVA_PATH)
+    if (EXISTS "${JRE_HOME}/bin/java")
+        set(PKI_JAVA_PATH "${JRE_HOME}/bin/java")
+    endif ()
+endif ()
+
 # ONLY required for PKI_CORE
 if (BUILD_PKI_CORE)
     find_package(Ldap REQUIRED)

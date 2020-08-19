@@ -257,6 +257,7 @@ class PKIConfigParser:
     def init_config(self, pki_instance_name=None):
         self.deployer.nss_db_type = self.get_nss_db_type()
         java_home = self._getenv('JAVA_HOME').strip()
+        jre_home = self._getenv('JRE_HOME').strip()
 
         # Check if a instance name is provided before assigning a default
         # instance_name
@@ -281,6 +282,7 @@ class PKIConfigParser:
             'pki_subsystem_type': self.deployer.subsystem_name.lower(),
             'nss_default_db_type': self.deployer.nss_db_type,
             'java_home': java_home,
+            'jre_home': jre_home,
             'home_dir': os.path.expanduser("~"),
             'pki_hostname': self.deployer.hostname,
             'pki_random_ajp_secret': pki.generate_password()})
