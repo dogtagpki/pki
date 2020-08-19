@@ -34,6 +34,7 @@
 	<classpathentry kind="lib" path="/usr/share/java/junit.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jaxb-api.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jaxb/jaxb-impl.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpclient.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpcore.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jboss-jaxrs-2.0-api.jar"/>
