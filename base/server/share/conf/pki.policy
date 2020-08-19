@@ -48,6 +48,10 @@ grant codeBase "file:/usr/share/java/jaxb-api.jar" {
         permission java.security.AllPermission;
 };
 
+grant codeBase "file:/usr/share/java/jaxb/jaxb-impl.jar" {
+        permission java.security.AllPermission;
+};
+
 grant codeBase "file:/usr/share/java/jaxme/jaxmeapi.jar" {
         permission java.security.AllPermission;
 };
