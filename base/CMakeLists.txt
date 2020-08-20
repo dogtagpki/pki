@@ -182,6 +182,20 @@ find_file(JAXB_IMPL_JAR
         /usr/share/java
 )
 
+find_file(JAKARTA_ACTIVATION_JAR
+    NAMES
+        jakarta.activation.jar
+        jakarta-activation.jar
+        jaxb.activation.jar
+        jaxb-activation.jar
+    PATHS
+        /usr/share/java/jakarta-activation
+        /usr/share/java/jakarta
+        /usr/share/java/jaxb-activation
+        /usr/share/java/jaxb
+        /usr/share/java
+)
+
 find_file(JSS_JAR
     NAMES
         jss4.jar

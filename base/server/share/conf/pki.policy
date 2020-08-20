@@ -52,6 +52,10 @@ grant codeBase "file:/usr/share/java/jaxb/jaxb-impl.jar" {
         permission java.security.AllPermission;
 };
 
+grant codeBase "file:/usr/share/java/jakarta-activation/jakarta.activation.jar" {
+        permission java.security.AllPermission;
+};
+
 grant codeBase "file:/usr/share/java/jaxme/jaxmeapi.jar" {
         permission java.security.AllPermission;
 };
