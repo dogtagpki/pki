@@ -13,10 +13,10 @@ jobs:
 
       name: Build PKI
       runs-on: ubuntu-latest
-      container: fedora:${{ matrix.os }}
+      container: registry.fedoraproject.org/fedora:${{ matrix.os }}
       strategy:
           matrix:
-            os: ['31', '32']
+            os: ['31', '32', '33']
       steps:
           - name: Update base image
             run: |
@@ -56,10 +56,10 @@ jobs:
       runs-on: ubuntu-latest
       env:
         COPR_REPO: "@pki/master"
-      container: fedora:${{ matrix.os }}
+      container: registry.fedoraproject.org/fedora:${{ matrix.os }}
       strategy:
           matrix:
-            os: ['31', '32']
+            os: ['31', '32', '33']
       steps:
         - name: Update base image
           run: |
@@ -103,7 +103,7 @@ jobs:
         COPR_REPO: "@pki/master"
       strategy:
         matrix:
-          os: ['31', '32']
+          os: ['31', '32', '33']
       steps:
         - name: Clone the repository
           uses: actions/checkout@v2
@@ -208,7 +208,7 @@ jobs:
         test_set: "test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_ca_plugin.py test_vault_plugin.py"
       strategy:
         matrix:
-          os: ['31', '32']
+          os: ['31', '32', '33']
       steps:
         - name: Clone the repository
           uses: actions/checkout@v2
