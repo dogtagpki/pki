@@ -52,6 +52,8 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 ################################################################################
 
 %define java_home /usr/lib/jvm/jre-openjdk
+%define java_devel java-devel
+%define java_headless java-headless
 
 %if 0%{?fedora} && 0%{?fedora} >= 33
 %define min_java_version 1:11
@@ -157,7 +159,7 @@ BuildRequires:    make
 BuildRequires:    cmake >= 3.0.2
 BuildRequires:    gcc-c++
 BuildRequires:    zip
-BuildRequires:    java-devel >= %{min_java_version}
+BuildRequires:    %java_devel >= %{min_java_version}
 BuildRequires:    javapackages-tools
 BuildRequires:    redhat-rpm-config
 BuildRequires:    ldapjdk >= 4.22.0
@@ -331,7 +333,7 @@ PKI consists of the following components:
 
 Summary:          PKI Symmetric Key Package
 
-Requires:         java-headless >= %{min_java_version}
+Requires:         %java_headless >= %{min_java_version}
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.7.0
 Requires:         nss >= 3.38.0
@@ -399,7 +401,7 @@ This package contains PKI client library for Python 3.
 Summary:          PKI Base Java Package
 BuildArch:        noarch
 
-Requires:         java-headless >= %{min_java_version}
+Requires:         %java_headless >= %{min_java_version}
 Requires:         apache-commons-cli
 Requires:         apache-commons-codec
 Requires:         apache-commons-io
@@ -492,6 +494,7 @@ Requires:         tomcat >= 1:9.0.7
 %endif
 
 Requires:         velocity
+Requires:         sudo
 Requires:         systemd
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
