@@ -924,8 +924,8 @@ def log_error_details():
     e_type, e_value, e_stacktrace = sys.exc_info()
     stacktrace_list = traceback.format_list(traceback.extract_tb(e_stacktrace))
     e_stacktrace = "%s: %s\n" % (e_type.__name__, e_value)
-    for l in stacktrace_list:
-        e_stacktrace += l
+    for trace in stacktrace_list:
+        e_stacktrace += trace
     logger.error(e_stacktrace)
     del e_type, e_value, e_stacktrace
 
