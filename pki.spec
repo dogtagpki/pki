@@ -52,15 +52,14 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 ################################################################################
 
 %define java_home /usr/lib/jvm/jre-openjdk
-
-%if 0%{?fedora} && 0%{?fedora} >= 33
-%define min_java_version 1:1.8.0
-%define java_devel java-1.8.0-openjdk-devel
-%define java_headless java-1.8.0-openjdk-headless
-%else
-%define min_java_version 1:1.8.0
 %define java_devel java-devel
 %define java_headless java-headless
+
+%if 0%{?fedora} && 0%{?fedora} >= 33
+%define min_java_version 1:11
+%define is_java_11 1
+%else
+%define min_java_version 1:1.8.0
 %endif
 
 ################################################################################
@@ -429,9 +428,13 @@ Requires:         resteasy >= 3.0.26
 Requires:         resteasy-atom-provider >= 3.0.17-1
 Requires:         resteasy-client >= 3.0.17-1
 Requires:         resteasy-jaxb-provider >= 3.0.17-1
-Requires:         jaxb-impl
 Requires:         resteasy-core >= 3.0.17-1
 Requires:         resteasy-jackson2-provider >= 3.0.17-1
+%endif
+
+%if 0%{?is_java_11}
+Requires:         jaxb-impl >= 2.3.3
+Requires:         jakarta-activation >= 1.2.2
 %endif
 
 Requires:         xalan-j2
