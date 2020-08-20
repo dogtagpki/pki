@@ -423,9 +423,13 @@ Requires:         resteasy >= 3.0.26
 Requires:         resteasy-atom-provider >= 3.0.17-1
 Requires:         resteasy-client >= 3.0.17-1
 Requires:         resteasy-jaxb-provider >= 3.0.17-1
-Requires:         jaxb-impl
 Requires:         resteasy-core >= 3.0.17-1
 Requires:         resteasy-jackson2-provider >= 3.0.17-1
+%endif
+
+%if 0%{?fedora} && 0%{?fedora} >= 33
+Requires:         jaxb-impl >= 2.3.3
+Requires:         jakarta-activation >= 1.2.2
 %endif
 
 Requires:         xalan-j2
