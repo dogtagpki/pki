@@ -198,10 +198,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Export CA certificate to PEM file; same command as in
             # PKIServer.setup_cert_authentication().
             # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes -nokeys
+            pki_ca_crt_path = os.path.join(pki_server_database_path, 'ca.crt')
             cmd_export_ca = [
                 'openssl', 'pkcs12',
                 '-in', pki_clone_pkcs12_path,
-                '-out', os.path.join(pki_server_database_path, 'ca.crt'),
+                '-out', pki_ca_crt_path,
                 '-nodes',
                 '-nokeys',
                 '-passin', 'pass:' + pki_clone_pkcs12_password
@@ -209,6 +210,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             res_ca = subprocess.check_output(cmd_export_ca,
                                              stderr=subprocess.STDOUT).decode('utf-8')
             logger.debug('Result of CA certificate export: %s', res_ca)
+
+            # At this point, we're running as root. However, the subsystem
+            # will eventually start up as non-root and will attempt to do a
+            # migration. If we don't fix the permissions now, migration will
+            # fail and subsystem won't start up.
+            pki.util.chmod(pki_ca_crt_path, 0o644)
+            pki.util.chown(pki_ca_crt_path, deployer.mdict['pki_uid'],
+                           deployer.mdict['pki_gid'])
 
         ca_cert_path = deployer.mdict.get('pki_cert_chain_path')
         if ca_cert_path and os.path.exists(ca_cert_path):
