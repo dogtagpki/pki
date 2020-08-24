@@ -10,6 +10,8 @@ Environment="NAME=%i"
 Environment="STARTED_BY_SYSTEMD=1"
 Environment="WD_PIPE_NAME=%i"
 EnvironmentFile=-/etc/sysconfig/%i
+EnvironmentFile=/usr/share/pki/etc/pki.conf
+EnvironmentFile=/etc/pki/pki.conf
 
 ExecStartPre=+/usr/bin/setfacl -m u:pkiuser:wx /run/systemd/ask-password
 ExecStartPre=/usr/bin/pki-server-nuxwdog
