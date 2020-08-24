@@ -1,3 +1,6 @@
+- name: Sleep for a while to give time of any other instances to come up.
+  shell: sleep 7s
+
 - name: Install KRA master
   shell: pkispawn -s KRA -f /tmp/test_dir/kra.cfg
 
@@ -26,8 +29,6 @@
   block:
   - name: Checking for right CA certificate and picking default name
     shell: sed -i "s/ocspSigningCert cert-pki-ca/Directory Server CA certificate/g" /etc/pki/{{ topology }}-KRA/server.xml
-    notify:
-      - STARTKRA
   when: tls_ldap == "true"
 
 - name: Enable OCSP Policy to Native for tls as false
@@ -37,8 +38,6 @@
 
   - name: Importing OCSP certificate in kra nssdb
     shell: certutil -A -d /etc/pki/{{ topology }}-KRA/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
-    notify:
-      - STARTKRA
 
   - name: Removing file generated with password
     file:
@@ -47,3 +46,8 @@
     with_items:
       -  /tmp/test_dir/certutil_password
   when: tls_ldap == "false"
+
+- name: Starting KRA Subsystem
+  service:
+    name: pki-tomcatd@{{ topology }}-KRA.service
+    state: started

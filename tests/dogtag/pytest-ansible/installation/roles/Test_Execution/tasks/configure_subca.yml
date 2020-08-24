@@ -1,7 +1,10 @@
-- name: Install CA master
+- name: Sleep for a while to give time of any other instances to come up.
+  shell: sleep 5s
+
+- name: Install SubCA
   shell: pkispawn -s CA -f /tmp/test_dir/subca.cfg
 
-- name : Stopping CA Subsystem
+- name : Stopping SubCA Subsystem
   shell: systemctl stop pki-tomcatd@{{ topology }}-CA.service
 
 - name: Enable SignedAudit for Subsystem
@@ -14,5 +17,7 @@
 - name: Importing client certificate for OCSP
   shell: certutil -L -d /var/lib/pki/{{ topology }}-CA/alias -n "{{ nickname_ocsp.stdout }}" -a > /tmp/test_dir/ocsp_signing.crt
 
-- name : Starting CA Subsystem
-  shell: systemctl start pki-tomcatd@{{ topology }}-CA.service
+- name: Starting SubCA Subsystem
+  service:
+    name: pki-tomcatd@{{ topology }}-CA.service
+    state: started

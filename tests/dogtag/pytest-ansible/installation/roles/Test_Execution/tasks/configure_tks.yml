@@ -1,3 +1,6 @@
+- name: Sleep for a while to give time of any other instances to come up.
+  shell: sleep 7s
+
 - name: Install TKS master
   shell: pkispawn -s TKS -f /tmp/test_dir/tks.cfg
 
@@ -26,8 +29,6 @@
   block:
   - name: Checking for right CA certificate
     shell: sed -i "s/ocspSigningCert cert-pki-ca/Directory Server CA certificate/g" /etc/pki/{{ topology }}-TKS/server.xml
-    notify:
-      - STARTTKS
   when: tls_ldap == "true"
 
 - name: Enable OCSP Policy to Native for tls as false
@@ -37,8 +38,6 @@
 
   - name: Importing OCSP certificate in TKS nssdb
     shell: certutil -A -d /etc/pki/{{ topology }}-TKS/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
-    notify:
-      - STARTTKS
 
   - name: Removing file generated with password
     file:
@@ -49,6 +48,11 @@
   when: tls_ldap == "false"
 
 - meta: flush_handlers
+
+- name: Starting TKS Subsystem
+  service:
+    name: pki-tomcatd@{{ topology }}-TKS.service
+    state: started
 
 - name: Sleep for a while to start TKS
   shell: sleep 3s

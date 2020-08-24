@@ -1,5 +1,5 @@
 - name: sleep
-  shell: sleep 5s
+  shell: sleep 10s
   
 - name: Install OCSP master
   shell: pkispawn -s OCSP -f /tmp/test_dir/ocsp.cfg
@@ -27,8 +27,6 @@
   block:
   - name: Checking for right CA certificate
     shell: sed -i "s/ocspSigningCert cert-pki-ca/Directory Server CA certificate/g" /etc/pki/{{ topology }}-OCSP/server.xml
-    notify:
-      - STARTOCSP
   when: tls_ldap == "true"
 
 
@@ -39,8 +37,6 @@
 
   - name: Importing OCSP certificate in ocsp nssdb
     shell: certutil -A -d /etc/pki/{{ topology }}-OCSP/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
-    notify:
-      - STARTOCSP
 
   - name: Removing file generated with password
     file:
@@ -49,3 +45,8 @@
     with_items:
       -  /tmp/test_dir/certutil_password
   when: tls_ldap == "false"
+
+- name: Starting OCSP Subsystem
+  service:
+    name: pki-tomcatd@{{ topology }}-OCSP.service
+    state: started
