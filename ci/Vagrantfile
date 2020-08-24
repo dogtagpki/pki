@@ -7,22 +7,9 @@ Vagrant.configure("2") do |config|
   config.vm.box = "fedora/RELEASE-cloud-base"
   config.vm.synced_folder "./", "/vagrant", type: "virtualbox"
 
-  config.vm.provider :virtualbox do |domain, override|
-    # Defaults for masters and clone
-    # WARNING: Do not overcommit CPUs, it causes issues during
-    # provisioning, when RPMs are installed
-    domain.cpus = 1
-
-    # GH hosted runners provide 8GB. Use conservatively if provisioning a clone VM
-    # Note: Assigning 3000 causes the provisioning to fail sometimes
-    domain.memory = 2750
-
-  end
-
   config.vm.define "controller" , primary: true do |controller|
-    config.vm.provider :virtualbox do |domain, override|
-      # Less resources needed for controller
-      domain.memory = 930
+    controller.vm.provider :virtualbox do |vb|
+          vb.customize ["modifyvm", :id, "--memory", "950"]
     end
     controller.vm.provision "ansible_local" do |ansible|
       # Disable default limit to connect to all the machines
@@ -42,6 +29,9 @@ Vagrant.configure("2") do |config|
   config.vm.define "master"  do |master|
     master.vm.network :private_network, ip: "MASTER_IP"
     master.vm.provision "shell", inline: "find /vagrant -name '*.rpm' -and -not -name '*debuginfo*' | xargs sudo dnf -y install"
+    master.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "2750"]
+    end
   end
 
 #  config.vm.define "clone0"  do |clone0|

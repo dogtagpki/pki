@@ -98,8 +98,11 @@ jobs:
           run: vagrant plugin install vagrant-vbguest
 
         # Don't provision the VMs as they might not be ready for inter communication
-        - name: Boot the VMs without provisioning
-          run: vagrant up --no-provision
+        - name: Boot the "controller" VM without provisioning
+          run: vagrant up controller --no-provision
+
+        - name: Boot the "master" without provisioning
+          run: vagrant up master --no-provision
 
         - name: Install the built PKI packages on "master"
           run: vagrant provision master
