@@ -19,6 +19,7 @@ import pki.server.instance
 
 # TODO: auto-populate this map from /usr/share/pki/acme/database
 DATABASE_CLASSES = {
+    'ds': 'org.dogtagpki.acme.database.DSDatabase',
     'in-memory': 'org.dogtagpki.acme.database.InMemoryDatabase',
     'ldap': 'org.dogtagpki.acme.database.LDAPDatabase',
     'openldap': 'org.dogtagpki.acme.database.OpenLDAPDatabase',
@@ -608,7 +609,7 @@ class ACMEDatabaseShowCLI(pki.cli.CLI):
         database_type = DATABASE_TYPES.get(database_class)
         print('  Database Type: %s' % database_type)
 
-        if database_type in ['ldap', 'openldap']:
+        if database_type in ['ds', 'ldap', 'openldap']:
 
             url = config.get('url')
             if url:
@@ -787,7 +788,7 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
             config.pop('user', None)
             config.pop('password', None)
 
-        elif database_type in ['ldap', 'openldap']:
+        elif database_type in ['ds', 'ldap', 'openldap']:
 
             print()
             print('Enter the location of the LDAP server '
