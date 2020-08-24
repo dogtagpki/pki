@@ -119,6 +119,7 @@ class MigrateCLI(pki.cli.CLI):
         self.migrate_nssdb(instance)
         self.migrate_tomcat(instance, tomcat_version)
         self.migrate_subsystems(instance, tomcat_version)
+        self.migrate_service(instance)
 
     def migrate_nssdb(self, instance):
 
@@ -601,3 +602,45 @@ class MigrateCLI(pki.cli.CLI):
 
         os.symlink(source, dest)
         os.lchown(dest, instance.uid, instance.gid)
+
+    def migrate_service(self, instance):
+        self.migrate_service_java_home(instance)
+
+    def migrate_service_java_home(self, instance):
+        # When JAVA_HOME in the Tomcat service config differs from the
+        # value in /usr/share/pki/etc/pki.conf, update the value in
+        # the service config.
+
+        if "JAVA_HOME" not in os.environ or not os.environ["JAVA_HOME"]:
+            logger.debug("Refusing to migrate JAVA_HOME with missing environment variable")
+
+        java_home = os.environ["JAVA_HOME"]
+
+        # Update in /etc/sysconfig/<instance>
+        result = self.update_java_home_in_config(instance.service_conf, java_home)
+        self.write_config(instance.service_conf, result)
+
+        # Update in /etc/pki/<instance>/tomcat.conf
+        result = self.update_java_home_in_config(instance.tomcat_conf, java_home)
+        self.write_config(instance.tomcat_conf, result)
+
+    def update_java_home_in_config(self, path, new_value):
+        result = []
+
+        with open(path, 'r') as conf_fp:
+            for line in conf_fp:
+                target="JAVA_HOME="
+                if target not in line:
+                    result.append(line)
+                else:
+                    target_offset = line.index(target)
+                    prefix = line[:target_offset]
+                    new_line = prefix + target + '"' + new_value + '"\n'
+                    result.append(new_line)
+
+        return result
+
+    def write_config(self, path, output):
+        with open(path, 'w') as conf_fp:
+            for line in output:
+                print(line, end='', file=conf_fp)
