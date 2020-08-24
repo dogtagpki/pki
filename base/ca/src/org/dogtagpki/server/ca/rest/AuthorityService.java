@@ -80,6 +80,8 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
     @Override
     public Response findCAs(String id, String parentID, String dn, String issuerDN) throws Exception {
 
+        logger.info("AuthorityService: getting authorities:");
+
         X500Name x500dn = dn == null ? null : new X500Name(dn);
         X500Name x500issuerDN = issuerDN == null ? null : new X500Name(issuerDN);
 
@@ -89,18 +91,30 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
             AuthorityData authority = readAuthorityData(ca);
 
+            // search by ID
             if (id != null && !id.equalsIgnoreCase(authority.getID())) continue;
+
+            // search by parent ID
             if (parentID != null && !parentID.equalsIgnoreCase(authority.getParentID())) continue;
 
+            // search by DN
             if (x500dn != null) {
                 X500Name caDN = new X500Name(authority.getDN());
                 if (!x500dn.equals(caDN)) continue;
             }
 
+            // search by issuer DN
             if (x500issuerDN != null) {
                 X500Name caIssuerDN = new X500Name(authority.getIssuerDN());
                 if (!x500issuerDN.equals(caIssuerDN)) continue;
             }
+
+            logger.info("AuthorityService: - ID: " + authority.getID());
+            logger.info("AuthorityService:   DN: " + authority.getDN());
+            if (authority.getParentID() != null) {
+                logger.info("AuthorityService:   Parent ID: " + authority.getParentID());
+            }
+            logger.info("AuthorityService:   Issuer DN: " + authority.getIssuerDN());
 
             results.add(authority);
         }
@@ -113,6 +127,9 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
     @Override
     public Response getCA(String aidString) {
+
+        logger.info("AuthorityService: getting authority " + aidString + ":");
+
         CertificateAuthority ca = hostCA;
 
         if (!AuthorityResource.HOST_AUTHORITY.equals(aidString)) {
@@ -128,11 +145,22 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
                 throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
         }
 
-        return createOKResponse(readAuthorityData(ca));
+        AuthorityData authority = readAuthorityData(ca);
+
+        logger.info("AuthorityService:   DN: " + authority.getDN());
+        if (authority.getParentID() != null) {
+            logger.info("AuthorityService:   Parent ID: " + authority.getParentID());
+        }
+        logger.info("AuthorityService:   Issuer DN: " + authority.getIssuerDN());
+
+        return createOKResponse(authority);
     }
 
     @Override
     public Response getCert(String aidString) {
+
+        logger.info("AuthorityService: getting cert for authority " + aidString);
+
         AuthorityID aid;
         try {
             aid = new AuthorityID(aidString);
@@ -165,6 +193,9 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
     @Override
     public Response getChain(String aidString) {
+
+        logger.info("AuthorityService: getting cert chain for authority " + aidString);
+
         AuthorityID aid;
         try {
             aid = new AuthorityID(aidString);
@@ -199,6 +230,9 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
     @Override
     public Response createCA(AuthorityData data) {
+
+        logger.info("AuthorityService: creating authority " + data.getDN());
+
         String parentAIDString = data.getParentID();
         AuthorityID parentAID = null;
         if (AuthorityResource.HOST_AUTHORITY.equals(parentAIDString)) {
@@ -248,6 +282,9 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
     @Override
     public Response modifyCA(String aidString, AuthorityData data) {
+
+        logger.info("AuthorityService: modifying authority " + aidString);
+
         AuthorityID aid = null;
         try {
             aid = new AuthorityID(aidString);
@@ -260,13 +297,18 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
         Map<String, String> auditParams = new LinkedHashMap<>();
-        if (data.getEnabled() != ca.getAuthorityEnabled())
+        if (data.getEnabled() != ca.getAuthorityEnabled()) {
+            logger.info("AuthorityService:   enabled: " + data.getEnabled());
             auditParams.put("enabled", data.getEnabled().toString());
+        }
+
         String curDesc = ca.getAuthorityDescription();
         String newDesc = data.getDescription();
         if (curDesc != null && !curDesc.equals(newDesc)
-                || curDesc == null && newDesc != null)
+                || curDesc == null && newDesc != null) {
+            logger.info("AuthorityService:   description: " + data.getDescription());
             auditParams.put("description", data.getDescription());
+        }
 
         try {
             ca.modifyAuthority(data.getEnabled(), data.getDescription());
@@ -305,6 +347,9 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
     @Override
     public Response renewCA(String aidString) {
+
+        logger.info("AuthorityService: renewing cert for authority " + aidString);
+
         AuthorityID aid = null;
         try {
             aid = new AuthorityID(aidString);
@@ -337,6 +382,9 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
     @Override
     public Response deleteCA(String aidString) {
+
+        logger.info("AuthorityService: deleting authority " + aidString);
+
         AuthorityID aid = null;
         try {
             aid = new AuthorityID(aidString);
@@ -419,5 +467,4 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
                 auditor.getParamString(ScopeDef.SC_AUTHORITY, op, id, params));
         signedAuditLogger.log(msg);
     }
-
 }
