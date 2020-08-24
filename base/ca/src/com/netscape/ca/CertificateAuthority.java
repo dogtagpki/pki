@@ -32,14 +32,12 @@ import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.interfaces.RSAKey;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -2433,9 +2431,9 @@ public class CertificateAuthority
          *    Otherwise, we move forward to generate and sign the
          *    aggregate OCSP response.
          */
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ocspCA = this;
-        if (CAEngine.authorities.size() > 0 && tbsReq.getRequestCount() > 0) {
+        if (engine.getCAs().size() > 0 && tbsReq.getRequestCount() > 0) {
             Request req = tbsReq.getRequestAt(0);
             BigInteger serialNo = req.getCertID().getSerialNumber();
             X509CertImpl cert = mCertRepot.getX509Certificate(serialNo);
@@ -2707,19 +2705,6 @@ public class CertificateAuthority
     }
 
     /**
-     * Enumerate all authorities (including host authority)
-     */
-    public List<CertificateAuthority> getCAs() {
-        List<CertificateAuthority> cas = new ArrayList<>();
-        synchronized (CAEngine.authorities) {
-            for (CertificateAuthority ca : CAEngine.authorities.values()) {
-                cas.add(ca);
-            }
-        }
-        return cas;
-    }
-
-    /**
      * Get authority by ID.
      *
      * @param aid The ID of the CA to retrieve, or null
@@ -2732,10 +2717,13 @@ public class CertificateAuthority
     }
 
     public CertificateAuthority getCA(X500Name dn) {
-        for (CertificateAuthority ca : getCAs()) {
+
+        CAEngine engine = CAEngine.getInstance();
+        for (CertificateAuthority ca : engine.getCAs()) {
             if (ca.getX500Name().equals(dn))
                 return ca;
         }
+
         return null;
     }
 
@@ -2776,7 +2764,9 @@ public class CertificateAuthority
 
     private void ensureAuthorityDNAvailable(X500Name dn)
             throws IssuerUnavailableException {
-        for (CertificateAuthority ca : getCAs()) {
+
+        CAEngine engine = CAEngine.getInstance();
+        for (CertificateAuthority ca : engine.getCAs()) {
             if (ca.getX500Name().equals(dn))
                 throw new IssuerUnavailableException(
                     "DN '" + dn + "' is used by an existing authority");
@@ -3186,14 +3176,17 @@ public class CertificateAuthority
         if (authorityEnabled)
             throw new CAEnabledException("Must disable CA before deletion");
 
+        CAEngine engine = CAEngine.getInstance();
         boolean hasSubCAs = false;
-        for (CertificateAuthority ca : getCAs()) {
+
+        for (CertificateAuthority ca : engine.getCAs()) {
             AuthorityID parentAID = ca.getAuthorityParentID();
             if (parentAID != null && parentAID.equals(this.authorityID)) {
                 hasSubCAs = true;
                 break;
             }
         }
+
         if (hasSubCAs)
             throw new CANotLeafException("CA with sub-CAs cannot be deleted (delete sub-CAs first)");
 

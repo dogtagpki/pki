@@ -19,8 +19,10 @@
 package org.dogtagpki.server.ca;
 
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -119,6 +121,17 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
      */
     public CertificateAuthority getCA() {
         return (CertificateAuthority) getSubsystem(CertificateAuthority.ID);
+    }
+
+    /**
+     * Enumerate all authorities (including host authority)
+     */
+    public List<CertificateAuthority> getCAs() {
+        List<CertificateAuthority> list = new ArrayList<>();
+        synchronized (authorities) {
+            list.addAll(authorities.values());
+        }
+        return list;
     }
 
     public ProfileSubsystem getProfileSubsystem() {

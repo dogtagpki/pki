@@ -88,7 +88,8 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
         List<AuthorityData> results = new ArrayList<>();
 
-        for (CertificateAuthority ca : hostCA.getCAs()) {
+        CAEngine engine = CAEngine.getInstance();
+        for (CertificateAuthority ca : engine.getCAs()) {
 
             AuthorityData authority = readAuthorityData(ca);
 
