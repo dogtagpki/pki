@@ -186,13 +186,13 @@ find_file(JAKARTA_ACTIVATION_JAR
     NAMES
         jakarta.activation.jar
         jakarta-activation.jar
-        jaxb.activation.jar
-        jaxb-activation.jar
+        javax.activation.jar
+        javax-activation.jar
     PATHS
         /usr/share/java/jakarta-activation
         /usr/share/java/jakarta
-        /usr/share/java/jaxb-activation
-        /usr/share/java/jaxb
+        /usr/share/java/javax-activation
+        /usr/share/java/javax
         /usr/share/java
 )
 
