@@ -27,5 +27,8 @@
     - tks
     - tps
 
-- name : Starting pki-tomcat Instance
-  shell: systemctl start pki-tomcatd@pki-tomcat.service
+
+- name: Starting pki-tomcat Instance
+  service:
+    name: pki-tomcatd@pki-tomcat.service
+    state: started

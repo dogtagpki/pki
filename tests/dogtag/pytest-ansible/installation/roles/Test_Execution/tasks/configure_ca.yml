@@ -31,4 +31,6 @@
   when: debug == "true" or ca_debug == "true"
 
 - name: Starting CA Subsystem
-  shell: systemctl start pki-tomcatd@{{ topology }}-CA.service
+  service:
+    name: pki-tomcatd@{{ topology }}-CA.service
+    state: started
