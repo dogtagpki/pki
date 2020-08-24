@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.apache.commons.net.ntp.TimeStamp;
 import org.dogtagpki.ct.sct.SCTProcessor;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
@@ -80,7 +81,9 @@ public class CTEngine {
             throws EBaseException {
 
         String method = "CTEngine.process: ";
-        CertificateAuthority ca = ctCA.getCA(aid);
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA(aid);
         String errMsg = "";
 
         try {

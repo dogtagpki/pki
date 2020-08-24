@@ -345,10 +345,13 @@ public class RequestProcessor extends CertProcessor {
         if (ca == null)
             // this shouldn't happen
             throw new CANotFoundException("Could not get host authority");  // shouldn't happen
-        ca = ca.getCA(aid);
+
+        ca = engine.getCA(aid);
+
         if (ca == null)
             // this shouldn't happen because request was already accepted
             throw new CANotFoundException("Unknown CA: " + aidString);
+
         ca.ensureReady();
     }
 

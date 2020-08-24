@@ -170,8 +170,10 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
 
         String aidString = request.getExtDataInString(
                 IRequest.AUTHORITY_ID);
+
         if (aidString != null)
-            ca = ca.getCA(new AuthorityID(aidString));
+            ca = engine.getCA(new AuthorityID(aidString));
+
         if (ca == null)
             throw new EProfileException("Could not reach requested CA");
 

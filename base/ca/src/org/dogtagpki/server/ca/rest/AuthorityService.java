@@ -132,7 +132,8 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
         logger.info("AuthorityService: getting authority " + aidString + ":");
 
-        CertificateAuthority ca = hostCA;
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
 
         if (!AuthorityResource.HOST_AUTHORITY.equals(aidString)) {
             AuthorityID aid;
@@ -142,7 +143,8 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
                 throw new BadRequestException("Bad AuthorityID: " + aidString);
             }
 
-            ca = hostCA.getCA(aid);
+            ca = engine.getCA(aid);
+
             if (ca == null)
                 throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
         }
@@ -170,7 +172,9 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
-        CertificateAuthority ca = hostCA.getCA(aid);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA(aid);
+
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
@@ -205,7 +209,9 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
-        CertificateAuthority ca = hostCA.getCA(aid);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA(aid);
+
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
@@ -294,7 +300,9 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
-        CertificateAuthority ca = hostCA.getCA(aid);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA(aid);
+
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
@@ -359,7 +367,9 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
-        CertificateAuthority ca = hostCA.getCA(aid);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA(aid);
+
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
@@ -394,7 +404,9 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
-        CertificateAuthority ca = hostCA.getCA(aid);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA(aid);
+
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 

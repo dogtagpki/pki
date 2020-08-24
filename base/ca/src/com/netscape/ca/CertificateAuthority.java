@@ -2704,18 +2704,6 @@ public class CertificateAuthority
             null /* nextUpdate */);
     }
 
-    /**
-     * Get authority by ID.
-     *
-     * @param aid The ID of the CA to retrieve, or null
-     *             to retreive the host authority.
-     *
-     * @return the authority, or null if not found
-     */
-    public CertificateAuthority getCA(AuthorityID aid) {
-        return aid == null ? hostCA : CAEngine.authorities.get(aid);
-    }
-
     public CertificateAuthority getCA(X500Name dn) {
 
         CAEngine engine = CAEngine.getInstance();
@@ -2751,7 +2739,10 @@ public class CertificateAuthority
             String subjectDN, AuthorityID parentAID,
             String description)
             throws EBaseException {
-        CertificateAuthority parentCA = getCA(parentAID);
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority parentCA = engine.getCA(parentAID);
+
         if (parentCA == null)
             throw new CANotFoundException(
                 "Parent CA \"" + parentAID + "\" does not exist");
@@ -2939,13 +2930,13 @@ public class CertificateAuthority
      */
     public void renewAuthority(HttpServletRequest httpReq) throws Exception {
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         if (
             authorityParentID != null
             && !authorityParentID.equals(authorityID)
         ) {
-            CertificateAuthority issuer = getCA(authorityParentID);
+            CertificateAuthority issuer = engine.getCA(authorityParentID);
             issuer.ensureReady();
         }
 

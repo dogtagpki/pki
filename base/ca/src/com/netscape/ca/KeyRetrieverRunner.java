@@ -173,7 +173,7 @@ public class KeyRetrieverRunner implements Runnable {
          * CA instance in the CAEngine might
          * have been replaced, so look it up afresh.
          */
-        CertificateAuthority ca = certificateAuthority.getCA(aid);
+        CertificateAuthority ca = engine.getCA(aid);
         if (ca == null) {
             /* We got the key, but the authority has been
              * deleted.  Do not retry.

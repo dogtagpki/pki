@@ -134,6 +134,18 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return list;
     }
 
+    /**
+     * Get authority by ID.
+     *
+     * @param aid The ID of the CA to retrieve, or null
+     *             to retreive the host authority.
+     *
+     * @return the authority, or null if not found
+     */
+    public CertificateAuthority getCA(AuthorityID aid) {
+        return aid == null ? getCA() : authorities.get(aid);
+    }
+
     public ProfileSubsystem getProfileSubsystem() {
         return (ProfileSubsystem) getSubsystem(ProfileSubsystem.ID);
     }

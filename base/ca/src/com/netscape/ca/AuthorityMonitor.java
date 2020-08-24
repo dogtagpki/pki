@@ -19,6 +19,8 @@ package com.netscape.ca;
 
 import java.util.Arrays;
 
+import org.dogtagpki.server.ca.CAEngine;
+
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -230,13 +232,14 @@ public class AuthorityMonitor implements Runnable {
             return;
         }
 
+        CAEngine engine = CAEngine.getInstance();
         AuthorityID aid = null;
         attr = entry.getAttribute("authorityID");
 
         if (attr != null) {
 
             aid = new AuthorityID(attr.getStringValueArray()[0]);
-            CertificateAuthority ca = certificateAuthority.getCA(aid);
+            CertificateAuthority ca = engine.getCA(aid);
 
             if (ca == null)
                 return;  // shouldn't happen

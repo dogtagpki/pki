@@ -267,8 +267,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 throw new BadRequestDataException("invalid AuthorityID: " + aidString, e);
             }
 
-            CertificateAuthority ca = engine.getCA();
-            ca = ca.getCA(aid);
+            CertificateAuthority ca = engine.getCA(aid);
+
             if (ca == null)
                 throw new CANotFoundException("CA not found: " + aidString);
         }
