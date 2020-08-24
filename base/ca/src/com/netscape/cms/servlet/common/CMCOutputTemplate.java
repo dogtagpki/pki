@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.IAuthManager;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -83,6 +83,7 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -584,10 +585,10 @@ public class CMCOutputTemplate {
         String method = "CMCOutputTemplate: getContentInfo: ";
         logger.debug(method + "begins");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         try {
             // add CA cert chain
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+            CertificateAuthority ca = engine.getCA();
             CertificateChain certchains = ca.getCACertChain();
             java.security.cert.X509Certificate[] chains = certchains.getChain();
 
@@ -700,8 +701,8 @@ public class CMCOutputTemplate {
                 }
 
                 // Get CA certs
-                CMSEngine engine = CMS.getCMSEngine();
-                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+                CAEngine engine = CAEngine.getInstance();
+                CertificateAuthority ca = engine.getCA();
                 CertificateChain certchains = ca.getCACertChain();
                 java.security.cert.X509Certificate[] chains = certchains.getChain();
 
@@ -742,7 +743,7 @@ public class CMCOutputTemplate {
     private int processConfirmCertAcceptanceControl(
             TaggedAttribute attr, SEQUENCE controlSeq, int bpid) {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         if (attr != null) {
             INTEGER bodyId = attr.getBodyPartID();
@@ -762,7 +763,8 @@ public class CMCOutputTemplate {
                                     ASN1Util.encode(issuers.elementAt(0))));
                     byte[] b = issuer.getEncoded();
                     X500Name n = new X500Name(b);
-                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+
+                    CertificateAuthority ca = engine.getCA();
                     X500Name caName = ca.getX500Name();
                     boolean confirmAccepted = false;
                     if (n.toString().equalsIgnoreCase(caName.toString())) {
@@ -804,7 +806,7 @@ public class CMCOutputTemplate {
             throws InvalidBERException, java.security.cert.CertificateEncodingException,
             IOException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         if (attr != null) {
             SET vals = attr.getValues();
@@ -817,7 +819,8 @@ public class CMCOutputTemplate {
                 ANY issuer = getCert.getIssuer();
                 byte b[] = issuer.getEncoded();
                 X500Name n = new X500Name(b);
-                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+
+                CertificateAuthority ca = engine.getCA();
                 X500Name caName = ca.getX500Name();
                 if (!n.toString().equalsIgnoreCase(caName.toString())) {
                     logger.error("CMCOutputTemplate: Issuer names are equal in the GetCert Control");
@@ -838,7 +841,7 @@ public class CMCOutputTemplate {
     private int processQueryPendingControl(TaggedAttribute attr,
             SEQUENCE controlSeq, int bpid) {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         if (attr != null) {
             SET values = attr.getValues();
@@ -853,7 +856,7 @@ public class CMCOutputTemplate {
                                         ASN1Util.encode(values.elementAt(i)));
                         String requestId = new String(reqId.toByteArray());
 
-                        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+                        CertificateAuthority ca = engine.getCA();
                         IRequestQueue queue = ca.getRequestQueue();
                         IRequest r = queue.findRequest(new RequestId(requestId));
                         if (r != null) {
@@ -973,7 +976,7 @@ public class CMCOutputTemplate {
         String msg = "";
         logger.debug(method + "begins");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         boolean revoke = false;
@@ -1196,7 +1199,7 @@ public class CMCOutputTemplate {
                 }
 
                 if (revoke) {
-                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+                    CertificateAuthority ca = engine.getCA();
                     ICertificateRepository repository = ca.getCertificateRepository();
                     ICertRecord record = null;
                     try {

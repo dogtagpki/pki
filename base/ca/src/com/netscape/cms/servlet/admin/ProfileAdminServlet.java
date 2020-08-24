@@ -27,11 +27,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
@@ -43,9 +42,9 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.CAEnrollProfile;
-import com.netscape.cms.profile.common.ProfileOutput;
-import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfileInput;
+import com.netscape.cms.profile.common.ProfileOutput;
 import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
@@ -2398,7 +2397,7 @@ public class ProfileAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         String auditMessage = null;
@@ -2442,12 +2441,8 @@ public class ProfileAdminServlet extends AdminServlet {
             String auth = req.getParameter("auth");
             String config = null;
 
-            ISubsystem subsystem = engine.getSubsystem(ICertificateAuthority.ID);
+            CertificateAuthority ca = engine.getCA();
             String subname = "ca";
-
-            if (subsystem == null)
-                subname = "ra";
-
             String subpath = "/profiles/";
 
             try {

@@ -17,19 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.common;
 
-import java.io.IOException;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Enumeration;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICAService;
 import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -37,9 +41,8 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
-import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeygenEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeyRetrievalEvent;
-import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeygenEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.request.IRequest;
@@ -47,12 +50,8 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.updater.IProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
 
 /**
  * This class implements a Certificate Manager enrollment
@@ -69,20 +68,14 @@ public class CAEnrollProfile extends EnrollProfile {
     }
 
     public IAuthority getAuthority() {
-        CMSEngine engine = CMS.getCMSEngine();
-        IAuthority authority = (IAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-
-        if (authority == null)
-            return null;
-        return authority;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getCA();
     }
 
     public X500Name getIssuerName() {
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        X500Name issuerName = ca.getX500Name();
-
-        return issuerName;
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+        return ca.getX500Name();
     }
 
     /**
@@ -151,9 +144,9 @@ public class CAEnrollProfile extends EnrollProfile {
              * so not to pass them to KRA.
              * They will be put back at SSK_STAGE_KEY_RETRIEVE below
              */
-            transWrappedSessionKey = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdTransSession");
+            transWrappedSessionKey = request.getExtDataInByteArray("serverSideKeygenP12PasswdTransSession");
 
-            sessionWrappedPassphrase = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdEnc");
+            sessionWrappedPassphrase = request.getExtDataInByteArray("serverSideKeygenP12PasswdEnc");
 
             request.setExtData("serverSideKeygenP12PasswdTransSession", "");
             request.deleteExtData("serverSideKeygenP12PasswdTransSession");

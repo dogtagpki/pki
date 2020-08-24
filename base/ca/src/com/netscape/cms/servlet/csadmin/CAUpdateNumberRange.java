@@ -18,18 +18,17 @@
 package com.netscape.cms.servlet.csadmin;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.repository.IRepository;
-import com.netscape.cmscore.apps.CMS;
 
 public class CAUpdateNumberRange extends UpdateNumberRange {
 
     public IRepository getRepository(String type) throws EBaseException {
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
 
         if (type.equals("request")) {
             return ca.getRequestQueue().getRequestRepository();

@@ -77,7 +77,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public X509Certificate[] getCertChain(X509Certificate cert) throws Exception {
 
-        CertificateAuthority ca = (CertificateAuthority) getSubsystem(CertificateAuthority.ID);
+        CertificateAuthority ca = getCA();
         CertificateChain caChain = ca.getCACertChain();
         X509Certificate[] caCerts = caChain.getChain();
 
@@ -97,7 +97,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         super.startupSubsystems();
 
         // check serial number ranges
-        ICertificateAuthority ca = (ICertificateAuthority) getSubsystem(ICertificateAuthority.ID);
+        CertificateAuthority ca = getCA();
         if (!isPreOpMode()) {
             logger.debug("CAEngine: checking request serial number ranges for the CA");
             ca.getRequestQueue().getRequestRepository().checkRanges();
@@ -105,6 +105,13 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             logger.debug("CAEngine: checking certificate serial number ranges");
             ca.getCertificateRepository().checkRanges();
         }
+    }
+
+    /**
+     * Returns the main/host CA.
+     */
+    public CertificateAuthority getCA() {
+        return (CertificateAuthority) getSubsystem(CertificateAuthority.ID);
     }
 
     public ProfileSubsystem getProfileSubsystem() {

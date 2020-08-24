@@ -26,14 +26,15 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICAService;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -41,7 +42,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertUtils;
 
 import netscape.ldap.LDAPAttribute;
@@ -293,7 +293,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
     private void revokeCert(X509CertImpl cert)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         try {
             if (mConfig.getBoolean(PROP_REVOKE_CERT, true) == false) {
@@ -304,7 +304,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         }
         BigInteger serialNum = cert.getSerialNumber();
         // need to revoke certificate also
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        CertificateAuthority ca = engine.getCA();
         ICAService service = (ICAService) ca.getCAService();
         RevokedCertImpl crlEntry = formCRLEntry(
                 serialNum, RevocationReason.KEY_COMPROMISE);

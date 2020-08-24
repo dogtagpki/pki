@@ -28,6 +28,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -58,7 +59,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -243,7 +243,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         HttpServletRequest request = cmsReq.getHttpReq();
         Locale locale = getLocale(request);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
 
         String profileId = processor.getProfileID() == null ? request.getParameter("profileId") : processor.getProfileID();
@@ -266,7 +266,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
             } catch (IllegalArgumentException e) {
                 throw new BadRequestDataException("invalid AuthorityID: " + aidString, e);
             }
-            CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(CertificateAuthority.ID);
+
+            CertificateAuthority ca = engine.getCA();
             ca = ca.getCA(aid);
             if (ca == null)
                 throw new CANotFoundException("CA not found: " + aidString);

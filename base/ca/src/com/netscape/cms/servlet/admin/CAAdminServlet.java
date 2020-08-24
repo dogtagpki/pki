@@ -28,11 +28,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICMSCRLExtensions;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -44,7 +46,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class representings an administration servlet for Certificate
@@ -64,7 +65,7 @@ public class CAAdminServlet extends AdminServlet {
 
     private final static String INFO = "CAAdminServlet";
 
-    private ICertificateAuthority mCA = null;
+    private CertificateAuthority mCA;
     protected static final String PROP_ENABLED = "enabled";
 
     /**
@@ -79,8 +80,8 @@ public class CAAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = CMS.getCMSEngine();
-        mCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        CAEngine engine = CAEngine.getInstance();
+        mCA = engine.getCA();
     }
 
     /**

@@ -66,7 +66,6 @@ import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -128,8 +127,8 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         if (aidString != null && adnString != null)
             throw new BadRequestException("Cannot provide both issuer-id and issuer-dn");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(CertificateAuthority.ID);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
 
         AuthorityID aid = null;
         if (aidString != null) {

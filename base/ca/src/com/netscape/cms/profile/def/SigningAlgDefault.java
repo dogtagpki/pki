@@ -19,18 +19,18 @@ package com.netscape.cms.profile.def;
 
 import java.util.Locale;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements an enrollment default policy
@@ -67,14 +67,14 @@ public class SigningAlgDefault extends EnrollDefault {
 
     public String getSigningAlg() {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         String signingAlg = getConfig(CONFIG_ALGORITHM);
         // if specified, use the specified one. Otherwise, pick
         // the best selection for the user
         if (signingAlg == null || signingAlg.equals("") ||
                 signingAlg.equals("-")) {
             // best pick for the user
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+            CertificateAuthority ca = engine.getCA();
             return ca.getDefaultAlgorithm();
         } else {
             return signingAlg;
@@ -83,8 +83,10 @@ public class SigningAlgDefault extends EnrollDefault {
 
     public String getDefSigningAlgorithms() {
         StringBuffer allowed = new StringBuffer();
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
         String algos[] = ca.getCASigningAlgorithms();
         for (int i = 0; i < algos.length; i++) {
             if (allowed.length() == 0) {

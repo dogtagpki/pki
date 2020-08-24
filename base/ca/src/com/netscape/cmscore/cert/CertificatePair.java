@@ -22,13 +22,14 @@ import java.io.OutputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.Tag;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.cmscore.apps.CMS;
@@ -108,8 +109,8 @@ public class CertificatePair implements ASN1Value {
 
         logger.debug("CertifiatePair: in certOrders() with X509Cert");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
         X509Certificate caCert = ca.getCACert();
 
         logger.debug("CertifiatePair: got this caCert");

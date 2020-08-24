@@ -24,7 +24,6 @@ import javax.ws.rs.core.Response;
 
 import org.dogtagpki.ca.CASystemCertResource;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
@@ -51,7 +50,8 @@ public class CASystemCertService extends PKIService implements CASystemCertResou
     public Response getSigningCert() throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        CertificateAuthority ca = engine.getCA();
+
         SigningUnit su = (SigningUnit) ca.getSigningUnit();
 
         X509Certificate signingCert = su.getCert();

@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
@@ -38,10 +39,9 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.NoDefault;
+import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This constraint is to check for publickey uniqueness.
@@ -82,8 +82,9 @@ public class UniqueKeyConstraint extends EnrollConstraint {
     public void init(IConfigStore config)
             throws EProfileException {
         super.init(config);
-        CMSEngine engine = CMS.getCMSEngine();
-        mCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+
+        CAEngine engine = CAEngine.getInstance();
+        mCA = engine.getCA();
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) {

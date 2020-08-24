@@ -22,9 +22,10 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -41,7 +42,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 
 /**
@@ -65,7 +65,7 @@ public class PublishCertsJob extends AJobBase
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublishCertsJob.class);
 
-    ICertificateAuthority mCa = null;
+    CertificateAuthority mCa;
     IRequestQueue mReqQ = null;
     ICertificateRepository mRepository = null;
     IPublisherProcessor mPublisherProcessor = null;
@@ -123,11 +123,8 @@ public class PublishCertsJob extends AJobBase
         mId = id;
         mImplName = implName;
 
-        CMSEngine engine = CMS.getCMSEngine();
-        mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        if (mCa == null) {
-            return;
-        }
+        CAEngine engine = CAEngine.getInstance();
+        mCa = engine.getCA();
 
         mReqQ = mCa.getRequestQueue();
         mRepository = mCa.getCertificateRepository();

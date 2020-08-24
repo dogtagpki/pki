@@ -20,6 +20,7 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
@@ -35,7 +36,6 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements an enrollment default policy
@@ -165,8 +165,9 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(CertificateAuthority.ID);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
         String aidString = request.getExtDataInString(
                 IRequest.AUTHORITY_ID);
         if (aidString != null)

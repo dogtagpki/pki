@@ -24,12 +24,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
@@ -37,7 +38,6 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements a CA signing cert enrollment default policy
@@ -60,7 +60,7 @@ public class CAValidityDefault extends EnrollDefault {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    public ICertificateAuthority mCA = null;
+    public CertificateAuthority mCA;
 
     public CAValidityDefault() {
         super();
@@ -76,8 +76,8 @@ public class CAValidityDefault extends EnrollDefault {
 
     public void init(IConfigStore config) throws EProfileException {
         super.init(config);
-        CMSEngine engine = CMS.getCMSEngine();
-        mCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        CAEngine engine = CAEngine.getInstance();
+        mCA = engine.getCA();
     }
 
     public void setConfig(String name, String value)

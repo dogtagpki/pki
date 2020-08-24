@@ -22,7 +22,7 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Map;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
@@ -33,13 +33,13 @@ import org.mozilla.jss.pkix.cmmf.CertResponse;
 import org.mozilla.jss.pkix.cmmf.CertifiedKeyPair;
 import org.mozilla.jss.pkix.cmmf.PKIStatusInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 
 /**
@@ -101,7 +101,7 @@ public class CMMFOutput extends EnrollOutput {
     public String getValue(String name, Locale locale, IRequest request)
             throws EProfileException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         if (name.equals(VAL_PRETTY_CERT)) {
             X509CertImpl cert = request.getExtDataInCert(
@@ -116,7 +116,7 @@ public class CMMFOutput extends EnrollOutput {
                 if (cert == null)
                     return null;
 
-                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+                CertificateAuthority ca = engine.getCA();
                 CertificateChain cachain = ca.getCACertChain();
                 X509Certificate[] cacerts = cachain.getChain();
 

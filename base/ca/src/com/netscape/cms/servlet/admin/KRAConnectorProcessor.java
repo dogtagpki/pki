@@ -21,9 +21,10 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICAService;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -52,8 +53,10 @@ public class KRAConnectorProcessor extends CAProcessor {
 
     public KRAConnectorProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
         super("kraconnector", locale);
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
         ICAService caService = (ICAService)ca.getCAService();
         connectorExists = (caService.getKRAConnector() != null)? true:false;
     }
@@ -123,8 +126,10 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void stopConnector() {
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
         ICAService caService = (ICAService)ca.getCAService();
         IConnector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
@@ -133,8 +138,10 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void startConnector() {
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
         ICAService caService = (ICAService)ca.getCAService();
         IConnector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
@@ -146,12 +153,12 @@ public class KRAConnectorProcessor extends CAProcessor {
         // stop the old connector
         stopConnector();
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
 
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService caService = (ICAService)ca.getCAService();
 
+        EngineConfig cs = engine.getConfig();
         IConnector kraConnector = caService.getConnector(cs.getSubStore(PREFIX));
         caService.setKRAConnector(kraConnector);
 
@@ -161,8 +168,9 @@ public class KRAConnectorProcessor extends CAProcessor {
     public void deleteConnector() {
         stopConnector();
 
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
         ICAService caService = (ICAService)ca.getCAService();
         caService.setKRAConnector(null);
     }

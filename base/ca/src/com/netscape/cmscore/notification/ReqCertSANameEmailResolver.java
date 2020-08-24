@@ -23,7 +23,7 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
@@ -33,6 +33,7 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.notification.ENotificationException;
@@ -40,7 +41,6 @@ import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * An email resolver that first checks the request email, if none,
@@ -96,11 +96,12 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
         }
         Object request = keys.get(KEY_CERT);
         X509Certificate cert = null;
-        CMSEngine engine = CMS.getCMSEngine();
+
+        CAEngine engine = CAEngine.getInstance();
 
         if (request instanceof RevokedCertImpl) {
             RevokedCertImpl revCert = (RevokedCertImpl) request;
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+            CertificateAuthority ca = engine.getCA();
             ICertificateRepository certDB = ca.getCertificateRepository();
 
             cert = certDB.getX509Certificate(revCert.getSerialNumber());

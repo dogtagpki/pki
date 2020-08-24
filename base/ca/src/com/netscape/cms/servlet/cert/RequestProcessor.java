@@ -26,6 +26,7 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
@@ -338,8 +339,9 @@ public class RequestProcessor extends CertProcessor {
             throw new BadRequestDataException("Invalid AuthorityID in request data");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
-        CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(CertificateAuthority.ID);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
         if (ca == null)
             // this shouldn't happen
             throw new CANotFoundException("Could not get host authority");  // shouldn't happen

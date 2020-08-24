@@ -25,6 +25,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -34,7 +35,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.publish.IXcertPublisherProcessor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -103,13 +103,13 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
         logger.debug("CrossCertPairSubsystem: initializing");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         try {
             mConfig = config;
             synchronized (this) {
-                mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+                mCa = engine.getCA();
                 mPublisherProcessor = mCa.getPublisherProcessor();
             }
 

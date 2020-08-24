@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -62,7 +63,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author ftweedal
@@ -70,11 +70,12 @@ import com.netscape.cmscore.apps.CMSEngine;
 public class AuthorityService extends SubsystemService implements AuthorityResource {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthorityService.class);
+
     CertificateAuthority hostCA;
 
     public AuthorityService() {
-        CMSEngine engine = CMS.getCMSEngine();
-        hostCA = (CertificateAuthority) engine.getSubsystem(CertificateAuthority.ID);
+        CAEngine engine = CAEngine.getInstance();
+        hostCA = engine.getCA();
     }
 
     @Override

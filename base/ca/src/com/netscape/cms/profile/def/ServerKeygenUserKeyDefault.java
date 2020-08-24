@@ -20,35 +20,11 @@ package com.netscape.cms.profile.def;
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.security.interfaces.DSAParams;
-import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
-import java.security.KeyPair;
-import java.security.PublicKey;
 
-import org.mozilla.jss.netscape.security.provider.DSAPublicKey;
-import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
-
-import org.dogtagpki.server.ca.ICertificateAuthority;
-
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.certsrv.property.Descriptor;
-import com.netscape.certsrv.property.EPropertyException;
-import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmsutil.crypto.CryptoUtil;
-
+import org.dogtagpki.server.ca.CAConfig;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -56,10 +32,24 @@ import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.provider.DSAPublicKey;
+import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.logging.ILogger;
+import com.netscape.ca.CertificateAuthority;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * This class implements an enrollment default policy
@@ -290,9 +280,10 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             CryptoManager cm = CryptoManager.getInstance();
             org.mozilla.jss.crypto.X509Certificate transCert = null;
             try {
-                CMSEngine engine = CMS.getCMSEngine();
-                ICertificateAuthority CA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-                String transportNickname = CA.getConfigStore().getString("connector.KRA.transportCertNickname", "KRA Transport Certificate");
+                CAEngine engine = CAEngine.getInstance();
+                CertificateAuthority ca = engine.getCA();
+                CAConfig caConfig = ca.getConfigStore();
+                String transportNickname = caConfig.getString("connector.KRA.transportCertNickname", "KRA Transport Certificate");
                 transCert = cm.findCertByNickname(transportNickname);
             } catch (Exception e) {
                 logger.debug(method + "'KRA transport certificate' not found in nssdb; need to be manually setup for Server-Side keygen enrollment");

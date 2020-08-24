@@ -41,7 +41,7 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.IAuthManager;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
@@ -65,6 +65,7 @@ import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -126,7 +127,7 @@ public class HashEnrollServlet extends CMSServlet {
     private String mEnrollSuccessTemplate = null;
     private ICMSTemplateFiller mEnrollSuccessFiller = new ImportCertsTemplateFiller();
 
-    ICertificateAuthority mCa = null;
+    CertificateAuthority mCa;
     ICertificateRepository mRepository = null;
 
     public HashEnrollServlet() {
@@ -158,8 +159,8 @@ public class HashEnrollServlet extends CMSServlet {
             }
 
             // cfu
-            CMSEngine engine = CMS.getCMSEngine();
-            mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+            CAEngine engine = CAEngine.getInstance();
+            mCa = engine.getCA();
 
             init_testbed_hack(mConfig);
         } catch (Exception e) {

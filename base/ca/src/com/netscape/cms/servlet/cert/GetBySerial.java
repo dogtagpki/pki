@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
@@ -38,6 +38,7 @@ import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -55,7 +56,6 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -103,8 +103,9 @@ public class GetBySerial extends CMSServlet {
         // handle templates locally.
         mTemplates.remove(ICMSRequest.SUCCESS);
 
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority mCa = engine.getCA();
+
         if (mCa == null) {
             return;
         }
@@ -155,7 +156,7 @@ public class GetBySerial extends CMSServlet {
             serialNo = null;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         if (serial == null || serialNo == null) {
             logger.warn(CMS.getLogMessage("CMSGW_INVALID_SERIAL_NUMBER"));
@@ -215,7 +216,8 @@ public class GetBySerial extends CMSServlet {
                 ArgBlock ctx = new ArgBlock();
                 Locale[] locale = new Locale[1];
                 CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
-                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+
+                CertificateAuthority ca = engine.getCA();
                 CertificateChain cachain = ca.getCACertChain();
                 X509Certificate[] cacerts = cachain.getChain();
                 X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];

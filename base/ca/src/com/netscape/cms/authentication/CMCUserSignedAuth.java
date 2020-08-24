@@ -41,7 +41,7 @@ import java.util.Vector;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -85,6 +85,7 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
@@ -264,7 +265,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         String msg = "";
         logger.debug(method + "begins");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         String auditSubjectID = getAuditSubjectID();
@@ -503,7 +504,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                     // have a chance to capture user identification info
                                     if (issuerANY != null) {
                                         // get CA signing cert
-                                        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+                                        CertificateAuthority ca = engine.getCA();
                                         X500Name caName = ca.getX500Name();
 
                                         try {

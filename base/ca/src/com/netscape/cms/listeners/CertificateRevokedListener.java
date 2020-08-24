@@ -24,9 +24,10 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -299,10 +300,11 @@ public class CertificateRevokedListener implements IRequestListener {
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT,
                 mHttpPort);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
+
         try {
             RevokedCertImpl revCert = crlentries[0];
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+            CertificateAuthority ca = engine.getCA();
             ICertificateRepository certDB = ca.getCertificateRepository();
             X509Certificate cert = certDB.getX509Certificate(revCert.getSerialNumber());
 

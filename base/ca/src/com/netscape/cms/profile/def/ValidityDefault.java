@@ -24,18 +24,18 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements an enrollment default policy
@@ -250,7 +250,7 @@ public class ValidityDefault extends EnrollDefault {
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         // always + 60 seconds
         String startTimeStr = getConfig(CONFIG_START_TIME);
@@ -308,7 +308,7 @@ public class ValidityDefault extends EnrollDefault {
                 request.getExtDataInBoolean("installAdjustValidity", false);
         if (adjustValidity) {
             logger.debug("ValidityDefault: populate: adjustValidity is true");
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+            CertificateAuthority ca = engine.getCA();
             try {
                 X509CertImpl caCert = ca.getCACert();
                 Date caNotAfter = caCert.getNotAfter();

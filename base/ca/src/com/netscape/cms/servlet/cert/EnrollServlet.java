@@ -37,6 +37,7 @@ import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -48,6 +49,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -179,7 +181,7 @@ public class EnrollServlet extends CMSServlet {
 
             logger.debug("EnrollServlet: In Enroll Servlet init!");
 
-            CMSEngine engine = CMS.getCMSEngine();
+            CAEngine engine = CAEngine.getInstance();
             EngineConfig configStore = engine.getConfig();
 
             try {
@@ -285,7 +287,7 @@ public class EnrollServlet extends CMSServlet {
                 }
 
                 // cfu
-                mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+                mCa = engine.getCA();
 
                 init_testbed_hack(mConfig);
 
@@ -686,7 +688,7 @@ public class EnrollServlet extends CMSServlet {
     protected void processX509(CMSRequest cmsReq)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String auditMessage = null;
@@ -1256,7 +1258,7 @@ public class EnrollServlet extends CMSServlet {
             // if ca, fill in default signing alg here
 
             try {
-                ICertificateAuthority caSub = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+                CertificateAuthority caSub = engine.getCA();
                 if (certInfoArray != null && caSub != null) {
                     for (int ix = 0; ix < certInfoArray.length; ix++) {
                         X509CertInfo ci = certInfoArray[ix];

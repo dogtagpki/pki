@@ -37,9 +37,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.authorization.IAuthzSubsystem;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.BadRequestException;
@@ -129,7 +129,7 @@ public class CAProcessor extends Processor {
     protected String getClientCert = "false";
     // subsystems
     CMSEngine engine = CMS.getCMSEngine();
-    protected ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+    protected CertificateAuthority authority;
     protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
     protected UGSubsystem ug = engine.getUGSubsystem();
     protected ICertUserLocator ul = ug.getCertUserLocator();
@@ -144,8 +144,10 @@ public class CAProcessor extends Processor {
     public CAProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         super(id, locale);
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig config = engine.getConfig();
+
+        authority = engine.getCA();
 
         IConfigStore cs = config.getSubStore("processor." + id);
         this.profileID = cs.getString(PROFILE_ID, "").isEmpty() ? null : cs.getString(PROFILE_ID);

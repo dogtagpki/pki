@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.PublicKey;
 import java.util.Collection;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -31,8 +32,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class KeyRetrieverRunner implements Runnable {
@@ -90,7 +89,7 @@ public class KeyRetrieverRunner implements Runnable {
         String KR_CLASS_KEY = "features.authority.keyRetrieverClass";
         String KR_CONFIG_KEY = "features.authority.keyRetrieverConfig";
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         String className = null;
 
         try {
@@ -157,7 +156,7 @@ public class KeyRetrieverRunner implements Runnable {
             PublicKey pubkey = cert.getPublicKey();
             token.getCryptoStore().deleteCert(cert);
 
-            PrivateKey unwrappingKey = this.certificateAuthority.hostCA.mSigningUnit.getPrivateKey();
+            PrivateKey unwrappingKey = engine.getCA().mSigningUnit.getPrivateKey();
 
             CryptoUtil.importPKIArchiveOptions(
                 token, unwrappingKey, pubkey, paoData);

@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -67,7 +67,7 @@ public class CertRequestDAO extends CMSRequestDAO {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRequestDAO.class);
 
     private IRequestQueue queue;
-    private ICertificateAuthority ca;
+    private CertificateAuthority ca;
     ProfileSubsystem ps;
     private SecureRandom random = null;
 
@@ -79,7 +79,8 @@ public class CertRequestDAO extends CMSRequestDAO {
         CAEngine engine = (CAEngine) CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+        ca = engine.getCA();
+
         queue = ca.getRequestQueue();
         if (ca.noncesEnabled()) {
             random = jssSubsystem.getRandomNumberGenerator();
