@@ -28,35 +28,35 @@ class=org.dogtagpki.acme.database.InMemoryDatabase
 
 There are no parameters to configure for in-memory database.
 
-## Configuring LDAP Database
+## Configuring DS Database
 
-The ACME responder can be configured with an LDAP database.
+The ACME responder can be configured with a DS database.
 
-First, add the ACME LDAP schema by importing [/usr/share/pki/acme/database/ldap/schema.ldif](../../../base/acme/database/ldap/schema.ldif) with the following command:
+First, add the ACME DS schema by importing [/usr/share/pki/acme/database/ds/schema.ldif](../../../base/acme/database/ds/schema.ldif) with the following command:
 
 ```
 $ ldapmodify -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/database/ldap/schema.ldif
+    -f /usr/share/pki/acme/database/ds/schema.ldif
 ```
 
-Next, prepare an LDIF file to create the ACME LDAP tree.
-An sample LDIF file is available at [/usr/share/pki/acme/database/ldap/create.ldif](../../../base/acme/database/ldap/create.ldif).
+Next, prepare an LDIF file to create the ACME subtree.
+An sample LDIF file is available at [/usr/share/pki/acme/database/ds/create.ldif](../../../base/acme/database/ds/create.ldif).
 This example uses dc=acme,dc=pki,dc=example,dc=com as the base DN.
 Import the file with the following command:
 
 ```
 $ ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/database/ldap/create.ldif
+    -f /usr/share/pki/acme/database/ds/create.ldif
 ```
 
-A sample LDAP database configuration is available at
-[/usr/share/pki/acme/database/ldap/database.conf](../../../base/acme/database/ldap/database.conf).
+A sample DS database configuration is available at
+[/usr/share/pki/acme/database/ds/database.conf](../../../base/acme/database/ds/database.conf).
 
-To use the LDAP database, copy the sample database.conf into the /etc/pki/pki-tomcat/acme folder,
+To use the DS database, copy the sample database.conf into the /etc/pki/pki-tomcat/acme folder,
 or execute the following command to customize some of the parameters:
 
 ```
-$ pki-server acme-database-mod --type ldap \
+$ pki-server acme-database-mod --type ds \
     -DbaseDN=dc=acme,dc=pki,dc=example,dc=com \
     -DbindPassword=Secret.123
 ```
@@ -64,7 +64,7 @@ $ pki-server acme-database-mod --type ldap \
 Customize the configuration as needed. In a standalone ACME deployment, the database.conf should look like the following:
 
 ```
-class=org.dogtagpki.acme.database.LDAPDatabase
+class=org.dogtagpki.acme.database.DSDatabase
 url=ldap://<hostname>:389
 authType=BasicAuth
 bindDN=cn=Directory Manager
@@ -75,7 +75,7 @@ baseDN=dc=acme,dc=pki,dc=example,dc=com
 In a shared CA and ACME deployment, the database.conf should look like the following:
 
 ```
-class=org.dogtagpki.acme.database.LDAPDatabase
+class=org.dogtagpki.acme.database.DSDatabase
 configFile=conf/ca/CS.cfg
 baseDN=dc=acme,dc=pki,dc=example,dc=com
 ```
