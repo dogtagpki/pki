@@ -20,6 +20,9 @@ package org.dogtagpki.server.ca;
 
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -29,6 +32,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -40,6 +44,9 @@ import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 @WebListener
 public class CAEngine extends CMSEngine implements ServletContextListener {
+
+    public static Map<AuthorityID, CertificateAuthority> authorities =
+            Collections.synchronizedSortedMap(new TreeMap<AuthorityID, CertificateAuthority>());
 
     public CAEngine() throws Exception {
         super("CA");

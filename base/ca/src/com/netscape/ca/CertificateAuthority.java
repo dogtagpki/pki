@@ -222,8 +222,6 @@ public class CertificateAuthority
      */
     static LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CertificateAuthority");
 
-    private static final Map<AuthorityID, CertificateAuthority> caMap =
-        Collections.synchronizedSortedMap(new TreeMap<AuthorityID, CertificateAuthority>());
     static final Map<AuthorityID, Thread> keyRetrieverThreads =
         Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
     protected CertificateAuthority hostCA = null;
@@ -653,7 +651,7 @@ public class CertificateAuthority
             if (!foundHostAuthority) {
                 logger.debug("loadLightweightCAs: no entry for host authority");
                 logger.debug("loadLightweightCAs: adding entry for host authority");
-                caMap.put(addHostAuthorityEntry(), this);
+                CAEngine.authorities.put(addHostAuthorityEntry(), this);
             }
 
             logger.debug("CertificateAuthority: finished init of host authority");
@@ -2418,7 +2416,7 @@ public class CertificateAuthority
          * employ some heuristic to deal with this case. Our
          * heuristic is:
          *
-         * 0. If caMap contains no CAs, then lightweight CAs are not
+         * 0. If CAEngine has no CAs, then lightweight CAs are not
          *    enabled.  There is only one CA, and 'this' is it.  Go
          *    straight to validation.
          *
@@ -2426,7 +2424,7 @@ public class CertificateAuthority
          *    CertID in the request.
          *
          * 2. If this CA is *not* the issuer, look up the issuer
-         *    by its DN in the caMap.  If not found, fail.  If
+         *    by its DN in CAEngine.  If not found, fail.  If
          *    found, dispatch to its 'validate' method.  Otherwise
          *    continue.
          *
@@ -2437,7 +2435,7 @@ public class CertificateAuthority
          */
         CMSEngine engine = CMS.getCMSEngine();
         CertificateAuthority ocspCA = this;
-        if (caMap.size() > 0 && tbsReq.getRequestCount() > 0) {
+        if (CAEngine.authorities.size() > 0 && tbsReq.getRequestCount() > 0) {
             Request req = tbsReq.getRequestAt(0);
             BigInteger serialNo = req.getCertID().getSerialNumber();
             X509CertImpl cert = mCertRepot.getX509Certificate(serialNo);
@@ -2713,8 +2711,8 @@ public class CertificateAuthority
      */
     public List<CertificateAuthority> getCAs() {
         List<CertificateAuthority> cas = new ArrayList<>();
-        synchronized (caMap) {
-            for (CertificateAuthority ca : caMap.values()) {
+        synchronized (CAEngine.authorities) {
+            for (CertificateAuthority ca : CAEngine.authorities.values()) {
                 cas.add(ca);
             }
         }
@@ -2730,7 +2728,7 @@ public class CertificateAuthority
      * @return the authority, or null if not found
      */
     public CertificateAuthority getCA(AuthorityID aid) {
-        return aid == null ? hostCA : caMap.get(aid);
+        return aid == null ? hostCA : CAEngine.authorities.get(aid);
     }
 
     public CertificateAuthority getCA(X500Name dn) {
@@ -2772,7 +2770,7 @@ public class CertificateAuthority
 
         CertificateAuthority ca = parentCA.createSubCA(
                 authToken, subjectDN, description);
-        caMap.put(ca.getAuthorityID(), ca);
+        CAEngine.authorities.put(ca.getAuthorityID(), ca);
         return ca;
     }
 
@@ -2788,7 +2786,7 @@ public class CertificateAuthority
     /**
      * Create a new lightweight authority signed by this authority.
      *
-     * This method DOES NOT add the new CA to caMap; it is the
+     * This method DOES NOT add the new CA to CAEngine; it is the
      * caller's responsibility.
      */
     public CertificateAuthority createSubCA(
@@ -2999,7 +2997,7 @@ public class CertificateAuthority
      * fields.
      *
      * It is the caller's responsibility to add the returned
-     * AuthorityID to the caMap.
+     * AuthorityID to the CAEngine.
      */
     private AuthorityID addHostAuthorityEntry() throws EBaseException {
         if (!isHostAuthority())
@@ -3339,7 +3337,7 @@ public class CertificateAuthority
             foundHostAuthority = true;
             this.authorityID = aid;
             this.authorityDescription = desc;
-            caMap.put(aid, this);
+            CAEngine.authorities.put(aid, this);
             return;
         }
 
@@ -3414,7 +3412,7 @@ public class CertificateAuthority
             CertificateAuthority ca = new CertificateAuthority(
                 hostCA, dn, aid, parentAID, serial,
                 keyNick, keyHosts, desc, enabled);
-            caMap.put(aid, ca);
+            CAEngine.authorities.put(aid, ca);
             entryUSNs.put(aid, newEntryUSN);
             nsUniqueIds.put(aid, nsUniqueId);
         } catch (EBaseException e) {
@@ -3423,7 +3421,7 @@ public class CertificateAuthority
     }
 
     void forgetAuthority(AuthorityID aid) {
-        caMap.remove(aid);
+        CAEngine.authorities.remove(aid);
         entryUSNs.remove(aid);
         nsUniqueIds.remove(aid);
     }

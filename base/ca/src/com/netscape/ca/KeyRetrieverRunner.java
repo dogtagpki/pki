@@ -170,7 +170,7 @@ public class KeyRetrieverRunner implements Runnable {
         logger.debug("Reinitialising SigningUnit");
 
         /* While we were retrieving the key and cert, the
-         * CertificateAuthority instance in the caMap might
+         * CA instance in the CAEngine might
          * have been replaced, so look it up afresh.
          */
         CertificateAuthority ca = certificateAuthority.getCA(aid);
