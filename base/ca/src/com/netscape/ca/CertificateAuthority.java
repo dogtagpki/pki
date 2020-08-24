@@ -2438,7 +2438,7 @@ public class CertificateAuthority
             BigInteger serialNo = req.getCertID().getSerialNumber();
             X509CertImpl cert = mCertRepot.getX509Certificate(serialNo);
             X500Name certIssuerDN = (X500Name) cert.getIssuerDN();
-            ocspCA = getCA(certIssuerDN);
+            ocspCA = engine.getCA(certIssuerDN);
         }
 
         if (ocspCA == null) {
@@ -2702,17 +2702,6 @@ public class CertificateAuthority
              * responses, so there is no reasonable value for
              * nextUpdate. */
             null /* nextUpdate */);
-    }
-
-    public CertificateAuthority getCA(X500Name dn) {
-
-        CAEngine engine = CAEngine.getInstance();
-        for (CertificateAuthority ca : engine.getCAs()) {
-            if (ca.getX500Name().equals(dn))
-                return ca;
-        }
-
-        return null;
     }
 
     public AuthorityID getAuthorityID() {

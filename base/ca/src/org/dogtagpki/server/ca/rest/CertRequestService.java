@@ -151,9 +151,12 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             } catch (IOException e) {
                 throw new BadRequestException("invalid DN: " + adnString, e);
             }
-            ca = ca.getCA(adn);
+
+            ca = engine.getCA(adn);
+
             if (ca == null)
                 throw new ResourceNotFoundException("CA not found: " + adnString);
+
             aid = ca.getAuthorityID();
         }
 

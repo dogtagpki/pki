@@ -31,6 +31,7 @@ import javax.servlet.annotation.WebListener;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -144,6 +145,16 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
      */
     public CertificateAuthority getCA(AuthorityID aid) {
         return aid == null ? getCA() : authorities.get(aid);
+    }
+
+    public CertificateAuthority getCA(X500Name dn) {
+
+        for (CertificateAuthority ca : getCAs()) {
+            if (ca.getX500Name().equals(dn))
+                return ca;
+        }
+
+        return null;
     }
 
     public ProfileSubsystem getProfileSubsystem() {
