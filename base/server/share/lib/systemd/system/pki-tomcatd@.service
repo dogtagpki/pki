@@ -8,6 +8,8 @@ EnvironmentFile=/usr/share/pki/etc/tomcat.conf
 EnvironmentFile=/etc/tomcat/tomcat.conf
 Environment="NAME=%i"
 EnvironmentFile=-/etc/sysconfig/%i
+EnvironmentFile=/usr/share/pki/etc/pki.conf
+EnvironmentFile=/etc/pki/pki.conf
 
 ExecStartPre=/usr/sbin/pki-server upgrade %i
 ExecStartPre=/usr/sbin/pki-server migrate %i
