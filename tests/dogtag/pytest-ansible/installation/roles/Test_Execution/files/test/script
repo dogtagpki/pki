@@ -29,24 +29,24 @@ echo "Generating shared secret"
 /usr/bin/tkstool -T -d $tks_alias -n $tks_shared_secret -f $tks_password -z $tks_noise > $tks_secret_output < $tks_input_file
 /usr/bin/tkstool -L -d $tks_alias -n $tks_shared_secret -f $tks_password > /tmp/sharedSecretList1.out
 grep "$tks_shared_secret" /tmp/sharedSecretList1.out
-first_session_tmp1=$(cat $tks_secret_output | grep -A1 "first\ssession\skey\sshare:")
+first_session_tmp1=$(cat $tks_secret_output | grep -A1 "first\ssession\skey\sshare:" -a)
 first_session_tmp2=$(echo $first_session_tmp1 | sed 's/^first session key share://')
 first_session_key=$(echo ${first_session_tmp2%% })
-first_session_KCV_tmp1=$(cat $tks_secret_output | grep "first\ssession\skey\sshare\sKCV:")
+first_session_KCV_tmp1=$(cat $tks_secret_output | grep "first\ssession\skey\sshare\sKCV:" -a)
 first_session_KCV_tmp2=$(echo $first_session_KCV_tmp1 | sed 's/^first session key share KCV://')
 first_session_KCV_key=$(echo ${first_session_KCV_tmp2%% })
 
-second_session_tmp1=$(cat $tks_secret_output | grep -A1 "second\ssession\skey\sshare:")
+second_session_tmp1=$(cat $tks_secret_output | grep -A1 "second\ssession\skey\sshare:" -a)
 second_session_tmp2=$(echo $second_session_tmp1 | sed 's/^second session key share://')
 second_session_key=$(echo ${second_session_tmp2%% })
-second_session_KCV_tmp1=$(cat $tks_secret_output | grep "second\ssession\skey\sshare\sKCV:")
+second_session_KCV_tmp1=$(cat $tks_secret_output | grep "second\ssession\skey\sshare\sKCV:" -a)
 second_session_KCV_tmp2=$(echo $second_session_KCV_tmp1 | sed 's/^second session key share KCV://')
 second_session_KCV_key=$(echo ${second_session_KCV_tmp2%% })
 
-third_session_tmp1=$(cat $tks_secret_output | grep -A1 "third\ssession\skey\sshare:")
+third_session_tmp1=$(cat $tks_secret_output | grep -A1 "third\ssession\skey\sshare:" -a)
 third_session_tmp2=$(echo $third_session_tmp1 | sed 's/^third session key share://')
 third_session_key=$(echo ${third_session_tmp2%% })
-third_session_KCV_tmp1=$(cat $tks_secret_output | grep "third\ssession\skey\sshare\sKCV:")
+third_session_KCV_tmp1=$(cat $tks_secret_output | grep "third\ssession\skey\sshare\sKCV:" -a)
 third_session_KCV_tmp2=$(echo $third_session_KCV_tmp1 | sed 's/^third session key share KCV://')
 third_session_KCV_key=$(echo ${third_session_KCV_tmp2%% })
 
