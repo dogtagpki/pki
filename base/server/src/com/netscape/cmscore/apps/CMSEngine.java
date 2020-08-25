@@ -57,7 +57,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.base.ITimeSource;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.ConsoleError;
@@ -97,7 +96,6 @@ import com.netscape.cmscore.security.PWsdrCache;
 import com.netscape.cmscore.session.LDAPSecurityDomainSessionTable;
 import com.netscape.cmscore.session.SecurityDomainSessionTable;
 import com.netscape.cmscore.session.SessionTimer;
-import com.netscape.cmscore.time.SimpleTimeSource;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -137,7 +135,6 @@ public class CMSEngine implements ServletContextListener {
     private byte[] mSigningData = null;
     private long mStartupTime = 0;
     private boolean isStarted = false;
-    private ITimeSource mTimeSource = null;
     private IPasswordStore mPasswordStore = null;
     private ISecurityDomainSessionTable mSecurityDomainSessionTable = null;
     private Timer mSDTimer = null;
@@ -430,21 +427,6 @@ public class CMSEngine implements ServletContextListener {
         String flush_timeout = mConfig.getString("securitydomain.flushinterval", "86400000");
         String secdomain_source = mConfig.getString("securitydomain.source", "memory");
         String secdomain_check_interval = mConfig.getString("securitydomain.checkinterval", "5000");
-
-        String tsClass = mConfig.getString("timeSourceClass", null);
-
-        if (tsClass != null) {
-            try {
-                mTimeSource = (ITimeSource)
-                        Class.forName(tsClass).newInstance();
-            } catch (Exception e) {
-                // nothing to do
-            }
-        }
-        if (mTimeSource == null) {
-            // if time source is not set, set it to simple time source
-            mTimeSource = new SimpleTimeSource();
-        }
 
         Security.addProvider(new org.mozilla.jss.netscape.security.provider.CMS());
 
