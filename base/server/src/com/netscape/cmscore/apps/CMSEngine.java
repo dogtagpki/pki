@@ -438,10 +438,7 @@ public class CMSEngine implements ServletContextListener {
         loadSubsystems();
         initSubsystems();
 
-        if (!isPreOpMode()) {
-            configureAutoShutdown();
-        }
-
+        configureAutoShutdown();
         configureServerCertNickname();
         configureExcludedLdapAttrs();
 
@@ -800,6 +797,10 @@ public class CMSEngine implements ServletContextListener {
 
     public void configureAutoShutdown() throws Exception {
 
+        if (isPreOpMode()) {
+            return;
+        }
+
         logger.info("CMSEngine: Configuring auto shutdown");
 
         /*
@@ -810,19 +811,19 @@ public class CMSEngine implements ServletContextListener {
          * autoShutdown.restart.count=0
          */
 
-        mAutoSD_Restart = mConfig.getBoolean("autoShutdown.restart.enable", false);
+        mAutoSD_Restart = config.getBoolean("autoShutdown.restart.enable", false);
         logger.debug("CMSEngine: restart at autoShutdown: " + mAutoSD_Restart);
 
         if (mAutoSD_Restart) {
-            mAutoSD_RestartMax = mConfig.getInteger("autoShutdown.restart.max", 3);
+            mAutoSD_RestartMax = config.getInteger("autoShutdown.restart.max", 3);
             logger.debug("CMSEngine: restart max: " + mAutoSD_RestartMax);
 
-            mAutoSD_RestartCount = mConfig.getInteger("autoShutdown.restart.count", 0);
+            mAutoSD_RestartCount = config.getInteger("autoShutdown.restart.count", 0);
             logger.debug("CMSEngine: current restart count: " + mAutoSD_RestartCount);
 
         } else { //!mAutoSD_Restart
 
-            mAutoSD_CrumbFile = mConfig.getString("autoShutdown.crumbFile",
+            mAutoSD_CrumbFile = config.getString("autoShutdown.crumbFile",
                 instanceDir + "/logs/autoShutdown.crumb");
             logger.info("CMSEngine: auto-shutdown crumb file: " + mAutoSD_CrumbFile);
 
@@ -837,7 +838,7 @@ public class CMSEngine implements ServletContextListener {
          * establish signing key reference using audit signing cert
          * for HSM failover detection
          */
-        String mSAuditCertNickName = mConfig.getString(PROP_SIGNED_AUDIT_CERT_NICKNAME);
+        String mSAuditCertNickName = config.getString(PROP_SIGNED_AUDIT_CERT_NICKNAME);
         logger.debug("CMSEngine: audit signing cert: " + mSAuditCertNickName);
 
         CryptoManager mManager = CryptoManager.getInstance();
