@@ -122,6 +122,7 @@ public class CMSEngine implements ServletContextListener {
     private String instanceId;
     private int pid;
 
+    protected EngineConfig config;
     protected EngineConfig mConfig;
     protected ServerXml serverXml;
 
@@ -174,8 +175,10 @@ public class CMSEngine implements ServletContextListener {
 
     public void loadConfig(String path) throws Exception {
         ConfigStorage storage = new FileConfigStore(path);
-        mConfig = createConfig(storage);
-        mConfig.load();
+        config = createConfig(storage);
+        config.load();
+
+        mConfig = config;
     }
 
     public EngineConfig createConfig(ConfigStorage storage) throws Exception {
@@ -204,9 +207,14 @@ public class CMSEngine implements ServletContextListener {
         return mPasswordStore;
     }
 
-    public void initializePasswordStore(EngineConfig config) throws EBaseException, IOException {
+    public void initPasswordStore() throws Exception {
 
-        logger.info("CMSEngine: initializing password stores");
+        int state = config.getState();
+        if (state == 0) {
+            return;
+        }
+
+        logger.info("CMSEngine: initializing password store");
 
         // create and initialize mPasswordStore
         getPasswordStore();
@@ -250,8 +258,8 @@ public class CMSEngine implements ServletContextListener {
                         connConfig.getInteger("port"),
                         connConfig.getBoolean("secureConn"));
 
-                binddn = "cn=Replication Manager masterAgreement1-" + mConfig.getHostname() + "-" +
-                        mConfig.getInstanceID() + ",cn=config";
+                binddn = "cn=Replication Manager masterAgreement1-" + config.getHostname() + "-" +
+                        config.getInstanceID() + ",cn=config";
 
             } else if (tags.equals("CA LDAP Publishing")) {
 
@@ -413,15 +421,7 @@ public class CMSEngine implements ServletContextListener {
         instanceDir = mConfig.getInstanceDir();
         instanceId = mConfig.getInstanceID();
 
-        if (state == 1) {
-            // configuration is complete, initialize password store
-            try {
-                initializePasswordStore(mConfig);
-            } catch (IOException e) {
-                logger.error("Unable to initialize password store: " + e.getMessage(), e);
-                throw new EBaseException("Exception while initializing password store: " + e);
-            }
-        }
+        initPasswordStore();
 
         // my default is 1 day
         String flush_timeout = mConfig.getString("securitydomain.flushinterval", "86400000");
