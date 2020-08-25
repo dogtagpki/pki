@@ -401,6 +401,13 @@ public class CMSEngine implements ServletContextListener {
         return ret;
     }
 
+    public void initPlugins() throws Exception {
+        IConfigStore pluginRegistryConfig = config.getSubStore(PluginRegistry.ID);
+        String subsystem = config.getType().toLowerCase();
+        String defaultRegistryFile = instanceDir + "/conf/" + subsystem + "/registry.cfg";
+        pluginRegistry.init(pluginRegistryConfig, defaultRegistryFile);
+    }
+
     public void configurePorts() throws Exception {
 
         String instanceRoot = config.getInstanceDir();
@@ -472,10 +479,7 @@ public class CMSEngine implements ServletContextListener {
 
         Security.addProvider(new org.mozilla.jss.netscape.security.provider.CMS());
 
-        IConfigStore pluginRegistryConfig = mConfig.getSubStore(PluginRegistry.ID);
-        String subsystem = mConfig.getType().toLowerCase();
-        String defaultRegistryFile = instanceDir + "/conf/" + subsystem + "/registry.cfg";
-        pluginRegistry.init(pluginRegistryConfig, defaultRegistryFile);
+        initPlugins();
 
         loadSubsystems();
         initSubsystems();
