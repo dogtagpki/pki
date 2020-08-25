@@ -543,7 +543,7 @@ public class CertificateAuthority
                     // installation of externally-signed CA.
                     logger.debug("null authorityID -> host authority; not starting KeyRetriever");
 
-                } else if (!CAEngine.keyRetrievers.containsKey(authorityID)) {
+                } else if (!engine.hasKeyRetriever(authorityID)) {
                     logger.info("CertificateAuthority: starting KeyRetrieverRunner thread");
                     Thread t = new Thread(
                         new KeyRetrieverRunner(this, authorityID, mNickname, authorityKeyHosts),
