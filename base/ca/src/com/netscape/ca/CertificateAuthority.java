@@ -220,8 +220,6 @@ public class CertificateAuthority
      */
     static LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CertificateAuthority");
 
-    static final Map<AuthorityID, Thread> keyRetrieverThreads =
-        Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
     protected CertificateAuthority hostCA = null;
     protected AuthorityID authorityID = null;
     protected AuthorityID authorityParentID = null;
@@ -545,13 +543,13 @@ public class CertificateAuthority
                     // installation of externally-signed CA.
                     logger.debug("null authorityID -> host authority; not starting KeyRetriever");
 
-                } else if (!keyRetrieverThreads.containsKey(authorityID)) {
+                } else if (!CAEngine.keyRetrievers.containsKey(authorityID)) {
                     logger.info("CertificateAuthority: starting KeyRetrieverRunner thread");
                     Thread t = new Thread(
                         new KeyRetrieverRunner(this, authorityID, mNickname, authorityKeyHosts),
                         "KeyRetrieverRunner-" + authorityID);
                     t.start();
-                    keyRetrieverThreads.put(authorityID, t);
+                    CAEngine.keyRetrievers.put(authorityID, t);
 
                 } else {
                     logger.debug("KeyRetriever thread already running for authority " + authorityID);

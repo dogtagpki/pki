@@ -53,6 +53,9 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     public static Map<AuthorityID, CertificateAuthority> authorities =
             Collections.synchronizedSortedMap(new TreeMap<AuthorityID, CertificateAuthority>());
 
+    public static Map<AuthorityID, Thread> keyRetrievers =
+            Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
+
     public CAEngine() throws Exception {
         super("CA");
     }
