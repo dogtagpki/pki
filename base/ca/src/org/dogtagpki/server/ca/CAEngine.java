@@ -34,8 +34,10 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.ca.CertificateAuthority;
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -155,6 +157,32 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         }
 
         return null;
+    }
+
+    /**
+     * Create a new certificate authority.
+     *
+     * @param subjectDN Subject DN for new CA
+     * @param parentAID ID of parent CA
+     * @param description Optional string description of CA
+     */
+    public CertificateAuthority createCA(
+            IAuthToken authToken,
+            String subjectDN,
+            AuthorityID parentAID,
+            String description)
+            throws EBaseException {
+
+        CertificateAuthority parentCA = getCA(parentAID);
+
+        if (parentCA == null) {
+            throw new CANotFoundException("Parent CA \"" + parentAID + "\" does not exist");
+        }
+
+        CertificateAuthority ca = parentCA.createSubCA(authToken, subjectDN, description);
+        authorities.put(ca.getAuthorityID(), ca);
+
+        return ca;
     }
 
     public ProfileSubsystem getProfileSubsystem() {

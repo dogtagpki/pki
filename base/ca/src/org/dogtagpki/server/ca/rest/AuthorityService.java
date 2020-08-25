@@ -264,7 +264,8 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             SessionContext.getContext().get(SessionContext.AUTH_TOKEN);
 
         try {
-            CertificateAuthority subCA = hostCA.createCA(
+            CAEngine engine = CAEngine.getInstance();
+            CertificateAuthority subCA = engine.createCA(
                 authToken, data.getDN(), parentAID, data.getDescription());
             audit(ILogger.SUCCESS, OpDef.OP_ADD,
                     subCA.getAuthorityID().toString(), auditParams);

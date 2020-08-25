@@ -2716,32 +2716,6 @@ public class CertificateAuthority
         return authorityDescription;
     }
 
-    /**
-     * Create a new lightweight authority.
-     *
-     * @param subjectDN Subject DN for new CA
-     * @param parentAID ID of parent CA
-     * @param description Optional string description of CA
-     */
-    public CertificateAuthority createCA(
-            IAuthToken authToken,
-            String subjectDN, AuthorityID parentAID,
-            String description)
-            throws EBaseException {
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority parentCA = engine.getCA(parentAID);
-
-        if (parentCA == null)
-            throw new CANotFoundException(
-                "Parent CA \"" + parentAID + "\" does not exist");
-
-        CertificateAuthority ca = parentCA.createSubCA(
-                authToken, subjectDN, description);
-        CAEngine.authorities.put(ca.getAuthorityID(), ca);
-        return ca;
-    }
-
     private void ensureAuthorityDNAvailable(X500Name dn)
             throws IssuerUnavailableException {
 
