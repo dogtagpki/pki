@@ -200,6 +200,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return keyRetrievers.containsKey(aid);
     }
 
+    public void addKeyRetriever(AuthorityID aid, Thread thread) {
+        keyRetrievers.put(aid, thread);
+    }
+
     public ProfileSubsystem getProfileSubsystem() {
         return (ProfileSubsystem) getSubsystem(ProfileSubsystem.ID);
     }

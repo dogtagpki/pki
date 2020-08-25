@@ -549,7 +549,7 @@ public class CertificateAuthority
                         new KeyRetrieverRunner(this, authorityID, mNickname, authorityKeyHosts),
                         "KeyRetrieverRunner-" + authorityID);
                     t.start();
-                    CAEngine.keyRetrievers.put(authorityID, t);
+                    engine.addKeyRetriever(authorityID, t);
 
                 } else {
                     logger.debug("KeyRetriever thread already running for authority " + authorityID);
