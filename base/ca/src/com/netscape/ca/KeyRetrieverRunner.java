@@ -71,7 +71,8 @@ public class KeyRetrieverRunner implements Runnable {
 
         } finally {
             // remove self from tracker
-            CAEngine.keyRetrievers.remove(aid);
+            CAEngine engine = CAEngine.getInstance();
+            engine.removeKeyRetriever(aid);
         }
     }
 
