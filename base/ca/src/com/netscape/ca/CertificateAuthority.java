@@ -528,46 +528,34 @@ public class CertificateAuthority
         boolean initSigUnitSucceeded = false;
 
         try {
-            try {
-                logger.info("CertificateAuthority: initializing signing unit for CA");
-                initSigUnit();
-                initSigUnitSucceeded = true;
+            logger.info("CertificateAuthority: initializing signing unit for CA");
+            initSigUnit();
+            initSigUnitSucceeded = true;
 
-            } catch (CAMissingCertException | CAMissingKeyException e) {
-                logger.warn("CertificateAuthority: CA signing key and cert not (yet) present in NSS database");
-                signingUnitException = e;
+        } catch (CAMissingCertException | CAMissingKeyException e) {
+            logger.warn("CertificateAuthority: CA signing key and cert not (yet) present in NSS database");
+            signingUnitException = e;
 
-                if (authorityID == null) {
-                    // Only the host authority should ever see a
-                    // null authorityID, e.g. during two-step
-                    // installation of externally-signed CA.
-                    logger.debug("null authorityID -> host authority; not starting KeyRetriever");
+            if (authorityID == null) {
+                // Only the host authority should ever see a
+                // null authorityID, e.g. during two-step
+                // installation of externally-signed CA.
+                logger.debug("null authorityID -> host authority; not starting KeyRetriever");
 
-                } else if (!engine.hasKeyRetriever(authorityID)) {
-                    logger.info("CertificateAuthority: starting KeyRetrieverRunner thread");
-                    Thread t = new Thread(
-                        new KeyRetrieverRunner(this, authorityID, mNickname, authorityKeyHosts),
-                        "KeyRetrieverRunner-" + authorityID);
-                    t.start();
-                    engine.addKeyRetriever(authorityID, t);
+            } else if (!engine.hasKeyRetriever(authorityID)) {
+                logger.info("CertificateAuthority: starting KeyRetrieverRunner thread");
+                Thread t = new Thread(
+                    new KeyRetrieverRunner(this, authorityID, mNickname, authorityKeyHosts),
+                    "KeyRetrieverRunner-" + authorityID);
+                t.start();
+                engine.addKeyRetriever(authorityID, t);
 
-                } else {
-                    logger.debug("KeyRetriever thread already running for authority " + authorityID);
-                }
-            }
-
-            // init default CA attributes like cert version, validity.
-            initDefCaAttrs();
-
-        } catch (EPropertyNotFound e) {
-            if (engine.isPreOpMode()) {
-                logger.warn("CertificateAuthority: " + e.getMessage());
-                logger.warn("CertificateAuthority: Ignore exception in pre-op mode");
             } else {
-                logger.error("CertificateAuthority: " + e.getMessage(), e);
-                throw e;
+                logger.debug("KeyRetriever thread already running for authority " + authorityID);
             }
         }
+
+        initDefaultCAAttributes();
 
         /* Don't try to update the cert unless we already have
          * the cert and key. */
@@ -1918,30 +1906,25 @@ public class CertificateAuthority
     /**
      * init default cert attributes.
      */
-    private void initDefCaAttrs()
-            throws EBaseException {
-        int version = mConfig.getInteger(PROP_X509CERT_VERSION,
-                CertificateVersion.V3);
+    private void initDefaultCAAttributes() throws EBaseException {
 
-        if (version != CertificateVersion.V1 &&
-                version != CertificateVersion.V3) {
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_X509CERT_VERSION_NOT_SUPPORTED"));
+        int version = mConfig.getInteger(PROP_X509CERT_VERSION, CertificateVersion.V3);
+
+        if (version != CertificateVersion.V1 && version != CertificateVersion.V3) {
+            throw new ECAException(CMS.getUserMessage("CMS_CA_X509CERT_VERSION_NOT_SUPPORTED"));
         }
+
         try {
             mDefaultCertVersion = new CertificateVersion(version - 1);
         } catch (IOException e) {
-            // should never occur.
+            throw new EBaseException(e);
         }
 
         int validity_in_days = mConfig.getInteger(PROP_DEF_VALIDITY, 2 * 365);
-
         mDefaultValidity = validity_in_days * DAY; // days in config file.
 
-        mEnablePastCATime =
-                mConfig.getBoolean(PROP_ENABLE_PAST_CATIME, false);
-        mEnableOCSP =
-                mConfig.getBoolean(PROP_ENABLE_OCSP, true);
+        mEnablePastCATime = mConfig.getBoolean(PROP_ENABLE_PAST_CATIME, false);
+        mEnableOCSP = mConfig.getBoolean(PROP_ENABLE_OCSP, true);
 
         String fs = mConfig.getString(PROP_FAST_SIGNING, "");
 
@@ -1950,7 +1933,6 @@ public class CertificateAuthority
         } else {
             mFastSigning = FASTSIGNING_DISABLED;
         }
-
     }
 
     /**
