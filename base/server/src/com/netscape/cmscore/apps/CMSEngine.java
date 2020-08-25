@@ -208,6 +208,11 @@ public class CMSEngine implements ServletContextListener {
         return mPasswordStore;
     }
 
+    public void initLogging() throws Exception {
+        IConfigStore debugConfig = config.getSubStore(Debug.ID);
+        debug.init(debugConfig);
+    }
+
     public void initPasswordStore() throws Exception {
 
         int state = config.getState();
@@ -480,14 +485,12 @@ public class CMSEngine implements ServletContextListener {
      */
     public void init() throws Exception {
 
-        IConfigStore debugConfig = mConfig.getSubStore(Debug.ID);
-        debug.init(debugConfig);
-
         logger.info("Initializing " + name + " subsystem");
 
         instanceDir = mConfig.getInstanceDir();
         instanceId = mConfig.getInstanceID();
 
+        initLogging();
         initPasswordStore();
         initSecurityProvider();
         initPlugins();
