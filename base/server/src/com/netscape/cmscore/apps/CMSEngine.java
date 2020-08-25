@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.security.Provider;
 import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.X509Certificate;
@@ -401,6 +402,18 @@ public class CMSEngine implements ServletContextListener {
         return ret;
     }
 
+    public void initSecurityProvider() {
+
+        logger.info("CMSEngine: Java version: " + System.getProperty("java.version"));
+
+        Security.addProvider(new org.mozilla.jss.netscape.security.provider.CMS());
+
+        logger.info("CMSEngine: security providers:");
+        for (Provider provider : Security.getProviders()) {
+            logger.debug("CMSEngine: - " + provider);
+        }
+    }
+
     public void initPlugins() throws Exception {
         IConfigStore pluginRegistryConfig = config.getSubStore(PluginRegistry.ID);
         String subsystem = config.getType().toLowerCase();
@@ -476,9 +489,7 @@ public class CMSEngine implements ServletContextListener {
         instanceId = mConfig.getInstanceID();
 
         initPasswordStore();
-
-        Security.addProvider(new org.mozilla.jss.netscape.security.provider.CMS());
-
+        initSecurityProvider();
         initPlugins();
 
         loadSubsystems();
@@ -487,18 +498,6 @@ public class CMSEngine implements ServletContextListener {
         configureAutoShutdown();
         configureServerCertNickname();
         configureExcludedLdapAttrs();
-
-        logger.debug("Java version: " + System.getProperty("java.version"));
-        java.security.Provider ps[] = java.security.Security.getProviders();
-
-        if (ps == null || ps.length <= 0) {
-            logger.debug("CMSEngine: Java Security Provider NONE");
-        } else {
-            for (int x = 0; x < ps.length; x++) {
-                logger.debug("CMSEngine: Java Security Provider " + x + " class=" + ps[x]);
-            }
-        }
-
         configurePorts();
 
         initSecurityDomain();
