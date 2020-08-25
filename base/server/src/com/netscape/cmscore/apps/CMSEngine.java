@@ -401,6 +401,26 @@ public class CMSEngine implements ServletContextListener {
         return ret;
     }
 
+    public void configurePorts() throws Exception {
+
+        String instanceRoot = config.getInstanceDir();
+        String path = instanceRoot + File.separator + "conf" + File.separator + SERVER_XML;
+
+        serverXml = ServerXml.load(path);
+        unsecurePort = serverXml.getUnsecurePort();
+        securePort = serverXml.getSecurePort();
+
+        String port = config.getString("proxy.securePort", "");
+        if (!port.equals("")) {
+            securePort = port;
+        }
+
+        port = config.getString("proxy.unsecurePort", "");
+        if (!port.equals("")) {
+            unsecurePort = port;
+        }
+    }
+
     public void initSecurityDomain() throws Exception {
 
         int state = config.getState();
@@ -474,46 +494,14 @@ public class CMSEngine implements ServletContextListener {
                 logger.debug("CMSEngine: Java Security Provider " + x + " class=" + ps[x]);
             }
         }
-        parseServerXML();
-        fixProxyPorts();
+
+        configurePorts();
 
         initSecurityDomain();
     }
 
     public Configurator createConfigurator() throws Exception {
         return new Configurator(this);
-    }
-
-    private void parseServerXML() throws EBaseException {
-        try {
-            String instanceRoot = mConfig.getInstanceDir();
-            String path = instanceRoot + File.separator + "conf" + File.separator + SERVER_XML;
-
-            serverXml = ServerXml.load(path);
-            unsecurePort = serverXml.getUnsecurePort();
-            securePort = serverXml.getSecurePort();
-
-        } catch (Exception e) {
-            logger.error("CMSEngine: Unable to parse server.xml: " + e.getMessage(), e);
-            throw new EBaseException("CMSEngine: Unable to parse server.xml: " + e.getMessage(), e);
-        }
-    }
-
-    private void fixProxyPorts() throws EBaseException {
-        try {
-            String port = mConfig.getString("proxy.securePort", "");
-            if (!port.equals("")) {
-                securePort = port;
-            }
-
-            port = mConfig.getString("proxy.unsecurePort", "");
-            if (!port.equals("")) {
-                unsecurePort = port;
-            }
-        } catch (EBaseException e) {
-            logger.error("CMSEngine: fixProxyPorts exception: " + e.getMessage(), e);
-            throw e;
-        }
     }
 
     public IConfigStore createFileConfigStore(String path) throws EBaseException {
