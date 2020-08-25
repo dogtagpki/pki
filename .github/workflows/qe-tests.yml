@@ -48,9 +48,8 @@ jobs:
 
     # Tier 0
     installation-sanity:
-      # This job depends on the 'build' job and waits till it completes.
-      # This job needs container to be started manually, as Github provided
-      # container **does not** use /usr/bin/init as its ENTRYPOINT.
+      # This job uses Ansible playbooks in the tests/ dir to setup a PKI deployment.
+      # All 5 subsystems are deployed on "discrete" instances
       name: installation-sanity
       needs: build
       runs-on: macos-latest
