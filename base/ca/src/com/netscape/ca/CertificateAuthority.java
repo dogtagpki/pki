@@ -3371,7 +3371,10 @@ public class CertificateAuthority
     }
 
     void forgetAuthority(AuthorityID aid) {
-        CAEngine.authorities.remove(aid);
+
+        CAEngine engine = CAEngine.getInstance();
+        engine.removeCA(aid);
+
         entryUSNs.remove(aid);
         nsUniqueIds.remove(aid);
     }
