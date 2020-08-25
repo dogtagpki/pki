@@ -649,7 +649,7 @@ public class CertificateAuthority
             if (!foundHostAuthority) {
                 logger.debug("loadLightweightCAs: no entry for host authority");
                 logger.debug("loadLightweightCAs: adding entry for host authority");
-                CAEngine.authorities.put(addHostAuthorityEntry(), this);
+                engine.addCA(addHostAuthorityEntry(), this);
             }
 
             logger.debug("CertificateAuthority: finished init of host authority");
@@ -3239,6 +3239,9 @@ public class CertificateAuthority
     }
 
     synchronized void readAuthority(LDAPEntry entry) {
+
+        CAEngine engine = CAEngine.getInstance();
+
         String nsUniqueId =
             entry.getAttribute("nsUniqueId").getStringValueArray()[0];
         if (deletedNsUniqueIds.contains(nsUniqueId)) {
@@ -3284,7 +3287,7 @@ public class CertificateAuthority
             foundHostAuthority = true;
             this.authorityID = aid;
             this.authorityDescription = desc;
-            CAEngine.authorities.put(aid, this);
+            engine.addCA(aid, this);
             return;
         }
 
@@ -3359,7 +3362,7 @@ public class CertificateAuthority
             CertificateAuthority ca = new CertificateAuthority(
                 hostCA, dn, aid, parentAID, serial,
                 keyNick, keyHosts, desc, enabled);
-            CAEngine.authorities.put(aid, ca);
+            engine.addCA(aid, ca);
             entryUSNs.put(aid, newEntryUSN);
             nsUniqueIds.put(aid, nsUniqueId);
         } catch (EBaseException e) {

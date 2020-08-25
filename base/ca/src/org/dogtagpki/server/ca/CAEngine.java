@@ -159,6 +159,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return null;
     }
 
+    public void addCA(AuthorityID aid, CertificateAuthority ca) {
+        authorities.put(aid, ca);
+    }
+
     /**
      * Create a new certificate authority.
      *
