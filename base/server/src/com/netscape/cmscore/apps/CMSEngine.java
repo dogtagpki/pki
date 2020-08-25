@@ -401,6 +401,37 @@ public class CMSEngine implements ServletContextListener {
         return ret;
     }
 
+    public void initSecurityDomain() throws Exception {
+
+        int state = config.getState();
+        if (state == 0) {
+            return;
+        }
+
+        String sd = config.getString("securitydomain.select", "");
+        if (sd.equals("existing")) {
+            return;
+        }
+
+        // monitor security domain sessions
+
+        // my default is 1 day
+        String source = config.getString("securitydomain.source", "memory");
+        String flushInterval = config.getString("securitydomain.flushinterval", "86400000");
+        String checkInterval = config.getString("securitydomain.checkinterval", "5000");
+
+        if (source.equals("ldap")) {
+            mSecurityDomainSessionTable = new LDAPSecurityDomainSessionTable(Long.parseLong(flushInterval));
+        } else {
+            mSecurityDomainSessionTable = new SecurityDomainSessionTable(Long.parseLong(flushInterval));
+        }
+
+        SessionTimer task = new SessionTimer(mSecurityDomainSessionTable);
+
+        mSDTimer = new Timer();
+        mSDTimer.schedule(task, 5, Long.parseLong(checkInterval));
+    }
+
     /**
      * initialize all static, dynamic and final static subsystems.
      *
@@ -414,19 +445,10 @@ public class CMSEngine implements ServletContextListener {
 
         logger.info("Initializing " + name + " subsystem");
 
-        int state = mConfig.getState();
-
-        ready = false;
-
         instanceDir = mConfig.getInstanceDir();
         instanceId = mConfig.getInstanceID();
 
         initPasswordStore();
-
-        // my default is 1 day
-        String flush_timeout = mConfig.getString("securitydomain.flushinterval", "86400000");
-        String secdomain_source = mConfig.getString("securitydomain.source", "memory");
-        String secdomain_check_interval = mConfig.getString("securitydomain.checkinterval", "5000");
 
         Security.addProvider(new org.mozilla.jss.netscape.security.provider.CMS());
 
@@ -455,25 +477,7 @@ public class CMSEngine implements ServletContextListener {
         parseServerXML();
         fixProxyPorts();
 
-        String sd = mConfig.getString("securitydomain.select", "");
-
-        if ((state == 1) && (!sd.equals("existing"))) {
-            // check session domain table only if this is a
-            // configured security domain host
-
-            if (secdomain_source.equals("ldap")) {
-                mSecurityDomainSessionTable = new LDAPSecurityDomainSessionTable((new Long(flush_timeout)).longValue());
-            } else {
-                mSecurityDomainSessionTable = new SecurityDomainSessionTable((new Long(flush_timeout)).longValue());
-            }
-
-            mSDTimer = new Timer();
-            SessionTimer timertask = new SessionTimer(mSecurityDomainSessionTable);
-
-            mSDTimer.schedule(timertask, 5, (new Long(secdomain_check_interval)).longValue());
-        }
-
-        ready = true;
+        initSecurityDomain();
     }
 
     public Configurator createConfigurator() throws Exception {
@@ -998,13 +1002,13 @@ public class CMSEngine implements ServletContextListener {
         startupSubsystems(finalSubsystems);
 
         // global admin servlet. (anywhere else more fit for this ?)
-
-        mStartupTime = System.currentTimeMillis();
     }
 
     public void start() throws Exception {
 
         logger.info("Starting " + name + " engine");
+
+        ready = false;
 
         String catalinaBase = System.getProperty("catalina.base");
         String serverConfDir = catalinaBase + File.separator + "conf";
@@ -1026,7 +1030,10 @@ public class CMSEngine implements ServletContextListener {
         TomcatJSS tomcatJss = TomcatJSS.getInstance();
         tomcatJss.addSocketListener(new PKIServerSocketListener());
 
+        ready = true;
         isStarted = true;
+
+        mStartupTime = System.currentTimeMillis();
 
         logger.info(name + " engine started");
     }
