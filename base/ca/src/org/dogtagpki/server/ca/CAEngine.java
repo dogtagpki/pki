@@ -46,6 +46,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.AuthorityMonitor;
 import com.netscape.ca.CAService;
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CRLIssuingPointConfig;
@@ -149,8 +150,9 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     // Track authority deletions
     public static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
-    public static AsyncLoader loader = new AsyncLoader(10 /*10s timeout*/);
-    public static boolean foundHostCA;
+    protected AsyncLoader loader = new AsyncLoader(10 /* 10s timeout */);
+    protected boolean foundHostCA;
+    protected AuthorityMonitor authorityMonitor;
 
     public CAEngine() throws Exception {
         super("CA");
@@ -321,6 +323,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return issuanceProtectionPrivateKey;
     }
 
+    public AsyncLoader getLoader() {
+        return loader;
+    }
+
     public void initListeners() throws Exception {
 
         logger.info("CAEngine: Initializing CA listeners");
@@ -488,6 +494,40 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         issuanceProtectionPrivateKey = cm.findPrivKeyByCert(issuanceProtectionCert);
     }
 
+    public void initAuthorityMonitor() throws Exception {
+
+        if (!haveAuthorityContainer()) {
+            return;
+        }
+
+        CertificateAuthority hostCA = getCA();
+
+        authorityMonitor = new AuthorityMonitor();
+        new Thread(authorityMonitor, "AuthorityMonitor").start();
+
+        try {
+            logger.info("CAEngine: Waiting for authorities to load");
+            // block until the expected number of authorities
+            // have been loaded (based on numSubordinates of
+            // container entry), or watchdog times it out (in case
+            // numSubordinates is larger than the number of entries
+            // we can see, e.g. replication conflict entries).
+            loader.awaitLoadDone();
+
+        } catch (InterruptedException e) {
+            logger.warn("CAEngine: Caught InterruptedException "
+                    + "while waiting for initial load of authorities.");
+            logger.warn("CAEngine: You may have replication conflict entries or "
+                    + "extraneous data under " + getAuthorityBaseDN());
+        }
+
+        if (!foundHostCA) {
+            logger.debug("CAEngine: No entry for host authority");
+            logger.debug("CAEngine: Adding entry for host authority");
+            addCA(addHostAuthorityEntry(), hostCA);
+        }
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -630,6 +670,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             initCRLIssuingPoints();
 
             initIssuanceProtectionCert();
+
+            initAuthorityMonitor();
         }
     }
 
@@ -1439,5 +1481,19 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         if (publisherProcessor != null) {
             publisherProcessor.shutdown();
         }
+    }
+
+    public void shutdownAuthorityMonitor() {
+
+        if (authorityMonitor != null) {
+            authorityMonitor.shutdown();
+        }
+
+        loader.shutdown();
+    }
+
+    public void shutdown() {
+        shutdownAuthorityMonitor();
+        super.shutdown();
     }
 }

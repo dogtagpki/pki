@@ -59,7 +59,7 @@ public class AuthorityMonitor implements Runnable {
         String lwcaContainerDNString = engine.getAuthorityBaseDN();
         DN lwcaContainerDN = new DN(lwcaContainerDNString);
 
-        logger.debug("AuthorityMonitor: starting.");
+        logger.debug("AuthorityMonitor: Starting authority monitor");
 
         while (running) {
 
@@ -81,7 +81,7 @@ public class AuthorityMonitor implements Runnable {
                  * the load lock so that we can continue to service
                  * requests while LDAP is down.
                  */
-                CAEngine.loader.startLoading();
+                engine.getLoader().startLoading();
 
                 while (running && results.hasMoreElements()) {
 
@@ -99,7 +99,7 @@ public class AuthorityMonitor implements Runnable {
                          * watchdog timer to interrupt waiting threads after it
                          * times out.
                          */
-                        CAEngine.loader.setNumItems(new Integer(
+                        engine.getLoader().setNumItems(new Integer(
                             entry.getAttribute("numSubordinates")
                                 .getStringValueArray()[0]));
                         continue;
@@ -121,7 +121,7 @@ public class AuthorityMonitor implements Runnable {
                     if (!Arrays.asList(objectClasses).contains("authority")) {
                         /* It is not a LWCA entry; ignore it.  But it does
                          * contribute to numSubordinates so increment the loader. */
-                        CAEngine.loader.increment();
+                        engine.getLoader().increment();
                         continue;
                     }
 
@@ -161,7 +161,7 @@ public class AuthorityMonitor implements Runnable {
                     } else {
                         logger.debug("AuthorityMonitor: immediate result");
                         engine.readAuthority(entry);
-                        CAEngine.loader.increment();
+                        engine.getLoader().increment();
                     }
                 }
 

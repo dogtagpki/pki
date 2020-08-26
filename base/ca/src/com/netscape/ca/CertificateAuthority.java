@@ -235,8 +235,6 @@ public class CertificateAuthority
     public final static long DAY = 24 * HOUR;
     protected static final long YEAR = DAY * 365;
 
-    protected AuthorityMonitor authorityMonitor;
-
     // for the notification listeners
 
     /**
@@ -437,42 +435,6 @@ public class CertificateAuthority
         if (initSigUnitSucceeded) {
             logger.info("CertificateAuthority: checking for newer cert");
             checkForNewerCert();
-        }
-
-        if (engine.isPreOpMode()) {
-            logger.info("CertificateAuthority: aborting initialization in pre-op mode");
-            return;
-        }
-
-        if (isHostAuthority() && engine.haveAuthorityContainer()) {
-
-            logger.info("CertificateAuthority: starting authority monitor");
-
-            authorityMonitor = new AuthorityMonitor();
-            new Thread(authorityMonitor, "AuthorityMonitor").start();
-
-            try {
-                // block until the expected number of authorities
-                // have been loaded (based on numSubordinates of
-                // container entry), or watchdog times it out (in case
-                // numSubordinates is larger than the number of entries
-                // we can see, e.g. replication conflict entries).
-                CAEngine.loader.awaitLoadDone();
-
-            } catch (InterruptedException e) {
-                logger.warn("CertificateAuthority: caught InterruptedException "
-                        + "while waiting for initial load of authorities.");
-                logger.warn("You may have replication conflict entries or "
-                        + "extraneous data under " + engine.getAuthorityBaseDN());
-            }
-
-            if (!CAEngine.foundHostCA) {
-                logger.debug("loadLightweightCAs: no entry for host authority");
-                logger.debug("loadLightweightCAs: adding entry for host authority");
-                engine.addCA(engine.addHostAuthorityEntry(), this);
-            }
-
-            logger.debug("CertificateAuthority: finished init of host authority");
         }
     }
 
@@ -690,17 +652,6 @@ public class CertificateAuthority
      * <P>
      */
     public void shutdown() {
-        // lightweight authorities don't own these resources
-        if (!isHostAuthority())
-            return;
-
-        CAEngine engine = CAEngine.getInstance();
-
-        if (authorityMonitor != null) {
-            authorityMonitor.shutdown();
-        }
-
-        CAEngine.loader.shutdown();
     }
 
     /**
@@ -2137,8 +2088,6 @@ public class CertificateAuthority
 
         if (hasSubCAs)
             throw new CANotLeafException("CA with sub-CAs cannot be deleted (delete sub-CAs first)");
-
-        shutdown();
 
         revokeAuthority(httpReq);
         engine.deleteAuthorityEntry(authorityID);
