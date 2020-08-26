@@ -2659,7 +2659,7 @@ public class CertificateAuthority
             attrSet.add(new LDAPAttribute("description", description));
         LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
 
-        addAuthorityEntry(aid, ldapEntry);
+        engine.addAuthorityEntry(aid, ldapEntry);
 
         X509CertImpl cert = null;
 
@@ -2848,29 +2848,11 @@ public class CertificateAuthority
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
         LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
 
-        addAuthorityEntry(aid, ldapEntry);
+        engine.addAuthorityEntry(aid, ldapEntry);
 
         this.authorityID = aid;
         this.authorityDescription = desc;
         return aid;
-    }
-
-    private void addAuthorityEntry(AuthorityID aid, LDAPEntry entry)
-            throws ELdapException {
-        CAEngine engine = CAEngine.getInstance();
-        LDAPControl[] responseControls;
-        LDAPConnection conn = CAEngine.connectionFactory.getConn();
-        synchronized (hostCA) {
-            try {
-                conn.add(entry, engine.getUpdateConstraints());
-                responseControls = conn.getResponseControls();
-            } catch (LDAPException e) {
-                throw new ELdapException("addAuthorityEntry: failed to add entry", e);
-            } finally {
-                CAEngine.connectionFactory.returnConn(conn);
-            }
-            engine.trackUpdate(aid, responseControls);
-        }
     }
 
     /**

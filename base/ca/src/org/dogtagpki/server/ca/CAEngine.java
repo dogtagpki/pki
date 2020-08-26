@@ -40,6 +40,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
+import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -295,6 +296,25 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             logger.info("CAEngine: tracking nsUniqueId: " + nsUniqueId);
             nsUniqueIds.put(aid, nsUniqueId);
         }
+    }
+
+    public synchronized void addAuthorityEntry(AuthorityID aid, LDAPEntry entry) throws EBaseException {
+
+        LDAPConnection conn = connectionFactory.getConn();
+        LDAPControl[] responseControls;
+
+        try {
+            conn.add(entry, getUpdateConstraints());
+            responseControls = conn.getResponseControls();
+
+        } catch (LDAPException e) {
+            throw new ELdapException("Unable to add authority: " + e.getMessage(), e);
+
+        } finally {
+            connectionFactory.returnConn(conn);
+        }
+
+        trackUpdate(aid, responseControls);
     }
 
     public ProfileSubsystem getProfileSubsystem() {
