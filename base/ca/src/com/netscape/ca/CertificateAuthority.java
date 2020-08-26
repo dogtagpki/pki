@@ -1673,6 +1673,24 @@ public class CertificateAuthority
     // Initialization routines.
     //
 
+    public CertificateChain getCertChain(org.mozilla.jss.crypto.X509Certificate cert)
+            throws NotInitializedException, CertificateException, TokenException {
+
+        logger.debug("CertificateAuthority: cert chain:");
+
+        CryptoManager manager = CryptoManager.getInstance();
+        org.mozilla.jss.crypto.X509Certificate[] chain = manager.buildCertificateChain(cert);
+
+        java.security.cert.X509Certificate[] certs = new java.security.cert.X509Certificate[chain.length];
+
+        for (int i = 0; i < chain.length; i++) {
+            certs[i] = new X509CertImpl(chain[i].getEncoded());
+            logger.debug("CertificateAuthority: - " + certs[i].getSubjectDN());
+        }
+
+        return new CertificateChain(certs);
+    }
+
     /**
      * init CA signing unit & cert chain.
      */
@@ -1734,29 +1752,9 @@ public class CertificateAuthority
                 mCRLSigningUnit = mSigningUnit;
             }
 
-            // init cert chain
-            CryptoManager manager = CryptoManager.getInstance();
-
-            logger.debug("CertificateAuthority: create cert chain from certs in NSS database");
-
+            logger.debug("CertificateAuthority: loading CA cert chain");
             org.mozilla.jss.crypto.X509Certificate caCert = mSigningUnit.getCert();
-            logger.debug("CertificateAuthority: CA cert: " + caCert.getSubjectDN());
-
-            org.mozilla.jss.crypto.X509Certificate[] chain =
-                    manager.buildCertificateChain(caCert);
-
-            // do this in case other subsyss expect a X509CertImpl
-            java.security.cert.X509Certificate[] implchain =
-                    new java.security.cert.X509Certificate[chain.length];
-
-            for (int i = 0; i < chain.length; i++) {
-                implchain[i] = new X509CertImpl(chain[i].getEncoded());
-                logger.debug("CertificateAuthority: CA cert: " + caCert.getSubjectDN());
-            }
-
-            mCACertChain = new CertificateChain(implchain);
-
-            logger.debug("CertificateAuthority: cert chain created");
+            mCACertChain = getCertChain(caCert);
 
             IConfigStore OCSPStore = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
 
@@ -1769,17 +1767,9 @@ public class CertificateAuthority
                 logger.debug("Shared OCSP signing unit inited");
             }
 
-            org.mozilla.jss.crypto.X509Certificate[] ocspChain =
-                    manager.buildCertificateChain(mOCSPSigningUnit.getCert());
-            // do this in case other subsyss expect a X509CertImpl
-            java.security.cert.X509Certificate[] ocspImplchain =
-                    new java.security.cert.X509Certificate[ocspChain.length];
-
-            for (int i = 0; i < ocspChain.length; i++) {
-                ocspImplchain[i] = new X509CertImpl(ocspChain[i].getEncoded());
-            }
-            mOCSPCertChain = new CertificateChain(ocspImplchain);
-            logger.debug("in init - got OCSP chain from JSS.");
+            logger.debug("CertificateAuthority: loading OCSP cert chain");
+            org.mozilla.jss.crypto.X509Certificate ocspCert = mOCSPSigningUnit.getCert();
+            mOCSPCertChain = getCertChain(ocspCert);
 
             mCaX509Cert = mSigningUnit.getCert();
             mCaCert = new X509CertImpl(mCaX509Cert.getEncoded());
