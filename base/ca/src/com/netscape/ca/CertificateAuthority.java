@@ -162,7 +162,6 @@ import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.ARequestNotifier;
 import com.netscape.cmscore.request.RequestSubsystem;
-import com.netscape.cmscore.security.KeyCertUtil;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -1738,70 +1737,24 @@ public class CertificateAuthority
             // init cert chain
             CryptoManager manager = CryptoManager.getInstance();
 
-            int caChainNum = caSigningCfg.getInteger(PROP_CA_CHAIN_NUM, 0);
-            logger.debug("CertificateAuthority: cachainNum: " + caChainNum);
+            logger.debug("CertificateAuthority: create cert chain from certs in NSS database");
 
-            if (caChainNum > 0) {
+            org.mozilla.jss.crypto.X509Certificate caCert = mSigningUnit.getCert();
+            logger.debug("CertificateAuthority: CA cert: " + caCert.getSubjectDN());
 
-                logger.debug("CertificateAuthority: create cert chain from files:");
+            org.mozilla.jss.crypto.X509Certificate[] chain =
+                    manager.buildCertificateChain(caCert);
 
-                IConfigStore chainStore = caSigningCfg.getSubStore(PROP_CA_CHAIN);
+            // do this in case other subsyss expect a X509CertImpl
+            java.security.cert.X509Certificate[] implchain =
+                    new java.security.cert.X509Certificate[chain.length];
 
-                if (chainStore == null) {
-                    logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN",
-                                    "ca cert chain config error"));
-                    throw new ECAException(
-                            CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED",
-                                    "ca cert chain config error"));
-                }
-
-                java.security.cert.X509Certificate[] implchain =
-                        new java.security.cert.X509Certificate[caChainNum];
-
-                for (int i = 0; i < caChainNum; i++) {
-                    String subtreeName = PROP_CA_CERT + i;
-
-                    // cert file name must be full path
-                    String certFileName = chainStore.getString(subtreeName, null);
-                    logger.debug("- file: " + certFileName);
-
-                    if ((certFileName == null) || certFileName.equals("")) {
-                        logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", "cert file config error"));
-                        throw new ECAException(
-                                CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED",
-                                        "cert file config error"));
-                    }
-
-                    byte[] b64Bytes = getCertFromFile(certFileName);
-                    String b64String = new String(b64Bytes);
-                    byte[] certBytes = KeyCertUtil.convertB64EToByteArray(b64String);
-
-                    implchain[i] = new X509CertImpl(certBytes);
-                }
-
-                mCACertChain = new CertificateChain(implchain);
-
-            } else {
-
-                logger.debug("CertificateAuthority: create cert chain from certs in NSS database");
-
-                org.mozilla.jss.crypto.X509Certificate caCert = mSigningUnit.getCert();
+            for (int i = 0; i < chain.length; i++) {
+                implchain[i] = new X509CertImpl(chain[i].getEncoded());
                 logger.debug("CertificateAuthority: CA cert: " + caCert.getSubjectDN());
-
-                org.mozilla.jss.crypto.X509Certificate[] chain =
-                        manager.buildCertificateChain(caCert);
-
-                // do this in case other subsyss expect a X509CertImpl
-                java.security.cert.X509Certificate[] implchain =
-                        new java.security.cert.X509Certificate[chain.length];
-
-                for (int i = 0; i < chain.length; i++) {
-                    implchain[i] = new X509CertImpl(chain[i].getEncoded());
-                    logger.debug("CertificateAuthority: CA cert: " + caCert.getSubjectDN());
-                }
-
-                mCACertChain = new CertificateChain(implchain);
             }
+
+            mCACertChain = new CertificateChain(implchain);
 
             logger.debug("CertificateAuthority: cert chain created");
 
