@@ -66,7 +66,7 @@ public class AuthorityMonitor implements Runnable {
 
         logger.debug("AuthorityMonitor: starting.");
 
-        while (!CertificateAuthority.stopped) {
+        while (running) {
 
             LDAPConnection conn = null;
 
@@ -88,7 +88,7 @@ public class AuthorityMonitor implements Runnable {
                  */
                 this.certificateAuthority.lwcaLoader.startLoading();
 
-                while (!CertificateAuthority.stopped && results.hasMoreElements()) {
+                while (running && results.hasMoreElements()) {
 
                     LDAPEntry entry = results.next();
                     DN entryDN = new DN(entry.getDN());
@@ -261,6 +261,14 @@ public class AuthorityMonitor implements Runnable {
         }
     }
 
+    /**
+     * Stop the activityMonitor thread
+     *
+     * connectionFactory.reset() will disconnect all connections,
+     * causing the current conn.search() to throw.
+     * The search will not be restarted because 'running' has
+     * been set to false, and the monitor thread will exit.
+     */
     public void shutdown() {
         running = false;
     }

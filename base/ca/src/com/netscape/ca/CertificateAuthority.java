@@ -318,7 +318,6 @@ public class CertificateAuthority
     private int mMaxNonces = 100;
 
     /* Variables to manage loading and tracking of lightweight CAs */
-    static boolean stopped = false;
     private static boolean foundHostAuthority = false;
     AsyncLoader lwcaLoader = new AsyncLoader(10 /*10s timeout*/);
 
@@ -970,15 +969,6 @@ public class CertificateAuthority
         if (mPublisherProcessor != null) {
             mPublisherProcessor.shutdown();
         }
-
-        /* Stop the activityMonitor thread
-         *
-         * connectionFactory.reset() will disconnect all connections,
-         * causing the current conn.search() to throw.
-         * The search will not be restarted because 'stopped' has
-         * set, and the monitor thread will exit.
-         */
-        stopped = true;
     }
 
     /**
