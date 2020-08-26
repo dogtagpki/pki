@@ -18,6 +18,7 @@
 
 package org.dogtagpki.server.ca;
 
+import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,6 +66,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public static Map<AuthorityID, Thread> keyRetrievers =
             Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
+
+    // Track authority updates to avoid race conditions and unnecessary reloads due to replication
+    public static TreeMap<AuthorityID, BigInteger> entryUSNs = new TreeMap<>();
+    public static TreeMap<AuthorityID, String> nsUniqueIds = new TreeMap<>();
 
     public CAEngine() throws Exception {
         super("CA");

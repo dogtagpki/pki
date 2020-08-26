@@ -40,7 +40,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -328,10 +327,6 @@ public class CertificateAuthority
     private static boolean foundHostAuthority = false;
     AsyncLoader lwcaLoader = new AsyncLoader(10 /*10s timeout*/);
 
-    /* Maps and sets of entryUSNs and nsUniqueIds for avoiding race
-     * conditions and unnecessary reloads related to replication */
-    private static TreeMap<AuthorityID,BigInteger> entryUSNs = new TreeMap<>();
-    private static TreeMap<AuthorityID,String> nsUniqueIds = new TreeMap<>();
     static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
     /**
@@ -2924,14 +2919,14 @@ public class CertificateAuthority
         LDAPAttribute attr = entry.getAttribute("entryUSN");
         if (attr != null) {
             BigInteger entryUSN = new BigInteger(attr.getStringValueArray()[0]);
-            entryUSNs.put(aid, entryUSN);
+            CAEngine.entryUSNs.put(aid, entryUSN);
             logger.debug("postCommit: new entryUSN = " + entryUSN);
         }
 
         attr = entry.getAttribute("nsUniqueId");
         if (attr != null) {
             String nsUniqueId = attr.getStringValueArray()[0];
-            nsUniqueIds.put(aid, nsUniqueId);
+            CAEngine.nsUniqueIds.put(aid, nsUniqueId);
             logger.debug("postCommit: nsUniqueId = " + nsUniqueId);
         }
     }
@@ -3119,7 +3114,7 @@ public class CertificateAuthority
                 CAEngine.connectionFactory.returnConn(conn);
             }
 
-            String nsUniqueId = nsUniqueIds.get(aid);
+            String nsUniqueId = CAEngine.nsUniqueIds.get(aid);
             if (nsUniqueId != null)
                 deletedNsUniqueIds.add(nsUniqueId);
             forgetAuthority(aid);
@@ -3200,7 +3195,7 @@ public class CertificateAuthority
             logger.debug("readAuthority: new entryUSN = " + newEntryUSN);
         }
 
-        BigInteger knownEntryUSN = entryUSNs.get(aid);
+        BigInteger knownEntryUSN = CAEngine.entryUSNs.get(aid);
         if (newEntryUSN != null && knownEntryUSN != null) {
             logger.debug("readAuthority: known entryUSN = " + knownEntryUSN);
             if (newEntryUSN.compareTo(knownEntryUSN) <= 0) {
@@ -3251,8 +3246,8 @@ public class CertificateAuthority
                 hostCA, dn, aid, parentAID, serial,
                 keyNick, keyHosts, desc, enabled);
             engine.addCA(aid, ca);
-            entryUSNs.put(aid, newEntryUSN);
-            nsUniqueIds.put(aid, nsUniqueId);
+            CAEngine.entryUSNs.put(aid, newEntryUSN);
+            CAEngine.nsUniqueIds.put(aid, nsUniqueId);
         } catch (EBaseException e) {
             logger.warn("Error initialising lightweight CA: " + e.getMessage(), e);
         }
@@ -3263,7 +3258,7 @@ public class CertificateAuthority
         CAEngine engine = CAEngine.getInstance();
         engine.removeCA(aid);
 
-        entryUSNs.remove(aid);
-        nsUniqueIds.remove(aid);
+        CAEngine.entryUSNs.remove(aid);
+        CAEngine.nsUniqueIds.remove(aid);
     }
 }
