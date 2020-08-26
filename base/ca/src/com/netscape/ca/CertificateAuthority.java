@@ -316,9 +316,6 @@ public class CertificateAuthority
     private boolean mUseNonces = true;
     private int mMaxNonces = 100;
 
-    /* Variables to manage loading and tracking of lightweight CAs */
-    private static boolean foundHostAuthority = false;
-
     /**
      * Constructs a CA subsystem.
      */
@@ -606,7 +603,7 @@ public class CertificateAuthority
                         + "extraneous data under " + engine.getAuthorityBaseDN());
             }
 
-            if (!foundHostAuthority) {
+            if (!CAEngine.foundHostCA) {
                 logger.debug("loadLightweightCAs: no entry for host authority");
                 logger.debug("loadLightweightCAs: adding entry for host authority");
                 engine.addCA(addHostAuthorityEntry(), this);
@@ -3061,7 +3058,7 @@ public class CertificateAuthority
          */
         if (dn.toString().equals(mName.toString())) {
             logger.debug("Found host authority");
-            foundHostAuthority = true;
+            CAEngine.foundHostCA = true;
             this.authorityID = aid;
             this.authorityDescription = desc;
             engine.addCA(aid, this);

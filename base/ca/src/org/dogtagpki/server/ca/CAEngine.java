@@ -85,6 +85,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     public static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
     public static AsyncLoader loader = new AsyncLoader(10 /*10s timeout*/);
+    public static boolean foundHostCA;
 
     public CAEngine() throws Exception {
         super("CA");
