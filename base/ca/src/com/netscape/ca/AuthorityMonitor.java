@@ -216,7 +216,7 @@ public class AuthorityMonitor implements Runnable {
             LDAPAttribute attr = entry.getAttribute("authorityID");
             if (attr != null) {
                 AuthorityID aid = new AuthorityID(attr.getStringValueArray()[0]);
-                this.certificateAuthority.forgetAuthority(aid);
+                engine.removeCA(aid);
             }
 
         } else if (!wasMonitored && isMonitored) {
@@ -257,7 +257,7 @@ public class AuthorityMonitor implements Runnable {
                     + "for authority '" + aid + "': " + e.getMessage(), e);
             }
 
-            this.certificateAuthority.forgetAuthority(aid);
+            engine.removeCA(aid);
         }
     }
 

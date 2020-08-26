@@ -3084,7 +3084,8 @@ public class CertificateAuthority
             String nsUniqueId = CAEngine.nsUniqueIds.get(aid);
             if (nsUniqueId != null)
                 deletedNsUniqueIds.add(nsUniqueId);
-            forgetAuthority(aid);
+
+            engine.removeCA(aid);
         }
     }
 
@@ -3218,14 +3219,5 @@ public class CertificateAuthority
         } catch (EBaseException e) {
             logger.warn("Error initialising lightweight CA: " + e.getMessage(), e);
         }
-    }
-
-    void forgetAuthority(AuthorityID aid) {
-
-        CAEngine engine = CAEngine.getInstance();
-        engine.removeCA(aid);
-
-        CAEngine.entryUSNs.remove(aid);
-        CAEngine.nsUniqueIds.remove(aid);
     }
 }

@@ -195,6 +195,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public void removeCA(AuthorityID aid) {
         authorities.remove(aid);
+        entryUSNs.remove(aid);
+        nsUniqueIds.remove(aid);
     }
 
     /**
