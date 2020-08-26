@@ -161,8 +161,6 @@ import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.ARequestNotifier;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.ldap.LDAPPostReadControl;
-import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
@@ -2874,7 +2872,7 @@ public class CertificateAuthority
             } finally {
                 CAEngine.connectionFactory.returnConn(conn);
             }
-            postCommit(aid, responseControls);
+            engine.trackUpdate(aid, responseControls);
         }
     }
 
@@ -2896,30 +2894,7 @@ public class CertificateAuthority
             } finally {
                 CAEngine.connectionFactory.returnConn(conn);
             }
-            postCommit(authorityID, responseControls);
-        }
-    }
-
-    /**
-     * Post-commit processing of authority to track its entryUSN and nsUniqueId
-     */
-    private void postCommit(AuthorityID aid, LDAPControl[] responseControls) {
-        LDAPPostReadControl control = (LDAPPostReadControl)
-            LDAPUtil.getControl(LDAPPostReadControl.class, responseControls);
-        LDAPEntry entry = control.getEntry();
-
-        LDAPAttribute attr = entry.getAttribute("entryUSN");
-        if (attr != null) {
-            BigInteger entryUSN = new BigInteger(attr.getStringValueArray()[0]);
-            CAEngine.entryUSNs.put(aid, entryUSN);
-            logger.debug("postCommit: new entryUSN = " + entryUSN);
-        }
-
-        attr = entry.getAttribute("nsUniqueId");
-        if (attr != null) {
-            String nsUniqueId = attr.getStringValueArray()[0];
-            CAEngine.nsUniqueIds.put(aid, nsUniqueId);
-            logger.debug("postCommit: nsUniqueId = " + nsUniqueId);
+            engine.trackUpdate(authorityID, responseControls);
         }
     }
 

@@ -51,9 +51,13 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
+import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPConstraints;
+import netscape.ldap.LDAPControl;
+import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 
@@ -263,6 +267,28 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         LDAPPostReadControl control = new LDAPPostReadControl(true, attrs);
         cons.setServerControls(control);
         return cons;
+    }
+
+    public synchronized void trackUpdate(AuthorityID aid, LDAPControl[] responseControls) {
+
+        LDAPPostReadControl control = (LDAPPostReadControl)
+            LDAPUtil.getControl(LDAPPostReadControl.class, responseControls);
+
+        LDAPEntry entry = control.getEntry();
+
+        LDAPAttribute attr = entry.getAttribute("entryUSN");
+        if (attr != null) {
+            BigInteger entryUSN = new BigInteger(attr.getStringValueArray()[0]);
+            logger.debug("CAEngine: tracking entryUSN: " + entryUSN);
+            entryUSNs.put(aid, entryUSN);
+        }
+
+        attr = entry.getAttribute("nsUniqueId");
+        if (attr != null) {
+            String nsUniqueId = attr.getStringValueArray()[0];
+            logger.info("CAEngine: tracking nsUniqueId: " + nsUniqueId);
+            nsUniqueIds.put(aid, nsUniqueId);
+        }
     }
 
     public ProfileSubsystem getProfileSubsystem() {
