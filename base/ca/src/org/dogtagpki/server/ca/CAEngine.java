@@ -159,6 +159,27 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         }
     }
 
+    public boolean haveAuthorityContainer() throws EBaseException {
+
+        LDAPConnection conn = connectionFactory.getConn();
+
+        try {
+            LDAPSearchResults results = conn.search(
+                    getAuthorityBaseDN(),
+                    LDAPConnection.SCOPE_BASE,
+                    null,
+                    null,
+                    false);
+            return results != null;
+
+        } catch (LDAPException e) {
+            return false;
+
+        } finally {
+            connectionFactory.returnConn(conn);
+        }
+    }
+
     /**
      * Returns the main/host CA.
      */

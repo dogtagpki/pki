@@ -179,12 +179,9 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchResults;
 
 
 /**
@@ -584,7 +581,7 @@ public class CertificateAuthority
         // being functional.
         initCRL();
 
-        if (isHostAuthority() && haveLightweightCAsContainer()) {
+        if (isHostAuthority() && engine.haveAuthorityContainer()) {
 
             authorityMonitor = new AuthorityMonitor(this);
             new Thread(authorityMonitor, "AuthorityMonitor").start();
@@ -751,20 +748,6 @@ public class CertificateAuthority
         } catch (TokenException | NoSuchItemOnTokenException e) {
             // really shouldn't happen
             throw new ECAException("Failed to update certificate", e);
-        }
-    }
-
-    private boolean haveLightweightCAsContainer() throws ELdapException {
-        CAEngine engine = CAEngine.getInstance();
-        LDAPConnection conn = CAEngine.connectionFactory.getConn();
-        try {
-            LDAPSearchResults results = conn.search(
-                engine.getAuthorityBaseDN(), LDAPConnection.SCOPE_BASE, null, null, false);
-            return results != null;
-        } catch (LDAPException e) {
-            return false;
-        } finally {
-            CAEngine.connectionFactory.returnConn(conn);
         }
     }
 
