@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -76,6 +77,9 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     // Track authority updates to avoid race conditions and unnecessary reloads due to replication
     public static TreeMap<AuthorityID, BigInteger> entryUSNs = new TreeMap<>();
     public static TreeMap<AuthorityID, String> nsUniqueIds = new TreeMap<>();
+
+    // Track authority deletions
+    public static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
     public CAEngine() throws Exception {
         super("CA");

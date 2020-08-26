@@ -232,7 +232,7 @@ public class AuthorityMonitor implements Runnable {
         if (attr != null)
             nsUniqueId = attr.getStringValueArray()[0];
 
-        if (CertificateAuthority.deletedNsUniqueIds.remove(nsUniqueId)) {
+        if (CAEngine.deletedNsUniqueIds.remove(nsUniqueId)) {
             logger.debug("handleDELETE: delete was already effected");
             return;
         }

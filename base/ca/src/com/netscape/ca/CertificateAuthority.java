@@ -40,7 +40,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
@@ -323,8 +322,6 @@ public class CertificateAuthority
     static boolean stopped = false;
     private static boolean foundHostAuthority = false;
     AsyncLoader lwcaLoader = new AsyncLoader(10 /*10s timeout*/);
-
-    static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
     /**
      * Constructs a CA subsystem.
@@ -3083,7 +3080,7 @@ public class CertificateAuthority
 
             String nsUniqueId = CAEngine.nsUniqueIds.get(aid);
             if (nsUniqueId != null)
-                deletedNsUniqueIds.add(nsUniqueId);
+                CAEngine.deletedNsUniqueIds.add(nsUniqueId);
 
             engine.removeCA(aid);
         }
@@ -3095,7 +3092,7 @@ public class CertificateAuthority
 
         String nsUniqueId =
             entry.getAttribute("nsUniqueId").getStringValueArray()[0];
-        if (deletedNsUniqueIds.contains(nsUniqueId)) {
+        if (CAEngine.deletedNsUniqueIds.contains(nsUniqueId)) {
             logger.warn("readAuthority: ignoring entry with nsUniqueId '"
                     + nsUniqueId + "' due to deletion");
             return;
