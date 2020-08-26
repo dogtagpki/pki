@@ -44,6 +44,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.ProfileSubsystem;
@@ -217,6 +218,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public void removeKeyRetriever(AuthorityID aid) {
         keyRetrievers.remove(aid);
+    }
+
+    public String getAuthorityBaseDN() {
+        return "ou=authorities,ou=" + id + "," + DBSubsystem.getInstance().getBaseDN();
     }
 
     public ProfileSubsystem getProfileSubsystem() {

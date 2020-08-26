@@ -60,7 +60,8 @@ public class AuthorityMonitor implements Runnable {
         LDAPPersistSearchControl persistCtrl =
             new LDAPPersistSearchControl(op, false, true, true);
 
-        String lwcaContainerDNString = this.certificateAuthority.authorityBaseDN();
+        CAEngine engine = CAEngine.getInstance();
+        String lwcaContainerDNString = engine.getAuthorityBaseDN();
         DN lwcaContainerDN = new DN(lwcaContainerDNString);
 
         logger.debug("AuthorityMonitor: starting.");
@@ -202,7 +203,8 @@ public class AuthorityMonitor implements Runnable {
 
     private synchronized void handleMODDN(DN oldDN, LDAPEntry entry) {
 
-        DN authorityBase = new DN(this.certificateAuthority.authorityBaseDN());
+        CAEngine engine = CAEngine.getInstance();
+        DN authorityBase = new DN(engine.getAuthorityBaseDN());
 
         boolean wasMonitored = oldDN.isDescendantOf(authorityBase);
         boolean isMonitored = (new DN(entry.getDN())).isDescendantOf(authorityBase);

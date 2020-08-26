@@ -618,7 +618,7 @@ public class CertificateAuthority
                 logger.warn("CertificateAuthority: caught InterruptedException "
                         + "while waiting for initial load of authorities.");
                 logger.warn("You may have replication conflict entries or "
-                        + "extraneous data under " + authorityBaseDN());
+                        + "extraneous data under " + engine.getAuthorityBaseDN());
             }
 
             if (!foundHostAuthority) {
@@ -772,16 +772,12 @@ public class CertificateAuthority
         }
     }
 
-    String authorityBaseDN() {
-        return "ou=authorities,ou=" + getId()
-            + "," + getDBSubsystem().getBaseDN();
-    }
-
     private boolean haveLightweightCAsContainer() throws ELdapException {
+        CAEngine engine = CAEngine.getInstance();
         LDAPConnection conn = CAEngine.connectionFactory.getConn();
         try {
             LDAPSearchResults results = conn.search(
-                authorityBaseDN(), LDAPConnection.SCOPE_BASE, null, null, false);
+                engine.getAuthorityBaseDN(), LDAPConnection.SCOPE_BASE, null, null, false);
             return results != null;
         } catch (LDAPException e) {
             return false;
@@ -2663,7 +2659,7 @@ public class CertificateAuthority
         String nickname = hostCA.getNickname() + " " + aidString;
 
         // build database entry
-        String dn = "cn=" + aidString + "," + authorityBaseDN();
+        String dn = "cn=" + aidString + "," + engine.getAuthorityBaseDN();
         logger.debug("createSubCA: DN = " + dn);
         String parentDNString = null;
         try {
@@ -2853,12 +2849,14 @@ public class CertificateAuthority
         if (!isHostAuthority())
             throw new EBaseException("Can only invoke from host CA");
 
+        CAEngine engine = CAEngine.getInstance();
+
         // generate authority ID
         AuthorityID aid = new AuthorityID();
         String aidString = aid.toString();
 
         // build database entry
-        String dn = "cn=" + aidString + "," + authorityBaseDN();
+        String dn = "cn=" + aidString + "," + engine.getAuthorityBaseDN();
         String dnString = null;
         try {
             dnString = mName.toLdapDNString();
@@ -2908,7 +2906,8 @@ public class CertificateAuthority
      */
     private void modifyAuthorityEntry(LDAPModificationSet mods)
             throws ELdapException {
-        String dn = "cn=" + authorityID.toString() + "," + authorityBaseDN();
+        CAEngine engine = CAEngine.getInstance();
+        String dn = "cn=" + authorityID + "," + engine.getAuthorityBaseDN();
         LDAPControl[] responseControls;
         LDAPConnection conn = CAEngine.connectionFactory.getConn();
         synchronized (hostCA) {
@@ -3126,7 +3125,8 @@ public class CertificateAuthority
     }
 
     private void deleteAuthorityEntry(AuthorityID aid) throws ELdapException {
-        String dn = "cn=" + aid.toString() + "," + authorityBaseDN();
+        CAEngine engine = CAEngine.getInstance();
+        String dn = "cn=" + aid.toString() + "," + engine.getAuthorityBaseDN();
         LDAPConnection conn = CAEngine.connectionFactory.getConn();
         synchronized (hostCA) {
             try {
