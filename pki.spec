@@ -12,7 +12,7 @@ License:          GPLv2 and LGPLv2
 
 # For development (unsupported) releases, use x.y.z-0.n.unstable with alpha/beta phase.
 # For official (supported) releases, use x.y.z-r where r >=1 without alpha/beta phase.
-Version:          10.9.2
+Version:          10.9.3
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 #global           _phase -a1
 
@@ -823,6 +823,11 @@ else
     app_server=tomcat-$tomcat_version
 fi
 
+%if 0%{?rhel}
+%{__mkdir_p} build
+cd build
+%endif
+
 %cmake \
     --no-warn-unused-cli \
     -DVERSION=%{version}-%{release} \
@@ -845,9 +850,15 @@ fi
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
     -DTHEME=%{?with_theme:%{vendor_id}} \
+%if 0%{?rhel}
+    ..
+%else
     -B %{_vpath_builddir}
+%endif
 
+%if 0%{?fedora}
 cd %{_vpath_builddir}
+%endif
 
 # Do not use _smp_mflags to preserve build order
 %{__make} \
@@ -862,7 +873,11 @@ cd %{_vpath_builddir}
 %install
 ################################################################################
 
+%if 0%{?rhel}
+cd build
+%else
 cd %{_vpath_builddir}
+%endif
 
 %{__make} \
     VERBOSE=%{?_verbose} \
