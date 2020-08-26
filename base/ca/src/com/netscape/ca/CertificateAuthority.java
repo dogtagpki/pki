@@ -2732,7 +2732,7 @@ public class CertificateAuthority
             logger.error("Error creating lightweight CA certificate: " + e.getMessage(), e);
 
             try {
-                deleteAuthorityEntry(aid);
+                engine.deleteAuthorityEntry(aid);
             } catch (ELdapException e2) {
                 // we are about to throw ECAException, so just
                 // log this error.
@@ -2955,7 +2955,7 @@ public class CertificateAuthority
         shutdown();
 
         revokeAuthority(httpReq);
-        deleteAuthorityEntry(authorityID);
+        engine.deleteAuthorityEntry(authorityID);
         deleteAuthorityNSSDB();
     }
 
@@ -3024,27 +3024,6 @@ public class CertificateAuthority
         } catch (TokenException e) {
             logger.error("deleteAuthority: TokenExcepetion while deleting cert: " + e.getMessage(), e);
             throw new ECAException("TokenException while deleting cert: " + e);
-        }
-    }
-
-    private void deleteAuthorityEntry(AuthorityID aid) throws ELdapException {
-        CAEngine engine = CAEngine.getInstance();
-        String dn = "cn=" + aid.toString() + "," + engine.getAuthorityBaseDN();
-        LDAPConnection conn = CAEngine.connectionFactory.getConn();
-        synchronized (hostCA) {
-            try {
-                conn.delete(dn);
-            } catch (LDAPException e) {
-                throw new ELdapException("Error deleting authority entry: " + dn, e);
-            } finally {
-                CAEngine.connectionFactory.returnConn(conn);
-            }
-
-            String nsUniqueId = CAEngine.nsUniqueIds.get(aid);
-            if (nsUniqueId != null)
-                CAEngine.deletedNsUniqueIds.add(nsUniqueId);
-
-            engine.removeCA(aid);
         }
     }
 

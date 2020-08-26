@@ -338,6 +338,29 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         trackUpdate(aid, responseControls);
     }
 
+    public synchronized void deleteAuthorityEntry(AuthorityID aid) throws EBaseException {
+
+        String dn = "cn=" + aid + "," + getAuthorityBaseDN();
+        LDAPConnection conn = connectionFactory.getConn();
+
+        try {
+            conn.delete(dn);
+
+        } catch (LDAPException e) {
+            throw new ELdapException("Unable to delete authority: " + e.getMessage(), e);
+
+        } finally {
+            connectionFactory.returnConn(conn);
+        }
+
+        String nsUniqueId = nsUniqueIds.get(aid);
+        if (nsUniqueId != null) {
+            deletedNsUniqueIds.add(nsUniqueId);
+        }
+
+        removeCA(aid);
+    }
+
     public ProfileSubsystem getProfileSubsystem() {
         return (ProfileSubsystem) getSubsystem(ProfileSubsystem.ID);
     }
