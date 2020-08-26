@@ -786,24 +786,6 @@ public class CertificateAuthority
         }
     }
 
-    private boolean entryUSNPluginEnabled() {
-        try {
-            LDAPConnection conn = CAEngine.connectionFactory.getConn();
-            try {
-                LDAPSearchResults results = conn.search(
-                    "cn=usn,cn=plugins,cn=config", LDAPConnection.SCOPE_BASE,
-                    "(nsslapd-pluginEnabled=on)", null, false);
-                return results != null && results.hasMoreElements();
-            } catch (LDAPException e) {
-                return false;
-            } finally {
-                CAEngine.connectionFactory.returnConn(conn);
-            }
-        } catch (ELdapException e) {
-            return false;  // oh well
-        }
-    }
-
     private void initCRLPublisher() throws EBaseException {
         // instantiate CRL publisher
         if (!isHostAuthority()) {
@@ -3144,7 +3126,7 @@ public class CertificateAuthority
         }
     }
 
-    synchronized void readAuthority(LDAPEntry entry) {
+    synchronized void readAuthority(LDAPEntry entry) throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
 
@@ -3201,7 +3183,7 @@ public class CertificateAuthority
         LDAPAttribute entryUSNAttr = entry.getAttribute("entryUSN");
         if (entryUSNAttr == null) {
             logger.debug("readAuthority: no entryUSN");
-            if (!entryUSNPluginEnabled()) {
+            if (!engine.entryUSNPluginEnabled()) {
                 logger.warn("readAuthority: dirsrv USN plugin is not enabled; skipping entry");
                 logger.warn("Lightweight authority entry has no"
                         + " entryUSN attribute and USN plugin not enabled;"

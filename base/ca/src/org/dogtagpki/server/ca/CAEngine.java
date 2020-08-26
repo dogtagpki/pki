@@ -50,6 +50,10 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
+
 @WebListener
 public class CAEngine extends CMSEngine implements ServletContextListener {
 
@@ -222,6 +226,28 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public String getAuthorityBaseDN() {
         return "ou=authorities,ou=" + id + "," + DBSubsystem.getInstance().getBaseDN();
+    }
+
+    public boolean entryUSNPluginEnabled() throws Exception {
+
+        LDAPConnection conn = connectionFactory.getConn();
+
+        try {
+            LDAPSearchResults results = conn.search(
+                    "cn=usn,cn=plugins,cn=config",
+                    LDAPConnection.SCOPE_BASE,
+                    "(nsslapd-pluginEnabled=on)",
+                    null,
+                    false);
+
+            return results != null && results.hasMoreElements();
+
+        } catch (LDAPException e) {
+            return false;
+
+        } finally {
+            connectionFactory.returnConn(conn);
+        }
     }
 
     public ProfileSubsystem getProfileSubsystem() {

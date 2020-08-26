@@ -189,6 +189,9 @@ public class AuthorityMonitor implements Runnable {
                     logger.info("AuthorityMonitor: Shutting down: " + e.getMessage());
                 }
 
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+
             } finally {
                 try {
                     CAEngine.connectionFactory.returnConn(conn);
@@ -201,7 +204,7 @@ public class AuthorityMonitor implements Runnable {
         logger.debug("AuthorityMonitor: stopping.");
     }
 
-    private synchronized void handleMODDN(DN oldDN, LDAPEntry entry) {
+    private synchronized void handleMODDN(DN oldDN, LDAPEntry entry) throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
         DN authorityBase = new DN(engine.getAuthorityBaseDN());
