@@ -419,6 +419,9 @@ public class CMSEngine implements ServletContextListener {
         }
     }
 
+    public void initDatabase() throws Exception {
+    }
+
     public void initPlugins() throws Exception {
         IConfigStore pluginRegistryConfig = config.getSubStore(PluginRegistry.ID);
         String subsystem = config.getType().toLowerCase();
@@ -494,6 +497,7 @@ public class CMSEngine implements ServletContextListener {
         initPasswordStore();
         initSecurityProvider();
         initPlugins();
+        initDatabase();
 
         loadSubsystems();
         initSubsystems();
@@ -1185,6 +1189,9 @@ public class CMSEngine implements ServletContextListener {
         }
     } // end shutdownHttpServer
 
+    public void shutdownDatabase() {
+    }
+
     /**
      * Shuts down subsystems in backwards order
      * exceptions are ignored. process exists at end to force exit.
@@ -1228,6 +1235,7 @@ public class CMSEngine implements ServletContextListener {
             mSecurityDomainSessionTable.shutdown();
         }
 
+        shutdownDatabase();
         pluginRegistry.shutdown();
     }
 
