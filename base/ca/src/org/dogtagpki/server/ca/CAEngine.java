@@ -50,8 +50,10 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
+import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 
 import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 
@@ -253,6 +255,14 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         } finally {
             connectionFactory.returnConn(conn);
         }
+    }
+
+    public LDAPConstraints getUpdateConstraints() {
+        String[] attrs = {"entryUSN", "nsUniqueId"};
+        LDAPConstraints cons = new LDAPConstraints();
+        LDAPPostReadControl control = new LDAPPostReadControl(true, attrs);
+        cons.setServerControls(control);
+        return cons;
     }
 
     public ProfileSubsystem getProfileSubsystem() {

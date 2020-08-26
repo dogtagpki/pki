@@ -184,7 +184,6 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
@@ -2863,11 +2862,12 @@ public class CertificateAuthority
 
     private void addAuthorityEntry(AuthorityID aid, LDAPEntry entry)
             throws ELdapException {
+        CAEngine engine = CAEngine.getInstance();
         LDAPControl[] responseControls;
         LDAPConnection conn = CAEngine.connectionFactory.getConn();
         synchronized (hostCA) {
             try {
-                conn.add(entry, getCommitConstraints());
+                conn.add(entry, engine.getUpdateConstraints());
                 responseControls = conn.getResponseControls();
             } catch (LDAPException e) {
                 throw new ELdapException("addAuthorityEntry: failed to add entry", e);
@@ -2889,7 +2889,7 @@ public class CertificateAuthority
         LDAPConnection conn = CAEngine.connectionFactory.getConn();
         synchronized (hostCA) {
             try {
-                conn.modify(dn, mods, getCommitConstraints());
+                conn.modify(dn, mods, engine.getUpdateConstraints());
                 responseControls = conn.getResponseControls();
             } catch (LDAPException e) {
                 throw new ELdapException("modifyAuthorityEntry: failed to modify entry", e);
@@ -2898,14 +2898,6 @@ public class CertificateAuthority
             }
             postCommit(authorityID, responseControls);
         }
-    }
-
-    private LDAPConstraints getCommitConstraints() {
-        String[] attrs = {"entryUSN", "nsUniqueId"};
-        LDAPConstraints cons = new LDAPConstraints();
-        LDAPPostReadControl control = new LDAPPostReadControl(true, attrs);
-        cons.setServerControls(control);
-        return cons;
     }
 
     /**
