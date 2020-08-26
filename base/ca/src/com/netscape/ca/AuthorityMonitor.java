@@ -40,14 +40,9 @@ public class AuthorityMonitor implements Runnable {
 
     public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthorityMonitor.class);
 
-    private CertificateAuthority certificateAuthority;
     private boolean running = true;
 
-    /**
-     * @param certificateAuthority
-     */
-    AuthorityMonitor(CertificateAuthority certificateAuthority) {
-        this.certificateAuthority = certificateAuthority;
+    public AuthorityMonitor() {
     }
 
     public void run() {
@@ -143,7 +138,7 @@ public class AuthorityMonitor implements Runnable {
                         switch (changeType) {
                         case LDAPPersistSearchControl.ADD:
                             logger.debug("AuthorityMonitor: ADD");
-                            this.certificateAuthority.readAuthority(entry);
+                            engine.readAuthority(entry);
                             break;
                         case LDAPPersistSearchControl.DELETE:
                             logger.debug("AuthorityMonitor: DELETE");
@@ -152,7 +147,7 @@ public class AuthorityMonitor implements Runnable {
                         case LDAPPersistSearchControl.MODIFY:
                             logger.debug("AuthorityMonitor: MODIFY");
                             // TODO how do we handle authorityID change?
-                            this.certificateAuthority.readAuthority(entry);
+                            engine.readAuthority(entry);
                             break;
                         case LDAPPersistSearchControl.MODDN:
                             logger.debug("AuthorityMonitor: MODDN");
@@ -165,7 +160,7 @@ public class AuthorityMonitor implements Runnable {
 
                     } else {
                         logger.debug("AuthorityMonitor: immediate result");
-                        this.certificateAuthority.readAuthority(entry);
+                        engine.readAuthority(entry);
                         CAEngine.loader.increment();
                     }
                 }
@@ -220,7 +215,7 @@ public class AuthorityMonitor implements Runnable {
             }
 
         } else if (!wasMonitored && isMonitored) {
-            this.certificateAuthority.readAuthority(entry);
+            engine.readAuthority(entry);
         }
     }
 
