@@ -86,7 +86,7 @@ public class AuthorityMonitor implements Runnable {
                  * the load lock so that we can continue to service
                  * requests while LDAP is down.
                  */
-                this.certificateAuthority.lwcaLoader.startLoading();
+                CAEngine.loader.startLoading();
 
                 while (running && results.hasMoreElements()) {
 
@@ -104,7 +104,7 @@ public class AuthorityMonitor implements Runnable {
                          * watchdog timer to interrupt waiting threads after it
                          * times out.
                          */
-                        this.certificateAuthority.lwcaLoader.setNumItems(new Integer(
+                        CAEngine.loader.setNumItems(new Integer(
                             entry.getAttribute("numSubordinates")
                                 .getStringValueArray()[0]));
                         continue;
@@ -126,7 +126,7 @@ public class AuthorityMonitor implements Runnable {
                     if (!Arrays.asList(objectClasses).contains("authority")) {
                         /* It is not a LWCA entry; ignore it.  But it does
                          * contribute to numSubordinates so increment the loader. */
-                        this.certificateAuthority.lwcaLoader.increment();
+                        CAEngine.loader.increment();
                         continue;
                     }
 
@@ -166,7 +166,7 @@ public class AuthorityMonitor implements Runnable {
                     } else {
                         logger.debug("AuthorityMonitor: immediate result");
                         this.certificateAuthority.readAuthority(entry);
-                        this.certificateAuthority.lwcaLoader.increment();
+                        CAEngine.loader.increment();
                     }
                 }
 

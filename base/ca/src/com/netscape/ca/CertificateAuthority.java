@@ -133,7 +133,6 @@ import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.ISigningUnit;
-import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -319,7 +318,6 @@ public class CertificateAuthority
 
     /* Variables to manage loading and tracking of lightweight CAs */
     private static boolean foundHostAuthority = false;
-    AsyncLoader lwcaLoader = new AsyncLoader(10 /*10s timeout*/);
 
     /**
      * Constructs a CA subsystem.
@@ -600,7 +598,7 @@ public class CertificateAuthority
                 // container entry), or watchdog times it out (in case
                 // numSubordinates is larger than the number of entries
                 // we can see, e.g. replication conflict entries).
-                lwcaLoader.awaitLoadDone();
+                CAEngine.loader.awaitLoadDone();
             } catch (InterruptedException e) {
                 logger.warn("CertificateAuthority: caught InterruptedException "
                         + "while waiting for initial load of authorities.");
@@ -949,7 +947,7 @@ public class CertificateAuthority
             authorityMonitor.shutdown();
         }
 
-        lwcaLoader.shutdown();
+        CAEngine.loader.shutdown();
 
         Enumeration<ICRLIssuingPoint> enums = mCRLIssuePoints.elements();
         while (enums.hasMoreElements()) {

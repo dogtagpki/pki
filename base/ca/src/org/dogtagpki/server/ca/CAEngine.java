@@ -41,6 +41,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -82,6 +83,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     // Track authority deletions
     public static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
+
+    public static AsyncLoader loader = new AsyncLoader(10 /*10s timeout*/);
 
     public CAEngine() throws Exception {
         super("CA");
