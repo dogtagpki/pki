@@ -61,6 +61,7 @@ import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
 
 @WebListener
@@ -309,6 +310,26 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         } catch (LDAPException e) {
             throw new ELdapException("Unable to add authority: " + e.getMessage(), e);
+
+        } finally {
+            connectionFactory.returnConn(conn);
+        }
+
+        trackUpdate(aid, responseControls);
+    }
+
+    public synchronized void modifyAuthorityEntry(AuthorityID aid, LDAPModificationSet mods) throws EBaseException {
+
+        String dn = "cn=" + aid + "," + getAuthorityBaseDN();
+        LDAPConnection conn = connectionFactory.getConn();
+        LDAPControl[] responseControls;
+
+        try {
+            conn.modify(dn, mods, getUpdateConstraints());
+            responseControls = conn.getResponseControls();
+
+        } catch (LDAPException e) {
+            throw new ELdapException("Unable to modify authority: " + e.getMessage(), e);
 
         } finally {
             connectionFactory.returnConn(conn);

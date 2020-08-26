@@ -181,7 +181,6 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
@@ -2756,7 +2755,8 @@ public class CertificateAuthority
         mods.add(
             LDAPModification.REPLACE,
             new LDAPAttribute("authoritySerial", cert.getSerialNumber().toString()));
-        ca.modifyAuthorityEntry(mods);
+
+        engine.modifyAuthorityEntry(aid, mods);
 
         return ca;
     }
@@ -2801,7 +2801,8 @@ public class CertificateAuthority
         mods.add(
             LDAPModification.REPLACE,
             new LDAPAttribute("authoritySerial", authoritySerial.toString()));
-        modifyAuthorityEntry(mods);
+
+        engine.modifyAuthorityEntry(authorityID, mods);
 
         // update cert in NSSDB
         checkForNewerCert();
@@ -2856,28 +2857,6 @@ public class CertificateAuthority
     }
 
     /**
-     * Modify _this_ authority with the given modification set.
-     */
-    private void modifyAuthorityEntry(LDAPModificationSet mods)
-            throws ELdapException {
-        CAEngine engine = CAEngine.getInstance();
-        String dn = "cn=" + authorityID + "," + engine.getAuthorityBaseDN();
-        LDAPControl[] responseControls;
-        LDAPConnection conn = CAEngine.connectionFactory.getConn();
-        synchronized (hostCA) {
-            try {
-                conn.modify(dn, mods, engine.getUpdateConstraints());
-                responseControls = conn.getResponseControls();
-            } catch (LDAPException e) {
-                throw new ELdapException("modifyAuthorityEntry: failed to modify entry", e);
-            } finally {
-                CAEngine.connectionFactory.returnConn(conn);
-            }
-            engine.trackUpdate(authorityID, responseControls);
-        }
-    }
-
-    /**
      * Update lightweight authority attributes.
      *
      * Pass null values to exclude an attribute from the update.
@@ -2892,6 +2871,7 @@ public class CertificateAuthority
         if (isHostAuthority() && enabled != null && !enabled)
             throw new CATypeException("Cannot disable the host CA");
 
+        CAEngine engine = CAEngine.getInstance();
         LDAPModificationSet mods = new LDAPModificationSet();
 
         boolean nextEnabled = authorityEnabled;
@@ -2924,7 +2904,7 @@ public class CertificateAuthority
         }
 
         if (mods.size() > 0) {
-            modifyAuthorityEntry(mods);
+            engine.modifyAuthorityEntry(authorityID, mods);
 
             // update was successful; update CA's state
             authorityEnabled = nextEnabled;
@@ -2935,8 +2915,8 @@ public class CertificateAuthority
     /**
      * Add this instance to the authorityKeyHosts
      */
-    void addInstanceToAuthorityKeyHosts() throws ELdapException {
-        CMSEngine engine = CMS.getCMSEngine();
+    void addInstanceToAuthorityKeyHosts() throws EBaseException {
+        CAEngine engine = CAEngine.getInstance();
         String thisClone = engine.getEEHost() + ":" + engine.getEESSLPort();
         if (authorityKeyHosts.contains(thisClone)) {
             // already there; nothing to do
@@ -2946,7 +2926,7 @@ public class CertificateAuthority
         mods.add(
             LDAPModification.ADD,
             new LDAPAttribute("authorityKeyHost", thisClone));
-        modifyAuthorityEntry(mods);
+        engine.modifyAuthorityEntry(authorityID, mods);
         authorityKeyHosts.add(thisClone);
     }
 
