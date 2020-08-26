@@ -44,11 +44,16 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 @WebListener
 public class CAEngine extends CMSEngine implements ServletContextListener {
+
+    public static LdapBoundConnFactory connectionFactory =
+            new LdapBoundConnFactory("CertificateAuthority");
 
     public static Map<AuthorityID, CertificateAuthority> authorities =
             Collections.synchronizedSortedMap(new TreeMap<AuthorityID, CertificateAuthority>());
@@ -74,6 +79,12 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public CAConfigurator createConfigurator() throws Exception {
         return new CAConfigurator(this);
+    }
+
+    public void initDatabase() throws Exception {
+        CAEngineConfig config = getConfig();
+        LDAPConfig ldapConfig = config.getInternalDBConfig();
+        connectionFactory.init(config, ldapConfig, getPasswordStore());
     }
 
     protected void loadSubsystems() throws EBaseException {
@@ -217,5 +228,13 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             name = ProfileSubsystem.ID;
         }
         return (ProfileSubsystem) getSubsystem(name);
+    }
+
+    public void shutdownDatabase() {
+        try {
+            connectionFactory.shutdown();
+        } catch (Exception e) {
+            logger.warn("CAEngine: Unable to shut down connection factory: " + e.getMessage(), e);
+        }
     }
 }

@@ -157,7 +157,6 @@ import com.netscape.cmscore.dbs.IDBSubsystem;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
-import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.ARequestNotifier;
@@ -213,11 +212,6 @@ public class CertificateAuthority
     public static final String OFFICIAL_NAME = "Certificate Manager";
 
     public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
-
-    /* The static conn factory is initialised by the host authority's
-     * 'init' method, before any lightweight CAs are instantiated
-     */
-    static LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CertificateAuthority");
 
     protected CertificateAuthority hostCA = null;
     protected AuthorityID authorityID = null;
@@ -500,10 +494,6 @@ public class CertificateAuthority
         IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
 
         mConfig = cs.getCAConfig();
-
-        if (isHostAuthority()) {
-            dbFactory.init(cs, dbCfg, engine.getPasswordStore());
-        }
 
         logger.info("CertificateAuthority: initializing certificate database");
         initCertDatabase();
@@ -788,7 +778,7 @@ public class CertificateAuthority
     }
 
     private boolean haveLightweightCAsContainer() throws ELdapException {
-        LDAPConnection conn = dbFactory.getConn();
+        LDAPConnection conn = CAEngine.connectionFactory.getConn();
         try {
             LDAPSearchResults results = conn.search(
                 authorityBaseDN(), LDAPConnection.SCOPE_BASE, null, null, false);
@@ -796,13 +786,13 @@ public class CertificateAuthority
         } catch (LDAPException e) {
             return false;
         } finally {
-            dbFactory.returnConn(conn);
+            CAEngine.connectionFactory.returnConn(conn);
         }
     }
 
     private boolean entryUSNPluginEnabled() {
         try {
-            LDAPConnection conn = dbFactory.getConn();
+            LDAPConnection conn = CAEngine.connectionFactory.getConn();
             try {
                 LDAPSearchResults results = conn.search(
                     "cn=usn,cn=plugins,cn=config", LDAPConnection.SCOPE_BASE,
@@ -811,7 +801,7 @@ public class CertificateAuthority
             } catch (LDAPException e) {
                 return false;
             } finally {
-                dbFactory.returnConn(conn);
+                CAEngine.connectionFactory.returnConn(conn);
             }
         } catch (ELdapException e) {
             return false;  // oh well
@@ -1017,19 +1007,12 @@ public class CertificateAuthority
 
         /* Stop the activityMonitor thread
          *
-         * dbFactory.reset() will disconnect all connections,
+         * connectionFactory.reset() will disconnect all connections,
          * causing the current conn.search() to throw.
          * The search will not be restarted because 'stopped' has
          * set, and the monitor thread will exit.
          */
         stopped = true;
-        try {
-            dbFactory.shutdown();
-        } catch (ELdapException e) {
-            logger.warn("CertificateAuthority.shutdown: failed to reset "
-                    + "dbFactory: " + e);
-            // not much else we can do here.
-        }
     }
 
     /**
@@ -2906,7 +2889,7 @@ public class CertificateAuthority
     private void addAuthorityEntry(AuthorityID aid, LDAPEntry entry)
             throws ELdapException {
         LDAPControl[] responseControls;
-        LDAPConnection conn = dbFactory.getConn();
+        LDAPConnection conn = CAEngine.connectionFactory.getConn();
         synchronized (hostCA) {
             try {
                 conn.add(entry, getCommitConstraints());
@@ -2914,7 +2897,7 @@ public class CertificateAuthority
             } catch (LDAPException e) {
                 throw new ELdapException("addAuthorityEntry: failed to add entry", e);
             } finally {
-                dbFactory.returnConn(conn);
+                CAEngine.connectionFactory.returnConn(conn);
             }
             postCommit(aid, responseControls);
         }
@@ -2927,7 +2910,7 @@ public class CertificateAuthority
             throws ELdapException {
         String dn = "cn=" + authorityID.toString() + "," + authorityBaseDN();
         LDAPControl[] responseControls;
-        LDAPConnection conn = dbFactory.getConn();
+        LDAPConnection conn = CAEngine.connectionFactory.getConn();
         synchronized (hostCA) {
             try {
                 conn.modify(dn, mods, getCommitConstraints());
@@ -2935,7 +2918,7 @@ public class CertificateAuthority
             } catch (LDAPException e) {
                 throw new ELdapException("modifyAuthorityEntry: failed to modify entry", e);
             } finally {
-                dbFactory.returnConn(conn);
+                CAEngine.connectionFactory.returnConn(conn);
             }
             postCommit(authorityID, responseControls);
         }
@@ -3144,14 +3127,14 @@ public class CertificateAuthority
 
     private void deleteAuthorityEntry(AuthorityID aid) throws ELdapException {
         String dn = "cn=" + aid.toString() + "," + authorityBaseDN();
-        LDAPConnection conn = dbFactory.getConn();
+        LDAPConnection conn = CAEngine.connectionFactory.getConn();
         synchronized (hostCA) {
             try {
                 conn.delete(dn);
             } catch (LDAPException e) {
                 throw new ELdapException("Error deleting authority entry: " + dn, e);
             } finally {
-                dbFactory.returnConn(conn);
+                CAEngine.connectionFactory.returnConn(conn);
             }
 
             String nsUniqueId = nsUniqueIds.get(aid);
