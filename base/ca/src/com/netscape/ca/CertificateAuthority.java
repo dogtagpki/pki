@@ -496,8 +496,8 @@ public class CertificateAuthority
         boolean initSigUnitSucceeded = false;
 
         try {
-            logger.info("CertificateAuthority: initializing signing unit for CA");
-            initSigUnit();
+            logger.info("CertificateAuthority: initializing signing units for CA");
+            initCertSigningUnit();
             initCRLSigningUnit();
             initOCSPSigningUnit();
             initSigUnitSucceeded = true;
@@ -619,30 +619,6 @@ public class CertificateAuthority
             initIssuanceProtectionCert();
     }
 
-    private void generateSigningInfoAuditEvents()
-            throws EBaseException {
-        try {
-
-            if (isHostAuthority()) {
-
-                // For host CA, generate cert info without authority ID.
-
-                String certSigningSKI = CryptoUtil.getSKIString(mSigningUnit.getCertImpl());
-                signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI));
-
-            } else {
-
-                // For lightweight sub CA, generate cert signing info with authority ID.
-
-                String certSigningSKI = CryptoUtil.getSKIString(mSigningUnit.getCertImpl());
-                signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI, authorityID));
-            }
-
-        } catch (IOException e) {
-            throw new EBaseException(e);
-        }
-    }
-
     /**
      * initIssuanceProtectionCert sets the CA Issuance Protection cert
      */
@@ -721,8 +697,8 @@ public class CertificateAuthority
             manager.getInternalKeyStorageToken().getCryptoStore()
                 .deleteCert(oldCert);
 
-            logger.info("CertificateAuthority: reinitializing signing unit after new certificate");
-            initSigUnit();
+            logger.info("CertificateAuthority: reinitializing signing units after new certificate");
+            initCertSigningUnit();
             initCRLSigningUnit();
             initOCSPSigningUnit();
 
@@ -1608,107 +1584,71 @@ public class CertificateAuthority
         return new CertificateChain(certs);
     }
 
-    /**
-     * init CA signing unit & cert chain.
-     */
-    synchronized void initSigUnit() throws EBaseException {
+    public synchronized void initCertSigningUnit() throws Exception {
 
-        logger.debug("CertificateAuthority: initializing signing unit for " + mName);
+        logger.info("CertificateAuthority: initializing cert signing unit");
 
-        mSigningUnit = new SigningUnit();
         IConfigStore caSigningCfg = mConfig.getSubStore(PROP_SIGNING_SUBSTORE);
 
-        try {
-            String caSigningCertStr = caSigningCfg.getString("cert", "");
-            if (caSigningCertStr.equals("")) {
-                logger.debug("CertificateAuthority: CA signing cert not found");
+        String caSigningCertStr = caSigningCfg.getString("cert", "");
+        if (!caSigningCertStr.equals("")) {
+            logger.debug("CertificateAuthority: CA signing cert: " + caSigningCertStr);
 
-            } else {
-                logger.debug("CertificateAuthority: CA signing cert: " + caSigningCertStr);
+            byte[] bytes = Utils.base64decode(caSigningCertStr);
+            logger.debug("CertificateAuthority: size: " + bytes.length + " bytes");
 
-                byte[] bytes = Utils.base64decode(caSigningCertStr);
-                logger.debug("CertificateAuthority: size: " + bytes.length + " bytes");
+            mCaCert = new X509CertImpl(bytes);
 
-                mCaCert = new X509CertImpl(bytes);
+            // this ensures the isserDN and subjectDN have the same encoding
+            // as that of the CA signing cert
+            mSubjectObj = mCaCert.getSubjectObj();
+            logger.debug("CertificateAuthority: subject DN: " + mSubjectObj);
 
-                // this ensures the isserDN and subjectDN have the same encoding
-                // as that of the CA signing cert
-                mSubjectObj = mCaCert.getSubjectObj();
-                logger.debug("CertificateAuthority: subject DN: " + mSubjectObj);
-
-                // this mIssuerObj is the "issuerDN" obj for the certs this CA
-                // issues, NOT necessarily the isserDN obj of the CA signing cert
-                mIssuerObj = new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
-                logger.debug("CertificateAuthority: issuer DN: " + mIssuerObj);
-            }
-
-        } catch (CertificateException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
-
-        } catch (IOException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
+            // The mIssuerObj is the "issuerDN" object for the certs issued by this CA,
+            // not the isserDN object of the CA signing cert unless the it is self-signed.
+            mIssuerObj = new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
+            logger.debug("CertificateAuthority: issuer DN: " + mIssuerObj);
         }
 
+        mSigningUnit = new SigningUnit();
         mSigningUnit.init(caSigningCfg, mNickname);
+
         hasKeys = true;
         signingUnitException = null;
-        logger.debug("CA signing unit inited");
 
-        try {
-            logger.debug("CertificateAuthority: loading CA cert chain");
-            org.mozilla.jss.crypto.X509Certificate caCert = mSigningUnit.getCert();
-            mCACertChain = getCertChain(caCert);
+        mNickname = mSigningUnit.getNickname();
+        mCaX509Cert = mSigningUnit.getCert();
+        mCaCert = mSigningUnit.getCertImpl();
+        mName = (X500Name) mCaCert.getSubjectDN();
 
-            mCaX509Cert = mSigningUnit.getCert();
-            mCaCert = new X509CertImpl(mCaX509Cert.getEncoded());
-            getCASigningAlgorithms();
-            mSubjectObj = mCaCert.getSubjectObj();
-            if (mSubjectObj != null) {
-                // this ensures the isserDN and subjectDN have the same encoding
-                // as that of the CA signing cert
-                logger.debug("CertificateAuthority: initSigUnit - setting mIssuerObj and mSubjectObj");
-                // this mIssuerObj is the "issuerDN" obj for the certs this CA
-                // issues, NOT necessarily the isserDN obj of the CA signing cert
-                // unless the CA is self-signed
-                mIssuerObj =
-                        new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
-            }
-            mName = (X500Name) mCaCert.getSubjectDN();
+        mCACertChain = getCertChain(mCaX509Cert);
 
-            mNickname = mSigningUnit.getNickname();
-            logger.debug("in init - got CA name " + mName);
+        getCASigningAlgorithms();
 
-        } catch (NotInitializedException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGNING", e.toString()), e);
-            throw new ECAException(CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"), e);
+        // This ensures the isserDN and subjectDN have the same encoding
+        // as that of the CA signing cert.
+        mSubjectObj = mCaCert.getSubjectObj();
 
-        } catch (CertificateException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
+        if (mSubjectObj != null) {
+            // The mIssuerObj is the "issuerDN" object for the certs issued by this CA,
+            // not the isserDN object of the CA signing cert unless the it is self-signed.
 
-        } catch (FileNotFoundException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
-
-        } catch (IOException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
-
-        } catch (TokenException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
+            X500Name issuerName = (X500Name) mSubjectObj.get(CertificateIssuerName.DN_NAME);
+            mIssuerObj = new CertificateIssuerName(issuerName);
         }
 
-        generateSigningInfoAuditEvents();
+        String certSigningSKI = CryptoUtil.getSKIString(mCaCert);
+
+        if (isHostAuthority()) {
+            // generate cert info without authority ID
+            signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI));
+
+        } else {
+            // generate cert signing info with authority ID
+            signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI, authorityID));
+        }
     }
+
 
     public synchronized void initCRLSigningUnit() throws Exception {
 
