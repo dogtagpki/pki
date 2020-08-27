@@ -53,8 +53,6 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
-import org.mozilla.jss.ssl.SSLVersion;
-import org.mozilla.jss.ssl.SSLVersionRange;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
@@ -571,36 +569,6 @@ public class MainCLI extends CLI {
 
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
         manager.setThreadToken(token);
-
-        // See default SSL configuration in /usr/share/pki/etc/pki.conf.
-
-        String streamVersionMin = System.getenv("SSL_STREAM_VERSION_MIN");
-        String streamVersionMax = System.getenv("SSL_STREAM_VERSION_MAX");
-
-        SSLVersionRange streamRange = CryptoUtil.boundSSLStreamVersionRange(
-                streamVersionMin == null ? SSLVersion.TLS_1_0 : SSLVersion.valueOf(streamVersionMin),
-                streamVersionMax == null ? SSLVersion.TLS_1_2 : SSLVersion.valueOf(streamVersionMax)
-        );
-        CryptoUtil.setSSLStreamVersionRange(streamRange.getMinVersion(), streamRange.getMaxVersion());
-
-        String datagramVersionMin = System.getenv("SSL_DATAGRAM_VERSION_MIN");
-        String datagramVersionMax = System.getenv("SSL_DATAGRAM_VERSION_MAX");
-
-        SSLVersionRange datagramRange = CryptoUtil.boundSSLDatagramVersionRange(
-                datagramVersionMin == null ? SSLVersion.TLS_1_1 : SSLVersion.valueOf(datagramVersionMin),
-                datagramVersionMax == null ? SSLVersion.TLS_1_2 : SSLVersion.valueOf(datagramVersionMax)
-        );
-        CryptoUtil.setSSLDatagramVersionRange(datagramRange.getMinVersion(), datagramRange.getMaxVersion());
-
-        String defaultCiphers = System.getenv("SSL_DEFAULT_CIPHERS");
-        if (defaultCiphers == null || Boolean.parseBoolean(defaultCiphers)) {
-            CryptoUtil.setDefaultSSLCiphers();
-        } else {
-            CryptoUtil.unsetSSLCiphers();
-        }
-
-        String ciphers = System.getenv("SSL_CIPHERS");
-        CryptoUtil.setSSLCiphers(ciphers);
 
         initialized = true;
     }
