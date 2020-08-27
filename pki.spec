@@ -57,7 +57,6 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 
 %if 0%{?fedora} && 0%{?fedora} >= 33
 %define min_java_version 1:11
-%define is_java_11 1
 %else
 %define min_java_version 1:1.8.0
 %endif
@@ -432,7 +431,7 @@ Requires:         resteasy-core >= 3.0.17-1
 Requires:         resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
-%if 0%{?is_java_11}
+%if 0%{?fedora} && 0%{?fedora} >= 33
 Requires:         jaxb-impl >= 2.3.3
 Requires:         jakarta-activation >= 1.2.2
 %endif
@@ -504,6 +503,7 @@ Requires:         tomcat >= 1:9.0.7
 %endif
 
 Requires:         velocity
+Requires:         sudo
 Requires:         systemd
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -829,6 +829,13 @@ This package contains PKI test suite.
 %build
 ################################################################################
 
+# get Java <major>.<minor> version number
+java_version=`%{java_home}/bin/java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java.version *= *\([0-9]\+\.[0-9]\+\).*/\1/p'`
+
+# if <major> == 1, get <minor> version number
+# otherwise get <major> version number
+java_version=`echo $java_version | sed -e 's/^1\.//' -e 's/\..*$//'`
+
 # get Tomcat <major>.<minor> version number
 tomcat_version=`/usr/sbin/tomcat version | sed -n 's/Server number: *\([0-9]\+\.[0-9]\+\).*/\1/p'`
 
@@ -838,11 +845,17 @@ else
     app_server=tomcat-$tomcat_version
 fi
 
+%if 0%{?rhel}
+%{__mkdir_p} build
+cd build
+%endif
+
 %cmake \
     --no-warn-unused-cli \
     -DVERSION=%{version}-%{release} \
     -DVAR_INSTALL_DIR:PATH=/var \
     -DP11_KIT_TRUST=/etc/alternatives/libnssckbi.so.%{_arch} \
+    -DJAVA_VERSION=%{java_version} \
     -DJAVA_HOME=%java_home \
     -DPKI_JAVA_PATH=%java \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
@@ -860,9 +873,15 @@ fi
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
     -DTHEME=%{?with_theme:%{vendor_id}} \
+%if 0%{?rhel}
+    ..
+%else
     -B %{_vpath_builddir}
+%endif
 
+%if 0%{?fedora}
 cd %{_vpath_builddir}
+%endif
 
 # Do not use _smp_mflags to preserve build order
 %{__make} \
@@ -877,7 +896,11 @@ cd %{_vpath_builddir}
 %install
 ################################################################################
 
+%if 0%{?rhel}
+cd build
+%else
 cd %{_vpath_builddir}
+%endif
 
 %{__make} \
     VERBOSE=%{?_verbose} \

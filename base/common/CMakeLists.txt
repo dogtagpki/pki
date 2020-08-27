@@ -28,9 +28,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_BASE_JAR} lib/jackson-jaxrs-base.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_JSON_PROVIDER_JAR} lib/jackson-jaxrs-json-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXB_ANNOTATIONS_JAR} lib/jackson-module-jaxb-annotations.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} lib/jaxb-api.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_IMPL_JAR} lib/jaxb-impl.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAKARTA_ACTIVATION_JAR} lib/jakarta.activation.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} lib/jss4.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} lib/ldapjdk.jar
     COMMAND ln -sf /usr/share/java/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-certsrv.jar
@@ -48,6 +45,18 @@ add_custom_command(
     COMMAND ln -sf ${P11_KIT_TRUST} lib/p11-kit-trust.so
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_NET_JAR} lib/commons-net.jar
 )
+
+if(JAVA_VERSION GREATER 10)
+    add_custom_target(pki-java11plus-lib ALL
+        COMMENT "Creating links for library required in Java 11+")
+
+    add_custom_command(
+        TARGET pki-java11plus-lib
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} lib/jaxb-api.jar
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_IMPL_JAR} lib/jaxb-impl.jar
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAKARTA_ACTIVATION_JAR} lib/jakarta.activation.jar
+    )
+endif(JAVA_VERSION GREATER 10)
 
 add_custom_target(pki-man ALL
     COMMENT "Creating PKI manuals")
