@@ -498,6 +498,7 @@ public class CertificateAuthority
         try {
             logger.info("CertificateAuthority: initializing signing unit for CA");
             initSigUnit();
+            initCRLSigningUnit();
             initOCSPSigningUnit();
             initSigUnitSucceeded = true;
 
@@ -624,18 +625,14 @@ public class CertificateAuthority
 
             if (isHostAuthority()) {
 
-                // For host CA, generate cert and CRL signing info without authority ID.
+                // For host CA, generate cert info without authority ID.
 
                 String certSigningSKI = CryptoUtil.getSKIString(mSigningUnit.getCertImpl());
                 signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI));
 
-                String crlSigningSKI = CryptoUtil.getSKIString(mCRLSigningUnit.getCertImpl());
-                signedAuditLogger.log(CRLSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, crlSigningSKI));
-
             } else {
 
                 // For lightweight sub CA, generate cert signing info with authority ID.
-                // Don't generate CRL signing info since it doesn't support CRL.
 
                 String certSigningSKI = CryptoUtil.getSKIString(mSigningUnit.getCertImpl());
                 signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI, authorityID));
@@ -726,6 +723,7 @@ public class CertificateAuthority
 
             logger.info("CertificateAuthority: reinitializing signing unit after new certificate");
             initSigUnit();
+            initCRLSigningUnit();
             initOCSPSigningUnit();
 
         } catch (CAMissingCertException e) {
@@ -1661,16 +1659,6 @@ public class CertificateAuthority
         logger.debug("CA signing unit inited");
 
         try {
-            // for identrus
-            IConfigStore crlSigningConfig = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE);
-
-            if (isHostAuthority() && crlSigningConfig != null && crlSigningConfig.size() > 0) {
-                mCRLSigningUnit = new SigningUnit();
-                mCRLSigningUnit.init(crlSigningConfig, null);
-            } else {
-                mCRLSigningUnit = mSigningUnit;
-            }
-
             logger.debug("CertificateAuthority: loading CA cert chain");
             org.mozilla.jss.crypto.X509Certificate caCert = mSigningUnit.getCert();
             mCACertChain = getCertChain(caCert);
@@ -1690,10 +1678,6 @@ public class CertificateAuthority
                         new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
             }
             mName = (X500Name) mCaCert.getSubjectDN();
-
-            mCRLX509Cert = mCRLSigningUnit.getCert();
-            mCRLCert = new X509CertImpl(mCRLX509Cert.getEncoded());
-            mCRLName = (X500Name) mCRLCert.getSubjectDN();
 
             mNickname = mSigningUnit.getNickname();
             logger.debug("in init - got CA name " + mName);
@@ -1724,6 +1708,34 @@ public class CertificateAuthority
         }
 
         generateSigningInfoAuditEvents();
+    }
+
+    public synchronized void initCRLSigningUnit() throws Exception {
+
+        logger.info("CertificateAuthority: initializing CRL signing unit");
+
+        IConfigStore crlSigningConfig = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE);
+
+        if (isHostAuthority() && crlSigningConfig != null && crlSigningConfig.size() > 0) {
+            mCRLSigningUnit = new SigningUnit();
+            mCRLSigningUnit.init(crlSigningConfig, null);
+        } else {
+            mCRLSigningUnit = mSigningUnit;
+        }
+
+        mCRLX509Cert = mCRLSigningUnit.getCert();
+        mCRLCert = mCRLSigningUnit.getCertImpl();
+        mCRLName = (X500Name) mCRLCert.getSubjectDN();
+
+        String crlSigningSKI = CryptoUtil.getSKIString(mCRLCert);
+
+        if (isHostAuthority()) {
+            // generate CRL signing info without authority ID
+            signedAuditLogger.log(CRLSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, crlSigningSKI));
+
+        } else {
+            // don't generate CRL signing info since LWCA doesn't support CRL
+        }
     }
 
     public synchronized void initOCSPSigningUnit() throws Exception {
