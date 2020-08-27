@@ -40,7 +40,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
@@ -72,9 +71,6 @@ public final class SigningUnit implements ISigningUnit {
 
     private boolean mInited = false;
     private IConfigStore mConfig;
-
-    @SuppressWarnings("unused")
-    private ISubsystem mOwner;
 
     private String mDefSigningAlgname = null;
     private SignatureAlgorithm mDefSigningAlgorithm = null;
@@ -120,17 +116,10 @@ public final class SigningUnit implements ISigningUnit {
     }
 
 
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
-        init(owner, config, null);
-    }
+    public void init(IConfigStore config, String nickname) throws EBaseException {
 
-    public void init(ISubsystem owner, IConfigStore config, String nickname)
-            throws EBaseException {
+        logger.debug("CA SigningUnit.init(" + config.getName() + ", " + nickname + ")");
 
-        logger.debug("CA SigningUnit.init(" + owner.getId() + ", " + config.getName() + ", " + nickname + ")");
-
-        mOwner = owner;
         mConfig = config;
 
         String tokenname = null;

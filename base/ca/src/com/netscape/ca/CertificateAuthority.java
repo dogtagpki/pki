@@ -1653,18 +1653,18 @@ public class CertificateAuthority
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
         }
 
-        mSigningUnit.init(this, caSigningCfg, mNickname);
+        mSigningUnit.init(caSigningCfg, mNickname);
         hasKeys = true;
         signingUnitException = null;
         logger.debug("CA signing unit inited");
 
         try {
             // for identrus
-            IConfigStore CrlStore = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE);
+            IConfigStore crlSigningConfig = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE);
 
-            if (isHostAuthority() && CrlStore != null && CrlStore.size() > 0) {
+            if (isHostAuthority() && crlSigningConfig != null && crlSigningConfig.size() > 0) {
                 mCRLSigningUnit = new SigningUnit();
-                mCRLSigningUnit.init(this, mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE));
+                mCRLSigningUnit.init(crlSigningConfig, null);
             } else {
                 mCRLSigningUnit = mSigningUnit;
             }
@@ -1673,15 +1673,13 @@ public class CertificateAuthority
             org.mozilla.jss.crypto.X509Certificate caCert = mSigningUnit.getCert();
             mCACertChain = getCertChain(caCert);
 
-            IConfigStore OCSPStore = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
+            IConfigStore ocspSigningConfig = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
 
-            if (isHostAuthority() && OCSPStore != null && OCSPStore.size() > 0) {
+            if (isHostAuthority() && ocspSigningConfig != null && ocspSigningConfig.size() > 0) {
                 mOCSPSigningUnit = new SigningUnit();
-                mOCSPSigningUnit.init(this, mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE));
-                logger.debug("Separate OCSP signing unit inited");
+                mOCSPSigningUnit.init(ocspSigningConfig, null);
             } else {
                 mOCSPSigningUnit = mSigningUnit;
-                logger.debug("Shared OCSP signing unit inited");
             }
 
             logger.debug("CertificateAuthority: loading OCSP cert chain");
