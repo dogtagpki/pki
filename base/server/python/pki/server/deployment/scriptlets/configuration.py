@@ -568,6 +568,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
         instance.load()
 
+        subsystems = instance.get_subsystems()
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
 
         # configure internal database
@@ -653,6 +654,35 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.save()
 
                 self.validate_system_certs(deployer, nssdb, subsystem)
+
+            elif len(subsystems) > 1:
+
+                for s in subsystems:
+
+                    # find a subsystem that is already installed
+                    if s.name == subsystem.name:
+                        continue
+
+                    # import cert/request data from the existing subsystem
+                    # into the new subsystem being installed
+
+                    logger.info('Importing sslserver cert data from %s', s.type)
+                    subsystem.config['%s.sslserver.cert' % subsystem.name] = \
+                        s.config['%s.sslserver.cert' % s.name]
+
+                    logger.info('Importing subsystem cert data from %s', s.type)
+                    subsystem.config['%s.subsystem.cert' % subsystem.name] = \
+                        s.config['%s.subsystem.cert' % s.name]
+
+                    logger.info('Importing sslserver request data from %s', s.type)
+                    subsystem.config['%s.sslserver.certreq' % subsystem.name] = \
+                        s.config['%s.sslserver.certreq' % s.name]
+
+                    logger.info('Importing subsystem request data from %s', s.type)
+                    subsystem.config['%s.subsystem.certreq' % subsystem.name] = \
+                        s.config['%s.subsystem.certreq' % s.name]
+
+                    break
 
             else:  # self-signed CA
 
