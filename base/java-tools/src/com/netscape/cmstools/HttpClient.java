@@ -132,12 +132,6 @@ public class HttpClient {
 
                 SSLHandshakeCompletedListener listener = new ClientHandshakeCB(this);
 
-                SSLVersionRange streamRange = CryptoUtil.boundSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
-                SSLVersionRange datagramRange = CryptoUtil.boundSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
-                CryptoUtil.setSSLStreamVersionRange(streamRange.getMinVersion(), streamRange.getMaxVersion());
-                CryptoUtil.setSSLDatagramVersionRange(datagramRange.getMinVersion(), datagramRange.getMaxVersion());
-                CryptoUtil.setDefaultSSLCiphers();
-
                 sslSocket = new SSLSocket(_host, _port);
                 // SSLSocket.setSSLVersionRange() needs to be exposed in JSS
                 // sslSocket.setSSLVersionRange(SSLVersionRange.tls1_0, SSLVersionRange.tls1_2);

@@ -48,8 +48,6 @@ import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.ssl.SSLSocketListener;
-import org.mozilla.jss.ssl.SSLVersion;
-import org.mozilla.jss.ssl.SSLVersionRange;
 import org.mozilla.jss.util.Password;
 import org.mozilla.jss.util.PasswordCallback;
 import org.mozilla.jss.util.PasswordCallbackInfo;
@@ -122,12 +120,6 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
             cryptoManager = CryptoManager.getInstance();
         } catch (Exception e) {
         }
-
-        SSLVersionRange streamRange = CryptoUtil.boundSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
-        SSLVersionRange datagramRange = CryptoUtil.boundSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
-        CryptoUtil.setSSLStreamVersionRange(streamRange.getMinVersion(), streamRange.getMaxVersion());
-        CryptoUtil.setSSLDatagramVersionRange(datagramRange.getMinVersion(), datagramRange.getMaxVersion());
-        CryptoUtil.setDefaultSSLCiphers();
 
         s = new SSLSocket(host, port, null, 0, this, this);
 
