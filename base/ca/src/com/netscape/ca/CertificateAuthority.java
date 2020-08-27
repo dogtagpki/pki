@@ -498,6 +498,7 @@ public class CertificateAuthority
         try {
             logger.info("CertificateAuthority: initializing signing unit for CA");
             initSigUnit();
+            initOCSPSigningUnit();
             initSigUnitSucceeded = true;
 
         } catch (CAMissingCertException | CAMissingKeyException e) {
@@ -521,6 +522,9 @@ public class CertificateAuthority
             } else {
                 logger.debug("KeyRetriever thread already running for authority " + authorityID);
             }
+
+        } catch (Exception e) {
+            throw new EBaseException(e);
         }
 
         initDefaultCAAttributes();
@@ -620,27 +624,21 @@ public class CertificateAuthority
 
             if (isHostAuthority()) {
 
-                // For host CA, generate cert, OCSP, and CRL signing info without authority ID.
+                // For host CA, generate cert and CRL signing info without authority ID.
 
                 String certSigningSKI = CryptoUtil.getSKIString(mSigningUnit.getCertImpl());
                 signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI));
-
-                String ocspSigningSKI = CryptoUtil.getSKIString(mOCSPSigningUnit.getCertImpl());
-                signedAuditLogger.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI));
 
                 String crlSigningSKI = CryptoUtil.getSKIString(mCRLSigningUnit.getCertImpl());
                 signedAuditLogger.log(CRLSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, crlSigningSKI));
 
             } else {
 
-                // For lightweight sub CA, generate cert and OCSP signing info with authority ID.
+                // For lightweight sub CA, generate cert signing info with authority ID.
                 // Don't generate CRL signing info since it doesn't support CRL.
 
                 String certSigningSKI = CryptoUtil.getSKIString(mSigningUnit.getCertImpl());
                 signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI, authorityID));
-
-                String ocspSigningSKI = CryptoUtil.getSKIString(mOCSPSigningUnit.getCertImpl());
-                signedAuditLogger.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI, authorityID));
             }
 
         } catch (IOException e) {
@@ -728,6 +726,7 @@ public class CertificateAuthority
 
             logger.info("CertificateAuthority: reinitializing signing unit after new certificate");
             initSigUnit();
+            initOCSPSigningUnit();
 
         } catch (CAMissingCertException e) {
             logger.warn("CertificateAuthority: CA signing cert not (yet) present in NSS database");
@@ -748,6 +747,9 @@ public class CertificateAuthority
         } catch (TokenException | NoSuchItemOnTokenException e) {
             // really shouldn't happen
             throw new ECAException("Failed to update certificate", e);
+
+        } catch (Exception e) {
+            throw new EBaseException(e);
         }
     }
 
@@ -1673,19 +1675,6 @@ public class CertificateAuthority
             org.mozilla.jss.crypto.X509Certificate caCert = mSigningUnit.getCert();
             mCACertChain = getCertChain(caCert);
 
-            IConfigStore ocspSigningConfig = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
-
-            if (isHostAuthority() && ocspSigningConfig != null && ocspSigningConfig.size() > 0) {
-                mOCSPSigningUnit = new SigningUnit();
-                mOCSPSigningUnit.init(ocspSigningConfig, null);
-            } else {
-                mOCSPSigningUnit = mSigningUnit;
-            }
-
-            logger.debug("CertificateAuthority: loading OCSP cert chain");
-            org.mozilla.jss.crypto.X509Certificate ocspCert = mOCSPSigningUnit.getCert();
-            mOCSPCertChain = getCertChain(ocspCert);
-
             mCaX509Cert = mSigningUnit.getCert();
             mCaCert = new X509CertImpl(mCaX509Cert.getEncoded());
             getCASigningAlgorithms();
@@ -1706,10 +1695,6 @@ public class CertificateAuthority
             mCRLCert = new X509CertImpl(mCRLX509Cert.getEncoded());
             mCRLName = (X500Name) mCRLCert.getSubjectDN();
 
-            mOCSPX509Cert = mOCSPSigningUnit.getCert();
-            mOCSPNickname = mOCSPSigningUnit.getNickname();
-            mOCSPCert = new X509CertImpl(mOCSPX509Cert.getEncoded());
-            mOCSPName = (X500Name) mOCSPCert.getSubjectDN();
             mNickname = mSigningUnit.getNickname();
             logger.debug("in init - got CA name " + mName);
 
@@ -1739,6 +1724,37 @@ public class CertificateAuthority
         }
 
         generateSigningInfoAuditEvents();
+    }
+
+    public synchronized void initOCSPSigningUnit() throws Exception {
+
+        logger.info("CertificateAuthority: initializing OCSP signing unit");
+
+        IConfigStore ocspSigningConfig = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
+
+        if (isHostAuthority() && ocspSigningConfig != null && ocspSigningConfig.size() > 0) {
+            mOCSPSigningUnit = new SigningUnit();
+            mOCSPSigningUnit.init(ocspSigningConfig, null);
+        } else {
+            mOCSPSigningUnit = mSigningUnit;
+        }
+
+        mOCSPNickname = mOCSPSigningUnit.getNickname();
+        mOCSPX509Cert = mOCSPSigningUnit.getCert();
+        mOCSPCert = mOCSPSigningUnit.getCertImpl();
+        mOCSPName = (X500Name) mOCSPCert.getSubjectDN();
+
+        mOCSPCertChain = getCertChain(mOCSPX509Cert);
+
+        String ocspSigningSKI = CryptoUtil.getSKIString(mOCSPCert);
+
+        if (isHostAuthority()) {
+            // generate OCSP signing info without authority ID
+            signedAuditLogger.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI));
+        } else {
+            // generate OCSP signing info with authority ID
+            signedAuditLogger.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI, authorityID));
+        }
     }
 
     /**
