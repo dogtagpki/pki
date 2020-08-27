@@ -60,6 +60,7 @@ import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
@@ -526,6 +527,54 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         } catch (EBaseException e) {
             logger.warn("CAEngine: Error initializing lightweight CA: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Add an LDAP entry for the host authority.
+     *
+     * This method also sets the authorityID and authorityDescription
+     * fields.
+     *
+     * It is the caller's responsibility to add the returned
+     * AuthorityID to the CAEngine.
+     */
+    public AuthorityID addHostAuthorityEntry() throws EBaseException {
+
+        CertificateAuthority hostCA = getCA();
+
+        // generate authority ID
+        AuthorityID aid = new AuthorityID();
+        String aidString = aid.toString();
+
+        // build database entry
+        String dn = "cn=" + aidString + "," + getAuthorityBaseDN();
+        String dnString = null;
+        try {
+            dnString = hostCA.getX500Name().toLdapDNString();
+
+        } catch (IOException e) {
+            throw new EBaseException("Unable to convert issuer DN to string: " + e.getMessage(), e);
+        }
+
+        String desc = "Host authority";
+        LDAPAttribute[] attrs = {
+            new LDAPAttribute("objectclass", "authority"),
+            new LDAPAttribute("cn", aidString),
+            new LDAPAttribute("authorityID", aidString),
+            new LDAPAttribute("authorityKeyNickname", hostCA.getNickname()),
+            new LDAPAttribute("authorityEnabled", "TRUE"),
+            new LDAPAttribute("authorityDN", dnString),
+            new LDAPAttribute("description", desc)
+        };
+        LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
+        LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
+
+        addAuthorityEntry(aid, ldapEntry);
+
+        hostCA.setAuthorityID(aid);
+        hostCA.setAuthorityDescription(desc);
+
+        return aid;
     }
 
     public ProfileSubsystem getProfileSubsystem() {
