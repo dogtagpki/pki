@@ -146,14 +146,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             os.path.join(instance_conf_path, 'catalina.properties'),
             force=True)
 
-        # Link /etc/pki/<instance>/ciphers.info
-        # to /usr/share/pki/server/conf/ciphers.info.
-        logger.info('Creating %s', os.path.join(instance_conf_path, 'ciphers.info'))
-        instance.symlink(
-            os.path.join(shared_conf_path, 'ciphers.info'),
-            os.path.join(instance_conf_path, 'ciphers.info'),
-            force=True)
-
         # Link /etc/pki/<instance>/context.xml
         # to /usr/share/tomcat/conf/context.xml.
         logger.info('Creating %s', instance.context_xml)

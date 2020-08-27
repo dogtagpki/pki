@@ -35,10 +35,11 @@ class FixServerConfiguration(pki.server.upgrade.PKIServerUpgradeScriptlet):
             'catalina.properties',
             '/usr/share/pki/server/conf/catalina.properties')
 
-        self.replace_with_link(
-            instance,
-            'ciphers.info',
-            '/usr/share/pki/server/conf/ciphers.info')
+        if os.path.exists('/usr/share/pki/server/conf/ciphers.info'):
+            self.replace_with_link(
+                instance,
+                'ciphers.info',
+                '/usr/share/pki/server/conf/ciphers.info')
 
         self.replace_with_link(
             instance,
