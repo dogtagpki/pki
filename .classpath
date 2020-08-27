@@ -34,7 +34,11 @@
 	<classpathentry kind="lib" path="/usr/share/java/junit.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jaxb-api.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/jaxb/jaxb-impl.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jaxb/jaxb-impl.jar">
+		<attributes>
+			<attribute name="optional" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="/usr/share/java/jakarta-activation/jakarta.activation.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpclient.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpcore.jar"/>
