@@ -40,8 +40,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
-import org.mozilla.jss.ssl.SSLVersion;
-import org.mozilla.jss.ssl.SSLVersionRange;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -133,8 +131,6 @@ public class HttpClient {
                 SSLHandshakeCompletedListener listener = new ClientHandshakeCB(this);
 
                 sslSocket = new SSLSocket(_host, _port);
-                // SSLSocket.setSSLVersionRange() needs to be exposed in JSS
-                // sslSocket.setSSLVersionRange(SSLVersionRange.tls1_0, SSLVersionRange.tls1_2);
                 sslSocket.addHandshakeCompletedListener(listener);
 
                 CryptoToken tt = cm.getThreadToken();

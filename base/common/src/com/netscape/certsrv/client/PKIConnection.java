@@ -328,9 +328,6 @@ public class PKIConnection {
                 socket = new SSLSocket(sock, hostName, callback, null);
             }
 
-            // SSLSocket.setSSLVersionRange() needs to be exposed in JSS
-            // socket.setSSLVersionRange(SSLVersionRange.tls1_0, SSLVersionRange.tls1_2);
-
             String certNickname = config.getCertNickname();
             if (certNickname != null) {
                 logger.info("Client certificate: "+certNickname);

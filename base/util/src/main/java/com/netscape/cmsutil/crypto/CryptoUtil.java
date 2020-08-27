@@ -162,8 +162,6 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.ssl.SSLCipher;
 import org.mozilla.jss.ssl.SSLProtocolVariant;
 import org.mozilla.jss.ssl.SSLSocket;
-import org.mozilla.jss.ssl.SSLVersion;
-import org.mozilla.jss.ssl.SSLVersionRange;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
@@ -715,26 +713,6 @@ public class CryptoUtil {
         KeyPair pair = keygen.genKeyPair();
 
         return pair;
-    }
-
-    public static SSLVersionRange boundSSLStreamVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
-        SSLVersionRange range = new SSLVersionRange(min, max);
-        return SSLSocket.boundSSLVersionRange(SSLProtocolVariant.STREAM, range);
-    }
-
-    public static SSLVersionRange boundSSLDatagramVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
-        SSLVersionRange range = new SSLVersionRange(min, max);
-        return SSLSocket.boundSSLVersionRange(SSLProtocolVariant.DATA_GRAM, range);
-    }
-
-    public static void setSSLStreamVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
-        SSLVersionRange range = new SSLVersionRange(min, max);
-        SSLSocket.setSSLVersionRangeDefault(SSLProtocolVariant.STREAM, range);
-    }
-
-    public static void setSSLDatagramVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
-        SSLVersionRange range = new SSLVersionRange(min, max);
-        SSLSocket.setSSLVersionRangeDefault(SSLProtocolVariant.DATA_GRAM, range);
     }
 
     public static void setClientCiphers(String list) throws SocketException {
