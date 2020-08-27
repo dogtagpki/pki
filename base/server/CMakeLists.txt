@@ -97,9 +97,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_BASE_JAR} common/lib/jackson-jaxrs-base.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_JSON_PROVIDER_JAR} common/lib/jackson-jaxrs-json-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXB_ANNOTATIONS_JAR} common/lib/jackson-module-jaxb-annotations.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} common/lib/jaxb-api.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_IMPL_JAR} common/lib/jaxb-impl.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAKARTA_ACTIVATION_JAR} common/lib/jakarta.activation.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} common/lib/jss4.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} common/lib/ldapjdk.jar
     COMMAND ln -sf /usr/share/java/pki/pki-cmsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-cmsutil.jar
@@ -118,6 +115,18 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${XML_COMMONS_RESOLVER_JAR} common/lib/xml-commons-resolver.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_NET_JAR} common/lib/commons-net.jar
 )
+
+if(JAVA_VERSION GREATER 10)
+    add_custom_target(pki-server-java11plus-lib ALL
+        COMMENT "Creating links for server library required in Java 11+")
+
+    add_custom_command(
+        TARGET pki-server-java11plus-lib
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} common/lib/jaxb-api.jar
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_IMPL_JAR} common/lib/jaxb-impl.jar
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAKARTA_ACTIVATION_JAR} common/lib/jakarta.activation.jar
+    )
+endif(JAVA_VERSION GREATER 10)
 
 # Create /usr/share/pki/server/webapps/pki/WEB-INF/lib. This can be customized for different platforms in RPM spec.
 

@@ -814,6 +814,13 @@ This package contains PKI test suite.
 %build
 ################################################################################
 
+# get Java <major>.<minor> version number
+java_version=`%{java_home}/bin/java -XshowSettings:properties -version 2>&1 | sed -n 's/ *java.version *= *\([0-9]\+\.[0-9]\+\).*/\1/p'`
+
+# if <major> == 1, get <minor> version number
+# otherwise get <major> version number
+java_version=`echo $java_version | sed -e 's/^1\.//' -e 's/\..*$//'`
+
 # get Tomcat <major>.<minor> version number
 tomcat_version=`/usr/sbin/tomcat version | sed -n 's/Server number: *\([0-9]\+\.[0-9]\+\).*/\1/p'`
 
@@ -833,6 +840,7 @@ cd build
     -DVERSION=%{version}-%{release} \
     -DVAR_INSTALL_DIR:PATH=/var \
     -DP11_KIT_TRUST=/etc/alternatives/libnssckbi.so.%{_arch} \
+    -DJAVA_VERSION=%{java_version} \
     -DJAVA_HOME=%java_home \
     -DPKI_JAVA_PATH=%java \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
