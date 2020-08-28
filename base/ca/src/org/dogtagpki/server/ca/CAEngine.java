@@ -35,8 +35,10 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.ca.KeyRetrieverRunner;
@@ -67,6 +69,7 @@ import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
 
@@ -236,6 +239,103 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     }
 
     /**
+     * Create a CA signed by a parent CA.
+     *
+     * This method DOES NOT add the new CA to CAEngine; it is the
+     * caller's responsibility.
+     */
+    public CertificateAuthority createCA(
+            CertificateAuthority parentCA,
+            IAuthToken authToken,
+            String subjectDN,
+            String description)
+            throws Exception {
+
+        parentCA.ensureReady();
+
+        // check requested DN
+        X500Name subjectX500Name = new X500Name(subjectDN);
+        parentCA.ensureAuthorityDNAvailable(subjectX500Name);
+
+        // generate authority ID and nickname
+        AuthorityID aid = new AuthorityID();
+        String aidString = aid.toString();
+
+        CertificateAuthority hostCA = getCA();
+        String nickname = hostCA.getNickname() + " " + aidString;
+
+        // build database entry
+        String dn = "cn=" + aidString + "," + getAuthorityBaseDN();
+        logger.debug("CAEngine: DN: " + dn);
+        String parentDNString = parentCA.getX500Name().toLdapDNString();
+
+        String thisClone = getEEHost() + ":" + getEESSLPort();
+
+        LDAPAttribute[] attrs = {
+            new LDAPAttribute("objectclass", "authority"),
+            new LDAPAttribute("cn", aidString),
+            new LDAPAttribute("authorityID", aidString),
+            new LDAPAttribute("authorityKeyNickname", nickname),
+            new LDAPAttribute("authorityKeyHost", thisClone),
+            new LDAPAttribute("authorityEnabled", "TRUE"),
+            new LDAPAttribute("authorityDN", subjectDN),
+            new LDAPAttribute("authorityParentDN", parentDNString)
+        };
+
+        LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
+        if (parentCA.getAuthorityID() != null) {
+            attrSet.add(new LDAPAttribute("authorityParentID", parentCA.getAuthorityID().toString()));
+        }
+
+        if (description != null) {
+            attrSet.add(new LDAPAttribute("description", description));
+        }
+
+        LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
+        addAuthorityEntry(aid, ldapEntry);
+
+        X509CertImpl cert = null;
+
+        try {
+            logger.info("CAEngine: generating signing certificate");
+            cert = parentCA.generateSigningCert(subjectX500Name, authToken);
+
+            logger.info("CAEngine: importing signing certificate");
+            CryptoManager cryptoManager = CryptoManager.getInstance();
+            cryptoManager.importCertPackage(cert.getEncoded(), nickname);
+
+        } catch (Exception e) {
+            logger.error("Unable to generate signing certificate: " + e.getMessage(), e);
+
+            // something went wrong; delete just-added entry
+            deleteAuthorityEntry(aid);
+
+            throw e;
+        }
+
+        CertificateAuthority ca = new CertificateAuthority(
+            hostCA,
+            subjectX500Name,
+            aid,
+            parentCA.getAuthorityID(),
+            cert.getSerialNumber(),
+            nickname,
+            Collections.singleton(thisClone),
+            description,
+            true);
+
+        // update authority record with serial of issued cert
+        LDAPModificationSet mods = new LDAPModificationSet();
+        mods.add(LDAPModification.REPLACE, new LDAPAttribute(
+                "authoritySerial",
+                cert.getSerialNumber().toString()));
+
+        modifyAuthorityEntry(aid, mods);
+
+        return ca;
+    }
+
+    /**
      * Create a new certificate authority.
      *
      * @param subjectDN Subject DN for new CA
@@ -243,11 +343,11 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
      * @param description Optional string description of CA
      */
     public CertificateAuthority createCA(
+            AuthorityID parentAID,
             IAuthToken authToken,
             String subjectDN,
-            AuthorityID parentAID,
             String description)
-            throws EBaseException {
+            throws Exception {
 
         CertificateAuthority parentCA = getCA(parentAID);
 
@@ -255,7 +355,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             throw new CANotFoundException("Parent CA \"" + parentAID + "\" does not exist");
         }
 
-        CertificateAuthority ca = parentCA.createSubCA(authToken, subjectDN, description);
+        CertificateAuthority ca = createCA(parentCA, authToken, subjectDN, description);
         authorities.put(ca.getAuthorityID(), ca);
 
         return ca;

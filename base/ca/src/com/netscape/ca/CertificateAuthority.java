@@ -178,8 +178,6 @@ import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
 
 import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 
@@ -2530,7 +2528,7 @@ public class CertificateAuthority
         return authorityKeyHosts;
     }
 
-    private void ensureAuthorityDNAvailable(X500Name dn)
+    public void ensureAuthorityDNAvailable(X500Name dn)
             throws IssuerUnavailableException {
 
         CAEngine engine = CAEngine.getInstance();
@@ -2617,111 +2615,6 @@ public class CertificateAuthority
         }
 
         return request.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
-    }
-
-    /**
-     * Create a new lightweight authority signed by this authority.
-     *
-     * This method DOES NOT add the new CA to CAEngine; it is the
-     * caller's responsibility.
-     */
-    public CertificateAuthority createSubCA(
-            IAuthToken authToken,
-            String subjectDN, String description)
-            throws EBaseException {
-
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
-        ensureReady();
-
-        // check requested DN
-        X500Name subjectX500Name = null;
-        try {
-            subjectX500Name = new X500Name(subjectDN);
-        } catch (IOException e) {
-            throw new IllegalArgumentException(
-                "Invalid Subject DN: " + subjectDN);
-        }
-        ensureAuthorityDNAvailable(subjectX500Name);
-
-        // generate authority ID and nickname
-        AuthorityID aid = new AuthorityID();
-        String aidString = aid.toString();
-        String nickname = hostCA.getNickname() + " " + aidString;
-
-        // build database entry
-        String dn = "cn=" + aidString + "," + engine.getAuthorityBaseDN();
-        logger.debug("createSubCA: DN = " + dn);
-        String parentDNString = null;
-        try {
-            parentDNString = mName.toLdapDNString();
-        } catch (IOException e) {
-            throw new EBaseException("Failed to convert issuer DN to string: " + e);
-        }
-
-        String thisClone = engine.getEEHost() + ":" + engine.getEESSLPort();
-
-        LDAPAttribute[] attrs = {
-            new LDAPAttribute("objectclass", "authority"),
-            new LDAPAttribute("cn", aidString),
-            new LDAPAttribute("authorityID", aidString),
-            new LDAPAttribute("authorityKeyNickname", nickname),
-            new LDAPAttribute("authorityKeyHost", thisClone),
-            new LDAPAttribute("authorityEnabled", "TRUE"),
-            new LDAPAttribute("authorityDN", subjectDN),
-            new LDAPAttribute("authorityParentDN", parentDNString)
-        };
-        LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
-        if (this.authorityID != null)
-            attrSet.add(new LDAPAttribute(
-                "authorityParentID", this.authorityID.toString()));
-        if (description != null)
-            attrSet.add(new LDAPAttribute("description", description));
-        LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
-
-        engine.addAuthorityEntry(aid, ldapEntry);
-
-        X509CertImpl cert = null;
-
-        try {
-            logger.info("CertificateAuthority: generating signing certificate");
-            cert = generateSigningCert(subjectX500Name, authToken);
-
-            logger.info("CertificateAuthority: importing signing certificate");
-            CryptoManager cryptoManager = CryptoManager.getInstance();
-            cryptoManager.importCertPackage(cert.getEncoded(), nickname);
-
-        } catch (Exception e) {
-            // something went wrong; delete just-added entry
-            logger.error("Error creating lightweight CA certificate: " + e.getMessage(), e);
-
-            try {
-                engine.deleteAuthorityEntry(aid);
-            } catch (ELdapException e2) {
-                // we are about to throw ECAException, so just
-                // log this error.
-                logger.error("Error deleting new authority entry after failure during certificate generation: " + e2.getMessage(), e2);
-            }
-            if (e instanceof BadRequestDataException)
-                throw (BadRequestDataException) e;  // re-throw
-            else
-                throw new ECAException("Error creating lightweight CA certificate: " + e, e);
-        }
-
-        CertificateAuthority ca = new CertificateAuthority(
-            hostCA, subjectX500Name,
-            aid, this.authorityID, cert.getSerialNumber(),
-            nickname, Collections.singleton(thisClone),
-            description, true);
-
-        // Update authority record with serial of issued cert
-        LDAPModificationSet mods = new LDAPModificationSet();
-        mods.add(
-            LDAPModification.REPLACE,
-            new LDAPAttribute("authoritySerial", cert.getSerialNumber().toString()));
-
-        engine.modifyAuthorityEntry(aid, mods);
-
-        return ca;
     }
 
     /**
