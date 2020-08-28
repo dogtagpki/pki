@@ -43,16 +43,11 @@ public class KeyRetrieverRunner implements Runnable {
     private String nickname;
     private Collection<String> hosts;
 
-    public KeyRetrieverRunner(
-            CertificateAuthority certificateAuthority,
-            AuthorityID aid,
-            String nickname,
-            Collection<String> hosts) {
-
+    public KeyRetrieverRunner(CertificateAuthority certificateAuthority) {
         this.certificateAuthority = certificateAuthority;
-        this.aid = aid;
-        this.nickname = nickname;
-        this.hosts = hosts;
+        this.aid = certificateAuthority.getAuthorityID();
+        this.nickname = certificateAuthority.getNickname();
+        this.hosts = certificateAuthority.getAuthorityKeyHosts();
     }
 
     public void run() {

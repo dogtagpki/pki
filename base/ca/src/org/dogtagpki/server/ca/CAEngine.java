@@ -39,6 +39,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.ca.CertificateAuthority;
+import com.netscape.ca.KeyRetrieverRunner;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -264,8 +265,11 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return keyRetrievers.containsKey(aid);
     }
 
-    public void addKeyRetriever(AuthorityID aid, Thread thread) {
-        keyRetrievers.put(aid, thread);
+    public void startKeyRetriever(CertificateAuthority ca) {
+        KeyRetrieverRunner runner = new KeyRetrieverRunner(ca);
+        Thread thread = new Thread(runner, "KeyRetrieverRunner-" + ca.getAuthorityID());
+        thread.start();
+        keyRetrievers.put(ca.getAuthorityID(), thread);
     }
 
     public void removeKeyRetriever(AuthorityID aid) {

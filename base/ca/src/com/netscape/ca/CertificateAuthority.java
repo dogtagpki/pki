@@ -510,18 +510,14 @@ public class CertificateAuthority
                 // Only the host authority should ever see a
                 // null authorityID, e.g. during two-step
                 // installation of externally-signed CA.
-                logger.debug("null authorityID -> host authority; not starting KeyRetriever");
+                logger.info("CertificateAuthority: do not start KeyRetriever for host CA");
 
             } else if (!engine.hasKeyRetriever(authorityID)) {
-                logger.info("CertificateAuthority: starting KeyRetrieverRunner thread");
-                Thread t = new Thread(
-                    new KeyRetrieverRunner(this, authorityID, mNickname, authorityKeyHosts),
-                    "KeyRetrieverRunner-" + authorityID);
-                t.start();
-                engine.addKeyRetriever(authorityID, t);
+                logger.info("CertificateAuthority: starting KeyRetriever for authority " + authorityID);
+                engine.startKeyRetriever(this);
 
             } else {
-                logger.debug("KeyRetriever thread already running for authority " + authorityID);
+                logger.info("CertificateAuthority: KeyRetriever already running for authority " + authorityID);
             }
 
         } catch (Exception e) {
@@ -2528,6 +2524,10 @@ public class CertificateAuthority
 
     public void setAuthorityDescription(String desc) {
         authorityDescription = desc;
+    }
+
+    public Collection<String> getAuthorityKeyHosts() {
+        return authorityKeyHosts;
     }
 
     private void ensureAuthorityDNAvailable(X500Name dn)
