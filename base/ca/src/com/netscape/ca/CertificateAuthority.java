@@ -2652,13 +2652,7 @@ public class CertificateAuthority
         X509CertImpl cert = request.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
         authoritySerial = cert.getSerialNumber();
 
-        // Update authority record with serial of issued cert
-        LDAPModificationSet mods = new LDAPModificationSet();
-        mods.add(
-            LDAPModification.REPLACE,
-            new LDAPAttribute("authoritySerial", authoritySerial.toString()));
-
-        engine.modifyAuthorityEntry(authorityID, mods);
+        engine.updateAuthoritySerialNumber(authorityID, authoritySerial);
 
         // update cert in NSSDB
         checkForNewerCert();

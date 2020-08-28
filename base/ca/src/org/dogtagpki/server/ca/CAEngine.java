@@ -324,13 +324,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             description,
             true);
 
-        // update authority record with serial of issued cert
-        LDAPModificationSet mods = new LDAPModificationSet();
-        mods.add(LDAPModification.REPLACE, new LDAPAttribute(
-                "authoritySerial",
-                cert.getSerialNumber().toString()));
-
-        modifyAuthorityEntry(aid, mods);
+        updateAuthoritySerialNumber(aid, cert.getSerialNumber());
 
         return ca;
     }
@@ -679,6 +673,16 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         hostCA.setAuthorityDescription(desc);
 
         return aid;
+    }
+
+    public void updateAuthoritySerialNumber(AuthorityID aid, BigInteger serialNumber) throws Exception {
+
+        LDAPModificationSet mods = new LDAPModificationSet();
+        mods.add(LDAPModification.REPLACE, new LDAPAttribute(
+                "authoritySerial",
+                serialNumber.toString()));
+
+        modifyAuthorityEntry(aid, mods);
     }
 
     public ProfileSubsystem getProfileSubsystem() {
