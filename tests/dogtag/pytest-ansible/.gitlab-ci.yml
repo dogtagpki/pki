@@ -380,5 +380,4 @@ topo-00-BZ-1664435-ca-scep-gs:
 #  stage: tier1
 #  script:
 #    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=acme" -vv
-#
-#
+
