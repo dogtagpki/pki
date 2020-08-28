@@ -2541,6 +2541,84 @@ public class CertificateAuthority
         }
     }
 
+    public X509CertImpl generateSigningCert(
+            X500Name subjectX500Name,
+            IAuthToken authToken)
+            throws Exception {
+
+        CryptoManager cryptoManager = CryptoManager.getInstance();
+
+        // TODO: read PROP_TOKEN_NAME config
+        CryptoToken token = cryptoManager.getInternalKeyStorageToken();
+
+        logger.info("CertificateAuthority: generating RSA key");
+
+        // Key size of sub-CA shall be key size of this CA.
+        // If the key is not RSA (e.g. EC) default to 3072 bits.
+        // TODO: key generation parameters
+        KeyPairGenerator gen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+        int keySize = 3072;
+        PublicKey thisPub = mSigningUnit.getPublicKey();
+        if (thisPub instanceof RSAKey) {
+            keySize = ((RSAKey) thisPub).getModulus().bitLength();
+        }
+        gen.initialize(keySize);
+
+        KeyPair keypair = gen.genKeyPair();
+        PublicKey pub = keypair.getPublic();
+        X509Key x509key = CryptoUtil.createX509Key(pub);
+
+        logger.info("CertificateAuthority: creating PKCS #10 request");
+
+        PKCS10 pkcs10 = new PKCS10(x509key);
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(keypair.getPrivate());
+        pkcs10.encodeAndSign(new X500Signer(signature, subjectX500Name));
+        String pkcs10String = CertUtil.toPEM(pkcs10);
+
+        logger.info("CertificateAuthority: signing certificate");
+
+        CAEngine engine = CAEngine.getInstance();
+        ProfileSubsystem ps = engine.getProfileSubsystem();
+        String profileId = "caCACert";
+        Profile profile = ps.getProfile(profileId);
+
+        ArgBlock argBlock = new ArgBlock();
+        argBlock.set("cert_request_type", "pkcs10");
+        argBlock.set("cert_request", pkcs10String);
+
+        Locale locale = Locale.getDefault();
+        CertEnrollmentRequest certRequest =
+            CertEnrollmentRequestFactory.create(argBlock, profile, locale);
+        EnrollmentProcessor processor = new EnrollmentProcessor("createSubCA", locale);
+
+        Map<String, Object> resultMap = processor.processEnrollment(
+            certRequest, null, authorityID, null, authToken);
+
+        IRequest[] requests = (IRequest[]) resultMap.get(CAProcessor.ARG_REQUESTS);
+        IRequest request = requests[0];
+
+        Integer result = request.getExtDataInInteger(IRequest.RESULT);
+        if (result != null && !result.equals(IRequest.RES_SUCCESS)) {
+            throw new EBaseException("Unable to generate signing certificate: " + result);
+        }
+
+        RequestStatus requestStatus = request.getRequestStatus();
+        if (requestStatus != RequestStatus.COMPLETE) {
+            // The request did not complete.  Inference: something
+            // incorrect in the request (e.g. profile constraint
+            // violated).
+            String msg = "Unable to generate signing certificate: " + requestStatus;
+            String errorMsg = request.getExtDataInString(IRequest.ERROR);
+            if (errorMsg != null) {
+                msg += ": " + errorMsg;
+            }
+            throw new BadRequestDataException(msg);
+        }
+
+        return request.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+    }
+
     /**
      * Create a new lightweight authority signed by this authority.
      *
@@ -2605,70 +2683,13 @@ public class CertificateAuthority
         X509CertImpl cert = null;
 
         try {
-            // Generate signing key
+            logger.info("CertificateAuthority: generating signing certificate");
+            cert = generateSigningCert(subjectX500Name, authToken);
+
+            logger.info("CertificateAuthority: importing signing certificate");
             CryptoManager cryptoManager = CryptoManager.getInstance();
-            // TODO read PROP_TOKEN_NAME config
-            CryptoToken token = cryptoManager.getInternalKeyStorageToken();
-
-            // Key size of sub-CA shall be key size of this CA.
-            // If the key is not RSA (e.g. EC) default to 3072 bits.
-            //
-            // TODO key generation parameters
-            KeyPairGenerator gen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
-            int keySize = 3072;
-            PublicKey thisPub = mSigningUnit.getPublicKey();
-            if (thisPub instanceof RSAKey) {
-                keySize = ((RSAKey) thisPub).getModulus().bitLength();
-            }
-            gen.initialize(keySize);
-
-            KeyPair keypair = gen.genKeyPair();
-            PublicKey pub = keypair.getPublic();
-            X509Key x509key = CryptoUtil.createX509Key(pub);
-
-            // Create pkcs10 request
-            logger.debug("createSubCA: creating pkcs10 request");
-            PKCS10 pkcs10 = new PKCS10(x509key);
-            Signature signature = Signature.getInstance("SHA256withRSA");
-            signature.initSign(keypair.getPrivate());
-            pkcs10.encodeAndSign(
-                new X500Signer(signature, subjectX500Name));
-            String pkcs10String = CertUtil.toPEM(pkcs10);
-
-            // Sign certificate
-            Locale locale = Locale.getDefault();
-            String profileId = "caCACert";
-            ProfileSubsystem ps = engine.getProfileSubsystem();
-            Profile profile = ps.getProfile(profileId);
-            ArgBlock argBlock = new ArgBlock();
-            argBlock.set("cert_request_type", "pkcs10");
-            argBlock.set("cert_request", pkcs10String);
-            CertEnrollmentRequest certRequest =
-                CertEnrollmentRequestFactory.create(argBlock, profile, locale);
-            EnrollmentProcessor processor =
-                new EnrollmentProcessor("createSubCA", locale);
-            Map<String, Object> resultMap = processor.processEnrollment(
-                certRequest, null, authorityID, null, authToken);
-            IRequest requests[] = (IRequest[]) resultMap.get(CAProcessor.ARG_REQUESTS);
-            IRequest request = requests[0];
-            Integer result = request.getExtDataInInteger(IRequest.RESULT);
-            if (result != null && !result.equals(IRequest.RES_SUCCESS))
-                throw new EBaseException("createSubCA: certificate request submission resulted in error: " + result);
-            RequestStatus requestStatus = request.getRequestStatus();
-            if (requestStatus != RequestStatus.COMPLETE) {
-                // The request did not complete.  Inference: something
-                // incorrect in the request (e.g. profile constraint
-                // violated).
-                String msg = "Failed to issue CA certificate. Final status: " + requestStatus + ".";
-                String errorMsg = request.getExtDataInString(IRequest.ERROR);
-                if (errorMsg != null)
-                    msg += " Additional info: " + errorMsg;
-                throw new BadRequestDataException(msg);
-            }
-
-            // Add certificate to nssdb
-            cert = request.getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
             cryptoManager.importCertPackage(cert.getEncoded(), nickname);
+
         } catch (Exception e) {
             // something went wrong; delete just-added entry
             logger.error("Error creating lightweight CA certificate: " + e.getMessage(), e);
