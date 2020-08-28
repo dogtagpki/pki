@@ -46,6 +46,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
+import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cmscore.apps.CMS;
@@ -683,6 +684,73 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
                 serialNumber.toString()));
 
         modifyAuthorityEntry(aid, mods);
+    }
+
+    /**
+     * Update authority attributes.
+     *
+     * Pass null values to exclude an attribute from the update.
+     *
+     * If a passed value matches the current value, it is excluded
+     * from the update.
+     *
+     * To remove optional string values, pass the empty string.
+     *
+     * @param enabled Whether CA is enabled or disabled
+     * @param desc Description; null or empty removes it
+     */
+    public void modifyAuthority(
+            CertificateAuthority ca,
+            Boolean enabled,
+            String desc) throws EBaseException {
+
+        CertificateAuthority hostCA = getCA();
+
+        if (ca == hostCA && enabled != null && !enabled) {
+            throw new CATypeException("Cannot disable the host CA");
+        }
+
+        LDAPModificationSet mods = new LDAPModificationSet();
+
+        boolean nextEnabled = ca.getAuthorityEnabled();
+        if (enabled != null && enabled.booleanValue() != ca.getAuthorityEnabled()) {
+            mods.add(LDAPModification.REPLACE,
+                    new LDAPAttribute("authorityEnabled", enabled ? "TRUE" : "FALSE"));
+            nextEnabled = enabled;
+        }
+
+        String nextDesc = ca.getAuthorityDescription();
+        if (desc != null) {
+
+            if (!desc.isEmpty()
+                    && ca.getAuthorityDescription() != null
+                    && !desc.equals(ca.getAuthorityDescription())) {
+
+                mods.add(LDAPModification.REPLACE,
+                        new LDAPAttribute("description", desc));
+                nextDesc = desc;
+
+            } else if (desc.isEmpty() && ca.getAuthorityDescription() != null) {
+
+                mods.add(LDAPModification.DELETE,
+                        new LDAPAttribute("description", ca.getAuthorityDescription()));
+                nextDesc = null;
+
+            } else if (!desc.isEmpty() && ca.getAuthorityDescription() == null) {
+
+                mods.add(LDAPModification.ADD,
+                        new LDAPAttribute("description", desc));
+                nextDesc = desc;
+            }
+        }
+
+        if (mods.size() > 0) {
+            modifyAuthorityEntry(ca.getAuthorityID(), mods);
+
+            // update was successful; update CA's state
+            ca.setAuthorityEnabled(nextEnabled);
+            ca.setAuthorityDescription(nextDesc);
+        }
     }
 
     public ProfileSubsystem getProfileSubsystem() {

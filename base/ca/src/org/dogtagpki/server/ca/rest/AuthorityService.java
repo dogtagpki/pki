@@ -325,7 +325,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         }
 
         try {
-            ca.modifyAuthority(data.getEnabled(), data.getDescription());
+            engine.modifyAuthority(ca, data.getEnabled(), data.getDescription());
             audit(ILogger.SUCCESS, OpDef.OP_MODIFY, ca.getAuthorityID().toString(), auditParams);
             return createOKResponse(readAuthorityData(ca));
         } catch (CATypeException e) {

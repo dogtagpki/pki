@@ -373,6 +373,10 @@ public class CertificateAuthority
         return authorityEnabled;
     }
 
+    public void setAuthorityEnabled(boolean authorityEnabled) {
+        this.authorityEnabled = authorityEnabled;
+    }
+
     /**
      * Retrieves subsystem identifier.
      */
@@ -2656,62 +2660,6 @@ public class CertificateAuthority
 
         // update cert in NSSDB
         checkForNewerCert();
-    }
-
-    /**
-     * Update lightweight authority attributes.
-     *
-     * Pass null values to exclude an attribute from the update.
-     *
-     * If a passed value matches the current value, it is excluded
-     * from the update.
-     *
-     * To remove optional string values, pass the empty string.
-     */
-    public void modifyAuthority(Boolean enabled, String desc)
-            throws EBaseException {
-        if (isHostAuthority() && enabled != null && !enabled)
-            throw new CATypeException("Cannot disable the host CA");
-
-        CAEngine engine = CAEngine.getInstance();
-        LDAPModificationSet mods = new LDAPModificationSet();
-
-        boolean nextEnabled = authorityEnabled;
-        if (enabled != null && enabled.booleanValue() != authorityEnabled) {
-            mods.add(
-                LDAPModification.REPLACE,
-                new LDAPAttribute("authorityEnabled", enabled ? "TRUE" : "FALSE"));
-            nextEnabled = enabled;
-        }
-
-        String nextDesc = authorityDescription;
-        if (desc != null) {
-            if (!desc.isEmpty() && authorityDescription != null
-                    && !desc.equals(authorityDescription)) {
-                mods.add(
-                    LDAPModification.REPLACE,
-                    new LDAPAttribute("description", desc));
-                nextDesc = desc;
-            } else if (desc.isEmpty() && authorityDescription != null) {
-                mods.add(
-                    LDAPModification.DELETE,
-                    new LDAPAttribute("description", authorityDescription));
-                nextDesc = null;
-            } else if (!desc.isEmpty() && authorityDescription == null) {
-                mods.add(
-                    LDAPModification.ADD,
-                    new LDAPAttribute("description", desc));
-                nextDesc = desc;
-            }
-        }
-
-        if (mods.size() > 0) {
-            engine.modifyAuthorityEntry(authorityID, mods);
-
-            // update was successful; update CA's state
-            authorityEnabled = nextEnabled;
-            authorityDescription = nextDesc;
-        }
     }
 
     /**

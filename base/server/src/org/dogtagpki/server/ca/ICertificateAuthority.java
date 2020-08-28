@@ -550,15 +550,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public String getAuthorityDescription();
 
     /**
-     * Update authority configurables.
-     *
-     * @param enabled Whether CA is enabled or disabled
-     * @param desc Description; null or empty removes it
-     */
-    public void modifyAuthority(Boolean enabled, String desc)
-        throws EBaseException;
-
-    /**
      * Renew certificate of CA.
      */
     public void renewAuthority(HttpServletRequest httpReq) throws Exception;
