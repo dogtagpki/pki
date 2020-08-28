@@ -753,6 +753,21 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         }
     }
 
+    public void addAuthorityKeyHost(CertificateAuthority ca, String host) throws Exception {
+
+        if (ca.getAuthorityKeyHosts().contains(host)) {
+            // already there; nothing to do
+            return;
+        }
+
+        LDAPModificationSet mods = new LDAPModificationSet();
+        mods.add(LDAPModification.ADD,
+            new LDAPAttribute("authorityKeyHost", host));
+        modifyAuthorityEntry(ca.getAuthorityID(), mods);
+
+        ca.getAuthorityKeyHosts().add(host);
+    }
+
     public ProfileSubsystem getProfileSubsystem() {
         return (ProfileSubsystem) getSubsystem(ProfileSubsystem.ID);
     }

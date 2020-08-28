@@ -210,7 +210,8 @@ public class KeyRetrieverRunner implements Runnable {
 
         logger.debug("Adding self to authorityKeyHosts attribute");
         try {
-            ca.addInstanceToAuthorityKeyHosts();
+            String host = engine.getEEHost() + ":" + engine.getEESSLPort();
+            engine.addAuthorityKeyHost(ca, host);
         } catch (Throwable e) {
             /* We retrieved key, imported it, and successfully
              * re-inited the signing unit.  The only thing that

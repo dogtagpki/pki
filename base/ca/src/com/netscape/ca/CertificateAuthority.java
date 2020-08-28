@@ -153,7 +153,6 @@ import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.IDBSubsystem;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
-import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.ARequestNotifier;
@@ -176,10 +175,6 @@ import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPModificationSet;
 
 
 /**
@@ -471,7 +466,6 @@ public class CertificateAuthority
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
-        LDAPConfig dbCfg = cs.getInternalDBConfig();
         IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
 
         mConfig = cs.getCAConfig();
@@ -2660,24 +2654,6 @@ public class CertificateAuthority
 
         // update cert in NSSDB
         checkForNewerCert();
-    }
-
-    /**
-     * Add this instance to the authorityKeyHosts
-     */
-    void addInstanceToAuthorityKeyHosts() throws EBaseException {
-        CAEngine engine = CAEngine.getInstance();
-        String thisClone = engine.getEEHost() + ":" + engine.getEESSLPort();
-        if (authorityKeyHosts.contains(thisClone)) {
-            // already there; nothing to do
-            return;
-        }
-        LDAPModificationSet mods = new LDAPModificationSet();
-        mods.add(
-            LDAPModification.ADD,
-            new LDAPAttribute("authorityKeyHost", thisClone));
-        engine.modifyAuthorityEntry(authorityID, mods);
-        authorityKeyHosts.add(thisClone);
     }
 
     public synchronized void deleteAuthority(HttpServletRequest httpReq)
