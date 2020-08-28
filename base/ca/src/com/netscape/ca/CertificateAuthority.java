@@ -469,7 +469,7 @@ public class CertificateAuthority
 
         mConfig = cs.getCAConfig();
 
-        logger.info("CertificateAuthority: initializing certificate database");
+        logger.info("CertificateAuthority: initializing cert database");
         initCertDatabase();
 
         logger.info("CertificateAuthority: initializing CRL database");
@@ -519,21 +519,24 @@ public class CertificateAuthority
             throw new EBaseException(e);
         }
 
+        logger.info("CertificateAuthority: initializing default CA attributes");
         initDefaultCAAttributes();
 
         /* Don't try to update the cert unless we already have
          * the cert and key. */
-        if (initSigUnitSucceeded)
+        if (initSigUnitSucceeded) {
+            logger.info("CertificateAuthority: checking for newer cert");
             checkForNewerCert();
+        }
 
         mUseNonces = mConfig.getBoolean("enableNonces", true);
         mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
 
-        // init request queue and related modules.
-        logger.debug("CertificateAuthority init: initRequestQueue");
+        logger.info("CertificateAuthority: initializing request queue");
         initRequestQueue();
+
         if (engine.isPreOpMode()) {
-            logger.debug("CertificateAuthority.init(): Abort in pre-op mode");
+            logger.info("CertificateAuthority: aborting initialization in pre-op mode");
             return;
         }
 
@@ -566,18 +569,21 @@ public class CertificateAuthority
             initMiscellaneousListeners();
         }
 
+        logger.info("CertificateAuthority: initializing CRL publisher");
         initCRLPublisher();
 
-        // initialize publisher processor (publish remote admin
-        // rely on this subsystem, so it has to be initialized)
+        logger.info("CertificateAuthority: initializing publisher processor");
+        // publish remote admin relies on this subsystem, so it has to be initialized
         initPublish();
 
-        // Initialize CRL issuing points.
+        logger.info("CertificateAuthority: initializing CRL issuing points");
         // note CRL framework depends on DBS, CRYPTO and PUBLISHING
         // being functional.
         initCRL();
 
         if (isHostAuthority() && engine.haveAuthorityContainer()) {
+
+            logger.info("CertificateAuthority: starting authority monitor");
 
             authorityMonitor = new AuthorityMonitor();
             new Thread(authorityMonitor, "AuthorityMonitor").start();
@@ -589,6 +595,7 @@ public class CertificateAuthority
                 // numSubordinates is larger than the number of entries
                 // we can see, e.g. replication conflict entries).
                 CAEngine.loader.awaitLoadDone();
+
             } catch (InterruptedException e) {
                 logger.warn("CertificateAuthority: caught InterruptedException "
                         + "while waiting for initial load of authorities.");
@@ -605,9 +612,10 @@ public class CertificateAuthority
             logger.debug("CertificateAuthority: finished init of host authority");
         }
 
-        // set up CA Issuance Protection Cert
-        if (initSigUnitSucceeded)
+        if (initSigUnitSucceeded) {
+            logger.info("CertificateAuthority: initializing issuance protection cert");
             initIssuanceProtectionCert();
+        }
     }
 
     /**
