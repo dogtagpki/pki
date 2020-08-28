@@ -23,6 +23,9 @@
 - name: Enable OCSP 
   replace: dest=/etc/pki/{{ topology }}-OCSP/server.xml regexp='enableOCSP="false"' replace='enableOCSP="true"'
 
+- name: Pointing OCSP to correct URI
+  replace: dest=/etc/pki/{{ topology }}-OCSP/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.CA_HTTP_PORT }}/ca/ocsp
+
 - name: Enable OCSP Policy to Native for tls as true
   block:
   - name: Checking for right CA certificate

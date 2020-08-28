@@ -1,0 +1,32 @@
+- name: Copy Certificates to the Clone
+  copy: src=/tmp/test_dir/clonecerts/{{item}} dest=/tmp/ owner=pkiuser group=pkiuser mode=666
+  with_items:
+    - ca_certs.p12
+    - kra_certs.p12
+    - ocsp_certs.p12
+    - tks_certs.p12
+    - rootCA.pem
+
+- name: Allow apache to read and write files
+  sefcontext:
+    target: '/tmp/{{item}}'
+    setype: pki_tomcat_cert_t
+    state: present
+  with_items:
+    - ca_certs.p12
+    - kra_certs.p12
+    - ocsp_certs.p12
+    - tks_certs.p12
+    - rootCA.pem
+
+- name: Apply new SELinux file context to filesystem
+  command: restorecon -Rv /tmp/{{item}}
+  with_items:
+    - ca_certs.p12
+    - kra_certs.p12
+    - ocsp_certs.p12
+    - tks_certs.p12
+    - rootCA.pem
+
+- name: Install CA Clone
+  shell: pkispawn -s CA -f /tmp/test_dir/ca_clone.cfg

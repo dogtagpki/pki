@@ -1,0 +1,15 @@
+---
+# tasks file for Test_Execution_Clone/
+
+- include: configure_clone.yml
+  when: topology == "topology-02"
+- include: clone_ldap.yml
+  when: topology == "topology-02"
+- include: clone_ca.yml
+  when: topology == "topology-02"
+- include: clone_ocsp.yml
+  when: topology == "topology-02"
+- include: clone_kra.yml
+  when: topology == "topology-02"
+- include: clone_tks.yml
+  when: topology == "topology-02"

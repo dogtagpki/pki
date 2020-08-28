@@ -60,8 +60,8 @@ def config_setup(request,ansible_module):
     instance_creation = openssl_externalca()
     config = Config()
 
-    params_default = {"pki_hostname": map(str,[ansible_module.command('hostname')[x]['stdout']
-                                               for x in ansible_module.command('hostname').iterkeys()])[0],
+    params_default = {"pki_hostname": map(str,[ansible_module.shell('hostname')[x]['stdout']
+                                               for x in ansible_module.shell('hostname').iterkeys()])[0],
                       "pki_ds_password":instance_creation.passwd,"pki_ds_ldap_port": constants.LDAP_PORT}
 
     subsystem_params_step1 = {"pki_admin_email":"caadmin1@example.com","pki_admin_name":"caadmin",
@@ -90,7 +90,7 @@ def config_setup(request,ansible_module):
         log.info("teardown before exit")
         for x in ['rm -rf %s %s' %(instance_creation.nssdb, instance_creation.pass_file),
                   'pkidestroy -s %s -i %s' % (instance_creation.subsystem, instance_creation.instance_name)]:
-            ansible_module.command(x)
+            ansible_module.shell(x)
             log.info("Teardown: Remove %s",x)
 
     else:
@@ -106,5 +106,5 @@ def config_setup(request,ansible_module):
         log.info("teardown before exit")
         for x in ['rm -rf %s %s' %(instance_creation.nssdb, instance_creation.pass_file),
                   'pkidestroy -s %s -i %s' % (instance_creation.subsystem, instance_creation.instance_name)]:
-            ansible_module.command(x)
+            ansible_module.shell(x)
             log.info("Teardown: Remove %s",x)

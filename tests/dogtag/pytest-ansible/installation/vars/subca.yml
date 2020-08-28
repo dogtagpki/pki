@@ -1,4 +1,5 @@
-subcapki_https_port: '19443'
-subcapki_http_port: '19080'
-subcapki_ajp_port: '19009'
-subcapki_tomcat_port: '19005'
+subpki_https_port: '18443'
+subpki_http_port: '18080'
+subpki_ajp_port: '18009'
+subpki_tomcat_port: '18005'
+

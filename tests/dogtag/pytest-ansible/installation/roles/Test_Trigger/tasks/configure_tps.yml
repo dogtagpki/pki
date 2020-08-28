@@ -9,6 +9,8 @@
   with_items:
   - /tmp/test_dir/tps.cfg
   - /tmp/test_dir/constants.py
+  - /tmp/test_dir/token_format.txt
+  - /tmp/test_dir/token_enroll.txt
 
 - name: Replace ajp port for TPS
   replace: dest={{item}} regexp="tpspki_ajp_port" replace={{tpspki_ajp_port}}

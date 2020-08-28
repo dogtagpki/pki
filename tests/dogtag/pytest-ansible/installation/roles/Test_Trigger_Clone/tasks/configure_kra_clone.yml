@@ -1,0 +1,41 @@
+- name: Replace Clone KRA specific changes 
+  replace: dest={{item}} regexp="krapki_https_port" replace={{krapki_https_port}}
+  with_items:
+  - /tmp/test_dir/kra_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace http port for Clone KRA.
+  replace: dest={{item}} regexp="krapki_http_port" replace={{krapki_http_port}}
+  with_items:
+  - /tmp/test_dir/kra_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace ajp port for Clone KRA
+  replace: dest={{item}} regexp="krapki_ajp_port" replace={{krapki_ajp_port}}
+  with_items:
+  - /tmp/test_dir/kra_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for Clone KRA
+  replace: dest={{item}} regexp="krapki_tomcat_server_port" replace={{krapki_tomcat_server_port}}
+  with_items:
+  - /tmp/test_dir/kra_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace Secure port for Clone KRA
+  replace: dest={{item}} regexp="secure_domain_port" replace={{capki_https_port}}
+  with_items:
+  - /tmp/test_dir/kra_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace issuing CA port for Clone KRA
+  replace: dest={{item}} regexp="capki_https_port" replace={{capki_https_port}}
+  with_items:
+  - /tmp/test_dir/kra_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace BaseDN for Clone KRA
+  replace: dest={{item}} regexp="BaseDNname" replace={{topology}}-KRA-KRA
+  with_items:
+  - /tmp/test_dir/kra_clone.cfg
+  - /tmp/test_dir/constants.py

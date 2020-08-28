@@ -6,7 +6,7 @@
 - name: Install CA master
   shell: pkispawn -s CA -f /tmp/test_dir/ca.cfg
 
-- name : Stopping CA Subsystem
+- name: Stopping CA Subsystem
   shell: systemctl stop pki-tomcatd@{{ topology }}-CA.service
 
 - name: Enable SignedAudit for Subsystem
@@ -34,3 +34,15 @@
   service:
     name: pki-tomcatd@{{ topology }}-CA.service
     state: started
+
+- name: CA Clone Preparation
+  block:
+    - name: Export CA subsystem certificates
+      shell: pki-server ca-clone-prepare -i {{topology}}-CA --pkcs12-file /tmp/ca_certs.p12 --pkcs12-password {{variable.CLIENT_PKCS12_PASSWORD}}
+
+    - name: Get the CA subsystem certificates to the local
+      fetch: src=/tmp/ca_certs.p12 dest=/tmp/test_dir/clonecerts/ flat=yes
+
+    - name: Get the RootCA cert for subsystem clone
+      fetch: src=/tmp/rootCA.pem dest=/tmp/test_dir/clonecerts/ flat=yes
+  when: clone == "true" or clone == "True"

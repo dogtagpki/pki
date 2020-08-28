@@ -1,0 +1,37 @@
+- name: Replace Clone TKS specific changes 
+  replace: dest={{item}} regexp="tkspki_https_port" replace={{tkspki_https_port}}
+  with_items:
+  - /tmp/test_dir/tks_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace http port for clone TKS.
+  replace: dest={{item}} regexp="tkspki_http_port" replace={{tkspki_http_port}}
+  with_items:
+  - /tmp/test_dir/tks_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace ajp port for Clone TKS
+  replace: dest={{item}} regexp="tkspki_ajp_port" replace={{tkspki_ajp_port}}
+  with_items:
+  - /tmp/test_dir/tks_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for Clone TKS
+  replace: dest={{item}} regexp="tkspki_tomcat_server_port" replace={{tkspki_tomcat_server_port}}
+  with_items:
+  - /tmp/test_dir/tks_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace Secure port for Clone TKS
+  replace: dest={{item}} regexp="secure_domain_port" replace={{capki_https_port}}
+  with_items:
+  - /tmp/test_dir/tks_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace issuing CA port for Clone TKS
+  replace: dest={{item}} regexp="capki_https_port" replace={{capki_https_port}}
+  with_items:
+    - /tmp/test_dir/tks_clone.cfg
+
+- name: Replace BaseDN for Clone TKS
+  replace: dest=/tmp/test_dir/tks_clone.cfg regexp="BaseDNname" replace={{topology}}-TKS-TKS

@@ -150,6 +150,9 @@
   - /tmp/test_dir/ocsp.cfg
   - /tmp/test_dir/tks.cfg
   - /tmp/test_dir/tps.cfg
+  - /tmp/test_dir/token_format.txt
+  - /tmp/test_dir/token_enroll.txt
+  - /tmp/test_dir/subca.cfg
 
 - name: Replace ServerName in all configuration files.
   replace: dest={{item}} regexp="SERVERNAME" replace=pki1.example.com
@@ -168,3 +171,9 @@
   - /tmp/test_dir/tks.cfg
   - /tmp/test_dir/tps.cfg
   - /tmp/test_dir/subca.cfg
+
+- name: Update acme database baseDN.
+  replace: dest={{item}} regexp="ldap_base_dn" replace={{ldap_base_dn}}
+  with_items:
+  - /tmp/test_dir/acme_create.ldif
+  when: topology  == "acme"

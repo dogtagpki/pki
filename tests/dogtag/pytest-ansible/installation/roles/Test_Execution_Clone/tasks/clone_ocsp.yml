@@ -1,0 +1,5 @@
+- name: sleep
+  shell: sleep 5s
+
+- name: Install OCSP Clone
+  shell: pkispawn -s OCSP -f /tmp/test_dir/ocsp_clone.cfg

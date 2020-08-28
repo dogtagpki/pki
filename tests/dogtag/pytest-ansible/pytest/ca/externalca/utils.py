@@ -86,6 +86,7 @@ class pki_externalca_common(object):
 
     def __init__(self, **kwargs):
         self.ca_http_port = kwargs['ca_http_port'] if 'ca_http_port' in kwargs.keys() else constants.CA_HTTP_PORT
+        self.ca_protocol = kwargs['ca_protocol'] if 'ca_protocol' in kwargs.keys() else constants.PROTOCOL_UNSECURE
         self.profile = kwargs['profile'] if 'profile' in kwargs.keys() else 'caCACert'
         self.ca_signing_csr = kwargs['ca_signing_csr'] \
             if 'ca_signing_csr' in kwargs.keys() else '/tmp/ca_signing.csr'
@@ -128,7 +129,7 @@ class pki_externalca_common(object):
         try:
             log.info("Running pkispawn command : %s", cmd)
             pkispawn_output = ansible_module.command(cmd)
-            assert "CSR for the CA certificate has been generated" in map(str,[pkispawn_output[x]['stdout']
+            assert "certificate has been generated" in map(str,[pkispawn_output[x]['stdout']
                                                                                for x in pkispawn_output.iterkeys()])[0] \
                    and map(int,[pkispawn_output[x]['rc'] for x in pkispawn_output.iterkeys()])[0] == 0
         except AssertionError:
@@ -189,9 +190,9 @@ class pki_externalca(pki_externalca_common):
     def extract_signingcrt(self, ansible_module, issuer='system', name='"CA Signing Certificate"' ):
 
         log.info("Extracting ExternalCA certificate serial number")
-        cmd = 'pki -p %s -d %s -c %s -n "%s" --ignore-cert-status ' \
+        cmd = 'pki -p %s -P %s -d %s -c %s -n "%s" --ignore-cert-status ' \
               'UNTRUSTED_ISSUER ca-cert-find --issuedBy %s --name %s'\
-              %(self.ca_http_port, self.nssdb, self.passwd, self.ca_cert_nick, issuer, name)
+              %(self.ca_http_port, self.ca_protocol, self.nssdb, self.passwd, self.ca_cert_nick, issuer, name)
         try:
             output = ansible_module.command(cmd)
             assert map(int,[output[x]['rc'] for x in output.iterkeys()])[0] == 0
@@ -203,8 +204,8 @@ class pki_externalca(pki_externalca_common):
     def submit_csr(self, ansible_module):
 
         log.info("Submit csr to the RootCA: Dogtagpki")
-        cmd = 'pki -p %s ca-cert-request-submit --profile %s --csr-file %s' \
-              %(self.ca_http_port, self.profile, self.ca_signing_csr)
+        cmd = 'pki -p %s -P %s ca-cert-request-submit --profile %s --csr-file %s' \
+              %(self.ca_http_port, self.ca_protocol, self.profile, self.ca_signing_csr)
         try:
             output = ansible_module.command(cmd)
             assert map(int,[output[x]['rc'] for x in output.iterkeys()])[0] == 0
@@ -214,10 +215,10 @@ class pki_externalca(pki_externalca_common):
             return output
 
     def approve_csr(self, ansible_module, request_id):
-        cmd = 'pki -p %s -d %s -c %s -n "%s" ca-cert-request-review %s --action approve' \
-              %(self.ca_http_port, self.nssdb, self.passwd, self.ca_cert_nick, request_id)
+        cmd = 'pki -p %s -P %s -d %s -c %s -n "%s" --ignore-cert-status UNTRUSTED_ISSUER ca-cert-request-review %s --action approve' \
+              %(self.ca_http_port, self.ca_protocol, self.nssdb, self.passwd, self.ca_cert_nick, request_id)
         try:
-            approve_csr = ansible_module.command(cmd)
+            approve_csr = ansible_module.shell(cmd)
             assert map(int,[approve_csr[x]['rc'] for x in approve_csr.iterkeys()])[0] == 0
         except AssertionError:
             raise Exception("Dogtagpki: Unable to send successful csr request to RootCA")
@@ -227,9 +228,9 @@ class pki_externalca(pki_externalca_common):
     def extract_external_ca_crt(self, ansible_module, cert_id, import_nick, cert_file):
 
         log.info("Extracting ExternalCA certificate")
-        cmd = 'pki -p %s -d %s -c %s -n "%s" --ignore-cert-status ' \
+        cmd = 'pki -p %s -P %s -d %s -c %s -n "%s" --ignore-cert-status ' \
               'UNTRUSTED_ISSUER client-cert-import %s --serial %s --trust %s'\
-              %(self.ca_http_port, self.nssdb, self.passwd, self.ca_cert_nick, import_nick, cert_id, self.trust)
+              %(self.ca_http_port, self.ca_protocol, self.nssdb, self.passwd, self.ca_cert_nick, import_nick, cert_id, self.trust)
         ansible_module.command(cmd)
         try:
             output = ansible_module.shell('certutil -L -d %s -n %s -a > %s' %(self.nssdb, import_nick,
@@ -245,9 +246,8 @@ class pki_externalca(pki_externalca_common):
 
         log.info("Submit user certificate request : Dogtagpki")
         try:
-            output = ansible_module.command('pki -p %s -d %s -c %s client-cert-request %s ' %(self.externalca_port,
-                                                                                              self.nssdb, self.passwd,
-                                                                                              subject_dn))
+            output = ansible_module.command('pki -p %s -P %s -d %s -c %s client-cert-request %s ' %(self.externalca_port,
+                                                                                              self.ca_protocol,self.nssdb, self.passwd, subject_dn))
             assert map(int,[output[x]['rc'] for x in output.iterkeys()])[0] == 0
         except AssertionError:
             raise Exception("Dogtagpki: Unable to send successful csr request to ExternalCA")
@@ -255,8 +255,8 @@ class pki_externalca(pki_externalca_common):
             return output
 
     def approve_usercsr(self, ansible_module, request_id):
-        cmd = 'pki -p %s -d %s -c %s -n "%s" cert-request-review %s --action approve' \
-              %(self.externalca_port, self.nssdb, self.passwd, constants.CA_ADMIN_USERNAME, request_id)
+        cmd = 'pki -p %s -P %s -d %s -c %s -n "%s" cert-request-review %s --action approve' \
+              %(self.externalca_port, self.ca_protocol, self.nssdb, self.passwd, constants.CA_ADMIN_USERNAME, request_id)
         try:
             approve_csr = ansible_module.command(cmd)
             assert map(int,[approve_csr[x]['rc'] for x in approve_csr.iterkeys()])[0] == 0
@@ -450,6 +450,4 @@ class ExternalcaVerify(pki_externalca_common):
         cert = x509.load_pem_x509_certificate(map(str,[cert[x]['stdout'] for x in cert.iterkeys()])[0], default_backend())
         akid = cert.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_KEY_IDENTIFIER).value.key_identifier
         return akid
-
-
 

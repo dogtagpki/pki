@@ -51,3 +51,12 @@
   service:
     name: pki-tomcatd@{{ topology }}-KRA.service
     state: started
+
+- name: KRA Clone Preparation
+  block:
+    - name: Export KRA subsystem certificates
+      shell: pki-server kra-clone-prepare -i {{topology}}-KRA --pkcs12-file /tmp/kra_certs.p12 --pkcs12-password {{variable.CLIENT_PKCS12_PASSWORD}}
+
+    - name: Get the KRA subsystem certificates to the local
+      fetch: src=/tmp/kra_certs.p12 dest=/tmp/test_dir/clonecerts/ flat=yes
+  when: clone == "true" or clone == "True"

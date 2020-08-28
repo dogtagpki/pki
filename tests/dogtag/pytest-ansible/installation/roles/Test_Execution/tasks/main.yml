@@ -23,3 +23,6 @@
   when: topology  == "topology-02" or topology == "topology-04" or topology == "topology-05"
 - include: configure_acme.yml
   when: topology == "acme"
+- include: configure_tpsclient.yml
+  when: topology  == "topology-00" or topology  == "topology-01" or topology == "topology-02" or topology == "topology-ecc"
+

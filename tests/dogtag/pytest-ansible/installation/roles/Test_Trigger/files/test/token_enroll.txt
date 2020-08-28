@@ -1,0 +1,10 @@
+op=var_set name=ra_host value=SERVERNAME
+op=var_set name=ra_port value=tpspki_http_port
+op=var_set name=ra_uri value=/tps/tps
+op=token_set cuid=CUID msn=01020304 app_ver=6FBBC105 key_info=0101 major_ver=0 minor_ver=0
+op=token_set auth_key=404142434445464748494a4b4c4d4e4f
+op=token_set mac_key=404142434445464748494a4b4c4d4e4f
+op=token_set kek_key=404142434445464748494a4b4c4d4e4f
+op=ra_enroll uid=LDAP_USER pwd=LDAP_PASSWD num_threads=1 extensions=tokenType=userKey
+op=exit
+
