@@ -117,6 +117,7 @@ public class CRSPKIMessage {
 
     // Strings given in 'messageType' authenticated attribute
     public final static String mType_PKCSReq = "19";
+    public final static String mType_RenewalReq = "17";
     public final static String mType_CertRep = "3";
     public final static String mType_GetCertInitial = "20";
     public final static String mType_GetCert = "21";
@@ -883,6 +884,9 @@ public class CRSPKIMessage {
 
         if (messageType.equals(mType_PKCSReq)) {
             return "PKCSReq";
+        }
+        if (messageType.equals(mType_RenewalReq)) {
+            return "RenewalReq";
         }
         if (messageType.equals(mType_CertRep)) {
             return "CertRep";
