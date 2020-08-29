@@ -18,7 +18,9 @@
 package com.netscape.cms.servlet.cert.scep;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -32,6 +34,7 @@ import java.util.Vector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -190,7 +193,7 @@ public class CRSEnrollment extends HttpServlet {
     private static final String PROP_FLATTENDN = "flattenDN";
     private static final String PROP_ENTRYOC = "entryObjectclass";
 
-    // URL parameters
+    // URL parameters (message may be optionally present in body for POST requests)
     private static final String URL_OPERATION = "operation";
     private static final String URL_MESSAGE = "message";
 
@@ -355,6 +358,11 @@ public class CRSEnrollment extends HttpServlet {
         String message = null;
         mEncryptionAlgorithm = mConfiguredEncryptionAlgorithm;
 
+        logger.debug("http method=" + httpReq.getMethod());
+
+        // Try reading binary message in POST body and Base64-encode it
+        message = readMessageFromPostBody(httpReq);
+
         // Parse the URL from the HTTP Request. Split it up into
         // a structure which enables us to read the form elements
         ArgBlock input = new ArgBlock(toHashtable(httpReq));
@@ -363,7 +371,9 @@ public class CRSEnrollment extends HttpServlet {
             // Read in two form parameters - the router sets these
             operation = (String) input.get(URL_OPERATION);
             logger.debug("operation=" + operation);
-            message = (String) input.get(URL_MESSAGE);
+            if (message == null) {
+                message = (String) input.get(URL_MESSAGE);
+            }
             logger.debug("message=" + message);
 
             if (!mEnabled) {
@@ -402,6 +412,31 @@ public class CRSEnrollment extends HttpServlet {
             logger.warn("CRSEnrollment: " + e.getMessage(), e);
         }
 
+    }
+
+    /*
+     * If this is a POST request, try reading the binary message from the request body.
+     */
+    private String readMessageFromPostBody(HttpServletRequest httpReq) {
+        String message = null;
+
+        try {
+            if (httpReq.getMethod().equalsIgnoreCase("POST")) {
+                ServletInputStream is = httpReq.getInputStream();
+                ByteArrayOutputStream bstream = new ByteArrayOutputStream(10000);
+
+                int r;
+                while ((r = is.read()) > -1) {
+                    bstream.write(r);
+                }
+
+                message = Utils.base64encode(bstream.toByteArray(), true);
+            }
+        } catch (IOException e) {
+            logger.warn("CSREnrollment: exception while reading POST body: " + e.getMessage(), e);
+        }
+
+        return message;
     }
 
     private boolean isAlgorithmAllowed(String[] allowedAlgorithm, String algorithm) {
