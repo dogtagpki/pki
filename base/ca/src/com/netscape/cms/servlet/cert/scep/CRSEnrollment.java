@@ -430,7 +430,7 @@ public class CRSEnrollment extends HttpServlet {
                     bstream.write(r);
                 }
 
-                message = Utils.base64encode(bstream.toByteArray(), true);
+                message = Utils.base64encode(bstream.toByteArray(), false);
             }
         } catch (IOException e) {
             logger.warn("CSREnrollment: exception while reading POST body: " + e.getMessage(), e);
