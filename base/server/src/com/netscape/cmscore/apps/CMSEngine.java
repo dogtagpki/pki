@@ -146,6 +146,7 @@ public class CMSEngine implements ServletContextListener {
     private Debug debug = new Debug();
     private PluginRegistry pluginRegistry = new PluginRegistry();
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
+    protected JssSubsystem jssSubsystem = JssSubsystem.getInstance();
     private UGSubsystem ugSubsystem = new UGSubsystem();
     private RequestSubsystem requestSubsystem = new RequestSubsystem();
 
@@ -181,6 +182,10 @@ public class CMSEngine implements ServletContextListener {
 
     public LogSubsystem getLogSubsystem() {
         return logSubsystem;
+    }
+
+    public JssSubsystem getJSSSubsystem() {
+        return jssSubsystem;
     }
 
     public void loadConfig(String path) throws Exception {
@@ -448,6 +453,12 @@ public class CMSEngine implements ServletContextListener {
         logSubsystem.startup();
     }
 
+    public void initJssSubsystem() throws Exception {
+        IConfigStore jssConfig = config.getSubStore(JssSubsystem.ID);
+        jssSubsystem.init(jssConfig);
+        jssSubsystem.startup();
+    }
+
     public void configurePorts() throws Exception {
 
         String instanceRoot = config.getInstanceDir();
@@ -669,10 +680,6 @@ public class CMSEngine implements ServletContextListener {
         return subsystems.get(name);
     }
 
-    public JssSubsystem getJSSSubsystem() {
-        return (JssSubsystem) subsystems.get(JssSubsystem.ID);
-    }
-
     public void setSubsystemEnabled(String id, boolean enabled) {
         SubsystemInfo si = subsystemInfos.get(id);
         si.enabled = enabled;
@@ -691,9 +698,6 @@ public class CMSEngine implements ServletContextListener {
 
         subsystemInfos.clear();
         subsystems.clear();
-
-        staticSubsystems.add(JssSubsystem.ID);
-        addSubsystem(JssSubsystem.ID, JssSubsystem.getInstance());
 
         staticSubsystems.add(DBSubsystem.ID);
         addSubsystem(DBSubsystem.ID, DBSubsystem.getInstance());
@@ -1028,6 +1032,7 @@ public class CMSEngine implements ServletContextListener {
         initPluginRegistry();
         initDatabase();
         initLogSubsystem();
+        initJssSubsystem();
 
         init();
 
@@ -1200,6 +1205,10 @@ public class CMSEngine implements ServletContextListener {
         }
     } // end shutdownHttpServer
 
+    public void shutdownJSSSubsystem() {
+        jssSubsystem.shutdown();
+    }
+
     public void shutdownLogSubsystem() {
         logSubsystem.shutdown();
     }
@@ -1254,6 +1263,7 @@ public class CMSEngine implements ServletContextListener {
             mSecurityDomainSessionTable.shutdown();
         }
 
+        shutdownJSSSubsystem();
         shutdownLogSubsystem();
         shutdownDatabase();
         shutdownPluginRegistry();
