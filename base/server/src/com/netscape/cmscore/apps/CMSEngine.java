@@ -179,6 +179,9 @@ public class CMSEngine implements ServletContextListener {
         config = createConfig(storage);
         config.load();
 
+        instanceDir = config.getInstanceDir();
+        instanceId = config.getInstanceID();
+
         mConfig = config;
     }
 
@@ -208,7 +211,7 @@ public class CMSEngine implements ServletContextListener {
         return mPasswordStore;
     }
 
-    public void initLogging() throws Exception {
+    public void initDebug() throws Exception {
         IConfigStore debugConfig = config.getSubStore(Debug.ID);
         debug.init(debugConfig);
     }
@@ -490,15 +493,6 @@ public class CMSEngine implements ServletContextListener {
 
         logger.info("Initializing " + name + " subsystem");
 
-        instanceDir = mConfig.getInstanceDir();
-        instanceId = mConfig.getInstanceID();
-
-        initLogging();
-        initPasswordStore();
-        initSecurityProvider();
-        initPlugins();
-        initDatabase();
-
         loadSubsystems();
         initSubsystems();
 
@@ -642,6 +636,9 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public SubsystemInfo addSubsystem(String id, ISubsystem instance) {
+
+        logger.info("CMSEngine: adding " + id + " subsystem");
+
         SubsystemInfo si = new SubsystemInfo(id);
         subsystems.put(id, instance);
         subsystemInfos.put(id, si);
@@ -670,7 +667,7 @@ public class CMSEngine implements ServletContextListener {
      */
     protected void loadSubsystems() throws EBaseException {
 
-        logger.debug("CMSEngine: loading static subsystems");
+        logger.info("CMSEngine: loading static subsystems");
 
         staticSubsystems.clear();
         dynSubsystems.clear();
@@ -703,7 +700,7 @@ public class CMSEngine implements ServletContextListener {
         staticSubsystems.add(RequestSubsystem.ID);
         addSubsystem(RequestSubsystem.ID, requestSubsystem);
 
-        logger.debug("CMSEngine: loading dyn subsystems");
+        logger.info("CMSEngine: loading dynamic subsystems");
 
         SubsystemsConfig ssconfig = mConfig.getSubsystemsConfig();
 
@@ -733,11 +730,9 @@ public class CMSEngine implements ServletContextListener {
             SubsystemInfo si = addSubsystem(id, ss);
             si.setEnabled(enabled);
             si.setUpdateIdOnInit(true);
-
-            logger.debug("CMSEngine: loaded dyn subsystem " + id);
         }
 
-        logger.debug("CMSEngine: loading final subsystems");
+        logger.info("CMSEngine: loading final subsystems");
 
         finalSubsystems.add(AuthSubsystem.ID);
         addSubsystem(AuthSubsystem.ID, AuthSubsystem.getInstance());
@@ -789,7 +784,7 @@ public class CMSEngine implements ServletContextListener {
         }
 
         if (!ssinfo.enabled) {
-            logger.debug("CMSEngine: " + id + " subsystem is disabled");
+            logger.info("CMSEngine: " + id + " subsystem is disabled");
             return;
         }
 
@@ -1017,6 +1012,12 @@ public class CMSEngine implements ServletContextListener {
 
         CMS.setCMSEngine(this);
 
+        initDebug();
+        initPasswordStore();
+        initSecurityProvider();
+        initPlugins();
+        initDatabase();
+
         init();
 
         startupSubsystems();
@@ -1127,9 +1128,8 @@ public class CMSEngine implements ServletContextListener {
         for (String id : ids) {
             ISubsystem subsystem = subsystems.get(id);
 
-            logger.debug("CMSEngine: starting " + id);
+            logger.info("CMSEngine: starting subsystem " + id);
             subsystem.startup();
-            logger.debug("CMSEngine: " + id + " started");
         }
     }
 
