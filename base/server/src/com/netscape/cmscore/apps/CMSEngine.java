@@ -148,7 +148,7 @@ public class CMSEngine implements ServletContextListener {
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
     protected JssSubsystem jssSubsystem = JssSubsystem.getInstance();
     protected DBSubsystem dbSubsystem = DBSubsystem.getInstance();
-    private UGSubsystem ugSubsystem = new UGSubsystem();
+    protected UGSubsystem ugSubsystem = new UGSubsystem();
     private RequestSubsystem requestSubsystem = new RequestSubsystem();
 
     public Collection<String> staticSubsystems = new LinkedHashSet<>();
@@ -191,6 +191,10 @@ public class CMSEngine implements ServletContextListener {
 
     public DBSubsystem getDBSubsystem() {
         return dbSubsystem;
+    }
+
+    public UGSubsystem getUGSubsystem() {
+        return ugSubsystem;
     }
 
     public void loadConfig(String path) throws Exception {
@@ -470,6 +474,12 @@ public class CMSEngine implements ServletContextListener {
         dbSubsystem.startup();
     }
 
+    public void initUGSubsystem() throws Exception {
+        IConfigStore ugConfig = config.getSubStore(UGSubsystem.ID);
+        ugSubsystem.init(ugConfig);
+        ugSubsystem.startup();
+    }
+
     public void configurePorts() throws Exception {
 
         String instanceRoot = config.getInstanceDir();
@@ -710,9 +720,6 @@ public class CMSEngine implements ServletContextListener {
         subsystemInfos.clear();
         subsystems.clear();
 
-        staticSubsystems.add(UGSubsystem.ID);
-        addSubsystem(UGSubsystem.ID, ugSubsystem);
-
         staticSubsystems.add(OidLoaderSubsystem.ID);
         addSubsystem(OidLoaderSubsystem.ID, OidLoaderSubsystem.getInstance());
 
@@ -767,13 +774,6 @@ public class CMSEngine implements ServletContextListener {
 
         finalSubsystems.add(JobsScheduler.ID);
         addSubsystem(JobsScheduler.ID, JobsScheduler.getInstance());
-
-        if (isPreOpMode()) {
-            // Disable some subsystems before database initialization
-            // in pre-op mode to prevent errors.
-
-            setSubsystemEnabled(UGSubsystem.ID, false);
-        }
     }
 
     protected void initSubsystems() throws Exception {
@@ -1042,6 +1042,7 @@ public class CMSEngine implements ServletContextListener {
         initLogSubsystem();
         initJssSubsystem();
         initDBSubsystem();
+        initUGSubsystem();
 
         init();
 
@@ -1214,6 +1215,10 @@ public class CMSEngine implements ServletContextListener {
         }
     } // end shutdownHttpServer
 
+    public void shutdownUGSubsystem() {
+        ugSubsystem.shutdown();
+    }
+
     public void shutdownDBSubsystem() {
         dbSubsystem.shutdown();
     }
@@ -1276,6 +1281,7 @@ public class CMSEngine implements ServletContextListener {
             mSecurityDomainSessionTable.shutdown();
         }
 
+        shutdownUGSubsystem();
         shutdownDBSubsystem();
         shutdownJSSSubsystem();
         shutdownLogSubsystem();
@@ -1641,10 +1647,6 @@ public class CMSEngine implements ServletContextListener {
                 logger.warn("debugSleep: sleep out:" + e.toString());
             }
         }
-    }
-
-    public UGSubsystem getUGSubsystem() {
-        return ugSubsystem;
     }
 
     public void contextInitialized(ServletContextEvent event) {

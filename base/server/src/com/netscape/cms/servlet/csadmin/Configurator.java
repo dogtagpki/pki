@@ -364,9 +364,6 @@ public class Configurator {
 
     public void reinitSubsystems() throws EBaseException {
 
-        engine.setSubsystemEnabled(UGSubsystem.ID, true);
-
-        engine.reinit(UGSubsystem.ID);
         engine.reinit(AuthSubsystem.ID);
         engine.reinit(AuthzSubsystem.ID);
     }
@@ -1358,8 +1355,6 @@ public class Configurator {
                 system.modifyGroup(group);
             }
         }
-
-        engine.reinit(UGSubsystem.ID);
     }
 
     public X509CertImpl submitAdminCertRequest(
