@@ -97,9 +97,8 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        /* internal database directory used */
-        DBSubsystem dbs = (DBSubsystem) DBSubsystem.getInstance();
-        LdapConnInfo ldapinfo = dbs.getLdapConnInfo();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
+        LdapConnInfo ldapinfo = dbSubsystem.getLdapConnInfo();
 
         mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo);
         mAnonConnFactory.init(cs);

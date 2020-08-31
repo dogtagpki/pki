@@ -265,6 +265,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         KRAEngine engine = KRAEngine.getInstance();
         KRAEngineConfig engineConfig = engine.getConfig();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
 
         mConfig = engineConfig.getKRAConfig();
 
@@ -275,11 +276,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // create key repository
         int keydb_inc = mConfig.getInteger(PROP_KEYDB_INC, 5);
 
-        mKeyDB = new KeyRepository(getDBSubsystem(),
+        mKeyDB = new KeyRepository(dbSubsystem,
                     keydb_inc,
                     "ou=" + KEY_RESP_NAME + ",ou=" +
                             getId() + "," +
-                            getDBSubsystem().getBaseDN());
+                            dbSubsystem.getBaseDN());
 
         // read transport key from internal database
         mTransportKeyUnit = new TransportKeyUnit();
@@ -391,11 +392,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         String replicaReposDN = mConfig.getString(PROP_REPLICAID_DN, null);
         if (replicaReposDN == null) {
-            replicaReposDN = "ou=Replica," + getDBSubsystem().getBaseDN();
+            replicaReposDN = "ou=Replica," + dbSubsystem.getBaseDN();
         }
 
         mReplicaRepot = new ReplicaIDRepository(
-                DBSubsystem.getInstance(), 1, replicaReposDN);
+                dbSubsystem, 1, replicaReposDN);
         logger.debug("Replica Repot inited");
 
     }
@@ -1385,13 +1386,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     protected String getDN() {
         return getX500Name().toString();
-    }
-
-    /**
-     * Retrieves database connection.
-     */
-    public DBSubsystem getDBSubsystem() {
-        return DBSubsystem.getInstance();
     }
 
     /**

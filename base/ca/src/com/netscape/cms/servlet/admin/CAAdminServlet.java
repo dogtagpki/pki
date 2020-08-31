@@ -1474,7 +1474,8 @@ public class CAAdminServlet extends AdminServlet {
          params.add(Constants.PR_EE_ENABLED, value);
          */
 
-        DBSubsystem dbSubsystem = mCA.getDBSubsystem();
+        CAEngine engine = CAEngine.getInstance();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
         IConfigStore caConfig = mCA.getConfigStore();
 
         value = caConfig.getString(ICertificateAuthority.PROP_ENABLE_PAST_CATIME, "false");
@@ -1527,7 +1528,8 @@ public class CAAdminServlet extends AdminServlet {
          SubsystemRegistry.getInstance().get("eeGateway");
          */
 
-        DBSubsystem dbSubsystem = mCA.getDBSubsystem();
+        CAEngine engine = CAEngine.getInstance();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
         Enumeration<String> enum1 = req.getParameterNames();
         boolean restart = false;
 

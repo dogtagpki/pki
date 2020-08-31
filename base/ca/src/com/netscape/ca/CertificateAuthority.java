@@ -465,7 +465,7 @@ public class CertificateAuthority
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
-        DBSubsystem dbSubsystem = getDBSubsystem();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
 
         mConfig = cs.getCAConfig();
 
@@ -930,13 +930,6 @@ public class CertificateAuthority
      */
     public CAConfig getConfigStore() {
         return mConfig;
-    }
-
-    /**
-     * Retrieves database services.
-     */
-    public DBSubsystem getDBSubsystem() {
-        return DBSubsystem.getInstance();
     }
 
     public void setValidity(String enableCAPast) throws EBaseException {
@@ -1770,7 +1763,8 @@ public class CertificateAuthority
             return;
         }
 
-        DBSubsystem dbSubsystem = getDBSubsystem();
+        CAEngine engine = CAEngine.getInstance();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
         int certdb_inc = mConfig.getInteger(PROP_CERTDB_INC, 5);
 
         String certReposDN = mConfig.getString(PROP_CERT_REPOS_DN, null);
@@ -1809,7 +1803,8 @@ public class CertificateAuthority
             return;
         }
 
-        DBSubsystem dbSubsystem = getDBSubsystem();
+        CAEngine engine = CAEngine.getInstance();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
         int crldb_inc = mConfig.getInteger(PROP_CRLDB_INC, 5);
 
         mCRLRepot = new CRLRepository(

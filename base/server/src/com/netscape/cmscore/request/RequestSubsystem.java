@@ -25,6 +25,8 @@ import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
@@ -103,7 +105,9 @@ public class RequestSubsystem implements ISubsystem {
             getRequestQueue(String name, int increment, IPolicy p, IService s, INotify n,
                     INotify pendingNotifier)
                     throws EBaseException {
-        RequestQueue rq = new RequestQueue(name, increment, p, s, n, pendingNotifier);
+        CMSEngine engine = CMS.getCMSEngine();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
+        RequestQueue rq = new RequestQueue(dbSubsystem, name, increment, p, s, n, pendingNotifier);
 
         // can't do this here because the service depends on getting rq
         // (to get request) and since this method hasn't returned it's rq is null.
@@ -157,26 +161,22 @@ public class RequestSubsystem implements ISubsystem {
     }
 
     //
-    // Access to the DBSubsystem environment value
-    //
-    protected DBSubsystem getDBSubsystem() {
-        return DBSubsystem.getInstance();
-    }
-
-    //
     // Create a database session in the default database
     // system.
     //
     protected IDBSSession createDBSSession()
             throws EBaseException {
-        return getDBSubsystem().createSession();
+        CMSEngine engine = CMS.getCMSEngine();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
+        return dbSubsystem.createSession();
     }
 
     //
     // Make a queue name
     //
     protected String makeQueueName(String name) {
-        DBSubsystem dbSubsystem = getDBSubsystem();
+        CMSEngine engine = CMS.getCMSEngine();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
         return "cn=" + name + "," + dbSubsystem.getBaseDN();
     }
 

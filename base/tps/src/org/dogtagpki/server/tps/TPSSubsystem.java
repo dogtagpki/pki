@@ -119,7 +119,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         this.owner = owner;
         this.config = cs.getTPSConfig();
 
-        DBSubsystem dbSubsystem = DBSubsystem.getInstance();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
 
         String activityDatabaseDN = cs.getString("tokendb.activityBaseDN");
         activityDatabase = new ActivityDatabase(dbSubsystem, activityDatabaseDN);

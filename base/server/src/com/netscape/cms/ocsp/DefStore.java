@@ -140,7 +140,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();
-        dbSubsystem = (DBSubsystem) engine.getSubsystem(DBSubsystem.ID);
+        dbSubsystem = engine.getDBSubsystem();
 
         // Standalone OCSP server only stores information about revoked
         // certificates. So there is no way for the OCSP server to

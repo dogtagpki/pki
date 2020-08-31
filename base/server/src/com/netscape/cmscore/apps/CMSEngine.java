@@ -147,6 +147,7 @@ public class CMSEngine implements ServletContextListener {
     private PluginRegistry pluginRegistry = new PluginRegistry();
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
     protected JssSubsystem jssSubsystem = JssSubsystem.getInstance();
+    protected DBSubsystem dbSubsystem = DBSubsystem.getInstance();
     private UGSubsystem ugSubsystem = new UGSubsystem();
     private RequestSubsystem requestSubsystem = new RequestSubsystem();
 
@@ -186,6 +187,10 @@ public class CMSEngine implements ServletContextListener {
 
     public JssSubsystem getJSSSubsystem() {
         return jssSubsystem;
+    }
+
+    public DBSubsystem getDBSubsystem() {
+        return dbSubsystem;
     }
 
     public void loadConfig(String path) throws Exception {
@@ -459,6 +464,12 @@ public class CMSEngine implements ServletContextListener {
         jssSubsystem.startup();
     }
 
+    public void initDBSubsystem() throws Exception {
+        IConfigStore dbConfig = config.getSubStore(DBSubsystem.ID);
+        dbSubsystem.init(dbConfig);
+        dbSubsystem.startup();
+    }
+
     public void configurePorts() throws Exception {
 
         String instanceRoot = config.getInstanceDir();
@@ -698,9 +709,6 @@ public class CMSEngine implements ServletContextListener {
 
         subsystemInfos.clear();
         subsystems.clear();
-
-        staticSubsystems.add(DBSubsystem.ID);
-        addSubsystem(DBSubsystem.ID, DBSubsystem.getInstance());
 
         staticSubsystems.add(UGSubsystem.ID);
         addSubsystem(UGSubsystem.ID, ugSubsystem);
@@ -1033,6 +1041,7 @@ public class CMSEngine implements ServletContextListener {
         initDatabase();
         initLogSubsystem();
         initJssSubsystem();
+        initDBSubsystem();
 
         init();
 
@@ -1205,6 +1214,10 @@ public class CMSEngine implements ServletContextListener {
         }
     } // end shutdownHttpServer
 
+    public void shutdownDBSubsystem() {
+        dbSubsystem.shutdown();
+    }
+
     public void shutdownJSSSubsystem() {
         jssSubsystem.shutdown();
     }
@@ -1263,6 +1276,7 @@ public class CMSEngine implements ServletContextListener {
             mSecurityDomainSessionTable.shutdown();
         }
 
+        shutdownDBSubsystem();
         shutdownJSSSubsystem();
         shutdownLogSubsystem();
         shutdownDatabase();

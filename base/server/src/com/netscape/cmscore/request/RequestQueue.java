@@ -52,6 +52,8 @@ public class RequestQueue
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestQueue.class);
 
+    DBSubsystem dbSubsystem;
+
     // ARequestQueue.newRequestId
     protected RequestId newRequestId()
             throws EBaseException {
@@ -589,12 +591,12 @@ public class RequestQueue
         return new ListEnumeration(this, results);
     }
 
-    public RequestQueue(String name, int increment, IPolicy p, IService s, INotify n,
+    public RequestQueue(DBSubsystem dbSubsystem, String name, int increment, IPolicy p, IService s, INotify n,
             INotify pendingNotify)
             throws EBaseException {
         super(p, s, n, pendingNotify);
 
-        dbSubsystem = DBSubsystem.getInstance();
+        this.dbSubsystem = dbSubsystem;
         mBaseDN = "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN();
 
         mRepository = new RequestRepository(name, increment, dbSubsystem, this);
@@ -631,7 +633,6 @@ public class RequestQueue
     }
 
     protected String mBaseDN;
-    protected DBSubsystem dbSubsystem;
     protected RequestRepository mRepository;
 }
 
