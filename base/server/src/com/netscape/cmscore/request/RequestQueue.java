@@ -44,7 +44,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.dbs.IDBSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 
 public class RequestQueue
@@ -85,7 +84,7 @@ public class RequestQueue
         IDBSSession dbs = null;
 
         try {
-            dbs = mDB.createSession();
+            dbs = dbSubsystem.createSession();
             obj = dbs.read(name);
         } catch (EBaseException e) {
             logger.warn("RequestQueue: " + e.getMessage(), e);
@@ -129,7 +128,7 @@ public class RequestQueue
         IDBSSession dbs = null;
 
         try {
-            dbs = mDB.createSession();
+            dbs = dbSubsystem.createSession();
             dbs.add(name, record);
         } catch (EBaseException e) {
             logger.error("RequestQueue: " + e.getMessage(), e);
@@ -191,7 +190,7 @@ public class RequestQueue
         IDBSSession dbs = null;
 
         try {
-            dbs = mDB.createSession();
+            dbs = dbSubsystem.createSession();
             dbs.modify(name, mods);
         } catch (EBaseException e) {
             logger.warn("RequestQueue: " + e.getMessage(), e);
@@ -360,7 +359,7 @@ public class RequestQueue
         String filter = "(" + IRequestRecord.ATTR_SOURCE_ID + "=" + id + ")";
 
         try {
-            dbs = mDB.createSession();
+            dbs = dbSubsystem.createSession();
             results = dbs.search(mBaseDN, filter);
         } catch (EBaseException e) {
             logger.error("Error in Ldap Request searching code: " + e.getMessage(), e);
@@ -385,7 +384,7 @@ public class RequestQueue
         IDBSSession dbs = null;
 
         try {
-            dbs = mDB.createSession();
+            dbs = dbSubsystem.createSession();
             results = dbs.search(mBaseDN, "(requestId=*)");
         } catch (EBaseException e) {
             logger.warn("RequestQueue: " + e.getMessage(), e);
@@ -411,7 +410,7 @@ public class RequestQueue
         IDBSSession dbs = null;
 
         try {
-            dbs = mDB.createSession();
+            dbs = dbSubsystem.createSession();
             results = dbs.search(mBaseDN, f);
         } catch (EBaseException e) {
             logger.warn("RequestQueue: " + e.getMessage(), e);
@@ -437,7 +436,7 @@ public class RequestQueue
         IDBSSession dbs = null;
 
         try {
-            dbs = mDB.createSession();
+            dbs = dbSubsystem.createSession();
             results = dbs.search(mBaseDN, f, maxSize);
         } catch (EBaseException e) {
             logger.warn("RequestQueue: " + e.getMessage(), e);
@@ -463,7 +462,7 @@ public class RequestQueue
         IDBSSession dbs = null;
 
         try {
-            dbs = mDB.createSession();
+            dbs = dbSubsystem.createSession();
             results = dbs.search(mBaseDN, f, maxSize, timeLimit);
         } catch (EBaseException e) {
             logger.warn("RequestQueue: " + e.getMessage(), e);
@@ -495,7 +494,7 @@ public class RequestQueue
 
             f1 = "(&" + f1 + f2 + ")";
 
-            dbs = mDB.createSession();
+            dbs = dbSubsystem.createSession();
             results = dbs.search(mBaseDN, f1);
         } catch (EBaseException e) {
             //System.err.println("Error: "+e);
@@ -543,7 +542,7 @@ public class RequestQueue
         IDBSSession dbs = null;
 
         try {
-            dbs = mDB.createSession();
+            dbs = dbSubsystem.createSession();
         } catch (EBaseException e) {
             return null;
         }
@@ -595,10 +594,10 @@ public class RequestQueue
             throws EBaseException {
         super(p, s, n, pendingNotify);
 
-        mDB = DBSubsystem.getInstance();
-        mBaseDN = "ou=" + name + ",ou=requests," + mDB.getBaseDN();
+        dbSubsystem = DBSubsystem.getInstance();
+        mBaseDN = "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN();
 
-        mRepository = new RequestRepository(name, increment, mDB, this);
+        mRepository = new RequestRepository(name, increment, dbSubsystem, this);
 
     }
 
@@ -632,7 +631,7 @@ public class RequestQueue
     }
 
     protected String mBaseDN;
-    protected IDBSubsystem mDB;
+    protected DBSubsystem dbSubsystem;
     protected RequestRepository mRepository;
 }
 

@@ -25,7 +25,7 @@ import java.util.Map;
 import org.dogtagpki.tps.main.Util;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.dbs.IDBSubsystem;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.LDAPDatabase;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -54,7 +54,7 @@ public class ActivityDatabase extends LDAPDatabase<ActivityRecord> {
 
     public final static String OP_KEY_CHANGEOVER = "key_changeover";
 
-    public ActivityDatabase(IDBSubsystem dbSubsystem, String baseDN) throws EBaseException {
+    public ActivityDatabase(DBSubsystem dbSubsystem, String baseDN) throws EBaseException {
         super("Activity", dbSubsystem, baseDN, ActivityRecord.class);
     }
 

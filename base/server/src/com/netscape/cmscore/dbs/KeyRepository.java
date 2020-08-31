@@ -27,6 +27,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.mozilla.jss.netscape.security.x509.X500Name;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBRegistry;
@@ -38,8 +40,6 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.repository.IRepository;
-
-import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * A class represents a Key repository. This is the container of
@@ -54,7 +54,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRepository.class);
 
     public KeyStatusUpdateTask mKeyStatusUpdateTask;
-    protected IDBSubsystem mDBService;
+    protected DBSubsystem dbSubsystem;
 
     IRepository requestRepository;
 
@@ -71,14 +71,14 @@ public class KeyRepository extends Repository implements IKeyRepository {
      * @param service db service
      * @exception EBaseException failed to setup key repository
      */
-    public KeyRepository(IDBSubsystem service, int increment, String baseDN)
+    public KeyRepository(DBSubsystem dbSubsystem, int increment, String baseDN)
             throws EDBException {
-        super(service, increment, baseDN);
+        super(dbSubsystem, increment, baseDN);
         mBaseDN = baseDN;
-        mDBService = service;
+        this.dbSubsystem = dbSubsystem;
 
         // register key record schema
-        IDBRegistry reg = service.getRegistry();
+        IDBRegistry reg = dbSubsystem.getRegistry();
         String keyRecordOC[] = new String[2];
 
         keyRecordOC[0] = KeyDBSchema.LDAP_OC_TOP;
@@ -168,7 +168,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
         }
 
         // don't run the thread if serial management is disabled.
-        if (interval == 0 || !mDBService.getEnableSerialMgmt()) {
+        if (interval == 0 || !dbSubsystem.getEnableSerialMgmt()) {
             logger.debug("In setKeyStatusUpdateInterval interval = 0");
             return;
         }
@@ -198,8 +198,8 @@ public class KeyRepository extends Repository implements IKeyRepository {
         }
     }
 
-    public IDBSubsystem getDBSubsystem() {
-        return mDBService;
+    public DBSubsystem getDBSubsystem() {
+        return dbSubsystem;
     }
 
     /**
@@ -232,14 +232,14 @@ public class KeyRepository extends Repository implements IKeyRepository {
      * @exception EBaseException failed to archive key
      */
     public void addKeyRecord(IKeyRecord record) throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String name = "cn" + "=" +
                     ((KeyRecord) record).getSerialNumber().toString() + "," + getDN();
 
             if (s != null)
-                s.add(name, (KeyRecord) record);
+                s.add(name, record);
         } finally {
             if (s != null)
                 s.close();
@@ -259,7 +259,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
         if (serialNo == null) {
             throw new EBaseException("Invalid Serial Number.");
         }
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         KeyRecord rec = null;
 
         try {
@@ -288,7 +288,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
      */
     public IKeyRecord readKeyRecord(X500Name ownerName)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         KeyRecord keyRec = null;
 
         try {
@@ -316,7 +316,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
         if (data == null)
             throw new EBaseException("null data");
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         KeyRecord rec = null;
 
         try {
@@ -340,7 +340,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public IKeyRecord readKeyRecord(String cert)
             throws EBaseException {
 
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         KeyRecord rec = null;
 
         try {
@@ -364,7 +364,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
      */
     public void modifyKeyRecord(BigInteger serialNo, ModificationSet mods)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String name = "cn" + "=" +
@@ -382,7 +382,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     public void deleteKeyRecord(BigInteger serialNo)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String name = "cn" + "=" +
@@ -410,7 +410,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Vector<IKeyRecord> v = new Vector<IKeyRecord>();
 
         try {
@@ -427,7 +427,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize, int timeLimit)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Vector<IKeyRecord> v = new Vector<IKeyRecord>();
 
         try {
@@ -454,7 +454,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public IKeyRecordList findKeyRecordsInList(String filter,
             String attrs[], String sortKey, int pageSize)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         IKeyRecordList list = null;
 
         try {
@@ -474,7 +474,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public IKeyRecordList findKeyRecordsInList(String filter,
             String attrs[], String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         IKeyRecordList list = null;
 
         int len = jumpTo.length();

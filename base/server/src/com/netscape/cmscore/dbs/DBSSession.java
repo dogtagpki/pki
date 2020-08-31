@@ -60,17 +60,17 @@ public class DBSSession implements IDBSSession {
 
     public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSSession.class);
 
-    private IDBSubsystem mDBSystem = null;
+    private DBSubsystem dbSubsystem;
     private LDAPConnection mConn = null;
 
     /**
      * Constructs a database session.
      *
-     * @param system the database subsytem
+     * @param dbSubsystem the database subsytem
      * @param c the ldap connection
      */
-    public DBSSession(IDBSubsystem system, LDAPConnection c) throws EDBException {
-        mDBSystem = system;
+    public DBSSession(DBSubsystem dbSubsystem, LDAPConnection c) throws EDBException {
+        this.dbSubsystem = dbSubsystem;
         mConn = c;
         try {
             // no limit
@@ -84,7 +84,7 @@ public class DBSSession implements IDBSSession {
      * Returns database subsystem.
      */
     public ISubsystem getDBSubsystem() {
-        return mDBSystem;
+        return dbSubsystem;
     }
 
     /**
@@ -92,7 +92,7 @@ public class DBSSession implements IDBSSession {
      */
     public void close() throws EDBException {
         // return ldap connection.
-        mDBSystem.returnConn(mConn);
+        dbSubsystem.returnConn(mConn);
     }
 
     /**
@@ -109,7 +109,7 @@ public class DBSSession implements IDBSSession {
     public void add(String name, IDBObj obj) throws EBaseException {
 
         try {
-            LDAPAttributeSet attrs = mDBSystem.getRegistry().createLDAPAttributeSet(obj);
+            LDAPAttributeSet attrs = dbSubsystem.getRegistry().createLDAPAttributeSet(obj);
 
             logger.info("DBSSession: adding " + name);
 
@@ -160,7 +160,7 @@ public class DBSSession implements IDBSSession {
             String ldapattrs[] = null;
 
             if (attrs != null) {
-                ldapattrs = mDBSystem.getRegistry(
+                ldapattrs = dbSubsystem.getRegistry(
                         ).getLDAPAttributes(attrs);
             }
 
@@ -184,7 +184,7 @@ public class DBSSession implements IDBSSession {
                 logger.info("DBSSession: - " + attr.getName());
             }
 
-            return mDBSystem.getRegistry().createObject(attrSet);
+            return dbSubsystem.getRegistry().createObject(attrSet);
 
         } catch (LDAPException e) {
 
@@ -235,7 +235,7 @@ public class DBSSession implements IDBSSession {
                         e.nextElement();
                 LDAPAttributeSet attrs = new LDAPAttributeSet();
 
-                mDBSystem.getRegistry().mapObject(null,
+                dbSubsystem.getRegistry().mapObject(null,
                         mod.getName(), mod.getValue(), attrs);
                 Enumeration<LDAPAttribute> e0 = attrs.getAttributes();
 
@@ -294,7 +294,7 @@ public class DBSSession implements IDBSSession {
         try {
             String ldapattrs[] = null;
             String ldapfilter =
-                    mDBSystem.getRegistry().getFilter(filter);
+                    dbSubsystem.getRegistry().getFilter(filter);
 
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
 
@@ -303,7 +303,7 @@ public class DBSSession implements IDBSSession {
             LDAPSearchResults res = mConn.search(base,
                     LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
 
-            return new DBSearchResults(mDBSystem.getRegistry(),
+            return new DBSearchResults(dbSubsystem.getRegistry(),
                     res);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
@@ -324,7 +324,7 @@ public class DBSSession implements IDBSSession {
         try {
             String ldapattrs[] = null;
             String ldapfilter =
-                    mDBSystem.getRegistry().getFilter(filter);
+                    dbSubsystem.getRegistry().getFilter(filter);
 
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
 
@@ -339,7 +339,7 @@ public class DBSSession implements IDBSSession {
             LDAPSearchResults res = mConn.search(base,
                     LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
 
-            return new DBSearchResults(mDBSystem.getRegistry(),
+            return new DBSearchResults(dbSubsystem.getRegistry(),
                     res);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
@@ -360,7 +360,7 @@ public class DBSSession implements IDBSSession {
         try {
             String ldapattrs[] = null;
             String ldapfilter =
-                    mDBSystem.getRegistry().getFilter(filter);
+                    dbSubsystem.getRegistry().getFilter(filter);
 
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
 
@@ -370,7 +370,7 @@ public class DBSSession implements IDBSSession {
             LDAPSearchResults res = mConn.search(base,
                     LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
 
-            return new DBSearchResults(mDBSystem.getRegistry(),
+            return new DBSearchResults(dbSubsystem.getRegistry(),
                     res);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
@@ -391,7 +391,7 @@ public class DBSSession implements IDBSSession {
         try {
             String ldapattrs[] = null;
             String ldapfilter =
-                    mDBSystem.getRegistry().getFilter(filter);
+                    dbSubsystem.getRegistry().getFilter(filter);
 
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
 
@@ -407,7 +407,7 @@ public class DBSSession implements IDBSSession {
             LDAPSearchResults res = mConn.search(base,
                     LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
 
-            return new DBSearchResults(mDBSystem.getRegistry(),
+            return new DBSearchResults(dbSubsystem.getRegistry(),
                     res);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
@@ -434,11 +434,11 @@ public class DBSSession implements IDBSSession {
             String ldapattrs[] = null;
 
             if (attrs != null) {
-                ldapattrs = mDBSystem.getRegistry(
+                ldapattrs = dbSubsystem.getRegistry(
                         ).getLDAPAttributes(attrs);
             }
             String ldapfilter =
-                    mDBSystem.getRegistry().getFilter(filter);
+                    dbSubsystem.getRegistry().getFilter(filter);
 
             /*LogDoc
              *
@@ -452,7 +452,7 @@ public class DBSSession implements IDBSSession {
             LDAPSearchResults res = mConn.search(base,
                     LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
 
-            return new DBSearchResults(mDBSystem.getRegistry(),
+            return new DBSearchResults(dbSubsystem.getRegistry(),
                     res);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
@@ -472,11 +472,11 @@ public class DBSSession implements IDBSSession {
         try {
             String ldapattrs[] = null;
             if (attrs != null) {
-                ldapattrs = mDBSystem.getRegistry(
+                ldapattrs = dbSubsystem.getRegistry(
                         ).getLDAPAttributes(attrs);
             }
             String ldapfilter =
-                    mDBSystem.getRegistry().getFilter(filter);
+                    dbSubsystem.getRegistry().getFilter(filter);
 
             Integer version = (Integer) (mConn.getOption(LDAPv2.PROTOCOL_VERSION));
 
@@ -536,7 +536,7 @@ public class DBSSession implements IDBSSession {
 
         logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<T>(mDBSystem.getRegistry(), mConn, base,
+        return new DBVirtualList<T>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs);
     }
 
@@ -548,7 +548,7 @@ public class DBSSession implements IDBSSession {
 
         logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<T>(mDBSystem.getRegistry(), mConn, base,
+        return new DBVirtualList<T>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey);
     }
 
@@ -560,7 +560,7 @@ public class DBSSession implements IDBSSession {
 
         logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<T>(mDBSystem.getRegistry(), mConn, base,
+        return new DBVirtualList<T>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey);
     }
 
@@ -572,7 +572,7 @@ public class DBSSession implements IDBSSession {
 
         logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<T>(mDBSystem.getRegistry(), mConn, base,
+        return new DBVirtualList<T>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey, pageSize);
     }
 
@@ -584,7 +584,7 @@ public class DBSSession implements IDBSSession {
 
         logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<T>(mDBSystem.getRegistry(), mConn, base,
+        return new DBVirtualList<T>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey, pageSize);
     }
 
@@ -593,7 +593,7 @@ public class DBSSession implements IDBSSession {
 
         logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<T>(mDBSystem.getRegistry(), mConn, base,
+        return new DBVirtualList<T>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, startFrom, sortKey, pageSize);
 
     }

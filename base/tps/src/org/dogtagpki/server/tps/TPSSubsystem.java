@@ -61,7 +61,6 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.dbs.IDBSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -120,7 +119,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         this.owner = owner;
         this.config = cs.getTPSConfig();
 
-        IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
+        DBSubsystem dbSubsystem = DBSubsystem.getInstance();
 
         String activityDatabaseDN = cs.getString("tokendb.activityBaseDN");
         activityDatabase = new ActivityDatabase(dbSubsystem, activityDatabaseDN);

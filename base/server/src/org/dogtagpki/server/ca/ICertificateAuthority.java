@@ -46,7 +46,7 @@ import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.ISigningUnit;
-import com.netscape.cmscore.dbs.IDBSubsystem;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
@@ -477,7 +477,7 @@ public interface ICertificateAuthority extends ISubsystem {
      *
      * @return DB subsystem object
      */
-    public IDBSubsystem getDBSubsystem();
+    public DBSubsystem getDBSubsystem();
 
     /**
      * Returns the in-memory count of the processed OCSP requests.

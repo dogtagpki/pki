@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Map;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.dbs.IDBSubsystem;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.LDAPDatabase;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -31,7 +31,7 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  */
 public class TokenDatabase extends LDAPDatabase<TokenRecord> {
 
-    public TokenDatabase(IDBSubsystem dbSubsystem, String baseDN) throws EBaseException {
+    public TokenDatabase(DBSubsystem dbSubsystem, String baseDN) throws EBaseException {
         super("Token", dbSubsystem, baseDN, TokenRecord.class);
     }
 

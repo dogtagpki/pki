@@ -150,7 +150,6 @@ import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.dbs.IDBSubsystem;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.listeners.ListenerPlugin;
@@ -466,7 +465,7 @@ public class CertificateAuthority
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
-        IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
+        DBSubsystem dbSubsystem = getDBSubsystem();
 
         mConfig = cs.getCAConfig();
 
@@ -480,7 +479,7 @@ public class CertificateAuthority
         if (isHostAuthority()) {
             String replicaReposDN = mConfig.getString(PROP_REPLICAID_DN, null);
             if (replicaReposDN == null) {
-                replicaReposDN = "ou=Replica," + getDBSubsystem().getBaseDN();
+                replicaReposDN = "ou=Replica," + dbSubsystem.getBaseDN();
             }
             mReplicaRepot = new ReplicaIDRepository(dbSubsystem, 1, replicaReposDN);
 
@@ -928,7 +927,7 @@ public class CertificateAuthority
     /**
      * Retrieves database services.
      */
-    public IDBSubsystem getDBSubsystem() {
+    public DBSubsystem getDBSubsystem() {
         return DBSubsystem.getInstance();
     }
 
@@ -1763,26 +1762,27 @@ public class CertificateAuthority
             return;
         }
 
+        DBSubsystem dbSubsystem = getDBSubsystem();
         int certdb_inc = mConfig.getInteger(PROP_CERTDB_INC, 5);
 
         String certReposDN = mConfig.getString(PROP_CERT_REPOS_DN, null);
 
         if (certReposDN == null) {
             certReposDN = "ou=certificateRepository, ou=" + getId() +
-                    ", " + getDBSubsystem().getBaseDN();
+                    ", " + dbSubsystem.getBaseDN();
         }
         String reposDN = mConfig.getString(PROP_REPOS_DN, null);
 
         if (reposDN == null) {
             reposDN = "ou=certificateRepository, ou=" + getId() +
-                    ", " + getDBSubsystem().getBaseDN();
+                    ", " + dbSubsystem.getBaseDN();
         }
 
         int transitMaxRecords = mConfig.getInteger(PROP_CERTDB_TRANS_MAXRECORDS, 1000000);
         int transitRecordPageSize = mConfig.getInteger(PROP_CERTDB_TRANS_PAGESIZE, 200);
 
         mCertRepot = new CertificateRepository(
-                    DBSubsystem.getInstance(),
+                    dbSubsystem,
                     certReposDN, certdb_inc, reposDN);
 
         mCertRepot.setTransitMaxRecords(transitMaxRecords);
@@ -1801,13 +1801,14 @@ public class CertificateAuthority
             return;
         }
 
+        DBSubsystem dbSubsystem = getDBSubsystem();
         int crldb_inc = mConfig.getInteger(PROP_CRLDB_INC, 5);
 
         mCRLRepot = new CRLRepository(
-                    DBSubsystem.getInstance(),
+                    dbSubsystem,
                     crldb_inc,
                     "ou=crlIssuingPoints, ou=" + getId() + ", " +
-                            getDBSubsystem().getBaseDN());
+                            dbSubsystem.getBaseDN());
         logger.debug("CRL Repot inited");
     }
 

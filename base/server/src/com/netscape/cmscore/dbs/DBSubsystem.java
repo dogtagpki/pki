@@ -25,6 +25,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.IDBRegistry;
@@ -65,11 +66,15 @@ import netscape.ldap.LDAPv3;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class DBSubsystem implements IDBSubsystem {
+public class DBSubsystem implements ISubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSubsystem.class);
 
-    public static String ID = IDBSubsystem.SUB_ID;
+    public final static String ID = "dbs";
+    public final static int CERTS = 0;
+    public final static int REQUESTS = 1;
+    public final static int REPLICA_ID = 2;
+    public final static int NUM_REPOS = 3;
 
     private LDAPConfig mConfig;
     private DatabaseConfig mDBConfig;
@@ -143,9 +148,9 @@ public class DBSubsystem implements IDBSubsystem {
 
     // singleton enforcement
 
-    private static IDBSubsystem mInstance = new DBSubsystem();
+    private static DBSubsystem mInstance = new DBSubsystem();
 
-    public static IDBSubsystem getInstance() {
+    public static DBSubsystem getInstance() {
         return mInstance;
     }
 
@@ -155,7 +160,7 @@ public class DBSubsystem implements IDBSubsystem {
      *
      * @param dbSubsystem The stubbed out subsystem to override with.
      */
-    public static void setInstance(IDBSubsystem dbSubsystem) {
+    public static void setInstance(DBSubsystem dbSubsystem) {
         mInstance = dbSubsystem;
     }
 
@@ -171,7 +176,7 @@ public class DBSubsystem implements IDBSubsystem {
      * Retrieves subsystem identifier.
      */
     public String getId() {
-        return IDBSubsystem.SUB_ID;
+        return ID;
     }
 
     /**
@@ -553,7 +558,7 @@ public class DBSubsystem implements IDBSubsystem {
         EngineConfig cs = engine.getConfig();
 
         mDBConfig = cs.getDatabaseConfig();
-        mRepos = new Hashtable[IDBSubsystem.NUM_REPOS];
+        mRepos = new Hashtable[DBSubsystem.NUM_REPOS];
 
         mConfig = config.getSubStore(PROP_LDAP, LDAPConfig.class);
         try {

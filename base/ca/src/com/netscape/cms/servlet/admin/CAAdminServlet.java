@@ -46,6 +46,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
  * A class representings an administration servlet for Certificate
@@ -1473,6 +1474,7 @@ public class CAAdminServlet extends AdminServlet {
          params.add(Constants.PR_EE_ENABLED, value);
          */
 
+        DBSubsystem dbSubsystem = mCA.getDBSubsystem();
         IConfigStore caConfig = mCA.getConfigStore();
 
         value = caConfig.getString(ICertificateAuthority.PROP_ENABLE_PAST_CATIME, "false");
@@ -1482,7 +1484,7 @@ public class CAAdminServlet extends AdminServlet {
         getSerialConfig(params);
         getMaxSerialConfig(params);
         params.put(Constants.PR_SN_MANAGEMENT,
-            Boolean.toString(mCA.getDBSubsystem().getEnableSerialMgmt()));
+            Boolean.toString(dbSubsystem.getEnableSerialMgmt()));
         params.put(Constants.PR_RANDOM_SN,
             Boolean.toString(mCA.getCertificateRepository().getEnableRandomSerialNumbers()));
 
@@ -1525,6 +1527,7 @@ public class CAAdminServlet extends AdminServlet {
          SubsystemRegistry.getInstance().get("eeGateway");
          */
 
+        DBSubsystem dbSubsystem = mCA.getDBSubsystem();
         Enumeration<String> enum1 = req.getParameterNames();
         boolean restart = false;
 
@@ -1555,7 +1558,7 @@ public class CAAdminServlet extends AdminServlet {
             } else if (key.equals(Constants.PR_MAXSERIAL)) {
                 mCA.setMaxSerial(value);
             } else if (key.equals(Constants.PR_SN_MANAGEMENT)) {
-                mCA.getDBSubsystem().setEnableSerialMgmt(Boolean.valueOf(value));
+                dbSubsystem.setEnableSerialMgmt(Boolean.valueOf(value));
             } else if (key.equals(Constants.PR_RANDOM_SN)) {
                 mCA.getCertificateRepository().setEnableRandomSerialNumbers(Boolean.valueOf(value), true, false);
             }

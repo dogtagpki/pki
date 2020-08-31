@@ -45,17 +45,17 @@ public class CRLRepository extends Repository implements ICRLRepository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRLRepository.class);
     private final String mLdapCRLIssuingPointName = "cn";
-    private IDBSubsystem mDBService;
+    private DBSubsystem dbSubsystem;
     private String mBaseDN;
 
     /**
      * Constructs a CRL repository.
      */
-    public CRLRepository(IDBSubsystem dbService, int increment, String baseDN)
+    public CRLRepository(DBSubsystem dbSubsystem, int increment, String baseDN)
             throws EDBException {
-        super(dbService, increment, baseDN);
+        super(dbSubsystem, increment, baseDN);
         mBaseDN = baseDN;
-        mDBService = dbService;
+        this.dbSubsystem = dbSubsystem;
 
         /*
         DBRegistry reg = dbService.getRegistry();
@@ -80,8 +80,8 @@ public class CRLRepository extends Repository implements ICRLRepository {
     /**
      * Retrieves backend database handle.
      */
-    public IDBSubsystem getDBSubsystem() {
-        return mDBService;
+    public DBSubsystem getDBSubsystem() {
+        return dbSubsystem;
     }
 
     /**
@@ -102,7 +102,7 @@ public class CRLRepository extends Repository implements ICRLRepository {
      */
     public void addCRLIssuingPointRecord(ICRLIssuingPointRecord rec)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String name = mLdapCRLIssuingPointName + "=" +
@@ -119,7 +119,7 @@ public class CRLRepository extends Repository implements ICRLRepository {
      * Retrieves all issuing points' names
      */
     public Vector<String> getIssuingPointsNames() throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         try {
             String[] attrs = { ICRLIssuingPointRecord.ATTR_ID, "objectclass" };
             String filter = "objectclass=" + CRLIssuingPointRecord.class.getName();
@@ -150,7 +150,7 @@ public class CRLRepository extends Repository implements ICRLRepository {
         CRLIssuingPointRecord rec = null;
 
         try {
-            s = mDBService.createSession();
+            s = dbSubsystem.createSession();
 
             String name = mLdapCRLIssuingPointName + "=" + id + "," + getDN();
             rec = (CRLIssuingPointRecord) s.read(name);
@@ -170,7 +170,7 @@ public class CRLRepository extends Repository implements ICRLRepository {
         IDBSSession s = null;
 
         try {
-            s = mDBService.createSession();
+            s = dbSubsystem.createSession();
             String name = mLdapCRLIssuingPointName + "=" + id +
                     "," + getDN();
 
@@ -184,7 +184,7 @@ public class CRLRepository extends Repository implements ICRLRepository {
 
     public void modifyCRLIssuingPointRecord(String id,
             ModificationSet mods) throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String name = mLdapCRLIssuingPointName + "=" + id +

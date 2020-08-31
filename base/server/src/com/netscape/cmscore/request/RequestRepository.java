@@ -27,7 +27,7 @@ import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.cmscore.dbs.IDBSubsystem;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 
@@ -44,7 +44,7 @@ class RequestRepository
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRepository.class);
 
-    IDBSubsystem mDB = null;
+    DBSubsystem dbSubsystem;
     IRequestQueue mRequestQueue = null;
 
     /**
@@ -54,34 +54,34 @@ class RequestRepository
      * @param name
      *            the name of the repository. This String is used to
      *            construct the DN for the repository's LDAP entry.
-     * @param db
+     * @param dbSubsystem
      *            the LDAP database system.
      */
-    public RequestRepository(String name, int increment, IDBSubsystem db)
+    public RequestRepository(String name, int increment, DBSubsystem dbSubsystem)
             throws EDBException {
-        super(db, increment, "ou=" + name + ",ou=requests," + db.getBaseDN());
+        super(dbSubsystem, increment, "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN());
 
         logger.debug("RequestRepository: constructor 1");
-        mBaseDN = "ou=" + name + ",ou=requests," + db.getBaseDN();
+        mBaseDN = "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN();
 
         // Let RequestRecord class register its
         // database mapping and object mapping values
-        RequestRecord.register(db);
-        mDB = db;
+        RequestRecord.register(dbSubsystem);
+        this.dbSubsystem = dbSubsystem;
     }
 
-    public RequestRepository(String name, int increment, IDBSubsystem db, IRequestQueue requestQueue)
+    public RequestRepository(String name, int increment, DBSubsystem dbSubsystem, IRequestQueue requestQueue)
             throws EDBException {
-        super(db, increment, "ou=" + name + ",ou=requests," + db.getBaseDN());
+        super(dbSubsystem, increment, "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN());
 
         logger.debug("RequestRepository: constructor2.");
         mRequestQueue = requestQueue;
-        mBaseDN = "ou=" + name + ",ou=requests," + db.getBaseDN();
+        mBaseDN = "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN();
 
         // Let RequestRecord class register its
         // database mapping and object mapping values
-        RequestRecord.register(db);
-        mDB = db;
+        RequestRecord.register(dbSubsystem);
+        this.dbSubsystem = dbSubsystem;
     }
 
     /**
@@ -108,7 +108,7 @@ class RequestRepository
      * Removes all objects with this repository.
      */
     public void removeAllObjects() throws EBaseException {
-        IDBSSession s = mDB.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         try {
             IDBSearchResults sr = s.search(getBaseDN(),
                                "(" + RequestRecord.ATTR_REQUEST_ID + "=*)");
@@ -159,7 +159,7 @@ class RequestRepository
         String status = null;
 
         try {
-            dbs = mDB.createSession();
+            dbs = dbSubsystem.createSession();
             obj = dbs.read(mBaseDN);
         } catch (Exception e) {
             logger.error("RequestRepository:  getPublishingStatus:  Error: " + e.getMessage(), e);
@@ -197,7 +197,7 @@ class RequestRepository
                     Modification.MOD_REPLACE, status);
 
             try {
-                dbs = mDB.createSession();
+                dbs = dbSubsystem.createSession();
                 dbs.modify(mBaseDN, mods);
             } catch (Exception e) {
                 logger.error("RequestRepository:  setPublishingStatus:  Error: " + e.getMessage(), e);

@@ -90,7 +90,7 @@ public class CertificateRepository extends Repository
     private static final String PROP_MINIMUM_RANDOM_BITS = "minimumRandomBits";
     private static final BigInteger BI_MINUS_ONE = (BigInteger.ZERO).subtract(BigInteger.ONE);
 
-    private IDBSubsystem mDBService;
+    private DBSubsystem dbSubsystem;
     private String mBaseDN;
     private String mRequestBaseDN;
     private boolean mConsistencyCheck = false;
@@ -118,12 +118,12 @@ public class CertificateRepository extends Repository
     /**
      * Constructs a certificate repository.
      */
-    public CertificateRepository(IDBSubsystem dbService, String certRepoBaseDN, int increment, String baseDN)
+    public CertificateRepository(DBSubsystem dbSubsystem, String certRepoBaseDN, int increment, String baseDN)
             throws EDBException {
-        super(dbService, increment, baseDN);
+        super(dbSubsystem, increment, baseDN);
         mBaseDN = certRepoBaseDN;
-        mDBService = dbService;
-        mDBConfig = mDBService.getDBConfigStore();
+        this.dbSubsystem = dbSubsystem;
+        mDBConfig = dbSubsystem.getDBConfigStore();
     }
 
     public ICertRecord createCertRecord(BigInteger id, Certificate cert, MetaInfo meta) {
@@ -316,7 +316,7 @@ public class CertificateRepository extends Repository
             logger.warn("CertificateRepository: updateCounter: " + e.getMessage(), e);
         }
 
-        String crMode = mDBService.getEntryAttribute(mBaseDN, IRepositoryRecord.ATTR_DESCRIPTION, "", null);
+        String crMode = dbSubsystem.getEntryAttribute(mBaseDN, IRepositoryRecord.ATTR_DESCRIPTION, "", null);
 
         boolean modeChange = (mEnableRandomSerialNumbers && crMode != null && crMode.equals(PROP_SEQUENTIAL_MODE)) ||
                              ((!mEnableRandomSerialNumbers) && crMode != null && crMode.equals(PROP_RANDOM_MODE));
@@ -445,7 +445,7 @@ public class CertificateRepository extends Repository
 
         mEnableRandomSerialNumbers = mDBConfig.getBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, false);
         mForceModeChange = mDBConfig.getBoolean(PROP_FORCE_MODE_CHANGE, false);
-        String crMode = mDBService.getEntryAttribute(mBaseDN, IRepositoryRecord.ATTR_DESCRIPTION, "", null);
+        String crMode = dbSubsystem.getEntryAttribute(mBaseDN, IRepositoryRecord.ATTR_DESCRIPTION, "", null);
         mMinRandomBitLength = mDBConfig.getInteger(PROP_MINIMUM_RANDOM_BITS, 4);
         mMaxCollisionRecoverySteps = mDBConfig.getInteger(PROP_COLLISION_RECOVERY_STEPS, 10);
         mMaxCollisionRecoveryRegenerations = mDBConfig.getInteger(PROP_COLLISION_RECOVERY_REGENERATIONS, 3);
@@ -690,8 +690,8 @@ public class CertificateRepository extends Repository
     /**
      * Retrieves backend database handle.
      */
-    public IDBSubsystem getDBSubsystem() {
-        return mDBService;
+    public DBSubsystem getDBSubsystem() {
+        return dbSubsystem;
     }
 
     /**
@@ -706,7 +706,7 @@ public class CertificateRepository extends Repository
      */
     public void addCertificateRecord(ICertRecord record)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String name = "cn" + "=" +
@@ -765,7 +765,7 @@ public class CertificateRepository extends Repository
      */
     public void addRevokedCertRecord(CertRecord record)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String name = "cn" + "=" +
@@ -1012,7 +1012,7 @@ public class CertificateRepository extends Repository
      */
     public void deleteCertificateRecord(BigInteger serialNo)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String name = "cn" + "=" +
@@ -1030,7 +1030,7 @@ public class CertificateRepository extends Repository
      */
     public ICertRecord readCertificateRecord(BigInteger serialNo)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         CertRecord rec = null;
 
         try {
@@ -1047,7 +1047,7 @@ public class CertificateRepository extends Repository
 
     public boolean checkCertificateRecord(BigInteger serialNo)
         throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         CertRecord rec = null;
         boolean exists = true;
 
@@ -1074,7 +1074,7 @@ public class CertificateRepository extends Repository
 
         logger.debug("CertificateRepository: setCertificateRepositoryMode   setting mode: "+mode);
         try {
-            s = mDBService.createSession();
+            s = dbSubsystem.createSession();
             ModificationSet mods = new ModificationSet();
             String name = getDN();
             mods.add(IRepositoryRecord.ATTR_DESCRIPTION, Modification.MOD_REPLACE, mode);
@@ -1091,7 +1091,7 @@ public class CertificateRepository extends Repository
 
     public synchronized void modifyCertificateRecord(BigInteger serialNo,
             ModificationSet mods) throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String name = "cn" + "=" +
@@ -1207,7 +1207,7 @@ public class CertificateRepository extends Repository
 
     public Enumeration<Object> searchCertificates(String filter, int maxSize,String sortAttribute)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<Object> e = null;
 
         logger.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
@@ -1222,7 +1222,7 @@ public class CertificateRepository extends Repository
 
     public Enumeration<Object> searchCertificates(String filter, int maxSize)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<Object> e = null;
 
         logger.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
@@ -1237,7 +1237,7 @@ public class CertificateRepository extends Repository
 
     public Enumeration<ICertRecord> searchCertificates(String filter, int maxSize, int timeLimit)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Vector<ICertRecord> v = new Vector<ICertRecord>();
 
         logger.debug("searchCertificateswith time limit filter " + filter);
@@ -1255,7 +1255,7 @@ public class CertificateRepository extends Repository
 
     public Enumeration<ICertRecord> searchCertificates(String filter, int maxSize,
             int timeLimit,String sortAttribute) throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Vector<ICertRecord> v = new Vector<ICertRecord>();
 
         logger.debug("searchCertificateswith time limit filter " + filter);
@@ -1281,7 +1281,7 @@ public class CertificateRepository extends Repository
     public Enumeration<Object> findCertRecs(String filter)
             throws EBaseException {
         logger.debug("findCertRecs " + filter);
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<Object> e = null;
         try {
             e = s.search(getDN(), filter);
@@ -1297,7 +1297,7 @@ public class CertificateRepository extends Repository
 
         logger.debug("findCertRecs " + filter
                  + "attrs " + Arrays.toString(attrs));
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<Object> e = null;
         try {
             e = s.search(getDN(), filter, attrs);
@@ -1330,7 +1330,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> findCertRecords(String filter)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
 
         try {
@@ -1382,7 +1382,7 @@ public class CertificateRepository extends Repository
 
         logger.debug("CertificateRepository.findCertRecordsInList()");
 
-        IDBSSession session = mDBService.createSession();
+        IDBSSession session = dbSubsystem.createSession();
 
         try {
             IDBVirtualList<ICertRecord> list = session.<ICertRecord>createVirtualList(
@@ -1411,7 +1411,7 @@ public class CertificateRepository extends Repository
             String attrs[], String jumpTo, boolean hardJumpTo,
                          String sortKey, int pageSize)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         CertRecordList list = null;
 
         logger.debug("In findCertRecordsInList with Jumpto " + jumpTo);
@@ -1445,7 +1445,7 @@ public class CertificateRepository extends Repository
     public ICertRecordList findCertRecordsInListRawJumpto(String filter,
             String attrs[], String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         CertRecordList list = null;
 
         logger.debug("In findCertRecordsInListRawJumpto with Jumpto " + jumpTo);
@@ -1493,7 +1493,7 @@ public class CertificateRepository extends Repository
 
     private void changeRenewalAttribute(String serialno, String value)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String name = "cn" + "=" + serialno +
@@ -1511,7 +1511,7 @@ public class CertificateRepository extends Repository
 
     public Hashtable<String, RenewableCertificateCollection> getRenewableCertificates(String renewalTime)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         Hashtable<String, RenewableCertificateCollection> tab = null;
 
@@ -1569,7 +1569,7 @@ public class CertificateRepository extends Repository
 
     public X509CertImpl[] getX509Certificates(String subjectDN,
             int validityType) throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         X509CertImpl certs[] = null;
 
@@ -1619,7 +1619,7 @@ public class CertificateRepository extends Repository
 
     public X509CertImpl[] getX509Certificates(String filter)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         X509CertImpl certs[] = null;
 
@@ -1662,7 +1662,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getValidCertificates(String from, String to)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Vector<ICertRecord> v = new Vector<ICertRecord>();
 
         try {
@@ -1721,7 +1721,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getAllValidCertificates()
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
 
         try {
@@ -1758,7 +1758,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getValidNotPublishedCertificates(String from, String to)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
 
         try {
@@ -1800,7 +1800,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getAllValidNotPublishedCertificates()
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
 
         try {
@@ -1839,7 +1839,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getExpiredCertificates(String from, String to)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
 
         try {
@@ -1874,7 +1874,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getAllExpiredCertificates()
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
 
         try {
@@ -1906,7 +1906,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getExpiredPublishedCertificates(String from, String to)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
 
         try {
@@ -1945,7 +1945,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getAllExpiredPublishedCertificates()
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
 
         try {
@@ -1979,7 +1979,7 @@ public class CertificateRepository extends Repository
             throws EBaseException {
 
         ICertRecordList list = null;
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_INVALID + ")";
@@ -2015,7 +2015,7 @@ public class CertificateRepository extends Repository
             throws EBaseException {
 
         ICertRecordList list = null;
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_VALID + ")";
@@ -2043,7 +2043,7 @@ public class CertificateRepository extends Repository
             throws EBaseException {
 
         ICertRecordList list = null;
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")";
@@ -2080,7 +2080,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getRevokedCertificates(String from, String to)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
 
         try {
@@ -2112,7 +2112,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getAllRevokedCertificates()
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
         // index is setup for this filter
         String ldapfilter = "(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
@@ -2141,7 +2141,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getRevokedPublishedCertificates(String from, String to)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
 
         try {
@@ -2176,7 +2176,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getAllRevokedPublishedCertificates()
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
         // index is setup for this filter
         String ldapfilter = "(&(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
@@ -2205,7 +2205,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getRevokedCertificates(Date asOfDate)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
 
         try {
@@ -2237,7 +2237,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<ICertRecord> getAllRevokedNonExpiredCertificates()
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Enumeration<ICertRecord> e = null;
         String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")"; // index is setup for this filter
 
@@ -2269,7 +2269,7 @@ public class CertificateRepository extends Repository
             LDAPAttributeSet entryAttrs = entry.getAttributeSet();
             ICertRecord certRec = null;
             try {
-                certRec = (ICertRecord) mDBService.getRegistry().createObject(entryAttrs);
+                certRec = (ICertRecord) dbSubsystem.getRegistry().createObject(entryAttrs);
             } catch (Exception e) {
             }
             if (certRec != null) {

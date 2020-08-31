@@ -38,8 +38,8 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.ldap.IRequestMod;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.DateMapper;
-import com.netscape.cmscore.dbs.IDBSubsystem;
 import com.netscape.cmscore.dbs.StringMapper;
 
 //
@@ -197,9 +197,9 @@ public class RequestRecord
         }
     }
 
-    static void register(IDBSubsystem db)
+    static void register(DBSubsystem dbSubsystem)
             throws EDBException {
-        IDBRegistry reg = db.getRegistry();
+        IDBRegistry reg = dbSubsystem.getRegistry();
 
         reg.registerObjectClass(RequestRecord.class.getName(), mOC);
 

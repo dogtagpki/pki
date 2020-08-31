@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Map;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.dbs.IDBSubsystem;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.LDAPDatabase;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -34,7 +34,7 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  */
 public class TPSCertDatabase extends LDAPDatabase<TPSCertRecord> {
 
-    public TPSCertDatabase(IDBSubsystem dbSubsystem, String baseDN) throws EBaseException {
+    public TPSCertDatabase(DBSubsystem dbSubsystem, String baseDN) throws EBaseException {
         super("Certificate", dbSubsystem, baseDN, TPSCertRecord.class);
     }
 

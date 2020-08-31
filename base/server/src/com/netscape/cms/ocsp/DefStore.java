@@ -56,7 +56,7 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
-import com.netscape.cmscore.dbs.IDBSubsystem;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
@@ -112,7 +112,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     private IOCSPAuthority mOCSPAuthority;
     private IConfigStore mConfig = null;
     private String mId = null;
-    private IDBSubsystem mDBService = null;
+    private DBSubsystem dbSubsystem;
     private int mStateCount = 0;
 
     /**
@@ -140,7 +140,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();
-        mDBService = (IDBSubsystem) engine.getSubsystem(IDBSubsystem.SUB_ID);
+        dbSubsystem = (DBSubsystem) engine.getSubsystem(DBSubsystem.ID);
 
         // Standalone OCSP server only stores information about revoked
         // certificates. So there is no way for the OCSP server to
@@ -242,7 +242,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public void deleteCRLsInCA(String caName, boolean oldCRLs) throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             ICRLIssuingPointRecord cp = readCRLIssuingPoint(caName);
@@ -602,7 +602,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public String getBaseDN() {
-        return mDBService.getBaseDN();
+        return dbSubsystem.getBaseDN();
     }
 
     public Enumeration<ICRLIssuingPointRecord> searchAllCRLIssuingPointRecord(int maxSize)
@@ -615,7 +615,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public Enumeration<ICRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
             int maxSize)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Vector<ICRLIssuingPointRecord> v = new Vector<ICRLIssuingPointRecord>();
 
         try {
@@ -632,7 +632,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
     public synchronized void modifyCRLIssuingPointRecord(String name,
             ModificationSet mods) throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String dn = "cn=" +
@@ -653,7 +653,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      */
     public ICRLIssuingPointRecord readCRLIssuingPoint(String name)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         ICRLIssuingPointRecord rec = null;
 
         try {
@@ -683,7 +683,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         IDBSSession s = null;
 
         try {
-            s = mDBService.createSession();
+            s = dbSubsystem.createSession();
             String name = "cn=" + transformDN(id) + "," + getBaseDN();
             logger.debug("DefStore::deleteCRLIssuingPointRecord: Attempting to delete: " + name);
             if (s != null) {
@@ -701,7 +701,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      */
     public void addCRLIssuingPoint(String name, ICRLIssuingPointRecord rec)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String dn = "cn=" +
@@ -716,7 +716,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
     public Enumeration<IRepositoryRecord> searchRepository(String name, String filter)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Vector<IRepositoryRecord> v = new Vector<IRepositoryRecord>();
 
         try {
@@ -738,7 +738,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public void addRepository(String name, String thisUpdate,
             IRepositoryRecord rec)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String dn = "ou=" + thisUpdate + ",cn=" +
@@ -754,7 +754,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public void modifyCertRecord(String name, String thisUpdate,
             String sno,
             ModificationSet mods) throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String dn = "cn=" + sno + ",ou=" + thisUpdate +
@@ -770,7 +770,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
     public Enumeration<ICertRecord> searchCertRecord(String name, String thisUpdate,
             String filter) throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         Vector<ICertRecord> v = new Vector<ICertRecord>();
 
         try {
@@ -790,7 +790,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public ICertRecord readCertRecord(String name, String thisUpdate,
             String sno)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
         ICertRecord rec = null;
 
         try {
@@ -813,7 +813,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public void addCertRecord(String name, String thisUpdate,
             String sno, ICertRecord rec)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+        IDBSSession s = dbSubsystem.createSession();
 
         try {
             String dn = "cn=" + sno + ",ou=" + thisUpdate +

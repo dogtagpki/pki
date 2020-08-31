@@ -28,11 +28,11 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPDatabase.class);
 
-    public IDBSubsystem dbSubsystem;
+    public DBSubsystem dbSubsystem;
     public String baseDN;
     public Class<E> recordType;
 
-    public LDAPDatabase(String name, IDBSubsystem dbSubsystem, String baseDN, Class<E> recordType) throws EBaseException {
+    public LDAPDatabase(String name, DBSubsystem dbSubsystem, String baseDN, Class<E> recordType) throws EBaseException {
         super(name);
 
         this.dbSubsystem = dbSubsystem;

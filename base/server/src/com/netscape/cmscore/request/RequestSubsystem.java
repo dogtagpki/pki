@@ -26,7 +26,6 @@ import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.dbs.IDBSubsystem;
 
 /**
  * RequestSubsystem
@@ -160,7 +159,7 @@ public class RequestSubsystem implements ISubsystem {
     //
     // Access to the DBSubsystem environment value
     //
-    protected IDBSubsystem getDBSubsystem() {
+    protected DBSubsystem getDBSubsystem() {
         return DBSubsystem.getInstance();
     }
 
@@ -177,9 +176,8 @@ public class RequestSubsystem implements ISubsystem {
     // Make a queue name
     //
     protected String makeQueueName(String name) {
-        IDBSubsystem db = getDBSubsystem();
-
-        return "cn=" + name + "," + db.getBaseDN();
+        DBSubsystem dbSubsystem = getDBSubsystem();
+        return "cn=" + name + "," + dbSubsystem.getBaseDN();
     }
 
     // Instance variables
