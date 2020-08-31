@@ -174,6 +174,10 @@ public class CMSEngine implements ServletContextListener {
         logger.info("Creating " + name + " engine");
     }
 
+    public PluginRegistry getPluginRegistry() {
+        return pluginRegistry;
+    }
+
     public void loadConfig(String path) throws Exception {
         ConfigStorage storage = new FileConfigStore(path);
         config = createConfig(storage);
@@ -425,11 +429,12 @@ public class CMSEngine implements ServletContextListener {
     public void initDatabase() throws Exception {
     }
 
-    public void initPlugins() throws Exception {
+    public void initPluginRegistry() throws Exception {
         IConfigStore pluginRegistryConfig = config.getSubStore(PluginRegistry.ID);
         String subsystem = config.getType().toLowerCase();
         String defaultRegistryFile = instanceDir + "/conf/" + subsystem + "/registry.cfg";
         pluginRegistry.init(pluginRegistryConfig, defaultRegistryFile);
+        pluginRegistry.startup();
     }
 
     public void configurePorts() throws Exception {
@@ -987,9 +992,6 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void startupSubsystems() throws EBaseException {
-
-        pluginRegistry.startup();
-
         startupSubsystems(staticSubsystems);
         startupSubsystems(dynSubsystems);
         startupSubsystems(finalSubsystems);
@@ -1015,7 +1017,7 @@ public class CMSEngine implements ServletContextListener {
         initDebug();
         initPasswordStore();
         initSecurityProvider();
-        initPlugins();
+        initPluginRegistry();
         initDatabase();
 
         init();
@@ -1601,10 +1603,6 @@ public class CMSEngine implements ServletContextListener {
                 logger.warn("debugSleep: sleep out:" + e.toString());
             }
         }
-    }
-
-    public PluginRegistry getPluginRegistry() {
-        return pluginRegistry;
     }
 
     public UGSubsystem getUGSubsystem() {
