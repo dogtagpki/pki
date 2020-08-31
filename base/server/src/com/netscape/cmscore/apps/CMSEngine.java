@@ -145,6 +145,7 @@ public class CMSEngine implements ServletContextListener {
 
     private Debug debug = new Debug();
     private PluginRegistry pluginRegistry = new PluginRegistry();
+    protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
     private UGSubsystem ugSubsystem = new UGSubsystem();
     private RequestSubsystem requestSubsystem = new RequestSubsystem();
 
@@ -176,6 +177,10 @@ public class CMSEngine implements ServletContextListener {
 
     public PluginRegistry getPluginRegistry() {
         return pluginRegistry;
+    }
+
+    public LogSubsystem getLogSubsystem() {
+        return logSubsystem;
     }
 
     public void loadConfig(String path) throws Exception {
@@ -437,6 +442,12 @@ public class CMSEngine implements ServletContextListener {
         pluginRegistry.startup();
     }
 
+    public void initLogSubsystem() throws Exception {
+        IConfigStore logConfig = config.getSubStore(LogSubsystem.ID);
+        logSubsystem.init(logConfig);
+        logSubsystem.startup();
+    }
+
     public void configurePorts() throws Exception {
 
         String instanceRoot = config.getInstanceDir();
@@ -680,9 +691,6 @@ public class CMSEngine implements ServletContextListener {
 
         subsystemInfos.clear();
         subsystems.clear();
-
-        staticSubsystems.add(LogSubsystem.ID);
-        addSubsystem(LogSubsystem.ID, LogSubsystem.getInstance());
 
         staticSubsystems.add(JssSubsystem.ID);
         addSubsystem(JssSubsystem.ID, JssSubsystem.getInstance());
@@ -1019,6 +1027,7 @@ public class CMSEngine implements ServletContextListener {
         initSecurityProvider();
         initPluginRegistry();
         initDatabase();
+        initLogSubsystem();
 
         init();
 
@@ -1191,6 +1200,10 @@ public class CMSEngine implements ServletContextListener {
         }
     } // end shutdownHttpServer
 
+    public void shutdownLogSubsystem() {
+        logSubsystem.shutdown();
+    }
+
     public void shutdownDatabase() {
     }
 
@@ -1241,6 +1254,7 @@ public class CMSEngine implements ServletContextListener {
             mSecurityDomainSessionTable.shutdown();
         }
 
+        shutdownLogSubsystem();
         shutdownDatabase();
         shutdownPluginRegistry();
     }
