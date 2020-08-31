@@ -9,7 +9,6 @@ import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.cmscore.dbs.DBRegistryDefaultStub;
 import com.netscape.cmscore.dbs.DBSSessionDefaultStub;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.dbs.DBSubsystemDefaultStub;
 
 import junit.framework.TestCase;
 
@@ -72,7 +71,7 @@ public abstract class CMSBaseTestCase extends TestCase {
         return new X509CertImpl(certData);
     }
 
-    class DBSubsystemStub extends DBSubsystemDefaultStub {
+    class DBSubsystemStub extends DBSubsystem {
         public IDBSSession createSession() {
             return session;
         }

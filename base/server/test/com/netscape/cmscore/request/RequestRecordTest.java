@@ -2,9 +2,6 @@ package com.netscape.cmscore.request;
 
 import java.util.Hashtable;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
@@ -14,9 +11,12 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.dbs.DBRegistryDefaultStub;
-import com.netscape.cmscore.dbs.DBSubsystemDefaultStub;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 import com.netscape.cmscore.test.TestHelper;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class RequestRecordTest extends CMSBaseTestCase {
 
@@ -130,7 +130,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         }
     }
 
-    class DBSubsystemStub extends DBSubsystemDefaultStub {
+    class DBSubsystemStub extends DBSubsystem {
         DBRegistryStub registry = new DBRegistryStub();
 
         public IDBRegistry getRegistry() {

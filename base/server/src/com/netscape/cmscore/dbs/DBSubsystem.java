@@ -164,7 +164,7 @@ public class DBSubsystem implements IDBSubsystem {
     /**
      * Constructs database subsystem.
      */
-    private DBSubsystem() {
+    public DBSubsystem() {
     }
 
     /**

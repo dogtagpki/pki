@@ -4,11 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
@@ -17,6 +12,11 @@ import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.cmscore.request.DBDynAttrMapperDefaultStub;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 import com.netscape.cmscore.test.TestHelper;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 
 public class DBRegistryTest extends CMSBaseTestCase {
 
@@ -110,7 +110,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
         assertTrue(extAttrMapper.mapLDAPAttrsCalled);
     }
 
-    static class DBSubsystemStub extends DBSubsystemDefaultStub {
+    static class DBSubsystemStub extends DBSubsystem {
         DBRegistry registry;
 
         public IDBRegistry getRegistry() {
