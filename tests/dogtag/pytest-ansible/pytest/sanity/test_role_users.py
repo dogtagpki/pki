@@ -25,6 +25,10 @@
 #   Boston, MA 02110-1301, USA.
 """
 
+import os
+import sys
+
+import pytest
 from test_steps import ok
 
 from pki.testlib.common.certlib import *
@@ -47,7 +51,7 @@ def test_setup(ansible_module):
     cert_setup.create_certdb(ansible_module)
     cert_setup.import_ca_cert(ansible_module)
     cert_setup.import_admin_p12(ansible_module, 'ca')
-    cert_setup.setup_role_users(ansible_module, 'ca', constants.CA_ADMIN_NICK, duration='minute')
+    cert_setup.setup_role_users(ansible_module, 'ca', duration='minute')
 
 
 @pytest.mark.parametrize("certnick,expected", [

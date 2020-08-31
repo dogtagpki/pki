@@ -61,7 +61,7 @@ def config_setup(request,ansible_module):
     config = Config()
 
     params_default = {"pki_hostname": map(str,[ansible_module.shell('hostname')[x]['stdout']
-                                               for x in ansible_module.shell('hostname').iterkeys()])[0],
+                                               for x in ansible_module.shell('hostname').keys()])[0],
                       "pki_ds_password":instance_creation.passwd,"pki_ds_ldap_port": constants.LDAP_PORT}
 
     subsystem_params_step1 = {"pki_admin_email":"caadmin1@example.com","pki_admin_name":"caadmin",

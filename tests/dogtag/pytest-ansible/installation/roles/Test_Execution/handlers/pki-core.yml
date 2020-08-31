@@ -64,4 +64,4 @@
     name: variable
 
 - name: TEMPNSSDB
-  shell : rm -rf /tmp/nssdb;mkdir /tmp/nssdb;certutil -N -d /tmp/nssdb --empty-password;pk12util -d /tmp/nssdb  -i /opt/{{ topology }}-CA/ca_admin_cert.p12 -W SECret.123;pki -d /tmp/nssdb -p {{ variable.CA_HTTPS_PORT }} -P https client-cert-import --ca-server RootCA
+  shell: rm -rf /tmp/nssdb;mkdir /tmp/nssdb;certutil -N -d /tmp/nssdb --empty-password;pk12util -d /tmp/nssdb  -i /opt/{{ topology }}-CA/ca_admin_cert.p12 -W SECret.123;

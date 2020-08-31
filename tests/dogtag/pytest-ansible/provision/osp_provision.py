@@ -35,7 +35,6 @@ def spawn_server(conn, image_name, server_type='master'):
     This method spawns a server for provided image.
     The method looks for available network and also sets an inventory which is used in teardown state.
     """
-
     print("Spawning server: ")
     set_available_network(conn)
 
@@ -87,11 +86,11 @@ def set_available_network(conn):
     global OS_NETWORK_ID
     for net_id in OS_NETWORK_ID:
         print net_id
-        used_ips = conn.network.get_network_ip_availability('60cacaff-86a6-4f88-82a4-ed3023724df1').used_ips
-        total_ips = conn.network.get_network_ip_availability('60cacaff-86a6-4f88-82a4-ed3023724df1').total_ips
+        used_ips = conn.network.get_network_ip_availability(net_id).used_ips
+        total_ips = conn.network.get_network_ip_availability(net_id).total_ips
         print(used_ips)
         print(total_ips)
-        if total_ips - used_ips > 10:
+        if total_ips - used_ips > 50:
             OS_NETWORK_ID = net_id
             print('Using network : {} \n Available IPs : {}'.format(net_id, str(total_ips - used_ips)))
             break

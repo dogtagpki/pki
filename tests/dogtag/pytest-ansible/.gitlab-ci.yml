@@ -88,8 +88,7 @@ externalca_nssdb-topo-03-sk:
   stage: tier1
   script:
     - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-03" -vv  | sed 's/\\n/\n/g'
-    - cd $PYTEST_DIR/pytest/ca/externalca/
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE . -q -s --junitxml external_junit.xml |  sed 's/\\n/\n/g'
+    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/externalca/* -q -s --junitxml external_junit.xml |  sed 's/\\n/\n/g'
 
 topology_02_fips_sk:
   <<: *job_definition
@@ -117,60 +116,60 @@ Installation_sanity_SHA256withRSA/PSS_topo_01_ps:
   stage: tier1
   script:
     - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-01 rsa_pss_256=true" -vv  | sed 's/\\n/\n/g'
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/ -qs --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/pki_cert/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/pki_cert_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/kra_key/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/kra_key_archive_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps-token/ -qs --junitxml $CI_PROJECT_DIR/token_show_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/ -qs --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/pki_cert/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/pki_cert_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/kra_key/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/kra_key_archive_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps-token/ -qs --junitxml $CI_PROJECT_DIR/token_show_junit.xml -vvv
 
 Installation_sanity_SHA256withRSA/PSS_topo_02_ps:
   <<: *job_definition
   stage: tier1
   script:
     - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-02 rsa_pss_256=true" -vv  | sed 's/\\n/\n/g'
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/ -qs --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/pki_cert/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/pki_cert_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/kra_key/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/kra_key_archive_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps-token/ -qs --junitxml $CI_PROJECT_DIR/token_show_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/ -qs --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/pki_cert/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/pki_cert_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/kra_key/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/kra_key_archive_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps-token/ -qs --junitxml $CI_PROJECT_DIR/token_show_junit.xml -vvv
 
 Installation_sanity_SHA384withRSA/PSS_topo_01_ps:
   <<: *job_definition
   stage: tier1
   script:
     - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-01 rsa_pss_384=true" -vv  | sed 's/\\n/\n/g'
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/ -qs --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/pki_cert/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/pki_cert_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/kra_key/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/kra_key_archive_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps-token/ -qs --junitxml $CI_PROJECT_DIR/token_show_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/ -qs --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/pki_cert/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/pki_cert_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/kra_key/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/kra_key_archive_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps-token/ -qs --junitxml $CI_PROJECT_DIR/token_show_junit.xml -vvv
 
 Installation_sanity_SHA384withRSA/PSS_topo_02_ps:
   <<: *job_definition
   stage: tier1
   script:
     - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-02 rsa_pss_384=true" -vv  | sed 's/\\n/\n/g'
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/ -qs --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/pki_cert/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/pki_cert_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/kra_key/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/kra_key_archive_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps-token/ -qs --junitxml $CI_PROJECT_DIR/token_show_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/ -qs --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/pki_cert/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/pki_cert_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/kra_key/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/kra_key_archive_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps-token/ -qs --junitxml $CI_PROJECT_DIR/token_show_junit.xml -vvv
 
 Installation_sanity_SHA512withRSA/PSS_topo_01_ps:
   <<: *job_definition
   stage: tier1
   script:
     - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-01 rsa_pss_512=true" -vv  | sed 's/\\n/\n/g'
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/ -qs --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/pki_cert/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/pki_cert_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/kra_key/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/kra_key_archive_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps-token/ -qs --junitxml $CI_PROJECT_DIR/token_show_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/ -qs --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/pki_cert/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/pki_cert_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/kra_key/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/kra_key_archive_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps-token/ -qs --junitxml $CI_PROJECT_DIR/token_show_junit.xml -vvv
 
 Installation_sanity_SHA512withRSA/PSS_topo_02_ps:
   <<: *job_definition
   stage: tier1
   script:
     - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-02 rsa_pss_512=true" -vv  | sed 's/\\n/\n/g'
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/ -qs --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/pki_cert/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/pki_cert_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/kra_key/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/kra_key_archive_junit.xml -vvv
-    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps-token/ -qs --junitxml $CI_PROJECT_DIR/token_show_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/ -qs --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/pki_cert/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/pki_cert_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/kra_key/ -m rsa_pss -qs --junitxml $CI_PROJECT_DIR/kra_key_archive_junit.xml -vvv
+      #    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_role_user_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps-token/ -qs --junitxml $CI_PROJECT_DIR/token_show_junit.xml -vvv
 
 Installation_sanity_topo_02_clone_ps:
   <<: *job_definition

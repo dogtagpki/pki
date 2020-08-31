@@ -3,11 +3,6 @@
     list: 389-ds-base
   register: pkg
 
-#- name: add nondefault port to selinux context
-#  shell: for transport in udp tcp;do  semanage port -a -t ldap_port_t -p $transport  "{{item}}";done
-#  with_items:
-#  - ['3389', '2389', '2636']
-
 - name: Setup DS Service
   shell: dscreate fromfile /tmp/test_dir/ldap.cfg
   when: (topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology  == "topology-05" or topology == "topology-ecc" or topology == "topology-SubCA") and pkg.results[0].version <= "1.4.0.16"
@@ -16,6 +11,22 @@
   shell: dscreate from-file /tmp/test_dir/ldap.cfg
   when: (topology == "acme" or topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology  == "topology-05" or topology == "topology-ecc" or topology == "topology-SubCA") and pkg.results[0].version >= "1.4.0.20"
 
+- name: INC_CONSTANTS
+  include_vars:
+    file: /tmp/test_dir/constants.yml
+    name: variable
+
+- name: Enable TLS enabled LDAP server
+  block:
+    - name: Enable TLS enabled LDAP server
+      shell: sh /tmp/test_dir/setupssl2.sh -d /etc/dirsrv/slapd-{{topology}}-testingmaster -p {{ variable.LDAP_PORT }} -t {{ variable.LDAPS_PORT }} -pass {{ variable.LDAP_PASSWD }}
+
+    - name: Restart directory server
+      shell: systemctl restart dirsrv@{{topology}}-testingmaster
+
+    - name: Export CA certificate to the pem file.
+      shell: certutil -L -d /etc/dirsrv/slapd-{{topology}}-testingmaster -n "CA certificate" -a -o /root/ca-cert.pem
+  when: tls_ldap == "true"
 
 - name: Setup DS Service
   shell: dscreate fromfile /tmp/test_dir/ldap_kra.cfg
@@ -35,17 +46,6 @@
 
 - name: sleep
   shell: sleep 5s
-
-- name: Import constants
-  shell: echo 0
-  notify:
-  - INC_CONSTANTS
-
-- meta: flush_handlers
-
-- name: Export CA certificate to the pem file for LDAPS installation.
-  shell: certutil -L -d /etc/dirsrv/slapd-{{topology}}-testingmaster -n "Self-Signed-CA" -a -o /root/ca-cert.pem
-  when: tls_ldap == "true"
 
 - name: ldap aci anonymous access file
   copy:
