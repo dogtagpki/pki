@@ -59,7 +59,6 @@ import com.netscape.certsrv.publish.MapperProxy;
 import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
-import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -69,6 +68,7 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
@@ -468,9 +468,8 @@ public class PublisherAdminServlet extends AdminServlet {
             if (name.equals(Constants.PR_PUBLISHING_QUEUE_STATUS))
                 continue;
             if (name.equals(Constants.PR_CERT_NAMES)) {
-                ICryptoSubsystem jss = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-
-                params.put(name, jss.getAllCerts());
+                JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+                params.put(name, jssSubsystem.getAllCerts());
             } else {
                 String value = ldap.getString(name, "");
 

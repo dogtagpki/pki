@@ -72,7 +72,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigTrustedPublicKeyEvent;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
-import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
@@ -86,6 +85,7 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
 
@@ -321,10 +321,10 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         NameValuePairs params = new NameValuePairs();
 
-        params.put(Constants.PR_TOKEN_LIST, jssSubSystem.getTokenList());
+        params.put(Constants.PR_TOKEN_LIST, jssSubsystem.getTokenList());
 
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -335,9 +335,9 @@ public final class CMSAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        params.put(Constants.PR_ALL_NICKNAMES, jssSubSystem.getAllCerts());
+        params.put(Constants.PR_ALL_NICKNAMES, jssSubsystem.getAllCerts());
 
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -387,24 +387,23 @@ public final class CMSAdminServlet extends AdminServlet {
 
         }
 
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         String caTokenName = "";
 
         NameValuePairs params = new NameValuePairs();
 
-        params.put(Constants.PR_CIPHER_VERSION,
-                jssSubSystem.getCipherVersion());
-        params.put(Constants.PR_CIPHER_FORTEZZA, jssSubSystem.isCipherFortezza());
-        params.put(Constants.PR_CIPHER_PREF, jssSubSystem.getCipherPreferences());
+        params.put(Constants.PR_CIPHER_VERSION, jssSubsystem.getCipherVersion());
+        params.put(Constants.PR_CIPHER_FORTEZZA, jssSubsystem.isCipherFortezza());
+        params.put(Constants.PR_CIPHER_PREF, jssSubsystem.getCipherPreferences());
 
-        String tokenList = jssSubSystem.getTokenList();
+        String tokenList = jssSubsystem.getTokenList();
 
         String tokenNewList = "";
         StringTokenizer tokenizer = new StringTokenizer(tokenList, ",");
 
         while (tokenizer.hasMoreElements()) {
             String tokenName = (String) tokenizer.nextElement();
-            String certs = jssSubSystem.getCertListWithoutTokenName(tokenName);
+            String certs = jssSubsystem.getCertListWithoutTokenName(tokenName);
 
             if (certs.equals(""))
                 continue;
@@ -424,7 +423,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             caTokenName = signingUnit.getTokenName();
 
-            if (caTokenName.equals(jssSubSystem.getInternalTokenName()))
+            if (caTokenName.equals(jssSubsystem.getInternalTokenName()))
                 caTokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
 
             String caNickName = signingUnit.getNickname();
@@ -514,9 +513,8 @@ public final class CMSAdminServlet extends AdminServlet {
         try {
             Enumeration<String> enum1 = req.getParameterNames();
             NameValuePairs params = new NameValuePairs();
-            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-
-            jssSubSystem.getInternalTokenName();
+            JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+            jssSubsystem.getInternalTokenName();
 
             boolean isCAInstalled = false;
             boolean isRAInstalled = false;
@@ -551,7 +549,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 String val = req.getParameter(name);
 
                 if (name.equals(Constants.PR_CIPHER_PREF)) {
-                    jssSubSystem.setCipherPreferences(val);
+                    jssSubsystem.setCipherPreferences(val);
                 } else if (name.equals(Constants.PR_CERT_CA)) {
                     ISigningUnit signingUnit = ca.getSigningUnit();
 
@@ -575,12 +573,12 @@ public final class CMSAdminServlet extends AdminServlet {
                         String nickName = (String) tokenizer.nextElement();
 
                         if (CryptoUtil.isInternalToken(tokenName)) {
-                            tokenName = jssSubSystem.getInternalTokenName();
+                            tokenName = jssSubsystem.getInternalTokenName();
                         } else {
                             nickName = tokenName + ":" + nickName;
                         }
 
-                        isCACert = jssSubSystem.isCACert(nickName);
+                        isCACert = jssSubsystem.isCACert(nickName);
                         if (isCACert) {
                             signingUnit.updateConfig(nickName, tokenName);
                         } else
@@ -907,11 +905,11 @@ public final class CMSAdminServlet extends AdminServlet {
             if (name.equals(Constants.PR_TOKEN_LIST)) {
                 String selectedToken = req.getParameter(name);
 
-                ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+                JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
                 CryptoToken token = null;
 
-                if (!jssSubSystem.isTokenLoggedIn(selectedToken)) {
+                if (!jssSubsystem.isTokenLoggedIn(selectedToken)) {
                     PasswordCallback cpcb = new ConsolePasswordCallback();
                     while (true) {
                         try {
@@ -1020,9 +1018,8 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-
-        jssSubSystem.loggedInToken(tokenName, pwd);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        jssSubsystem.loggedInToken(tokenName, pwd);
 
         /* Do a "PUT" of the new pw to the watchdog" */
         engine.putPasswordCache(tokenName, pwd);
@@ -1045,8 +1042,8 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-        boolean status = jssSubSystem.isTokenLoggedIn(value);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        boolean status = jssSubsystem.isTokenLoggedIn(value);
 
         NameValuePairs params = new NameValuePairs();
 
@@ -1115,7 +1112,7 @@ public final class CMSAdminServlet extends AdminServlet {
             dir = pathname;
 
             CMSEngine engine = CMS.getCMSEngine();
-            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+            JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
             KeyPair keypair = null;
             PQGParams pqgParams = null;
@@ -1158,15 +1155,15 @@ public final class CMSAdminServlet extends AdminServlet {
                     throw new EBaseException(
                             CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
                 }
-                keypair = jssSubSystem.getKeyPair(nickname);
+                keypair = jssSubsystem.getKeyPair(nickname);
             } else {
                 if (keyType.equals("ECC")) {
                     // get ECC keypair
-                    keypair = jssSubSystem.getECCKeyPair(token, keyCurveName, certType);
+                    keypair = jssSubsystem.getECCKeyPair(token, keyCurveName, certType);
                 } else { //DSA or RSA
                     if (keyType.equals("DSA"))
-                        pqgParams = jssSubSystem.getPQG(keyLength);
-                    keypair = jssSubSystem.getKeyPair(token, keyType, keyLength, pqgParams);
+                        pqgParams = jssSubsystem.getPQG(keyLength);
+                    keypair = jssSubsystem.getKeyPair(token, keyType, keyLength, pqgParams);
                 }
             }
 
@@ -1200,7 +1197,7 @@ public final class CMSAdminServlet extends AdminServlet {
             } else if (certType.equals(Constants.PR_OTHER_CERT)) {
                 pathname = pathname + File.separator + "othercsr.txt";
             }
-            String certReq = jssSubSystem.getCertRequest(subjectName, keypair);
+            String certReq = jssSubsystem.getCertRequest(subjectName, keypair);
 
             params.put(Constants.PR_CSR, certReq);
             params.put(Constants.PR_CERT_REQUEST_DIR, dir);
@@ -1482,7 +1479,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             String certType = (String) properties.get(Constants.RS_ID);
 
-            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+            JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ICertificateRepository repository =
                     ca.getCertificateRepository();
@@ -1532,7 +1529,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             //xxx renew ca ,use old issuer?
             properties.setIssuerName(
-                    jssSubSystem.getCertSubjectName(oldcatokenname,
+                    jssSubsystem.getCertSubjectName(oldcatokenname,
                                                 canicknameWithoutTokenName));
 
             KeyPair pair = null;
@@ -1550,7 +1547,7 @@ public final class CMSAdminServlet extends AdminServlet {
             //xxx set to old nickname?
             properties.setCertNickname(nickname);
             if (!certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-                CertificateExtensions exts = jssSubSystem.getExtensions(
+                CertificateExtensions exts = jssSubsystem.getExtensions(
                         oldcatokenname, canicknameWithoutTokenName);
 
                 properties.setCAExtensions(exts);
@@ -1572,7 +1569,7 @@ public final class CMSAdminServlet extends AdminServlet {
             // create a new CA certificate or ssl server cert
             if (properties.getKeyCurveName() != null) { //new ECC
                 logger.debug("CMSAdminServlet: issueImportCert: generating ECC keys");
-                pair = jssSubSystem.getECCKeyPair(properties);
+                pair = jssSubsystem.getECCKeyPair(properties);
                 if (certType.equals(Constants.PR_CA_SIGNING_CERT))
                     caKeyPair = pair;
             } else if (properties.getKeyLength() != null) { //new RSA or DSA
@@ -1582,18 +1579,18 @@ public final class CMSAdminServlet extends AdminServlet {
                 if (keyType.equals("DSA")) {
                     @SuppressWarnings("unused")
                     PQGParams pqgParams =
-                            jssSubSystem.getCAPQG(Integer.parseInt(keyLen), mConfig); // check for errors
+                            jssSubsystem.getCAPQG(Integer.parseInt(keyLen), mConfig); // check for errors
                     //properties.put(Constants.PR_PQGPARAMS, pqgParams);
                 }
-                pair = jssSubSystem.getKeyPair(properties);
+                pair = jssSubsystem.getKeyPair(properties);
                 if (certType.equals(Constants.PR_CA_SIGNING_CERT))
                     caKeyPair = pair;
                 // renew the CA certificate or ssl server cert
             } else {
-                pair = jssSubSystem.getKeyPair(nickname);
+                pair = jssSubsystem.getKeyPair(nickname);
                 // should get it from the CA signing certificate
                 if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-                    updateCASignature(nickname, properties, jssSubSystem);
+                    updateCASignature(nickname, properties, jssSubsystem);
                     caKeyPair = pair;
                     defaultSigningAlg = signingUnit.getDefaultAlgorithm();
                 }
@@ -1609,14 +1606,14 @@ public final class CMSAdminServlet extends AdminServlet {
 
             String alg = properties.getSignedBy();
             if (!certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-                caKeyPair = jssSubSystem.getKeyPair(canickname);
-                updateCASignature(canickname, properties, jssSubSystem);
+                caKeyPair = jssSubsystem.getKeyPair(canickname);
+                updateCASignature(canickname, properties, jssSubsystem);
             } else if (alg != null) {
                 // self signed CA signing cert, new keys
                 // value provided for signedBy
                 SignatureAlgorithm sigAlg = Cert.mapAlgorithmToJss(alg);
                 properties.setSignatureAlgorithm(sigAlg);
-                properties.setAlgorithmId(jssSubSystem.getAlgorithmId(alg, mConfig));
+                properties.setAlgorithmId(jssSubsystem.getAlgorithmId(alg, mConfig));
             }
 
             if (pair == null)
@@ -1631,7 +1628,7 @@ public final class CMSAdminServlet extends AdminServlet {
             properties.put(Constants.PR_CA_KEYPAIR, caKeyPair);
 
             X509CertImpl signedCert =
-                    jssSubSystem.getSignedCert(properties, certType,
+                    jssSubsystem.getSignedCert(properties, certType,
                                            caKeyPair.getPrivate());
 
             if (signedCert == null)
@@ -1652,7 +1649,7 @@ public final class CMSAdminServlet extends AdminServlet {
             //logger.debug("CMSAdminServlet: import as alias "+ nicknameWithoutTokenName);
             try {
                 logger.debug("CMSAdminServlet: issueImportCert: Importing cert: " + nicknameWithoutTokenName);
-                jssSubSystem.importCert(signedCert, nicknameWithoutTokenName,
+                jssSubsystem.importCert(signedCert, nicknameWithoutTokenName,
                                         certType);
             } catch (EBaseException e) {
                 // if it fails, let use a different nickname to try
@@ -1661,7 +1658,7 @@ public final class CMSAdminServlet extends AdminServlet {
                                    + "-" + now.getTime();
 
                 logger.debug("CMSAdminServlet: issueImportCert: Importing cert with nickname: " + newNickname);
-                jssSubSystem.importCert(signedCert, newNickname,
+                jssSubsystem.importCert(signedCert, newNickname,
                                         certType);
                 nicknameWithoutTokenName = newNickname;
                 nicknameChanged = true;
@@ -1823,13 +1820,13 @@ public final class CMSAdminServlet extends AdminServlet {
     }
 
     private void updateCASignature(String nickname, KeyCertData properties,
-            ICryptoSubsystem jssSubSystem) throws EBaseException {
-        String alg = jssSubSystem.getSignatureAlgorithm(nickname);
+            JssSubsystem jssSubsystem) throws EBaseException {
+        String alg = jssSubsystem.getSignatureAlgorithm(nickname);
         SignatureAlgorithm sigAlg = Cert.mapAlgorithmToJss(alg);
 
         properties.setSignatureAlgorithm(sigAlg);
         properties.setAlgorithmId(
-                jssSubSystem.getAlgorithmId(alg, mConfig));
+                jssSubsystem.getAlgorithmId(alg, mConfig));
     }
 
     /**
@@ -1935,7 +1932,7 @@ public final class CMSAdminServlet extends AdminServlet {
                      + File.separator + "config" + File.separator + pathname;
 
             CMSEngine engine = CMS.getCMSEngine();
-            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+            JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             //String nickname = getNickname(certType);
             String nicknameWithoutTokenName = "";
 
@@ -2012,7 +2009,7 @@ public final class CMSAdminServlet extends AdminServlet {
             logger.debug("CMSAdminServlet.installCert(): About to try jssSubSystem.importCert: "
                     + nicknameWithoutTokenName);
             try {
-                jssSubSystem.importCert(pkcs, nicknameWithoutTokenName,
+                jssSubsystem.importCert(pkcs, nicknameWithoutTokenName,
                         certType);
             } catch (EBaseException e) {
 
@@ -2041,7 +2038,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     String newNickname = nicknameWithoutTokenName + "-" +
                                      now.getTime();
 
-                    jssSubSystem.importCert(pkcs, newNickname, certType);
+                    jssSubsystem.importCert(pkcs, newNickname, certType);
                     nicknameWithoutTokenName = newNickname;
                     if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                         nickname = newNickname;
@@ -2057,7 +2054,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 ISigningUnit signingUnit = ca.getSigningUnit();
                 String signatureAlg =
-                        jssSubSystem.getSignatureAlgorithm(nickname);
+                        jssSubsystem.getSignatureAlgorithm(nickname);
 
                 signingUnit.setDefaultAlgorithm(signatureAlg);
                 setCANewnickname("", "");
@@ -2067,13 +2064,13 @@ public final class CMSAdminServlet extends AdminServlet {
                     if (nickname.equals(nicknameWithoutTokenName)) {
                         signingUnit.updateConfig(nickname,
                                 CryptoUtil.INTERNAL_TOKEN_NAME);
-                        extensions = jssSubSystem.getExtensions(
+                        extensions = jssSubsystem.getExtensions(
                                 CryptoUtil.INTERNAL_TOKEN_NAME, nickname);
                     } else {
                         String tokenname1 = nickname.substring(0, index);
 
                         signingUnit.updateConfig(nickname, tokenname1);
-                        extensions = jssSubSystem.getExtensions(tokenname1,
+                        extensions = jssSubsystem.getExtensions(tokenname1,
                                 nicknameWithoutTokenName);
                     }
                     if (extensions != null) {
@@ -2366,8 +2363,8 @@ public final class CMSAdminServlet extends AdminServlet {
                 return;
             }
 
-            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-            String content = jssSubSystem.getCertPrettyPrint(b64Cert,
+            JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+            String content = jssSubsystem.getCertPrettyPrint(b64Cert,
                     super.getLocale(req));
 
             results.put(Constants.PR_NICKNAME, "FBCA cross-signed cert");
@@ -2537,8 +2534,8 @@ public final class CMSAdminServlet extends AdminServlet {
             nickname = getNickname(certType);
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-        String content = jssSubSystem.getCertPrettyPrint(pkcs,
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        String content = jssSubsystem.getCertPrettyPrint(pkcs,
                 super.getLocale(req));
 
         if (nickname != null && !nickname.equals(""))
@@ -2554,7 +2551,7 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         String nickname = "";
         String serialno = "";
         String issuername = "";
@@ -2585,7 +2582,7 @@ public final class CMSAdminServlet extends AdminServlet {
             }
         }
 
-        String print = jssSubSystem.getCertPrettyPrintAndFingerPrint(nickname,
+        String print = jssSubsystem.getCertPrettyPrintAndFingerPrint(nickname,
                 serialno, issuername, locale);
         pairs.put(nickname, print);
 
@@ -2597,7 +2594,7 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         String nickname = "";
         String serialno = "";
         String issuername = "";
@@ -2627,7 +2624,7 @@ public final class CMSAdminServlet extends AdminServlet {
             }
         }
 
-        String trustbit = jssSubSystem.getRootCertTrustBit(nickname,
+        String trustbit = jssSubsystem.getRootCertTrustBit(nickname,
                 serialno, issuername);
         pairs.put(nickname, trustbit);
 
@@ -2639,8 +2636,8 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-        NameValuePairs pairs = jssSubSystem.getCACerts();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        NameValuePairs pairs = jssSubsystem.getCACerts();
 
         sendResponse(SUCCESS, null, pairs, resp);
     }
@@ -2651,14 +2648,14 @@ public final class CMSAdminServlet extends AdminServlet {
 
         String id = req.getParameter(Constants.RS_ID);
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         int mindex = id.indexOf(":SERIAL#<");
         String nickname = id.substring(0, mindex);
         String sstr1 = id.substring(mindex);
         int lindex = sstr1.indexOf(">");
         String serialno = sstr1.substring(9, lindex);
         String issuername = sstr1.substring(lindex + 1);
-        jssSubSystem.deleteRootCert(nickname, serialno, issuername);
+        jssSubsystem.deleteRootCert(nickname, serialno, issuername);
         sendResponse(SUCCESS, null, null, resp);
     }
 
@@ -2668,14 +2665,14 @@ public final class CMSAdminServlet extends AdminServlet {
 
         String id = req.getParameter(Constants.RS_ID);
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         int mindex = id.indexOf(":SERIAL#<");
         String nickname = id.substring(0, mindex);
         String sstr1 = id.substring(mindex);
         int lindex = sstr1.indexOf(">");
         String serialno = sstr1.substring(9, lindex);
         String issuername = sstr1.substring(lindex + 1);
-        jssSubSystem.deleteUserCert(nickname, serialno, issuername);
+        jssSubsystem.deleteUserCert(nickname, serialno, issuername);
         sendResponse(SUCCESS, null, null, resp);
     }
 
@@ -2683,8 +2680,8 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-        NameValuePairs pairs = jssSubSystem.getRootCerts();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        NameValuePairs pairs = jssSubsystem.getRootCerts();
 
         sendResponse(SUCCESS, null, pairs, resp);
     }
@@ -2693,8 +2690,8 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-        NameValuePairs pairs = jssSubSystem.getAllCertsManage();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        NameValuePairs pairs = jssSubsystem.getAllCertsManage();
 
         sendResponse(SUCCESS, null, pairs, resp);
     }
@@ -2703,8 +2700,8 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-        NameValuePairs pairs = jssSubSystem.getUserCerts();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        NameValuePairs pairs = jssSubsystem.getUserCerts();
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
@@ -2713,7 +2710,7 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         String nickname = "";
         String date = "";
 
@@ -2733,7 +2730,7 @@ public final class CMSAdminServlet extends AdminServlet {
             date = value.substring(index + 1);
             // cant use this one now since jss doesnt have the interface to
             // do it.
-            jssSubSystem.deleteCert(nickname, date);
+            jssSubsystem.deleteCert(nickname, date);
             //            jssSubsystem.deleteCACert(nickname, date);
         }
 
@@ -2752,9 +2749,8 @@ public final class CMSAdminServlet extends AdminServlet {
             String value = req.getParameter(key);
 
             if (key.equals(Constants.PR_SUBJECT_NAME)) {
-                ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-
-                jssSubSystem.isX500DN(value);
+                JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+                jssSubsystem.isX500DN(value);
             }
         }
 
@@ -2815,9 +2811,8 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-
-        jssSubSystem.checkCertificateExt(certExt);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        jssSubsystem.checkCertificateExt(certExt);
         sendResponse(SUCCESS, null, null, resp);
     }
 
@@ -2840,8 +2835,8 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-        String subjectName = jssSubSystem.getSubjectDN(nickname);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        String subjectName = jssSubsystem.getSubjectDN(nickname);
 
         params.put(Constants.PR_SUBJECT_NAME, subjectName);
         sendResponse(SUCCESS, null, params, resp);
@@ -2865,8 +2860,8 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-        String subjectName = jssSubSystem.getSubjectDN(nickname);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        String subjectName = jssSubsystem.getSubjectDN(nickname);
 
         params.put(Constants.PR_SUBJECT_NAME, subjectName);
         sendResponse(SUCCESS, null, params, resp);
@@ -2885,9 +2880,9 @@ public final class CMSAdminServlet extends AdminServlet {
         logger.debug("CMSAdminServlet: setRootCertTrust()");
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         try {
-            jssSubSystem.setRootCertTrust(nickname, serialno, issuername, trust);
+            jssSubsystem.setRootCertTrust(nickname, serialno, issuername, trust);
         } catch (EBaseException e) {
 
             audit(new ConfigTrustedPublicKeyEvent(
@@ -2933,7 +2928,7 @@ public final class CMSAdminServlet extends AdminServlet {
         // to the signed audit log and stored as failures
         try {
             Enumeration<String> enum1 = req.getParameterNames();
-            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
+            JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             String trust = "";
 
             while (enum1.hasMoreElements()) {
@@ -2947,7 +2942,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     String nickname = value.substring(0, index);
                     String date = value.substring(index + 1);
 
-                    jssSubSystem.trustCert(nickname, date, trust);
+                    jssSubsystem.trustCert(nickname, date, trust);
                 }
             }
 
