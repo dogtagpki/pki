@@ -1192,6 +1192,10 @@ public class CMSEngine implements ServletContextListener {
     public void shutdownDatabase() {
     }
 
+    public void shutdownPluginRegistry() {
+        pluginRegistry.shutdown();
+    }
+
     /**
      * Shuts down subsystems in backwards order
      * exceptions are ignored. process exists at end to force exit.
@@ -1236,7 +1240,7 @@ public class CMSEngine implements ServletContextListener {
         }
 
         shutdownDatabase();
-        pluginRegistry.shutdown();
+        shutdownPluginRegistry();
     }
 
     /**
@@ -1315,11 +1319,7 @@ public class CMSEngine implements ServletContextListener {
             disableRequests();
         }
         terminateRequests();
-        shutdownSubsystems(finalSubsystems);
-        shutdownSubsystems(dynSubsystems);
-        shutdownSubsystems(staticSubsystems);
-
-        pluginRegistry.shutdown();
+        shutdown();
 
         shutdownHttpServer(restart);
     }
