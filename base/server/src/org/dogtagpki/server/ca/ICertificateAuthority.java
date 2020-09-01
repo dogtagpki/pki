@@ -59,7 +59,6 @@ public interface ICertificateAuthority extends ISubsystem {
 
     public static final String ID = "ca";
 
-    public static final String PROP_CRLDB_INC = "crldbInc";
     public static final String PROP_REGISTRATION = "Registration";
     public static final String PROP_POLICY = "Policy";
     public static final String PROP_GATEWAY = "gateway";

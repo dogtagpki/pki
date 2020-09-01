@@ -146,7 +146,6 @@ import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
-import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -225,7 +224,6 @@ public class CertificateAuthority
 
     protected String[] mAllowedSignAlgors = null;
 
-    protected CRLRepository mCRLRepot = null;
     protected ReplicaIDRepository mReplicaRepot = null;
 
     protected CertificateChain mCACertChain = null;
@@ -465,9 +463,6 @@ public class CertificateAuthority
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
 
         mConfig = cs.getCAConfig();
-
-        logger.info("CertificateAuthority: initializing CRL database");
-        initCrlDatabase();
 
         logger.debug("CertificateAuthority: initializing replica ID repository");
         if (isHostAuthority()) {
@@ -1024,7 +1019,8 @@ public class CertificateAuthority
      * Retrieves CRL repository.
      */
     public ICRLRepository getCRLRepository() {
-        return mCRLRepot;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getCRLRepository();
     }
 
     public PublisherProcessor getPublisherProcessor() {
@@ -1215,6 +1211,8 @@ public class CertificateAuthority
      * Deletes CRL issuing point with the given identifier.
      */
     public void deleteCRLIssuingPoint(IConfigStore crlSubStore, String id) {
+
+        CAEngine engine = CAEngine.getInstance();
         CRLIssuingPoint ip = (CRLIssuingPoint) mCRLIssuePoints.get(id);
 
         if (ip != null) {
@@ -1223,7 +1221,7 @@ public class CertificateAuthority
             ip = null;
             crlSubStore.removeSubStore(id);
             try {
-                mCRLRepot.deleteCRLIssuingPointRecord(id);
+                engine.getCRLRepository().deleteCRLIssuingPointRecord(id);
             } catch (EBaseException e) {
                 logger.warn(CMS.getLogMessage("FAILED_REMOVING_CRL_IP_2", id, e.toString()), e);
             }
@@ -1763,28 +1761,6 @@ public class CertificateAuthority
         } else {
             mFastSigning = FASTSIGNING_DISABLED;
         }
-    }
-
-    /**
-     * init cert & crl database
-     */
-    private void initCrlDatabase()
-            throws EBaseException {
-        if (!isHostAuthority()) {
-            mCRLRepot = hostCA.mCRLRepot;
-            return;
-        }
-
-        CAEngine engine = CAEngine.getInstance();
-        DBSubsystem dbSubsystem = engine.getDBSubsystem();
-        int crldb_inc = mConfig.getInteger(PROP_CRLDB_INC, 5);
-
-        mCRLRepot = new CRLRepository(
-                    dbSubsystem,
-                    crldb_inc,
-                    "ou=crlIssuingPoints, ou=" + getId() + ", " +
-                            dbSubsystem.getBaseDN());
-        logger.debug("CRL Repot inited");
     }
 
     private void startPublish()

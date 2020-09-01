@@ -56,7 +56,9 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
+import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -80,6 +82,7 @@ import netscape.ldap.LDAPSearchResults;
 public class CAEngine extends CMSEngine implements ServletContextListener {
 
     protected CertificateRepository certificateRepository;
+    protected CRLRepository crlRepository;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -128,6 +131,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public CertificateRepository getCertificateRepository() {
         return certificateRepository;
+    }
+
+    public CRLRepository getCRLRepository() {
+        return crlRepository;
     }
 
     protected void loadSubsystems() throws EBaseException {
@@ -823,8 +830,22 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         certificateRepository.setTransitRecordPageSize(transitRecordPageSize);
     }
 
+    public void initCrlDatabase() throws Exception {
+
+        logger.info("CAEngine: initializing CRL repository");
+
+        IConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID);
+        int increment = caConfig.getInteger(CRLRepository.PROP_INCREMENT, 5);
+
+        crlRepository = new CRLRepository(
+                DBSubsystem.getInstance(),
+                increment,
+                "ou=crlIssuingPoints, ou=ca, " + dbSubsystem.getBaseDN());
+    }
+
     public void init() throws Exception {
         initCertificateRepository();
+        initCrlDatabase();
         super.init();
     }
 

@@ -44,6 +44,9 @@ import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 public class CRLRepository extends Repository implements ICRLRepository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRLRepository.class);
+
+    public static final String PROP_INCREMENT = "crldbInc";
+
     private final String mLdapCRLIssuingPointName = "cn";
     private DBSubsystem dbSubsystem;
     private String mBaseDN;
