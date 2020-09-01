@@ -477,7 +477,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        JobsScheduler scheduler = (JobsScheduler) engine.getSubsystem(JobsScheduler.ID);
+        JobsScheduler scheduler = engine.getJobsScheduler();
 
         // initialize the job plugin
         try {

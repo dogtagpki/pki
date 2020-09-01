@@ -152,6 +152,7 @@ public class CMSEngine implements ServletContextListener {
     protected OidLoaderSubsystem oidLoaderSubsystem = OidLoaderSubsystem.getInstance();
     protected X500NameSubsystem x500NameSubsystem = X500NameSubsystem.getInstance();
     protected RequestSubsystem requestSubsystem = new RequestSubsystem();
+    protected JobsScheduler jobsScheduler = JobsScheduler.getInstance();
 
     public Collection<String> staticSubsystems = new LinkedHashSet<>();
     public Collection<String> dynSubsystems = new LinkedHashSet<>();
@@ -209,6 +210,10 @@ public class CMSEngine implements ServletContextListener {
 
     public RequestSubsystem getRequestSubsystem() {
         return requestSubsystem;
+    }
+
+    public JobsScheduler getJobsScheduler() {
+        return jobsScheduler;
     }
 
     public void loadConfig(String path) throws Exception {
@@ -512,6 +517,12 @@ public class CMSEngine implements ServletContextListener {
         requestSubsystem.startup();
     }
 
+    public void initJobsScheduler() throws Exception {
+        IConfigStore jobsSchedulerConfig = config.getSubStore(JobsScheduler.ID);
+        jobsScheduler.init(jobsSchedulerConfig);
+        jobsScheduler.startup();
+    }
+
     public void configurePorts() throws Exception {
 
         String instanceRoot = config.getInstanceDir();
@@ -575,13 +586,6 @@ public class CMSEngine implements ServletContextListener {
 
         loadSubsystems();
         initSubsystems();
-
-        configureAutoShutdown();
-        configureServerCertNickname();
-        configureExcludedLdapAttrs();
-        configurePorts();
-
-        initSecurityDomain();
     }
 
     public Configurator createConfigurator() throws Exception {
@@ -791,9 +795,6 @@ public class CMSEngine implements ServletContextListener {
 
         finalSubsystems.add(AuthzSubsystem.ID);
         addSubsystem(AuthzSubsystem.ID, AuthzSubsystem.getInstance());
-
-        finalSubsystems.add(JobsScheduler.ID);
-        addSubsystem(JobsScheduler.ID, JobsScheduler.getInstance());
     }
 
     protected void initSubsystems() throws Exception {
@@ -1073,6 +1074,15 @@ public class CMSEngine implements ServletContextListener {
 
         startupSubsystems();
 
+        initJobsScheduler();
+
+        configureAutoShutdown();
+        configureServerCertNickname();
+        configureExcludedLdapAttrs();
+        configurePorts();
+
+        initSecurityDomain();
+
         // Register realm for this subsystem
         ProxyRealm.registerRealm(id, new PKIRealm());
 
@@ -1240,6 +1250,10 @@ public class CMSEngine implements ServletContextListener {
         }
     } // end shutdownHttpServer
 
+    public void shutdownJobsScheduler() {
+        jobsScheduler.shutdown();
+    }
+
     public void shutdownRequestSubsystem() {
         requestSubsystem.shutdown();
     }
@@ -1305,6 +1319,8 @@ public class CMSEngine implements ServletContextListener {
                 }
                 terminateRequests();
         */
+
+        shutdownJobsScheduler();
 
         shutdownSubsystems(finalSubsystems);
         shutdownSubsystems(dynSubsystems);
