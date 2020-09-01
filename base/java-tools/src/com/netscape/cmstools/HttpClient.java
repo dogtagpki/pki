@@ -136,6 +136,7 @@ public class HttpClient {
                 // SSLSocket.setSSLVersionRange() needs to be exposed in JSS
                 // sslSocket.setSSLVersionRange(SSLVersionRange.tls1_0, SSLVersionRange.tls1_2);
                 sslSocket.addHandshakeCompletedListener(listener);
+                sslSocket.enablePostHandshakeAuth(true);
 
                 CryptoToken tt = cm.getThreadToken();
                 System.out.println("after SSLSocket created, thread token is "+ tt.getName());
