@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.base.EBaseException;
@@ -39,6 +38,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 
 /**
  * Return some javascript to the request which contains the list of
@@ -268,7 +268,7 @@ public class DynamicVariablesServlet extends CMSServlet {
 
                         if (varcode.equals(VAR_AUTHMGRS)) {
                             toBeWritten = "";
-                            IAuthSubsystem as = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+                            AuthSubsystem as = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
                             Enumeration<IAuthManager> ame = as.getAuthManagers();
 
                             Date d = new Date();

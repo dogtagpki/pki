@@ -31,7 +31,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
@@ -55,6 +54,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 
 /**
  * Certificate Renewal
@@ -166,7 +166,7 @@ public class RenewalServlet extends CMSServlet {
         }
 
         // coming from agent
-        if (mAuthMgr != null && mAuthMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
+        if (mAuthMgr != null && mAuthMgr.equals(AuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
             X509Certificate[] cert = new X509Certificate[1];
 
             old_serial_no = getCertFromAgent(httpParams, cert);
@@ -252,7 +252,7 @@ public class RenewalServlet extends CMSServlet {
         String initiative = null;
         String agentID = null;
 
-        if (mAuthMgr != null && mAuthMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
+        if (mAuthMgr != null && mAuthMgr.equals(AuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
             agentID = authToken.getInString("userid");
             initiative = AuditFormat.FROMAGENT + " agentID: " + agentID;
         } else {

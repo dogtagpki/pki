@@ -39,7 +39,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.asn1.INTEGER;
@@ -87,6 +86,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertUtils;
 
@@ -193,7 +193,7 @@ public class HashEnrollServlet extends CMSServlet {
         EngineConfig configStore = engine.getConfig();
 
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+        AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 
@@ -385,7 +385,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         //AuthToken authToken = access.getAuthToken();
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+        AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
         IAuthManager authMgr1 = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr1;
         String pageID = httpParams.getValueAsString("pageID", null);
@@ -610,7 +610,7 @@ public class HashEnrollServlet extends CMSServlet {
         String initiative = null;
         String agentID = null;
 
-        if (!authMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
+        if (!authMgr.equals(AuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
             // request is from eegateway, so fromUser.
             initiative = AuditFormat.FROMUSER;
         } else {

@@ -23,7 +23,6 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -34,6 +33,7 @@ import com.netscape.cms.profile.IProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 public abstract class AbstractProfileSubsystem implements ISubsystem {
@@ -176,7 +176,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+        AuthSubsystem authSub = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
         IProfileAuthenticator auth = (IProfileAuthenticator) authSub.get(authenticatorID);
 
         if (auth == null) {

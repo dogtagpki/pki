@@ -26,7 +26,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.connector.IRemoteRequest;
 
@@ -40,6 +39,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 
 /**
@@ -62,7 +62,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
     protected IAuthority mAuthority = null;
     public static int ERROR = 1;
     PrettyPrintFormat pp = new PrettyPrintFormat(":");
-    protected IAuthSubsystem mAuthSubsystem = null;
+    protected AuthSubsystem mAuthSubsystem;
 
     /**
      * Constructs TokenKeyRecovery servlet.
@@ -83,7 +83,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         if (authority != null)
             mAuthority = (IAuthority) engine.getSubsystem(authority);
 
-        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+        mAuthSubsystem = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
     }
 
     /**

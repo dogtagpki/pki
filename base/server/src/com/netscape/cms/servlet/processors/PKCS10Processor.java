@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
@@ -44,6 +43,7 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 
 /**
  * PKCS10Processor process Certificate Requests in
@@ -208,7 +208,7 @@ public class PKCS10Processor extends PKIProcessor {
 
         if (authToken != null &&
                 authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) != null &&
-                !(authMgr.equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID))) {
+                !(authMgr.equals(AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID))) {
             fillCertInfoFromAuthToken(certInfo, authToken);
         }
 

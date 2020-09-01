@@ -39,7 +39,6 @@ import javax.crypto.Mac;
 
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -131,6 +130,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -1542,7 +1542,7 @@ public abstract class EnrollProfile extends Profile {
         try {
 
             try {
-                IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+                AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
 
                 IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
                 if (sharedTokenAuth == null) {
@@ -1848,7 +1848,7 @@ public abstract class EnrollProfile extends Profile {
 
         try {
             String configName = "SharedToken";
-            IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+            AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
 
             IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
             if (sharedTokenAuth == null) {

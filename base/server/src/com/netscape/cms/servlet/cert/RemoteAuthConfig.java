@@ -34,7 +34,6 @@ import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.base.EBaseException;
@@ -48,6 +47,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 
 import netscape.ldap.LDAPAttribute;
@@ -75,7 +75,7 @@ public class RemoteAuthConfig extends CMSServlet {
     private final static String UNIQUE_MEMBER = "uniqueMember";
 
     private String mFormPath = null;
-    private IAuthSubsystem mAuthSubsystem = null;
+    private AuthSubsystem mAuthSubsystem;
     private AuthenticationConfig mAuthConfig = null;
     private IConfigStore mFileConfig = null;
     private Vector<String> mRemotelySetInstances = new Vector<String>();
@@ -131,7 +131,7 @@ public class RemoteAuthConfig extends CMSServlet {
             }
         }
 
-        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+        mAuthSubsystem = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
 
         mTemplates.remove(ICMSRequest.SUCCESS);
     }

@@ -31,7 +31,6 @@ import org.dogtagpki.server.authentication.AuthManagerProxy;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -49,6 +48,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 
 /**
@@ -66,7 +66,7 @@ public class AuthAdminServlet extends AdminServlet {
      */
     private static final long serialVersionUID = -6258411211380144425L;
     private final static String INFO = "AuthAdminServlet";
-    private IAuthSubsystem mAuths = null;
+    private AuthSubsystem mAuths;
 
     private final static String PW_PASSWORD_CACHE_ADD =
             "PASSWORD_CACHE_ADD";
@@ -82,7 +82,7 @@ public class AuthAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         CMSEngine engine = CMS.getCMSEngine();
-        mAuths = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+        mAuths = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
         AUTHZ_RES_NAME = "certServer.auth.configuration";
     }
 
@@ -694,8 +694,8 @@ public class AuthAdminServlet extends AdminServlet {
             }
 
             // prevent agent & admin creation.
-            if (implname.equals(IAuthSubsystem.PASSWDUSERDB_PLUGIN_ID) ||
-                    implname.equals(IAuthSubsystem.CERTUSERDB_PLUGIN_ID)) {
+            if (implname.equals(AuthSubsystem.PASSWDUSERDB_PLUGIN_ID) ||
+                    implname.equals(AuthSubsystem.CERTUSERDB_PLUGIN_ID)) {
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
             }
@@ -741,7 +741,7 @@ public class AuthAdminServlet extends AdminServlet {
                     }
                 }
             }
-            substore.put(IAuthSubsystem.PROP_PLUGIN, implname);
+            substore.put(AuthSubsystem.PROP_PLUGIN, implname);
 
             String pwadd = req.getParameter(PW_PASSWORD_CACHE_ADD);
 
@@ -935,7 +935,7 @@ public class AuthAdminServlet extends AdminServlet {
 
         for (Enumeration<?> e = mAuths.getInstances().keys(); e.hasMoreElements();) {
             String name = (String) e.nextElement();
-            AuthManagerProxy proxy = (AuthManagerProxy) mAuths.getInstances().get(name);
+            AuthManagerProxy proxy = mAuths.getInstances().get(name);
             IAuthManager value = proxy.getAuthManager();
             String enableStr = "enabled";
 
@@ -1002,8 +1002,8 @@ public class AuthAdminServlet extends AdminServlet {
             }
 
             // prevent deletion of admin and agent.
-            if (id.equals(IAuthSubsystem.PASSWDUSERDB_PLUGIN_ID) ||
-                    id.equals(IAuthSubsystem.CERTUSERDB_PLUGIN_ID)) {
+            if (id.equals(AuthSubsystem.PASSWDUSERDB_PLUGIN_ID) ||
+                    id.equals(AuthSubsystem.CERTUSERDB_PLUGIN_ID)) {
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
             }
@@ -1171,8 +1171,8 @@ public class AuthAdminServlet extends AdminServlet {
             }
 
             // prevent deletion of admin and agent.
-            if (id.equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID) ||
-                    id.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
+            if (id.equals(AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID) ||
+                    id.equals(AuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
             }
@@ -1418,8 +1418,8 @@ public class AuthAdminServlet extends AdminServlet {
             }
 
             // prevent modification of admin and agent.
-            if (id.equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID) ||
-                    id.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
+            if (id.equals(AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID) ||
+                    id.equals(AuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
             }
@@ -1490,8 +1490,8 @@ public class AuthAdminServlet extends AdminServlet {
             NameValuePairs saveParams = new NameValuePairs();
 
             // implName is always required so always include it it.
-            saveParams.put(IAuthSubsystem.PROP_PLUGIN,
-                    oldConfig.get(IAuthSubsystem.PROP_PLUGIN));
+            saveParams.put(AuthSubsystem.PROP_PLUGIN,
+                    oldConfig.get(AuthSubsystem.PROP_PLUGIN));
             if (oldConfigParms != null) {
                 for (int i = 0; i < oldConfigParms.length; i++) {
                     String key = oldConfigParms[i];
@@ -1518,7 +1518,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             AuthManagerConfig substore = instancesConfig.createAuthManagerConfig(id);
 
-            substore.put(IAuthSubsystem.PROP_PLUGIN, implname);
+            substore.put(AuthSubsystem.PROP_PLUGIN, implname);
             if (configParams != null) {
                 for (int i = 0; i < configParams.length; i++) {
                     String key = configParams[i];

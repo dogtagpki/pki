@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
@@ -34,6 +33,7 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 
 /**
  * KeyGenProcess parses Certificate request matching the
@@ -100,8 +100,8 @@ public class KeyGenProcessor extends PKIProcessor {
             if (authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) == null) {
                 // allow special case for agent gateway in admin enroll
                 // and bulk issuance.
-                if (!authMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID) &&
-                        !authMgr.equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID)) {
+                if (!authMgr.equals(AuthSubsystem.CERTUSERDB_AUTHMGR_ID) &&
+                        !authMgr.equals(AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID)) {
                     logger.error(CMS.getLogMessage("CMSGW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
                     throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
                 }

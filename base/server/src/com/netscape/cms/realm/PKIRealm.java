@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.catalina.realm.RealmBase;
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.authentication.ICertUserDBAuthentication;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -28,6 +27,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -58,20 +58,20 @@ public class PKIRealm extends RealmBase {
         String attemptedAuditUID = username;
 
         try {
-            IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
-            IAuthManager authMgr = authSub.getAuthManager(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
+            AuthSubsystem authSub = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+            IAuthManager authMgr = authSub.getAuthManager(AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
 
             AuthCredentials creds = new AuthCredentials();
             creds.set(IPasswdUserDBAuthentication.CRED_UID, username);
             creds.set(IPasswdUserDBAuthentication.CRED_PWD, password);
 
             IAuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
-            authToken.set(SessionContext.AUTH_MANAGER_ID, IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
+            authToken.set(SessionContext.AUTH_MANAGER_ID, AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
             auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
 
             signedAuditLogger.log(AuthEvent.createSuccessEvent(
                         auditSubjectID,
-                        IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID));
+                        AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID));
 
             return getPrincipal(username, authToken);
 
@@ -81,7 +81,7 @@ public class PKIRealm extends RealmBase {
 
             signedAuditLogger.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
-                        IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID,
+                        AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID,
                         attemptedAuditUID));
 
             return null;
@@ -92,7 +92,7 @@ public class PKIRealm extends RealmBase {
 
             signedAuditLogger.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
-                        IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID,
+                        AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID,
                         attemptedAuditUID));
 
             throw new RuntimeException(e);
@@ -124,14 +124,14 @@ public class PKIRealm extends RealmBase {
                 certImpls[i] = new X509CertImpl(cert.getEncoded());
             }
 
-            IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
-            IAuthManager authMgr = authSub.getAuthManager(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);
+            AuthSubsystem authSub = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+            IAuthManager authMgr = authSub.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
             AuthCredentials creds = new AuthCredentials();
             creds.set(ICertUserDBAuthentication.CRED_CERT, certImpls);
 
             IAuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
-            authToken.set(SessionContext.AUTH_MANAGER_ID,IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);
+            authToken.set(SessionContext.AUTH_MANAGER_ID,AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
             String username = authToken.getInString(ICertUserDBAuthentication.TOKEN_USERID);
             // reset it to the one authenticated with authManager
@@ -141,7 +141,7 @@ public class PKIRealm extends RealmBase {
 
             signedAuditLogger.log(AuthEvent.createSuccessEvent(
                         auditSubjectID,
-                        IAuthSubsystem.CERTUSERDB_AUTHMGR_ID));
+                        AuthSubsystem.CERTUSERDB_AUTHMGR_ID));
 
             return getPrincipal(username, authToken);
 
@@ -151,7 +151,7 @@ public class PKIRealm extends RealmBase {
 
             signedAuditLogger.log(AuthEvent.createFailureEvent(
                     auditSubjectID,
-                    IAuthSubsystem.CERTUSERDB_AUTHMGR_ID,
+                    AuthSubsystem.CERTUSERDB_AUTHMGR_ID,
                     attemptedAuditUID));
 
             return null;
@@ -162,7 +162,7 @@ public class PKIRealm extends RealmBase {
 
             signedAuditLogger.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
-                        IAuthSubsystem.CERTUSERDB_AUTHMGR_ID,
+                        AuthSubsystem.CERTUSERDB_AUTHMGR_ID,
                         attemptedAuditUID));
 
             throw new RuntimeException(e);

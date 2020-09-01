@@ -37,7 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
@@ -120,6 +119,7 @@ import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -157,7 +157,7 @@ public class CRSEnrollment extends HttpServlet {
     protected String mProfileId = null;
     protected ICertAuthority mAuthority;
     protected IConfigStore mConfig = null;
-    protected IAuthSubsystem mAuthSubsystem;
+    protected AuthSubsystem mAuthSubsystem;
     protected String mAppendDN = null;
     protected String mEntryObjectclass = null;
     protected boolean mCreateEntry = false;
@@ -296,7 +296,7 @@ public class CRSEnrollment extends HttpServlet {
             mProfileId = sc.getInitParameter("profileId");
             logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
 
-            mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+            mAuthSubsystem = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
             mAuthManagerName = sc.getInitParameter(PROP_CRSAUTHMGR);
             mAppendDN = sc.getInitParameter(PROP_APPENDDN);
             String tmp = sc.getInitParameter(PROP_CREATEENTRY);

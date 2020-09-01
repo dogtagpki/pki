@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
@@ -81,6 +80,7 @@ import com.netscape.cms.servlet.processors.PKIProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
@@ -1474,7 +1474,7 @@ public class EnrollServlet extends CMSServlet {
     protected void checkAdminEnroll(CMSRequest cmsReq, X509CertImpl[] issuedCerts)
             throws EBaseException {
         // this is special case, get the admin certificate
-        if (mAuthMgr != null && mAuthMgr.equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID)) {
+        if (mAuthMgr != null && mAuthMgr.equals(AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID)) {
             addAdminAgent(cmsReq, issuedCerts);
             CMSGateway.disableAdminEnroll();
         }

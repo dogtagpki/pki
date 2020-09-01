@@ -41,7 +41,6 @@ import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -101,6 +100,7 @@ import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 //import com.netscape.cmscore.util.*;
@@ -954,11 +954,11 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                         logger.debug("CMCAuth: finished checking signature");
 
                         // authenticate signer's certificate using the userdb
-                        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+                        AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
 
-                        IAuthManager agentAuth = authSS.getAuthManager(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);//AGENT_AUTHMGR_ID);
+                        IAuthManager agentAuth = authSS.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);//AGENT_AUTHMGR_ID);
                         if (agentAuth == null) {
-                            throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_MANAGER_NOT_FOUND", IAuthSubsystem.CERTUSERDB_AUTHMGR_ID));
+                            throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_MANAGER_NOT_FOUND", AuthSubsystem.CERTUSERDB_AUTHMGR_ID));
                         }
                         IAuthCredentials agentCred = new com.netscape.certsrv.authentication.AuthCredentials();
 

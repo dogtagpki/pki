@@ -32,7 +32,6 @@ import java.util.Hashtable;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
@@ -104,6 +103,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -1102,7 +1102,7 @@ public class CMCOutputTemplate {
                     logger.debug(method + "checking shared secret");
 
                     String configName = "SharedToken";
-                    IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+                    AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
 
                     IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
                     if (sharedTokenAuth == null) {

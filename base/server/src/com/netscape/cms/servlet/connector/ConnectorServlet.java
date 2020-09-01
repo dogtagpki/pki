@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
@@ -73,8 +72,8 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
 
@@ -95,7 +94,7 @@ public class ConnectorServlet extends CMSServlet {
     protected ServletConfig mConfig = null;
     protected IAuthority mAuthority = null;
     protected IRequestEncoder mReqEncoder = null;
-    protected IAuthSubsystem mAuthSubsystem = null;
+    protected AuthSubsystem mAuthSubsystem;
 
     private final static String SIGNED_AUDIT_PROTECTION_METHOD_SSL = "ssl";
 
@@ -113,7 +112,7 @@ public class ConnectorServlet extends CMSServlet {
             mAuthority = (IAuthority) engine.getSubsystem(authority);
         mReqEncoder = new HttpRequestEncoder();
 
-        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+        mAuthSubsystem = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
     }
 
     public void service(HttpServletRequest request,

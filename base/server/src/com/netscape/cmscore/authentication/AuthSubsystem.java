@@ -26,7 +26,6 @@ import org.dogtagpki.server.authentication.AuthManagerProxy;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -38,6 +37,7 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cms.authentication.CMCAuth;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -51,11 +51,80 @@ import com.netscape.cmscore.apps.EngineConfig;
  * @author lhsiao
  * @version $Revision$, $Date$
  */
-public class AuthSubsystem implements IAuthSubsystem {
+public class AuthSubsystem implements ISubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthSubsystem.class);
 
-    public static final String ID = "auths";
+    public final static String ID = "auths";
+
+    public final static String PROP_CLASS = "class";
+    public final static String PROP_IMPL = "impl";
+    public final static String PROP_PLUGIN = "pluginName";
+
+    /**
+     * Constant for password based authentication plugin ID.
+     */
+    public final static String PASSWDUSERDB_PLUGIN_ID = "passwdUserDBAuthPlugin";
+
+    /**
+     * Constant for certificate based authentication plugin ID.
+     */
+    public final static String CERTUSERDB_PLUGIN_ID = "certUserDBAuthPlugin";
+
+    /**
+     * Constant for challenge based authentication plugin ID.
+     */
+    public final static String CHALLENGE_PLUGIN_ID = "challengeAuthPlugin";
+
+    /**
+     * Constant for null authentication plugin ID.
+     */
+    public final static String NULL_PLUGIN_ID = "nullAuthPlugin";
+
+    /**
+     * Constant for ssl client authentication plugin ID.
+     */
+    public final static String SSLCLIENTCERT_PLUGIN_ID = "sslClientCertAuthPlugin";
+
+    /**
+     * Constant for password based authentication manager ID.
+     */
+    public final static String PASSWDUSERDB_AUTHMGR_ID = "passwdUserDBAuthMgr";
+
+    /**
+     * Constant for certificate based authentication manager ID.
+     */
+    public final static String CERTUSERDB_AUTHMGR_ID = "certUserDBAuthMgr";
+
+    /**
+     * Constant for challenge based authentication manager ID.
+     */
+    public final static String CHALLENGE_AUTHMGR_ID = "challengeAuthMgr";
+
+    /**
+     * Constant for null authentication manager ID.
+     */
+    public final static String NULL_AUTHMGR_ID = "nullAuthMgr";
+
+    /**
+     * Constant for ssl client authentication manager ID.
+     */
+    public final static String SSLCLIENTCERT_AUTHMGR_ID = "sslClientCertAuthMgr";
+
+    /**
+     * Constant for CMC authentication plugin ID.
+     */
+    public final static String CMCAUTH_PLUGIN_ID = "CMCAuth";
+
+    /**
+     * Constant for CMC authentication manager ID.
+     */
+    public final static String CMCAUTH_AUTHMGR_ID = "CMCAuth";
+
+    /**
+     * Constant for CMC user-signed authentication manager ID.
+     */
+    public final static String CMC_USER_SIGNED_AUTH_AUTHMGR_ID = "CMCUserSignedAuth";
 
     public Hashtable<String, AuthMgrPlugin> mAuthMgrPlugins = new Hashtable<String, AuthMgrPlugin>();
     public Hashtable<String, AuthManagerProxy> mAuthMgrInsts = new Hashtable<String, AuthManagerProxy>();
@@ -305,6 +374,9 @@ public class AuthSubsystem implements IAuthSubsystem {
     /**
      * Gets a list of required authentication credential names
      * of the specified authentication manager.
+     *
+     * @param authMgrName The authentication manager name
+     * @return a Vector of required credential attribute names.
      */
     public String[] getRequiredCreds(String authMgrInstName)
             throws EAuthMgrNotFound {
@@ -365,7 +437,7 @@ public class AuthSubsystem implements IAuthSubsystem {
         mAuthMgrInsts.put(name, new AuthManagerProxy(true, authMgrInst));
     }
 
-    /*
+    /**
      * Removes a authentication manager instance.
      * @param name name of the authentication manager
      */
@@ -483,17 +555,26 @@ public class AuthSubsystem implements IAuthSubsystem {
         mAuthMgrInsts.clear();
     }
 
+    /**
+     * Get a hashtable containing all authentication plugins.
+     *
+     * @return all authentication plugins.
+     */
     public Hashtable<String, AuthMgrPlugin> getPlugins() {
         return mAuthMgrPlugins;
     }
 
+    /**
+     * Get a hashtable containing all authentication instances.
+     *
+     * @return all authentication instances.
+     */
     public Hashtable<String, AuthManagerProxy> getInstances() {
         return mAuthMgrInsts;
     }
 
     /**
      * Returns the root configuration storage of this system.
-     * <P>
      *
      * @return configuration store of this subsystem
      */

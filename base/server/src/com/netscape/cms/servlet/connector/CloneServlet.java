@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -56,6 +55,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
@@ -77,7 +77,7 @@ public class CloneServlet extends CMSServlet {
     protected ServletConfig mConfig = null;
     protected IAuthority mAuthority = null;
     protected IRequestEncoder mReqEncoder = null;
-    protected IAuthSubsystem mAuthSubsystem = null;
+    protected AuthSubsystem mAuthSubsystem;
 
     public CloneServlet() {
     }
@@ -92,7 +92,7 @@ public class CloneServlet extends CMSServlet {
         if (authority != null)
             mAuthority = (IAuthority) engine.getSubsystem(authority);
         mReqEncoder = new HttpRequestEncoder();
-        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+        mAuthSubsystem = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
     }
 
     public void service(HttpServletRequest req,
@@ -283,8 +283,7 @@ public class CloneServlet extends CMSServlet {
                     new X509Certificate[] { cert }
                     );
 
-            IAuthToken token = mAuthSubsystem.authenticate(creds,
-                    IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);
+            IAuthToken token = mAuthSubsystem.authenticate(creds, AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
             return token;
         } catch (CertificateException e) {

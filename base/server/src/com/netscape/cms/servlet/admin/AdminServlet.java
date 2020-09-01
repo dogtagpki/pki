@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.authorization.AuthorizationConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -64,6 +63,7 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -129,10 +129,8 @@ public class AdminServlet extends HttpServlet {
     public static final String CERT_ATTR =
             "javax.servlet.request.X509Certificate";
 
-    private final static String CERTUSERDB =
-            IAuthSubsystem.CERTUSERDB_AUTHMGR_ID;
-    private final static String PASSWDUSERDB =
-            IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID;
+    private final static String CERTUSERDB = AuthSubsystem.CERTUSERDB_AUTHMGR_ID;
+    private final static String PASSWDUSERDB = AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID;
 
     /**
      * Constructs generic administration servlet.
@@ -282,7 +280,7 @@ public class AdminServlet extends HttpServlet {
             } catch (EBaseException e) {
                 // do nothing for now.
             }
-            IAuthSubsystem auth = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+            AuthSubsystem auth = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
             X509Certificate cert = null;
 
             if (authType.equals("sslclientauth")) {
@@ -329,7 +327,7 @@ public class AdminServlet extends HttpServlet {
                     mServletID));
             try {
                 if (authType.equals("sslclientauth")) {
-                    IAuthManager authMgr = auth.get(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);
+                    IAuthManager authMgr = auth.get(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
                     IAuthCredentials authCreds =
                             getAuthCreds(authMgr, cert);
 
@@ -360,8 +358,7 @@ public class AdminServlet extends HttpServlet {
                     cred.set("uid", userid);
                     cred.set("pwd", password);
 
-                    token = auth.authenticate(cred,
-                                IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
+                    token = auth.authenticate(cred, AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
                     logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_FOR_SRVLT",
                             mServletID));
                 }

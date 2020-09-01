@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.IAuthManager;
-import org.dogtagpki.server.authentication.IAuthSubsystem;
 
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -43,6 +42,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -176,7 +176,7 @@ public class CMSGateway {
             httpArgs = new ArgBlock(toHashtable(httpReq));
 
         CMSEngine engine = CMS.getCMSEngine();
-        IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+        AuthSubsystem authSub = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
 
         String authMgr_http = httpArgs.getValueAsString(
                 AUTHMGR_PARAM, null);
@@ -190,8 +190,7 @@ public class CMSGateway {
                         CMS.getLogMessage("CMSGW_AUTH_MAN_EXPECTED")));
         }
 
-        IAuthManager authMgr =
-                authSub.getAuthManager(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);
+        IAuthManager authMgr = authSub.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
         authMgr = authSub.getAuthManager(authMgrName);
         if (authMgr == null)
