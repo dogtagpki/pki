@@ -59,6 +59,7 @@ import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -83,6 +84,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     protected CertificateRepository certificateRepository;
     protected CRLRepository crlRepository;
+    protected ReplicaIDRepository replicaIDRepository;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -135,6 +137,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public CRLRepository getCRLRepository() {
         return crlRepository;
+    }
+
+    public ReplicaIDRepository getReplicaIDRepository() {
+        return replicaIDRepository;
     }
 
     protected void loadSubsystems() throws EBaseException {
@@ -843,9 +849,24 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
                 "ou=crlIssuingPoints, ou=ca, " + dbSubsystem.getBaseDN());
     }
 
+    public void initReplicaIDRepository() throws Exception {
+
+        logger.info("CAEngine: initializing replica ID repository");
+
+        IConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID);
+
+        String replicaReposDN = caConfig.getString(ReplicaIDRepository.PROP_REPLICAID_DN, null);
+        if (replicaReposDN == null) {
+            replicaReposDN = "ou=Replica," + dbSubsystem.getBaseDN();
+        }
+
+        replicaIDRepository = new ReplicaIDRepository(dbSubsystem, 1, replicaReposDN);
+    }
+
     public void init() throws Exception {
         initCertificateRepository();
         initCrlDatabase();
+        initReplicaIDRepository();
         super.init();
     }
 

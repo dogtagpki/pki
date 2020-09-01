@@ -148,8 +148,6 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
@@ -224,8 +222,6 @@ public class CertificateAuthority
 
     protected String[] mAllowedSignAlgors = null;
 
-    protected ReplicaIDRepository mReplicaRepot = null;
-
     protected CertificateChain mCACertChain = null;
     protected CertificateChain mOCSPCertChain = null;
     protected X509CertImpl mCRLCert = null;
@@ -262,8 +258,6 @@ public class CertificateAuthority
     protected static final long HOUR = 60 * MINUTE;
     protected static final long DAY = 24 * HOUR;
     protected static final long YEAR = DAY * 365;
-
-    protected static final String PROP_REPLICAID_DN = "dbs.replicadn";
 
     protected AuthorityMonitor authorityMonitor;
 
@@ -460,21 +454,7 @@ public class CertificateAuthority
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
-        DBSubsystem dbSubsystem = engine.getDBSubsystem();
-
         mConfig = cs.getCAConfig();
-
-        logger.debug("CertificateAuthority: initializing replica ID repository");
-        if (isHostAuthority()) {
-            String replicaReposDN = mConfig.getString(PROP_REPLICAID_DN, null);
-            if (replicaReposDN == null) {
-                replicaReposDN = "ou=Replica," + dbSubsystem.getBaseDN();
-            }
-            mReplicaRepot = new ReplicaIDRepository(dbSubsystem, 1, replicaReposDN);
-
-        } else {
-            mReplicaRepot = hostCA.mReplicaRepot;
-        }
 
         // init signing unit & CA cert.
         boolean initSigUnitSucceeded = false;
@@ -1012,7 +992,8 @@ public class CertificateAuthority
      * @return replica repository
      */
     public IReplicaIDRepository getReplicaRepository() {
-        return mReplicaRepot;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getReplicaIDRepository();
     }
 
     /**
