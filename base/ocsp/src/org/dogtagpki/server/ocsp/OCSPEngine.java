@@ -21,7 +21,6 @@ package org.dogtagpki.server.ocsp;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -52,7 +51,7 @@ public class OCSPEngine extends CMSEngine implements ServletContextListener {
         return new OCSPConfigurator(this);
     }
 
-    protected void loadSubsystems() throws EBaseException {
+    protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
 

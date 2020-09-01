@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -160,8 +160,8 @@ public class CMSEngine implements ServletContextListener {
     public Collection<String> dynSubsystems = new LinkedHashSet<>();
     public Collection<String> finalSubsystems = new LinkedHashSet<>();
 
-    public final Map<String, SubsystemInfo> subsystemInfos = new HashMap<>();
-    public final Map<String, ISubsystem> subsystems = new HashMap<>();
+    public final Map<String, SubsystemInfo> subsystemInfos = new LinkedHashMap<>();
+    public final Map<String, ISubsystem> subsystems = new LinkedHashMap<>();
 
     public String hostname;
     public String unsecurePort;
@@ -741,16 +741,6 @@ public class CMSEngine implements ServletContextListener {
         return securePort;
     }
 
-    public SubsystemInfo addSubsystem(String id, ISubsystem instance) {
-
-        logger.info("CMSEngine: adding " + id + " subsystem");
-
-        SubsystemInfo si = new SubsystemInfo(id);
-        subsystems.put(id, instance);
-        subsystemInfos.put(id, si);
-        return si;
-    }
-
     public Collection<ISubsystem> getSubsystems() {
         return subsystems.values();
     }
@@ -767,9 +757,7 @@ public class CMSEngine implements ServletContextListener {
     /**
      * load subsystems
      */
-    protected void loadSubsystems() throws EBaseException {
-
-        logger.info("CMSEngine: loading static subsystems");
+    protected void loadSubsystems() throws Exception {
 
         staticSubsystems.clear();
         dynSubsystems.clear();
@@ -778,39 +766,27 @@ public class CMSEngine implements ServletContextListener {
         subsystemInfos.clear();
         subsystems.clear();
 
-        logger.info("CMSEngine: loading dynamic subsystems");
+        SubsystemsConfig subsystemsConfig = mConfig.getSubsystemsConfig();
 
-        SubsystemsConfig ssconfig = mConfig.getSubsystemsConfig();
-
-        for (String ssName : ssconfig.getSubsystemNames()) {
-            SubsystemConfig subsystemConfig = ssconfig.getSubsystemConfig(ssName);
-
+        for (String subsystemNumber : subsystemsConfig.getSubsystemNames()) {
+            SubsystemConfig subsystemConfig = subsystemsConfig.getSubsystemConfig(subsystemNumber);
             String id = subsystemConfig.getID();
-            String classname = subsystemConfig.getClassName();
+            logger.info("CMSEngine: Loading " + id + " subsystem");
+
+            String className = subsystemConfig.getClassName();
             boolean enabled = subsystemConfig.isEnabled();
 
-            ISubsystem ss = null;
-            try {
-                ss = (ISubsystem) Class.forName(classname).newInstance();
-            } catch (InstantiationException e) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()), e);
-            } catch (IllegalAccessException e) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()), e);
-            } catch (ClassNotFoundException e) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()), e);
-            }
+            ISubsystem subsystem = (ISubsystem) Class.forName(className).newInstance();
 
             dynSubsystems.add(id);
 
-            SubsystemInfo si = addSubsystem(id, ss);
-            si.setEnabled(enabled);
-            si.setUpdateIdOnInit(true);
-        }
+            SubsystemInfo subsystemInfo = new SubsystemInfo(id);
+            subsystemInfo.setEnabled(enabled);
+            subsystemInfo.setUpdateIdOnInit(true);
 
-        logger.info("CMSEngine: loading final subsystems");
+            subsystems.put(id, subsystem);
+            subsystemInfos.put(id, subsystemInfo);
+        }
     }
 
     protected void initSubsystems() throws Exception {

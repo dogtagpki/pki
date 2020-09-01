@@ -143,7 +143,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return replicaIDRepository;
     }
 
-    protected void loadSubsystems() throws EBaseException {
+    protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
 

@@ -21,7 +21,6 @@ package org.dogtagpki.server.tks;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -52,7 +51,7 @@ public class TKSEngine extends CMSEngine implements ServletContextListener {
         return new TKSConfigurator(this);
     }
 
-    protected void loadSubsystems() throws EBaseException {
+    protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
 

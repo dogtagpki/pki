@@ -53,7 +53,7 @@ public class KRAEngine extends CMSEngine implements ServletContextListener {
         return new KRAConfigurator(this);
     }
 
-    protected void loadSubsystems() throws EBaseException {
+    protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
 
