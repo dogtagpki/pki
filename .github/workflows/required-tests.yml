@@ -149,6 +149,11 @@ jobs:
         - name: Install TPS
           run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/tps-create.sh
 
+        - name: Run PKI Healthcheck
+          run: |
+                docker exec -i ${CONTAINER} bash -c "echo 'instance_name=pkitest' >> /etc/pki/healthcheck.conf"
+                docker exec -i ${CONTAINER} bash -c "/usr/sbin/pki-healthcheck --debug"
+
         - name: Gather instance config
           if: always()
           run: docker exec -i ${CONTAINER} bash -c "cp -rf /etc/pki /var/log/pki/etc-pki"
@@ -232,7 +237,7 @@ jobs:
           run: docker exec -i ${CONTAINER} dnf copr enable -y ${COPR_REPO}
 
         - name: Install FreeIPA packages
-          run: docker exec -i ${CONTAINER} dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests
+          run: docker exec -i ${CONTAINER} dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests freeipa-healthcheck
 
         - name: Install newly built PKI packages
           run: docker exec -i ${CONTAINER} bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
