@@ -296,7 +296,7 @@ public class CRSEnrollment extends HttpServlet {
             mProfileId = sc.getInitParameter("profileId");
             logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
 
-            mAuthSubsystem = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+            mAuthSubsystem = engine.getAuthSubsystem();
             mAuthManagerName = sc.getInitParameter(PROP_CRSAUTHMGR);
             mAppendDN = sc.getInitParameter(PROP_APPENDDN);
             String tmp = sc.getInitParameter(PROP_CREATEENTRY);

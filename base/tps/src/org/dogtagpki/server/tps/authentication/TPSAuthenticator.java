@@ -73,7 +73,7 @@ public class TPSAuthenticator {
         id = authId;
         // retrieves and set authentication manager
         CMSEngine engine = CMS.getCMSEngine();
-        AuthSubsystem authSub = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+        AuthSubsystem authSub = engine.getAuthSubsystem();
         authManager = authSub.getAuthManager(authId);
         uiTitle = new HashMap<String, String>();
         uiDescription = new HashMap<String, String>();

@@ -193,7 +193,7 @@ public class HashEnrollServlet extends CMSServlet {
         EngineConfig configStore = engine.getConfig();
 
         String val = configStore.getString("hashDirEnrollment.name");
-        AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+        AuthSubsystem authSS = engine.getAuthSubsystem();
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 
@@ -385,7 +385,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         //AuthToken authToken = access.getAuthToken();
         String val = configStore.getString("hashDirEnrollment.name");
-        AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+        AuthSubsystem authSS = engine.getAuthSubsystem();
         IAuthManager authMgr1 = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr1;
         String pageID = httpParams.getValueAsString("pageID", null);

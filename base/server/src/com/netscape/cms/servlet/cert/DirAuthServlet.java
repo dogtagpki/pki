@@ -142,7 +142,7 @@ public class DirAuthServlet extends CMSServlet {
         }
 
         String val = configStore.getString("hashDirEnrollment.name");
-        AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+        AuthSubsystem authSS = engine.getAuthSubsystem();
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 

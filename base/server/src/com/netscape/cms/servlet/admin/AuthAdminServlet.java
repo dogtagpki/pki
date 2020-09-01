@@ -82,7 +82,7 @@ public class AuthAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         CMSEngine engine = CMS.getCMSEngine();
-        mAuths = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+        mAuths = engine.getAuthSubsystem();
         AUTHZ_RES_NAME = "certServer.auth.configuration";
     }
 

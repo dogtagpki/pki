@@ -176,7 +176,7 @@ public class CMSGateway {
             httpArgs = new ArgBlock(toHashtable(httpReq));
 
         CMSEngine engine = CMS.getCMSEngine();
-        AuthSubsystem authSub = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+        AuthSubsystem authSub = engine.getAuthSubsystem();
 
         String authMgr_http = httpArgs.getValueAsString(
                 AUTHMGR_PARAM, null);

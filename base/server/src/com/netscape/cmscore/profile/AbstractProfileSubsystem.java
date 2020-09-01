@@ -176,7 +176,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        AuthSubsystem authSub = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+        AuthSubsystem authSub = engine.getAuthSubsystem();
         IProfileAuthenticator auth = (IProfileAuthenticator) authSub.get(authenticatorID);
 
         if (auth == null) {

@@ -1542,7 +1542,7 @@ public abstract class EnrollProfile extends Profile {
         try {
 
             try {
-                AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+                AuthSubsystem authSS = engine.getAuthSubsystem();
 
                 IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
                 if (sharedTokenAuth == null) {
@@ -1848,7 +1848,7 @@ public abstract class EnrollProfile extends Profile {
 
         try {
             String configName = "SharedToken";
-            AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+            AuthSubsystem authSS = engine.getAuthSubsystem();
 
             IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
             if (sharedTokenAuth == null) {

@@ -1102,7 +1102,7 @@ public class CMCOutputTemplate {
                     logger.debug(method + "checking shared secret");
 
                     String configName = "SharedToken";
-                    AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+                    AuthSubsystem authSS = engine.getAuthSubsystem();
 
                     IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
                     if (sharedTokenAuth == null) {

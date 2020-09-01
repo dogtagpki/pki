@@ -58,7 +58,7 @@ public class PKIRealm extends RealmBase {
         String attemptedAuditUID = username;
 
         try {
-            AuthSubsystem authSub = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+            AuthSubsystem authSub = engine.getAuthSubsystem();
             IAuthManager authMgr = authSub.getAuthManager(AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
 
             AuthCredentials creds = new AuthCredentials();
@@ -124,7 +124,7 @@ public class PKIRealm extends RealmBase {
                 certImpls[i] = new X509CertImpl(cert.getEncoded());
             }
 
-            AuthSubsystem authSub = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+            AuthSubsystem authSub = engine.getAuthSubsystem();
             IAuthManager authMgr = authSub.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
             AuthCredentials creds = new AuthCredentials();

@@ -152,7 +152,7 @@ public class EnableEnrollResult extends CMSServlet {
         header.addStringValue("machineName", machine);
         header.addStringValue("port", port);
         String val = configStore.getString("hashDirEnrollment.name");
-        AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+        AuthSubsystem authSS = engine.getAuthSubsystem();
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 

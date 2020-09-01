@@ -280,7 +280,7 @@ public class AdminServlet extends HttpServlet {
             } catch (EBaseException e) {
                 // do nothing for now.
             }
-            AuthSubsystem auth = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+            AuthSubsystem auth = engine.getAuthSubsystem();
             X509Certificate cert = null;
 
             if (authType.equals("sslclientauth")) {

@@ -138,7 +138,7 @@ public class GetEnableStatus extends CMSServlet {
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         String val = configStore.getString("hashDirEnrollment.name");
-        AuthSubsystem authSS = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+        AuthSubsystem authSS = engine.getAuthSubsystem();
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
         long timeout = HashAuthentication.DEFAULT_TIMEOUT / 1000;

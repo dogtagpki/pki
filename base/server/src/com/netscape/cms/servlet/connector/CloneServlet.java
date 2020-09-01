@@ -92,7 +92,7 @@ public class CloneServlet extends CMSServlet {
         if (authority != null)
             mAuthority = (IAuthority) engine.getSubsystem(authority);
         mReqEncoder = new HttpRequestEncoder();
-        mAuthSubsystem = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+        mAuthSubsystem = engine.getAuthSubsystem();
     }
 
     public void service(HttpServletRequest req,

@@ -83,7 +83,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         if (authority != null)
             mAuthority = (IAuthority) engine.getSubsystem(authority);
 
-        mAuthSubsystem = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+        mAuthSubsystem = engine.getAuthSubsystem();
     }
 
     /**

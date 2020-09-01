@@ -86,7 +86,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
         if (authority != null)
             mAuthority = (IAuthority) engine.getSubsystem(authority);
 
-        mAuthSubsystem = (AuthSubsystem) engine.getSubsystem(AuthSubsystem.ID);
+        mAuthSubsystem = engine.getAuthSubsystem();
         // supported EC cuves by the smart cards
         String curveList = null;
         try {
