@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -155,10 +154,6 @@ public class CMSEngine implements ServletContextListener {
     protected AuthSubsystem authSubsystem = AuthSubsystem.getInstance();
     protected AuthzSubsystem authzSubsystem = AuthzSubsystem.getInstance();
     protected JobsScheduler jobsScheduler = JobsScheduler.getInstance();
-
-    public Collection<String> staticSubsystems = new LinkedHashSet<>();
-    public Collection<String> dynSubsystems = new LinkedHashSet<>();
-    public Collection<String> finalSubsystems = new LinkedHashSet<>();
 
     public final Map<String, SubsystemInfo> subsystemInfos = new LinkedHashMap<>();
     public final Map<String, ISubsystem> subsystems = new LinkedHashMap<>();
@@ -759,10 +754,6 @@ public class CMSEngine implements ServletContextListener {
      */
     protected void loadSubsystems() throws Exception {
 
-        staticSubsystems.clear();
-        dynSubsystems.clear();
-        finalSubsystems.clear();
-
         subsystemInfos.clear();
         subsystems.clear();
 
@@ -777,8 +768,6 @@ public class CMSEngine implements ServletContextListener {
             boolean enabled = subsystemConfig.isEnabled();
 
             ISubsystem subsystem = (ISubsystem) Class.forName(className).newInstance();
-
-            dynSubsystems.add(id);
 
             SubsystemInfo subsystemInfo = new SubsystemInfo(id);
             subsystemInfo.setEnabled(enabled);
