@@ -132,6 +132,7 @@ public class HttpClient {
 
                 sslSocket = new SSLSocket(_host, _port);
                 sslSocket.addHandshakeCompletedListener(listener);
+                sslSocket.enablePostHandshakeAuth(true);
 
                 CryptoToken tt = cm.getThreadToken();
                 System.out.println("after SSLSocket created, thread token is "+ tt.getName());

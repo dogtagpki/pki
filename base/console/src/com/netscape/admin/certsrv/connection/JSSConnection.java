@@ -122,6 +122,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
         }
 
         s = new SSLSocket(host, port, null, 0, this, this);
+        s.enablePostHandshakeAuth(true);
 
         s.addSocketListener(new SSLSocketListener() {
 
