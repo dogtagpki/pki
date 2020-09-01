@@ -363,7 +363,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         mNotify = new KRANotify(this);
         mPNotify = new ARequestNotifier();
-        RequestSubsystem reqSub = (RequestSubsystem) engine.getSubsystem(RequestSubsystem.ID);
+        RequestSubsystem reqSub = engine.getRequestSubsystem();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
         mRequestQueue = reqSub.getRequestQueue(getId(), reqdb_inc,

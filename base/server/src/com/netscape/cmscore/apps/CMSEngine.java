@@ -151,7 +151,7 @@ public class CMSEngine implements ServletContextListener {
     protected UGSubsystem ugSubsystem = new UGSubsystem();
     protected OidLoaderSubsystem oidLoaderSubsystem = OidLoaderSubsystem.getInstance();
     protected X500NameSubsystem x500NameSubsystem = X500NameSubsystem.getInstance();
-    private RequestSubsystem requestSubsystem = new RequestSubsystem();
+    protected RequestSubsystem requestSubsystem = new RequestSubsystem();
 
     public Collection<String> staticSubsystems = new LinkedHashSet<>();
     public Collection<String> dynSubsystems = new LinkedHashSet<>();
@@ -205,6 +205,10 @@ public class CMSEngine implements ServletContextListener {
 
     public X500NameSubsystem getX500NameSubsystem() {
         return x500NameSubsystem;
+    }
+
+    public RequestSubsystem getRequestSubsystem() {
+        return requestSubsystem;
     }
 
     public void loadConfig(String path) throws Exception {
@@ -502,6 +506,12 @@ public class CMSEngine implements ServletContextListener {
         x500NameSubsystem.startup();
     }
 
+    public void initRequestSubsystem() throws Exception {
+        IConfigStore requestConfig = config.getSubStore(RequestSubsystem.ID);
+        requestSubsystem.init(requestConfig);
+        requestSubsystem.startup();
+    }
+
     public void configurePorts() throws Exception {
 
         String instanceRoot = config.getInstanceDir();
@@ -741,12 +751,6 @@ public class CMSEngine implements ServletContextListener {
 
         subsystemInfos.clear();
         subsystems.clear();
-
-        // skip TP subsystem;
-        // problem in needing dbsubsystem in constructor. and it's not used.
-
-        staticSubsystems.add(RequestSubsystem.ID);
-        addSubsystem(RequestSubsystem.ID, requestSubsystem);
 
         logger.info("CMSEngine: loading dynamic subsystems");
 
@@ -1061,6 +1065,9 @@ public class CMSEngine implements ServletContextListener {
         initUGSubsystem();
         initOIDLoaderSubsystem();
         initX500NameSubsystem();
+        // skip TP subsystem;
+        // problem in needing dbsubsystem in constructor. and it's not used.
+        initRequestSubsystem();
 
         init();
 
@@ -1233,6 +1240,10 @@ public class CMSEngine implements ServletContextListener {
         }
     } // end shutdownHttpServer
 
+    public void shutdownRequestSubsystem() {
+        requestSubsystem.shutdown();
+    }
+
     public void shutdownX500NameSubsystem() {
         x500NameSubsystem.shutdown();
     }
@@ -1307,6 +1318,7 @@ public class CMSEngine implements ServletContextListener {
             mSecurityDomainSessionTable.shutdown();
         }
 
+        shutdownRequestSubsystem();
         shutdownX500NameSubsystem();
         shutdownOIDLoaderSubsystem();
         shutdownUGSubsystem();

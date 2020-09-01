@@ -2018,7 +2018,7 @@ public class CertificateAuthority
         try {
             int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
-            RequestSubsystem reqSub = (RequestSubsystem) engine.getSubsystem(RequestSubsystem.ID);
+            RequestSubsystem reqSub = engine.getRequestSubsystem();
             mRequestQueue = reqSub.getRequestQueue(
                             getId(), reqdb_inc, mPolicy, mService, mNotify, mPNotify);
         } catch (EBaseException e) {
