@@ -146,7 +146,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             logger.debug("ACLInterceptor: principal: " + principal.getName());
 
         CMSEngine engine = CMS.getCMSEngine();
-        AuthzSubsystem authzSubsystem = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
+        AuthzSubsystem authzSubsystem = engine.getAuthzSubsystem();
 
         IAuthToken authToken = null;
         String authzMgrName = null;

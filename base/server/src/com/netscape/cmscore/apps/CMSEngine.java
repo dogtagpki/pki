@@ -152,6 +152,7 @@ public class CMSEngine implements ServletContextListener {
     protected OidLoaderSubsystem oidLoaderSubsystem = OidLoaderSubsystem.getInstance();
     protected X500NameSubsystem x500NameSubsystem = X500NameSubsystem.getInstance();
     protected RequestSubsystem requestSubsystem = new RequestSubsystem();
+    protected AuthzSubsystem authzSubsystem = AuthzSubsystem.getInstance();
     protected JobsScheduler jobsScheduler = JobsScheduler.getInstance();
 
     public Collection<String> staticSubsystems = new LinkedHashSet<>();
@@ -210,6 +211,10 @@ public class CMSEngine implements ServletContextListener {
 
     public RequestSubsystem getRequestSubsystem() {
         return requestSubsystem;
+    }
+
+    public AuthzSubsystem getAuthzSubsystem() {
+        return authzSubsystem;
     }
 
     public JobsScheduler getJobsScheduler() {
@@ -517,6 +522,12 @@ public class CMSEngine implements ServletContextListener {
         requestSubsystem.startup();
     }
 
+    public void initAuthzSubsystem() throws Exception {
+        IConfigStore authzConfig = config.getSubStore(AuthzSubsystem.ID);
+        authzSubsystem.init(authzConfig);
+        authzSubsystem.startup();
+    }
+
     public void initJobsScheduler() throws Exception {
         IConfigStore jobsSchedulerConfig = config.getSubStore(JobsScheduler.ID);
         jobsScheduler.init(jobsSchedulerConfig);
@@ -792,9 +803,6 @@ public class CMSEngine implements ServletContextListener {
 
         finalSubsystems.add(AuthSubsystem.ID);
         addSubsystem(AuthSubsystem.ID, AuthSubsystem.getInstance());
-
-        finalSubsystems.add(AuthzSubsystem.ID);
-        addSubsystem(AuthzSubsystem.ID, AuthzSubsystem.getInstance());
     }
 
     protected void initSubsystems() throws Exception {
@@ -1074,6 +1082,7 @@ public class CMSEngine implements ServletContextListener {
 
         startupSubsystems();
 
+        initAuthzSubsystem();
         initJobsScheduler();
 
         configureAutoShutdown();
@@ -1254,6 +1263,10 @@ public class CMSEngine implements ServletContextListener {
         jobsScheduler.shutdown();
     }
 
+    public void shutdownAuthzSubsystem() {
+        authzSubsystem.shutdown();
+    }
+
     public void shutdownRequestSubsystem() {
         requestSubsystem.shutdown();
     }
@@ -1321,6 +1334,7 @@ public class CMSEngine implements ServletContextListener {
         */
 
         shutdownJobsScheduler();
+        shutdownAuthzSubsystem();
 
         shutdownSubsystems(finalSubsystems);
         shutdownSubsystems(dynSubsystems);

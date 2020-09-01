@@ -50,7 +50,7 @@ public abstract class CMSRequestDAO {
     protected IRequestQueue queue;
     protected IAuthority authority;
     CMSEngine engine = CMS.getCMSEngine();
-    protected AuthzSubsystem authz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
+    protected AuthzSubsystem authz = engine.getAuthzSubsystem();
 
     private String[] vlvFilters = {
             "(requeststate=*)", "(requesttype=enrollment)",

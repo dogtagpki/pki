@@ -103,7 +103,6 @@ import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmscore.apps.SubsystemConfig;
 import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
-import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -365,7 +364,6 @@ public class Configurator {
     public void reinitSubsystems() throws EBaseException {
 
         engine.reinit(AuthSubsystem.ID);
-        engine.reinit(AuthzSubsystem.ID);
     }
 
     public void setupReplication(CloneSetupRequest request) throws Exception {

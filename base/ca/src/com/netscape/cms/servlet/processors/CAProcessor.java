@@ -128,11 +128,10 @@ public class CAProcessor extends Processor {
     protected String authMgr;
     protected String getClientCert = "false";
     // subsystems
-    CMSEngine engine = CMS.getCMSEngine();
     protected CertificateAuthority authority;
-    protected AuthzSubsystem authz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
-    protected UGSubsystem ug = engine.getUGSubsystem();
-    protected ICertUserLocator ul = ug.getCertUserLocator();
+    protected AuthzSubsystem authz;
+    protected UGSubsystem ug;
+    protected ICertUserLocator ul;
     protected IRequestQueue queue;
     protected ProfileSubsystem ps;
     protected ICertificateRepository certdb;
@@ -148,6 +147,9 @@ public class CAProcessor extends Processor {
         EngineConfig config = engine.getConfig();
 
         authority = engine.getCA();
+        authz = engine.getAuthzSubsystem();
+        ug = engine.getUGSubsystem();
+        ul = ug.getCertUserLocator();
 
         IConfigStore cs = config.getSubStore("processor." + id);
         this.profileID = cs.getString(PROFILE_ID, "").isEmpty() ? null : cs.getString(PROFILE_ID);

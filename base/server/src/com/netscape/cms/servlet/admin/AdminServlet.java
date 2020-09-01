@@ -158,7 +158,7 @@ public class AdminServlet extends HttpServlet {
         } catch (EBaseException e) {
             logger.warn("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE") + ": " + e.getMessage(), e);
         }
-        mAuthz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
+        mAuthz = engine.getAuthzSubsystem();
 
         mServletID = getSCparam(sc, PROP_ID, "servlet id unknown");
         logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", mServletID));

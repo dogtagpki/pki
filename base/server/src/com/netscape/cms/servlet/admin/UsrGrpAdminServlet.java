@@ -62,7 +62,6 @@ import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
@@ -105,7 +104,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
     public UsrGrpAdminServlet() {
         super();
         CMSEngine engine = CMS.getCMSEngine();
-        mAuthz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
+        mAuthz = engine.getAuthzSubsystem();
     }
 
     /**

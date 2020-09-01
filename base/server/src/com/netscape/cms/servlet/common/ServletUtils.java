@@ -120,7 +120,7 @@ public class ServletUtils {
         EngineConfig cs = engine.getConfig();
 
         String srcType = AUTHZ_SRC_LDAP;
-        AuthzSubsystem authz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
+        AuthzSubsystem authz = engine.getAuthzSubsystem();
 
         try {
             AuthorizationConfig authzConfig = cs.getAuthorizationConfig();

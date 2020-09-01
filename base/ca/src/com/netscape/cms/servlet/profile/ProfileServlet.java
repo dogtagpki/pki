@@ -181,7 +181,7 @@ public class ProfileServlet extends CMSServlet {
         mAuthMgr = sc.getInitParameter(PROP_AUTHMGR);
 
         CMSEngine engine = CMS.getCMSEngine();
-        mAuthz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
+        mAuthz = engine.getAuthzSubsystem();
 
         mAuthzResourceName = sc.getInitParameter(PROP_RESOURCEID);
         mProfileSubId = sc.getInitParameter(PROP_PROFILE_SUB_ID);

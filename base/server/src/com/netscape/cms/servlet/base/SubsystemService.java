@@ -39,7 +39,7 @@ public class SubsystemService extends PKIService {
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     CMSEngine engine = CMS.getCMSEngine();
-    protected AuthzSubsystem authz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
+    protected AuthzSubsystem authz = engine.getAuthzSubsystem();
     protected Auditor auditor = Auditor.getAuditor();
 
     public String getSubsystemName() {
