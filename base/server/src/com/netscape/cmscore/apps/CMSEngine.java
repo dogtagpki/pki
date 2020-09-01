@@ -1299,9 +1299,7 @@ public class CMSEngine implements ServletContextListener {
         shutdownAuthzSubsystem();
         shutdownAuthSubsystem();
 
-        shutdownSubsystems(finalSubsystems);
-        shutdownSubsystems(dynSubsystems);
-        shutdownSubsystems(staticSubsystems);
+        shutdownSubsystems();
 
         if (mSDTimer != null) {
             mSDTimer.cancel();
@@ -1423,18 +1421,16 @@ public class CMSEngine implements ServletContextListener {
         }
     }
 
-    private void shutdownSubsystems(Collection<String> ids) {
+    protected void shutdownSubsystems() {
+
         // reverse list of subsystems
-        List<String> list = new ArrayList<>();
-        list.addAll(ids);
+        List<ISubsystem> list = new ArrayList<>();
+        list.addAll(subsystems.values());
         Collections.reverse(list);
 
-        for (String id : list) {
-            ISubsystem subsystem = subsystems.get(id);
-
-            logger.debug("CMSEngine: stopping " + id);
+        for (ISubsystem subsystem : list) {
+            logger.debug("CMSEngine: Stopping " + subsystem.getId() + " subsystem");
             subsystem.shutdown();
-            logger.debug("CMSEngine: " + id + " stopped");
         }
     }
 
