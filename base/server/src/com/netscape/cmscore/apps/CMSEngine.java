@@ -1006,10 +1006,12 @@ public class CMSEngine implements ServletContextListener {
         system.init(cs);
     }
 
-    public void startupSubsystems() throws EBaseException {
-        startupSubsystems(staticSubsystems);
-        startupSubsystems(dynSubsystems);
-        startupSubsystems(finalSubsystems);
+    protected void startupSubsystems() throws EBaseException {
+
+        for (ISubsystem subsystem : subsystems.values()) {
+            logger.info("CMSEngine: Starting " + subsystem.getId() + " subsystem");
+            subsystem.startup();
+        }
 
         // global admin servlet. (anywhere else more fit for this ?)
     }
@@ -1157,17 +1159,6 @@ public class CMSEngine implements ServletContextListener {
         }
 
         return tokenClass;
-    }
-
-    private void startupSubsystems(Collection<String> ids)
-            throws EBaseException {
-
-        for (String id : ids) {
-            ISubsystem subsystem = subsystems.get(id);
-
-            logger.info("CMSEngine: starting subsystem " + id);
-            subsystem.startup();
-        }
     }
 
     public void disableRequests() {
