@@ -36,10 +36,10 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.jobs.EJobsException;
 import com.netscape.certsrv.jobs.IJob;
-import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.jobs.JobPlugin;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.jobs.JobsScheduler;
 
 /**
  * A class representing an administration servlet for the
@@ -58,7 +58,7 @@ public class JobsAdminServlet extends AdminServlet {
     private final static String DISABLED = ";disabled";
 
     private final static String INFO = "JobsAdminServlet";
-    private IJobsScheduler mJobsSched = null;
+    private JobsScheduler mJobsSched;
 
     /**
      * Constructs JobsAdminServlet.
@@ -73,7 +73,7 @@ public class JobsAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         CMSEngine engine = CMS.getCMSEngine();
-        mJobsSched = (IJobsScheduler) engine.getSubsystem(IJobsScheduler.ID);
+        mJobsSched = (JobsScheduler) engine.getSubsystem(JobsScheduler.ID);
     }
 
     /**
@@ -445,7 +445,7 @@ public class JobsAdminServlet extends AdminServlet {
             }
         }
 
-        substore.put(IJobsScheduler.PROP_PLUGIN, implname);
+        substore.put(JobsScheduler.PROP_PLUGIN, implname);
 
         // Instantiate an object for this implementation
         String className = plugin.getClassPath();
@@ -477,7 +477,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        IJobsScheduler scheduler = (IJobsScheduler) engine.getSubsystem(IJobsScheduler.ID);
+        JobsScheduler scheduler = (JobsScheduler) engine.getSubsystem(JobsScheduler.ID);
 
         // initialize the job plugin
         try {
@@ -813,8 +813,8 @@ public class JobsAdminServlet extends AdminServlet {
         NameValuePairs saveParams = new NameValuePairs();
 
         // implName is always required so always include it it.
-        saveParams.put(IJobsScheduler.PROP_PLUGIN,
-                oldConfig.get(IJobsScheduler.PROP_PLUGIN));
+        saveParams.put(JobsScheduler.PROP_PLUGIN,
+                oldConfig.get(JobsScheduler.PROP_PLUGIN));
         if (oldConfigParms != null) {
             for (int i = 0; i < oldConfigParms.length; i++) {
                 String key = oldConfigParms[i];
@@ -843,7 +843,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         IConfigStore substore = instancesConfig.makeSubStore(id);
 
-        substore.put(IJobsScheduler.PROP_PLUGIN, implname);
+        substore.put(JobsScheduler.PROP_PLUGIN, implname);
         if (configParams != null) {
             for (int i = 0; i < configParams.length; i++) {
                 String key = configParams[i];
@@ -895,7 +895,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         // initialize the job plugin
 
-        IJobsScheduler scheduler = (IJobsScheduler) engine.getSubsystem(IJobsScheduler.ID);
+        JobsScheduler scheduler = (JobsScheduler) engine.getSubsystem(JobsScheduler.ID);
 
         try {
             newJobInst.init(scheduler, id, implname, substore);
@@ -944,11 +944,11 @@ public class JobsAdminServlet extends AdminServlet {
         IConfigStore config = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
 
         params.put(Constants.PR_ENABLE,
-                config.getString(IJobsScheduler.PROP_ENABLED,
+                config.getString(JobsScheduler.PROP_ENABLED,
                         Constants.FALSE));
         // default 1 minute
         params.put(Constants.PR_JOBS_FREQUENCY,
-                config.getString(IJobsScheduler.PROP_INTERVAL, "1"));
+                config.getString(JobsScheduler.PROP_INTERVAL, "1"));
 
         //System.out.println("Send: "+params.toString());
         sendResponse(SUCCESS, null, params, resp);
@@ -959,14 +959,14 @@ public class JobsAdminServlet extends AdminServlet {
         //Save New Settings to the config file
         IConfigStore config = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
 
-        String enabled = config.getString(IJobsScheduler.PROP_ENABLED);
+        String enabled = config.getString(JobsScheduler.PROP_ENABLED);
         String enabledSetTo = req.getParameter(Constants.PR_ENABLE);
         boolean enabledChanged = false;
 
         if (!enabled.equalsIgnoreCase(enabledSetTo)) {
             enabledChanged = true;
             // set enable flag
-            config.putString(IJobsScheduler.PROP_ENABLED, enabledSetTo);
+            config.putString(JobsScheduler.PROP_ENABLED, enabledSetTo);
         }
 
         //set frequency
@@ -974,9 +974,9 @@ public class JobsAdminServlet extends AdminServlet {
                 req.getParameter(Constants.PR_JOBS_FREQUENCY);
 
         if (interval != null) {
-            config.putString(IJobsScheduler.PROP_INTERVAL, interval);
+            config.putString(JobsScheduler.PROP_INTERVAL, interval);
             mJobsSched.setInterval(
-                    config.getInteger(IJobsScheduler.PROP_INTERVAL));
+                    config.getInteger(JobsScheduler.PROP_INTERVAL));
         }
 
         if (enabledChanged == true) {

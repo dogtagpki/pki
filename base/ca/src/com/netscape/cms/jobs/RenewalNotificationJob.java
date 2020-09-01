@@ -37,7 +37,6 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
-import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
@@ -47,6 +46,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
@@ -275,7 +275,7 @@ public class RenewalNotificationJob
         }
 
         // parse cron string into a JobCron class
-        IJobsScheduler scheduler = (IJobsScheduler) owner;
+        JobsScheduler scheduler = (JobsScheduler) owner;
 
         mJobCron = scheduler.createJobCron(mCron);
     }

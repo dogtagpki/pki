@@ -28,13 +28,13 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
-import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 
 /**
@@ -138,7 +138,7 @@ public class RequestInQueueJob extends AJobBase
         }
 
         // parse cron string into a JobCron class
-        IJobsScheduler scheduler = (IJobsScheduler) owner;
+        JobsScheduler scheduler = (JobsScheduler) owner;
 
         mJobCron = scheduler.createJobCron(mCron);
 

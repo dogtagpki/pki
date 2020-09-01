@@ -24,10 +24,10 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.jobs.EJobsException;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
-import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.jobs.JobPlugin;
 import com.netscape.cmscore.apps.CMS;
 
@@ -49,9 +49,58 @@ import com.netscape.cmscore.apps.CMS;
  * @see JobCron
  * @version $Revision$, $Date$
  */
-public class JobsScheduler implements Runnable, IJobsScheduler {
+public class JobsScheduler implements Runnable, ISubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JobsScheduler.class);
+
+    /**
+     * The ID of this component
+     */
+    public final static String ID = "jobsScheduler";
+
+    /**
+     * constant that represents the configuration parameter
+     * "enabled" for this component in CMS.cfg. The value of which
+     * tells CMS whether the JobsScheduler is enabled or not
+     */
+    public static final String PROP_ENABLED = "enabled";
+
+    /**
+     * constant that represents the configuration parameter
+     * "interval" for this component in CMS.cfg. The value of which
+     * tells CMS the interval that the JobsScheduler thread should
+     * wake up and look for jobs to execute
+     */
+    public static final String PROP_INTERVAL = "interval";
+
+    /**
+     * constant that represents the configuration parameter
+     * "class" for this component in CMS.cfg. The values of which are
+     * the actual implementation classes
+     */
+    public static final String PROP_CLASS = "class";
+
+    /**
+     * constant that represents the configuration parameter
+     * "job" for this component in CMS.cfg. The values of which gives
+     * configuration information specific to one single job instance.
+     * There may be multiple jobs served by the jobsScheduler
+     */
+    public static final String PROP_JOB = "job";
+
+    /**
+     * constant that represents the configuration parameter
+     * "impl" for this component in CMS.cfg. The values of which are
+     * actual plugin implementation(s)
+     */
+    public static final String PROP_IMPL = "impl";
+
+    /**
+     * constant that represents the configuration parameter
+     * "pluginName" for this component in CMS.cfg. The value of which
+     * gives the pluginName for the job it associates with
+     */
+    public static final String PROP_PLUGIN = "pluginName";
 
     protected static final long MINUTE_MILLI = 60000;
     protected static final String DELIM = ",";
@@ -173,10 +222,20 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         }
     }
 
+    /**
+     * Retrieves all the job implementations.
+     *
+     * @return a Hashtable of available job plugin implementations
+     */
     public Hashtable<String, JobPlugin> getPlugins() {
         return mJobPlugins;
     }
 
+    /**
+     * Retrieves all the job instances.
+     *
+     * @return a Hashtable of job instances
+     */
     public Hashtable<String, IJob> getInstances() {
         return mJobs;
     }
@@ -291,6 +350,18 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         }
     }
 
+    /**
+     * Creates a job cron. Each job is associated with a "cron" which
+     * specifies the rule of frequency that this job should be
+     * executed (e.g. every Sunday at midnight). This method is
+     * called by each job at initialization time.
+     *
+     * @param cs the string that represents the cron. See IJobCron
+     *            for detail of the format.
+     * @return IJobCron an IJobCron
+     * @exception EBaseException when the cron string, cs, can not be
+     *                parsed correctly
+     */
     public IJobCron createJobCron(String cs) throws EBaseException {
         return new JobCron(cs);
     }
@@ -383,7 +454,8 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
     }
 
     /**
-     * creates and starts the daemon thread
+     * Starts up the JobsScheduler daemon. Usually called from the
+     * initialization method when it's successfully initialized.
      */
     public void startDaemon() {
         mScheduleThread = new Thread(this, "JobScheduler");
@@ -422,11 +494,16 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
     }
 
     /**
-     * Gets configuration parameters for the given
-     * job plugin.
+     * Retrieves the configuration parameters of the given
+     * implementation. It is used to return to the Console for
+     * configuration
      *
-     * @param implName Name of the job plugin.
-     * @return Hashtable of required parameters.
+     * @param implName the pulubin implementation name
+     * @return a String array of required configuration parameters of
+     *         the given implementation.
+     * @exception EJobsException when job plugin implementation can
+     *                not be found, instantiation is impossible, permission problem
+     *                with the class.
      */
     public String[] getConfigParams(String implName)
             throws EJobsException {
@@ -472,10 +549,28 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         }
     }
 
+    /**
+     * Sets daemon's wakeup interval.
+     *
+     * @param minutes time in minutes that is to be the frequency of
+     *            JobsScheduler wakeup call.
+     */
     public void setInterval(int minutes) {
         mInterval = minutes * MINUTE_MILLI;
     }
 
+    /**
+     * Writes a message to the system log.
+     *
+     * @param level an integer representing the log message level.
+     *            Depending on the configuration set by the administrator, this
+     *            value is a determining factor for whether this message will be
+     *            actually logged or not. The lower the level, the higher the
+     *            priority, and the higher chance it will be logged.
+     * @param msg the message to be written. Ideally should call
+     *            CMS.getLogMessage() to get the localizable message
+     *            from the log properties file.
+     */
     public void log(int level, String msg) {
     }
 
