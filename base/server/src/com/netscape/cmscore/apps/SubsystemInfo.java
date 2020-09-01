@@ -24,13 +24,9 @@ public class SubsystemInfo {
     public boolean updateIdOnInit;
 
     public SubsystemInfo(String id) {
-        this(id, true, false);
-    }
-
-    public SubsystemInfo(String id, boolean enabled, boolean updateIdOnInit) {
         this.id = id;
-        this.enabled = enabled;
-        this.updateIdOnInit = updateIdOnInit;
+        this.enabled = true;
+        this.updateIdOnInit = false;
     }
 
     public String getID() {
