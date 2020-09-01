@@ -26,13 +26,12 @@ import java.util.ResourceBundle;
 
 import javax.ws.rs.core.HttpHeaders;
 
-import org.dogtagpki.server.authorization.IAuthzSubsystem;
-
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.logging.Auditor;
 
 public class SubsystemService extends PKIService {
@@ -40,7 +39,7 @@ public class SubsystemService extends PKIService {
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     CMSEngine engine = CMS.getCMSEngine();
-    protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
+    protected AuthzSubsystem authz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
     protected Auditor auditor = Auditor.getAuditor();
 
     public String getSubsystemName() {

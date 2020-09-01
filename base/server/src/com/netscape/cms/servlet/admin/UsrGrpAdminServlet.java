@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtag.util.cert.CertUtil;
-import org.dogtagpki.server.authorization.IAuthzSubsystem;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
@@ -63,6 +62,7 @@ import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
@@ -105,7 +105,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
     public UsrGrpAdminServlet() {
         super();
         CMSEngine engine = CMS.getCMSEngine();
-        mAuthz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
+        mAuthz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
     }
 
     /**

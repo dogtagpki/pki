@@ -39,7 +39,6 @@ import org.dogtagpki.server.authentication.IAuthManager;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.authorization.AuthorizationConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.authorization.IAuthzSubsystem;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -65,6 +64,7 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
@@ -107,7 +107,7 @@ public class AdminServlet extends HttpServlet {
     protected Auditor auditor = Auditor.getAuditor();
     private UGSubsystem mUG = null;
     protected EngineConfig mConfig = null;
-    protected IAuthzSubsystem mAuthz = null;
+    protected AuthzSubsystem mAuthz;
 
     // we don't allow to switch authz db mid-way, for now
     protected String mAclMethod = null;
@@ -158,7 +158,7 @@ public class AdminServlet extends HttpServlet {
         } catch (EBaseException e) {
             logger.warn("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE") + ": " + e.getMessage(), e);
         }
-        mAuthz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
+        mAuthz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
 
         mServletID = getSCparam(sc, PROP_ID, "servlet id unknown");
         logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", mServletID));

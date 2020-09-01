@@ -35,7 +35,6 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.authorization.IAuthzSubsystem;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -69,6 +68,7 @@ import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -130,7 +130,7 @@ public class CAProcessor extends Processor {
     // subsystems
     CMSEngine engine = CMS.getCMSEngine();
     protected CertificateAuthority authority;
-    protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
+    protected AuthzSubsystem authz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
     protected UGSubsystem ug = engine.getUGSubsystem();
     protected ICertUserLocator ul = ug.getCertUserLocator();
     protected IRequestQueue queue;

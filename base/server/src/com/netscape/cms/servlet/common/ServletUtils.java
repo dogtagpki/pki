@@ -23,12 +23,12 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.dogtagpki.server.authorization.AuthorizationConfig;
-import org.dogtagpki.server.authorization.IAuthzSubsystem;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 
 /**
  * Utility class
@@ -49,7 +49,7 @@ public class ServletUtils {
     public final static String AUTHZ_MGR_LDAP = "DirAclAuthz";
 
     public static String initializeAuthz(ServletConfig sc,
-            IAuthzSubsystem authz, String id) throws ServletException {
+            AuthzSubsystem authz, String id) throws ServletException {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
@@ -102,7 +102,7 @@ public class ServletUtils {
         return aclMethod;
     }
 
-    public static void addACLInfo(IAuthzSubsystem authz, String aclMethod,
+    public static void addACLInfo(AuthzSubsystem authz, String aclMethod,
             String aclInfo) throws EBaseException {
 
         StringTokenizer tokenizer = new StringTokenizer(aclInfo, "#");
@@ -120,7 +120,7 @@ public class ServletUtils {
         EngineConfig cs = engine.getConfig();
 
         String srcType = AUTHZ_SRC_LDAP;
-        IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
+        AuthzSubsystem authz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
 
         try {
             AuthorizationConfig authzConfig = cs.getAuthorizationConfig();

@@ -47,7 +47,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.dogtagpki.server.authentication.IAuthManager;
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.authorization.IAuthzSubsystem;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -105,6 +104,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.CommandQueue;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -244,7 +244,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     protected String mGetClientCert = "false";
     protected String mAuthMgr = null;
-    protected IAuthzSubsystem mAuthz = null;
+    protected AuthzSubsystem mAuthz;
 
     protected String mAclMethod = null;
     protected String mAuthzResourceName = null;
@@ -276,7 +276,7 @@ public abstract class CMSServlet extends HttpServlet {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        mAuthz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
+        mAuthz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
         mId = sc.getInitParameter(PROP_ID);
 
         try {

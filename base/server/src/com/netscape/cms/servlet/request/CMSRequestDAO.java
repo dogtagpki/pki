@@ -23,7 +23,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.dogtagpki.server.authorization.IAuthzSubsystem;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.authority.IAuthority;
@@ -37,6 +36,7 @@ import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 
 /**
  * @author alee
@@ -50,7 +50,7 @@ public abstract class CMSRequestDAO {
     protected IRequestQueue queue;
     protected IAuthority authority;
     CMSEngine engine = CMS.getCMSEngine();
-    protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
+    protected AuthzSubsystem authz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
 
     private String[] vlvFilters = {
             "(requeststate=*)", "(requesttype=enrollment)",

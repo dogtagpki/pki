@@ -29,7 +29,6 @@ import org.dogtagpki.server.authorization.AuthzManagerProxy;
 import org.dogtagpki.server.authorization.AuthzManagersConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.authorization.IAuthzManager;
-import org.dogtagpki.server.authorization.IAuthzSubsystem;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzMgrPlugin;
@@ -40,6 +39,7 @@ import com.netscape.certsrv.authorization.EAuthzMgrPluginNotFound;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -51,11 +51,16 @@ import com.netscape.cmscore.apps.EngineConfig;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class AuthzSubsystem implements IAuthzSubsystem {
+public class AuthzSubsystem implements ISubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthzSubsystem.class);
 
-    public static final String ID = "authz";
+    public final static String ID = "authz";
+
+    public final static String PROP_CLASS = "class";
+    public final static String PROP_IMPL = "impl";
+    public final static String PROP_PLUGIN = "pluginName";
+    public final static String PROP_REALM = "realm";
 
     public Hashtable<String, AuthzMgrPlugin> mAuthzMgrPlugins = new Hashtable<String, AuthzMgrPlugin>();
     public Hashtable<String, AuthzManagerProxy> mAuthzMgrInsts = new Hashtable<String, AuthzManagerProxy>();
@@ -245,13 +250,11 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         return (authzMgrInst.authorize(authToken, resource, operation));
     }
 
-    @Override
     public AuthzToken authorize(String authzMgrName, IAuthToken authToken, String resource, String operation)
             throws EBaseException {
         return authorize(authzMgrName, authToken, resource, operation, null);
     }
 
-    @Override
     public AuthzToken authorize(
             String authzMgrInstName, IAuthToken authToken, String exp)
             throws EAuthzMgrNotFound, EBaseException {
@@ -320,7 +323,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         mAuthzMgrInsts.put(name, new AuthzManagerProxy(true, authzMgrInst));
     }
 
-    /*
+    /**
      * Removes a authorization manager instance.
      * @param name name of the authorization manager
      */
@@ -439,10 +442,20 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         mAuthzMgrInsts.clear();
     }
 
+    /**
+     * Get a hashtable containing all authentication plugins.
+     *
+     * @return all authentication plugins.
+     */
     public Hashtable<String, AuthzMgrPlugin> getPlugins() {
         return mAuthzMgrPlugins;
     }
 
+    /**
+     * Get a hashtable containing all authentication instances.
+     *
+     * @return all authentication instances.
+     */
     public Hashtable<String, AuthzManagerProxy> getInstances() {
         return mAuthzMgrInsts;
     }
@@ -467,7 +480,17 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         return get(name);
     }
 
-    @Override
+    /**
+     * Authorize the user against the specified realm.  Looks for authz manager
+     * associated with the plugin and authenticates if present.
+     *
+     * @param realm
+     * @param authToken
+     * @param owner TODO
+     * @param resource
+     * @param operation
+     * @throws EBaseException if any error occurs during authentication.
+     */
     public void checkRealm(String realm, IAuthToken authToken, String owner, String resource, String operation)
             throws EBaseException {
         // if no realm entry, SUCCESS by default
@@ -484,6 +507,11 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         }
     }
 
+    /**
+     * Given a realm name, return the name of an authz manager for that realm.
+     *
+     * @throws EAuthzUnknownRealm if no authz manager is found.
+     */
     public String getAuthzManagerNameByRealm(String realm) throws EAuthzUnknownRealm {
         for (AuthzManagerProxy proxy : mAuthzMgrInsts.values()) {
             IAuthzManager mgr = proxy.getAuthzManager();

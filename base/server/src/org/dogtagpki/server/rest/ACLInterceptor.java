@@ -33,7 +33,6 @@ import javax.ws.rs.ext.Provider;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.authorization.IAuthzSubsystem;
 import org.jboss.resteasy.core.ResourceMethodInvoker;
 import org.jboss.resteasy.spi.Failure;
 
@@ -52,6 +51,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 
 /**
  * @author Endi S. Dewata
@@ -146,7 +146,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             logger.debug("ACLInterceptor: principal: " + principal.getName());
 
         CMSEngine engine = CMS.getCMSEngine();
-        IAuthzSubsystem authzSubsystem = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
+        AuthzSubsystem authzSubsystem = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
 
         IAuthToken authToken = null;
         String authzMgrName = null;

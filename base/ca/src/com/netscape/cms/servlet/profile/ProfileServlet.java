@@ -32,8 +32,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authorization.IAuthzSubsystem;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
@@ -49,6 +47,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 
 /**
  * This servlet is the base class of all profile servlets.
@@ -153,7 +152,7 @@ public class ProfileServlet extends CMSServlet {
     protected String mId = null;
     protected String mGetClientCert = "false";
     protected String mAuthMgr = null;
-    protected IAuthzSubsystem mAuthz = null;
+    protected AuthzSubsystem mAuthz;
     protected String mAclMethod = null;
     protected String mAuthzResourceName = null;
     protected LogSource mLogCategory = ILogger.S_OTHER;
@@ -182,7 +181,7 @@ public class ProfileServlet extends CMSServlet {
         mAuthMgr = sc.getInitParameter(PROP_AUTHMGR);
 
         CMSEngine engine = CMS.getCMSEngine();
-        mAuthz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
+        mAuthz = (AuthzSubsystem) engine.getSubsystem(AuthzSubsystem.ID);
 
         mAuthzResourceName = sc.getInitParameter(PROP_RESOURCEID);
         mProfileSubId = sc.getInitParameter(PROP_PROFILE_SUB_ID);
