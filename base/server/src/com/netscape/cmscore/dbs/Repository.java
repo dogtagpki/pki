@@ -51,6 +51,8 @@ public abstract class Repository implements IRepository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Repository.class);
 
+    public final static String PROP_BASE_DN = "RepositoryDN";
+
     private BigInteger BI_INCREMENT = null;
     // (the next serialNo to be issued) - 1
     private BigInteger mSerialNo = null;

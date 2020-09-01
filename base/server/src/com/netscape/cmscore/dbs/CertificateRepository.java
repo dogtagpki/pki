@@ -79,6 +79,11 @@ public class CertificateRepository extends Repository
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateRepository.class);
 
+    public final static String PROP_INCREMENT = "certdbInc";
+    public final static String PROP_CERT_BASE_DN = "CertificateRepositoryDN";
+    public final static String PROP_TRANS_MAXRECORDS = "transitMaxRecords";
+    public final static String PROP_TRANS_PAGESIZE = "transitRecordPageSize";
+
     public final String CERT_X509ATTRIBUTE = "x509signedcert";
     private static final String PROP_ENABLE_RANDOM_SERIAL_NUMBERS = "enableRandomSerialNumbers";
     private static final String PROP_RANDOM_SERIAL_NUMBER_COUNTER = "randomSerialNumberCounter";

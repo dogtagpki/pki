@@ -225,7 +225,6 @@ public class CertificateAuthority
 
     protected String[] mAllowedSignAlgors = null;
 
-    protected CertificateRepository mCertRepot = null;
     protected CRLRepository mCRLRepot = null;
     protected ReplicaIDRepository mReplicaRepot = null;
 
@@ -266,8 +265,6 @@ public class CertificateAuthority
     protected static final long DAY = 24 * HOUR;
     protected static final long YEAR = DAY * 365;
 
-    protected static final String PROP_CERT_REPOS_DN = "CertificateRepositoryDN";
-    protected static final String PROP_REPOS_DN = "RepositoryDN";
     protected static final String PROP_REPLICAID_DN = "dbs.replicadn";
 
     protected AuthorityMonitor authorityMonitor;
@@ -469,9 +466,6 @@ public class CertificateAuthority
 
         mConfig = cs.getCAConfig();
 
-        logger.info("CertificateAuthority: initializing cert database");
-        initCertDatabase();
-
         logger.info("CertificateAuthority: initializing CRL database");
         initCrlDatabase();
 
@@ -550,17 +544,19 @@ public class CertificateAuthority
              * single 'start' method would start the threads.
              */
             // set certificate status to 10 minutes
-            mCertRepot.setCertStatusUpdateInterval(
+
+            CertificateRepository certificateRepository = engine.getCertificateRepository();
+            certificateRepository.setCertStatusUpdateInterval(
                 mRequestQueue.getRequestRepository(),
                 mConfig.getInteger("certStatusUpdateInterval", 10 * 60),
                 mConfig.getBoolean("listenToCloneModifications", false));
-            mCertRepot.setConsistencyCheck(
+            certificateRepository.setConsistencyCheck(
                 mConfig.getBoolean("ConsistencyCheck", false));
-            mCertRepot.setSkipIfInConsistent(
+            certificateRepository.setSkipIfInConsistent(
                 mConfig.getBoolean("SkipIfInConsistent", false));
 
             // set serial number update task to run every 10 minutes
-            mCertRepot.setSerialNumberUpdateInterval(
+            certificateRepository.setSerialNumberUpdateInterval(
                 mRequestQueue.getRequestRepository(),
                 mConfig.getInteger("serialNumberUpdateInterval", 10 * 60));
 
@@ -684,12 +680,15 @@ public class CertificateAuthority
             "CertificateAuthority: Updating certificate in NSSDB; new serial number: "
             + authoritySerial);
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+
         try {
             X509Certificate oldCert = mCaX509Cert;
             CryptoManager manager = CryptoManager.getInstance();
 
             // add new cert
-            X509CertImpl newCert = mCertRepot.getX509Certificate(authoritySerial);
+            X509CertImpl newCert = certificateRepository.getX509Certificate(authoritySerial);
             manager.importUserCACertPackage(newCert.getEncoded(), mNickname);
 
             // delete old cert
@@ -898,6 +897,8 @@ public class CertificateAuthority
         if (!isHostAuthority())
             return;
 
+        CAEngine engine = CAEngine.getInstance();
+
         if (authorityMonitor != null) {
             authorityMonitor.shutdown();
         }
@@ -915,8 +916,9 @@ public class CertificateAuthority
             mMasterCRLIssuePoint.shutdown();
         }
 
-        if (mCertRepot != null) {
-            mCertRepot.shutdown();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+        if (certificateRepository != null) {
+            certificateRepository.shutdown();
         }
 
         if (mPublisherProcessor != null) {
@@ -957,9 +959,12 @@ public class CertificateAuthority
     }
 
     public String getStartSerial() {
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+
         try {
-            BigInteger serial =
-                    mCertRepot.peekNextSerialNumber();
+            BigInteger serial = certificateRepository.peekNextSerialNumber();
 
             if (serial == null)
                 return "";
@@ -972,11 +977,15 @@ public class CertificateAuthority
     }
 
     public void setStartSerial(String serial) throws EBaseException {
-        mCertRepot.setTheSerialNumber(new BigInteger(serial));
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+        certificateRepository.setTheSerialNumber(new BigInteger(serial));
     }
 
     public String getMaxSerial() {
-        String serial = mCertRepot.getMaxSerial();
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+        String serial = certificateRepository.getMaxSerial();
 
         if (serial != null)
             return serial;
@@ -985,7 +994,9 @@ public class CertificateAuthority
     }
 
     public void setMaxSerial(String serial) throws EBaseException {
-        mCertRepot.setMaxSerial(serial);
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+        certificateRepository.setMaxSerial(serial);
     }
 
     /**
@@ -995,7 +1006,8 @@ public class CertificateAuthority
      * @return certificate repository
      */
     public ICertificateRepository getCertificateRepository() {
-        return mCertRepot;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getCertificateRepository();
     }
 
     /**
@@ -1756,46 +1768,6 @@ public class CertificateAuthority
     /**
      * init cert & crl database
      */
-    private void initCertDatabase()
-            throws EBaseException {
-        if (!isHostAuthority()) {
-            mCertRepot = hostCA.mCertRepot;
-            return;
-        }
-
-        CAEngine engine = CAEngine.getInstance();
-        DBSubsystem dbSubsystem = engine.getDBSubsystem();
-        int certdb_inc = mConfig.getInteger(PROP_CERTDB_INC, 5);
-
-        String certReposDN = mConfig.getString(PROP_CERT_REPOS_DN, null);
-
-        if (certReposDN == null) {
-            certReposDN = "ou=certificateRepository, ou=" + getId() +
-                    ", " + dbSubsystem.getBaseDN();
-        }
-        String reposDN = mConfig.getString(PROP_REPOS_DN, null);
-
-        if (reposDN == null) {
-            reposDN = "ou=certificateRepository, ou=" + getId() +
-                    ", " + dbSubsystem.getBaseDN();
-        }
-
-        int transitMaxRecords = mConfig.getInteger(PROP_CERTDB_TRANS_MAXRECORDS, 1000000);
-        int transitRecordPageSize = mConfig.getInteger(PROP_CERTDB_TRANS_PAGESIZE, 200);
-
-        mCertRepot = new CertificateRepository(
-                    dbSubsystem,
-                    certReposDN, certdb_inc, reposDN);
-
-        mCertRepot.setTransitMaxRecords(transitMaxRecords);
-        mCertRepot.setTransitRecordPageSize(transitRecordPageSize);
-
-        logger.debug("Cert Repot inited");
-    }
-
-    /**
-     * init cert & crl database
-     */
     private void initCrlDatabase()
             throws EBaseException {
         if (!isHostAuthority()) {
@@ -2238,7 +2210,10 @@ public class CertificateAuthority
         if (engine.getCAs().size() > 0 && tbsReq.getRequestCount() > 0) {
             Request req = tbsReq.getRequestAt(0);
             BigInteger serialNo = req.getCertID().getSerialNumber();
-            X509CertImpl cert = mCertRepot.getX509Certificate(serialNo);
+
+            CertificateRepository certificateRepository = engine.getCertificateRepository();
+            X509CertImpl cert = certificateRepository.getX509Certificate(serialNo);
+
             X500Name certIssuerDN = (X500Name) cert.getIssuerDN();
             ocspCA = engine.getCA(certIssuerDN);
         }
@@ -2473,8 +2448,11 @@ public class CertificateAuthority
             }
         }
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+
         try {
-            ICertRecord rec = mCertRepot.readCertificateRecord(serialNo);
+            ICertRecord rec = certificateRepository.readCertificateRecord(serialNo);
             String status = rec.getStatus();
 
             if (status == null) {
@@ -2695,8 +2673,12 @@ public class CertificateAuthority
      */
     private void revokeAuthority(HttpServletRequest httpReq)
             throws EBaseException {
+
         logger.debug("revokeAuthority: checking serial " + authoritySerial);
-        ICertRecord certRecord = mCertRepot.readCertificateRecord(authoritySerial);
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+        ICertRecord certRecord = certificateRepository.readCertificateRecord(authoritySerial);
         String curStatus = certRecord.getStatus();
         logger.debug("revokeAuthority: current cert status: " + curStatus);
         if (curStatus.equals(CertRecord.STATUS_REVOKED)

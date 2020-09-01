@@ -44,6 +44,7 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.ca.KeyRetrieverRunner;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CATypeException;
@@ -55,6 +56,8 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
+import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.ProfileSubsystem;
@@ -75,6 +78,8 @@ import netscape.ldap.LDAPSearchResults;
 
 @WebListener
 public class CAEngine extends CMSEngine implements ServletContextListener {
+
+    protected CertificateRepository certificateRepository;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -119,6 +124,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         CAEngineConfig config = getConfig();
         LDAPConfig ldapConfig = config.getInternalDBConfig();
         connectionFactory.init(config, ldapConfig, getPasswordStore());
+    }
+
+    public CertificateRepository getCertificateRepository() {
+        return certificateRepository;
     }
 
     protected void loadSubsystems() throws EBaseException {
@@ -776,6 +785,47 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             name = ProfileSubsystem.ID;
         }
         return (ProfileSubsystem) getSubsystem(name);
+    }
+
+    public void initCertificateRepository() throws Exception {
+
+        logger.info("CAEngine: initializing cert repository");
+
+        IConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID);
+        int increment = caConfig.getInteger(CertificateRepository.PROP_INCREMENT, 5);
+        logger.info("CAEngine: - increment: " + increment);
+
+        String certRepoBaseDN = caConfig.getString(CertificateRepository.PROP_CERT_BASE_DN, null);
+        if (certRepoBaseDN == null) {
+            certRepoBaseDN = "ou=certificateRepository, ou=ca, " + dbSubsystem.getBaseDN();
+        }
+        logger.info("CAEngine: - cert repo base DN: " + certRepoBaseDN);
+
+        String reposBaseDN = caConfig.getString(Repository.PROP_BASE_DN, null);
+        if (reposBaseDN == null) {
+            reposBaseDN = "ou=certificateRepository, ou=ca, " + dbSubsystem.getBaseDN();
+        }
+        logger.info("CAEngine: - repo base DN: " + reposBaseDN);
+
+        int transitMaxRecords = caConfig.getInteger(CertificateRepository.PROP_TRANS_MAXRECORDS, 1000000);
+        logger.info("CAEngine: - transit max records: " + transitMaxRecords);
+
+        int transitRecordPageSize = caConfig.getInteger(CertificateRepository.PROP_TRANS_PAGESIZE, 200);
+        logger.info("CAEngine: - transit record page size: " + transitRecordPageSize);
+
+        certificateRepository = new CertificateRepository(
+                dbSubsystem,
+                certRepoBaseDN,
+                increment,
+                reposBaseDN);
+
+        certificateRepository.setTransitMaxRecords(transitMaxRecords);
+        certificateRepository.setTransitRecordPageSize(transitRecordPageSize);
+    }
+
+    public void init() throws Exception {
+        initCertificateRepository();
+        super.init();
     }
 
     public void shutdownDatabase() {

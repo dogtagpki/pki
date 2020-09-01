@@ -59,7 +59,6 @@ public interface ICertificateAuthority extends ISubsystem {
 
     public static final String ID = "ca";
 
-    public static final String PROP_CERTDB_INC = "certdbInc";
     public static final String PROP_CRLDB_INC = "crldbInc";
     public static final String PROP_REGISTRATION = "Registration";
     public static final String PROP_POLICY = "Policy";
@@ -106,9 +105,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public final static String PROP_OCSP_SIGNING_SUBSTORE = "ocsp_signing";
     public final static String PROP_CRL_SIGNING_SUBSTORE = "crl_signing";
     public final static String PROP_ID = "id";
-
-    public final static String PROP_CERTDB_TRANS_MAXRECORDS = "transitMaxRecords";
-    public final static String PROP_CERTDB_TRANS_PAGESIZE = "transitRecordPageSize";
 
     /**
      * Retrieves the certificate repository where all the locally
