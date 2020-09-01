@@ -150,6 +150,7 @@ public class CMSEngine implements ServletContextListener {
     protected DBSubsystem dbSubsystem = DBSubsystem.getInstance();
     protected UGSubsystem ugSubsystem = new UGSubsystem();
     protected OidLoaderSubsystem oidLoaderSubsystem = OidLoaderSubsystem.getInstance();
+    protected X500NameSubsystem x500NameSubsystem = X500NameSubsystem.getInstance();
     private RequestSubsystem requestSubsystem = new RequestSubsystem();
 
     public Collection<String> staticSubsystems = new LinkedHashSet<>();
@@ -200,6 +201,10 @@ public class CMSEngine implements ServletContextListener {
 
     public OidLoaderSubsystem getOIDLoaderSubsystem() {
         return oidLoaderSubsystem;
+    }
+
+    public X500NameSubsystem getX500NameSubsystem() {
+        return x500NameSubsystem;
     }
 
     public void loadConfig(String path) throws Exception {
@@ -491,6 +496,12 @@ public class CMSEngine implements ServletContextListener {
         oidLoaderSubsystem.startup();
     }
 
+    public void initX500NameSubsystem() throws Exception {
+        IConfigStore x500NameConfig = config.getSubStore(X500NameSubsystem.ID);
+        x500NameSubsystem.init(x500NameConfig);
+        x500NameSubsystem.startup();
+    }
+
     public void configurePorts() throws Exception {
 
         String instanceRoot = config.getInstanceDir();
@@ -730,9 +741,6 @@ public class CMSEngine implements ServletContextListener {
 
         subsystemInfos.clear();
         subsystems.clear();
-
-        staticSubsystems.add(X500NameSubsystem.ID);
-        addSubsystem(X500NameSubsystem.ID, X500NameSubsystem.getInstance());
 
         // skip TP subsystem;
         // problem in needing dbsubsystem in constructor. and it's not used.
@@ -1052,6 +1060,7 @@ public class CMSEngine implements ServletContextListener {
         initDBSubsystem();
         initUGSubsystem();
         initOIDLoaderSubsystem();
+        initX500NameSubsystem();
 
         init();
 
@@ -1224,6 +1233,10 @@ public class CMSEngine implements ServletContextListener {
         }
     } // end shutdownHttpServer
 
+    public void shutdownX500NameSubsystem() {
+        x500NameSubsystem.shutdown();
+    }
+
     public void shutdownOIDLoaderSubsystem() {
         oidLoaderSubsystem.shutdown();
     }
@@ -1294,6 +1307,7 @@ public class CMSEngine implements ServletContextListener {
             mSecurityDomainSessionTable.shutdown();
         }
 
+        shutdownX500NameSubsystem();
         shutdownOIDLoaderSubsystem();
         shutdownUGSubsystem();
         shutdownDBSubsystem();
