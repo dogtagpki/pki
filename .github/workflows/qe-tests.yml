@@ -16,7 +16,7 @@ jobs:
       container: fedora:${{ matrix.os }}
       strategy:
           matrix:
-            os: ['31', '32']
+            os: ['32']
       steps:
           - name: Update base image
             run: |
@@ -65,7 +65,7 @@ jobs:
         TOPOLOGY: "topology-02"
       strategy:
         matrix:
-          os: ['31', '32']
+          os: ['32']  # NOTE: In F31, NFS client installation fails!
       steps:
 
         - name: Clone the repository
@@ -91,10 +91,6 @@ jobs:
                     -e "s/TOPOLOGY/${TOPOLOGY}/g" \
                     inventory > ../inventory
                 cd ../
-
-        # Let vagrant take care of installing the required Virtualbox guest additions
-        - name: Install Virtualbox guest additions plugin
-          run: vagrant plugin install vagrant-vbguest
 
         # Don't provision the VMs as they might not be ready for inter communication
         - name: Boot the "controller" VM without provisioning
