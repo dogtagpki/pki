@@ -791,43 +791,25 @@ public class CMSEngine implements ServletContextListener {
 
     protected void initSubsystems() throws Exception {
 
-        logger.info("CMSEngine: Initializing subsystems");
+        for (SubsystemInfo subsystemInfo : subsystemInfos.values()) {
 
-        initSubsystems(staticSubsystems);
-        initSubsystems(dynSubsystems);
-        initSubsystems(finalSubsystems);
-    }
+            String id = subsystemInfo.id;
+            logger.info("CMSEngine: Initializing " + id + " subsystem");
 
-    private void initSubsystems(Collection<String> ids)
-            throws EBaseException {
-        for (String id : ids) {
-            SubsystemInfo si = subsystemInfos.get(id);
-            initSubsystem(si);
+            ISubsystem subsystem = subsystems.get(id);
+
+            if (subsystemInfo.updateIdOnInit) {
+                subsystem.setId(id);
+            }
+
+            if (!subsystemInfo.enabled) {
+                logger.info("CMSEngine: " + id + " subsystem is disabled");
+                continue;
+            }
+
+            IConfigStore subsystemConfig = mConfig.getSubStore(id);
+            subsystem.init(subsystemConfig);
         }
-    }
-
-    /**
-     * initialize a subsystem
-     */
-    private void initSubsystem(SubsystemInfo ssinfo)
-            throws EBaseException {
-
-        String id = ssinfo.id;
-        logger.info("CMSEngine: Initializing " + id + " subsystem");
-
-        ISubsystem ss = subsystems.get(id);
-
-        if (ssinfo.updateIdOnInit) {
-            ss.setId(id);
-        }
-
-        if (!ssinfo.enabled) {
-            logger.info("CMSEngine: " + id + " subsystem is disabled");
-            return;
-        }
-
-        IConfigStore ssConfig = mConfig.getSubStore(id);
-        ss.init(ssConfig);
     }
 
     public void configureAutoShutdown() throws Exception {
