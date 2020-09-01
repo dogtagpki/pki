@@ -59,6 +59,8 @@ ipa-run-tests \
 --verbose \
 ${cert_test_file_loc} 2>&1
 
+ipa-healthcheck --debug
+
 echo "Test complete"
 
 # Uninstall ipa-server
