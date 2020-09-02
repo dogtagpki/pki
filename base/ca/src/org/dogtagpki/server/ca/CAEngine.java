@@ -92,6 +92,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected CAPolicy caPolicy;
     protected CAService caService;
     protected ARequestNotifier requestNotifier;
+    protected ARequestNotifier pendingNotifier;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -162,6 +163,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return requestNotifier;
     }
 
+    public ARequestNotifier getPendingNotifier() {
+        return pendingNotifier;
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -193,6 +198,9 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         logger.info("CAEngine: Initializing CA request notifier");
         requestNotifier = new ARequestNotifier(hostCA);
+
+        logger.info("CAEngine: Initializing CA pending request notifier");
+        pendingNotifier = new ARequestNotifier();
 
         super.initSubsystems();
     }

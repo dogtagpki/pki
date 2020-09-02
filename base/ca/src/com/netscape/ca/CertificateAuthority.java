@@ -149,7 +149,6 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
-import com.netscape.cmscore.request.ARequestNotifier;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -232,7 +231,6 @@ public class CertificateAuthority
 
     protected PublisherProcessor mPublisherProcessor;
     protected IRequestQueue mRequestQueue = null;
-    protected IRequestNotifier mPNotify = null;
     protected long mNumOCSPRequest = 0;
     protected long mTotalTime = 0;
     protected long mTotalData = 0;
@@ -773,14 +771,16 @@ public class CertificateAuthority
      * register listener for pending requests
      */
     public void registerPendingListener(IRequestListener listener) {
-        mPNotify.registerListener(listener);
+        CAEngine engine = CAEngine.getInstance();
+        engine.getPendingNotifier().registerListener(listener);
     }
 
     /**
      * register listener for pending requests with a name.
      */
     public void registerPendingListener(String name, IRequestListener listener) {
-        mPNotify.registerListener(name, listener);
+        CAEngine engine = CAEngine.getInstance();
+        engine.getPendingNotifier().registerListener(name, listener);
     }
 
     /**
@@ -803,7 +803,8 @@ public class CertificateAuthority
      * get listener from listener list
      */
     public IRequestListener getPendingListener(String name) {
-        return mPNotify.getListener(name);
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getPendingNotifier().getListener(name);
     }
 
     public Enumeration<String> getRequestListenerNames() {
@@ -1920,15 +1921,11 @@ public class CertificateAuthority
     private void initRequestQueue()
             throws EBaseException {
         if (!isHostAuthority()) {
-            mPNotify = hostCA.mPNotify;
             mRequestQueue = hostCA.mRequestQueue;
             return;
         }
 
         CAEngine engine = CAEngine.getInstance();
-
-        mPNotify = new ARequestNotifier();
-        logger.debug("CA pending notifier inited");
 
         // instantiate CA request queue.
         try {
@@ -1941,7 +1938,7 @@ public class CertificateAuthority
                     engine.getCAPolicy(),
                     engine.getCAService(),
                     engine.getRequestNotifier(),
-                    mPNotify);
+                    engine.getPendingNotifier());
         } catch (EBaseException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_QUEUE_FAILED", e.toString()), e);
             throw e;
