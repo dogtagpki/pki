@@ -11,5 +11,5 @@
       when: ansible_distribution == "Fedora"
 
     - name: set PKI master copr repo
-      shell: dnf copr enable @pki/master -y
+      shell: dnf copr enable @pki/10.9 -y
       when: ansible_distribution == "Fedora"

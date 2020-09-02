@@ -29,7 +29,7 @@ jobs:
 
           - name: Install PKI build deps
             run: |
-                  dnf copr enable -y @pki/master
+                  dnf copr enable -y @pki/10.9
                   dnf builddep -y --allowerasing --spec ./pki.spec
 
           - name: Build PKI packages
@@ -55,7 +55,7 @@ jobs:
       needs: build
       runs-on: ubuntu-latest
       env:
-        COPR_REPO: "@pki/master"
+        COPR_REPO: "@pki/10.9"
       container: fedora:${{ matrix.os }}
       strategy:
           matrix:
@@ -100,7 +100,7 @@ jobs:
         BUILDDIR: /tmp/workdir
         PKIDIR: /tmp/workdir/pki
         LOGS: ${GITHUB_WORKSPACE}/logs.txt
-        COPR_REPO: "@pki/master"
+        COPR_REPO: "@pki/10.9"
       strategy:
         matrix:
           os: ['31', '32']
@@ -199,7 +199,7 @@ jobs:
         BUILDDIR: /tmp/workdir
         PKIDIR: /tmp/workdir/pki
         LOGS: ${GITHUB_WORKSPACE}/logs.txt
-        COPR_REPO: "@pki/master"
+        COPR_REPO: "@pki/10.9"
         test_set: "test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_ca_plugin.py test_vault_plugin.py"
       strategy:
         matrix:
