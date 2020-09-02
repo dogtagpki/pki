@@ -47,7 +47,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.dogtag.util.cert.CertUtil;
-import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
@@ -124,7 +123,6 @@ import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
 import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.publish.ICRLPublisher;
-import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
@@ -234,7 +232,6 @@ public class CertificateAuthority
 
     protected PublisherProcessor mPublisherProcessor;
     protected IRequestQueue mRequestQueue = null;
-    protected CAPolicy mPolicy = null;
     protected CAService mService = null;
     protected IRequestNotifier mNotify = null;
     protected IRequestNotifier mPNotify = null;
@@ -402,7 +399,8 @@ public class CertificateAuthority
     }
 
     public IPolicyProcessor getPolicyProcessor() {
-        return mPolicy.getPolicyProcessor();
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getCAPolicy().getPolicyProcessor();
     }
 
     public boolean noncesEnabled() {
@@ -818,13 +816,6 @@ public class CertificateAuthority
 
     public IRequestListener getCertRevokedListener() {
         return mCertRevokedListener;
-    }
-
-    /**
-     * return CA's policy processor.
-     */
-    public IPolicy getCAPolicy() {
-        return mPolicy;
     }
 
     /**
@@ -1923,7 +1914,6 @@ public class CertificateAuthority
     private void initRequestQueue()
             throws EBaseException {
         if (!isHostAuthority()) {
-            mPolicy = hostCA.mPolicy;
             mService = hostCA.mService;
             mNotify = hostCA.mNotify;
             mPNotify = hostCA.mPNotify;
@@ -1931,10 +1921,7 @@ public class CertificateAuthority
             return;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
-        mPolicy = new CAPolicy();
-        mPolicy.init(this, mConfig.getSubStore(PROP_POLICY));
-        logger.debug("CA policy inited");
+        CAEngine engine = CAEngine.getInstance();
         mService = new CAService(this);
         logger.debug("CA service inited");
 
@@ -1949,7 +1936,12 @@ public class CertificateAuthority
 
             RequestSubsystem reqSub = engine.getRequestSubsystem();
             mRequestQueue = reqSub.getRequestQueue(
-                            getId(), reqdb_inc, mPolicy, mService, mNotify, mPNotify);
+                    getId(),
+                    reqdb_inc,
+                    engine.getCAPolicy(),
+                    mService,
+                    mNotify,
+                    mPNotify);
         } catch (EBaseException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_QUEUE_FAILED", e.toString()), e);
             throw e;

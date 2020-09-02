@@ -35,6 +35,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.legacy.ca.CAPolicy;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -85,6 +86,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected CertificateRepository certificateRepository;
     protected CRLRepository crlRepository;
     protected ReplicaIDRepository replicaIDRepository;
+
+    protected CAPolicy caPolicy;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -143,6 +146,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return replicaIDRepository;
     }
 
+    public CAPolicy getCAPolicy() {
+        return caPolicy;
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -155,6 +162,21 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             setSubsystemEnabled(CrossCertPairSubsystem.ID, false);
             setSubsystemEnabled(SelfTestSubsystem.ID, false);
         }
+    }
+
+    protected void initSubsystems() throws Exception {
+
+        CertificateAuthority hostCA = getCA();
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+        IConfigStore caPolicyConfig = caConfig.getSubStore(CertificateAuthority.PROP_POLICY);
+
+        logger.info("CAEngine: Initializing CA policy");
+        caPolicy = new CAPolicy();
+        caPolicy.init(hostCA, caPolicyConfig);
+
+        super.initSubsystems();
     }
 
     public X509Certificate[] getCertChain(X509Certificate cert) throws Exception {
