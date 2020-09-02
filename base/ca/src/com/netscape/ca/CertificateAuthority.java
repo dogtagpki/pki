@@ -127,7 +127,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.ISigningUnit;
@@ -149,7 +148,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
-import com.netscape.cmscore.request.RequestSubsystem;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
@@ -230,7 +229,6 @@ public class CertificateAuthority
     protected String[] mCASigningAlgorithms = null;
 
     protected PublisherProcessor mPublisherProcessor;
-    protected IRequestQueue mRequestQueue = null;
     protected long mNumOCSPRequest = 0;
     protected long mTotalTime = 0;
     protected long mTotalData = 0;
@@ -495,9 +493,6 @@ public class CertificateAuthority
         mUseNonces = mConfig.getBoolean("enableNonces", true);
         mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
 
-        logger.info("CertificateAuthority: initializing request queue");
-        initRequestQueue();
-
         if (engine.isPreOpMode()) {
             logger.info("CertificateAuthority: aborting initialization in pre-op mode");
             return;
@@ -514,9 +509,10 @@ public class CertificateAuthority
              */
             // set certificate status to 10 minutes
 
+            RequestQueue requestQueue = engine.getRequestQueue();
             CertificateRepository certificateRepository = engine.getCertificateRepository();
             certificateRepository.setCertStatusUpdateInterval(
-                mRequestQueue.getRequestRepository(),
+                requestQueue.getRequestRepository(),
                 mConfig.getInteger("certStatusUpdateInterval", 10 * 60),
                 mConfig.getBoolean("listenToCloneModifications", false));
             certificateRepository.setConsistencyCheck(
@@ -526,7 +522,7 @@ public class CertificateAuthority
 
             // set serial number update task to run every 10 minutes
             certificateRepository.setSerialNumberUpdateInterval(
-                mRequestQueue.getRequestRepository(),
+                requestQueue.getRequestRepository(),
                 mConfig.getInteger("serialNumberUpdateInterval", 10 * 60));
 
             engine.getCAService().init(mConfig.getSubStore("connector"));
@@ -732,7 +728,8 @@ public class CertificateAuthority
      * return CA's request queue processor
      */
     public IRequestQueue getRequestQueue() {
-        return mRequestQueue;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getRequestQueue();
     }
 
     /**
@@ -852,7 +849,7 @@ public class CertificateAuthority
             return;
         }
         engine.getCAService().startup();
-        mRequestQueue.recover();
+        engine.getRequestQueue().recover();
 
         if (isHostAuthority()) {
             // setup Admin operations
@@ -1912,51 +1909,6 @@ public class CertificateAuthority
         } catch (Exception e) {
             logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NOTIFY_FAILED"), e);
             //			throw e;
-        }
-    }
-
-    /**
-     * initialize request queue components
-     */
-    private void initRequestQueue()
-            throws EBaseException {
-        if (!isHostAuthority()) {
-            mRequestQueue = hostCA.mRequestQueue;
-            return;
-        }
-
-        CAEngine engine = CAEngine.getInstance();
-
-        // instantiate CA request queue.
-        try {
-            int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
-
-            RequestSubsystem reqSub = engine.getRequestSubsystem();
-            mRequestQueue = reqSub.getRequestQueue(
-                    getId(),
-                    reqdb_inc,
-                    engine.getCAPolicy(),
-                    engine.getCAService(),
-                    engine.getRequestNotifier(),
-                    engine.getPendingNotifier());
-        } catch (EBaseException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_QUEUE_FAILED", e.toString()), e);
-            throw e;
-        }
-
-        // init request scheduler if configured
-        String schedulerClass =
-                mConfig.getString("requestSchedulerClass", null);
-
-        if (schedulerClass != null) {
-            try {
-                IRequestScheduler scheduler = (IRequestScheduler)
-                        Class.forName(schedulerClass).newInstance();
-
-                mRequestQueue.setRequestScheduler(scheduler);
-            } catch (Exception e) {
-                // do nothing here
-            }
         }
     }
 

@@ -51,6 +51,7 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -67,6 +68,7 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.ARequestNotifier;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -93,6 +95,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected CAService caService;
     protected ARequestNotifier requestNotifier;
     protected ARequestNotifier pendingNotifier;
+    protected RequestQueue requestQueue;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -167,6 +170,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return pendingNotifier;
     }
 
+    public RequestQueue getRequestQueue() {
+        return requestQueue;
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -201,6 +208,27 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         logger.info("CAEngine: Initializing CA pending request notifier");
         pendingNotifier = new ARequestNotifier();
+
+        logger.info("CAEngine: Initializing CA request queue");
+
+        int increment = caConfig.getInteger("reqdbInc", 5);
+        logger.info("CAEngine: - increment: " + increment);
+
+        String schedulerClass = caConfig.getString("requestSchedulerClass", null);
+        logger.info("CAEngine: - scheduler: " + schedulerClass);
+
+        requestQueue = (RequestQueue) requestSubsystem.getRequestQueue(
+                CertificateAuthority.ID,
+                increment,
+                caPolicy,
+                caService,
+                requestNotifier,
+                pendingNotifier);
+
+        if (schedulerClass != null) {
+            IRequestScheduler scheduler = (IRequestScheduler) Class.forName(schedulerClass).newInstance();
+            requestQueue.setRequestScheduler(scheduler);
+        }
 
         super.initSubsystems();
     }
