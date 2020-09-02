@@ -41,6 +41,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CAService;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.ca.KeyRetrieverRunner;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -88,6 +89,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected ReplicaIDRepository replicaIDRepository;
 
     protected CAPolicy caPolicy;
+    protected CAService caService;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -150,6 +152,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return caPolicy;
     }
 
+    public CAService getCAService() {
+        return caService;
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -175,6 +181,9 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         logger.info("CAEngine: Initializing CA policy");
         caPolicy = new CAPolicy();
         caPolicy.init(hostCA, caPolicyConfig);
+
+        logger.info("CAEngine: Initializing CA service");
+        caService = new CAService(hostCA);
 
         super.initSubsystems();
     }

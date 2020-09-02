@@ -232,7 +232,6 @@ public class CertificateAuthority
 
     protected PublisherProcessor mPublisherProcessor;
     protected IRequestQueue mRequestQueue = null;
-    protected CAService mService = null;
     protected IRequestNotifier mNotify = null;
     protected IRequestNotifier mPNotify = null;
     protected long mNumOCSPRequest = 0;
@@ -533,7 +532,7 @@ public class CertificateAuthority
                 mRequestQueue.getRequestRepository(),
                 mConfig.getInteger("serialNumberUpdateInterval", 10 * 60));
 
-            mService.init(mConfig.getSubStore("connector"));
+            engine.getCAService().init(mConfig.getSubStore("connector"));
 
             initMiscellaneousListeners();
         }
@@ -822,7 +821,8 @@ public class CertificateAuthority
      * return CA's request queue service object.
      */
     public IService getCAService() {
-        return mService;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getCAService();
     }
 
     /**
@@ -839,12 +839,12 @@ public class CertificateAuthority
      * Starts up this subsystem.
      */
     public void startup() throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         if (engine.isPreOpMode()) {
             logger.debug("CertificateAuthority.startup(): Do not start CA in pre-op mode");
             return;
         }
-        mService.startup();
+        engine.getCAService().startup();
         mRequestQueue.recover();
 
         if (isHostAuthority()) {
@@ -1914,7 +1914,6 @@ public class CertificateAuthority
     private void initRequestQueue()
             throws EBaseException {
         if (!isHostAuthority()) {
-            mService = hostCA.mService;
             mNotify = hostCA.mNotify;
             mPNotify = hostCA.mPNotify;
             mRequestQueue = hostCA.mRequestQueue;
@@ -1922,8 +1921,6 @@ public class CertificateAuthority
         }
 
         CAEngine engine = CAEngine.getInstance();
-        mService = new CAService(this);
-        logger.debug("CA service inited");
 
         mNotify = new ARequestNotifier(this);
         logger.debug("CA notifier inited");
@@ -1939,7 +1936,7 @@ public class CertificateAuthority
                     getId(),
                     reqdb_inc,
                     engine.getCAPolicy(),
-                    mService,
+                    engine.getCAService(),
                     mNotify,
                     mPNotify);
         } catch (EBaseException e) {
