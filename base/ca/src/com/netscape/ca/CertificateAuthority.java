@@ -232,7 +232,6 @@ public class CertificateAuthority
 
     protected PublisherProcessor mPublisherProcessor;
     protected IRequestQueue mRequestQueue = null;
-    protected IRequestNotifier mNotify = null;
     protected IRequestNotifier mPNotify = null;
     protected long mNumOCSPRequest = 0;
     protected long mTotalTime = 0;
@@ -742,28 +741,32 @@ public class CertificateAuthority
      * registers listener
      */
     public void registerRequestListener(IRequestListener listener) {
-        mNotify.registerListener(listener);
+        CAEngine engine = CAEngine.getInstance();
+        engine.getRequestNotifier().registerListener(listener);
     }
 
     /**
      * registers listener with a name.
      */
     public void registerRequestListener(String name, IRequestListener listener) {
-        mNotify.registerListener(name, listener);
+        CAEngine engine = CAEngine.getInstance();
+        engine.getRequestNotifier().registerListener(name, listener);
     }
 
     /**
      * removes listener
      */
     public void removeRequestListener(IRequestListener listener) {
-        mNotify.removeListener(listener);
+        CAEngine engine = CAEngine.getInstance();
+        engine.getRequestNotifier().removeListener(listener);
     }
 
     /**
      * removes listener with a name.
      */
     public void removeRequestListener(String name) {
-        mNotify.removeListener(name);
+        CAEngine engine = CAEngine.getInstance();
+        engine.getRequestNotifier().removeListener(name);
     }
 
     /**
@@ -784,14 +787,16 @@ public class CertificateAuthority
      * get listener from listener list
      */
     public IRequestListener getRequestListener(String name) {
-        return mNotify.getListener(name);
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getRequestNotifier().getListener(name);
     }
 
     /**
      * get notifiers registered by CA
      */
     public IRequestNotifier getRequestNotifier() {
-        return mNotify;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getRequestNotifier();
     }
 
     /**
@@ -802,7 +807,8 @@ public class CertificateAuthority
     }
 
     public Enumeration<String> getRequestListenerNames() {
-        return mNotify.getListenerNames();
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getRequestNotifier().getListenerNames();
     }
 
     public IRequestListener getRequestInQListener() {
@@ -1914,7 +1920,6 @@ public class CertificateAuthority
     private void initRequestQueue()
             throws EBaseException {
         if (!isHostAuthority()) {
-            mNotify = hostCA.mNotify;
             mPNotify = hostCA.mPNotify;
             mRequestQueue = hostCA.mRequestQueue;
             return;
@@ -1922,8 +1927,6 @@ public class CertificateAuthority
 
         CAEngine engine = CAEngine.getInstance();
 
-        mNotify = new ARequestNotifier(this);
-        logger.debug("CA notifier inited");
         mPNotify = new ARequestNotifier();
         logger.debug("CA pending notifier inited");
 
@@ -1937,7 +1940,7 @@ public class CertificateAuthority
                     reqdb_inc,
                     engine.getCAPolicy(),
                     engine.getCAService(),
-                    mNotify,
+                    engine.getRequestNotifier(),
                     mPNotify);
         } catch (EBaseException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_QUEUE_FAILED", e.toString()), e);

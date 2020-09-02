@@ -66,6 +66,7 @@ import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.request.ARequestNotifier;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -90,6 +91,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     protected CAPolicy caPolicy;
     protected CAService caService;
+    protected ARequestNotifier requestNotifier;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -156,6 +158,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return caService;
     }
 
+    public ARequestNotifier getRequestNotifier() {
+        return requestNotifier;
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -184,6 +190,9 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         logger.info("CAEngine: Initializing CA service");
         caService = new CAService(hostCA);
+
+        logger.info("CAEngine: Initializing CA request notifier");
+        requestNotifier = new ARequestNotifier(hostCA);
 
         super.initSubsystems();
     }
