@@ -1148,6 +1148,68 @@ public class Configurator {
         generateCertRequest(tag, keyPair, cert);
     }
 
+    public Cert processCert(
+            CertificateSetupRequest request,
+            KeyPair keyPair,
+            SystemCertData certData) throws Exception {
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String tag = certData.getTag();
+        String tokenName = certData.getToken();
+        if (StringUtils.isEmpty(tokenName)) {
+            tokenName = preopConfig.getString("module.token", null);
+        }
+
+        logger.info("Configurator: Processing " + tag + " certificate");
+
+        String nickname = preopConfig.getString("cert." + tag + ".nickname");
+        String dn = preopConfig.getString("cert." + tag + ".dn");
+        String subsystem = preopConfig.getString("cert." + tag + ".subsystem");
+        String type = preopConfig.getString("cert." + tag + ".type");
+
+        Cert cert = new Cert(tokenName, nickname, tag);
+        cert.setDN(dn);
+        cert.setSubsystem(subsystem);
+        cert.setType(type);
+
+        String fullName;
+        if (!CryptoUtil.isInternalToken(tokenName)) {
+            fullName = tokenName + ":" + nickname;
+        } else {
+            fullName = nickname;
+        }
+
+        logger.info("Configurator: Loading " + tag + " cert from NSS: " + fullName);
+
+        CryptoManager cm = CryptoManager.getInstance();
+        X509Certificate x509Cert;
+        try {
+            x509Cert = cm.findCertByNickname(fullName);
+        } catch (ObjectNotFoundException e) {
+            logger.info("Configurator: " + tag + " cert not found: " + fullName);
+            x509Cert = null;
+        }
+
+        // For external/existing CA case, some/all system certs may be provided.
+        // The SSL server cert will always be generated for the current host.
+
+        // For external/standalone KRA/OCSP case, all system certs will be provided.
+        // No system certs will be generated including the SSL server cert.
+
+        if ("ca".equals(subsystem) && request.isExternal() && !tag.equals("sslserver") && x509Cert != null
+                || "kra".equals(subsystem) && (request.isExternal() || request.getStandAlone())
+                || "ocsp".equals(subsystem) && (request.isExternal()  || request.getStandAlone())) {
+
+            loadCert(cert, x509Cert);
+
+        } else {
+            generateCert(cert, request, keyPair);
+        }
+
+        return cert;
+    }
+
     public void handleCert(Cert cert) throws Exception {
 
         String certTag = cert.getCertTag();

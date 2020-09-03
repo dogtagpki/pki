@@ -21,9 +21,6 @@ import java.security.KeyPair;
 
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.ca.ICertificateAuthority;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.ObjectNotFoundException;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
@@ -49,7 +46,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author alee
@@ -157,7 +153,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             KeyPair keyPair = configurator.processKeyPair(certData);
 
-            Cert cert = processCert(request, keyPair, certData);
+            Cert cert = configurator.processCert(request, keyPair, certData);
 
             String subsystem = cert.getSubsystem();
             configurator.handleCert(cert);
@@ -323,68 +319,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.error("Configuration failed: " + e.getMessage(), e);
             throw e;
         }
-    }
-
-    public Cert processCert(
-            CertificateSetupRequest request,
-            KeyPair keyPair,
-            SystemCertData certData) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String tag = certData.getTag();
-        String tokenName = certData.getToken();
-        if (StringUtils.isEmpty(tokenName)) {
-            tokenName = preopConfig.getString("module.token", null);
-        }
-
-        logger.debug("SystemConfigService.processCert(" + tag + ")");
-
-        String nickname = preopConfig.getString("cert." + tag + ".nickname");
-        String dn = preopConfig.getString("cert." + tag + ".dn");
-        String subsystem = preopConfig.getString("cert." + tag + ".subsystem");
-        String type = preopConfig.getString("cert." + tag + ".type");
-
-        Cert cert = new Cert(tokenName, nickname, tag);
-        cert.setDN(dn);
-        cert.setSubsystem(subsystem);
-        cert.setType(type);
-
-        String fullName;
-        if (!CryptoUtil.isInternalToken(tokenName)) {
-            fullName = tokenName + ":" + nickname;
-        } else {
-            fullName = nickname;
-        }
-
-        logger.debug("SystemConfigService: loading " + tag + " cert: " + fullName);
-
-        CryptoManager cm = CryptoManager.getInstance();
-        X509Certificate x509Cert;
-        try {
-            x509Cert = cm.findCertByNickname(fullName);
-        } catch (ObjectNotFoundException e) {
-            logger.debug("SystemConfigService: cert not found: " + fullName);
-            x509Cert = null;
-        }
-
-        // For external/existing CA case, some/all system certs may be provided.
-        // The SSL server cert will always be generated for the current host.
-
-        // For external/standalone KRA/OCSP case, all system certs will be provided.
-        // No system certs will be generated including the SSL server cert.
-
-        if ("ca".equals(subsystem) && request.isExternal() && !tag.equals("sslserver") && x509Cert != null
-                || "kra".equals(subsystem) && (request.isExternal() || request.getStandAlone())
-                || "ocsp".equals(subsystem) && (request.isExternal()  || request.getStandAlone())) {
-
-            configurator.loadCert(cert, x509Cert);
-
-        } else {
-            configurator.generateCert(cert, request, keyPair);
-        }
-
-        return cert;
     }
 
     private void validatePin(String pin) throws Exception {
