@@ -615,17 +615,17 @@ class MigrateCLI(pki.cli.CLI):
             logger.debug("Refusing to migrate JAVA_HOME with missing environment variable")
             return
 
-        comment = "JAVA_HOME should be set in /etc/pki/pki.conf instead."
+        java_home = os.environ['JAVA_HOME']
 
         # Update in /etc/sysconfig/<instance>
-        result = self.update_java_home_in_config(instance.service_conf, comment)
+        result = self.update_java_home_in_config(instance.service_conf, java_home)
         self.write_config(instance.service_conf, result)
 
         # Update in /etc/pki/<instance>/tomcat.conf
-        result = self.update_java_home_in_config(instance.tomcat_conf, comment)
+        result = self.update_java_home_in_config(instance.tomcat_conf, java_home)
         self.write_config(instance.tomcat_conf, result)
 
-    def update_java_home_in_config(self, path, comment):
+    def update_java_home_in_config(self, path, java_home):
         result = []
 
         target = "JAVA_HOME="
@@ -635,9 +635,7 @@ class MigrateCLI(pki.cli.CLI):
                 if not line.startswith(target):
                     result.append(line)
                 else:
-                    comment_line = '# ' + comment + '\n'
-                    result.append(comment_line)
-                    new_line = '# ' + line
+                    new_line = target + '"' + java_home + '"\n'
                     result.append(new_line)
 
         return result
