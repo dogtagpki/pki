@@ -23,7 +23,6 @@ import java.security.Principal;
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -166,7 +165,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("Missing certificate: " + tag);
             }
 
-            KeyPair keyPair = processKeyPair(certData);
+            KeyPair keyPair = configurator.processKeyPair(certData);
 
             Cert cert = processCert(request, keyPair, certData);
 
@@ -334,66 +333,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.error("Configuration failed: " + e.getMessage(), e);
             throw e;
         }
-    }
-
-    public KeyPair processKeyPair(SystemCertData certData) throws Exception {
-
-        String tag = certData.getTag();
-        logger.debug("SystemConfigService.processKeyPair(" + tag + ")");
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String tokenName = certData.getToken();
-        if (StringUtils.isEmpty(tokenName)) {
-            tokenName = preopConfig.getString("module.token", null);
-        }
-
-        logger.debug("SystemConfigService: token: " + tokenName);
-        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-
-        String keytype = preopConfig.getString("cert." + tag + ".keytype");
-
-        // support injecting SAN into server cert
-        if (tag.equals("sslserver") && certData.getServerCertSAN() != null) {
-            logger.debug("SystemConfigService: san_server_cert found");
-            cs.putString("service.injectSAN", "true");
-            cs.putString("service.sslserver.san", certData.getServerCertSAN());
-
-        } else {
-            if (tag.equals("sslserver")) {
-                logger.debug("SystemConfigService: san_server_cert not found");
-            }
-        }
-
-        cs.commit(false);
-
-        KeyPair pair;
-
-        try {
-            logger.debug("SystemConfigService: loading existing key pair from NSS database");
-            pair = configurator.loadKeyPair(certData.getNickname(), tokenName);
-            logger.info("SystemConfigService: loaded existing key pair for " + tag + " certificate");
-
-        } catch (ObjectNotFoundException e) {
-
-            logger.debug("SystemConfigService: key pair not found, generating new key pair");
-            logger.info("SystemConfigService: generating new key pair for " + tag + " certificate");
-
-            if (keytype.equals("ecc")) {
-                String curvename = certData.getKeySize() != null ?
-                        certData.getKeySize() : cs.getString("keys.ecc.curve.default");
-                preopConfig.putString("cert." + tag + ".curvename.name", curvename);
-                pair = configurator.createECCKeyPair(token, curvename, tag);
-
-            } else {
-                String keysize = certData.getKeySize() != null ? certData.getKeySize() : cs
-                        .getString("keys.rsa.keysize.default");
-                preopConfig.putString("cert." + tag + ".keysize.size", keysize);
-                pair = configurator.createRSAKeyPair(token, Integer.parseInt(keysize), tag);
-            }
-        }
-
-        return pair;
     }
 
     public Cert processCert(

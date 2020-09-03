@@ -93,6 +93,7 @@ import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
+import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -673,6 +674,59 @@ public class Configurator {
                 pair = null;
             }
         } while (pair == null);
+
+        return pair;
+    }
+
+    public KeyPair processKeyPair(SystemCertData certData) throws Exception {
+
+        String tag = certData.getTag();
+        logger.debug("Configurator.processKeyPair(" + tag + ")");
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        String keytype = preopConfig.getString("cert." + tag + ".keytype");
+
+        String tokenName = certData.getToken();
+        if (StringUtils.isEmpty(tokenName)) {
+            tokenName = preopConfig.getString("module.token", null);
+        }
+
+        logger.debug("Configurator: token: " + tokenName);
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+
+        if (tag.equals("sslserver") && certData.getServerCertSAN() != null) {
+            logger.debug("Configurator: injecting SAN into server cert");
+            cs.putString("service.injectSAN", "true");
+            cs.putString("service.sslserver.san", certData.getServerCertSAN());
+        }
+
+        cs.commit(false);
+
+        KeyPair pair;
+
+        try {
+            logger.debug("Configurator: loading existing key pair from NSS database");
+            pair = loadKeyPair(certData.getNickname(), tokenName);
+            logger.info("Configurator: loaded existing key pair for " + tag + " certificate");
+
+        } catch (ObjectNotFoundException e) {
+
+            logger.debug("Configurator: key pair not found, generating new key pair");
+            logger.info("Configurator: generating new key pair for " + tag + " certificate");
+
+            if (keytype.equals("ecc")) {
+                String curvename = certData.getKeySize() != null ?
+                        certData.getKeySize() : cs.getString("keys.ecc.curve.default");
+                preopConfig.putString("cert." + tag + ".curvename.name", curvename);
+                pair = createECCKeyPair(token, curvename, tag);
+
+            } else {
+                String keysize = certData.getKeySize() != null ?
+                        certData.getKeySize() : cs.getString("keys.rsa.keysize.default");
+                preopConfig.putString("cert." + tag + ".keysize.size", keysize);
+                pair = createRSAKeyPair(token, Integer.parseInt(keysize), tag);
+            }
+        }
 
         return pair;
     }
