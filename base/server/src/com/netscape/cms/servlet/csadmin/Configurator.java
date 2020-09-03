@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
@@ -96,6 +97,8 @@ import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -1036,6 +1039,90 @@ public class Configurator {
                 x509key,
                 sanHostnames,
                 installAdjustValidity);
+    }
+
+    public void loadCert(Cert cert, X509Certificate x509Cert) throws Exception {
+
+        String tag = cert.getCertTag();
+        logger.info("Configurator: Loading existing " + tag + " certificate");
+
+        byte[] bytes = x509Cert.getEncoded();
+        String b64 = CryptoUtil.base64Encode(bytes);
+        String certStr = CryptoUtil.normalizeCertStr(b64);
+        logger.debug("Configurator: cert: " + certStr);
+
+        cert.setCert(bytes);
+
+        cs.commit(false);
+
+        logger.info("Configurator: Loading existing " + tag + " cert request");
+
+        String subsystem = cert.getSubsystem();
+        String certreqStr = cs.getString(subsystem + "." + tag + ".certreq");
+        logger.debug("Configurator: request: " + certreqStr);
+
+        byte[] certreqBytes = CryptoUtil.base64Decode(certreqStr);
+        cert.setRequest(certreqBytes);
+
+        // When importing existing self-signed CA certificate, create a
+        // certificate record to reserve the serial number. Otherwise it
+        // might conflict with system certificates to be created later.
+        // Also create the certificate request record for renewals.
+
+        logger.debug("Configurator: subsystem: " + subsystem);
+        if (!subsystem.equals("ca")) {
+            // not a CA -> done
+            return;
+        }
+
+        // checking whether the cert was issued by existing CA
+        logger.debug("Configurator: issuer DN: " + x509Cert.getIssuerDN());
+
+        String caSigningNickname = cs.getString("ca.signing.nickname");
+
+        CryptoManager cm = CryptoManager.getInstance();
+        X509Certificate caSigningCert = cm.findCertByNickname(caSigningNickname);
+        Principal caSigningDN = caSigningCert.getSubjectDN();
+
+        logger.debug("Configurator: CA signing DN: " + caSigningDN);
+
+        if (!x509Cert.getIssuerDN().equals(caSigningDN)) {
+            logger.debug("Configurator: cert issued by external CA, don't create record");
+            return;
+        }
+
+        logger.debug("Configurator: cert issued by existing CA, create record");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        String profileName = preopConfig.getString("cert." + tag + ".profile");
+        logger.debug("Configurator: profile: " + profileName);
+
+        String instanceRoot = cs.getInstanceDir();
+        String configurationRoot = cs.getString("configurationRoot");
+        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
+
+        PKCS10 pkcs10 = new PKCS10(certreqBytes);
+        X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
+
+        X509CertImpl certImpl = new X509CertImpl(bytes);
+        X509CertInfo info = certImpl.getInfo();
+
+        IRequest req = createRequest(tag, profile, x509key, info);
+
+        req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, certImpl);
+        req.setExtData("cert_request", certreqBytes);
+        req.setExtData("cert_request_type", "pkcs10");
+
+        IRequestQueue queue = ca.getRequestQueue();
+        queue.updateRequest(req);
+
+        RequestId reqId = req.getRequestId();
+        preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
+
+        CertUtils.createCertRecord(req, profile, certImpl);
     }
 
     public void handleCert(Cert cert) throws Exception {

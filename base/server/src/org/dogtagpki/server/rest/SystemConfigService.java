@@ -18,26 +18,19 @@
 package org.dogtagpki.server.rest;
 
 import java.security.KeyPair;
-import java.security.Principal;
 
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
@@ -48,17 +41,14 @@ import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
-import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Cert;
-import com.netscape.cms.servlet.csadmin.CertInfoProfile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -388,82 +378,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 || "kra".equals(subsystem) && (request.isExternal() || request.getStandAlone())
                 || "ocsp".equals(subsystem) && (request.isExternal()  || request.getStandAlone())) {
 
-            logger.info("SystemConfigService: Loading existing " + tag + " certificate");
-
-            byte[] bytes = x509Cert.getEncoded();
-            String b64 = CryptoUtil.base64Encode(bytes);
-            String certStr = CryptoUtil.normalizeCertStr(b64);
-            logger.debug("SystemConfigService: cert: " + certStr);
-
-            cert.setCert(bytes);
-
-            cs.commit(false);
-
-            logger.info("SystemConfigService: Loading existing " + tag + " cert request");
-
-            String certreqStr = cs.getString(subsystem + "." + tag + ".certreq");
-            logger.debug("SystemConfigService: request: " + certreqStr);
-
-            byte[] certreqBytes = CryptoUtil.base64Decode(certreqStr);
-            cert.setRequest(certreqBytes);
-
-            // When importing existing self-signed CA certificate, create a
-            // certificate record to reserve the serial number. Otherwise it
-            // might conflict with system certificates to be created later.
-            // Also create the certificate request record for renewals.
-
-            logger.debug("SystemConfigService: subsystem: " + subsystem);
-            if (!subsystem.equals("ca")) {
-                // not a CA -> done
-                return cert;
-            }
-
-            // checking whether the cert was issued by existing CA
-            logger.debug("SystemConfigService: issuer DN: " + x509Cert.getIssuerDN());
-
-            String caSigningNickname = cs.getString("ca.signing.nickname");
-            X509Certificate caSigningCert = cm.findCertByNickname(caSigningNickname);
-            Principal caSigningDN = caSigningCert.getSubjectDN();
-
-            logger.debug("SystemConfigService: CA signing DN: " + caSigningDN);
-
-            if (!x509Cert.getIssuerDN().equals(caSigningDN)) {
-                logger.debug("SystemConfigService: cert issued by external CA, don't create record");
-                return cert;
-            }
-
-            logger.debug("SystemConfigService: cert issued by existing CA, create record");
-
-            CMSEngine engine = CMS.getCMSEngine();
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-
-            String profileName = preopConfig.getString("cert." + tag + ".profile");
-            logger.debug("SystemConfigService: profile: " + profileName);
-
-            String instanceRoot = cs.getInstanceDir();
-            String configurationRoot = cs.getString("configurationRoot");
-            CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
-
-            PKCS10 pkcs10 = new PKCS10(certreqBytes);
-            X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
-
-            X509CertImpl certImpl = new X509CertImpl(bytes);
-            X509CertInfo info = certImpl.getInfo();
-
-            IRequest req = configurator.createRequest(tag, profile, x509key, info);
-
-            req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, certImpl);
-            req.setExtData("cert_request", certreqBytes);
-            req.setExtData("cert_request_type", "pkcs10");
-
-            IRequestQueue queue = ca.getRequestQueue();
-            queue.updateRequest(req);
-
-            RequestId reqId = req.getRequestId();
-            preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
-
-            CertUtils.createCertRecord(req, profile, certImpl);
-
+            configurator.loadCert(cert, x509Cert);
             return cert;
         }
 
