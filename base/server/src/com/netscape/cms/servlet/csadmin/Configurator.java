@@ -1125,6 +1125,29 @@ public class Configurator {
         CertUtils.createCertRecord(req, profile, certImpl);
     }
 
+    public void generateCert(Cert cert, CertificateSetupRequest request, KeyPair keyPair) throws Exception {
+
+        String tag = cert.getCertTag();
+
+        // generate and configure other system certificate
+        logger.info("Configurator: Generating new " + tag + " certificate");
+        X509CertImpl certImpl = configCert(request, keyPair, cert);
+
+        byte[] certBin = certImpl.getEncoded();
+        String certStr = CryptoUtil.base64Encode(certBin);
+        cert.setCert(certBin);
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        String subsystemName = preopConfig.getString("cert." + tag + ".subsystem");
+        cs.putString(subsystemName + "." + tag + ".cert", certStr);
+        cs.commit(false);
+
+        logger.debug("Configurator: cert: " + certStr);
+
+        // generate certificate request for the system certificate
+        generateCertRequest(tag, keyPair, cert);
+    }
+
     public void handleCert(Cert cert) throws Exception {
 
         String certTag = cert.getCertTag();

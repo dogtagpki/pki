@@ -379,25 +379,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 || "ocsp".equals(subsystem) && (request.isExternal()  || request.getStandAlone())) {
 
             configurator.loadCert(cert, x509Cert);
-            return cert;
+
+        } else {
+            configurator.generateCert(cert, request, keyPair);
         }
-
-        // generate and configure other system certificate
-        logger.info("SystemConfigService: generating new " + tag + " certificate");
-        X509CertImpl certImpl = configurator.configCert(request, keyPair, cert);
-
-        byte[] certBin = certImpl.getEncoded();
-        String certStr = CryptoUtil.base64Encode(certBin);
-        cert.setCert(certBin);
-
-        String subsystemName = preopConfig.getString("cert." + tag + ".subsystem");
-        cs.putString(subsystemName + "." + tag + ".cert", certStr);
-        cs.commit(false);
-
-        logger.debug("SystemConfigService: cert: " + certStr);
-
-        // generate certificate request for the system certificate
-        configurator.generateCertRequest(tag, keyPair, cert);
 
         return cert;
     }
