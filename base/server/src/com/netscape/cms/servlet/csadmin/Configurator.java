@@ -72,6 +72,7 @@ import org.xml.sax.SAXParseException;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -1279,6 +1280,27 @@ public class Configurator {
             CryptoUtil.trustAuditSigningCert(cert);
 
         } // user certs will have u,u,u by default
+    }
+
+    public Cert setupCert(CertificateSetupRequest request) throws Exception {
+
+        String tag = request.getTag();
+        SystemCertData certData = request.getSystemCert();
+
+        if (certData == null) {
+            logger.error("SystemConfigService: missing certificate: " + tag);
+            throw new BadRequestException("Missing certificate: " + tag);
+        }
+
+        KeyPair keyPair = processKeyPair(certData);
+        Cert cert = processCert(request, keyPair, certData);
+
+        handleCert(cert);
+
+        // make sure to commit changes here for step 1
+        cs.commit(false);
+
+        return cert;
     }
 
     public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {

@@ -32,9 +32,11 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.registry.IPluginInfo;
+import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
+import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -168,6 +170,20 @@ public class CAConfigurator extends Configurator {
         engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
 
         engine.reinit(CertificateAuthority.ID);
+    }
+
+    public Cert setupCert(CertificateSetupRequest request) throws Exception {
+        Cert cert = super.setupCert(request);
+
+        String subsystem = cert.getSubsystem();
+        String tag = request.getTag();
+
+        if (subsystem.equals("ca") && tag.equals("signing")) {
+            CAEngine engine = CAEngine.getInstance();
+            engine.reinit(ICertificateAuthority.ID);
+        }
+
+        return cert;
     }
 
     @Override

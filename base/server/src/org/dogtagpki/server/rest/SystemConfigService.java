@@ -17,10 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.rest;
 
-import java.security.KeyPair;
-
 import org.apache.commons.lang.StringUtils;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
@@ -144,27 +141,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            SystemCertData certData = request.getSystemCert();
-
-            if (certData == null) {
-                logger.error("SystemConfigService: missing certificate: " + tag);
-                throw new BadRequestException("Missing certificate: " + tag);
-            }
-
-            KeyPair keyPair = configurator.processKeyPair(certData);
-
-            Cert cert = configurator.processCert(request, keyPair, certData);
-
-            String subsystem = cert.getSubsystem();
-            configurator.handleCert(cert);
-
-            // make sure to commit changes here for step 1
-            cs.commit(false);
-
-            if (tag.equals("signing") && subsystem.equals("ca")) {
-                CMSEngine engine = CMS.getCMSEngine();
-                engine.reinit(ICertificateAuthority.ID);
-            }
+            Cert cert = configurator.setupCert(request);
 
             return SystemCertDataFactory.create(cert);
 
