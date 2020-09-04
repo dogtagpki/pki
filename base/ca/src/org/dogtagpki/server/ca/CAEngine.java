@@ -104,6 +104,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected boolean enablePastCATime;
     protected boolean enableOCSP;
 
+    protected int fastSigning = CertificateAuthority.FASTSIGNING_DISABLED;
+
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
 
@@ -224,6 +226,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         this.enablePastCATime = enablePastCATime.equals("true");
     }
 
+    public int getFastSigning() {
+        return fastSigning;
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -263,6 +269,15 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         logger.info("CAEngine: - enable past CA time: " + enablePastCATime);
 
         enableOCSP = caConfig.getBoolean(CertificateAuthority.PROP_ENABLE_OCSP, true);
+
+        String fastSigning = caConfig.getString(CertificateAuthority.PROP_FAST_SIGNING, "");
+        logger.info("CAEngine: - fast signing: " + fastSigning);
+
+        if (fastSigning.equals("enabled") || fastSigning.equals("enable")) {
+            this.fastSigning = CertificateAuthority.FASTSIGNING_ENABLED;
+        } else {
+            this.fastSigning = CertificateAuthority.FASTSIGNING_DISABLED;
+        }
 
         logger.info("CAEngine: Initializing CA policy");
         IConfigStore caPolicyConfig = caConfig.getSubStore(CertificateAuthority.PROP_POLICY);

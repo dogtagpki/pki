@@ -234,10 +234,8 @@ public class CertificateAuthority
     protected long mSignTime = 0;
     protected long mLookupTime = 0;
 
-    protected static final int FASTSIGNING_DISABLED = 0;
-    protected static final int FASTSIGNING_ENABLED = 1;
-
-    protected int mFastSigning = FASTSIGNING_DISABLED;
+    public final static int FASTSIGNING_DISABLED = 0;
+    public final static int FASTSIGNING_ENABLED = 1;
 
     protected static final long SECOND = 1000; // 1000 milliseconds
     protected static final long MINUTE = 60 * SECOND;
@@ -466,9 +464,6 @@ public class CertificateAuthority
         } catch (Exception e) {
             throw new EBaseException(e);
         }
-
-        logger.info("CertificateAuthority: initializing default CA attributes");
-        initDefaultCAAttributes();
 
         /* Don't try to update the cert unless we already have
          * the cert and key. */
@@ -1348,7 +1343,7 @@ public class CertificateAuthority
     public X509CertImpl sign(X509CertInfo certInfo, String algname)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         ensureReady();
 
         X509CertImpl signedcert = null;
@@ -1391,7 +1386,7 @@ public class CertificateAuthority
             out.write(DerValue.tag_Sequence, tmp);
             //logger.info("CertificateAuthority: done signing");
 
-            switch (mFastSigning) {
+            switch (engine.getFastSigning()) {
             case FASTSIGNING_DISABLED:
                 signedcert = new X509CertImpl(out.toByteArray());
                 break;
@@ -1685,20 +1680,6 @@ public class CertificateAuthority
                 in.close();
         }
         return b;
-    }
-
-    /**
-     * init default cert attributes.
-     */
-    private void initDefaultCAAttributes() throws EBaseException {
-
-        String fs = mConfig.getString(PROP_FAST_SIGNING, "");
-
-        if (fs.equals("enabled") || fs.equals("enable")) {
-            mFastSigning = FASTSIGNING_ENABLED;
-        } else {
-            mFastSigning = FASTSIGNING_DISABLED;
-        }
     }
 
     private void startPublish()
