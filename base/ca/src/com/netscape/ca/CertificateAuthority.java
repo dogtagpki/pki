@@ -237,7 +237,6 @@ public class CertificateAuthority
     protected static final int FASTSIGNING_DISABLED = 0;
     protected static final int FASTSIGNING_ENABLED = 1;
 
-    protected long mDefaultValidity;
     protected boolean mEnablePastCATime;
     protected boolean mEnableOCSP;
     protected int mFastSigning = FASTSIGNING_DISABLED;
@@ -245,7 +244,7 @@ public class CertificateAuthority
     protected static final long SECOND = 1000; // 1000 milliseconds
     protected static final long MINUTE = 60 * SECOND;
     protected static final long HOUR = 60 * MINUTE;
-    protected static final long DAY = 24 * HOUR;
+    public final static long DAY = 24 * HOUR;
     protected static final long YEAR = DAY * 365;
 
     protected AuthorityMonitor authorityMonitor;
@@ -907,7 +906,8 @@ public class CertificateAuthority
     }
 
     public long getDefaultValidity() {
-        return mDefaultValidity;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getDefaultCertValidity();
     }
 
     public SignatureAlgorithm getDefaultSignatureAlgorithm() {
@@ -1705,9 +1705,6 @@ public class CertificateAuthority
      * init default cert attributes.
      */
     private void initDefaultCAAttributes() throws EBaseException {
-
-        int validity_in_days = mConfig.getInteger(PROP_DEF_VALIDITY, 2 * 365);
-        mDefaultValidity = validity_in_days * DAY; // days in config file.
 
         mEnablePastCATime = mConfig.getBoolean(PROP_ENABLE_PAST_CATIME, false);
         mEnableOCSP = mConfig.getBoolean(PROP_ENABLE_OCSP, true);

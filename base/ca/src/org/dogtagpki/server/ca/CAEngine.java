@@ -100,6 +100,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected RequestQueue requestQueue;
 
     protected CertificateVersion defaultCertVersion;
+    protected long defaultCertValidity;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -187,6 +188,15 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return defaultCertVersion;
     }
 
+    /**
+     * Retrieves the default validity period.
+     *
+     * @return the default validity length in days
+     */
+    public long getDefaultCertValidity() {
+        return defaultCertValidity;
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -217,6 +227,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         defaultCertVersion = new CertificateVersion(certVersion - 1);
         logger.info("CAEngine: - default cert version: " + defaultCertVersion);
+
+        int certValidity = caConfig.getInteger(CertificateAuthority.PROP_DEF_VALIDITY, 2 * 365);
+        defaultCertValidity = certValidity * CertificateAuthority.DAY; // in milliseconds
+        logger.info("CAEngine: - default cert validity (days): " + certValidity);
 
         logger.info("CAEngine: Initializing CA policy");
         IConfigStore caPolicyConfig = caConfig.getSubStore(CertificateAuthority.PROP_POLICY);

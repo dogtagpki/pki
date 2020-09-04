@@ -665,7 +665,7 @@ public class CAService implements ICAService, IService {
                 logger.debug("setting default validity");
 
                 begin = new Date();
-                end = new Date(begin.getTime() + ca.getDefaultValidity());
+                end = new Date(begin.getTime() + engine.getDefaultCertValidity());
                 certi.set(CertificateValidity.NAME,
                         new CertificateValidity(begin, end));
             }
