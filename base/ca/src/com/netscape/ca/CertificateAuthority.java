@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
@@ -195,7 +194,6 @@ public class CertificateAuthority
 
     protected CAConfig mConfig;
 
-    protected Hashtable<String, ICRLIssuingPoint> mCRLIssuePoints = new Hashtable<String, ICRLIssuingPoint>();
     protected CRLIssuingPoint mMasterCRLIssuePoint = null; // the complete crl.
     protected SigningUnit mSigningUnit;
     protected SigningUnit mOCSPSigningUnit;
@@ -753,13 +751,6 @@ public class CertificateAuthority
 
         CAEngine.loader.shutdown();
 
-        Enumeration<ICRLIssuingPoint> enums = mCRLIssuePoints.elements();
-        while (enums.hasMoreElements()) {
-            CRLIssuingPoint point = (CRLIssuingPoint) enums.nextElement();
-            point.shutdown();
-        }
-        mCRLIssuePoints.clear();
-
         if (mMasterCRLIssuePoint != null) {
             mMasterCRLIssuePoint.shutdown();
         }
@@ -874,7 +865,8 @@ public class CertificateAuthority
      * @return CRL issuing point
      */
     public ICRLIssuingPoint getCRLIssuingPoint(String id) {
-        return mCRLIssuePoints.get(id);
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getCRLIssuingPoint(id);
     }
 
     /**
@@ -884,11 +876,8 @@ public class CertificateAuthority
      * @return security service
      */
     public Enumeration<ICRLIssuingPoint> getCRLIssuingPoints() {
-        return mCRLIssuePoints.elements();
-    }
-
-    public int getCRLIssuingPointsSize() {
-        return mCRLIssuePoints.size();
+        CAEngine engine = CAEngine.getInstance();
+        return Collections.enumeration(engine.getCRLIssuingPoints());
     }
 
     /**
@@ -897,6 +886,9 @@ public class CertificateAuthority
     @SuppressWarnings("unchecked")
     public boolean addCRLIssuingPoint(IConfigStore crlSubStore, String id,
                                       boolean enable, String description) {
+
+        CAEngine engine = CAEngine.getInstance();
+
         crlSubStore.makeSubStore(id);
         CRLIssuingPointConfig c = crlSubStore.getSubStore(id, CRLIssuingPointConfig.class);
 
@@ -1025,7 +1017,9 @@ public class CertificateAuthority
                 issuingPointClass = (Class<CRLIssuingPoint>) Class.forName(issuingPointClassName);
                 issuingPoint = issuingPointClass.newInstance();
                 issuingPoint.init(this, id, c);
-                mCRLIssuePoints.put(id, issuingPoint);
+
+                engine.addCRLIssuingPoint(id, issuingPoint);
+
             } catch (EPropertyNotFound e) {
                 crlSubStore.removeSubStore(id);
                 return false;
@@ -1052,11 +1046,10 @@ public class CertificateAuthority
     public void deleteCRLIssuingPoint(IConfigStore crlSubStore, String id) {
 
         CAEngine engine = CAEngine.getInstance();
-        CRLIssuingPoint ip = (CRLIssuingPoint) mCRLIssuePoints.get(id);
+        CRLIssuingPoint ip = (CRLIssuingPoint) engine.removeCRLIssuingPoint(id);
 
         if (ip != null) {
             ip.shutdown();
-            mCRLIssuePoints.remove(id);
             ip = null;
             crlSubStore.removeSubStore(id);
             try {
@@ -1648,65 +1641,14 @@ public class CertificateAuthority
     private void initCRL()
             throws EBaseException {
         if (!isHostAuthority()) {
-            mCRLIssuePoints = hostCA.mCRLIssuePoints;
             mMasterCRLIssuePoint = hostCA.mMasterCRLIssuePoint;
             return;
         }
-        IConfigStore crlConfig = mConfig.getSubStore(PROP_CRL_SUBSTORE);
 
-        if ((crlConfig == null) || (crlConfig.size() <= 0)) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL"));
-            //throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
-            return;
-        }
-        Enumeration<String> issuePointIdEnum = crlConfig.getSubStoreNames();
-
-        if (issuePointIdEnum == null || !issuePointIdEnum.hasMoreElements()) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL_SUBSTORE"));
-            //throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
-            return;
-        }
+        CAEngine engine = CAEngine.getInstance();
 
         // a Master/full crl must exist.
-        CRLIssuingPoint masterCRLIssuePoint = null;
-
-        while (issuePointIdEnum.hasMoreElements()) {
-            String issuePointId = issuePointIdEnum.nextElement();
-
-            logger.debug("initializing crl issue point " + issuePointId);
-            CRLIssuingPointConfig issuePointConfig = null;
-            String issuePointClassName = null;
-            Class<CRLIssuingPoint> issuePointClass = null;
-            CRLIssuingPoint issuePoint = null;
-
-            try {
-                issuePointConfig = crlConfig.getSubStore(issuePointId, CRLIssuingPointConfig.class);
-                issuePointClassName = issuePointConfig.getClassName();
-                issuePointClass = (Class<CRLIssuingPoint>) Class.forName(issuePointClassName);
-                issuePoint = issuePointClass.newInstance();
-                issuePoint.init(this, issuePointId, issuePointConfig);
-                mCRLIssuePoints.put(issuePointId, issuePoint);
-
-                if (masterCRLIssuePoint == null &&
-                        issuePointId.equals(PROP_MASTER_CRL))
-                    masterCRLIssuePoint = issuePoint;
-
-            } catch (ClassNotFoundException e) {
-                throw new ECAException(
-                        CMS.getUserMessage("CMS_CA_CRL_ISSUING_POINT_INIT_FAILED",
-                                issuePointId, e.toString()));
-            } catch (InstantiationException e) {
-                throw new ECAException(
-                        CMS.getUserMessage("CMS_CA_CRL_ISSUING_POINT_INIT_FAILED",
-                                issuePointId, e.toString()));
-            } catch (IllegalAccessException e) {
-                throw new ECAException(
-                        CMS.getUserMessage("CMS_CA_CRL_ISSUING_POINT_INIT_FAILED",
-                                issuePointId, e.toString()));
-            }
-        }
-
-        mMasterCRLIssuePoint = masterCRLIssuePoint;
+        mMasterCRLIssuePoint = (CRLIssuingPoint) engine.getCRLIssuingPoint(PROP_MASTER_CRL);
 
         /*
          if (mMasterCRLIssuePoint == null) {

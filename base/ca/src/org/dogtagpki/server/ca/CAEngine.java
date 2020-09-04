@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,8 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CAService;
+import com.netscape.ca.CRLIssuingPoint;
+import com.netscape.ca.CRLIssuingPointConfig;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.ca.KeyRetriever;
 import com.netscape.ca.KeyRetrieverRunner;
@@ -120,6 +123,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected boolean ocspResponderByName = true;
     protected ICRLPublisher crlPublisher;
     protected PublisherProcessor publisherProcessor;
+
+    protected Map<String, ICRLIssuingPoint> crlIssuingPoints = new HashMap<>();
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -270,6 +275,29 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return publisherProcessor;
     }
 
+    public Collection<ICRLIssuingPoint> getCRLIssuingPoints() {
+        return crlIssuingPoints.values();
+    }
+
+    /**
+     * Retrieves the CRL issuing point by id.
+     * <P>
+     *
+     * @param id string id of the CRL issuing point
+     * @return CRL issuing point
+     */
+    public ICRLIssuingPoint getCRLIssuingPoint(String id) {
+        return crlIssuingPoints.get(id);
+    }
+
+    public void addCRLIssuingPoint(String id, ICRLIssuingPoint crlIssuingPoint) {
+        crlIssuingPoints.put(id, crlIssuingPoint);
+    }
+
+    public ICRLIssuingPoint removeCRLIssuingPoint(String id) {
+        return crlIssuingPoints.remove(id);
+    }
+
     public void initListeners() throws Exception {
 
         logger.info("CAEngine: Initializing CA listeners");
@@ -367,6 +395,46 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         publisherProcessor = new PublisherProcessor(CertificateAuthority.ID + "pp");
         publisherProcessor.init(hostCA, publisherProcessorConfig);
+    }
+
+    public void initCRLIssuingPoints() throws Exception {
+
+        logger.info("CAEngine: Initializing CRL issueing points");
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        IConfigStore crlConfig = caConfig.getSubStore(CertificateAuthority.PROP_CRL_SUBSTORE);
+
+        if (crlConfig == null || crlConfig.size() <= 0) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL"));
+            // throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
+            return;
+        }
+
+        Enumeration<String> ipIDs = crlConfig.getSubStoreNames();
+
+        if (ipIDs == null || !ipIDs.hasMoreElements()) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL_SUBSTORE"));
+            // throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
+            return;
+        }
+
+        CertificateAuthority hostCA = getCA();
+
+        while (ipIDs.hasMoreElements()) {
+            String id = ipIDs.nextElement();
+            logger.info("CAEngine: - " + id);
+
+            CRLIssuingPointConfig ipConfig = crlConfig.getSubStore(id, CRLIssuingPointConfig.class);
+            String className = ipConfig.getClassName();
+            Class<CRLIssuingPoint> clazz = (Class<CRLIssuingPoint>) Class.forName(className);
+
+            CRLIssuingPoint issuingPoint = clazz.newInstance();
+            issuingPoint.init(hostCA, id, ipConfig);
+
+            crlIssuingPoints.put(id, issuingPoint);
+        }
     }
 
     protected void loadSubsystems() throws Exception {
@@ -505,6 +573,11 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         }
 
         super.initSubsystems();
+
+        if (!isPreOpMode()) {
+            // CRLIssuingPoint must be initialized after host CA initialization
+            initCRLIssuingPoints();
+        }
     }
 
     public X509Certificate[] getCertChain(X509Certificate cert) throws Exception {
@@ -1294,6 +1367,11 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     protected void shutdownSubsystems() {
         super.shutdownSubsystems();
+
+        for (ICRLIssuingPoint crlIssuingPoint : crlIssuingPoints.values()) {
+            crlIssuingPoint.shutdown();
+        }
+        crlIssuingPoints.clear();
 
         if (certificateRepository != null) {
             certificateRepository.shutdown();
