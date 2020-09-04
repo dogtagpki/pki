@@ -115,7 +115,6 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
 import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
@@ -224,7 +223,6 @@ public class CertificateAuthority
     protected org.mozilla.jss.crypto.X509Certificate mOCSPX509Cert = null;
     protected String[] mCASigningAlgorithms = null;
 
-    protected PublisherProcessor mPublisherProcessor;
     protected long mNumOCSPRequest = 0;
     protected long mTotalTime = 0;
     protected long mTotalData = 0;
@@ -451,10 +449,6 @@ public class CertificateAuthority
             logger.info("CertificateAuthority: aborting initialization in pre-op mode");
             return;
         }
-
-        logger.info("CertificateAuthority: initializing publisher processor");
-        // publish remote admin relies on this subsystem, so it has to be initialized
-        initPublish();
 
         logger.info("CertificateAuthority: initializing CRL issuing points");
         // note CRL framework depends on DBS, CRYPTO and PUBLISHING
@@ -739,7 +733,6 @@ public class CertificateAuthority
         if (isHostAuthority()) {
             // setup Admin operations
             initNotificationListeners();
-            startPublish();
         }
     }
 
@@ -769,15 +762,6 @@ public class CertificateAuthority
 
         if (mMasterCRLIssuePoint != null) {
             mMasterCRLIssuePoint.shutdown();
-        }
-
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-        if (certificateRepository != null) {
-            certificateRepository.shutdown();
-        }
-
-        if (mPublisherProcessor != null) {
-            mPublisherProcessor.shutdown();
         }
     }
 
@@ -878,7 +862,8 @@ public class CertificateAuthority
     }
 
     public PublisherProcessor getPublisherProcessor() {
-        return mPublisherProcessor;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getPublisherProcessor();
     }
 
     /**
@@ -1583,54 +1568,6 @@ public class CertificateAuthority
                 in.close();
         }
         return b;
-    }
-
-    private void startPublish()
-            throws EBaseException {
-        //xxx Note that CMS411 only support ca cert publishing to ldap
-        // if ldap publishing is not enabled while publishing isenabled
-        // there will be a lot of problem.
-        try {
-            if (mPublisherProcessor.isCertPublishingEnabled()) {
-                mPublisherProcessor.publishCACert(mCaCert);
-                logger.debug("published ca cert");
-            }
-        } catch (ELdapException e) {
-            // exception not thrown - not seen as a fatal error.
-            logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_PUBLISH", e.toString()), e);
-        }
-    }
-
-    /**
-     * init publishing
-     */
-    private void initPublish()
-            throws EBaseException {
-        if (!isHostAuthority()) {
-            mPublisherProcessor = hostCA.mPublisherProcessor;
-            return;
-        }
-
-        IConfigStore c = null;
-
-        try {
-            c = mConfig.getSubStore(PROP_PUBLISH_SUBSTORE);
-            if (c != null && c.size() > 0) {
-                mPublisherProcessor = new PublisherProcessor(
-                            getId() + "pp");
-                mPublisherProcessor.init(this, c);
-                logger.debug("Publishing inited");
-            } else {
-                logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISH"));
-                throw new ECAException(
-                        CMS.getUserMessage("CMS_CA_INIT_PUBLISH_MODULE_FAILED"));
-            }
-
-        } catch (ELdapException e) {
-            logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_ERROR_PUBLISH_MODULE", e.toString()), e);
-            //throw new ECAException(
-            //	CAResources.INIT_PUBLISH_MODULE_FAILED, e);
-        }
     }
 
     /**

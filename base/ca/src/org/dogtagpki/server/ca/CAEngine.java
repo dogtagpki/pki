@@ -70,6 +70,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.dbs.Repository;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.listeners.ListenerPlugin;
@@ -118,6 +119,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     protected boolean ocspResponderByName = true;
     protected ICRLPublisher crlPublisher;
+    protected PublisherProcessor publisherProcessor;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -259,6 +261,15 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return crlPublisher;
     }
 
+    /**
+     * Retrieves the publishing processor of this certificate authority.
+     *
+     * @return CA's publishing processor
+     */
+    public PublisherProcessor getPublisherProcessor() {
+        return publisherProcessor;
+    }
+
     public void initListeners() throws Exception {
 
         logger.info("CAEngine: Initializing CA listeners");
@@ -337,6 +348,25 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         Class<ICRLPublisher> publisherClass = (Class<ICRLPublisher>) Class.forName(className);
         crlPublisher = publisherClass.newInstance();
         crlPublisher.init(hostCA, crlPublisherConfig);
+    }
+
+    public void initPublisherProcessor() throws Exception {
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        IConfigStore publisherProcessorConfig = caConfig.getSubStore(CertificateAuthority.PROP_PUBLISH_SUBSTORE);
+        if (publisherProcessorConfig == null || publisherProcessorConfig.size() == 0) {
+            logger.info("CAEngine: Publisher processor disabled");
+            return;
+        }
+
+        logger.info("CAEngine: Initializing publisher processor");
+
+        CertificateAuthority hostCA = getCA();
+
+        publisherProcessor = new PublisherProcessor(CertificateAuthority.ID + "pp");
+        publisherProcessor.init(hostCA, publisherProcessorConfig);
     }
 
     protected void loadSubsystems() throws Exception {
@@ -470,6 +500,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             logger.info("CAEngine: - by name: " + ocspResponderByName);
 
             initCRLPublisher();
+
+            initPublisherProcessor();
         }
 
         super.initSubsystems();
@@ -492,7 +524,28 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return certChain;
     }
 
+    public void startPublisherProcessor() throws Exception {
+
+        // Note that CMS411 only support ca cert publishing to ldap.
+        // If ldap publishing is not enabled while publishing isenabled
+        // there will be a lot of problem.
+
+        if (!publisherProcessor.isCertPublishingEnabled()) {
+            logger.info("CertificateAuthority: Publisher processor disabled");
+            return;
+        }
+
+        logger.info("CertificateAuthority: Starting publisher processor");
+
+        CertificateAuthority hostCA = getCA();
+        publisherProcessor.publishCACert(hostCA.getCACert());
+    }
+
     public void startupSubsystems() throws Exception {
+
+        if (!isPreOpMode()) {
+            startPublisherProcessor();
+        }
 
         super.startupSubsystems();
 
@@ -1236,6 +1289,18 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             connectionFactory.shutdown();
         } catch (Exception e) {
             logger.warn("CAEngine: Unable to shut down connection factory: " + e.getMessage(), e);
+        }
+    }
+
+    protected void shutdownSubsystems() {
+        super.shutdownSubsystems();
+
+        if (certificateRepository != null) {
+            certificateRepository.shutdown();
+        }
+
+        if (publisherProcessor != null) {
+            publisherProcessor.shutdown();
         }
     }
 }
