@@ -80,7 +80,6 @@ import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X500Signer;
@@ -238,7 +237,6 @@ public class CertificateAuthority
     protected static final int FASTSIGNING_DISABLED = 0;
     protected static final int FASTSIGNING_ENABLED = 1;
 
-    protected CertificateVersion mDefaultCertVersion;
     protected long mDefaultValidity;
     protected boolean mEnablePastCATime;
     protected boolean mEnableOCSP;
@@ -356,10 +354,6 @@ public class CertificateAuthority
      */
     public String getId() {
         return mId;
-    }
-
-    public CertificateVersion getDefaultCertVersion() {
-        return mDefaultCertVersion;
     }
 
     public boolean isEnablePastCATime() {
@@ -1711,18 +1705,6 @@ public class CertificateAuthority
      * init default cert attributes.
      */
     private void initDefaultCAAttributes() throws EBaseException {
-
-        int version = mConfig.getInteger(PROP_X509CERT_VERSION, CertificateVersion.V3);
-
-        if (version != CertificateVersion.V1 && version != CertificateVersion.V3) {
-            throw new ECAException(CMS.getUserMessage("CMS_CA_X509CERT_VERSION_NOT_SUPPORTED"));
-        }
-
-        try {
-            mDefaultCertVersion = new CertificateVersion(version - 1);
-        } catch (IOException e) {
-            throw new EBaseException(e);
-        }
 
         int validity_in_days = mConfig.getInteger(PROP_DEF_VALIDITY, 2 * 365);
         mDefaultValidity = validity_in_days * DAY; // days in config file.

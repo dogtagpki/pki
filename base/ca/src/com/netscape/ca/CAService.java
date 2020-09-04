@@ -644,7 +644,7 @@ public class CAService implements ICAService, IService {
             // set default cert version. If policies added a extensions
             // the version would already be set to version 3.
             if (certi.get(X509CertInfo.VERSION) == null) {
-                certi.set(X509CertInfo.VERSION, ca.getDefaultCertVersion());
+                certi.set(X509CertInfo.VERSION, engine.getDefaultCertVersion());
             }
 
             // set default validity if not set.

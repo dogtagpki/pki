@@ -27,7 +27,6 @@ import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -442,13 +441,6 @@ public interface ICertificateAuthority extends ISubsystem {
      */
     public X509CertImpl sign(X509CertInfo certInfo, String algname)
             throws EBaseException;
-
-    /**
-     * Retrieves the default certificate version.
-     *
-     * @return the default version certificate
-     */
-    public CertificateVersion getDefaultCertVersion();
 
     /**
      * Is this CA allowed to issue certificate that has longer

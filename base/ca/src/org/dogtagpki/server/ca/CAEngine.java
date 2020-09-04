@@ -38,6 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -50,6 +51,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CATypeException;
+import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.util.AsyncLoader;
@@ -96,6 +98,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected ARequestNotifier requestNotifier;
     protected ARequestNotifier pendingNotifier;
     protected RequestQueue requestQueue;
+
+    protected CertificateVersion defaultCertVersion;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -174,6 +178,15 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return requestQueue;
     }
 
+    /**
+     * Retrieves the default certificate version.
+     *
+     * @return the default version certificate
+     */
+    public CertificateVersion getDefaultCertVersion() {
+        return defaultCertVersion;
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -194,9 +207,19 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
-        IConfigStore caPolicyConfig = caConfig.getSubStore(CertificateAuthority.PROP_POLICY);
+
+        logger.info("CAEngine: Loading CA configuration");
+
+        int certVersion = caConfig.getInteger(CertificateAuthority.PROP_X509CERT_VERSION, CertificateVersion.V3);
+        if (certVersion != CertificateVersion.V1 && certVersion != CertificateVersion.V3) {
+            throw new ECAException(CMS.getUserMessage("CMS_CA_X509CERT_VERSION_NOT_SUPPORTED"));
+        }
+
+        defaultCertVersion = new CertificateVersion(certVersion - 1);
+        logger.info("CAEngine: - default cert version: " + defaultCertVersion);
 
         logger.info("CAEngine: Initializing CA policy");
+        IConfigStore caPolicyConfig = caConfig.getSubStore(CertificateAuthority.PROP_POLICY);
         caPolicy = new CAPolicy();
         caPolicy.init(hostCA, caPolicyConfig);
 
