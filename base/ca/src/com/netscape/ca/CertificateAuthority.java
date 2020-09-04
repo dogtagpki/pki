@@ -434,20 +434,7 @@ public class CertificateAuthority
         } catch (CAMissingCertException | CAMissingKeyException e) {
             logger.warn("CertificateAuthority: CA signing key and cert not (yet) present in NSS database");
             signingUnitException = e;
-
-            if (authorityID == null) {
-                // Only the host authority should ever see a
-                // null authorityID, e.g. during two-step
-                // installation of externally-signed CA.
-                logger.info("CertificateAuthority: do not start KeyRetriever for host CA");
-
-            } else if (!engine.hasKeyRetriever(authorityID)) {
-                logger.info("CertificateAuthority: starting KeyRetriever for authority " + authorityID);
-                engine.startKeyRetriever(this);
-
-            } else {
-                logger.info("CertificateAuthority: KeyRetriever already running for authority " + authorityID);
-            }
+            engine.startKeyRetriever(this);
 
         } catch (Exception e) {
             throw new EBaseException(e);

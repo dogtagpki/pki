@@ -124,7 +124,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     public static Map<AuthorityID, CertificateAuthority> authorities =
             Collections.synchronizedSortedMap(new TreeMap<AuthorityID, CertificateAuthority>());
 
-    public static Map<AuthorityID, Thread> keyRetrievers =
+    public Map<AuthorityID, Thread> keyRetrievers =
             Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
 
     // Track authority updates to avoid race conditions and unnecessary reloads due to replication
@@ -692,15 +692,30 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return ca;
     }
 
-    public boolean hasKeyRetriever(AuthorityID aid) {
-        return keyRetrievers.containsKey(aid);
-    }
+    public void startKeyRetriever(CertificateAuthority ca) throws EBaseException {
 
-    public void startKeyRetriever(CertificateAuthority ca) {
+        AuthorityID authorityID = ca.getAuthorityID();
+
+        if (authorityID == null) {
+            // Only the host authority should ever see a
+            // null authorityID, e.g. during two-step
+            // installation of externally-signed CA.
+            logger.info("CertificateAuthority: Do not start KeyRetriever for host CA");
+            return;
+        }
+
+        if (keyRetrievers.containsKey(authorityID)) {
+            logger.info("CertificateAuthority: KeyRetriever already running for authority " + authorityID);
+            return;
+        }
+
+        logger.info("CertificateAuthority: Starting KeyRetriever for authority " + authorityID);
+
         KeyRetrieverRunner runner = new KeyRetrieverRunner(ca);
-        Thread thread = new Thread(runner, "KeyRetrieverRunner-" + ca.getAuthorityID());
+        Thread thread = new Thread(runner, "KeyRetrieverRunner-" + authorityID);
         thread.start();
-        keyRetrievers.put(ca.getAuthorityID(), thread);
+
+        keyRetrievers.put(authorityID, thread);
     }
 
     public void removeKeyRetriever(AuthorityID aid) {
