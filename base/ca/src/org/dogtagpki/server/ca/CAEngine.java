@@ -279,6 +279,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return crlIssuingPoints.values();
     }
 
+    public ICRLIssuingPoint getMasterCRLIssuingPoint() {
+        return crlIssuingPoints.get(CertificateAuthority.PROP_MASTER_CRL);
+    }
+
     /**
      * Retrieves the CRL issuing point by id.
      * <P>
@@ -399,7 +403,9 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public void initCRLIssuingPoints() throws Exception {
 
-        logger.info("CAEngine: Initializing CRL issueing points");
+        logger.info("CAEngine: Initializing CRL issuing points");
+        // note CRL framework depends on DBS, CRYPTO and PUBLISHING
+        // being functional.
 
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
@@ -1372,6 +1378,12 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             crlIssuingPoint.shutdown();
         }
         crlIssuingPoints.clear();
+
+        CRLIssuingPoint masterCRLIssuingPoint = (CRLIssuingPoint) getMasterCRLIssuingPoint();
+
+        if (masterCRLIssuingPoint != null) {
+            masterCRLIssuingPoint.shutdown();
+        }
 
         if (certificateRepository != null) {
             certificateRepository.shutdown();

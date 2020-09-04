@@ -194,7 +194,6 @@ public class CertificateAuthority
 
     protected CAConfig mConfig;
 
-    protected CRLIssuingPoint mMasterCRLIssuePoint = null; // the complete crl.
     protected SigningUnit mSigningUnit;
     protected SigningUnit mOCSPSigningUnit;
     protected SigningUnit mCRLSigningUnit;
@@ -347,15 +346,17 @@ public class CertificateAuthority
      * updates the Master CRL now
      */
     public void updateCRLNow() throws EBaseException {
-        if (mMasterCRLIssuePoint != null) {
-            mMasterCRLIssuePoint.updateCRLNow();
-        }
+        CAEngine engine = CAEngine.getInstance();
+        CRLIssuingPoint masterCRLIssuingPoint = (CRLIssuingPoint) engine.getMasterCRLIssuingPoint();
+        if (masterCRLIssuingPoint == null) return;
+        masterCRLIssuingPoint.updateCRLNow();
     }
 
     public void publishCRLNow() throws EBaseException {
-        if (mMasterCRLIssuePoint != null) {
-            mMasterCRLIssuePoint.publishCRL();
-        }
+        CAEngine engine = CAEngine.getInstance();
+        CRLIssuingPoint masterCRLIssuingPoint = (CRLIssuingPoint) engine.getMasterCRLIssuingPoint();
+        if (masterCRLIssuingPoint == null) return;
+        masterCRLIssuingPoint.publishCRL();
     }
 
     public IPolicyProcessor getPolicyProcessor() {
@@ -447,11 +448,6 @@ public class CertificateAuthority
             logger.info("CertificateAuthority: aborting initialization in pre-op mode");
             return;
         }
-
-        logger.info("CertificateAuthority: initializing CRL issuing points");
-        // note CRL framework depends on DBS, CRYPTO and PUBLISHING
-        // being functional.
-        initCRL();
 
         if (isHostAuthority() && engine.haveAuthorityContainer()) {
 
@@ -750,10 +746,6 @@ public class CertificateAuthority
         }
 
         CAEngine.loader.shutdown();
-
-        if (mMasterCRLIssuePoint != null) {
-            mMasterCRLIssuePoint.shutdown();
-        }
     }
 
     /**
@@ -1633,31 +1625,6 @@ public class CertificateAuthority
      }
      }
      */
-
-    /**
-     * initialize CRL
-     */
-    @SuppressWarnings("unchecked")
-    private void initCRL()
-            throws EBaseException {
-        if (!isHostAuthority()) {
-            mMasterCRLIssuePoint = hostCA.mMasterCRLIssuePoint;
-            return;
-        }
-
-        CAEngine engine = CAEngine.getInstance();
-
-        // a Master/full crl must exist.
-        mMasterCRLIssuePoint = (CRLIssuingPoint) engine.getCRLIssuingPoint(PROP_MASTER_CRL);
-
-        /*
-         if (mMasterCRLIssuePoint == null) {
-         logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_FULL_CRL", PROP_MASTER_CRL));
-         throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
-         }
-         */
-        logger.info("CRL Issuing Points inited");
-    }
 
     public String getOfficialName() {
         return OFFICIAL_NAME;
