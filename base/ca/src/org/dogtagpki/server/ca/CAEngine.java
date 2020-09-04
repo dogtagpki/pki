@@ -102,6 +102,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected CertificateVersion defaultCertVersion;
     protected long defaultCertValidity;
     protected boolean enablePastCATime;
+    protected boolean enableOCSP;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -208,6 +209,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return enablePastCATime;
     }
 
+    public boolean getEnableOCSP() {
+        return enableOCSP;
+    }
+
     /**
      * Allows certificates to have validities that are longer
      * than this certificate authority's.
@@ -256,6 +261,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         enablePastCATime = caConfig.getBoolean(CertificateAuthority.PROP_ENABLE_PAST_CATIME, false);
         logger.info("CAEngine: - enable past CA time: " + enablePastCATime);
+
+        enableOCSP = caConfig.getBoolean(CertificateAuthority.PROP_ENABLE_OCSP, true);
 
         logger.info("CAEngine: Initializing CA policy");
         IConfigStore caPolicyConfig = caConfig.getSubStore(CertificateAuthority.PROP_POLICY);

@@ -237,7 +237,6 @@ public class CertificateAuthority
     protected static final int FASTSIGNING_DISABLED = 0;
     protected static final int FASTSIGNING_ENABLED = 1;
 
-    protected boolean mEnableOCSP;
     protected int mFastSigning = FASTSIGNING_DISABLED;
 
     protected static final long SECOND = 1000; // 1000 milliseconds
@@ -1693,8 +1692,6 @@ public class CertificateAuthority
      */
     private void initDefaultCAAttributes() throws EBaseException {
 
-        mEnableOCSP = mConfig.getBoolean(PROP_ENABLE_OCSP, true);
-
         String fs = mConfig.getString(PROP_FAST_SIGNING, "");
 
         if (fs.equals("enabled") || fs.equals("enable")) {
@@ -2030,7 +2027,8 @@ public class CertificateAuthority
     public OCSPResponse validate(OCSPRequest request)
             throws EBaseException {
 
-        if (!mEnableOCSP) {
+        CAEngine engine = CAEngine.getInstance();
+        if (!engine.getEnableOCSP()) {
             logger.debug("CertificateAuthority: OCSP service disabled");
             throw new EBaseException("OCSP service disabled");
         }
@@ -2068,7 +2066,6 @@ public class CertificateAuthority
          *    Otherwise, we move forward to generate and sign the
          *    aggregate OCSP response.
          */
-        CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ocspCA = this;
         if (engine.getCAs().size() > 0 && tbsReq.getRequestCount() > 0) {
             Request req = tbsReq.getRequestAt(0);
