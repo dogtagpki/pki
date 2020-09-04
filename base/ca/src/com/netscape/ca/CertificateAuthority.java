@@ -275,8 +275,6 @@ public class CertificateAuthority
 
     private boolean mByName = true;
 
-    private int mMaxNonces = 100;
-
     /**
      * Constructs a CA subsystem.
      */
@@ -394,6 +392,8 @@ public class CertificateAuthority
             throw new PKIException("Unable to create session.");
         }
 
+        CAEngine engine = CAEngine.getInstance();
+
         // Lock the session to prevent concurrent access.
         // http://yet-another-dev.blogspot.com/2009/08/synchronizing-httpsession.html
 
@@ -406,7 +406,7 @@ public class CertificateAuthority
 
             if (nonces == null) {
                 // If not present, create a new storage.
-                nonces = Collections.synchronizedMap(new Nonces(mMaxNonces));
+                nonces = Collections.synchronizedMap(new Nonces(engine.getMaxNonces()));
 
                 // Put the storage in the session.
                 session.setAttribute("nonces-"+name, nonces);
@@ -471,8 +471,6 @@ public class CertificateAuthority
             logger.info("CertificateAuthority: checking for newer cert");
             checkForNewerCert();
         }
-
-        mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
 
         if (engine.isPreOpMode()) {
             logger.info("CertificateAuthority: aborting initialization in pre-op mode");
