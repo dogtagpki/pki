@@ -400,7 +400,8 @@ public class CertificateAuthority
     public void init(IConfigStore config) throws
             EBaseException {
 
-        logger.info("CertificateAuthority: initialization");
+        logger.info("CertificateAuthority: Initializing " +
+                (authorityID == null ? "host CA" : "authority " + authorityID));
 
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
@@ -411,7 +412,6 @@ public class CertificateAuthority
         boolean initSigUnitSucceeded = false;
 
         try {
-            logger.info("CertificateAuthority: initializing signing units for CA");
             initCertSigningUnit();
             initCRLSigningUnit();
             initOCSPSigningUnit();
@@ -429,7 +429,7 @@ public class CertificateAuthority
         /* Don't try to update the cert unless we already have
          * the cert and key. */
         if (initSigUnitSucceeded) {
-            logger.info("CertificateAuthority: checking for newer cert");
+            logger.info("CertificateAuthority: Checking for newer cert");
             checkForNewerCert();
         }
     }
@@ -480,7 +480,7 @@ public class CertificateAuthority
             manager.getInternalKeyStorageToken().getCryptoStore()
                 .deleteCert(oldCert);
 
-            logger.info("CertificateAuthority: reinitializing signing units after new certificate");
+            logger.info("CertificateAuthority: Reinitializing signing units after new certificate");
             initCertSigningUnit();
             initCRLSigningUnit();
             initOCSPSigningUnit();
@@ -1294,28 +1294,25 @@ public class CertificateAuthority
 
     public synchronized void initCertSigningUnit() throws Exception {
 
-        logger.info("CertificateAuthority: initializing cert signing unit");
+        logger.info("CertificateAuthority: Initializing cert signing unit");
 
         IConfigStore caSigningCfg = mConfig.getSubStore(PROP_SIGNING_SUBSTORE);
 
         String caSigningCertStr = caSigningCfg.getString("cert", "");
         if (!caSigningCertStr.equals("")) {
-            logger.debug("CertificateAuthority: CA signing cert: " + caSigningCertStr);
 
             byte[] bytes = Utils.base64decode(caSigningCertStr);
-            logger.debug("CertificateAuthority: size: " + bytes.length + " bytes");
-
             mCaCert = new X509CertImpl(bytes);
 
             // this ensures the isserDN and subjectDN have the same encoding
             // as that of the CA signing cert
             mSubjectObj = mCaCert.getSubjectObj();
-            logger.debug("CertificateAuthority: subject DN: " + mSubjectObj);
+            logger.debug("CertificateAuthority: - subject DN: " + mSubjectObj);
 
             // The mIssuerObj is the "issuerDN" object for the certs issued by this CA,
             // not the isserDN object of the CA signing cert unless the it is self-signed.
             mIssuerObj = new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
-            logger.debug("CertificateAuthority: issuer DN: " + mIssuerObj);
+            logger.debug("CertificateAuthority: - issuer DN: " + mIssuerObj);
         }
 
         mSigningUnit = new SigningUnit();
@@ -1325,7 +1322,10 @@ public class CertificateAuthority
         signingUnitException = null;
 
         mNickname = mSigningUnit.getNickname();
+
         mCaX509Cert = mSigningUnit.getCert();
+        logger.info("CertificateAuthority: - nickname: " + mCaX509Cert.getNickname());
+
         mCaCert = mSigningUnit.getCertImpl();
         mName = (X500Name) mCaCert.getSubjectDN();
 
@@ -1360,7 +1360,7 @@ public class CertificateAuthority
 
     public synchronized void initCRLSigningUnit() throws Exception {
 
-        logger.info("CertificateAuthority: initializing CRL signing unit");
+        logger.info("CertificateAuthority: Initializing CRL signing unit");
 
         IConfigStore crlSigningConfig = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE);
 
@@ -1372,6 +1372,8 @@ public class CertificateAuthority
         }
 
         mCRLX509Cert = mCRLSigningUnit.getCert();
+        logger.info("CertificateAuthority: - nickname: " + mCRLX509Cert.getNickname());
+
         mCRLCert = mCRLSigningUnit.getCertImpl();
         mCRLName = (X500Name) mCRLCert.getSubjectDN();
 
@@ -1388,7 +1390,7 @@ public class CertificateAuthority
 
     public synchronized void initOCSPSigningUnit() throws Exception {
 
-        logger.info("CertificateAuthority: initializing OCSP signing unit");
+        logger.info("CertificateAuthority: Initializing OCSP signing unit");
 
         IConfigStore ocspSigningConfig = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
 
@@ -1401,6 +1403,8 @@ public class CertificateAuthority
 
         mOCSPNickname = mOCSPSigningUnit.getNickname();
         mOCSPX509Cert = mOCSPSigningUnit.getCert();
+        logger.info("CertificateAuthority: - nickname: " + mOCSPX509Cert.getNickname());
+
         mOCSPCert = mOCSPSigningUnit.getCertImpl();
         mOCSPName = (X500Name) mOCSPCert.getSubjectDN();
 
