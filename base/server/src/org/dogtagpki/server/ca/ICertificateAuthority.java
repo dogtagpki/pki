@@ -198,16 +198,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public String[] getCASigningAlgorithms();
 
     /**
-     * Allows certificates to have validities that are longer
-     * than this certificate authority's.
-     *
-     * @param enableCAPast if equals "true", it allows certificates
-     *            to have validity longer than CA's certificate validity
-     * @exception EBaseException failed to set above option
-     */
-    public void setValidity(String enableCAPast) throws EBaseException;
-
-    /**
      * Retrieves the default validity period.
      *
      * @return the default validity length in days
@@ -441,14 +431,6 @@ public interface ICertificateAuthority extends ISubsystem {
      */
     public X509CertImpl sign(X509CertInfo certInfo, String algname)
             throws EBaseException;
-
-    /**
-     * Is this CA allowed to issue certificate that has longer
-     * validty than the CA's.
-     *
-     * @return true if allows certificates to have validity longer than CA's
-     */
-    public boolean isEnablePastCATime();
 
     /**
      * Retrieves the CA service object that is responsible for

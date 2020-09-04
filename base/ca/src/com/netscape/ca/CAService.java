@@ -713,7 +713,7 @@ public class CAService implements ICAService, IService {
 
             if (end.after(caNotAfter)) {
                 if (!is_ca) {
-                    if (!ca.isEnablePastCATime()) {
+                    if (!engine.getEnablePastCATime()) {
                         end = caNotAfter;
                         certi.set(CertificateValidity.NAME,
                                 new CertificateValidity(begin, caNotAfter));

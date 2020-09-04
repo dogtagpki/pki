@@ -28,7 +28,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICMSCRLExtensions;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
@@ -1529,6 +1531,9 @@ public class CAAdminServlet extends AdminServlet {
          */
 
         CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
         Enumeration<String> enum1 = req.getParameterNames();
         boolean restart = false;
@@ -1552,7 +1557,9 @@ public class CAAdminServlet extends AdminServlet {
                  }
                  */
             } else if (key.equals(Constants.PR_VALIDITY)) {
-                mCA.setValidity(value);
+                engine.setEnablePastCATime(value);
+                caConfig.putString(CertificateAuthority.PROP_ENABLE_PAST_CATIME, value);
+
             } else if (key.equals(Constants.PR_DEFAULT_ALGORITHM)) {
                 mCA.setDefaultAlgorithm(value);
             } else if (key.equals(Constants.PR_SERIAL)) {

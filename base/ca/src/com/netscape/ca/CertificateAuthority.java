@@ -237,7 +237,6 @@ public class CertificateAuthority
     protected static final int FASTSIGNING_DISABLED = 0;
     protected static final int FASTSIGNING_ENABLED = 1;
 
-    protected boolean mEnablePastCATime;
     protected boolean mEnableOCSP;
     protected int mFastSigning = FASTSIGNING_DISABLED;
 
@@ -353,10 +352,6 @@ public class CertificateAuthority
      */
     public String getId() {
         return mId;
-    }
-
-    public boolean isEnablePastCATime() {
-        return mEnablePastCATime;
     }
 
     /**
@@ -895,14 +890,6 @@ public class CertificateAuthority
      */
     public CAConfig getConfigStore() {
         return mConfig;
-    }
-
-    public void setValidity(String enableCAPast) throws EBaseException {
-        if (enableCAPast.equals("true"))
-            mEnablePastCATime = true;
-        else
-            mEnablePastCATime = false;
-        mConfig.putString(PROP_ENABLE_PAST_CATIME, enableCAPast);
     }
 
     public long getDefaultValidity() {
@@ -1706,7 +1693,6 @@ public class CertificateAuthority
      */
     private void initDefaultCAAttributes() throws EBaseException {
 
-        mEnablePastCATime = mConfig.getBoolean(PROP_ENABLE_PAST_CATIME, false);
         mEnableOCSP = mConfig.getBoolean(PROP_ENABLE_OCSP, true);
 
         String fs = mConfig.getString(PROP_FAST_SIGNING, "");

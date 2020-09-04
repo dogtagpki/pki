@@ -101,6 +101,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     protected CertificateVersion defaultCertVersion;
     protected long defaultCertValidity;
+    protected boolean enablePastCATime;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -197,6 +198,27 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return defaultCertValidity;
     }
 
+    /**
+     * Is this CA allowed to issue certificate that has longer
+     * validty than the CA's.
+     *
+     * @return true if allows certificates to have validity longer than CA's
+     */
+    public boolean getEnablePastCATime() {
+        return enablePastCATime;
+    }
+
+    /**
+     * Allows certificates to have validities that are longer
+     * than this certificate authority's.
+     *
+     * @param enablePastCATime if equals "true", it allows certificates
+     *            to have validity longer than CA's certificate validity
+     */
+    public void setEnablePastCATime(String enablePastCATime) {
+        this.enablePastCATime = enablePastCATime.equals("true");
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -231,6 +253,9 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         int certValidity = caConfig.getInteger(CertificateAuthority.PROP_DEF_VALIDITY, 2 * 365);
         defaultCertValidity = certValidity * CertificateAuthority.DAY; // in milliseconds
         logger.info("CAEngine: - default cert validity (days): " + certValidity);
+
+        enablePastCATime = caConfig.getBoolean(CertificateAuthority.PROP_ENABLE_PAST_CATIME, false);
+        logger.info("CAEngine: - enable past CA time: " + enablePastCATime);
 
         logger.info("CAEngine: Initializing CA policy");
         IConfigStore caPolicyConfig = caConfig.getSubStore(CertificateAuthority.PROP_POLICY);
