@@ -147,7 +147,6 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
-import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
@@ -481,31 +480,6 @@ public class CertificateAuthority
          * steps for lightweight CAs.
          */
         if (isHostAuthority()) {
-            /* These methods configure and start threads related to
-             * CertificateRepository.  Ideally all of the config would
-             * be pushed into CertificateRepository constructor and a
-             * single 'start' method would start the threads.
-             */
-            // set certificate status to 10 minutes
-
-            RequestQueue requestQueue = engine.getRequestQueue();
-            CertificateRepository certificateRepository = engine.getCertificateRepository();
-            certificateRepository.setCertStatusUpdateInterval(
-                requestQueue.getRequestRepository(),
-                mConfig.getInteger("certStatusUpdateInterval", 10 * 60),
-                mConfig.getBoolean("listenToCloneModifications", false));
-            certificateRepository.setConsistencyCheck(
-                mConfig.getBoolean("ConsistencyCheck", false));
-            certificateRepository.setSkipIfInConsistent(
-                mConfig.getBoolean("SkipIfInConsistent", false));
-
-            // set serial number update task to run every 10 minutes
-            certificateRepository.setSerialNumberUpdateInterval(
-                requestQueue.getRequestRepository(),
-                mConfig.getInteger("serialNumberUpdateInterval", 10 * 60));
-
-            engine.getCAService().init(mConfig.getSubStore("connector"));
-
             initMiscellaneousListeners();
         }
 

@@ -995,7 +995,7 @@ public class CMSEngine implements ServletContextListener {
         system.init(cs);
     }
 
-    protected void startupSubsystems() throws EBaseException {
+    protected void startupSubsystems() throws Exception {
 
         for (ISubsystem subsystem : subsystems.values()) {
             logger.info("CMSEngine: Starting " + subsystem.getId() + " subsystem");

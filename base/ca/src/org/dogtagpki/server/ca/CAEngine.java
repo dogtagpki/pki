@@ -331,6 +331,40 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             requestQueue.setRequestScheduler(scheduler);
         }
 
+        if (!isPreOpMode()) {
+            logger.info("CAEngine: Starting CA services");
+
+            int certStatusUpdateInterval = caConfig.getInteger("certStatusUpdateInterval", 10 * 60);
+            logger.info("CAEngine: - status update interval (seconds): " + certStatusUpdateInterval);
+
+            boolean listenToCloneModifications = caConfig.getBoolean("listenToCloneModifications", false);
+            logger.info("CAEngine: - listen to clone modification: " + listenToCloneModifications);
+
+            certificateRepository.setCertStatusUpdateInterval(
+                requestQueue.getRequestRepository(),
+                certStatusUpdateInterval,
+                listenToCloneModifications);
+
+            boolean consistencyCheck = caConfig.getBoolean("ConsistencyCheck", false);
+            logger.info("CAEngine: - consistency check: " + consistencyCheck);
+
+            certificateRepository.setConsistencyCheck(consistencyCheck);
+
+            boolean skipIfInconsistent = caConfig.getBoolean("SkipIfInConsistent", false);
+            logger.info("CAEngine: - skip if inconsistent: " + skipIfInconsistent);
+
+            certificateRepository.setSkipIfInConsistent(skipIfInconsistent);
+
+            int serialNumberUpdateInterval = caConfig.getInteger("serialNumberUpdateInterval", 10 * 60);
+            logger.info("CAEngine: - serial number update interval (seconds): " + serialNumberUpdateInterval);
+
+            certificateRepository.setSerialNumberUpdateInterval(
+                requestQueue.getRequestRepository(),
+                serialNumberUpdateInterval);
+
+            caService.init(caConfig.getSubStore("connector"));
+        }
+
         super.initSubsystems();
     }
 
@@ -351,18 +385,16 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return certChain;
     }
 
-    public void startupSubsystems() throws EBaseException {
+    public void startupSubsystems() throws Exception {
 
         super.startupSubsystems();
 
-        // check serial number ranges
-        CertificateAuthority ca = getCA();
         if (!isPreOpMode()) {
-            logger.debug("CAEngine: checking request serial number ranges for the CA");
-            ca.getRequestQueue().getRequestRepository().checkRanges();
+            logger.debug("CAEngine: Checking cert request serial number ranges");
+            requestQueue.getRequestRepository().checkRanges();
 
-            logger.debug("CAEngine: checking certificate serial number ranges");
-            ca.getCertificateRepository().checkRanges();
+            logger.debug("CAEngine: Checking cert serial number ranges");
+            certificateRepository.checkRanges();
         }
     }
 
