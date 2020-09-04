@@ -269,8 +269,6 @@ public class CertificateAuthority
     protected ICRLPublisher mCRLPublisher = null;
     private String mId = null;
 
-    private boolean mByName = true;
-
     /**
      * Constructs a CA subsystem.
      */
@@ -636,12 +634,10 @@ public class CertificateAuthority
     private void initCRLPublisher() throws EBaseException {
         // instantiate CRL publisher
         if (!isHostAuthority()) {
-            mByName = hostCA.mByName;
             mCRLPublisher = hostCA.mCRLPublisher;
             return;
         }
 
-        mByName = mConfig.getBoolean("byName", true);
         IConfigStore cpStore = mConfig.getSubStore("crlPublisher");
         if (cpStore != null && cpStore.size() > 0) {
             String publisherClass = cpStore.getString("class");
@@ -2002,7 +1998,7 @@ public class CertificateAuthority
 
             ResponderID rid = null;
 
-            if (mByName) {
+            if (engine.getOCSPResponderByName()) {
                 if (mResponderIDByName == null) {
                     mResponderIDByName = getResponderIDByName();
                 }

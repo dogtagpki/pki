@@ -114,6 +114,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     protected Hashtable<String, ListenerPlugin> listenerPlugins = new Hashtable<String, ListenerPlugin>();
 
+    protected boolean ocspResponderByName = true;
+
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
 
@@ -244,6 +246,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public int getMaxNonces() {
         return maxNonces;
+    }
+
+    public boolean getOCSPResponderByName() {
+        return ocspResponderByName;
     }
 
     public void initListeners() throws Exception {
@@ -424,6 +430,11 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             caService.init(caConfig.getSubStore("connector"));
 
             initListeners();
+
+            logger.info("CAEngine: Configuring OCSP responder");
+
+            ocspResponderByName = caConfig.getBoolean("byName", true);
+            logger.info("CAEngine: - by name: " + ocspResponderByName);
         }
 
         super.initSubsystems();
