@@ -121,7 +121,6 @@ import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
 import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
 import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
-import com.netscape.certsrv.publish.ICRLPublisher;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
@@ -266,7 +265,6 @@ public class CertificateAuthority
      * Internal constants
      */
 
-    protected ICRLPublisher mCRLPublisher = null;
     private String mId = null;
 
     /**
@@ -362,10 +360,6 @@ public class CertificateAuthority
         if (mMasterCRLIssuePoint != null) {
             mMasterCRLIssuePoint.publishCRL();
         }
-    }
-
-    public ICRLPublisher getCRLPublisher() {
-        return mCRLPublisher;
     }
 
     public IPolicyProcessor getPolicyProcessor() {
@@ -470,9 +464,6 @@ public class CertificateAuthority
             logger.info("CertificateAuthority: aborting initialization in pre-op mode");
             return;
         }
-
-        logger.info("CertificateAuthority: initializing CRL publisher");
-        initCRLPublisher();
 
         logger.info("CertificateAuthority: initializing publisher processor");
         // publish remote admin relies on this subsystem, so it has to be initialized
@@ -628,38 +619,6 @@ public class CertificateAuthority
 
         } catch (Exception e) {
             throw new EBaseException(e);
-        }
-    }
-
-    private void initCRLPublisher() throws EBaseException {
-        // instantiate CRL publisher
-        if (!isHostAuthority()) {
-            mCRLPublisher = hostCA.mCRLPublisher;
-            return;
-        }
-
-        IConfigStore cpStore = mConfig.getSubStore("crlPublisher");
-        if (cpStore != null && cpStore.size() > 0) {
-            String publisherClass = cpStore.getString("class");
-
-            if (publisherClass != null) {
-                try {
-                    @SuppressWarnings("unchecked")
-                    Class<ICRLPublisher> pc = (Class<ICRLPublisher>) Class.forName(publisherClass);
-
-                    mCRLPublisher = pc.newInstance();
-                    mCRLPublisher.init(this, cpStore);
-
-                } catch (ClassNotFoundException ee) {
-                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()), ee);
-
-                } catch (IllegalAccessException ee) {
-                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()), ee);
-
-                } catch (InstantiationException ee) {
-                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()), ee);
-                }
-            }
         }
     }
 

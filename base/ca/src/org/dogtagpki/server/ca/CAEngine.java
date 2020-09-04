@@ -54,6 +54,7 @@ import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.publish.ICRLPublisher;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.util.AsyncLoader;
@@ -115,6 +116,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected Hashtable<String, ListenerPlugin> listenerPlugins = new Hashtable<String, ListenerPlugin>();
 
     protected boolean ocspResponderByName = true;
+    protected ICRLPublisher crlPublisher;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -252,6 +254,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return ocspResponderByName;
     }
 
+    public ICRLPublisher getCRLPublisher() {
+        return crlPublisher;
+    }
+
     public void initListeners() throws Exception {
 
         logger.info("CAEngine: Initializing CA listeners");
@@ -304,6 +310,32 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             listener.init(hostCA, instanceConfig);
             // registerRequestListener(id, (IRequestListener) listener);
         }
+    }
+
+    public void initCRLPublisher() throws Exception {
+
+        logger.info("CAEngine: Initializing CRL publisher");
+
+        CertificateAuthority hostCA = getCA();
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        IConfigStore crlPublisherConfig = caConfig.getSubStore("crlPublisher");
+        if (crlPublisherConfig == null || crlPublisherConfig.size() == 0) {
+            return;
+        }
+
+        String className = crlPublisherConfig.getString("class");
+        if (className == null) {
+            return;
+        }
+
+        logger.info("CAEngine: - class: " + className);
+
+        Class<ICRLPublisher> publisherClass = (Class<ICRLPublisher>) Class.forName(className);
+        crlPublisher = publisherClass.newInstance();
+        crlPublisher.init(hostCA, crlPublisherConfig);
     }
 
     protected void loadSubsystems() throws Exception {
@@ -435,6 +467,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
             ocspResponderByName = caConfig.getBoolean("byName", true);
             logger.info("CAEngine: - by name: " + ocspResponderByName);
+
+            initCRLPublisher();
         }
 
         super.initSubsystems();
