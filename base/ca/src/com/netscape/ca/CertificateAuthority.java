@@ -145,7 +145,6 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
-import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -257,8 +256,6 @@ public class CertificateAuthority
     /* cache responder ID for performance */
     private ResponderID mResponderIDByName = null;
     private ResponderID mResponderIDByHash = null;
-
-    protected Hashtable<String, ListenerPlugin> mListenerPlugins = null;
 
     // for CMC shared secret operations
     protected X509Certificate mIssuanceProtCert = null;
@@ -474,13 +471,6 @@ public class CertificateAuthority
         if (engine.isPreOpMode()) {
             logger.info("CertificateAuthority: aborting initialization in pre-op mode");
             return;
-        }
-
-        /* The host CA owns these resources so skip these
-         * steps for lightweight CAs.
-         */
-        if (isHostAuthority()) {
-            initMiscellaneousListeners();
         }
 
         logger.info("CertificateAuthority: initializing CRL publisher");
@@ -1699,73 +1689,6 @@ public class CertificateAuthority
             //throw new ECAException(
             //	CAResources.INIT_PUBLISH_MODULE_FAILED, e);
         }
-    }
-
-    private void initMiscellaneousListeners() {
-        IConfigStore lc = null;
-        IConfigStore implc = null;
-        IConfigStore instc = null;
-
-        mListenerPlugins = new Hashtable<String, ListenerPlugin>();
-        try {
-            // Get list of listener implementations
-            lc = mConfig.getSubStore(PROP_LISTENER_SUBSTORE);
-            if (lc != null) {
-
-                implc = lc.getSubStore(PROP_IMPL);
-                Enumeration<String> names = implc.getSubStoreNames();
-
-                while (names.hasMoreElements()) {
-                    String id = names.nextElement();
-
-                    logger.debug("registering listener impl: " + id);
-                    String cl = implc.getString(id + "." + PROP_CLASS);
-
-                    ListenerPlugin plugin = new ListenerPlugin(id, cl);
-
-                    mListenerPlugins.put(id, plugin);
-                }
-
-                instc = lc.getSubStore(PROP_INSTANCE);
-                Enumeration<String> instances = instc.getSubStoreNames();
-
-                while (instances.hasMoreElements()) {
-                    String id = instances.nextElement();
-
-                    logger.debug("registering listener instance: " + id);
-                    IConfigStore iConfig = instc.getSubStore(id);
-                    String implName = instc.getString(id + "." + PROP_PLUGIN);
-                    ListenerPlugin plugin = mListenerPlugins.get(implName);
-
-                    if (plugin == null) {
-                        logger.error(CMS.getLogMessage("CMSCORE_CA_CA_ERROR_LISTENER", implName));
-                        throw new Exception("Cannot initialize");
-                    }
-                    String className = plugin.getClassPath();
-
-                    try {
-                        IRequestListener listener = null;
-
-                        listener = (IRequestListener)
-                                Class.forName(className).newInstance();
-
-                        //listener.init(id, implName, iConfig);
-                        listener.init(this, iConfig);
-                        // registerRequestListener(id, (IRequestListener) listener);
-                        //logger.info("Listener instance " + id + " added");
-
-                    } catch (Exception e) {
-                        logger.error(CMS.getLogMessage("CMSCORE_CA_CA_INIT_LISTENER", id, e.toString()), e);
-                        throw e;
-                    }
-                }
-
-            }
-
-        } catch (Exception e) {
-            logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_FAILED_LISTENER", e.toString()), e);
-        }
-
     }
 
     /**

@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -53,6 +54,7 @@ import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cmscore.apps.CMS;
@@ -68,6 +70,7 @@ import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.ARequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
@@ -108,6 +111,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     protected boolean enableNonces = true;
     protected int maxNonces = 100;
+
+    protected Hashtable<String, ListenerPlugin> listenerPlugins = new Hashtable<String, ListenerPlugin>();
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -241,6 +246,60 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return maxNonces;
     }
 
+    public void initListeners() throws Exception {
+
+        logger.info("CAEngine: Initializing CA listeners");
+
+        CertificateAuthority hostCA = getCA();
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        IConfigStore listenersConfig = caConfig.getSubStore(CertificateAuthority.PROP_LISTENER_SUBSTORE);
+        if (listenersConfig == null) return;
+
+        logger.info("CAEngine: Loading listener plugins");
+
+        IConfigStore pluginsConfig = listenersConfig.getSubStore(CertificateAuthority.PROP_IMPL);
+        Enumeration<String> pluginNames = pluginsConfig.getSubStoreNames();
+
+        while (pluginNames.hasMoreElements()) {
+            String id = pluginNames.nextElement();
+            String listenerClassName = pluginsConfig.getString(id + "." + CertificateAuthority.PROP_CLASS);
+            logger.info("CAEngine: - " + id + ": " + listenerClassName);
+
+            ListenerPlugin plugin = new ListenerPlugin(id, listenerClassName);
+            listenerPlugins.put(id, plugin);
+        }
+
+        logger.info("CAEngine: Creating listener instances");
+
+        IConfigStore instancesConfig = listenersConfig.getSubStore(CertificateAuthority.PROP_INSTANCE);
+        Enumeration<String> instanceNames = instancesConfig.getSubStoreNames();
+
+        while (instanceNames.hasMoreElements()) {
+            String id = instanceNames.nextElement();
+
+            IConfigStore instanceConfig = instancesConfig.getSubStore(id);
+            String pluginName = instancesConfig.getString(id + "." + CertificateAuthority.PROP_PLUGIN);
+            logger.info("CAEngine: - " + id + ": " + pluginName);
+
+            ListenerPlugin plugin = listenerPlugins.get(pluginName);
+
+            if (plugin == null) {
+                logger.error(CMS.getLogMessage("CMSCORE_CA_CA_ERROR_LISTENER", pluginName));
+                throw new Exception("Invalid plugin name for " + id + " listener: " + pluginName);
+            }
+
+            String className = plugin.getClassPath();
+            IRequestListener listener = (IRequestListener) Class.forName(className).newInstance();
+
+            // listener.init(id, pluginName, instanceConfig);
+            listener.init(hostCA, instanceConfig);
+            // registerRequestListener(id, (IRequestListener) listener);
+        }
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -363,6 +422,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
                 serialNumberUpdateInterval);
 
             caService.init(caConfig.getSubStore("connector"));
+
+            initListeners();
         }
 
         super.initSubsystems();
