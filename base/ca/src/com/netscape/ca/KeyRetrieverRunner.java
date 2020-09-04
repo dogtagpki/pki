@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ca;
 
-import java.lang.reflect.InvocationTargetException;
 import java.security.PublicKey;
 import java.util.Collection;
 
@@ -27,8 +26,6 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
@@ -38,12 +35,14 @@ public class KeyRetrieverRunner implements Runnable {
 
     public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRetrieverRunner.class);
 
+    private KeyRetriever keyRetriever;
     private CertificateAuthority certificateAuthority;
     private AuthorityID aid;
     private String nickname;
     private Collection<String> hosts;
 
-    public KeyRetrieverRunner(CertificateAuthority certificateAuthority) {
+    public KeyRetrieverRunner(KeyRetriever keyRetriever, CertificateAuthority certificateAuthority) {
+        this.keyRetriever = keyRetriever;
         this.certificateAuthority = certificateAuthority;
         this.aid = certificateAuthority.getAuthorityID();
         this.nickname = certificateAuthority.getNickname();
@@ -82,54 +81,11 @@ public class KeyRetrieverRunner implements Runnable {
      */
     private boolean _run() {
 
-        String KR_CLASS_KEY = "features.authority.keyRetrieverClass";
-        String KR_CONFIG_KEY = "features.authority.keyRetrieverConfig";
-
         CAEngine engine = CAEngine.getInstance();
-        String className = null;
-
-        try {
-            className = engine.getConfig().getString(KR_CLASS_KEY);
-        } catch (EBaseException e) {
-            logger.warn("Unable to read key retriever class from CS.cfg: " + e.getMessage(), e);
-            return false;
-        }
-
-        IConfigStore krConfig = engine.getConfig().getSubStore(KR_CONFIG_KEY);
-
-        KeyRetriever kr = null;
-        try {
-            Class<? extends KeyRetriever> cls =
-                Class.forName(className).asSubclass(KeyRetriever.class);
-
-            // If there is an accessible constructor that takes
-            // an IConfigStore, invoke that; otherwise invoke
-            // the nullary constructor.
-            try {
-                kr = cls.getDeclaredConstructor(IConfigStore.class)
-                    .newInstance(krConfig);
-            } catch (NoSuchMethodException | SecurityException
-                    | IllegalAccessException e) {
-                kr = cls.newInstance();
-            }
-
-        } catch (ClassNotFoundException e) {
-            logger.warn("Could not find class: " + className, e);
-            return false;
-
-        } catch (ClassCastException e) {
-            logger.warn("Class is not an instance of KeyRetriever: " + className, e);
-            return false;
-
-        } catch (InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException e) {
-            logger.warn("Could not instantiate class: " + className, e);
-            return false;
-        }
 
         KeyRetriever.Result krr = null;
         try {
-            krr = kr.retrieveKey(nickname, hosts);
+            krr = keyRetriever.retrieveKey(nickname, hosts);
         } catch (Throwable e) {
             logger.warn("Caught exception during execution of KeyRetriever.retrieveKey", e);
             return false;

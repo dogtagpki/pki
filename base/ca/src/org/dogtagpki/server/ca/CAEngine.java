@@ -45,6 +45,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CAService;
 import com.netscape.ca.CertificateAuthority;
+import com.netscape.ca.KeyRetriever;
 import com.netscape.ca.KeyRetrieverRunner;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -711,7 +712,37 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         logger.info("CertificateAuthority: Starting KeyRetriever for authority " + authorityID);
 
-        KeyRetrieverRunner runner = new KeyRetrieverRunner(ca);
+        CAEngineConfig engineConfig = getConfig();
+
+        String className = engineConfig.getString("features.authority.keyRetrieverClass", null);
+        if (className == null) {
+            logger.info("CertificateAuthority: Key retriever not configured");
+            return;
+        }
+
+        IConfigStore keyRetrieverConfig = engineConfig.getSubStore("features.authority.keyRetrieverConfig");
+
+        KeyRetriever keyRetriever;
+        try {
+            Class<? extends KeyRetriever> clazz = Class.forName(className).asSubclass(KeyRetriever.class);
+
+            // If there is an accessible constructor that takes
+            // an IConfigStore, invoke that; otherwise invoke
+            // the nullary constructor.
+
+            try {
+                keyRetriever = clazz.getDeclaredConstructor(IConfigStore.class).newInstance(keyRetrieverConfig);
+
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException e) {
+                keyRetriever = clazz.newInstance();
+            }
+
+        } catch (Exception e) {
+            logger.error("Unable to create key retriever: " + e.getMessage(), e);
+            throw new EBaseException(e);
+        }
+
+        KeyRetrieverRunner runner = new KeyRetrieverRunner(keyRetriever, ca);
         Thread thread = new Thread(runner, "KeyRetrieverRunner-" + authorityID);
         thread.start();
 
