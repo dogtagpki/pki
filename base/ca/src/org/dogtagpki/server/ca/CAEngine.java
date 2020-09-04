@@ -923,23 +923,27 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         // generate authority ID and nickname
         AuthorityID aid = new AuthorityID();
         String aidString = aid.toString();
+        logger.info("CAEngine: Creating authority " + aidString);
 
         CertificateAuthority hostCA = getCA();
         String nickname = hostCA.getNickname() + " " + aidString;
+        logger.info("CAEngine: - nickname: " + nickname);
 
         // build database entry
         String dn = "cn=" + aidString + "," + getAuthorityBaseDN();
-        logger.debug("CAEngine: DN: " + dn);
+        logger.info("CAEngine: - authority record: " + dn);
+
         String parentDNString = parentCA.getX500Name().toLdapDNString();
 
-        String thisClone = getEEHost() + ":" + getEESSLPort();
+        String keyHost = getEEHost() + ":" + getEESSLPort();
+        logger.info("CAEngine: - key host: " + keyHost);
 
         LDAPAttribute[] attrs = {
             new LDAPAttribute("objectclass", "authority"),
             new LDAPAttribute("cn", aidString),
             new LDAPAttribute("authorityID", aidString),
             new LDAPAttribute("authorityKeyNickname", nickname),
-            new LDAPAttribute("authorityKeyHost", thisClone),
+            new LDAPAttribute("authorityKeyHost", keyHost),
             new LDAPAttribute("authorityEnabled", "TRUE"),
             new LDAPAttribute("authorityDN", subjectDN),
             new LDAPAttribute("authorityParentDN", parentDNString)
@@ -951,6 +955,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         }
 
         if (description != null) {
+            logger.info("CAEngine: - description: " + description);
             attrSet.add(new LDAPAttribute("description", description));
         }
 
@@ -960,10 +965,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         X509CertImpl cert = null;
 
         try {
-            logger.info("CAEngine: generating signing certificate");
+            logger.info("CAEngine: Generating signing certificate");
             cert = parentCA.generateSigningCert(subjectX500Name, authToken);
 
-            logger.info("CAEngine: importing signing certificate");
+            logger.info("CAEngine: Importing signing certificate into NSS database");
             CryptoManager cryptoManager = CryptoManager.getInstance();
             cryptoManager.importCertPackage(cert.getEncoded(), nickname);
 
@@ -982,7 +987,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             parentCA.getAuthorityID(),
             cert.getSerialNumber(),
             nickname,
-            Collections.singleton(thisClone),
+            Collections.singleton(keyHost),
             description,
             true);
 
@@ -1210,6 +1215,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             return;
         }
 
+        logger.info("CAEngine: Loading authority record " + entry.getDN());
+
         LDAPAttribute aidAttr = entry.getAttribute("authorityID");
         LDAPAttribute nickAttr = entry.getAttribute("authorityKeyNickname");
         LDAPAttribute keyHostsAttr = entry.getAttribute("authorityKeyHost");
@@ -1244,11 +1251,17 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         // from LDAP vs UTF8String in certificate.
 
         if (dn.toString().equals(hostCA.getX500Name().toString())) {
-            logger.debug("Found host authority");
+            logger.info("CAEngine: Updating host CA");
             foundHostCA = true;
+
+            logger.info("CAEngine: - ID: " + aid);
             hostCA.setAuthorityID(aid);
+
+            logger.info("CAEngine: - description: " + desc);
             hostCA.setAuthorityDescription(desc);
+
             addCA(aid, hostCA);
+
             return;
         }
 
@@ -1495,7 +1508,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public void initCertificateRepository() throws Exception {
 
-        logger.info("CAEngine: initializing cert repository");
+        logger.info("CAEngine: Initializing cert repository");
 
         IConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID);
         int increment = caConfig.getInteger(CertificateRepository.PROP_INCREMENT, 5);
@@ -1531,7 +1544,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public void initCrlDatabase() throws Exception {
 
-        logger.info("CAEngine: initializing CRL repository");
+        logger.info("CAEngine: Initializing CRL repository");
 
         IConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID);
         int increment = caConfig.getInteger(CRLRepository.PROP_INCREMENT, 5);
@@ -1544,7 +1557,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public void initReplicaIDRepository() throws Exception {
 
-        logger.info("CAEngine: initializing replica ID repository");
+        logger.info("CAEngine: Initializing replica ID repository");
 
         IConfigStore caConfig = mConfig.getSubStore(CertificateAuthority.ID);
 
