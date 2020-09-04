@@ -275,7 +275,6 @@ public class CertificateAuthority
 
     private boolean mByName = true;
 
-    private boolean mUseNonces = true;
     private int mMaxNonces = 100;
 
     /**
@@ -383,7 +382,8 @@ public class CertificateAuthority
     }
 
     public boolean noncesEnabled() {
-        return mUseNonces;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getEnableNonces();
     }
 
     public Map<Object, Long> getNonces(HttpServletRequest request, String name) {
@@ -472,7 +472,6 @@ public class CertificateAuthority
             checkForNewerCert();
         }
 
-        mUseNonces = mConfig.getBoolean("enableNonces", true);
         mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
 
         if (engine.isPreOpMode()) {

@@ -106,6 +106,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     protected int fastSigning = CertificateAuthority.FASTSIGNING_DISABLED;
 
+    protected boolean enableNonces = true;
+
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
 
@@ -230,6 +232,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return fastSigning;
     }
 
+    public boolean getEnableNonces() {
+        return enableNonces;
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -278,6 +284,9 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         } else {
             this.fastSigning = CertificateAuthority.FASTSIGNING_DISABLED;
         }
+
+        enableNonces = caConfig.getBoolean("enableNonces", true);
+        logger.info("CAEngine: - enable nonces: " + enableNonces);
 
         logger.info("CAEngine: Initializing CA policy");
         IConfigStore caPolicyConfig = caConfig.getSubStore(CertificateAuthority.PROP_POLICY);
