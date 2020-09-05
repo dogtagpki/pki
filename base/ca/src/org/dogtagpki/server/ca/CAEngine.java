@@ -20,6 +20,7 @@ package org.dogtagpki.server.ca;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ import javax.servlet.annotation.WebListener;
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -125,6 +127,11 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected PublisherProcessor publisherProcessor;
 
     protected Map<String, ICRLIssuingPoint> crlIssuingPoints = new HashMap<>();
+
+    // for CMC shared secret operations
+    protected org.mozilla.jss.crypto.X509Certificate issuanceProtectionCert;
+    protected PublicKey issuanceProtectionPublicKey;
+    protected PrivateKey issuanceProtectionPrivateKey;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -302,6 +309,18 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return crlIssuingPoints.remove(id);
     }
 
+    public org.mozilla.jss.crypto.X509Certificate getIssuanceProtectionCert() {
+        return issuanceProtectionCert;
+    }
+
+    public PublicKey getIssuanceProtectionPublicKey() {
+        return issuanceProtectionPublicKey;
+    }
+
+    public PrivateKey getIssuanceProtectionPrivateKey() {
+        return issuanceProtectionPrivateKey;
+    }
+
     public void initListeners() throws Exception {
 
         logger.info("CAEngine: Initializing CA listeners");
@@ -441,6 +460,32 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
             crlIssuingPoints.put(id, issuingPoint);
         }
+    }
+
+    /**
+     * Sets the CA Issuance Protection cert
+     */
+    public void initIssuanceProtectionCert() throws Exception {
+
+        logger.info("CAEngine: Initializing CA issuance protection cert");
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        String certNickName = caConfig.getString("cert.issuance_protection.nickname", null);
+        logger.info("CAEngine: - cert.issuance_protection.nickname: " + certNickName);
+
+        if (certNickName == null) {
+            certNickName = caConfig.getString("cert.subsystem.nickname");
+            logger.info("CAEngine: - cert.subsystem.nickname: " + certNickName);
+        }
+
+        CryptoManager cm = CryptoManager.getInstance();
+        issuanceProtectionCert = cm.findCertByNickname(certNickName);
+
+        logger.info("CAEngine: Loading public and private keys for " + certNickName);
+        issuanceProtectionPublicKey = issuanceProtectionCert.getPublicKey();
+        issuanceProtectionPrivateKey = cm.findPrivKeyByCert(issuanceProtectionCert);
     }
 
     protected void loadSubsystems() throws Exception {
@@ -583,6 +628,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         if (!isPreOpMode()) {
             // CRLIssuingPoint must be initialized after host CA initialization
             initCRLIssuingPoints();
+
+            initIssuanceProtectionCert();
         }
     }
 

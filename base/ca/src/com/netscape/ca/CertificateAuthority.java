@@ -251,11 +251,6 @@ public class CertificateAuthority
     private ResponderID mResponderIDByName = null;
     private ResponderID mResponderIDByHash = null;
 
-    // for CMC shared secret operations
-    protected X509Certificate mIssuanceProtCert = null;
-    protected PublicKey mIssuanceProtPubKey = null;
-    protected PrivateKey mIssuanceProtPrivKey = null;
-
     /**
      * Internal constants
      */
@@ -479,61 +474,21 @@ public class CertificateAuthority
 
             logger.debug("CertificateAuthority: finished init of host authority");
         }
-
-        if (initSigUnitSucceeded) {
-            logger.info("CertificateAuthority: initializing issuance protection cert");
-            initIssuanceProtectionCert();
-        }
-    }
-
-    /**
-     * initIssuanceProtectionCert sets the CA Issuance Protection cert
-     */
-    private void initIssuanceProtectionCert()
-           throws EBaseException {
-        String method = "CertificateAuthority: initIssuanceProtectionCert: ";
-        CryptoManager cManager = null;
-
-        String name = null;
-        String defaultName = "cert.subsystem.nickname";
-        String certNickName = null;
-        try {
-            cManager = CryptoManager.getInstance();
-            name = "cert.issuance_protection.nickname";
-            logger.debug(method + " about to look for CA Issuance Protection cert: "+
-                name);
-            certNickName = mConfig.getString(name);
-        } catch (EBaseException e) {
-            logger.debug(method + name + " not found; use defaultName : " + defaultName );
-            name = defaultName ;
-            certNickName = mConfig.getString(name);
-        } catch (Exception e) {
-            throw new EBaseException(method + e);
-        }
-        logger.debug(method + "found nickname: "+ certNickName);
-
-        try {
-                mIssuanceProtCert = cManager.findCertByNickname(certNickName);
-            if (mIssuanceProtCert != null) {
-                logger.debug(method + " found CA Issuance Protection cert:" + certNickName);
-                mIssuanceProtPubKey = mIssuanceProtCert.getPublicKey();
-                mIssuanceProtPrivKey = cManager.findPrivKeyByCert(mIssuanceProtCert);
-            }
-        } catch (Exception e) {
-            throw new EBaseException(method + e);
-        }
     }
 
     public PublicKey getIssuanceProtPubKey() {
-        return mIssuanceProtPubKey;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getIssuanceProtectionPublicKey();
     }
 
     public PrivateKey getIssuanceProtPrivKey() {
-        return mIssuanceProtPrivKey;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getIssuanceProtectionPrivateKey();
     }
 
     public X509Certificate getIssuanceProtCert() {
-        return mIssuanceProtCert;
+        CAEngine engine = CAEngine.getInstance();
+        return engine.getIssuanceProtectionCert();
     }
 
     private void checkForNewerCert() throws EBaseException {
