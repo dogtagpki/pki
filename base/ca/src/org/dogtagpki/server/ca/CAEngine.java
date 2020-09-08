@@ -138,7 +138,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     public IRequestListener certRevokedListener;
     public IRequestListener requestInQueueListener;
 
-    public static LdapBoundConnFactory connectionFactory =
+    protected LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
 
     public static Map<AuthorityID, CertificateAuthority> authorities =
@@ -356,6 +356,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public AsyncLoader getLoader() {
         return loader;
+    }
+
+    public LdapBoundConnFactory getConnectionFactory() {
+        return connectionFactory;
     }
 
     public void initListeners() throws Exception {

@@ -66,7 +66,7 @@ public class AuthorityMonitor implements Runnable {
             LDAPConnection conn = null;
 
             try {
-                conn = CAEngine.connectionFactory.getConn();
+                conn = engine.getConnectionFactory().getConn();
                 LDAPSearchConstraints cons = conn.getSearchConstraints();
                 cons.setServerControls(persistCtrl);
                 cons.setBatchSize(1);
@@ -189,7 +189,7 @@ public class AuthorityMonitor implements Runnable {
 
             } finally {
                 try {
-                    CAEngine.connectionFactory.returnConn(conn);
+                    engine.getConnectionFactory().returnConn(conn);
                 } catch (Exception e) {
                     logger.warn("AuthorityMonitor: Error releasing the LDAPConnection" + e.getMessage(), e);
                 }
