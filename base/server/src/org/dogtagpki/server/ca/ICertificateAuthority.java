@@ -253,13 +253,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public IReplicaIDRepository getReplicaRepository();
 
     /**
-     * Retrieves the request in queue listener.
-     *
-     * @return the request in queue listener
-     */
-    public IRequestListener getRequestInQListener();
-
-    /**
      * Retrieves all request listeners.
      *
      * @return name enumeration of all request listeners

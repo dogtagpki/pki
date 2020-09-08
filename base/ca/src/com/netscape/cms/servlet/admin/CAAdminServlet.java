@@ -320,10 +320,11 @@ public class CAAdminServlet extends AdminServlet {
     private void setNotificationRIQConfig(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        IConfigStore config = mCA.getConfigStore();
-        IConfigStore nc =
-                config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
 
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig config = engineConfig.getCAConfig();
+        IConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
         IConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
         //set rest of the parameters
@@ -357,14 +358,14 @@ public class CAAdminServlet extends AdminServlet {
                 }
             }
             riq.putString(name, val);
-            mCA.getRequestInQListener().set(name, val);
+            engine.getRequestInQueueListener().set(name, val);
         }
 
         // set enable flag
         String enabledString = req.getParameter(Constants.PR_ENABLE);
 
         riq.putString(PROP_ENABLED, enabledString);
-        mCA.getRequestInQListener().set(PROP_ENABLED, enabledString);
+        engine.getRequestInQueueListener().set(PROP_ENABLED, enabledString);
 
         commit(true);
 

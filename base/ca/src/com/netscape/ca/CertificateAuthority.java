@@ -241,8 +241,6 @@ public class CertificateAuthority
      * Package constants
      */
 
-    public IRequestListener mReqInQListener = null;
-
     /* cache responder ID for performance */
     private ResponderID mResponderIDByName = null;
     private ResponderID mResponderIDByHash = null;
@@ -597,10 +595,6 @@ public class CertificateAuthority
         return engine.getRequestNotifier().getListenerNames();
     }
 
-    public IRequestListener getRequestInQListener() {
-        return mReqInQListener;
-    }
-
     /**
      * return CA's request queue service object.
      */
@@ -630,11 +624,6 @@ public class CertificateAuthority
         }
         engine.getCAService().startup();
         engine.getRequestQueue().recover();
-
-        if (isHostAuthority()) {
-            // setup Admin operations
-            initNotificationListeners();
-        }
     }
 
     /**
@@ -1449,37 +1438,6 @@ public class CertificateAuthority
                 in.close();
         }
         return b;
-    }
-
-    /**
-     * init notification related listeners
-     */
-    private void initNotificationListeners() {
-        IConfigStore nc = null;
-
-        try {
-            nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE);
-            if (nc != null && nc.size() > 0) {
-
-                // Initialize Request In Queue notification listener
-                String requestInQListenerClassName =
-                        nc.getString("certificateIssuedListenerClassName",
-                                "com.netscape.cms.listeners.RequestInQListener");
-
-                try {
-                    mReqInQListener = (IRequestListener) Class.forName(requestInQListenerClassName).newInstance();
-                    mReqInQListener.init(this, nc);
-                } catch (Exception e1) {
-                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_REGISTER_REQ_LISTENER", requestInQListenerClassName), e1);
-                }
-
-            } else {
-                logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NOTIFY_NONE"));
-            }
-        } catch (Exception e) {
-            logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NOTIFY_FAILED"), e);
-            //			throw e;
-        }
     }
 
     /*

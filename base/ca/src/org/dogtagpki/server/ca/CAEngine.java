@@ -136,6 +136,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public IRequestListener certIssuedListener;
     public IRequestListener certRevokedListener;
+    public IRequestListener requestInQueueListener;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -342,6 +343,15 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
      */
     public IRequestListener getCertRevokedListener() {
         return certRevokedListener;
+    }
+
+    /**
+     * Retrieves the request in queue listener.
+     *
+     * @return the request in queue listener
+     */
+    public IRequestListener getRequestInQueueListener() {
+        return requestInQueueListener;
     }
 
     public AsyncLoader getLoader() {
@@ -591,6 +601,28 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         certRevokedListener = (IRequestListener) Class.forName(className).newInstance();
         certRevokedListener.init(hostCA, listenerConfig);
+    }
+
+    public void initRequestInQueueListener() throws Exception {
+
+        logger.info("CAEngine: Initializing request in queue listener");
+
+        CertificateAuthority hostCA = getCA();
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        IConfigStore listenerConfig = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE);
+        if (listenerConfig == null || listenerConfig.size() == 0) {
+            return;
+        }
+
+        String className = listenerConfig.getString(
+                "certificateIssuedListenerClassName",
+                "com.netscape.cms.listeners.RequestInQListener");
+
+        requestInQueueListener = (IRequestListener) Class.forName(className).newInstance();
+        requestInQueueListener.init(hostCA, listenerConfig);
     }
 
     protected void loadSubsystems() throws Exception {
