@@ -134,6 +134,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected PublicKey issuanceProtectionPublicKey;
     protected PrivateKey issuanceProtectionPrivateKey;
 
+    public IRequestListener certIssuedListener;
+
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
 
@@ -321,6 +323,15 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public PrivateKey getIssuanceProtectionPrivateKey() {
         return issuanceProtectionPrivateKey;
+    }
+
+    /**
+     * Retrieves the request listener for issued certificates.
+     *
+     * @return the request listener for issued certificates
+     */
+    public IRequestListener getCertIssuedListener() {
+        return certIssuedListener;
     }
 
     public AsyncLoader getLoader() {
@@ -528,6 +539,28 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         }
     }
 
+    public void initCertIssuedListener() throws Exception {
+
+        logger.info("CAEngine: Initializing certificate issued listener");
+
+        CertificateAuthority hostCA = getCA();
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        IConfigStore listenerConfig = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE);
+        if (listenerConfig == null || listenerConfig.size() == 0) {
+            return;
+        }
+
+        String className = listenerConfig.getString(
+                "certificateIssuedListenerClassName",
+                "com.netscape.cms.listeners.CertificateIssuedListener");
+
+        certIssuedListener = (IRequestListener) Class.forName(className).newInstance();
+        certIssuedListener.init(hostCA, listenerConfig);
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -713,6 +746,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         if (!isPreOpMode()) {
             startPublisherProcessor();
+            initCertIssuedListener();
         }
 
         super.startupSubsystems();

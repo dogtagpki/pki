@@ -241,7 +241,6 @@ public class CertificateAuthority
      * Package constants
      */
 
-    public IRequestListener mCertIssuedListener = null;
     public IRequestListener mCertRevokedListener = null;
     public IRequestListener mReqInQListener = null;
 
@@ -601,10 +600,6 @@ public class CertificateAuthority
 
     public IRequestListener getRequestInQListener() {
         return mReqInQListener;
-    }
-
-    public IRequestListener getCertIssuedListener() {
-        return mCertIssuedListener;
     }
 
     public IRequestListener getCertRevokedListener() {
@@ -1470,19 +1465,6 @@ public class CertificateAuthority
         try {
             nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE);
             if (nc != null && nc.size() > 0) {
-                // Initialize Certificate Issued notification listener
-
-                String certificateIssuedListenerClassName =
-                        nc.getString("certificateIssuedListenerClassName",
-                                "com.netscape.cms.listeners.CertificateIssuedListener");
-
-                try {
-                    mCertIssuedListener =
-                            (IRequestListener) Class.forName(certificateIssuedListenerClassName).newInstance();
-                    mCertIssuedListener.init(this, nc);
-                } catch (Exception e1) {
-                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_REGISTER_LISTENER", certificateIssuedListenerClassName), e1);
-                }
 
                 // Initialize Revoke Request notification listener
 

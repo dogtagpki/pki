@@ -438,13 +438,14 @@ public class CAAdminServlet extends AdminServlet {
     private void setNotificationReqCompConfig(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        IConfigStore config = mCA.getConfigStore();
-        IConfigStore nc =
-                config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
 
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig config = engineConfig.getCAConfig();
+        IConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
         IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_ISSUED_SUBSTORE);
 
-        setNotificationCompConfig(req, resp, rc, mCA.getCertIssuedListener());
+        setNotificationCompConfig(req, resp, rc, engine.getCertIssuedListener());
 
     }
 
