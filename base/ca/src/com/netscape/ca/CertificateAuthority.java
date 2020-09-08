@@ -286,7 +286,6 @@ public class CertificateAuthority
         this.authorityEnabled = authorityEnabled;
         mNickname = signingKeyNickname;
         this.authorityKeyHosts = authorityKeyHosts;
-        init(hostCA.mConfig);
     }
 
     public boolean isHostAuthority() {

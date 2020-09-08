@@ -986,6 +986,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             description,
             true);
 
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+        ca.init(caConfig);
+
         updateAuthoritySerialNumber(aid, cert.getSerialNumber());
 
         return ca;
@@ -1324,6 +1328,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             CertificateAuthority ca = new CertificateAuthority(
                 hostCA, dn, aid, parentAID, serial,
                 keyNick, keyHosts, desc, enabled);
+
+            CAEngineConfig engineConfig = getConfig();
+            CAConfig caConfig = engineConfig.getCAConfig();
+            ca.init(caConfig);
 
             addCA(aid, ca);
             entryUSNs.put(aid, newEntryUSN);
