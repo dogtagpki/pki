@@ -617,13 +617,6 @@ public class CertificateAuthority
      * Starts up this subsystem.
      */
     public void startup() throws EBaseException {
-        CAEngine engine = CAEngine.getInstance();
-        if (engine.isPreOpMode()) {
-            logger.debug("CertificateAuthority.startup(): Do not start CA in pre-op mode");
-            return;
-        }
-        engine.getCAService().startup();
-        engine.getRequestQueue().recover();
     }
 
     /**

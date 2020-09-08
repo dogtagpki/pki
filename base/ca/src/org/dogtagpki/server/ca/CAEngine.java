@@ -809,6 +809,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     public void startupSubsystems() throws Exception {
 
         if (!isPreOpMode()) {
+
+            caService.startup();
+            requestQueue.recover();
+
             startPublisherProcessor();
             initCertIssuedListener();
             initCertRevokedListener();
