@@ -976,7 +976,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         }
 
         CertificateAuthority ca = new CertificateAuthority(
-            hostCA,
             subjectX500Name,
             aid,
             parentCA.getAuthorityID(),
@@ -1326,7 +1325,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         try {
             CertificateAuthority ca = new CertificateAuthority(
-                hostCA, dn, aid, parentAID, serial,
+                dn, aid, parentAID, serial,
                 keyNick, keyHosts, desc, enabled);
 
             CAEngineConfig engineConfig = getConfig();

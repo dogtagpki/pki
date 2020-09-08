@@ -182,7 +182,7 @@ public class CertificateAuthority
 
     public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
 
-    protected CertificateAuthority hostCA = null;
+    protected boolean hostCA;
     protected AuthorityID authorityID = null;
     protected AuthorityID authorityParentID = null;
     protected BigInteger authoritySerial = null;
@@ -255,14 +255,13 @@ public class CertificateAuthority
      * Constructs a CA subsystem.
      */
     public CertificateAuthority() {
-        hostCA = this;
+        hostCA = true;
     }
 
     /**
      * Construct and initialise a lightweight authority
      */
     public CertificateAuthority(
-            CertificateAuthority hostCA,
             X500Name dn,
             AuthorityID aid,
             AuthorityID parentAID,
@@ -272,8 +271,9 @@ public class CertificateAuthority
             String authorityDescription,
             boolean authorityEnabled
             ) throws EBaseException {
-        setId(hostCA.getId());
-        this.hostCA = hostCA;
+
+        this.mId = CertificateAuthority.ID;
+        this.hostCA = false;
 
         // cert and key may not have been replicated to local nssdb
         // yet, so set DN based on data from LDAP
@@ -284,12 +284,13 @@ public class CertificateAuthority
         this.authoritySerial = serial;
         this.authorityDescription = authorityDescription;
         this.authorityEnabled = authorityEnabled;
-        mNickname = signingKeyNickname;
         this.authorityKeyHosts = authorityKeyHosts;
+
+        this.mNickname = signingKeyNickname;
     }
 
     public boolean isHostAuthority() {
-        return hostCA == this;
+        return hostCA;
     }
 
     public void ensureReady()
@@ -1342,7 +1343,7 @@ public class CertificateAuthority
 
         String certSigningSKI = CryptoUtil.getSKIString(mCaCert);
 
-        if (isHostAuthority()) {
+        if (hostCA) {
             // generate cert info without authority ID
             signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI));
 
@@ -1359,7 +1360,7 @@ public class CertificateAuthority
 
         IConfigStore crlSigningConfig = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE);
 
-        if (isHostAuthority() && crlSigningConfig != null && crlSigningConfig.size() > 0) {
+        if (hostCA && crlSigningConfig != null && crlSigningConfig.size() > 0) {
             mCRLSigningUnit = new SigningUnit();
             mCRLSigningUnit.init(crlSigningConfig, null);
         } else {
@@ -1372,7 +1373,7 @@ public class CertificateAuthority
 
         String crlSigningSKI = CryptoUtil.getSKIString(mCRLCert);
 
-        if (isHostAuthority()) {
+        if (hostCA) {
             // generate CRL signing info without authority ID
             signedAuditLogger.log(CRLSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, crlSigningSKI));
 
@@ -1387,7 +1388,7 @@ public class CertificateAuthority
 
         IConfigStore ocspSigningConfig = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
 
-        if (isHostAuthority() && ocspSigningConfig != null && ocspSigningConfig.size() > 0) {
+        if (hostCA && ocspSigningConfig != null && ocspSigningConfig.size() > 0) {
             mOCSPSigningUnit = new SigningUnit();
             mOCSPSigningUnit.init(ocspSigningConfig, null);
         } else {
@@ -1403,7 +1404,7 @@ public class CertificateAuthority
 
         String ocspSigningSKI = CryptoUtil.getSKIString(mOCSPCert);
 
-        if (isHostAuthority()) {
+        if (hostCA) {
             // generate OCSP signing info without authority ID
             signedAuditLogger.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI));
         } else {
@@ -1982,7 +1983,7 @@ public class CertificateAuthority
 
     public synchronized void deleteAuthority(HttpServletRequest httpReq)
             throws EBaseException {
-        if (isHostAuthority())
+        if (hostCA)
             throw new CATypeException("Cannot delete the host CA");
 
         if (authorityEnabled)
@@ -2047,7 +2048,7 @@ public class CertificateAuthority
     /** Delete keys and certs of this authority from NSSDB.
      */
     void deleteAuthorityNSSDB() throws ECAException {
-        if (isHostAuthority()) {
+        if (hostCA) {
             String msg = "Attempt to delete host authority signing key; not proceeding";
             logger.warn(msg);
             return;
