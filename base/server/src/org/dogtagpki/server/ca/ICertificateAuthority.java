@@ -267,13 +267,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public Enumeration<String> getRequestListenerNames();
 
     /**
-     * Retrieves the request listener for revoked certificates.
-     *
-     * @return the request listener for revoked certificates
-     */
-    public IRequestListener getCertRevokedListener();
-
-    /**
      * Retrieves the CA certificate chain.
      *
      * @return the CA certificate chain

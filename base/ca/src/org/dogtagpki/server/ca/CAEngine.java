@@ -135,6 +135,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected PrivateKey issuanceProtectionPrivateKey;
 
     public IRequestListener certIssuedListener;
+    public IRequestListener certRevokedListener;
 
     public static LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -332,6 +333,15 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
      */
     public IRequestListener getCertIssuedListener() {
         return certIssuedListener;
+    }
+
+    /**
+     * Retrieves the request listener for revoked certificates.
+     *
+     * @return the request listener for revoked certificates
+     */
+    public IRequestListener getCertRevokedListener() {
+        return certRevokedListener;
     }
 
     public AsyncLoader getLoader() {
@@ -561,6 +571,28 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         certIssuedListener.init(hostCA, listenerConfig);
     }
 
+    public void initCertRevokedListener() throws Exception {
+
+        logger.info("CAEngine: Initializing cert revoked listener");
+
+        CertificateAuthority hostCA = getCA();
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        IConfigStore listenerConfig = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE);
+        if (listenerConfig == null || listenerConfig.size() == 0) {
+            return;
+        }
+
+        String className = listenerConfig.getString(
+                "certificateIssuedListenerClassName",
+                "com.netscape.cms.listeners.CertificateRevokedListener");
+
+        certRevokedListener = (IRequestListener) Class.forName(className).newInstance();
+        certRevokedListener.init(hostCA, listenerConfig);
+    }
+
     protected void loadSubsystems() throws Exception {
 
         super.loadSubsystems();
@@ -747,6 +779,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         if (!isPreOpMode()) {
             startPublisherProcessor();
             initCertIssuedListener();
+            initCertRevokedListener();
         }
 
         super.startupSubsystems();
