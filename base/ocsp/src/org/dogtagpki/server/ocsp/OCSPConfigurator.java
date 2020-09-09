@@ -32,13 +32,11 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmsutil.xml.XMLObject;
-import com.netscape.ocsp.OCSPAuthority;
 
 public class OCSPConfigurator extends Configurator {
 
@@ -47,14 +45,6 @@ public class OCSPConfigurator extends Configurator {
     }
 
     private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
-
-    @Override
-    public void setupDatabase(DatabaseSetupRequest request) throws Exception {
-
-        engine.setSubsystemEnabled(OCSPAuthority.ID, true);
-
-        super.setupDatabase(request);
-    }
 
     @Override
     public void getDatabaseGroups(Collection<String> groups) throws Exception {
