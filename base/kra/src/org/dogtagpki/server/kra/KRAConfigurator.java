@@ -27,26 +27,16 @@ import javax.ws.rs.core.MultivaluedMap;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmsutil.xml.XMLObject;
-import com.netscape.kra.KeyRecoveryAuthority;
 
 public class KRAConfigurator extends Configurator {
 
     public KRAConfigurator(CMSEngine engine) {
         super(engine);
-    }
-
-    @Override
-    public void setupDatabase(DatabaseSetupRequest request) throws Exception {
-
-        engine.setSubsystemEnabled(KeyRecoveryAuthority.ID, true);
-
-        super.setupDatabase(request);
     }
 
     @Override

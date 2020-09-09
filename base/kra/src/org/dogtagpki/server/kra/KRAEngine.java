@@ -21,6 +21,8 @@ package org.dogtagpki.server.kra;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -51,16 +53,14 @@ public class KRAEngine extends CMSEngine implements ServletContextListener {
         return new KRAConfigurator(this);
     }
 
-    protected void loadSubsystems() throws Exception {
+    public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {
 
-        super.loadSubsystems();
-
-        if (isPreOpMode()) {
-            // Disable some subsystems before database initialization
-            // in pre-op mode to prevent misleading exceptions.
-
-            setSubsystemEnabled(KeyRecoveryAuthority.ID, false);
+        if (subsystem instanceof KeyRecoveryAuthority) {
+            // skip initialization during installation
+            if (isPreOpMode()) return;
         }
+
+        super.initSubsystem(subsystem, subsystemConfig);
     }
 
     public void startupSubsystems() throws Exception {
