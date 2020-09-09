@@ -56,6 +56,7 @@ import com.netscape.ca.KeyRetrieverRunner;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CATypeException;
@@ -636,7 +637,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             // Disable some subsystems before database initialization
             // in pre-op mode to prevent misleading exceptions.
 
-            setSubsystemEnabled(CertificateAuthority.ID, false);
             setSubsystemEnabled(CrossCertPairSubsystem.ID, false);
         }
     }
@@ -758,18 +758,24 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             logger.info("CAEngine: - by name: " + ocspResponderByName);
 
             initCRLPublisher();
-
             initPublisherProcessor();
         }
 
         super.initSubsystems();
+    }
 
-        if (!isPreOpMode()) {
-            // CRLIssuingPoint must be initialized after host CA initialization
+    public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {
+
+        if (subsystem instanceof CertificateAuthority) {
+            // skip initialization during installation
+            if (isPreOpMode()) return;
+        }
+
+        super.initSubsystem(subsystem, subsystemConfig);
+
+        if (subsystem instanceof CertificateAuthority) {
             initCRLIssuingPoints();
-
             initIssuanceProtectionCert();
-
             initAuthorityMonitor();
         }
     }

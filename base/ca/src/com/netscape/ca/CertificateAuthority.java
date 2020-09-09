@@ -634,6 +634,10 @@ public class CertificateAuthority
         return mConfig;
     }
 
+    public void setConfig(CAConfig config) {
+        mConfig = config;
+    }
+
     public long getDefaultValidity() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getDefaultCertValidity();

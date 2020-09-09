@@ -164,10 +164,7 @@ public class CAConfigurator extends Configurator {
 
         super.reinitSubsystems();
 
-        engine.setSubsystemEnabled(CertificateAuthority.ID, true);
         engine.setSubsystemEnabled(CrossCertPairSubsystem.ID, true);
-
-        engine.reinit(CertificateAuthority.ID);
     }
 
     public Cert setupCert(CertificateSetupRequest request) throws Exception {
@@ -177,8 +174,14 @@ public class CAConfigurator extends Configurator {
         String tag = request.getTag();
 
         if (subsystem.equals("ca") && tag.equals("signing")) {
+            logger.info("CAConfigurator: Initializing CA with signing cert");
+
             CAEngine engine = CAEngine.getInstance();
-            engine.reinit(ICertificateAuthority.ID);
+            CAEngineConfig engineConfig = engine.getConfig();
+
+            CertificateAuthority ca = engine.getCA();
+            ca.setConfig(engineConfig.getCAConfig());
+            ca.initCertSigningUnit();
         }
 
         return cert;
