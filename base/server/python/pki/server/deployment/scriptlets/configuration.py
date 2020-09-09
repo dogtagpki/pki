@@ -813,6 +813,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem.save()
 
+        if clone:
+
+            if subsystem.type in ['CA', 'KRA']:
+
+                logger.info('Updating ranges for %s clone', subsystem.type)
+                subsystem.update_ranges(master_url, deployer.install_token)
+
+            logger.info('Updating configuration for %s clone', subsystem.type)
+            subsystem.update_config(master_url, deployer.install_token)
+
         if config.str2bool(deployer.mdict['pki_ds_remove_data']):
 
             if config.str2bool(deployer.mdict['pki_ds_create_new_db']):
@@ -853,6 +863,23 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         create_containers = not config.str2bool(deployer.mdict['pki_clone'])
 
+        # Set up replication if required for cloning.
+
+        setup_replication = clone and \
+            config.str2bool(deployer.mdict['pki_clone_setup_replication'])
+
+        ds_port = subsystem.config['internaldb.ldapconn.port']
+        secure_conn = subsystem.config['internaldb.ldapconn.secureConn']
+        replication_security = deployer.mdict['pki_clone_replication_security']
+        replication_port = deployer.mdict['pki_clone_replication_clone_port']
+        master_replication_port = deployer.mdict['pki_clone_replication_master_port']
+
+        if replication_port == ds_port and secure_conn == 'true':
+            replication_security = 'SSL'
+
+        elif not replication_security:
+            replication_security = 'None'
+
         # If the database is already replicated but not yet indexed, rebuild the indexes.
 
         rebuild_indexes = config.str2bool(deployer.mdict['pki_clone']) and \
@@ -873,18 +900,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             create_base=create_base,
             create_containers=create_containers,
             rebuild_indexes=rebuild_indexes,
+            setup_replication=setup_replication,
+            replication_security=replication_security,
+            replication_port=replication_port,
+            master_replication_port=master_replication_port,
             setup_db_manager=setup_db_manager,
             setup_vlv_indexes=setup_vlv_indexes)
 
-        if clone:
-
-            if subsystem.type in ['CA', 'KRA']:
-
-                logger.info('Updating ranges for %s clone', subsystem.type)
-                subsystem.update_ranges(master_url, deployer.install_token)
-
-            logger.info('Updating configuration for %s clone', subsystem.type)
-            subsystem.update_config(master_url, deployer.install_token)
+        subsystem.load()
 
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger

@@ -879,6 +879,10 @@ class PKISubsystem(object):
             create_base=False,
             create_containers=False,
             rebuild_indexes=False,
+            setup_replication=False,
+            replication_security=None,
+            replication_port=None,
+            master_replication_port=None,
             setup_db_manager=False,
             setup_vlv_indexes=False,
             as_current_user=False):
@@ -899,6 +903,18 @@ class PKISubsystem(object):
 
         if rebuild_indexes:
             cmd.append('--rebuild-indexes')
+
+        if setup_replication:
+            cmd.append('--setup-replication')
+
+        if replication_security:
+            cmd.extend(['--replication-security', replication_security])
+
+        if replication_port:
+            cmd.extend(['--replication-port', replication_port])
+
+        if master_replication_port:
+            cmd.extend(['--master-replication-port', master_replication_port])
 
         if setup_db_manager:
             cmd.append('--setup-db-manager')

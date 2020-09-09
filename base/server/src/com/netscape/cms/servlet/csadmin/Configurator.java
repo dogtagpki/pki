@@ -76,7 +76,6 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -108,14 +107,11 @@ import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmscore.apps.SubsystemConfig;
 import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
-import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.xml.XMLObject;
 
 import netscape.ldap.LDAPAttribute;
@@ -358,7 +354,6 @@ public class Configurator {
     }
 
     public void setupClone(CloneSetupRequest request) throws Exception {
-        setupReplication(request);
     }
 
     public void setupDatabase(DatabaseSetupRequest request) throws Exception {
@@ -366,176 +361,6 @@ public class Configurator {
     }
 
     public void reinitSubsystems() throws EBaseException {
-    }
-
-    public void setupReplication(CloneSetupRequest request) throws Exception {
-
-        IPasswordStore passwordStore = engine.getPasswordStore();
-
-        String hostname = cs.getHostname();
-        String instanceId = cs.getInstanceID();
-        String subsystem = cs.getType().toLowerCase();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        LDAPConfig ldapConfig = cs.getInternalDBConfig();
-        LDAPConnectionConfig replicaConnConfig = ldapConfig.getConnectionConfig();
-        String replicaHostname = replicaConnConfig.getString("host", "");
-        String replicaPort = replicaConnConfig.getString("port", "");
-
-        String replicaReplicationPort = request.getCloneReplicationPort();
-        if (replicaReplicationPort == null || replicaReplicationPort.equals("")) {
-            replicaReplicationPort = replicaPort;
-        }
-
-        LdapBoundConnFactory ldapFactory = new LdapBoundConnFactory("LDAPConfigurator");
-        ldapFactory.init(cs, ldapConfig, passwordStore);
-
-        LDAPConnection conn = ldapFactory.getConn();
-        LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig, instanceId);
-
-        try {
-            LDAPConfig masterConfig = preopConfig.getSubStore("internaldb.master", LDAPConfig.class);
-            LDAPConnectionConfig masterConnConfig = masterConfig.getConnectionConfig();
-            String masterHostname = masterConnConfig.getString("host", "");
-            String masterPort = masterConnConfig.getString("port", "");
-
-            String masterReplicationPort = request.getMasterReplicationPort();
-            if (masterReplicationPort == null || masterReplicationPort.equals("")) {
-                masterReplicationPort = masterPort;
-            }
-
-            String masterReplicationPassword = preopConfig.getString("internaldb.master.replication.password", "");
-            String replicaReplicationPassword = passwordStore.getPassword("replicationdb", 0);
-
-            // set master ldap password (if it exists) temporarily in password store
-            // in case it is needed for replication.  Not stored in password.conf.
-
-            LDAPAuthenticationConfig masterAuthConfig = masterConfig.getAuthenticationConfig();
-            String masterPassword = masterAuthConfig.getString("password", "");
-
-            if (!masterPassword.equals("")) {
-                masterAuthConfig.putString("bindPWPrompt", "master_internaldb");
-                passwordStore.putPassword("master_internaldb", masterPassword);
-                passwordStore.commit();
-            }
-
-            LdapBoundConnFactory masterFactory = new LdapBoundConnFactory("MasterLDAPConfigurator");
-            masterFactory.init(cs, masterConfig, passwordStore);
-
-            LDAPConnection masterConn = masterFactory.getConn();
-            LDAPConfigurator masterConfigurator = new LDAPConfigurator(masterConn, masterConfig);
-
-            try {
-                String masterAgreementName = "masterAgreement1-" + hostname + "-" + instanceId;
-                String replicaAgreementName = "cloneAgreement1-" + hostname + "-" + instanceId;
-
-                DatabaseConfig dbConfig = cs.getDatabaseConfig();
-                int replicaID = dbConfig.getInteger("beginReplicaNumber", 1);
-
-                replicaID = setupReplicationAgreements(
-                        masterConfigurator,
-                        ldapConfigurator,
-                        masterAgreementName,
-                        replicaAgreementName,
-                        masterHostname,
-                        replicaHostname,
-                        Integer.parseInt(masterReplicationPort),
-                        Integer.parseInt(replicaReplicationPort),
-                        masterReplicationPassword,
-                        replicaReplicationPassword,
-                        request.getReplicationSecurity(),
-                        replicaID);
-
-                dbConfig.putString("beginReplicaNumber", Integer.toString(replicaID));
-
-                logger.info("Initializing replication consumer");
-                masterConfigurator.initializeConsumer(masterAgreementName);
-
-            } finally {
-                releaseConnection(masterConn);
-            }
-
-            // remove master ldap password from password.conf (if present)
-
-            if (!masterPassword.equals("")) {
-                String passwordFile = cs.getString("passwordFile");
-                IConfigStore psStore = engine.createFileConfigStore(passwordFile);
-                psStore.remove("master_internaldb");
-                psStore.commit(false);
-            }
-
-            ldapConfigurator.setupDatabaseManager();
-
-            ldapConfigurator.createVLVIndexes(subsystem);
-            ldapConfigurator.rebuildVLVIndexes(subsystem);
-
-        } finally {
-            releaseConnection(conn);
-        }
-    }
-
-    public int setupReplicationAgreements(
-            LDAPConfigurator masterConfigurator,
-            LDAPConfigurator replicaConfigurator,
-            String masterAgreementName,
-            String replicaAgreementName,
-            String masterHostname,
-            String replicaHostname,
-            int masterReplicationPort,
-            int replicaReplicationPort,
-            String masterReplicationPassword,
-            String replicaReplicationPassword,
-            String replicationSecurity,
-            int replicaID)
-            throws Exception {
-
-        String masterBindUser = "Replication Manager " + masterAgreementName;
-        String replicaBindUser = "Replication Manager " + replicaAgreementName;
-
-        logger.info("Setting up replication agreement on master");
-
-        boolean created = masterConfigurator.setupReplicationAgreement(
-                masterAgreementName,
-                masterBindUser,
-                masterReplicationPassword,
-                replicaHostname,
-                replicaReplicationPort,
-                replicaBindUser,
-                replicaReplicationPassword,
-                replicationSecurity,
-                replicaID);
-
-        if (created) {
-            replicaID++;
-        }
-
-        logger.info("Setting up replication agreement on replica");
-
-        created = replicaConfigurator.setupReplicationAgreement(
-                replicaAgreementName,
-                replicaBindUser,
-                replicaReplicationPassword,
-                masterHostname,
-                masterReplicationPort,
-                masterBindUser,
-                masterReplicationPassword,
-                replicationSecurity,
-                replicaID);
-
-        if (created) {
-            replicaID++;
-        }
-
-        return replicaID;
-    }
-
-    public void releaseConnection(LDAPConnection conn) {
-        try {
-            if (conn != null)
-                conn.disconnect();
-        } catch (LDAPException e) {
-            logger.warn("releaseConnection: " + e, e);
-        }
     }
 
     public void importLDIFS(LDAPConfigurator ldapConfigurator, String param) throws Exception {
