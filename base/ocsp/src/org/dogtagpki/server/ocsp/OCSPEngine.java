@@ -25,7 +25,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.ocsp.OCSPAuthority;
 
 @WebListener
@@ -60,7 +59,6 @@ public class OCSPEngine extends CMSEngine implements ServletContextListener {
             // in pre-op mode to prevent misleading exceptions.
 
             setSubsystemEnabled(OCSPAuthority.ID, false);
-            setSubsystemEnabled(SelfTestSubsystem.ID, false);
         }
     }
 }

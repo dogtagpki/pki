@@ -32,7 +32,6 @@ import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
-import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 import com.netscape.kra.KeyRecoveryAuthority;
 
@@ -46,7 +45,6 @@ public class KRAConfigurator extends Configurator {
     public void setupDatabase(DatabaseSetupRequest request) throws Exception {
 
         engine.setSubsystemEnabled(KeyRecoveryAuthority.ID, true);
-        engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
 
         super.setupDatabase(request);
     }

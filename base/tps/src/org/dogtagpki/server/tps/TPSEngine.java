@@ -25,7 +25,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 @WebListener
 public class TPSEngine extends CMSEngine implements ServletContextListener {
@@ -48,17 +47,5 @@ public class TPSEngine extends CMSEngine implements ServletContextListener {
 
     public TPSConfigurator createConfigurator() throws Exception {
         return new TPSConfigurator(this);
-    }
-
-    protected void loadSubsystems() throws Exception {
-
-        super.loadSubsystems();
-
-        if (isPreOpMode()) {
-            // Disable some subsystems before database initialization
-            // in pre-op mode to prevent misleading exceptions.
-
-            setSubsystemEnabled(SelfTestSubsystem.ID, false);
-        }
     }
 }

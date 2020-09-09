@@ -22,7 +22,6 @@ import java.util.Collection;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.tks.TKSAuthority;
 
 public class TKSConfigurator extends Configurator {
@@ -35,7 +34,6 @@ public class TKSConfigurator extends Configurator {
     public void setupDatabase(DatabaseSetupRequest request) throws Exception {
 
         engine.setSubsystemEnabled(TKSAuthority.ID, true);
-        engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
 
         super.setupDatabase(request);
     }

@@ -48,7 +48,6 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
-import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -167,7 +166,6 @@ public class CAConfigurator extends Configurator {
 
         engine.setSubsystemEnabled(CertificateAuthority.ID, true);
         engine.setSubsystemEnabled(CrossCertPairSubsystem.ID, true);
-        engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
 
         engine.reinit(CertificateAuthority.ID);
     }

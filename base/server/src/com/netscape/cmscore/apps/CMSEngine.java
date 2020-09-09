@@ -93,6 +93,7 @@ import com.netscape.cmscore.request.CertRequestConstants;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWsdrCache;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmscore.session.LDAPSecurityDomainSessionTable;
 import com.netscape.cmscore.session.SecurityDomainSessionTable;
 import com.netscape.cmscore.session.SessionTimer;
@@ -778,14 +779,23 @@ public class CMSEngine implements ServletContextListener {
         }
     }
 
-    protected void initSubsystems() throws Exception {
+    public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {
 
-        for (SubsystemInfo subsystemInfo : subsystemInfos.values()) {
+        if (subsystem instanceof SelfTestSubsystem) {
+            // skip initialization during installation
+            if (isPreOpMode()) return;
+        }
 
-            String id = subsystemInfo.id;
+        subsystem.init(subsystemConfig);
+    }
+
+    public void initSubsystems() throws Exception {
+
+        for (String id : subsystems.keySet()) {
             logger.info("CMSEngine: Initializing " + id + " subsystem");
 
             ISubsystem subsystem = subsystems.get(id);
+            SubsystemInfo subsystemInfo = subsystemInfos.get(id);
 
             if (subsystemInfo.updateIdOnInit) {
                 subsystem.setId(id);
@@ -797,7 +807,7 @@ public class CMSEngine implements ServletContextListener {
             }
 
             IConfigStore subsystemConfig = mConfig.getSubStore(id);
-            subsystem.init(subsystemConfig);
+            initSubsystem(subsystem, subsystemConfig);
         }
     }
 

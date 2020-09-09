@@ -33,13 +33,11 @@ import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.AdminSetupRequest;
-import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -69,14 +67,6 @@ public class TPSConfigurator extends Configurator {
         // TODO: get installer from session
         TPSInstaller installer = new TPSInstaller();
         installer.configureKRAConnector(keygen, kraURI, nickname);
-    }
-
-    @Override
-    public void setupDatabase(DatabaseSetupRequest request) throws Exception {
-
-        engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
-
-        super.setupDatabase(request);
     }
 
     @Override

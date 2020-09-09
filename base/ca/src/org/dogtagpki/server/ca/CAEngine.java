@@ -83,7 +83,6 @@ import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.ARequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -639,11 +638,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
             setSubsystemEnabled(CertificateAuthority.ID, false);
             setSubsystemEnabled(CrossCertPairSubsystem.ID, false);
-            setSubsystemEnabled(SelfTestSubsystem.ID, false);
         }
     }
 
-    protected void initSubsystems() throws Exception {
+    public void initSubsystems() throws Exception {
 
         CertificateAuthority hostCA = getCA();
 
