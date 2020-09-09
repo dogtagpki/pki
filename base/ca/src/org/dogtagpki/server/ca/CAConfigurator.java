@@ -42,7 +42,6 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
-import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
@@ -157,14 +156,6 @@ public class CAConfigurator extends Configurator {
             logger.error("Unable to load data for profile " + profileId + ": " + e.getMessage(), e);
             throw new EBaseException("Unable to load data for profile " + profileId + ": " + e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void reinitSubsystems() throws EBaseException {
-
-        super.reinitSubsystems();
-
-        engine.setSubsystemEnabled(CrossCertPairSubsystem.ID, true);
     }
 
     public Cert setupCert(CertificateSetupRequest request) throws Exception {

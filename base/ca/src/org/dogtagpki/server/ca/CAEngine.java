@@ -629,18 +629,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         requestInQueueListener.init(hostCA, listenerConfig);
     }
 
-    protected void loadSubsystems() throws Exception {
-
-        super.loadSubsystems();
-
-        if (isPreOpMode()) {
-            // Disable some subsystems before database initialization
-            // in pre-op mode to prevent misleading exceptions.
-
-            setSubsystemEnabled(CrossCertPairSubsystem.ID, false);
-        }
-    }
-
     public void initSubsystems() throws Exception {
 
         CertificateAuthority hostCA = getCA();
@@ -769,6 +757,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         if (subsystem instanceof CertificateAuthority) {
             // skip initialization during installation
             if (isPreOpMode()) return;
+
+        } else if (subsystem instanceof CrossCertPairSubsystem) {
+            // skip initialization during installation
+            if (isPreOpMode()) return;
         }
 
         super.initSubsystem(subsystem, subsystemConfig);
@@ -777,6 +769,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             initCRLIssuingPoints();
             initIssuanceProtectionCert();
             initAuthorityMonitor();
+
         }
     }
 
