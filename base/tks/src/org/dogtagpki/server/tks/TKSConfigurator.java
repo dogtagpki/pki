@@ -19,23 +19,13 @@ package org.dogtagpki.server.tks;
 
 import java.util.Collection;
 
-import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.tks.TKSAuthority;
 
 public class TKSConfigurator extends Configurator {
 
     public TKSConfigurator(CMSEngine engine) {
         super(engine);
-    }
-
-    @Override
-    public void setupDatabase(DatabaseSetupRequest request) throws Exception {
-
-        engine.setSubsystemEnabled(TKSAuthority.ID, true);
-
-        super.setupDatabase(request);
     }
 
     @Override

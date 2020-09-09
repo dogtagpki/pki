@@ -21,6 +21,8 @@ package org.dogtagpki.server.tks;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -50,15 +52,13 @@ public class TKSEngine extends CMSEngine implements ServletContextListener {
         return new TKSConfigurator(this);
     }
 
-    protected void loadSubsystems() throws Exception {
+    public void initSubsystem(ISubsystem subsystem, IConfigStore subsystemConfig) throws Exception {
 
-        super.loadSubsystems();
-
-        if (isPreOpMode()) {
-            // Disable some subsystems before database initialization
-            // in pre-op mode to prevent misleading exceptions.
-
-            setSubsystemEnabled(TKSAuthority.ID, false);
+        if (subsystem instanceof TKSAuthority) {
+            // skip initialization during installation
+            if (isPreOpMode()) return;
         }
+
+        super.initSubsystem(subsystem, subsystemConfig);
     }
 }
