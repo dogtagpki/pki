@@ -2689,29 +2689,6 @@ class ConfigClient:
             self.mdict['pki_client_admin_cert_p12'],
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
-    def create_clone_setup_request(self, subsystem):
-
-        logger.info('Creating clone setup request')
-
-        dsPort = subsystem.config['internaldb.ldapconn.port']
-        secureConn = subsystem.config['internaldb.ldapconn.secureConn']
-
-        request = pki.system.CloneSetupRequest()
-        request.pin = self.mdict['pki_one_time_pin']
-
-        request.masterReplicationPort = self.mdict['pki_clone_replication_master_port']
-        request.cloneReplicationPort = self.mdict['pki_clone_replication_clone_port']
-
-        request.replicationSecurity = self.mdict['pki_clone_replication_security']
-
-        if request.cloneReplicationPort == dsPort and secureConn == 'true':
-            request.replicationSecurity = 'SSL'
-
-        elif not request.replicationSecurity:
-            request.replicationSecurity = 'None'
-
-        return request
-
     def create_database_setup_request(self):
 
         logger.info('Creating database setup request')
