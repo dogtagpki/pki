@@ -738,9 +738,9 @@ public class LDAPConfigurator {
         String bindDN = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
 
         logger.info("Adding " + replicaDN);
-        logger.debug("- nsDS5ReplicaRoot: " + baseDN);
-        logger.debug("- nsDS5ReplicaBindDN: " + bindDN);
-        logger.debug("- nsDS5ReplicaId: " + id);
+        logger.info("- nsDS5ReplicaRoot: " + baseDN);
+        logger.info("- nsDS5ReplicaBindDN: " + bindDN);
+        logger.info("- nsDS5ReplicaId: " + id);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", "top"));
@@ -759,29 +759,30 @@ public class LDAPConfigurator {
             connection.add(entry);
 
         } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                // BZ 470918: We can't just add the new dn.
-                // We need to do a replace until the bug is fixed.
-                logger.warn("Entry already exists: " + replicaDN);
 
-                entry = connection.read(replicaDN);
-                LDAPAttribute attr = entry.getAttribute("nsDS5ReplicaBindDN");
-                attr.addValue(bindDN);
-
-                LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
-
-                try {
-                    connection.modify(replicaDN, mod);
-
-                } catch (LDAPException ee) {
-                    logger.warn("Unable to modify " + replicaDN + ": " + ee.getMessage(), ee);
-                }
-
-                return false;
-
-            } else {
+            if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
                 logger.warn("Unable to add " + replicaDN + ": " + e.getMessage(), e);
                 return false;
+            }
+
+            // BZ 470918: We can't just add the new dn.
+            // We need to do a replace until the bug is fixed.
+            logger.warn("Entry already exists: " + replicaDN);
+
+            entry = connection.read(replicaDN);
+            LDAPAttribute attr = entry.getAttribute("nsDS5ReplicaBindDN");
+            attr.addValue(bindDN);
+
+            LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
+
+            try {
+                connection.modify(replicaDN, mod);
+
+            } catch (LDAPException ee) {
+                if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
+                    logger.warn("Unable to modify " + replicaDN + ": " + ee.getMessage(), ee);
+                    return false;
+                }
             }
         }
 
@@ -802,12 +803,11 @@ public class LDAPConfigurator {
         String bindDN = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
 
         logger.info("Adding " + dn);
-        logger.debug("- description: " + name);
-        logger.debug("- nsDS5ReplicaRoot: " + baseDN);
-        logger.debug("- nsDS5ReplicaHost: " + replicaHostname);
-        logger.debug("- nsDS5ReplicaPort: " + replicaPort);
-        logger.debug("- nsDS5ReplicaBindDN: " + bindDN);
-        logger.debug("- nsDS5ReplicaTransportInfo: " + replicationSecurity);
+        logger.info("- description: " + name);
+        logger.info("- nsDS5ReplicaRoot: " + baseDN);
+        logger.info("- nsDS5ReplicaHost: " + replicaHostname);
+        logger.info("- nsDS5ReplicaPort: " + replicaPort);
+        logger.info("- nsDS5ReplicaBindDN: " + bindDN);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", "top"));
@@ -821,10 +821,9 @@ public class LDAPConfigurator {
         attrs.add(new LDAPAttribute("nsDS5ReplicaBindMethod", "Simple"));
         attrs.add(new LDAPAttribute("nsds5replicacredentials", replicaPassword));
 
-        if (replicationSecurity.equals("SSL")) {
-            attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "SSL"));
-        } else if (replicationSecurity.equals("TLS")) {
-            attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "TLS"));
+        if (replicationSecurity != null && !replicationSecurity.equalsIgnoreCase("None")) {
+            logger.info("- nsDS5ReplicaTransportInfo: " + replicationSecurity);
+            attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", replicationSecurity));
         }
 
         LDAPEntry entry = new LDAPEntry(dn, attrs);
