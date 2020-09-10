@@ -28,10 +28,6 @@ import javax.ws.rs.Path;
 public interface SystemConfigResource {
 
     @POST
-    @Path("setupClone")
-    public void setupClone(CloneSetupRequest request) throws Exception;
-
-    @POST
     @Path("setupDatabase")
     public void setupDatabase(DatabaseSetupRequest request) throws Exception;
 

@@ -963,15 +963,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if 'pki_one_time_pin' not in deployer.mdict:
             deployer.mdict['pki_one_time_pin'] = subsystem.config['preop.pin']
 
-        logger.info('Configuring %s subsystem', subsystem.type)
-
-        if clone and config.str2bool(deployer.mdict['pki_clone_setup_replication']):
-
-            logger.info('Setting up clone')
-
-            clone_setup_request = deployer.config_client.create_clone_setup_request(subsystem)
-            client.setupClone(clone_setup_request)
-
         logger.info('Setting up database')
 
         database_setup_request = deployer.config_client.create_database_setup_request()

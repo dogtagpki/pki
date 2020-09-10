@@ -398,21 +398,6 @@ class SystemConfigClient(object):
             self.setup_db_user_url = '/' + subsystem + self.setup_db_user_url
             self.finalize_config_url = '/' + subsystem + self.finalize_config_url
 
-    def setupClone(self, request):
-        """
-        Set up clone.
-
-        :param request: Clone setup request
-        :type request: CloneSetupRequest
-        """
-        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
-        headers = {'Content-type': 'application/json',
-                   'Accept': 'application/json'}
-        self.connection.post(
-            self.setup_clone_url,
-            data,
-            headers)
-
     def setupDatabase(self, request):
         """
         Set up database.
