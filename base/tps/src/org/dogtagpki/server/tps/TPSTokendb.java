@@ -241,25 +241,75 @@ public class TPSTokendb {
 
         CMS.debug(method + " found token " + cuid);
         CMS.debug(method + " number of certs to update:" + certs.size());
+
+         // Keep track of which certs made it to the database and which didn't,
+         // in case of failure
+         class CnIssuerPair {
+             public final String cn;
+             public final String issuer;
+
+             public CnIssuerPair(String _cn, String _issuer) {
+                 cn = _cn;
+                 issuer = _issuer;
+             }
+ 
+             public String toString() {
+                 return "(cn=" + cn + ", issuerCn=" + issuer + ")";
+             }
+         }
+ 
+         ArrayList<CnIssuerPair> cnIssuerPairsRemaining = new ArrayList<CnIssuerPair>(certs.size());
+         for(TPSCertRecord cert : certs) {
+             String cn = cert.getId();
+             String issuerCn = cert.getIssuedBy();
+             cnIssuerPairsRemaining.add(new CnIssuerPair(cn, issuerCn));
+         }
+
+        boolean testAddCertsFailure = false;
+        //Contrive a very difficult to reproduce testing scenario
+
         try {
+            IConfigStore configStore = CMS.getConfigStore();
+
+            // get conn ID
+            String config = "op.enroll." + "testAddCertsToDBFailure";
+            testAddCertsFailure = configStore.getBoolean(config,false);
+        } catch (Exception e) {
+           testAddCertsFailure = false;
+        }
+        
+        try {
+            int count = 0;
             for (TPSCertRecord cert : certs) {
-                try {
-                    if (!isCertOnToken(cert, cuid)) {
-                        CMS.debug(method + " adding cert with serial: " + cert.getSerialNumber());
-                        tps.certDatabase.addRecord(cert.getId(), cert);
-                    } else {
-                        // cert already on token
-                        CMS.debug(method + "retain and skip adding with serial:" + cert.getSerialNumber());
-                    }
-                } catch (Exception e) {
-                    CMS.debug(method + "Exception after isCertOnToken call"+ e.toString());
-                    // ignore; go to next;
+                if (!isCertOnToken(cert, cuid)) {
+                    CMS.debug(method + " adding cert with serial: " + cert.getSerialNumber());
+                    // After at least one cert is added correctly, perform the test of a failure
+                    // if so configured.
+                   
+                    if(count > 0 && testAddCertsFailure == true) {
+                        throw new Exception(method + ": " + "Failed to add certificate to token db, as part of a test of failure condition.");
+                    }   
+                    tps.certDatabase.addRecord(cert.getId(), cert);
+                } else {
+                    // cert already on token
+                    CMS.debug(method + "retain and skip adding with serial:" + cert.getSerialNumber());
                 }
+                
+                // Successfully added cert or verified it was already there, so remove
+                // it from the 'remaining' list
+                cnIssuerPairsRemaining.removeIf(p -> (p.cn == cert.getId() && p.issuer == cert.getIssuedBy()));
+                count ++ ;
             }
         } catch (Exception e) {
             CMS.debug(method + e);
-            // TODO: what if it throws in the middle of the cert list -- some cert records already updated?
-            throw new TPSException(e.getMessage());
+
+             String subjectDn = certs.get(0).getSubject();
+             String logMsg = method +  ": " +  "Failed to add or verify the following certs for [" + subjectDn + "] in the Certificate DB: ";
+             for(CnIssuerPair pair : cnIssuerPairsRemaining) {
+                 logMsg += pair + "; ";
+             }
+
+             throw new TPSException(logMsg);
         }
     }
 
