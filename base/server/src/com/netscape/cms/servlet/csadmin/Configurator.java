@@ -550,29 +550,6 @@ public class Configurator {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        String dn = preopConfig.getString("cert." + tag + ".dn");
-        logger.debug("Configurator: subject: " + dn);
-
-        String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
-        logger.debug("Configurator: algorithm: " + algorithm);
-
-        X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
-
-        PKCS10 pkcs10 = CryptoUtil.createCertificationRequest(
-                dn,
-                x509key,
-                keyPair.getPrivate(),
-                algorithm,
-                null);
-
-        byte[] binRequest = pkcs10.toByteArray();
-        cert.setRequest(binRequest);
-
-        String b64Request = CryptoUtil.base64Encode(binRequest);
-
-        String subsystem = preopConfig.getString("cert." + tag + ".subsystem");
-        cs.putString(subsystem + "." + tag + ".certreq", b64Request);
-
         String profileID = preopConfig.getString("cert." + tag + ".profile");
         logger.debug("Configurator: profile ID: " + profileID);
 
@@ -719,7 +696,7 @@ public class Configurator {
     //
     public void injectSANExtension(MultivaluedMap<String, String> content) throws Exception {
 
-        logger.debug("Configurator: Injectiong SAN extension");
+        logger.debug("Configurator: Injecting SAN extension");
 
         String list = cs.getString("service.sslserver.san");
         String[] dnsNames = StringUtils.split(list, ",");
@@ -790,48 +767,46 @@ public class Configurator {
         return nickname;
     }
 
-    public void generateCertRequest(String certTag, KeyPair keyPair, Cert cert) throws Exception {
+    public void generateCertRequest(KeyPair keyPair, Cert cert) throws Exception {
 
-        logger.debug("generateCertRequest: getting public key for certificate " + certTag);
+        String tag = cert.getCertTag();
+        logger.info("Configurator: Generating request for " + tag + " certificate");
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
+        String dn = preopConfig.getString("cert." + tag + ".dn");
+        logger.debug("Configurator: subject: " + dn);
 
-        PublicKey publicKey = keyPair.getPublic();
-        X509Key x509key = CryptoUtil.createX509Key(publicKey);
-        java.security.PrivateKey privk = keyPair.getPrivate();
+        String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
+        logger.debug("Configurator: algorithm: " + algorithm);
 
-        // construct cert request
-        String caDN = preopConfig.getString("cert." + certTag + ".dn");
+        X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
 
         Extensions exts = new Extensions();
-        if (certTag.equals("signing")) {
-            logger.debug("generateCertRequest: generating basic CA extensions");
+        if (tag.equals("signing")) {
+            logger.debug("Configurator: Generating basic CA extensions");
             createBasicCAExtensions(exts);
         }
 
-        String extOID = preopConfig.getString("cert." + certTag + ".ext.oid", null);
-        String extData = preopConfig.getString("cert." + certTag + ".ext.data", null);
+        String extOID = preopConfig.getString("cert." + tag + ".ext.oid", null);
+        String extData = preopConfig.getString("cert." + tag + ".ext.data", null);
 
         if (extOID != null && extData != null) {
             logger.debug("Configurator: Creating generic extension");
-            boolean extCritical = preopConfig.getBoolean("cert." + certTag + ".ext.critical");
+            boolean extCritical = preopConfig.getBoolean("cert." + tag + ".ext.critical");
             Extension ext = createGenericExtension(extOID, extData, extCritical);
             exts.add(ext);
         }
 
-        logger.debug("generateCertRequest: generating PKCS #10 request");
-        PKCS10 certReq = CryptoUtil.createCertificationRequest(caDN, x509key, privk, algorithm, exts);
+        logger.debug("Configurator: Generating PKCS #10 request");
+        PKCS10 certReq = CryptoUtil.createCertificationRequest(
+                dn,
+                x509key,
+                keyPair.getPrivate(),
+                algorithm,
+                exts);
 
-        logger.debug("generateCertRequest: storing cert request");
         byte[] certReqb = certReq.toByteArray();
-        String certReqs = CryptoUtil.base64Encode(certReqb);
-
-        String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
-        cs.putString(subsystem + "." + certTag + ".certreq", certReqs);
-        cs.commit(false);
-
         cert.setRequest(certReqb);
     }
 
@@ -936,27 +911,6 @@ public class Configurator {
         cert.setRequest(certreqBytes);
     }
 
-    public void generateCertAndRequest(Cert cert, CertificateSetupRequest request, KeyPair keyPair) throws Exception {
-
-        String tag = cert.getCertTag();
-
-        // generate and configure other system certificate
-        logger.info("Configurator: Generating new " + tag + " certificate");
-        generateCert(request, keyPair, cert);
-
-        String certStr = CryptoUtil.base64Encode(cert.getCert());
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        String subsystemName = preopConfig.getString("cert." + tag + ".subsystem");
-        cs.putString(subsystemName + "." + tag + ".cert", certStr);
-        cs.commit(false);
-
-        logger.debug("Configurator: cert: " + certStr);
-
-        // generate certificate request for the system certificate
-        generateCertRequest(tag, keyPair, cert);
-    }
-
     public Cert processCert(
             CertificateSetupRequest request,
             KeyPair keyPair,
@@ -1012,7 +966,19 @@ public class Configurator {
             loadCert(cert, x509Cert);
 
         } else {
-            generateCertAndRequest(cert, request, keyPair);
+            logger.info("Configurator: Generating request for " + tag + " certificate");
+            generateCertRequest(keyPair, cert);
+
+            String certreq = CryptoUtil.base64Encode(cert.getRequest());
+            logger.debug("Configurator: request: " + certreq);
+            cs.putString(subsystem + "." + tag + ".certreq", certreq);
+
+            logger.info("Configurator: Generating " + tag + " certificate");
+            generateCert(request, keyPair, cert);
+
+            String certStr = CryptoUtil.base64Encode(cert.getCert());
+            logger.debug("Configurator: cert: " + certStr);
+            cs.putString(subsystem + "." + tag + ".cert", certStr);
         }
 
         cs.commit(false);
