@@ -737,8 +737,6 @@ public class Configurator {
         // construct cert request
         String caDN = preopConfig.getString("cert." + certTag + ".dn");
 
-        cert.setDN(caDN);
-
         Extensions exts = new Extensions();
         if (certTag.equals("signing")) {
             logger.debug("generateCertRequest: generating basic CA extensions");
@@ -912,7 +910,6 @@ public class Configurator {
         String type = preopConfig.getString("cert." + tag + ".type");
 
         Cert cert = new Cert(tokenName, nickname, tag);
-        cert.setDN(dn);
         cert.setSubsystem(subsystem);
         cert.setType(type);
 

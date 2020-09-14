@@ -25,7 +25,6 @@ public class Cert {
     private byte[] request;
     private byte[] cert;
     private String mType = ""; // "selfsign," "local," or "remote"
-    private String mDN = "";
     private String mCertTag = "";
     private String mCertpp = "";
     private String mUserFriendlyName = "";
@@ -118,19 +117,6 @@ public class Cert {
     public String escapeForHTML(String s) {
         s = s.replaceAll("\"", "&quot;");
         return s;
-    }
-
-    public String getEscapedDN() {
-        // Need to escape "
-        return escapeForHTML(mDN);
-    }
-
-    public String getDN() {
-        return mDN;
-    }
-
-    public void setDN(String dn) {
-        mDN = dn;
     }
 
     public String getCertTag() {
