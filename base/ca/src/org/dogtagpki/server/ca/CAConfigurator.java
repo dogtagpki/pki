@@ -21,10 +21,12 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -47,6 +49,7 @@ import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
+import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.CertInfoProfile;
 import com.netscape.cms.servlet.csadmin.Configurator;
@@ -64,6 +67,71 @@ public class CAConfigurator extends Configurator {
 
     public CAConfigurator(CMSEngine engine) {
         super(engine);
+    }
+
+    @Override
+    public void loadCert(Cert cert, org.mozilla.jss.crypto.X509Certificate x509Cert) throws Exception {
+
+        super.loadCert(cert, x509Cert);
+
+        String tag = cert.getCertTag();
+
+        // checking whether the cert was issued by existing CA
+        logger.debug("CAConfigurator: issuer DN: " + x509Cert.getIssuerDN());
+
+        String caSigningNickname = cs.getString("ca.signing.nickname");
+
+        CryptoManager cm = CryptoManager.getInstance();
+        org.mozilla.jss.crypto.X509Certificate caSigningCert = cm.findCertByNickname(caSigningNickname);
+        Principal caSigningDN = caSigningCert.getSubjectDN();
+
+        logger.debug("CAConfigurator: CA signing DN: " + caSigningDN);
+
+        if (!x509Cert.getIssuerDN().equals(caSigningDN)) {
+            logger.debug("Configurator: cert issued by external CA, don't create record");
+            return;
+        }
+
+        // When importing existing self-signed CA certificate, create a
+        // certificate record to reserve the serial number. Otherwise it
+        // might conflict with system certificates to be created later.
+        // Also create the certificate request record for renewals.
+
+        logger.debug("CAConfigurator: cert issued by existing CA, create record");
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
+        String instanceRoot = cs.getInstanceDir();
+        String configurationRoot = cs.getString("configurationRoot");
+        String profileID = preopConfig.getString("cert." + tag + ".profile");
+        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileID);
+
+        String certreqStr = cs.getString("ca." + tag + ".certreq");
+        byte[] certreqBytes = CryptoUtil.base64Decode(certreqStr);
+
+        PKCS10 pkcs10 = new PKCS10(certreqBytes);
+        X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
+
+        byte[] bytes = x509Cert.getEncoded();
+        X509CertImpl certImpl = new X509CertImpl(bytes);
+        X509CertInfo info = certImpl.getInfo();
+
+        IRequest req = createRequest(tag, profile, x509key, info);
+
+        req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, certImpl);
+        req.setExtData("cert_request", certreqBytes);
+        req.setExtData("cert_request_type", "pkcs10");
+
+        IRequestQueue queue = ca.getRequestQueue();
+        queue.updateRequest(req);
+
+        RequestId reqId = req.getRequestId();
+        preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
+
+        CertUtils.createCertRecord(req, profile, certImpl);
     }
 
     public Cert setupCert(CertificateSetupRequest request) throws Exception {
