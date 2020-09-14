@@ -299,11 +299,6 @@ class SecurityDomainClient(object):
         return InstallToken.from_json(response.json())
 
 
-class DatabaseSetupRequest(object):
-    def __init__(self):
-        pass
-
-
 class CertificateSetupRequest(object):
     def __init__(self):
         self.installToken = None
@@ -509,7 +504,6 @@ pki.encoder.NOTYPES['DomainInfo'] = DomainInfo
 pki.encoder.NOTYPES['SecurityDomainSubsystem'] = SecurityDomainSubsystem
 pki.encoder.NOTYPES['SecurityDomainHost'] = SecurityDomainHost
 pki.encoder.NOTYPES['InstallToken'] = InstallToken
-pki.encoder.NOTYPES['DatabaseSetupRequest'] = DatabaseSetupRequest
 pki.encoder.NOTYPES['CertificateSetupRequest'] = CertificateSetupRequest
 pki.encoder.NOTYPES['CertificateSetupResponse'] = CertificateSetupResponse
 pki.encoder.NOTYPES['AdminSetupRequest'] = AdminSetupRequest

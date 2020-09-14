@@ -2689,20 +2689,6 @@ class ConfigClient:
             self.mdict['pki_client_admin_cert_p12'],
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
-    def create_database_setup_request(self):
-
-        logger.info('Creating database setup request')
-
-        request = pki.system.DatabaseSetupRequest()
-        request.pin = self.mdict['pki_one_time_pin']
-
-        if self.clone:
-            request.isClone = "true"
-        else:
-            request.isClone = "false"
-
-        return request
-
     def create_security_domain_setup_request(self):
 
         logger.info('Creating security domain setup request')
