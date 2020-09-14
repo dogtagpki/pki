@@ -48,16 +48,11 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
@@ -1160,25 +1155,6 @@ public class Configurator {
         IUser user = ug.getUser(request.getAdminUID());
         user.setX509Certificates(adminCerts);
         ug.addUserCert(user);
-    }
-
-    public PKCS7 createPKCS7(X509CertImpl cert) throws IOException {
-
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        CertificateChain cachain = ca.getCACertChain();
-        java.security.cert.X509Certificate[] cacerts = cachain.getChain();
-
-        X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
-        for (int i=0; i < cacerts.length; i++) {
-            userChain[i + 1] = (X509CertImpl) cacerts[i];
-        }
-        userChain[0] = cert;
-
-        return new PKCS7(
-                new AlgorithmId[0],
-                new ContentInfo(new byte[0]),
-                userChain,
-                new SignerInfo[0]);
     }
 
     public void setupAdminUser(AdminSetupRequest request, X509CertImpl cert) throws Exception {
