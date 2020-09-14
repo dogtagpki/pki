@@ -37,7 +37,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
 import org.dogtag.util.cert.CertUtil;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -55,7 +54,6 @@ import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.slf4j.Logger;
@@ -71,8 +69,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
@@ -764,36 +760,6 @@ public class Configurator {
                     critical,
                     out.toByteArray());
         }
-    }
-
-    public IRequest createRequest(
-            String tag,
-            CertInfoProfile profile,
-            X509Key x509key,
-            X509CertInfo info) throws Exception {
-
-        logger.debug("Configurator.createRequest(" + tag + ")");
-
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        IRequestQueue queue = ca.getRequestQueue();
-
-        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        String[] sanHostnames = null;
-
-        if (tag.equals("sslserver") && injectSAN) {
-            String value = cs.getString("service.sslserver.san");
-            sanHostnames = StringUtils.split(value, ",");
-        }
-
-        boolean installAdjustValidity = !tag.equals("signing");
-
-        return CertUtils.createLocalRequest(
-                queue,
-                profile,
-                info,
-                x509key,
-                sanHostnames,
-                installAdjustValidity);
     }
 
     public void loadCert(Cert cert, X509Certificate x509Cert) throws Exception {

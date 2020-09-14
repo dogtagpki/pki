@@ -70,6 +70,37 @@ public class CAConfigurator extends Configurator {
         super(engine);
     }
 
+    public IRequest createRequest(
+            String tag,
+            CertInfoProfile profile,
+            X509Key x509key,
+            X509CertInfo info) throws Exception {
+
+        logger.debug("CAConfigurator: Creating request for " + tag + " certificate");
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+        IRequestQueue queue = ca.getRequestQueue();
+
+        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+        String[] sanHostnames = null;
+
+        if (tag.equals("sslserver") && injectSAN) {
+            String value = cs.getString("service.sslserver.san");
+            sanHostnames = StringUtils.split(value, ",");
+        }
+
+        boolean installAdjustValidity = !tag.equals("signing");
+
+        return CertUtils.createLocalRequest(
+                queue,
+                profile,
+                info,
+                x509key,
+                sanHostnames,
+                installAdjustValidity);
+    }
+
     @Override
     public void loadCert(Cert cert, org.mozilla.jss.crypto.X509Certificate x509Cert) throws Exception {
 
