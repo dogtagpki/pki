@@ -971,6 +971,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         for tag in subsystem.config['preop.cert.list'].split(','):
 
+            if tag != 'sslserver' and clone:
+                logger.info('%s certificate is already set up', tag)
+                continue
+
+            if tag == 'sslserver' and tomcat_instance_subsystems > 1:
+                logger.info('sslserver certificate is already set up')
+                continue
+
+            if tag == 'subsystem' and tomcat_instance_subsystems > 1:
+                logger.info('subsystem certificate is already set up')
+                continue
+
             logger.info('Setting up %s certificate', tag)
             cert = deployer.setup_cert(client, tag)
 
