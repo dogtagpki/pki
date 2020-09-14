@@ -41,6 +41,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author alee
@@ -154,7 +155,24 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 }
             }
 
-            X509CertImpl cert = configurator.createAdminCertificate(request);
+            X509CertImpl cert;
+
+            if (request.getImportAdminCert().equalsIgnoreCase("true")) {
+
+                String pemCert = request.getAdminCert();
+                logger.info("Configurator: Importing admin cert: " + pemCert);
+                // standalone admin cert is already stored into CS.cfg by configuration.py
+
+                String b64 = CryptoUtil.stripCertBrackets(pemCert.trim());
+                b64 = CryptoUtil.normalizeCertStr(b64);
+                byte[] b = CryptoUtil.base64Decode(b64);
+
+                cert = new X509CertImpl(b);
+
+            } else {
+                cert = configurator.createAdminCertificate(request);
+            }
+
             String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
             logger.debug("SystemConfigService: admin cert: " + b64cert);
 

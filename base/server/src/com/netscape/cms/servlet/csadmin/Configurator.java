@@ -79,7 +79,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -1118,38 +1117,8 @@ public class Configurator {
 
     public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
 
-        if (request.getImportAdminCert().equalsIgnoreCase("true")) {
-
-            String cert = request.getAdminCert();
-            logger.info("Configurator: Importing admin cert: " + cert);
-            // standalone admin cert is already stored into CS.cfg by configuration.py
-
-            String b64 = CryptoUtil.stripCertBrackets(cert.trim());
-            b64 = CryptoUtil.normalizeCertStr(b64);
-            byte[] b = CryptoUtil.base64Decode(b64);
-
-            return new X509CertImpl(b);
-        }
-
         PreOpConfig preopConfig = cs.getPreOpConfig();
-
         String adminSubjectDN = request.getAdminSubjectDN();
-
-        String csType = cs.getType();
-
-        if (csType.equals("CA")) {
-
-            logger.info("Configurator: Generating admin cert");
-
-            createAdminCertificate(request.getAdminCertRequest(),
-                    request.getAdminCertRequestType(), adminSubjectDN);
-
-            String serialno = preopConfig.getString("admincert.serialno.0");
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            ICertificateRepository repo = ca.getCertificateRepository();
-
-            return repo.getX509Certificate(new BigInteger(serialno, 16));
-        }
 
         logger.info("Configurator: Requesting admin cert from CA");
 

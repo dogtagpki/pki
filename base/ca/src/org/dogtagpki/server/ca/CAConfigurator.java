@@ -17,21 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca;
 
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
@@ -62,6 +67,27 @@ public class CAConfigurator extends Configurator {
         }
 
         return cert;
+    }
+
+    public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
+
+        logger.info("CAConfigurator: Generating admin cert");
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        String adminSubjectDN = request.getAdminSubjectDN();
+
+        createAdminCertificate(
+                request.getAdminCertRequest(),
+                request.getAdminCertRequestType(),
+                adminSubjectDN);
+
+        String serialno = preopConfig.getString("admincert.serialno.0");
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+        ICertificateRepository repo = ca.getCertificateRepository();
+
+        return repo.getX509Certificate(new BigInteger(serialno, 16));
     }
 
     @Override
