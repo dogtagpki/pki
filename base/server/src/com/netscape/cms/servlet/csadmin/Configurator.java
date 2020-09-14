@@ -538,6 +538,75 @@ public class Configurator {
         return pair;
     }
 
+    public void generateLocalCert(KeyPair keyPair, Cert cert) throws Exception {
+
+        String tag = cert.getCertTag();
+        logger.info("Configurator: Generating local " + tag + " certificate");
+
+        String certType = cert.getType();
+        logger.debug("Configurator: cert type: " + certType);
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String dn = preopConfig.getString("cert." + tag + ".dn");
+        logger.debug("Configurator: subject: " + dn);
+
+        String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
+        logger.debug("Configurator: algorithm: " + algorithm);
+
+        String profileID = preopConfig.getString("cert." + tag + ".profile");
+        logger.debug("Configurator: profile: " + profileID);
+
+        String issuerDN = preopConfig.getString("cert.signing.dn", "");
+        logger.debug("Configurator: issuer DN: " + issuerDN);
+
+        X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
+
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+
+        java.security.PrivateKey signingPrivateKey;
+        String signingAlgorithm;
+
+        if (certType.equals("selfsign")) {
+            signingPrivateKey = keyPair.getPrivate();
+            signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
+
+        } else {
+            signingPrivateKey = ca.getSigningUnit().getPrivateKey();
+            signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
+        }
+
+        X509CertInfo info = CertUtils.createCertInfo(dn, issuerDN, algorithm, x509key, certType);
+
+        String instanceRoot = cs.getInstanceDir();
+        String configurationRoot = cs.getString("configurationRoot");
+        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileID);
+
+        IRequest req = createRequest(tag, profile, x509key, info);
+
+        RequestId reqId = req.getRequestId();
+        preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
+
+        X509CertImpl certImpl = CertUtils.createLocalCert(
+                req,
+                profile,
+                info,
+                signingPrivateKey,
+                signingAlgorithm);
+
+        cert.setCert(certImpl.getEncoded());
+
+        IRequestQueue queue = ca.getRequestQueue();
+        queue.updateRequest(req);
+
+        if (certImpl != null) {
+            if (tag.equals("subsystem")) {
+                logger.debug("Configurator: creating subsystem user");
+                setupSubsystemUser(certImpl);
+            }
+        }
+    }
+
     public void generateCert(CertificateSetupRequest request, KeyPair keyPair, Cert cert) throws Exception {
 
         String csType = cs.getType();
@@ -556,7 +625,11 @@ public class Configurator {
         String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
         logger.debug("Configurator: algorithm: " + algorithm);
 
-        if (certType.equals("remote")) {
+        if (!certType.equals("remote")) {
+            generateLocalCert(keyPair, cert);
+            return;
+
+        } else {
 
             logger.info("Configurator: Generating CSR for " + tag);
 
@@ -609,58 +682,6 @@ public class Configurator {
                     tag);
 
             cert.setCert(certImpl.getEncoded());
-            return;
-
-        } else { // not remote CA, ie, self-signed or local
-
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-
-            String issuerDN = preopConfig.getString("cert.signing.dn", "");
-
-            String instanceRoot = cs.getInstanceDir();
-            String configurationRoot = cs.getString("configurationRoot");
-            String profileName = preopConfig.getString("cert." + tag + ".profile");
-            CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
-
-            PublicKey publicKey = keyPair.getPublic();
-            X509Key x509key = CryptoUtil.createX509Key(publicKey);
-            X509CertInfo info = CertUtils.createCertInfo(dn, issuerDN, algorithm, x509key, certType);
-
-            java.security.PrivateKey signingPrivateKey;
-            String signingAlgorithm;
-
-            if (certType.equals("selfsign")) {
-                signingPrivateKey = keyPair.getPrivate();
-                signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-            } else {
-                signingPrivateKey = ca.getSigningUnit().getPrivateKey();
-                signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
-            }
-
-            IRequest req = createRequest(tag, profile, x509key, info);
-
-            RequestId reqId = req.getRequestId();
-            preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
-
-            X509CertImpl certImpl = CertUtils.createLocalCert(
-                    req,
-                    profile,
-                    info,
-                    signingPrivateKey,
-                    signingAlgorithm);
-
-            cert.setCert(certImpl.getEncoded());
-
-            IRequestQueue queue = ca.getRequestQueue();
-            queue.updateRequest(req);
-
-            if (certImpl != null) {
-                if (tag.equals("subsystem")) {
-                    logger.debug("Configurator: creating subsystem user");
-                    setupSubsystemUser(certImpl);
-                }
-            }
-
             return;
         }
     }
