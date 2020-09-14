@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
-import java.net.URL;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -635,20 +634,8 @@ public class Configurator {
 
     public void generateCert(CertificateSetupRequest request, KeyPair keyPair, Cert cert) throws Exception {
 
-        String csType = cs.getType();
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String certType = cert.getType();
-        logger.debug("Configurator: cert type: " + certType);
-
         String tag = cert.getCertTag();
-        logger.debug("Configurator: cert tag: " + tag);
-
-        if (!certType.equals("remote")) {
-            generateLocalCert(keyPair, cert);
-            return;
-        }
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String hostname;
         int port;
@@ -656,16 +643,6 @@ public class Configurator {
         if (tag.equals("subsystem")) {
             hostname = cs.getString("securitydomain.host", "");
             port = cs.getInteger("securitydomain.httpseeport", -1);
-
-        } else if (request.isClone() && csType.equals("CA") && tag.equals("sslserver")) {
-
-            // For Cloned CA always use its Master CA to generate the
-            // sslserver certificate to avoid any changes which may have
-            // been made to the X500Name directory string encoding order.
-
-            URL masterURL = request.getMasterURL();
-            hostname = masterURL.getHost();
-            port = masterURL.getPort();
 
         } else {
             hostname = preopConfig.getString("ca.hostname", "");

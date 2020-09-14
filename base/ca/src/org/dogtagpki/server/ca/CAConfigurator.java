@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyPair;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -132,6 +133,30 @@ public class CAConfigurator extends Configurator {
         preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
 
         CertUtils.createCertRecord(req, profile, certImpl);
+    }
+
+    @Override
+    public void generateCert(CertificateSetupRequest request, KeyPair keyPair, Cert cert) throws Exception {
+
+        String tag = cert.getCertTag();
+
+        if (request.isClone() && tag.equals("sslserver")) {
+
+            // For Cloned CA always use its Master CA to generate the
+            // sslserver certificate to avoid any changes which may have
+            // been made to the X500Name directory string encoding order.
+
+            URL masterURL = request.getMasterURL();
+            String hostname = masterURL.getHost();
+            int port = masterURL.getPort();
+
+            String sessionID = request.getInstallToken().getToken();
+
+            generateRemoteCert(hostname, port, sessionID, keyPair, cert);
+
+        } else {
+            generateLocalCert(keyPair, cert);
+        }
     }
 
     public Cert setupCert(CertificateSetupRequest request) throws Exception {
