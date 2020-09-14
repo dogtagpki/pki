@@ -106,6 +106,15 @@ jobs:
         - name: Set up PKI deployment by running playbook on "controller"
           run: vagrant provision controller
 
+        - name: Run CA related tests
+          run: |
+                vagrant ssh controller -c \
+                'pytest --ansible-host-pattern master \
+                --ansible-inventory /vagrant/inventory \
+                --ansible-module-path /vagrant/tests/dogtag/pytest-ansible/common-modules/ \
+                /vagrant/tests/dogtag/pytest-ansible/pytest/sanity/test_role_users.py \
+                --junit-xml pki_cert_junit.xml -qsvvv'
+
         - name: Setup tmate session
           if: failure()
           uses: mxschmitt/action-tmate@v2

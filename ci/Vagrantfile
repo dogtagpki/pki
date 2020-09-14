@@ -22,9 +22,9 @@ Vagrant.configure("2") do |config|
       ansible.verbose = "vv"
       ansible.raw_arguments  = "-M /vagrant/tests/dogtag/pytest-ansible/common-modules/"
     end
+
     controller.vm.provision "shell", inline: "export ANSIBLE_LIBRARY=/vagrant/tests/dogtag/pytest-ansible/common-modules/"
     controller.vm.provision "shell", inline: "pip install -e /vagrant/tests/dogtag/pytest-ansible/"
-    controller.vm.provision "shell", inline: "py.test --ansible-inventory /vagrant/inventory --ansible-host-pattern master /vagrant/tests/dogtag/pytest-ansible/pytest/sanity/test_role_users.py -vvvvvvvvv"
     controller.vm.network :private_network, ip: "CONTROLLER_IP"
   end
 
@@ -41,4 +41,3 @@ Vagrant.configure("2") do |config|
 #  clone0.vm.network :private_network, ip: "CLONE_IP"
 #  end
 end
-
