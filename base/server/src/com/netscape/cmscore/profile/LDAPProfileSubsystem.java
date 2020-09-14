@@ -225,7 +225,12 @@ public class LDAPProfileSubsystem
     private synchronized Profile createProfile(
             String id, String classid, String className, InputStream data)
             throws EProfileException {
+
+        LDAPConnection conn = null;
+
         try {
+            conn = dbFactory.getConn();
+
             String[] objectClasses = {"top", "certProfile"};
             LDAPAttribute[] createAttrs = {
                 new LDAPAttribute("objectclass", objectClasses),
@@ -233,7 +238,7 @@ public class LDAPProfileSubsystem
                 new LDAPAttribute("classId", classid)
             };
 
-            ConfigStorage storage = new LDAPConfigStore(dbFactory, createProfileDN(id), createAttrs, "certProfileConfig");
+            ConfigStorage storage = new LDAPConfigStore(conn, createProfileDN(id), createAttrs, "certProfileConfig");
             IConfigStore subStoreConfig = new PropConfigStore(storage);
 
             if (data != null)
@@ -246,9 +251,13 @@ public class LDAPProfileSubsystem
             mProfiles.put(id, profile);
             mProfileClassIds.put(id, classid);
             return profile;
+
         } catch (Exception e) {
             logger.error("LDAPProfileSubsystem: error creating or reading profile: " + e, e);
-            throw new EProfileException("Error creating or reading profile", e);
+            throw new EProfileException("Error creating or reading profile: " + e, e);
+
+        } finally {
+            if (conn != null) dbFactory.returnConn(conn);
         }
     }
 

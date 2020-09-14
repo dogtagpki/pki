@@ -20,10 +20,12 @@ package com.netscape.cmscore.base;
 
 import java.io.ByteArrayOutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -48,7 +50,9 @@ import netscape.ldap.LDAPModification;
  */
 public class LDAPConfigStore extends ConfigStorage {
 
-    private ILdapConnFactory dbFactory;
+    public static Logger logger = LoggerFactory.getLogger(LDAPConfigStore.class);
+
+    private LDAPConnection conn;
     private String dn;
     private String attr;
     private LDAPAttribute[] createAttrs;
@@ -62,17 +66,17 @@ public class LDAPConfigStore extends ConfigStorage {
      * Constructs an LDAP configuration store.
      * <P>
      *
-     * @param dbFactory Database connection factory
+     * @param conn Database connection
      * @param dn Distinguished name of record containing config store
      * @param attr Name of attribute containing config store
      * @param createAttrs Set of initial attributes if creating the entry.  Should
      *              contain cn, objectclass and possibly other attributes.
      */
     public LDAPConfigStore(
-        ILdapConnFactory dbFactory,
+        LDAPConnection conn,
         String dn, LDAPAttribute[] createAttrs, String attr
     ) throws Exception {
-        this.dbFactory = dbFactory;
+        this.conn = conn;
         this.dn = dn;
         this.createAttrs = createAttrs;
         this.attr = attr;
@@ -111,8 +115,6 @@ public class LDAPConfigStore extends ConfigStorage {
 
         LDAPAttribute configAttr = new LDAPAttribute(attr, data.toByteArray());
 
-        LDAPConnection conn = dbFactory.getConn();
-
         LDAPConstraints cons = new LDAPConstraints();
         cons.setServerControls(new LDAPPostReadControl(true, attrs));
 
@@ -122,22 +124,18 @@ public class LDAPConfigStore extends ConfigStorage {
         // to no such object), try and add the entry instead.
         try {
             try {
-                commitModify(conn, configAttr, cons);
+                commitModify(configAttr, cons);
             } catch (LDAPException e) {
                 if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                    commitAdd(conn, configAttr, cons);
+                    commitAdd(configAttr, cons);
                 } else {
                     throw e;
                 }
             }
             responseControls = conn.getResponseControls();
+
         } catch (LDAPException e) {
-            throw new ELdapException(
-                "Error writing LDAPConfigStore '"
-                + dn + "': " + e.toString()
-            );
-        } finally {
-            dbFactory.returnConn(conn);
+            throw new ELdapException("Unable to store " + dn + ": " + e, e);
         }
 
         LDAPPostReadControl control = (LDAPPostReadControl)
@@ -149,32 +147,29 @@ public class LDAPConfigStore extends ConfigStorage {
     /**
      * Update the record via an LDAPModification.
      *
-     * @param conn LDAP connection.
      * @param configAttr Config store attribute.
      * @return true on success, false if the entry does not exist.
      */
     private void commitModify(
-            LDAPConnection conn,
             LDAPAttribute configAttr,
             LDAPConstraints cons)
             throws LDAPException {
-        LDAPModification ldapMod =
-            new LDAPModification(LDAPModification.REPLACE, configAttr);
+
+        LDAPModification ldapMod = new LDAPModification(LDAPModification.REPLACE, configAttr);
         conn.modify(dn, ldapMod, cons);
     }
 
     /**
      * Add the LDAPEntry via LDAPConnection.add.
      *
-     * @param conn LDAP connection.
      * @param configAttr Config store attribute.
      * @return true on success, false if the entry already exists.
      */
     private void commitAdd(
-            LDAPConnection conn,
             LDAPAttribute configAttr,
             LDAPConstraints cons)
             throws LDAPException {
+
         LDAPAttributeSet attrSet = new LDAPAttributeSet(createAttrs);
         attrSet.add(configAttr);
         LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);

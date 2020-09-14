@@ -143,8 +143,11 @@ public class CAConfigurator extends Configurator {
                 new LDAPAttribute("classId", classId)
         };
 
+        LDAPConnection conn = null;
+
         try {
-            ConfigStorage storage = new LDAPConfigStore(dbFactory, dn, createAttrs, "certProfileConfig");
+            conn = dbFactory.getConn();
+            ConfigStorage storage = new LDAPConfigStore(conn, dn, createAttrs, "certProfileConfig");
             IConfigStore configStore = new PropConfigStore(storage);
 
             FileInputStream input = new FileInputStream(profilePath);
@@ -155,6 +158,9 @@ public class CAConfigurator extends Configurator {
         } catch (Exception e) {
             logger.error("Unable to load data for profile " + profileId + ": " + e.getMessage(), e);
             throw new EBaseException("Unable to load data for profile " + profileId + ": " + e.getMessage(), e);
+
+        } finally {
+            if (conn != null) dbFactory.returnConn(conn);
         }
     }
 
