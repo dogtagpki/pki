@@ -17,28 +17,41 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Cert;
+import com.netscape.cms.servlet.csadmin.CertInfoProfile;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -69,6 +82,100 @@ public class CAConfigurator extends Configurator {
         return cert;
     }
 
+    public void createLocalAdminCert(String certRequest, String certRequestType, String subject) throws Exception {
+
+        byte[] binRequest = Utils.base64decode(certRequest);
+        X509Key x509key;
+
+        if (certRequestType.equals("crmf")) {
+            SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binRequest);
+            subject = CryptoUtil.getSubjectName(crmfMsgs);
+            x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
+
+        } else if (certRequestType.equals("pkcs10")) {
+            PKCS10 pkcs10 = new PKCS10(binRequest);
+            x509key = pkcs10.getSubjectPublicKeyInfo();
+
+        } else {
+            throw new Exception("Certificate request type not supported: " + certRequestType);
+        }
+
+        if (x509key == null) {
+            logger.error("CAConfigurator: Missing admin key");
+            throw new IOException("Missing admin key");
+        }
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        String caType = preopConfig.getString("cert.admin.type", "local");
+        String dn = preopConfig.getString("cert.admin.dn");
+        String issuerDN = preopConfig.getString("cert.signing.dn", "");
+
+        String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
+        String profileFile = cs.getString("profile.caAdminCert.config");
+        String defaultSigningAlgsAllowed = cs.getString(
+                "ca.profiles.defaultSigningAlgsAllowed", "SHA256withRSA,SHA256withEC,SHA1withDSA");
+        String keyAlgorithm = CertUtils.getAdminProfileAlgorithm(
+                caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
+
+        X509CertInfo info = CertUtils.createCertInfo(dn, issuerDN, keyAlgorithm, x509key, caType);
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+        java.security.PrivateKey signingPrivateKey = ca.getSigningUnit().getPrivateKey();
+
+        String instanceRoot = cs.getInstanceDir();
+        String configurationRoot = cs.getString("configurationRoot");
+        String profileName = preopConfig.getString("cert.admin.profile");
+        logger.debug("CertUtil: profile: " + profileName);
+
+        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
+
+        // cfu - create request to enable renewal
+        IRequestQueue queue = ca.getRequestQueue();
+
+        IRequest req = CertUtils.createLocalRequest(
+                queue,
+                profile,
+                info,
+                x509key,
+                null /* sanHostnames */,
+                true /* installAdjustValidity */);
+
+        RequestId reqId = req.getRequestId();
+        preopConfig.putString("cert.admin.reqId", reqId.toString());
+
+        String caSigningKeyAlgo;
+        if (caType.equals("selfsign")) {
+            caSigningKeyAlgo = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
+        } else {
+            caSigningKeyAlgo = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
+        }
+        logger.debug("Configurator: CA signing key algorithm: " + caSigningKeyAlgo);
+
+        X509CertImpl impl = CertUtils.createLocalCert(
+                req,
+                profile,
+                info,
+                signingPrivateKey,
+                caSigningKeyAlgo);
+
+        // store request in db
+        queue.updateRequest(req);
+
+        // update the locally created request for renewal
+        CertUtils.updateLocalRequest(reqId.toString(), binRequest, certRequestType, subject);
+
+        if (ca != null) {
+            PKCS7 pkcs7 = createPKCS7(impl);
+            byte[] bytes = pkcs7.getBytes();
+            String base64 = Utils.base64encodeSingleLine(bytes);
+
+            preopConfig.putString("admincert.pkcs7", base64);
+        }
+
+        preopConfig.putString("admincert.serialno.0", impl.getSerialNumber().toString(16));
+    }
+
     public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
 
         logger.info("CAConfigurator: Generating admin cert");
@@ -76,7 +183,7 @@ public class CAConfigurator extends Configurator {
         PreOpConfig preopConfig = cs.getPreOpConfig();
         String adminSubjectDN = request.getAdminSubjectDN();
 
-        createAdminCertificate(
+        createLocalAdminCert(
                 request.getAdminCertRequest(),
                 request.getAdminCertRequestType(),
                 adminSubjectDN);

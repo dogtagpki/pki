@@ -43,7 +43,6 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
-import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -1145,7 +1144,7 @@ public class Configurator {
 
         logger.debug("Configurator: profile: " + profileID);
 
-        return submitAdminCertRequest(
+        return createRemoteAdminCert(
                 request,
                 ca_hostname,
                 ca_port,
@@ -1161,102 +1160,6 @@ public class Configurator {
         IUser user = ug.getUser(request.getAdminUID());
         user.setX509Certificates(adminCerts);
         ug.addUserCert(user);
-    }
-
-    public void createAdminCertificate(String certRequest, String certRequestType, String subject)
-            throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        byte[] binRequest = Utils.base64decode(certRequest);
-        X509Key x509key;
-
-        if (certRequestType.equals("crmf")) {
-            SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binRequest);
-            subject = CryptoUtil.getSubjectName(crmfMsgs);
-            x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
-
-        } else if (certRequestType.equals("pkcs10")) {
-            PKCS10 pkcs10 = new PKCS10(binRequest);
-            x509key = pkcs10.getSubjectPublicKeyInfo();
-
-        } else {
-            throw new Exception("Certificate request type not supported: " + certRequestType);
-        }
-
-        if (x509key == null) {
-            logger.error("createAdminCertificate() - x509key is null!");
-            throw new IOException("x509key is null");
-        }
-
-        String caType = preopConfig.getString("cert.admin.type", "local");
-
-        String dn = preopConfig.getString("cert.admin.dn");
-        String issuerdn = preopConfig.getString("cert.signing.dn", "");
-
-        String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
-        String profileFile = cs.getString("profile.caAdminCert.config");
-        String defaultSigningAlgsAllowed = cs.getString(
-                "ca.profiles.defaultSigningAlgsAllowed", "SHA256withRSA,SHA256withEC,SHA1withDSA");
-        String keyAlgorithm = CertUtils.getAdminProfileAlgorithm(
-                caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
-
-        X509CertInfo info = CertUtils.createCertInfo(dn, issuerdn, keyAlgorithm, x509key, caType);
-
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        java.security.PrivateKey signingPrivateKey = ca.getSigningUnit().getPrivateKey();
-
-        String instanceRoot = cs.getInstanceDir();
-        String configurationRoot = cs.getString("configurationRoot");
-        String profileName = preopConfig.getString("cert.admin.profile");
-        logger.debug("CertUtil: profile: " + profileName);
-
-        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
-
-        // cfu - create request to enable renewal
-        IRequestQueue queue = ca.getRequestQueue();
-
-        IRequest req = CertUtils.createLocalRequest(
-                queue,
-                profile,
-                info,
-                x509key,
-                null /* sanHostnames */,
-                true /* installAdjustValidity */);
-
-        RequestId reqId = req.getRequestId();
-        preopConfig.putString("cert.admin.reqId", reqId.toString());
-
-        String caSigningKeyAlgo;
-        if (caType.equals("selfsign")) {
-            caSigningKeyAlgo = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-        } else {
-            caSigningKeyAlgo = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
-        }
-        logger.debug("Configurator: CA signing key algorithm: " + caSigningKeyAlgo);
-
-        X509CertImpl impl = CertUtils.createLocalCert(
-                req,
-                profile,
-                info,
-                signingPrivateKey,
-                caSigningKeyAlgo);
-
-        // store request in db
-        queue.updateRequest(req);
-
-        // update the locally created request for renewal
-        CertUtils.updateLocalRequest(reqId.toString(), binRequest, certRequestType, subject);
-
-        if (ca != null) {
-            PKCS7 pkcs7 = createPKCS7(impl);
-            byte[] bytes = pkcs7.getBytes();
-            String base64 = Utils.base64encodeSingleLine(bytes);
-
-            preopConfig.putString("admincert.pkcs7", base64);
-        }
-
-        preopConfig.putString("admincert.serialno.0", impl.getSerialNumber().toString(16));
     }
 
     public PKCS7 createPKCS7(X509CertImpl cert) throws IOException {
@@ -1382,7 +1285,7 @@ public class Configurator {
         }
     }
 
-    public X509CertImpl submitAdminCertRequest(
+    public X509CertImpl createRemoteAdminCert(
             AdminSetupRequest request,
             String ca_hostname,
             int ca_port,
