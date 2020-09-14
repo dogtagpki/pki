@@ -1172,6 +1172,24 @@ class CASubsystem(PKISubsystem):
 
         return profile_configs
 
+    def import_profiles(
+            self,
+            input_folder=None,
+            as_current_user=False):
+
+        cmd = [self.name + '-profile-import']
+
+        if input_folder:
+            cmd.extend(['--input-folder', input_folder])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def find_cert_requests(self, cert=None):
 
         base_dn = self.config['internaldb.basedn']

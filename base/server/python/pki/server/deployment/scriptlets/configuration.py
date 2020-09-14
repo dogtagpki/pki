@@ -909,6 +909,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem.load()
 
+        if not clone and subsystem.type == 'CA':
+            subsystem.import_profiles(
+                input_folder='/usr/share/pki/ca/profiles/ca')
+
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger
         # (e. g. - 'eclipse'):

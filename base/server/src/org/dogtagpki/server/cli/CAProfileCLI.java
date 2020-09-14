@@ -23,12 +23,11 @@ import org.dogtagpki.cli.CLI;
 /**
  * @author Endi S. Dewata
  */
-public class CACLI extends CLI {
+public class CAProfileCLI extends CLI {
 
-    public CACLI(CLI parent) {
-        super("ca", "CA subsystem management commands", parent);
+    public CAProfileCLI(CLI parent) {
+        super("profile", "CA profile management commands", parent);
 
-        addModule(new CADBCLI(this));
-        addModule(new CAProfileCLI(this));
+        addModule(new CAProfileImportCLI(this));
     }
 }
