@@ -538,6 +538,55 @@ public class Configurator {
         return pair;
     }
 
+    public void generateRemoteCert(
+            String hostname,
+            int port,
+            String sessionID,
+            KeyPair keyPair,
+            Cert cert) throws Exception {
+
+        String tag = cert.getCertTag();
+        logger.info("Configurator: Generating remote " + tag + " certificate");
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String dn = preopConfig.getString("cert." + tag + ".dn");
+        logger.debug("Configurator: subject: " + dn);
+
+        String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
+        logger.debug("Configurator: algorithm: " + algorithm);
+
+        X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
+
+        PKCS10 pkcs10 = CryptoUtil.createCertificationRequest(
+                dn,
+                x509key,
+                keyPair.getPrivate(),
+                algorithm,
+                null);
+
+        byte[] binRequest = pkcs10.toByteArray();
+        cert.setRequest(binRequest);
+
+        String b64Request = CryptoUtil.base64Encode(binRequest);
+
+        String subsystem = preopConfig.getString("cert." + tag + ".subsystem");
+        cs.putString(subsystem + "." + tag + ".certreq", b64Request);
+
+        String profileID = preopConfig.getString("cert." + tag + ".profile");
+        logger.debug("Configurator: profile ID: " + profileID);
+
+        X509CertImpl certImpl = configRemoteCert(
+                hostname,
+                port,
+                sessionID,
+                profileID,
+                cert.getRequest(),
+                tag);
+
+        cert.setCert(certImpl.getEncoded());
+    }
+
     public void generateLocalCert(KeyPair keyPair, Cert cert) throws Exception {
 
         String tag = cert.getCertTag();
@@ -619,71 +668,36 @@ public class Configurator {
         String tag = cert.getCertTag();
         logger.debug("Configurator: cert tag: " + tag);
 
-        String dn = preopConfig.getString("cert." + tag + ".dn");
-        logger.debug("Configurator: subject: " + dn);
-
-        String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
-        logger.debug("Configurator: algorithm: " + algorithm);
-
         if (!certType.equals("remote")) {
             generateLocalCert(keyPair, cert);
             return;
+        }
+
+        String hostname;
+        int port;
+
+        if (tag.equals("subsystem")) {
+            hostname = cs.getString("securitydomain.host", "");
+            port = cs.getInteger("securitydomain.httpseeport", -1);
+
+        } else if (request.isClone() && csType.equals("CA") && tag.equals("sslserver")) {
+
+            // For Cloned CA always use its Master CA to generate the
+            // sslserver certificate to avoid any changes which may have
+            // been made to the X500Name directory string encoding order.
+
+            URL masterURL = request.getMasterURL();
+            hostname = masterURL.getHost();
+            port = masterURL.getPort();
 
         } else {
-
-            logger.info("Configurator: Generating CSR for " + tag);
-
-            X509Key key = CryptoUtil.createX509Key(keyPair.getPublic());
-            PKCS10 pkcs10 = CryptoUtil.createCertificationRequest(
-                    dn,
-                    key,
-                    keyPair.getPrivate(),
-                    algorithm,
-                    null);
-
-            byte[] binRequest = pkcs10.toByteArray();
-            String b64Request = CryptoUtil.base64Encode(binRequest);
-            cert.setRequest(binRequest);
-
-            String subsystem = preopConfig.getString("cert." + tag + ".subsystem");
-            cs.putString(subsystem + "." + tag + ".certreq", b64Request);
-
-            String session_id = request.getInstallToken().getToken();
-
-            String profileID = preopConfig.getString("cert." + tag + ".profile");
-            logger.debug("Configurator: profile ID: " + profileID);
-
-            String hostname;
-            int port;
-
-            if (tag.equals("subsystem")) {
-                hostname = cs.getString("securitydomain.host", "");
-                port = cs.getInteger("securitydomain.httpseeport", -1);
-
-            } else if (request.isClone() && csType.equals("CA") && tag.equals("sslserver")) {
-                // For Cloned CA always use its Master CA to generate the
-                // sslserver certificate to avoid any changes which may have
-                // been made to the X500Name directory string encoding order.
-                URL masterURL = request.getMasterURL();
-                hostname = masterURL.getHost();
-                port = masterURL.getPort();
-
-            } else {
-                hostname = preopConfig.getString("ca.hostname", "");
-                port = preopConfig.getInteger("ca.httpsport", -1);
-            }
-
-            X509CertImpl certImpl = configRemoteCert(
-                    hostname,
-                    port,
-                    session_id,
-                    profileID,
-                    binRequest,
-                    tag);
-
-            cert.setCert(certImpl.getEncoded());
-            return;
+            hostname = preopConfig.getString("ca.hostname", "");
+            port = preopConfig.getInteger("ca.httpsport", -1);
         }
+
+        String sessionID = request.getInstallToken().getToken();
+
+        generateRemoteCert(hostname, port, sessionID, keyPair, cert);
     }
 
     // Dynamically apply the SubjectAlternativeName extension to a
