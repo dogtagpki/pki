@@ -538,27 +538,27 @@ public class Configurator {
         return pair;
     }
 
-    public X509CertImpl configCert(CertificateSetupRequest request, KeyPair keyPair, Cert certObj) throws Exception {
+    public void generateCert(CertificateSetupRequest request, KeyPair keyPair, Cert cert) throws Exception {
 
         String csType = cs.getType();
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        String certType = certObj.getType();
+        String certType = cert.getType();
         logger.debug("Configurator: cert type: " + certType);
 
-        String certTag = certObj.getCertTag();
-        logger.debug("Configurator: cert type: " + certTag);
+        String tag = cert.getCertTag();
+        logger.debug("Configurator: cert tag: " + tag);
 
-        String dn = preopConfig.getString("cert." + certTag + ".dn");
+        String dn = preopConfig.getString("cert." + tag + ".dn");
         logger.debug("Configurator: subject: " + dn);
 
-        String algorithm = preopConfig.getString("cert." + certTag + ".keyalgorithm");
+        String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
         logger.debug("Configurator: algorithm: " + algorithm);
 
         if (certType.equals("remote")) {
 
-            logger.info("Configurator: Generating CSR for " + certTag);
+            logger.info("Configurator: Generating CSR for " + tag);
 
             X509Key key = CryptoUtil.createX509Key(keyPair.getPublic());
             PKCS10 pkcs10 = CryptoUtil.createCertificationRequest(
@@ -570,24 +570,24 @@ public class Configurator {
 
             byte[] binRequest = pkcs10.toByteArray();
             String b64Request = CryptoUtil.base64Encode(binRequest);
-            certObj.setRequest(binRequest);
+            cert.setRequest(binRequest);
 
-            String subsystem = preopConfig.getString("cert." + certTag + ".subsystem");
-            cs.putString(subsystem + "." + certTag + ".certreq", b64Request);
+            String subsystem = preopConfig.getString("cert." + tag + ".subsystem");
+            cs.putString(subsystem + "." + tag + ".certreq", b64Request);
 
             String session_id = request.getInstallToken().getToken();
 
-            String profileID = preopConfig.getString("cert." + certTag + ".profile");
+            String profileID = preopConfig.getString("cert." + tag + ".profile");
             logger.debug("Configurator: profile ID: " + profileID);
 
             String hostname;
             int port;
 
-            if (certTag.equals("subsystem")) {
+            if (tag.equals("subsystem")) {
                 hostname = cs.getString("securitydomain.host", "");
                 port = cs.getInteger("securitydomain.httpseeport", -1);
 
-            } else if (request.isClone() && csType.equals("CA") && certTag.equals("sslserver")) {
+            } else if (request.isClone() && csType.equals("CA") && tag.equals("sslserver")) {
                 // For Cloned CA always use its Master CA to generate the
                 // sslserver certificate to avoid any changes which may have
                 // been made to the X500Name directory string encoding order.
@@ -600,15 +600,16 @@ public class Configurator {
                 port = preopConfig.getInteger("ca.httpsport", -1);
             }
 
-            X509CertImpl cert = configRemoteCert(
+            X509CertImpl certImpl = configRemoteCert(
                     hostname,
                     port,
                     profileID,
                     session_id,
                     b64Request,
-                    certTag);
+                    tag);
 
-            return cert;
+            cert.setCert(certImpl.getEncoded());
+            return;
 
         } else { // not remote CA, ie, self-signed or local
 
@@ -618,7 +619,7 @@ public class Configurator {
 
             String instanceRoot = cs.getInstanceDir();
             String configurationRoot = cs.getString("configurationRoot");
-            String profileName = preopConfig.getString("cert." + certTag + ".profile");
+            String profileName = preopConfig.getString("cert." + tag + ".profile");
             CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
 
             PublicKey publicKey = keyPair.getPublic();
@@ -636,29 +637,31 @@ public class Configurator {
                 signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
             }
 
-            IRequest req = createRequest(certTag, profile, x509key, info);
+            IRequest req = createRequest(tag, profile, x509key, info);
 
             RequestId reqId = req.getRequestId();
-            preopConfig.putString("cert." + certTag + ".reqId", reqId.toString());
+            preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
 
-            X509CertImpl cert = CertUtils.createLocalCert(
+            X509CertImpl certImpl = CertUtils.createLocalCert(
                     req,
                     profile,
                     info,
                     signingPrivateKey,
                     signingAlgorithm);
 
+            cert.setCert(certImpl.getEncoded());
+
             IRequestQueue queue = ca.getRequestQueue();
             queue.updateRequest(req);
 
-            if (cert != null) {
-                if (certTag.equals("subsystem")) {
+            if (certImpl != null) {
+                if (tag.equals("subsystem")) {
                     logger.debug("Configurator: creating subsystem user");
-                    setupSubsystemUser(cert);
+                    setupSubsystemUser(certImpl);
                 }
             }
 
-            return cert;
+            return;
         }
     }
 
@@ -867,17 +870,15 @@ public class Configurator {
         cert.setRequest(certreqBytes);
     }
 
-    public void generateCert(Cert cert, CertificateSetupRequest request, KeyPair keyPair) throws Exception {
+    public void generateCertAndRequest(Cert cert, CertificateSetupRequest request, KeyPair keyPair) throws Exception {
 
         String tag = cert.getCertTag();
 
         // generate and configure other system certificate
         logger.info("Configurator: Generating new " + tag + " certificate");
-        X509CertImpl certImpl = configCert(request, keyPair, cert);
+        generateCert(request, keyPair, cert);
 
-        byte[] certBin = certImpl.getEncoded();
-        String certStr = CryptoUtil.base64Encode(certBin);
-        cert.setCert(certBin);
+        String certStr = CryptoUtil.base64Encode(cert.getCert());
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
         String subsystemName = preopConfig.getString("cert." + tag + ".subsystem");
@@ -946,7 +947,7 @@ public class Configurator {
             loadCert(cert, x509Cert);
 
         } else {
-            generateCert(cert, request, keyPair);
+            generateCertAndRequest(cert, request, keyPair);
         }
 
         cs.commit(false);
