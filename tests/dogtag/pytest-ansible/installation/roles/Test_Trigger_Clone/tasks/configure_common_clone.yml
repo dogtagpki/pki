@@ -1,0 +1,65 @@
+- name: Pick constants based on {{topology}}
+  include_vars: "{{ item }}"
+  with_items:
+  - "{{ playbook_dir }}/vars/ldap.yml"
+  - "{{ playbook_dir }}/vars/ca.yml"
+  - "{{ playbook_dir }}/vars/kra.yml"
+  - "{{ playbook_dir }}/vars/ocsp.yml"
+  - "{{ playbook_dir }}/vars/tks.yml"
+  when: topology  == "topology-02"
+
+- name: Copying templates to /tmp folder
+  copy : src=test/  dest=/tmp/test_dir
+
+- name: Replace Ldap server port in all configuration files
+  replace: dest={{item}} regexp="ldapServerPort" replace={{ldapServerPort}}
+  with_items:
+  - /tmp/test_dir/constants.py
+  - /tmp/test_dir/ldap_clone.cfg
+  - /tmp/test_dir/ca_clone.cfg
+  - /tmp/test_dir/kra_clone.cfg
+  - /tmp/test_dir/ocsp_clone.cfg
+  - /tmp/test_dir/tks_clone.cfg
+
+- name: Replace Ldap server secure port in config files
+  replace: dest={{item}} regexp="ldapSecureServerPort" replace={{ldapSecureServerPort}}
+  with_items:
+  - /tmp/test_dir/constants.py
+  - /tmp/test_dir/ldap_clone.cfg
+
+- name: Replace topology in use in all configuration files
+  replace: dest={{item}} regexp="topology" replace={{topology}}
+  with_items:
+  - /tmp/test_dir/constants.py
+  - /tmp/test_dir/ldap_clone.cfg
+  - /tmp/test_dir/ca_clone.cfg
+  - /tmp/test_dir/kra_clone.cfg
+  - /tmp/test_dir/ocsp_clone.cfg
+  - /tmp/test_dir/tks_clone.cfg
+
+- name: Replace ServerName in all configuration files.
+  replace: dest={{item}} regexp="SERVERNAME" replace=pki1.example.com
+  with_items:
+  - /tmp/test_dir/ldap_clone.cfg
+  - /tmp/test_dir/ca_clone.cfg
+  - /tmp/test_dir/kra_clone.cfg
+  - /tmp/test_dir/ocsp_clone.cfg
+  - /tmp/test_dir/tks_clone.cfg
+
+- name: Replace ServerName in all configuration files.
+  replace: dest={{item}} regexp="CLONENAME" replace=pki2.example.com
+  with_items:
+  - /tmp/test_dir/ldap_clone.cfg
+  - /tmp/test_dir/ca_clone.cfg
+  - /tmp/test_dir/kra_clone.cfg
+  - /tmp/test_dir/ocsp_clone.cfg
+  - /tmp/test_dir/tks_clone.cfg
+
+- name: Replace RootCA path in all configuration files
+  replace: dest={{item}} regexp="rootCAcertpath" replace={{ROOT_CA_CERT_PATH}}
+  with_items:
+  - /tmp/test_dir/ldap_clone.cfg
+  - /tmp/test_dir/ca_clone.cfg
+  - /tmp/test_dir/kra_clone.cfg
+  - /tmp/test_dir/ocsp_clone.cfg
+  - /tmp/test_dir/tks_clone.cfg

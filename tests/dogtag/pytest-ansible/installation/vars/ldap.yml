@@ -1,7 +1,7 @@
 ldapServerPort: '3389'
 ldapSecureServerPort: '2636'
 ldapRootDN: CN=Directory Manager
-ldapRootDNPwd: SECret.123
+ldapRootDNPwd: Secret123
 ldapcaServerPort: '4389'
 ldapkraServerPort: '5389'
 ldapocspServerPort: '6389'

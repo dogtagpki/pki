@@ -1,0 +1,25 @@
+#This file is used to create the ACME tree under ldap database
+
+dn: ou=nonces,ldap_base_dn
+objectClass: organizationalUnit
+ou: nonces
+
+dn: ou=accounts,ldap_base_dn
+objectClass: organizationalUnit
+ou: accounts
+
+dn: ou=orders,ldap_base_dn
+objectClass: organizationalUnit
+ou: orders
+
+dn: ou=authorizations,ldap_base_dn
+objectClass: organizationalUnit
+ou: authorizations
+
+dn: ou=challenges,ldap_base_dn
+objectClass: organizationalUnit
+ou: challenges
+
+dn: ou=certificates,ldap_base_dn
+objectClass: organizationalUnit
+ou: certificates

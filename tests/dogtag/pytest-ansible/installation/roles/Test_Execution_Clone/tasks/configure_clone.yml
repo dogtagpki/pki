@@ -1,0 +1,128 @@
+- name: Disable firewalld before LDAP and Subsystem installation
+  systemd: state=stopped name=firewalld
+  when: ansible_distribution == "RedHat" and ansible_distribution_version <= '7.5'
+
+- name: Set hostname for machines Bydefault we choose pki1 for master and pki2 for clones.
+  command: hostnamectl set-hostname pki2.example.com
+  when: inventory_hostname in groups['clone']
+
+- name: install 389-ds-base module rhel8
+  shell: dnf module enable 389-ds:1.4 -y
+  when: ansible_distribution == "RedHat" and ansible_distribution_version >= '8.0'
+
+- name: install 389-ds-base
+  shell: dnf -y install 389-ds-base 389-ds-base-snmp 389-ds-base-legacy-tools
+  when: ansible_distribution == "RedHat" and ansible_distribution_version >= '8.0'
+
+- name: enable pki-core module for RHEL8
+  shell: dnf module enable pki-core:10.6 -y
+  when: ansible_distribution == "RedHat" and ansible_distribution_version >= '8.0'
+
+- name: install pki-ca and pki-kra module RHEL8
+  shell: dnf install pki-ca pki-kra python3 -y
+  when: ansible_distribution == "RedHat" and ansible_distribution_version >= '8.0'
+
+- name: install pki-ocsp, pki-tks and pki-tps module RHEL8
+  shell: dnf install pki-ocsp pki-tks pki-tps -y
+  when: ansible_distribution == "RedHat" and ansible_distribution_version >= '8.0'
+
+- name: Install pexpect on the RHEL 8
+  command: pip-3 install {{item}}
+  with_items:
+    - pexpect
+  when: ansible_distribution == "RedHat" and ansible_distribution_version >= '8.0'
+  tags: platform-ci
+
+- name: Install a required package for modify hostname task below
+  dnf: pkg={{item}} state=latest
+  with_items:
+    - python3-libselinux
+  when: ansible_distribution == "Fedora"
+
+- name: copy file in clone in /etc/hosts
+  copy: src=/etc/hosts dest=/etc/ force=yes
+
+- name: Install list of packages for CS Master for Redhat
+  yum: pkg={{item}} state=latest
+  with_items:
+    - redhat-pki
+    - redhat-pki-console-theme
+    - redhat-pki-server-theme
+    - pki-console
+    - 389-ds-base
+    - pki-ca
+    - pki-kra
+    - pki-ocsp
+    - pki-tks
+    - pki-tps
+    - policycoreutils-python
+    - expect
+    - libselinux-python
+    - python3
+  when: ansible_distribution == "RedHat" and ansible_distribution_version <= '7.6'
+  tags: platform-ci
+
+- name: Install list of packages for CS Master for Fedora
+  dnf: pkg={{item}} state=latest
+  with_items:
+    - 389-ds-base
+    - dogtag-pki
+    - dogtag-pki-console-theme
+    - dogtag-pki-server-theme
+    - policycoreutils-python-utils
+    - expect
+  when: ansible_distribution == "Fedora"
+  tags: platform-ci
+
+- name: Check for Removed dependency from mod_revocator and mod_nss.If failes refer BZ 1295276
+  command: rpm -q {{item}}
+  with_items:
+    - mod_revocator
+    - mod_nss
+  register: rpm_check
+  failed_when: "rpm_check.rc == 0"
+
+- name: Check for Removed dependency of perl from pki-server.If fails, refer BZ 1305769
+  command: rpm -qR pki-server | grep perl
+  register: rpm_check
+  failed_when: "rpm_check.rc == 0"
+
+- name: Copying templates to /tmp folder
+  copy: src=/tmp/test_dir  dest=/tmp/
+  tags: platform-ci
+
+- name: Making constants.py file compatable for including as vars.
+  shell: sed -e "s/ =/:/g;s/'//g" /tmp/test_dir/constants.py > /tmp/test_dir/constants.yml
+
+- name: Fetch the file
+  fetch: src=/tmp/test_dir/constants.yml dest=/tmp/test_dir/ flat=yes validate_checksum=no
+
+- name: Fips mode setup
+  block:
+    - name: Enable FIPS
+      command: "fips-mode-setup --enable"
+
+    - name: restart machine
+      shell: 'sleep 2 && shutdown -r now "Ansible updates triggered"'
+      async: 1
+      poll: 0
+      ignore_errors: true
+
+    - name: show inv hostname
+      debug:
+        msg: "connecting to {{inventory_hostname }}"
+
+    - name: waiting for server to come back
+      local_action: wait_for
+        host="{{ inventory_hostname }}"
+        port=22
+        delay=10
+        timeout=600
+
+    - name: checking Server is up
+      command: "fips-mode-setup --check"
+      register: command_output
+
+    - debug:
+        var: command_output
+  when: fips_enable == "true" or fips_enable == "True"

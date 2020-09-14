@@ -1,0 +1,5 @@
+- name: sleep
+  shell: sleep 5s
+
+- name: Install KRA Clone
+  shell: pkispawn -s KRA -f /tmp/test_dir/kra_clone.cfg

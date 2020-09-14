@@ -8,6 +8,12 @@
 
   - meta: flush_handlers
 
+  - name: Import signing cert in temp db
+    expect:
+      command: "pki -d /tmp/nssdb -p {{ variable.CA_HTTPS_PORT }} -P https client-cert-import --ca-server RootCA"
+      responses:
+        (?i)Trust: "y"
+
   - name: Get runtime password for LDAP
     shell : cat /etc/dirsrv/slapd-{{ topology }}-testingmaster/pwdfile.txt
     register: ldapPasswd

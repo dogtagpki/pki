@@ -1,0 +1,5 @@
+- name: sleep
+  shell: sleep 5s
+
+- name: Install TKS Clone
+  shell: pkispawn -s TKS -f /tmp/test_dir/tks_clone.cfg

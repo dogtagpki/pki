@@ -56,3 +56,12 @@
 
 - name: Sleep for a while to start TKS
   shell: sleep 3s
+
+- name: TKS Clone Preparation
+  block:
+    - name: Export TKS subsystem certificates
+      shell: pki-server tks-clone-prepare -i {{topology}}-TKS --pkcs12-file /tmp/tks_certs.p12 --pkcs12-password {{variable.CLIENT_PKCS12_PASSWORD}}
+
+    - name: Get the TKS subsystem certificates to the local
+      fetch: src=/tmp/tks_certs.p12 dest=/tmp/test_dir/clonecerts/ flat=yes
+  when: clone == "true" or clone == "True"

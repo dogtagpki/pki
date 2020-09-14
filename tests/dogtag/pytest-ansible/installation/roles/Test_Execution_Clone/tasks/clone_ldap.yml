@@ -1,0 +1,33 @@
+- name: add nondefault port to selinux context
+  shell: for transport in udp tcp;do  semanage port -a -t ldap_port_t -p $transport  "{{item}}";done
+  with_items:
+  - ['3389', '2389', '2636']
+  when: ansible_distribution == "RedHat" and ansible_distribution_version >= '8.0'
+
+- name: Setup DS Service
+  shell: dscreate from-file /tmp/test_dir/ldap.cfg
+  when: topology == "topology-02"
+
+- name: sleep
+  shell: sleep 5s
+
+- name: Import constants
+  shell: echo 0
+  notify:
+  - INC_CONSTANTS
+
+- meta: flush_handlers
+
+# TODO: prisingh | not used until sanity test added for clone
+#- name: ldap aci anonymous access file
+#  copy:
+#    dest: /tmp/ldapaci.ldif
+#    content: |
+#      dn: {{ variable.LDAP_BASE_DN }}
+#      changetype: modify
+#      add: aci
+#      aci: (targetattr!="userPassword || aci")(version 3.0; acl "Enable anonymous access"; allow (read, search, compare) userdn="ldap:///anyone";)
+#
+#- name: Enable anonymous access on ldap
+#  shell: ldapmodify -x -h {{ inventory_hostname }} -p {{ variable.LDAP_PORT }} -D "cn=Directory Manager" -w {{ variable.LDAP_PASSWD }} -f /tmp/ldapaci.ldif
+#  when: topology == "topology-02"

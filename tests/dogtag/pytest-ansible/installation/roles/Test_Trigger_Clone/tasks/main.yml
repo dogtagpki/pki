@@ -1,0 +1,13 @@
+---
+# tasks file for Test_Trigger_Clone
+
+- include: configure_common_clone.yml
+  when: topology == "topology-02"
+- include: configure_ca_clone.yml
+  when: topology == "topology-02"
+- include: configure_kra_clone.yml
+  when: topology == "topology-02"
+- include: configure_ocsp_clone.yml
+  when: topology == "topology-02"
+- include: configure_tks_clone.yml
+  when: topology == "topology-02"

@@ -15,6 +15,11 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #   Copyright (c) 2020 Red Hat, Inc. All rights reserved.
+
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#   Copyright (c) 2017 Red Hat, Inc. All rights reserved.
 #
 #   This copyrighted material is made available to anyone wishing
 #   to use, modify, copy, or redistribute it subject to the terms
@@ -88,6 +93,7 @@ class pki_key_library(object):
         self.nssdb = kwargs.get('nssdb', constants.NSSDB)
         self.db_pass = kwargs.get('db_pass', constants.CLIENT_DIR_PASSWORD)
         self.host = kwargs.get('host', constants.MASTER_HOSTNAME)
+
         self.protocol = kwargs.get('protocol', 'https')
         self.port = kwargs.get('port', constants.KRA_HTTPS_PORT)
         self.nick = "'{}'".format(kwargs.get('nick', constants.KRA_ADMIN_NICK))
@@ -189,10 +195,12 @@ class UserOperations(object):
         self.port = kwargs.get('port', constants.CA_HTTPS_PORT)
         self.protocol = kwargs.get('protocol', 'https')
 
+
     def remove_user(self, ansible_module, user, subsystem='ca'):
         """
         This method will remove the user.
         """
+
         port = eval("constants.{}_HTTPS_PORT".format(subsystem.upper()))
         nick = eval("constants.{}_ADMIN_NICK".format(subsystem.upper()))
         user_del = ansible_module.pki(cli='{}-user-del'.format(subsystem.lower()),
@@ -213,6 +221,7 @@ class UserOperations(object):
         """
         This method will remove the user cert.
         """
+
         port = eval("constants.{}_HTTPS_PORT".format(subsystem.upper()))
         nick = eval("constants.{}_ADMIN_NICK".format(subsystem.upper()))
         user_cert_del = ansible_module.pki(cli='client-cert-del',

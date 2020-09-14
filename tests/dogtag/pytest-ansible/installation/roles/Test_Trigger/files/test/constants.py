@@ -82,18 +82,25 @@ LDAP_USER1 = 'jdoe'
 TOKEN_FORMAT = 'ra_format'
 TOKEN_RESET_PIN = 'ra_reset_pin'
 TOKEN_CUID = '40000000000000000002'
-ACME_CONFIG_PATH = '/usr/share/pki/acme'
 
 
-#KRA Instance
+# SubCA details
 SUBCA_INSTANCE_NAME = 'topology-SubCA'
-SUBCA_HTTPS_PORT = 'subcapki_https_port'
-SUBCA_HTTP_PORT = 'subcapki_http_port'
-SUBCA_AJP_PORT = 'subcapki_ajp_port'
-SUBCA_TOMCAT_PORT = 'subcapki_tomcat_port'
+SUBCA_CA_INSTANCE_NAME = 'topology-CA'
+SUBCA_KRA_INSTANCE_NAME = 'topology-KRA'
+SUBCA_HTTPS_PORT = 'subpki_https_port'
+SUBCA_HTTP_PORT = 'subpki_http_port'
+SUBCA_AJP_PORT = 'subpki_ajp_port'
+SUBCA_TOMCAT_PORT = 'subpki_tomcat_port'
 SUBCA_PASSWORD = 'SECret.123'
-SUBCA_CLIENT_DIR = '/opt/topology-SubCA'
-SUBCA_ADMIN_NICK = 'PKI SUBCA Administrator for Example.Org'
+SUBCA_KRA_HTTPS_PORT = '19443'
+SUBCA_KRA_HTTP_PORT = '19080'
+SUBCA_KRA_AJP_PORT = '19009'
+SUBCA_KRA_TOMCAT_PORT = '19005'
+SUBCA_ADMIN_NICK = 'PKI Administrator for example.com'
+SUBCA_SECURITY_DOMAIN_NAME = 'SUBORDINATE'
+
 
 PROTOCOL_SECURE = 'https'
 PROTOCOL_UNSECURE = 'http'
+ACME_CONFIG_PATH = '/usr/share/pki/acme'

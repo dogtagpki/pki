@@ -7,6 +7,7 @@
     rsa_pss_256: "false"
     rsa_pss_384: "false"
     rsa_pss_512: "false"
+    clone: "false"
   roles:
   - Test_Trigger
 
@@ -24,5 +25,6 @@
     tks_debug: "false"
     tps_debug: "false"
     debug: "false"
+    clone: "false"
   roles:
   - Test_Execution

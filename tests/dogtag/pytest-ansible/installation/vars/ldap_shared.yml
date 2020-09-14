@@ -1,5 +1,6 @@
 ldapServerPort: '2389'
 ldapRootDN: CN=Directory Manager
-ldapRootDNPwd: SECret.123
+ldapRootDNPwd: Secret123
 ldapSecureServerPort: '2636'
 ldapSecreConPemFile: '/root/ca-cert.pem'
+ldap_base_dn: 'dc=example,dc=org'

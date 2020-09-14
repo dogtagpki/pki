@@ -1,0 +1,12 @@
+- hosts: localhost
+  gather_facts: true
+  vars:
+    fips_enable: "false"
+  roles:
+    - Test_Trigger_Clone
+
+- hosts: clone
+  vars:
+    fips_enable: "false"
+  roles:
+    - Test_Execution_Clone

@@ -1,0 +1,36 @@
+
+- name: Replace Clone CA specific changes 
+  replace: dest={{item}} regexp="capki_https_port" replace={{capki_https_port}}
+  with_items:
+  - /tmp/test_dir/ca_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace http port for Clone CA.
+  replace: dest={{item}} regexp="capki_http_port" replace={{capki_http_port}}
+  with_items:
+  - /tmp/test_dir/ca_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace ajp port for Clone CA
+  replace: dest={{item}} regexp="capki_ajp_port" replace={{capki_ajp_port}}
+  with_items:
+  - /tmp/test_dir/ca_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for Clone CA
+  replace: dest={{item}} regexp="capki_tomcat_port" replace={{capki_tomcat_port}}
+  with_items:
+  - /tmp/test_dir/ca_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace Security domain secure port
+  replace: dest={{item}} regexp="secure_domain_port" replace={{capki_https_port}}
+  with_items:
+  - /tmp/test_dir/ca_clone.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace BaseDN for Clone CA
+  replace: dest={{item}} regexp="BaseDNname" replace={{topology}}-CA-CA
+  with_items:
+  - /tmp/test_dir/ca_clone.cfg
+  - /tmp/test_dir/constants.py

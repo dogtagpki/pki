@@ -1,0 +1,26 @@
+- name: Import constants
+  shell: echo 0
+  notify:
+  - INC_CONSTANTS
+
+- meta: flush_handlers
+
+- name: Replace LDAP_USER in tpsclient and ldap add scripts
+  replace: dest={{item}} regexp="LDAP_USER" replace={{variable.LDAP_USER1}}
+  with_items:
+  - /tmp/test_dir/ldap_user_add.cfg
+  - /tmp/test_dir/token_enroll.txt
+  - /tmp/test_dir/token_format.txt
+
+- name: Replace LDAP_PASSWORD in tpsclient and ldap add scripts
+  replace: dest={{item}} regexp="LDAP_PASSWD" replace={{variable.LDAP_PASSWD}}
+  with_items:
+  - /tmp/test_dir/ldap_user_add.cfg
+  - /tmp/test_dir/token_enroll.txt
+  - /tmp/test_dir/token_format.txt
+
+- name: Replace CUID in tpsclient scripts
+  replace: dest={{item}} regexp="CUID" replace={{variable.CUID}}
+  with_items:
+  - /tmp/test_dir/token_enroll.txt
+  - /tmp/test_dir/token_format.txt
