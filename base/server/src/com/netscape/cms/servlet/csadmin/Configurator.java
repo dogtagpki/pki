@@ -85,7 +85,6 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
-import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.InstallToken;
@@ -350,13 +349,6 @@ public class Configurator {
         }
 
         return null;
-    }
-
-    public void setupDatabase(DatabaseSetupRequest request) throws Exception {
-        reinitSubsystems();
-    }
-
-    public void reinitSubsystems() throws EBaseException {
     }
 
     public void importLDIFS(LDAPConfigurator ldapConfigurator, String param) throws Exception {

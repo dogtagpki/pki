@@ -368,9 +368,6 @@ class SystemConfigClient(object):
 
         self.connection = connection
 
-        self.configure_url = '/rest/installer/configure'
-        self.setup_clone_url = '/rest/installer/setupClone'
-        self.setup_database_url = '/rest/installer/setupDatabase'
         self.setup_cert_url = '/rest/installer/setupCert'
         self.setup_admin_url = '/rest/installer/setupAdmin'
         self.backup_keys_url = '/rest/installer/backupKeys'
@@ -383,30 +380,12 @@ class SystemConfigClient(object):
             if subsystem is None:
                 raise Exception('Missing subsystem for SystemConfigClient')
 
-            self.configure_url = '/' + subsystem + self.configure_url
-            self.setup_clone_url = '/' + subsystem + self.setup_clone_url
-            self.setup_database_url = '/' + subsystem + self.setup_database_url
             self.setup_cert_url = '/' + subsystem + self.setup_cert_url
             self.setup_admin_url = '/' + subsystem + self.setup_admin_url
             self.backup_keys_url = '/' + subsystem + self.backup_keys_url
             self.setup_security_domain_url = '/' + subsystem + self.setup_security_domain_url
             self.setup_db_user_url = '/' + subsystem + self.setup_db_user_url
             self.finalize_config_url = '/' + subsystem + self.finalize_config_url
-
-    def setupDatabase(self, request):
-        """
-        Set up database.
-
-        :param request: Database setup request
-        :type request: DatabaseSetupRequest
-        """
-        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
-        headers = {'Content-type': 'application/json',
-                   'Accept': 'application/json'}
-        self.connection.post(
-            self.setup_database_url,
-            data,
-            headers)
 
     def setupCert(self, request):
         """

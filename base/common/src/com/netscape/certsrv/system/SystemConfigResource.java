@@ -28,10 +28,6 @@ import javax.ws.rs.Path;
 public interface SystemConfigResource {
 
     @POST
-    @Path("setupDatabase")
-    public void setupDatabase(DatabaseSetupRequest request) throws Exception;
-
-    @POST
     @Path("setupCert")
     public SystemCertData setupCert(CertificateSetupRequest request) throws Exception;
 

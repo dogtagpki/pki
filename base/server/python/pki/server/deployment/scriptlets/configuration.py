@@ -967,11 +967,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if 'pki_one_time_pin' not in deployer.mdict:
             deployer.mdict['pki_one_time_pin'] = subsystem.config['preop.pin']
 
-        logger.info('Setting up database')
-
-        database_setup_request = deployer.config_client.create_database_setup_request()
-        client.setupDatabase(database_setup_request)
-
         sslserver = subsystem.get_subsystem_cert('sslserver')
 
         for tag in subsystem.config['preop.cert.list'].split(','):
