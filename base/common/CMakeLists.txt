@@ -48,6 +48,7 @@ add_custom_command(
 
 if(JAVA_VERSION GREATER 10)
     add_custom_target(pki-java11plus-lib ALL
+        DEPENDS pki-lib
         COMMENT "Creating links for library required in Java 11+")
 
     add_custom_command(
