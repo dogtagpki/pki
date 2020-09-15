@@ -665,6 +665,40 @@ public class Configurator {
         }
     }
 
+    // Dynamically apply the SubjectAlternativeName extension to a
+    // remote PKI instance's request for its SSL Server Certificate.
+    //
+    // Since this information may vary from instance to
+    // instance, obtain the necessary information from the
+    // 'service.sslserver.san' value(s) in the instance's
+    // CS.cfg, process these values converting each item into
+    // its individual SubjectAlternativeName components, and
+    // build an SSL Server Certificate URL extension consisting
+    // of this information.
+    //
+    // 03/27/2013 - Should consider removing this
+    //              "buildSANSSLserverURLExtension()"
+    //              method if it becomes possible to
+    //              embed a certificate extension into
+    //              a PKCS #10 certificate request.
+    //
+    public void injectSANExtension(MultivaluedMap<String, String> content) throws Exception {
+
+        logger.debug("Configurator: Injectiong SAN extension");
+
+        String list = cs.getString("service.sslserver.san");
+        String[] dnsNames = StringUtils.split(list, ",");
+
+        int i = 0;
+        for (String dnsName : dnsNames) {
+            logger.debug("Configurator: - " + dnsName);
+            content.putSingle("req_san_pattern_" + i, dnsName);
+            i++;
+        }
+
+        content.putSingle("req_san_entries", "" + i);
+    }
+
     private X509CertImpl configRemoteCert(
             String hostname,
             int port,
@@ -692,7 +726,7 @@ public class Configurator {
         logger.debug("Configurator: injectSAN: " + injectSAN);
 
         if (tag.equals("sslserver") && injectSAN) {
-            CertUtils.buildSANSSLserverURLExtension(cs, content);
+            injectSANExtension(content);
         }
 
         String serverURL = "https://" + hostname + ":" + port;
