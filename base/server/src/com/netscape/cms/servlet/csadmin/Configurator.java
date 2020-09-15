@@ -603,9 +603,9 @@ public class Configurator {
             X509CertImpl certImpl = configRemoteCert(
                     hostname,
                     port,
-                    profileID,
                     session_id,
-                    b64Request,
+                    profileID,
+                    binRequest,
                     tag);
 
             cert.setCert(certImpl.getEncoded());
@@ -668,15 +668,13 @@ public class Configurator {
     private X509CertImpl configRemoteCert(
             String hostname,
             int port,
-            String actualProfileId,
-            String session_id,
-            String b64Request,
-            String certTag)
+            String sessionID,
+            String profileID,
+            byte[] request,
+            String tag)
             throws Exception {
 
-        logger.info("Configurator: Creating remote " + certTag + " certificate");
-
-        X509CertImpl cert = null;
+        logger.info("Configurator: Creating remote " + tag + " certificate");
 
         String sysType = cs.getType();
         String machineName = cs.getHostname();
@@ -684,22 +682,23 @@ public class Configurator {
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
-        content.putSingle("profileId", actualProfileId);
+        content.putSingle("profileId", profileID);
         content.putSingle("cert_request_type", "pkcs10");
-        content.putSingle("cert_request", b64Request);
+        content.putSingle("cert_request", CryptoUtil.base64Encode(request));
         content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", session_id);
+        content.putSingle("sessionID", sessionID);
 
         Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
         logger.debug("Configurator: injectSAN: " + injectSAN);
 
-        if (certTag.equals("sslserver") && injectSAN) {
+        if (tag.equals("sslserver") && injectSAN) {
             CertUtils.buildSANSSLserverURLExtension(cs, content);
         }
 
         String serverURL = "https://" + hostname + ":" + port;
         PKIClient client = Configurator.createClient(serverURL, null, null);
-        cert = CertUtils.createRemoteCert(client, content);
+
+        X509CertImpl cert = CertUtils.createRemoteCert(client, content);
 
         if (cert == null) {
             throw new IOException("Unable to create remote certificate");
