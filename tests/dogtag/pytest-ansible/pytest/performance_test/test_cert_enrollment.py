@@ -133,6 +133,6 @@ if __name__ == "__main__":
     log.info("Number of certs enrolled (N)={}".format(N))
     log.info("Minimum execution time (T)={}".format(min(issuance_times)))
     log.info("Maximum execution time (T)={}".format(max(issuance_times)))
-    log.info("Average execution time (T)={}".format(sum(issuance_times)/len(issuance_times))
+    log.info("Average execution time (T)={}".format(sum(issuance_times)/len(issuance_times)))
     log.info("Test execution time (T)={}".format(T))
     log.info("Throughput (V = N/T)={}".format(N / T))
