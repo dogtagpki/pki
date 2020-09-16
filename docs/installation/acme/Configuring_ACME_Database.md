@@ -6,6 +6,38 @@ Configuring ACME Database
 This document describes the process to configure a database for ACME responder.
 The database configuration is located at /etc/pki/pki-tomcat/acme/database.conf.
 
+The `pki-server acme-database-mod` can be used to configure the database via command-line.
+If the command is invoked without any parameters, it will enter an interactive mode, for example:
+
+```
+$ pki-server acme-database-mod
+The current value is displayed in the square brackets.
+To keep the current value, simply press Enter.
+To change the current value, enter the new value.
+To remove the current value, enter a blank space.
+
+Enter the type of the database. Available types: ds, in-memory, ldap, openldap, postgresql.
+  Database Type: ds
+
+Enter the location of the LDAP server (e.g. ldap://localhost.localdomain:389).
+  Server URL [ldap://localhost.localdomain:389]:
+
+Enter the authentication type. Available types: BasicAuth, SslClientAuth.
+  Authentication Type [BasicAuth]:
+
+Enter the bind DN.
+  Bind DN [cn=Directory Manager]:
+
+Enter the bind password.
+  Bind Password [********]:
+
+Enter the base DN for the ACME subtree.
+  Base DN [dc=acme,dc=pki,dc=example,dc=com]:
+```
+
+If the command is invoked with `--type` parameter, it will create a new configuration based on the specified type.
+If the command is invoked with other parameters, it will update the specified parameters.
+
 ## Configuring In-Memory Database
 
 The ACME responder can be configured with an in-memory database.
