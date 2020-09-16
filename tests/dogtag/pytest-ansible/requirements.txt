@@ -6,3 +6,4 @@ pytest-autochecklog==0.2.0
 configparser
 pytest-html
 pytest_marker_bugzilla
+pyOpenSSL
