@@ -187,6 +187,32 @@ public class TPSPinResetProcessor extends TPSProcessor {
             } else {
                 CMS.debug(method + " --> registrationtype attribute disabled or not found, continuing.");
             }
+            
+            /*
+             * If cuid is provided on the user registration record, then
+             * we have to compare that with the current token cuid;
+             *
+             * If, the cuid is not provided on the user registration record,
+             * then any token can be used.
+             */
+            if (erAttrs.getTokenCUID() != null) {
+                CMS.debug(method + " checking if token cuid matches record cuid");
+                CMS.debug(method + " erAttrs.getTokenCUID()=" + erAttrs.getTokenCUID());
+                CMS.debug(method + " tokenRecord.getId()=" + tokenRecord.getId());
+                if (!tokenRecord.getId().equalsIgnoreCase(erAttrs.getTokenCUID())) {
+                    logMsg = "isExternalReg: token CUID not matching record:" + tokenRecord.getId() + " : " +
+                            erAttrs.getTokenCUID();
+                    CMS.debug(method + logMsg);
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                            "failure");
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_NOT_TOKEN_OWNER);
+                } else {
+                    logMsg = "isExternalReg: token CUID matches record";
+                    CMS.debug(method + logMsg);
+                }
+            } else {
+                CMS.debug(method + " no need to check if token cuid matches record");
+            }
 
             session.setExternalRegAttrs(erAttrs);
             setExternalRegSelectedTokenType(erAttrs);
