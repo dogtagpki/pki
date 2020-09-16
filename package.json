@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://pagure.io/dogtagpki/issues"
   },
-  "homepage": "https://www.dogtagpki.org"
+  "homepage": "https://www.dogtagpki.org",
+  "dependencies": {
+    "@patternfly/patternfly": "^4.35.2"
+  }
 }
