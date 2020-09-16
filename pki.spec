@@ -855,7 +855,7 @@ cd build
     -DVERSION=%{version}-%{release} \
     -DVAR_INSTALL_DIR:PATH=/var \
     -DP11_KIT_TRUST=/etc/alternatives/libnssckbi.so.%{_arch} \
-    -DJAVA_VERSION=%{java_version} \
+    -DJAVA_VERSION=${java_version} \
     -DJAVA_HOME=%java_home \
     -DPKI_JAVA_PATH=%java \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
