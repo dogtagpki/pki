@@ -28,7 +28,52 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
     <servlet-mapping>
         <servlet-name>ACME</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/directory</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ACME</servlet-name>
+        <url-pattern>/new-nonce</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ACME</servlet-name>
+        <url-pattern>/new-account</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ACME</servlet-name>
+        <url-pattern>/new-order</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ACME</servlet-name>
+        <url-pattern>/authz/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ACME</servlet-name>
+        <url-pattern>/chall/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ACME</servlet-name>
+        <url-pattern>/order/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ACME</servlet-name>
+        <url-pattern>/acct/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ACME</servlet-name>
+        <url-pattern>/cert/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ACME</servlet-name>
+        <url-pattern>/revoke-cert</url-pattern>
     </servlet-mapping>
 
 </web-app>
