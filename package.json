@@ -1,0 +1,23 @@
+{
+  "name": "pki",
+  "version": "10.10.0",
+  "description": "Dogtag PKI",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dogtagpki/pki.git"
+  },
+  "author": "Dogtag PKI Team <pki-devel@redhat.com>",
+  "license": "GPLv2 and LGPLv2",
+  "bugs": {
+    "url": "https://pagure.io/dogtagpki/issues"
+  },
+  "homepage": "https://www.dogtagpki.org"
+}
