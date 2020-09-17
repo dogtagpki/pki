@@ -57,7 +57,7 @@ public abstract class ACMEDatabase {
      * @throws Exception
      */
     public Collection<ACMEOrder> getOrdersByAccount(String accountID) throws Exception {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ACMEDatabase.getOrdersByAccount() must be overridden by specific implementation");
     }
 
     public abstract Collection<ACMEOrder> getOrdersByAuthorizationAndStatus(
@@ -86,7 +86,7 @@ public abstract class ACMEDatabase {
     public abstract void updateOrder(ACMEOrder order) throws Exception;
 
     public void removeExpiredOrders(Date currentTime) throws Exception {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ACMEDatabase.removeExpiredOrders() must be overridden by specific implementation");
     }
 
     public abstract ACMEAuthorization getAuthorization(String authzID) throws Exception;
@@ -106,7 +106,7 @@ public abstract class ACMEDatabase {
      * @throws Exception
      */
     public Collection<ACMEAuthorization> getRevocationAuthorizations(String accountID, Date time) throws Exception {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ACMEDatabase.getRevocationAuthorizations() must be overridden by specific implementation");
     }
 
     /**
@@ -125,25 +125,25 @@ public abstract class ACMEDatabase {
      * @throws Exception
      */
     public boolean hasRevocationAuthorization(String accountID, Date time, ACMEIdentifier identifier) throws Exception {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ACMEDatabase.hasRevocationAuthorization() must be overridden by specific implementation");
     }
 
     public abstract void addAuthorization(ACMEAuthorization authorization) throws Exception;
     public abstract void updateAuthorization(ACMEAuthorization authorization) throws Exception;
 
     public void removeExpiredAuthorizations(Date currentTime) throws Exception {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ACMEDatabase.removeExpiredAuthorizations() must be overridden by specific implementation");
     }
 
     public ACMECertificate getCertificate(String certID) throws Exception {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ACMEDatabase.getCertificate() must be overridden by specific implementation");
     }
 
     public void addCertificate(String certID, ACMECertificate certificate) throws Exception {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ACMEDatabase.addCertificate() must be overridden by specific implementation");
     }
 
     public void removeExpiredCertificates(Date currentTime) throws Exception {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ACMEDatabase.removeExpiredCertificates() must be overridden by specific implementation");
     }
 }

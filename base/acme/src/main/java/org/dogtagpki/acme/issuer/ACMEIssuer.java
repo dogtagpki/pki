@@ -59,7 +59,7 @@ public class ACMEIssuer {
      * @throws Exception
      */
     public X509Certificate generateCertificate(PKCS10 pkcs10) throws Exception {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ACMEIssuer.generateCertificate() must be overridden by specific implementation");
     }
 
     /**
@@ -76,7 +76,7 @@ public class ACMEIssuer {
     }
 
     public String getCertificateChain(String certID) throws Exception {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ACMEIssuer.getCertificateChain() must be overridden by specific implementation");
     }
 
     /**
@@ -99,6 +99,6 @@ public class ACMEIssuer {
      *
      */
     public void revokeCertificate(ACMERevocation revocation) throws Exception {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ACMEIssuer.revokeCertificate() must be overridden by specific implementation");
     }
 }
