@@ -84,7 +84,6 @@ import org.dogtagpki.tps.msg.StatusUpdateRequestMsg;
 import org.dogtagpki.tps.msg.TPSMessage;
 import org.dogtagpki.tps.msg.TokenPDURequestMsg;
 import org.dogtagpki.tps.msg.TokenPDUResponseMsg;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -1416,7 +1415,8 @@ public class TPSProcessor {
         IAuthCredentials login =
                 new com.netscape.certsrv.authentication.AuthCredentials();
 
-        String[] requiredCreds = auth.getAuthManager().getRequiredCreds();
+        IAuthManager authManager = auth.getAuthManager();
+        String[] requiredCreds = authManager.getRequiredCreds();
         for (String cred : requiredCreds) {
             String name = auth.getCredMap(cred, extendedLogin);
             logger.debug("TPSProcessor.mapCredFromMsgResponse: cred=" + cred + " &name=" + name);
@@ -3817,8 +3817,7 @@ public class TPSProcessor {
                     tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), msg,
                             "failure");
 
-                    throw new TPSException(msg,
-                            TPSStatus.STATUS_ERROR_LOGIN);
+                    throw new TPSException(msg, TPSStatus.STATUS_ERROR_LOGIN, e);
                 }
             } else {
                 throw new TPSException(

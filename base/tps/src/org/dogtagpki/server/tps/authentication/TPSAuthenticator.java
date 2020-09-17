@@ -20,10 +20,9 @@ package org.dogtagpki.server.tps.authentication;
 import java.util.HashMap;
 
 import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.tps.TPSEngine;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 
 /**
@@ -33,7 +32,6 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
  */
 public class TPSAuthenticator {
     private String id;
-    private IAuthManager authManager;
 
     /*
      *  for auths instance ui <locale, value>
@@ -71,10 +69,6 @@ public class TPSAuthenticator {
     public TPSAuthenticator(String authId)
             throws EBaseException {
         id = authId;
-        // retrieves and set authentication manager
-        CMSEngine engine = CMS.getCMSEngine();
-        AuthSubsystem authSub = engine.getAuthSubsystem();
-        authManager = authSub.getAuthManager(authId);
         uiTitle = new HashMap<String, String>();
         uiDescription = new HashMap<String, String>();
         uiParameters = new HashMap<String, AuthUIParameter>();
@@ -87,7 +81,9 @@ public class TPSAuthenticator {
     }
 
     public IAuthManager getAuthManager() {
-        return authManager;
+        TPSEngine engine = TPSEngine.getInstance();
+        AuthSubsystem authSub = engine.getAuthSubsystem();
+        return authSub.getAuthManager(id);
     }
 
     public void setUiTitle(String locale, String title) {
