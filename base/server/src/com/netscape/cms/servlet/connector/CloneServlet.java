@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -279,7 +279,7 @@ public class CloneServlet extends CMSServlet {
 
             AuthCredentials creds = new AuthCredentials();
 
-            creds.set(IAuthManager.CRED_SSL_CLIENT_CERT,
+            creds.set(AuthManager.CRED_SSL_CLIENT_CERT,
                     new X509Certificate[] { cert }
                     );
 

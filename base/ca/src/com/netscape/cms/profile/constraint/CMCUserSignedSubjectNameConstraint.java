@@ -19,7 +19,7 @@ package com.netscape.cms.profile.constraint;
 
 import java.util.Locale;
 
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -77,7 +77,7 @@ public class CMCUserSignedSubjectNameConstraint extends EnrollConstraint {
                 throw new Exception(msg);
             }
             logger.debug(method + "validate user subject=" + infoCertSN);
-            String certSerial = request.getExtDataInString(IAuthManager.CRED_CMC_SIGNING_CERT);
+            String certSerial = request.getExtDataInString(AuthManager.CRED_CMC_SIGNING_CERT);
             if (certSerial == null) {
                 msg = method + "certSerial null";
                 logger.error(msg);

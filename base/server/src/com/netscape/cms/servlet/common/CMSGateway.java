@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -128,7 +128,7 @@ public class CMSGateway {
      * manager.
      */
     public static AuthCredentials getAuthCreds(
-            IAuthManager authMgr, IArgBlock argBlock, X509Certificate clientCert)
+            AuthManager authMgr, IArgBlock argBlock, X509Certificate clientCert)
             throws EBaseException {
         // get credentials from http parameters.
         if (authMgr == null)
@@ -147,7 +147,7 @@ public class CMSGateway {
         for (int i = 0; i < reqCreds.length; i++) {
             String reqCred = reqCreds[i];
 
-            if (reqCred.equals(IAuthManager.CRED_SSL_CLIENT_CERT)) {
+            if (reqCred.equals(AuthManager.CRED_SSL_CLIENT_CERT)) {
                 // cert could be null
                 creds.set(reqCred, new X509Certificate[] { clientCert });
 
@@ -190,7 +190,7 @@ public class CMSGateway {
                         CMS.getLogMessage("CMSGW_AUTH_MAN_EXPECTED")));
         }
 
-        IAuthManager authMgr = authSub.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
+        AuthManager authMgr = authSub.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
         authMgr = authSub.getAuthManager(authMgrName);
         if (authMgr == null)

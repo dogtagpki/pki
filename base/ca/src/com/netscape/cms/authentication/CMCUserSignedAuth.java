@@ -40,7 +40,7 @@ import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
@@ -129,7 +129,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  *
  * @version $Revision$, $Date$
  */
-public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
+public class CMCUserSignedAuth implements AuthManager, IExtendedPluginInfo,
         ProfileAuthenticator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCUserSignedAuth.class);
@@ -764,8 +764,8 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
             // For accuracy, make sure revocation by shared secret doesn't
             // log successful CMC_USER_SIGNED_REQUEST_SIG_VERIFY audit event
-            if (authToken.get(IAuthManager.CRED_CMC_SIGNING_CERT) != null ||
-                    authToken.get(IAuthManager.CRED_CMC_SELF_SIGNED) != null) {
+            if (authToken.get(AuthManager.CRED_CMC_SIGNING_CERT) != null ||
+                    authToken.get(AuthManager.CRED_CMC_SELF_SIGNED) != null) {
 
                 signedAuditLogger.log(
                         CMCUserSignedRequestSigVerifyEvent.createSuccessEvent(
@@ -1166,7 +1166,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
                         BigInteger certSerial = x509Certs[0].getSerialNumber();
                         logger.debug(method + " verified cert serial=" + certSerial.toString());
-                        authToken.set(IAuthManager.CRED_CMC_SIGNING_CERT, certSerial.toString());
+                        authToken.set(AuthManager.CRED_CMC_SIGNING_CERT, certSerial.toString());
                         tempToken.set("id", ID);
 
                         s.close();
@@ -1184,7 +1184,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                     selfsign_digest = digest;
 
                     IAuthToken tempToken = new AuthToken(null);
-                    authToken.set(IAuthManager.CRED_CMC_SELF_SIGNED, "true");
+                    authToken.set(AuthManager.CRED_CMC_SELF_SIGNED, "true");
                     s.close();
                     return tempToken;
                 } else {

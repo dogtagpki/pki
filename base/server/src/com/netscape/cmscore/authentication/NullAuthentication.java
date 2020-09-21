@@ -20,7 +20,7 @@ package com.netscape.cmscore.authentication;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -36,7 +36,7 @@ import com.netscape.cmscore.apps.CMS;
  * @author chrisho
  * @version $Revision$, $Date$
  */
-public class NullAuthentication implements IAuthManager {
+public class NullAuthentication implements AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NullAuthentication.class);
 

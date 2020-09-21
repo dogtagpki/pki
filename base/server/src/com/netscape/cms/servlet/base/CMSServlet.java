@@ -45,7 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
@@ -793,7 +793,7 @@ public abstract class CMSServlet extends HttpServlet {
      * manager.
      */
     public static AuthCredentials getAuthCreds(
-            IAuthManager authMgr, IArgBlock argBlock, X509Certificate clientCert)
+            AuthManager authMgr, IArgBlock argBlock, X509Certificate clientCert)
             throws EBaseException {
         // get credentials from http parameters.
         String[] reqCreds = authMgr.getRequiredCreds();
@@ -802,7 +802,7 @@ public abstract class CMSServlet extends HttpServlet {
         for (int i = 0; i < reqCreds.length; i++) {
             String reqCred = reqCreds[i];
 
-            if (reqCred.equals(IAuthManager.CRED_SSL_CLIENT_CERT)) {
+            if (reqCred.equals(AuthManager.CRED_SSL_CLIENT_CERT)) {
                 // cert could be null;
                 creds.set(reqCred, new X509Certificate[] { clientCert }
                         );

@@ -25,7 +25,7 @@ package org.dogtagpki.server.authentication;
  */
 public class AuthManagerProxy {
     private boolean mEnable;
-    private IAuthManager mMgr;
+    private AuthManager mMgr;
 
     /**
      * Constructor
@@ -33,7 +33,7 @@ public class AuthManagerProxy {
      * @param enable true if the authMgr is enabled; false otherwise
      * @param mgr authentication manager instance
      */
-    public AuthManagerProxy(boolean enable, IAuthManager mgr) {
+    public AuthManagerProxy(boolean enable, AuthManager mgr) {
         mEnable = enable;
         mMgr = mgr;
     }
@@ -53,7 +53,7 @@ public class AuthManagerProxy {
      *
      * @return an authentication manager instance
      */
-    public IAuthManager getAuthManager() {
+    public AuthManager getAuthManager() {
         return mMgr;
     }
 }

@@ -25,7 +25,7 @@ import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthManagerProxy;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -279,10 +279,10 @@ public class AuthSubsystem implements ISubsystem {
 
                 boolean isEnable = false;
                 // Instantiate and init the authentication manager.
-                IAuthManager authMgrInst = null;
+                AuthManager authMgrInst = null;
 
                 try {
-                    authMgrInst = (IAuthManager)
+                    authMgrInst = (AuthManager)
                             Class.forName(className).newInstance();
 
                     authMgrInst.init(insName, implName, authMgrConfig);
@@ -363,7 +363,7 @@ public class AuthSubsystem implements ISubsystem {
         if (!proxy.isEnable()) {
             throw new EAuthMgrNotFound(CMS.getUserMessage("CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", authMgrInstName));
         }
-        IAuthManager authMgrInst = proxy.getAuthManager();
+        AuthManager authMgrInst = proxy.getAuthManager();
 
         if (authMgrInst == null) {
             throw new EAuthMgrNotFound(CMS.getUserMessage("CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", authMgrInstName));
@@ -380,7 +380,7 @@ public class AuthSubsystem implements ISubsystem {
      */
     public String[] getRequiredCreds(String authMgrInstName)
             throws EAuthMgrNotFound {
-        IAuthManager authMgrInst = get(authMgrInstName);
+        AuthManager authMgrInst = get(authMgrInstName);
 
         if (authMgrInst == null) {
             throw new EAuthMgrNotFound(CMS.getUserMessage("CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", authMgrInstName));
@@ -406,11 +406,11 @@ public class AuthSubsystem implements ISubsystem {
         }
 
         // a temporary instance
-        IAuthManager authMgrInst = null;
+        AuthManager authMgrInst = null;
         String className = plugin.getClassPath();
 
         try {
-            authMgrInst = (IAuthManager)
+            authMgrInst = (AuthManager)
                     Class.forName(className).newInstance();
             return (authMgrInst.getConfigParams());
 
@@ -433,7 +433,7 @@ public class AuthSubsystem implements ISubsystem {
      * @param name name of the authentication manager instance
      * @param authMgr the authentication manager instance to be added
      */
-    public void add(String name, IAuthManager authMgrInst) {
+    public void add(String name, AuthManager authMgrInst) {
         mAuthMgrInsts.put(name, new AuthManagerProxy(true, authMgrInst));
     }
 
@@ -451,7 +451,7 @@ public class AuthSubsystem implements ISubsystem {
      * @param name name of the authentication manager instance
      * @return the named authentication manager instance
      */
-    public IAuthManager get(String name) {
+    public AuthManager get(String name) {
         AuthManagerProxy proxy = mAuthMgrInsts.get(name);
 
         if (proxy == null)
@@ -462,12 +462,12 @@ public class AuthSubsystem implements ISubsystem {
     /**
      * Enumerate all authentication manager instances.
      */
-    public Enumeration<IAuthManager> getAuthManagers() {
-        Vector<IAuthManager> inst = new Vector<IAuthManager>();
+    public Enumeration<AuthManager> getAuthManagers() {
+        Vector<AuthManager> inst = new Vector<AuthManager>();
         Enumeration<String> e = mAuthMgrInsts.keys();
 
         while (e.hasMoreElements()) {
-            IAuthManager p = get(e.nextElement());
+            AuthManager p = get(e.nextElement());
 
             if (p != null) {
                 inst.addElement(p);
@@ -495,13 +495,13 @@ public class AuthSubsystem implements ISubsystem {
      */
 
     /* getconfigparams above should be recoded to use this func */
-    public IAuthManager getAuthManagerPlugin(String name) {
+    public AuthManager getAuthManagerPlugin(String name) {
         AuthMgrPlugin plugin = mAuthMgrPlugins.get(name);
         String classpath = plugin.getClassPath();
-        IAuthManager authMgrInst = null;
+        AuthManager authMgrInst = null;
 
         try {
-            authMgrInst = (IAuthManager) Class.forName(classpath).newInstance();
+            authMgrInst = (AuthManager) Class.forName(classpath).newInstance();
             return (authMgrInst);
         } catch (Exception e) {
             logger.warn("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_NOT_CREATED", e.toString()), e);
@@ -545,7 +545,7 @@ public class AuthSubsystem implements ISubsystem {
     public void shutdown() {
         for (AuthManagerProxy proxy : mAuthMgrInsts.values()) {
 
-            IAuthManager mgr = proxy.getAuthManager();
+            AuthManager mgr = proxy.getAuthManager();
 
             logger.info("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_SHUTDOWN", mgr.getName()));
 
@@ -588,7 +588,7 @@ public class AuthSubsystem implements ISubsystem {
      * @param name of the authentication manager
      * @return the named authentication manager
      */
-    public IAuthManager getAuthManager(String name) {
+    public AuthManager getAuthManager(String name) {
         return get(name);
     }
 }

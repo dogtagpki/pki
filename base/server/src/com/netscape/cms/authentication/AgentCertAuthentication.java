@@ -26,7 +26,7 @@ import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -59,13 +59,13 @@ import com.netscape.cmscore.usrgrp.UGSubsystem;
  *
  * @version $Revision$, $Date$
  */
-public class AgentCertAuthentication implements IAuthManager,
+public class AgentCertAuthentication implements AuthManager,
         ProfileAuthenticator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AgentCertAuthentication.class);
 
     /* required credentials */
-    public static final String CRED_CERT = IAuthManager.CRED_SSL_CLIENT_CERT;
+    public static final String CRED_CERT = AuthManager.CRED_SSL_CLIENT_CERT;
     protected String[] mRequiredCreds = { CRED_CERT };
 
     /* config parameters to pass to console (none) */

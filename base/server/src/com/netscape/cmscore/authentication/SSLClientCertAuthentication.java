@@ -27,7 +27,7 @@ import java.security.cert.X509Certificate;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -53,12 +53,12 @@ import com.netscape.cmscore.apps.CMSEngine;
  * @author chrisho
  * @version $Revision$, $Date$
  */
-public class SSLClientCertAuthentication implements IAuthManager {
+public class SSLClientCertAuthentication implements AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SSLClientCertAuthentication.class);
 
     /* required credential to authenticate, client certificate */
-    public static final String CRED_CERT = IAuthManager.CRED_SSL_CLIENT_CERT;
+    public static final String CRED_CERT = AuthManager.CRED_SSL_CLIENT_CERT;
     public static final String SERIALNUMBER = "serialNumber";
     public static final String ISSUERDN = "issuerDN";
     protected static String[] mRequiredCreds = { CRED_CERT };

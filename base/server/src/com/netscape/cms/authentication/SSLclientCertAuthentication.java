@@ -26,7 +26,7 @@ import java.util.StringTokenizer;
 
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -54,7 +54,7 @@ import com.netscape.cmscore.apps.CMSEngine;
  *         <P>
  *
  */
-public class SSLclientCertAuthentication implements IAuthManager,
+public class SSLclientCertAuthentication implements AuthManager,
         ProfileAuthenticator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SSLclientCertAuthentication.class);
@@ -66,7 +66,7 @@ public class SSLclientCertAuthentication implements IAuthManager,
     public static final String TOKEN_UID = "uid";
 
     /* required credentials */
-    public static final String CRED_CERT = IAuthManager.CRED_SSL_CLIENT_CERT;
+    public static final String CRED_CERT = AuthManager.CRED_SSL_CLIENT_CERT;
     protected String[] mRequiredCreds = { CRED_CERT };
 
     /* config parameters to pass to console (none) */

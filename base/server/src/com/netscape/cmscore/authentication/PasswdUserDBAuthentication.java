@@ -20,7 +20,7 @@ package com.netscape.cmscore.authentication;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -51,7 +51,7 @@ import netscape.ldap.LDAPException;
  * @author lhsiao, cfu
  * @version $Revision$, $Date$
  */
-public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAuthentication {
+public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAuthentication {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PasswdUserDBAuthentication.class);
 

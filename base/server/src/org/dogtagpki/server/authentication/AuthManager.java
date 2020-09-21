@@ -29,7 +29,7 @@ import com.netscape.certsrv.base.EBaseException;
  *
  * @version $Revision$, $Date$
  */
-public interface IAuthManager {
+public interface AuthManager {
 
     /* standard credential for client cert from ssl client auth */
     public static final String CRED_SSL_CLIENT_CERT = "sslClientCert";

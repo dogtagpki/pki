@@ -27,7 +27,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -55,13 +55,13 @@ import com.netscape.cmsutil.xml.XMLObject;
  *
  * @version $Revision$, $Date$
  */
-public class TokenAuthentication implements IAuthManager,
+public class TokenAuthentication implements AuthManager,
         ProfileAuthenticator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenAuthentication.class);
 
     /* required credentials */
-    public static final String CRED_SESSION_ID = IAuthManager.CRED_SESSION_ID;
+    public static final String CRED_SESSION_ID = AuthManager.CRED_SESSION_ID;
     protected String[] mRequiredCreds = { CRED_SESSION_ID };
 
     /* config parameters to pass to console (none) */

@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authorization.AuthorizationConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -327,7 +327,7 @@ public class AdminServlet extends HttpServlet {
                     mServletID));
             try {
                 if (authType.equals("sslclientauth")) {
-                    IAuthManager authMgr = auth.get(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
+                    AuthManager authMgr = auth.get(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
                     IAuthCredentials authCreds =
                             getAuthCreds(authMgr, cert);
 
@@ -509,7 +509,7 @@ public class AdminServlet extends HttpServlet {
     }
 
     public static AuthCredentials getAuthCreds(
-            IAuthManager authMgr, X509Certificate clientCert)
+            AuthManager authMgr, X509Certificate clientCert)
             throws EBaseException {
         // get credentials from http parameters.
         String[] reqCreds = authMgr.getRequiredCreds();
@@ -518,7 +518,7 @@ public class AdminServlet extends HttpServlet {
         for (int i = 0; i < reqCreds.length; i++) {
             String reqCred = reqCreds[i];
 
-            if (reqCred.equals(IAuthManager.CRED_SSL_CLIENT_CERT)) {
+            if (reqCred.equals(AuthManager.CRED_SSL_CLIENT_CERT)) {
                 // cert could be null;
                 creds.set(reqCred, new X509Certificate[] { clientCert }
                         );

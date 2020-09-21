@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.base.EBaseException;
@@ -506,7 +506,7 @@ public class RemoteAuthConfig extends CMSServlet {
 
         mRemotelySetInstances.add(instance);
 
-        IAuthManager authMgrInst = mAuthSubsystem.getAuthManagerPlugin(plugin);
+        AuthManager authMgrInst = mAuthSubsystem.getAuthManagerPlugin(plugin);
 
         if (authMgrInst != null) {
             try {
@@ -590,10 +590,10 @@ public class RemoteAuthConfig extends CMSServlet {
         boolean isListed = false;
 
         if (instanceName != null && instanceName.length() > 0) {
-            Enumeration<IAuthManager> e = mAuthSubsystem.getAuthManagers();
+            Enumeration<AuthManager> e = mAuthSubsystem.getAuthManagers();
 
             while (e.hasMoreElements()) {
-                IAuthManager authManager = e.nextElement();
+                AuthManager authManager = e.nextElement();
 
                 if (instanceName.equals(authManager.getName())) {
                     isListed = true;

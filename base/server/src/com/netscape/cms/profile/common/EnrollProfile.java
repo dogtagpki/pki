@@ -38,7 +38,7 @@ import java.util.Map;
 import javax.crypto.Mac;
 
 import org.dogtag.util.cert.CertUtil;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -316,7 +316,7 @@ public abstract class EnrollProfile extends Profile {
             // if the auth manager is the CMCAuth (agent pre-approved),
             // then no changes
             boolean donePOI = false;
-            String signingUserSerial = ctx.get(IAuthManager.CRED_CMC_SIGNING_CERT);
+            String signingUserSerial = ctx.get(AuthManager.CRED_CMC_SIGNING_CERT);
             if (signingUserSerial != null) {
                 donePOI = true;
             }
@@ -1544,7 +1544,7 @@ public abstract class EnrollProfile extends Profile {
             try {
                 AuthSubsystem authSS = engine.getAuthSubsystem();
 
-                IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
+                AuthManager sharedTokenAuth = authSS.getAuthManager(configName);
                 if (sharedTokenAuth == null) {
                     logger.debug(method + " Failed to retrieve shared secret authentication plugin class");
                     sharedSecretFound = false;
@@ -1850,7 +1850,7 @@ public abstract class EnrollProfile extends Profile {
             String configName = "SharedToken";
             AuthSubsystem authSS = engine.getAuthSubsystem();
 
-            IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
+            AuthManager sharedTokenAuth = authSS.getAuthManager(configName);
             if (sharedTokenAuth == null) {
                 msg = " Failed to retrieve shared secret authentication plugin class";
                 logger.warn(method + msg);

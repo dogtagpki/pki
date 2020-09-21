@@ -28,7 +28,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authorization.AuthzToken;
 
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -153,7 +153,7 @@ public class EnableEnrollResult extends CMSServlet {
         header.addStringValue("port", port);
         String val = configStore.getString("hashDirEnrollment.name");
         AuthSubsystem authSS = engine.getAuthSubsystem();
-        IAuthManager authMgr = authSS.get(val);
+        AuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 
         String host = args.getValueAsString("hostname", null);

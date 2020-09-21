@@ -27,7 +27,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authorization.AuthzToken;
 
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -139,7 +139,7 @@ public class GetEnableStatus extends CMSServlet {
 
         String val = configStore.getString("hashDirEnrollment.name");
         AuthSubsystem authSS = engine.getAuthSubsystem();
-        IAuthManager authMgr = authSS.get(val);
+        AuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
         long timeout = HashAuthentication.DEFAULT_TIMEOUT / 1000;
 

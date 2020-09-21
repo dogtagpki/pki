@@ -36,7 +36,7 @@ import java.util.Set;
 
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
@@ -1305,7 +1305,7 @@ public class TPSProcessor {
             throw new EBaseException(logMsg);
         }
         logger.debug("TPSProcessor.authenticateUser: op: " + op);
-        IAuthManager auth = userAuth.getAuthManager();
+        AuthManager auth = userAuth.getAuthManager();
 
         try {
             // Authenticate user
@@ -1415,7 +1415,7 @@ public class TPSProcessor {
         IAuthCredentials login =
                 new com.netscape.certsrv.authentication.AuthCredentials();
 
-        IAuthManager authManager = auth.getAuthManager();
+        AuthManager authManager = auth.getAuthManager();
         String[] requiredCreds = authManager.getRequiredCreds();
         for (String cred : requiredCreds) {
             String name = auth.getCredMap(cred, extendedLogin);

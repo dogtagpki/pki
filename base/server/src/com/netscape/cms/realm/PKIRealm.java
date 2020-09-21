@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.apache.catalina.realm.RealmBase;
 import org.apache.commons.lang3.StringUtils;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.ICertUserDBAuthentication;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -59,7 +59,7 @@ public class PKIRealm extends RealmBase {
 
         try {
             AuthSubsystem authSub = engine.getAuthSubsystem();
-            IAuthManager authMgr = authSub.getAuthManager(AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
+            AuthManager authMgr = authSub.getAuthManager(AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
 
             AuthCredentials creds = new AuthCredentials();
             creds.set(IPasswdUserDBAuthentication.CRED_UID, username);
@@ -125,7 +125,7 @@ public class PKIRealm extends RealmBase {
             }
 
             AuthSubsystem authSub = engine.getAuthSubsystem();
-            IAuthManager authMgr = authSub.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
+            AuthManager authMgr = authSub.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
             AuthCredentials creds = new AuthCredentials();
             creds.set(ICertUserDBAuthentication.CRED_CERT, certImpls);

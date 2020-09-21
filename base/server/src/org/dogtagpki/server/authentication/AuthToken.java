@@ -63,7 +63,7 @@ public class AuthToken implements IAuthToken {
      *
      * @param authMgr The authentication manager that created this Token.
      */
-    public AuthToken(IAuthManager authMgr) {
+    public AuthToken(AuthManager authMgr) {
         mAttrs = new Hashtable<String, Object>();
         if (authMgr != null) {
             set(TOKEN_AUTHMGR_INST_NAME, authMgr.getName());

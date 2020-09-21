@@ -31,7 +31,7 @@ import java.util.Hashtable;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
@@ -1104,7 +1104,7 @@ public class CMCOutputTemplate {
                     String configName = "SharedToken";
                     AuthSubsystem authSS = engine.getAuthSubsystem();
 
-                    IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
+                    AuthManager sharedTokenAuth = authSS.getAuthManager(configName);
                     if (sharedTokenAuth == null) {
                         logger.warn(method + " Failed to retrieve shared secret authentication plugin class");
                         OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR),

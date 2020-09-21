@@ -30,7 +30,7 @@ import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthManagerProxy;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -461,11 +461,11 @@ public class AuthAdminServlet extends AdminServlet {
 
             // Does the class exist?
 
-            Class<IAuthManager> newImpl = null;
+            Class<AuthManager> newImpl = null;
 
             try {
                 @SuppressWarnings("unchecked")
-                Class<IAuthManager> tmpImpl = (Class<IAuthManager>) Class.forName(classPath);
+                Class<AuthManager> tmpImpl = (Class<AuthManager>) Class.forName(classPath);
                 newImpl = tmpImpl;
             } catch (ClassNotFoundException e) {
                 // store a message in the signed audit log file
@@ -499,7 +499,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // is the class an IAuthManager?
             try {
-                if (IAuthManager.class.isAssignableFrom(newImpl) == false) {
+                if (AuthManager.class.isAssignableFrom(newImpl) == false) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
                                 AuditEvent.CONFIG_AUTH,
@@ -751,10 +751,10 @@ public class AuthAdminServlet extends AdminServlet {
 
             // Instantiate an object for this implementation
             String className = plugin.getClassPath();
-            IAuthManager authMgrInst = null;
+            AuthManager authMgrInst = null;
 
             try {
-                authMgrInst = (IAuthManager) Class.forName(className).newInstance();
+                authMgrInst = (AuthManager) Class.forName(className).newInstance();
             } catch (ClassNotFoundException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -936,7 +936,7 @@ public class AuthAdminServlet extends AdminServlet {
         for (Enumeration<?> e = mAuths.getInstances().keys(); e.hasMoreElements();) {
             String name = (String) e.nextElement();
             AuthManagerProxy proxy = mAuths.getInstances().get(name);
-            IAuthManager value = proxy.getAuthManager();
+            AuthManager value = proxy.getAuthManager();
             String enableStr = "enabled";
 
             if (!proxy.isEnable()) {
@@ -1030,7 +1030,7 @@ public class AuthAdminServlet extends AdminServlet {
             // first check if any instances from this auth manager
             // DON'T remove auth manager if any instance
             for (Enumeration<?> e = mAuths.getInstances().keys(); e.hasMoreElements();) {
-                IAuthManager authMgr = mAuths.get((String) e.nextElement());
+                AuthManager authMgr = mAuths.get((String) e.nextElement());
 
                 if (authMgr.getImplName() == id) {
                     // store a message in the signed audit log file
@@ -1343,7 +1343,7 @@ public class AuthAdminServlet extends AdminServlet {
             return;
         }
 
-        IAuthManager mgrInst = mAuths.get(id);
+        AuthManager mgrInst = mAuths.get(id);
         IConfigStore config = mgrInst.getConfigStore();
         String[] configParams = mgrInst.getConfigParams();
         NameValuePairs params = new NameValuePairs();
@@ -1483,7 +1483,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // save old instance substore params in case new one fails.
 
-            IAuthManager oldinst = mAuths.get(id);
+            AuthManager oldinst = mAuths.get(id);
             IConfigStore oldConfig = oldinst.getConfigStore();
 
             String[] oldConfigParms = oldinst.getConfigParams();
@@ -1533,10 +1533,10 @@ public class AuthAdminServlet extends AdminServlet {
             // Instantiate an object for new implementation
 
             String className = plugin.getClassPath();
-            IAuthManager newMgrInst = null;
+            AuthManager newMgrInst = null;
 
             try {
-                newMgrInst = (IAuthManager) Class.forName(className).newInstance();
+                newMgrInst = (AuthManager) Class.forName(className).newInstance();
             } catch (ClassNotFoundException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(

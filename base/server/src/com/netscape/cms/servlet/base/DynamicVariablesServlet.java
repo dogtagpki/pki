@@ -30,7 +30,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.base.EBaseException;
@@ -269,7 +269,7 @@ public class DynamicVariablesServlet extends CMSServlet {
                         if (varcode.equals(VAR_AUTHMGRS)) {
                             toBeWritten = "";
                             AuthSubsystem as = engine.getAuthSubsystem();
-                            Enumeration<IAuthManager> ame = as.getAuthManagers();
+                            Enumeration<AuthManager> ame = as.getAuthManagers();
 
                             Date d = new Date();
                             long now = d.getTime();
@@ -279,7 +279,7 @@ public class DynamicVariablesServlet extends CMSServlet {
 
                                 StringBuffer sb = new StringBuffer();
                                 while (ame.hasMoreElements()) {
-                                    IAuthManager am = ame.nextElement();
+                                    AuthManager am = ame.nextElement();
                                     String amName = am.getImplName();
 
                                     AuthMgrPlugin ap = as.getAuthManagerPluginImpl(amName);

@@ -31,7 +31,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -510,21 +510,21 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         ///////////////////////////////////////////////
         // create request
         ///////////////////////////////////////////////
-        String tmpCertSerialS = ctx.get(IAuthManager.CRED_CMC_SIGNING_CERT);
+        String tmpCertSerialS = ctx.get(AuthManager.CRED_CMC_SIGNING_CERT);
         if (tmpCertSerialS != null) {
             // unlikely to happen, but do this just in case
             logger.debug("ProfileSubmitCMCServlet: found existing CRED_CMC_SIGNING_CERT in ctx for CMCUserSignedAuth:" + tmpCertSerialS);
             logger.debug("ProfileSubmitCMCServlet: null it out");
-            ctx.put(IAuthManager.CRED_CMC_SIGNING_CERT, "");
+            ctx.put(AuthManager.CRED_CMC_SIGNING_CERT, "");
         }
 
         String signingCertSerialS = null;
         if (authToken != null) {
-            signingCertSerialS = (String) authToken.get(IAuthManager.CRED_CMC_SIGNING_CERT);
+            signingCertSerialS = (String) authToken.get(AuthManager.CRED_CMC_SIGNING_CERT);
         }
         if (signingCertSerialS != null) {
             logger.debug("ProfileSubmitCMCServlet: setting CRED_CMC_SIGNING_CERT in ctx for CMCUserSignedAuth");
-            ctx.put(IAuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
+            ctx.put(AuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
         }
 
         String tmpSharedTokenAuthenticatedCertSubject = ctx.get(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
@@ -728,17 +728,17 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     }
                 }
 
-                tmpCertSerialS = reqs[k].getExtDataInString(IAuthManager.CRED_CMC_SIGNING_CERT);
+                tmpCertSerialS = reqs[k].getExtDataInString(AuthManager.CRED_CMC_SIGNING_CERT);
                 if (tmpCertSerialS != null) {
                     // unlikely to happen, but do this just in case
                     logger.debug("ProfileSubmitCMCServlet: found existing CRED_CMC_SIGNING_CERT in request for CMCUserSignedAuth:" + tmpCertSerialS);
                     logger.debug("ProfileSubmitCMCServlet: null it out");
-                    reqs[k].setExtData(IAuthManager.CRED_CMC_SIGNING_CERT, "");
+                    reqs[k].setExtData(AuthManager.CRED_CMC_SIGNING_CERT, "");
                 }
                 // put CMCUserSignedAuth authToken in request
                 if (signingCertSerialS != null) {
                      logger.debug("ProfileSubmitCMCServlet: setting CRED_CMC_SIGNING_CERT in request for CMCUserSignedAuth");
-                     reqs[k].setExtData(IAuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
+                     reqs[k].setExtData(AuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
                  }
 
                 tmpSharedTokenAuthenticatedCertSubject = reqs[k].getExtDataInString(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
@@ -756,7 +756,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 }
                 if (tmpSharedTokenAuthenticatedCertSubject != null) {
                     logger.debug("ProfileSubmitCMCServlet: setting CRED_CMC_SIGNING_CERT in request for CMCUserSignedAuth");
-                    reqs[k].setExtData(IAuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
+                    reqs[k].setExtData(AuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
                 }
             }
 

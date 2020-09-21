@@ -22,7 +22,7 @@ import java.security.cert.X509Certificate;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.ICertUserDBAuthentication;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -50,7 +50,7 @@ import com.netscape.cmscore.usrgrp.User;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthentication {
+public class CertUserDBAuthentication implements AuthManager, ICertUserDBAuthentication {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertUserDBAuthentication.class);
 

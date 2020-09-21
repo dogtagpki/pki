@@ -20,7 +20,7 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -136,7 +136,7 @@ public class CMCUserSignedSubjectNameDefault extends EnrollDefault {
             logger.error(msg);
             throw new EProfileException(msg);
         }
-        String signingUserSerial = request.getExtDataInString(IAuthManager.CRED_CMC_SIGNING_CERT);
+        String signingUserSerial = request.getExtDataInString(AuthManager.CRED_CMC_SIGNING_CERT);
         if (signingUserSerial == null) {
             msg = method + "signing user serial not found; request was unsigned?";
             logger.error(msg);

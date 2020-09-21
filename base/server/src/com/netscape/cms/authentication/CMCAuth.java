@@ -40,7 +40,7 @@ import java.util.Vector;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -114,7 +114,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  *
  * @version $Revision$, $Date$
  */
-public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
+public class CMCAuth implements AuthManager, IExtendedPluginInfo,
         ProfileAuthenticator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCAuth.class);
@@ -956,13 +956,13 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                         // authenticate signer's certificate using the userdb
                         AuthSubsystem authSS = engine.getAuthSubsystem();
 
-                        IAuthManager agentAuth = authSS.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);//AGENT_AUTHMGR_ID);
+                        AuthManager agentAuth = authSS.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);//AGENT_AUTHMGR_ID);
                         if (agentAuth == null) {
                             throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_MANAGER_NOT_FOUND", AuthSubsystem.CERTUSERDB_AUTHMGR_ID));
                         }
                         IAuthCredentials agentCred = new com.netscape.certsrv.authentication.AuthCredentials();
 
-                        agentCred.set(IAuthManager.CRED_SSL_CLIENT_CERT, x509Certs);
+                        agentCred.set(AuthManager.CRED_SSL_CLIENT_CERT, x509Certs);
 
                         IAuthToken tempToken = agentAuth.authenticate(agentCred);
                         org.mozilla.jss.netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
@@ -971,7 +971,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                         authToken.set(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, ID);
 
                         BigInteger agentCertSerial = x509Certs[0].getSerialNumber();
-                        authToken.set(IAuthManager.CRED_SSL_CLIENT_CERT, agentCertSerial.toString());
+                        authToken.set(AuthManager.CRED_SSL_CLIENT_CERT, agentCertSerial.toString());
                         tempToken.set("id", ID);
                         return tempToken;
 

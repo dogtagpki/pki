@@ -38,7 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.asn1.INTEGER;
@@ -194,7 +194,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         String val = configStore.getString("hashDirEnrollment.name");
         AuthSubsystem authSS = engine.getAuthSubsystem();
-        IAuthManager authMgr = authSS.get(val);
+        AuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 
         Date date = new Date();
@@ -386,7 +386,7 @@ public class HashEnrollServlet extends CMSServlet {
         //AuthToken authToken = access.getAuthToken();
         String val = configStore.getString("hashDirEnrollment.name");
         AuthSubsystem authSS = engine.getAuthSubsystem();
-        IAuthManager authMgr1 = authSS.get(val);
+        AuthManager authMgr1 = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr1;
         String pageID = httpParams.getValueAsString("pageID", null);
 

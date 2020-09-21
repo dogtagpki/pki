@@ -28,7 +28,7 @@ import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -73,7 +73,7 @@ import netscape.ldap.LDAPv2;
  * @version $Revision$, $Date$
  */
 public abstract class DirBasedAuthentication
-        implements IAuthManager, IExtendedPluginInfo {
+        implements AuthManager, IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DirBasedAuthentication.class);
 

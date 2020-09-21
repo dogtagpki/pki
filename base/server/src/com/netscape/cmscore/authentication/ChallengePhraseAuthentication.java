@@ -24,7 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 
@@ -55,7 +55,7 @@ import com.netscape.cmscore.dbs.CertRecord;
  * @author cfu chrisho
  * @version $Revision$, $Date$
  */
-public class ChallengePhraseAuthentication implements IAuthManager {
+public class ChallengePhraseAuthentication implements AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChallengePhraseAuthentication.class);
 
@@ -63,7 +63,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     public static final String TOKEN_CERT_SERIAL = "certSerialToRevoke";
 
     /* required credentials */
-    public static final String CRED_CERT_SERIAL = IAuthManager.CRED_CERT_SERIAL_TO_REVOKE;
+    public static final String CRED_CERT_SERIAL = AuthManager.CRED_CERT_SERIAL_TO_REVOKE;
     public static final String CRED_CHALLENGE = "challengePhrase";
     protected String[] mRequiredCreds = { CRED_CERT_SERIAL, CRED_CHALLENGE };
 

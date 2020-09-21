@@ -31,5 +31,5 @@ public interface ICertUserDBAuthentication {
     public static final String TOKEN_UID = "uid";
 
     /* required credentials */
-    public static final String CRED_CERT = IAuthManager.CRED_SSL_CLIENT_CERT;
+    public static final String CRED_CERT = AuthManager.CRED_SSL_CLIENT_CERT;
 }

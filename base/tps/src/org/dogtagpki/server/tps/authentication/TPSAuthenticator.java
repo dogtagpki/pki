@@ -19,7 +19,7 @@ package org.dogtagpki.server.tps.authentication;
 
 import java.util.HashMap;
 
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.tps.TPSEngine;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -80,7 +80,7 @@ public class TPSAuthenticator {
         return id;
     }
 
-    public IAuthManager getAuthManager() {
+    public AuthManager getAuthManager() {
         TPSEngine engine = TPSEngine.getInstance();
         AuthSubsystem authSub = engine.getAuthSubsystem();
         return authSub.getAuthManager(id);

@@ -21,7 +21,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 import org.dogtagpki.server.authentication.AuthManagerConfig;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.IConfigStore;
@@ -39,7 +39,7 @@ import com.netscape.cms.profile.common.Profile;
  *
  * @version $Revision$, $Date$
  */
-public interface ProfileAuthenticator extends IAuthManager {
+public interface ProfileAuthenticator extends AuthManager {
 
     public static final String AUTHENTICATED_NAME = "authenticatedName";
 

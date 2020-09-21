@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.IAuthManager;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
@@ -277,7 +277,7 @@ public class CMCRevReqServlet extends CMSServlet {
             }
 
             revokeAll = "(|(certRecordId=" + serialNoArray[0].toString() + "))";
-            cmcAgentSerialNumber = authToken.getInString(IAuthManager.CRED_SSL_CLIENT_CERT);
+            cmcAgentSerialNumber = authToken.getInString(AuthManager.CRED_SSL_CLIENT_CERT);
             process(argSet, header, reasonCode.intValue(), invalidityDate, initiative, req, resp,
                     verifiedRecordCount, revokeAll, totalRecordCount,
                     comments, locale[0], cmcAgentSerialNumber);
