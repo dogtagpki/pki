@@ -29,31 +29,29 @@ public class AccountClient extends Client {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountClient.class);
 
-    public AccountResource resource;
     public boolean loggedIn;
 
     public AccountClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "account");
-        init();
+        super(client, subsystem, null, "account");
     }
 
-    public void init() throws Exception {
-        resource = createProxy(AccountResource.class);
+    public AccountClient(PKIClient client, String subsystem, String prefix) throws Exception {
+        super(client, subsystem, prefix, "account");
     }
 
     public Account login() throws Exception {
-        Response response = resource.login();
+        Response response = get("login");
         Account account = client.getEntity(response, Account.class);
         loggedIn = true;
 
         logger.info("Account:");
-        logger.info("- User ID: " + account.getID());
+        logger.info("- ID: " + account.getID());
         logger.info("- Full Name: " + account.getFullName());
         logger.info("- Email: " + account.getEmail());
 
-        logger.info("- Roles:");
+        logger.info("Roles:");
         for (String role : account.getRoles()) {
-            logger.info("  - " + role);
+            logger.info("- " + role);
         }
 
         return account;
@@ -62,7 +60,7 @@ public class AccountClient extends Client {
     public void logout() throws Exception {
         if (!loggedIn) return;
 
-        Response response = resource.logout();
+        Response response = get("logout");
         client.getEntity(response, Void.class);
         loggedIn = false;
     }

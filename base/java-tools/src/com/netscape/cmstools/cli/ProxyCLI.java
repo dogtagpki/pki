@@ -117,7 +117,7 @@ public class ProxyCLI extends CLI {
                 if (subsystem == null) subsystem = defaultSubsystem;
 
                 PKIClient client = module.getClient();
-                accountClient = new AccountClient(client, subsystem);
+                accountClient = new AccountClient(client, subsystem, "rest");
                 accountClient.login();
             }
 

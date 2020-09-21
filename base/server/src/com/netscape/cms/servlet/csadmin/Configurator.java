@@ -221,7 +221,7 @@ public class Configurator {
         // utilizing an untrusted temporary CA certificate.
         client.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID);
 
-        AccountClient accountClient = new AccountClient(client, "ca");
+        AccountClient accountClient = new AccountClient(client, "ca", "rest");
         SecurityDomainClient sdClient = new SecurityDomainClient(client, "ca");
 
         try {
