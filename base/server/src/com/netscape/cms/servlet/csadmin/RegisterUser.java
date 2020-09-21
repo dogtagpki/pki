@@ -37,7 +37,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
-import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -167,7 +167,7 @@ public class RegisterUser extends CMSServlet {
             certs[0] = cert;
 
             // test to see if the cert already belongs to a user
-            ICertUserLocator cul = ugsys.getCertUserLocator();
+            CertUserLocator cul = ugsys.getCertUserLocator();
             com.netscape.certsrv.usrgrp.Certificates c =
                     new com.netscape.certsrv.usrgrp.Certificates(certs);
             user = cul.locateUser(c);

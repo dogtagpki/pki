@@ -22,7 +22,7 @@ import java.security.cert.X509Certificate;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -38,7 +38,7 @@ import netscape.ldap.LDAPException;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class CertDNCertUserLocator implements ICertUserLocator {
+public class CertDNCertUserLocator implements CertUserLocator {
     private UGSubsystem mUG = null;
     protected static final String LDAP_ATTR_CERTDN = "seeAlso";
 

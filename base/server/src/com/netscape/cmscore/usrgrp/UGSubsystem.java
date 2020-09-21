@@ -39,7 +39,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
@@ -1984,7 +1984,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
             mLdapConnFactory.returnConn(conn);
     }
 
-    public ICertUserLocator getCertUserLocator() {
+    public CertUserLocator getCertUserLocator() {
         return new ExactMatchCertUserLocator();
     }
 }

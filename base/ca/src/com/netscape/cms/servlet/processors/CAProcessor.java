@@ -57,7 +57,7 @@ import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.profile.ProfileAuthenticator;
@@ -131,7 +131,7 @@ public class CAProcessor extends Processor {
     protected CertificateAuthority authority;
     protected AuthzSubsystem authz;
     protected UGSubsystem ug;
-    protected ICertUserLocator ul;
+    protected CertUserLocator ul;
     protected IRequestQueue queue;
     protected ProfileSubsystem ps;
     protected ICertificateRepository certdb;

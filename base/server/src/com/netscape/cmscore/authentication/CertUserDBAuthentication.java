@@ -34,7 +34,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
@@ -65,7 +65,7 @@ public class CertUserDBAuthentication implements AuthManager, ICertUserDBAuthent
     private AuthenticationConfig authenticationConfig;
     private AuthManagerConfig mConfig;
 
-    private ICertUserLocator mCULocator = null;
+    private CertUserLocator mCULocator = null;
 
     private boolean mRevocationCheckingEnabled = false;
     private IConfigStore mRevocationChecking = null;

@@ -42,7 +42,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
@@ -76,7 +76,7 @@ public class AgentCertAuthentication implements AuthManager,
     private AuthManagerConfig mConfig;
 
     private UGSubsystem mUGSub = null;
-    private ICertUserLocator mCULocator = null;
+    private CertUserLocator mCULocator = null;
 
     public AgentCertAuthentication() {
     }

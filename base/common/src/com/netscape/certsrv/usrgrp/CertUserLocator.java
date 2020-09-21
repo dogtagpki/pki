@@ -27,7 +27,7 @@ import com.netscape.certsrv.ldap.ELdapException;
  *
  * @version $Revision$, $Date$
  */
-public interface ICertUserLocator {
+public interface CertUserLocator {
 
     /**
      * Returns a user whose certificates match with the given certificates
