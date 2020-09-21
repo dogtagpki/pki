@@ -42,7 +42,6 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.certsrv.publish.EMapperNotFound;
 import com.netscape.certsrv.publish.EMapperPluginNotFound;
 import com.netscape.certsrv.publish.EPublisherNotFound;
@@ -64,6 +63,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
@@ -477,8 +477,8 @@ public class PublisherAdminServlet extends AdminServlet {
                         value = mConfig.getString(ConfigConstants.PR_MACHINE_NAME, null);
                     } else if (name.equals(LdapBoundConnFactory.PROP_LDAPCONNINFO + "." + LdapConnInfo.PROP_PORT)) {
                         value = LdapConnInfo.PROP_PORT_DEFAULT;
-                    } else if (name.equals(LdapBoundConnFactory.PROP_LDAPAUTHINFO + "." + ILdapAuthInfo.PROP_BINDDN)) {
-                        value = ILdapAuthInfo.PROP_BINDDN_DEFAULT;
+                    } else if (name.equals(LdapBoundConnFactory.PROP_LDAPAUTHINFO + "." + LdapAuthInfo.PROP_BINDDN)) {
+                        value = LdapAuthInfo.PROP_BINDDN_DEFAULT;
                     }
                 }
                 params.put(name, value);
@@ -711,15 +711,15 @@ public class PublisherAdminServlet extends AdminServlet {
             int port = connInfo.getPort();
             boolean secure = connInfo.getSecure();
             //int authType = authInfo.getAuthType();
-            String authType = authConfig.getString(ILdapAuthInfo.PROP_LDAPAUTHTYPE);
+            String authType = authConfig.getString(LdapAuthInfo.PROP_LDAPAUTHTYPE);
             int version = connInfo.getVersion();
             String bindAs = null;
             String certNickName = null;
 
-            if (authType.equals(ILdapAuthInfo.LDAP_SSLCLIENTAUTH_STR)) {
+            if (authType.equals(LdapAuthInfo.LDAP_SSLCLIENTAUTH_STR)) {
                 try {
                     //certNickName = authInfo.getParms()[0];
-                    certNickName = authConfig.getString(ILdapAuthInfo.PROP_CLIENTCERTNICKNAME);
+                    certNickName = authConfig.getString(LdapAuthInfo.PROP_CLIENTCERTNICKNAME);
 
                     PKISocketFactory socketFactory = new PKISocketFactory(certNickName);
                     socketFactory.init(cs);
@@ -842,7 +842,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
                 try {
                     //bindAs = authInfo.getParms()[0];
-                    bindAs = authConfig.getString(ILdapAuthInfo.PROP_BINDDN);
+                    bindAs = authConfig.getString(LdapAuthInfo.PROP_BINDDN);
                     conn.authenticate(version, bindAs, pwd);
                     params.put(Constants.PR_AUTH_OK,
                             "Authentication: Basic authentication" +

@@ -21,7 +21,6 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
@@ -30,9 +29,23 @@ import netscape.ldap.LDAPException;
 /**
  * class for reading ldap authentication info from config store
  */
-public class LdapAuthInfo implements ILdapAuthInfo {
+public class LdapAuthInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapAuthInfo.class);
+
+    public final static String PROP_LDAPAUTHTYPE = "authtype";
+    public final static String PROP_CLIENTCERTNICKNAME = "clientCertNickname";
+    public final static String PROP_BINDDN = "bindDN";
+    public final static String PROP_BINDPW = "bindPassword";
+    public final static String PROP_BINDPW_PROMPT = "bindPWPrompt";
+    public final static String PROP_BINDDN_DEFAULT = "cn=Directory Manager";
+
+    public final static String LDAP_BASICAUTH_STR = "BasicAuth";
+    public final static String LDAP_SSLCLIENTAUTH_STR = "SslClientAuth";
+
+    public final static int LDAP_AUTHTYPE_NONE = 0; // illegal
+    public final static int LDAP_AUTHTYPE_BASICAUTH = 1;
+    public final static int LDAP_AUTHTYPE_SSLCLIENTAUTH = 2;
 
     IConfigStore config;
     String host;
@@ -296,10 +309,21 @@ public class LdapAuthInfo implements ILdapAuthInfo {
         this.passwordStore = passwordStore;
     }
 
+    /**
+     * Add password to private password data structure.
+     *
+     * @param prompt Password prompt.
+     * @param pw Password itself.
+     */
     public void addPassword(String prompt, String pw) {
         passwords.put(prompt, pw);
     }
 
+    /**
+     * Remove password from private password data structure.
+     *
+     * @param prompt Identify password to remove with prompt.
+     */
     public void removePassword(String prompt) {
         passwords.remove(prompt);
     }
