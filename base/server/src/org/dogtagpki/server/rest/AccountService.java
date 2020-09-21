@@ -22,6 +22,8 @@ import java.security.Principal;
 import java.util.Arrays;
 
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 import org.apache.catalina.realm.GenericPrincipal;
@@ -30,7 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.account.Account;
-import com.netscape.certsrv.account.AccountResource;
+import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
@@ -38,7 +41,9 @@ import com.netscape.cms.servlet.base.PKIService;
 /**
  * @author Endi S. Dewata
  */
-public class AccountService extends PKIService implements AccountResource {
+@Path("account")
+@AuthMethodMapping("account")
+public class AccountService extends PKIService {
 
     public static Logger logger = LoggerFactory.getLogger(AccountService.class);
 
@@ -76,7 +81,9 @@ public class AccountService extends PKIService implements AccountResource {
         return account;
     }
 
-    @Override
+    @GET
+    @Path("login")
+    @ACLMapping("account.login")
     public Response login() {
         HttpSession session = servletRequest.getSession();
         logger.info("Creating session " + session.getId());
@@ -85,7 +92,9 @@ public class AccountService extends PKIService implements AccountResource {
         return createOKResponse(account);
     }
 
-    @Override
+    @GET
+    @Path("logout")
+    @ACLMapping("account.logout")
     public Response logout() {
         HttpSession session = servletRequest.getSession(false);
         if (session == null) return createNoContentResponse();
