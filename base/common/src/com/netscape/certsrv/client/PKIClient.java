@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashSet;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -106,15 +107,15 @@ public class PKIClient {
     }
 
     public String get(String path) throws Exception {
-        return connection.get(path, String.class);
+        return connection.target(path).request().get(String.class);
     }
 
     public String post(String path) throws Exception {
-        return connection.post(path, String.class);
+        return connection.target(path).request().post(null, String.class);
     }
 
     public String post(String path, MultivaluedMap<String, String> content) throws Exception {
-        return connection.post(path, content);
+        return connection.target(path).request().post(Entity.form(content), String.class);
     }
 
     public Info getInfo() throws Exception {

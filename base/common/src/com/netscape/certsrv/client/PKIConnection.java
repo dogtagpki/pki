@@ -32,11 +32,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.Response.StatusType;
@@ -479,22 +477,6 @@ public class PKIConnection {
         Class<?> exceptionClass = Class.forName(data.getClassName());
 
         throw (PKIException) exceptionClass.getConstructor(PKIException.Data.class).newInstance(data);
-    }
-
-    public Response get(String path) throws Exception {
-        return get(path, Response.class);
-    }
-
-    public <T> T get(String path, Class<T> responseType) throws Exception {
-        return target(path).request().get(responseType);
-    }
-
-    public <T> T post(String path, Class<T> responseType) throws Exception {
-        return target(path).request().post(null, responseType);
-    }
-
-    public String post(String path, MultivaluedMap<String, String> content) throws Exception {
-        return target(path).request().post(Entity.form(content), String.class);
     }
 
     public File getOutput() {
