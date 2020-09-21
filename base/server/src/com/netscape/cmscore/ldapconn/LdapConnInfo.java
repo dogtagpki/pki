@@ -33,7 +33,7 @@ public class LdapConnInfo {
     public final static String PROP_HOST = "host";
     public final static String PROP_PORT = "port";
     public final static String PROP_SECURE = "secureConn";
-    public final static String PROP_PROTOCOL = "version";
+    public final static String PROP_VERSION = "version";
     public final static String PROP_FOLLOW_REFERRALS = "followReferrals";
     public final static String PROP_HOST_DEFAULT = "localhost";
     public final static String PROP_PORT_DEFAULT = "389";
@@ -60,30 +60,21 @@ public class LdapConnInfo {
      * optional parms: secure connection, authentication method & info.
      */
     public void init(LDAPConnectionConfig config) throws EBaseException, ELdapException {
-        mHost = config.getString(PROP_HOST);
-        mPort = config.getInteger(PROP_PORT);
-        String version = config.get(PROP_PROTOCOL);
+        mSecure = config.isSecure();
+        mHost = config.getHostname();
+        mPort = config.getPort();
+        mVersion = config.getVersion();
+        mFollowReferrals = config.getFollowReferrals();
 
-        if (version != null && version.equals("")) {
-            // provide a default when this field is blank from the
-            // configuration.
-            mVersion = LDAP_VERSION_3;
-        } else {
-            mVersion = config.getInteger(PROP_PROTOCOL, LDAP_VERSION_3);
-            if (mVersion != LDAP_VERSION_2 && mVersion != LDAP_VERSION_3) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY", PROP_PROTOCOL));
-            }
+        if (mVersion != LDAP_VERSION_2 && mVersion != LDAP_VERSION_3) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY", PROP_VERSION));
         }
-        if (mHost == null || (mHost.length() == 0) || (mHost.trim().equals(""))) {
+        if (mHost == null || mHost.trim().isEmpty()) {
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", PROP_HOST));
         }
         if (mPort <= 0) {
-            throw new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY", PROP_PORT));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY", PROP_PORT));
         }
-        mSecure = config.getBoolean(PROP_SECURE, false);
-        mFollowReferrals = config.getBoolean(PROP_FOLLOW_REFERRALS, true);
     }
 
     public LdapConnInfo(String host, int port, boolean secure) {
