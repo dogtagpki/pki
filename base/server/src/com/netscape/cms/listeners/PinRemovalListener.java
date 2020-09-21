@@ -27,6 +27,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -102,9 +103,11 @@ public class PinRemovalListener implements IRequestListener {
         mImplName = ImplName;
         mConfig = config;
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
         mLdapConfig = mConfig.getSubStore(PROP_LDAP, LDAPConfig.class);
+
         mConnFactory = new LdapBoundConnFactory("PinRemovalListener");
-        mConnFactory.init(cs, mLdapConfig, engine.getPasswordStore());
+        mConnFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
 
         mRemovePinLdapConnection = mConnFactory.getConn();
 

@@ -38,9 +38,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.dogtagpki.legacy.ca.CAPolicy;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
@@ -82,6 +80,7 @@ import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.ARequestNotifier;
@@ -182,8 +181,9 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     public void initDatabase() throws Exception {
         CAEngineConfig config = getConfig();
+        PKISocketConfig socketConfig = config.getSocketConfig();
         LDAPConfig ldapConfig = config.getInternalDBConfig();
-        connectionFactory.init(config, ldapConfig, getPasswordStore());
+        connectionFactory.init(socketConfig, ldapConfig, getPasswordStore());
     }
 
     public CertificateRepository getCertificateRepository() {

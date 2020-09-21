@@ -66,6 +66,7 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.password.IPasswordStore;
@@ -629,6 +630,8 @@ public class PublisherAdminServlet extends AdminServlet {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         //Save New Settings to the config file
         IConfigStore config = mAuth.getConfigStore();
         IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
@@ -722,7 +725,7 @@ public class PublisherAdminServlet extends AdminServlet {
                     certNickName = authConfig.getString(LdapAuthInfo.PROP_CLIENTCERTNICKNAME);
 
                     PKISocketFactory socketFactory = new PKISocketFactory(certNickName);
-                    socketFactory.init(cs);
+                    socketFactory.init(socketConfig);
 
                     conn = new LDAPConnection(socketFactory);
                     logger.debug("Publishing Test certNickName=" + certNickName);
@@ -781,7 +784,7 @@ public class PublisherAdminServlet extends AdminServlet {
             } else {
                 try {
                     PKISocketFactory socketFactory = new PKISocketFactory(secure);
-                    socketFactory.init(cs);
+                    socketFactory.init(socketConfig);
 
                     conn = new LDAPConnection(socketFactory);
                     if (secure) {

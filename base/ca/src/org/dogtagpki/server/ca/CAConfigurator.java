@@ -27,7 +27,6 @@ import java.security.cert.X509Certificate;
 import java.util.Collection;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
@@ -60,6 +59,7 @@ import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.ldap.LDAPConnection;
@@ -523,9 +523,10 @@ public class CAConfigurator extends Configurator {
 
         LDAPConnection conn = null;
         try {
+            PKISocketConfig socketConfig = cs.getSocketConfig();
             LDAPConfig dbCfg = cs.getInternalDBConfig();
             LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAConfigurator");
-            dbFactory.init(cs, dbCfg, engine.getPasswordStore());
+            dbFactory.init(socketConfig, dbCfg, engine.getPasswordStore());
 
             conn = dbFactory.getConn();
 

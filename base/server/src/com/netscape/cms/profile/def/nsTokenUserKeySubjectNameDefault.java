@@ -37,6 +37,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -283,6 +284,8 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         try {
             // cfu - XXX do more error handling here later
             /* initialize ldap server configuration */
@@ -296,7 +299,7 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
             mBaseDN = mParamsConfig.getString(CONFIG_LDAP_BASEDN, null);
 
             mConnFactory = new LdapAnonConnFactory("nsTokenUserKeySubjectNameDefault");
-            mConnFactory.init(cs, mLdapConfig);
+            mConnFactory.init(socketConfig, mLdapConfig);
 
             /* initialize dn pattern */
             String pattern = mParamsConfig.getString(CONFIG_DNPATTERN, null);

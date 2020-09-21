@@ -17,7 +17,6 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMECertificate;
@@ -27,10 +26,11 @@ import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWK;
 
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.FileConfigStore;
-import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PlainPasswordFile;
 
@@ -119,7 +119,7 @@ public class LDAPDatabase extends ACMEDatabase {
 
     public void init() throws Exception {
 
-        PropConfigStore cs;
+        EngineConfig cs;
         IPasswordStore ps;
         LDAPConfig ldapConfig;
 
@@ -129,7 +129,7 @@ public class LDAPDatabase extends ACMEDatabase {
 
             logger.info("Loading LDAP database configuration from database.conf");
 
-            cs = new PropConfigStore();
+            cs = new EngineConfig();
             ps = new PlainPasswordFile();
             ldapConfig = new LDAPConfig(null);
 
@@ -208,7 +208,7 @@ public class LDAPDatabase extends ACMEDatabase {
 
             logger.info("Loading LDAP database configuration from " + configFile);
 
-            cs = new PropConfigStore(new FileConfigStore(configFile));
+            cs = new EngineConfig(new FileConfigStore(configFile));
             cs.load();
 
             ps = IPasswordStore.getPasswordStore("acme", cs.getProperties());
@@ -223,8 +223,10 @@ public class LDAPDatabase extends ACMEDatabase {
         }
         logger.info("- base DN: " + basedn);
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         connFactory = new LdapBoundConnFactory("acme");
-        connFactory.init(cs, ldapConfig, ps);
+        connFactory.init(socketConfig, ldapConfig, ps);
     }
 
     public ACMENonce getNonce(String nonceID) throws Exception {

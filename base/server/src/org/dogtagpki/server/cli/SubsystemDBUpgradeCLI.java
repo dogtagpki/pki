@@ -37,6 +37,7 @@ import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 
@@ -96,6 +97,8 @@ public class SubsystemDBUpgradeCLI extends CommandCLI {
                 connInfo.getPort(),
                 connInfo.getSecure());
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         PKISocketFactory socketFactory;
         if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
             String nickname = authInfo.getClientCertNickname();
@@ -112,7 +115,7 @@ public class SubsystemDBUpgradeCLI extends CommandCLI {
             socketFactory = new PKISocketFactory(connInfo.getSecure());
         }
 
-        socketFactory.init(cs);
+        socketFactory.init(socketConfig);
 
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 

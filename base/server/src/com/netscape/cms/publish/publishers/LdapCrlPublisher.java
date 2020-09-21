@@ -32,6 +32,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -161,6 +162,8 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         try {
             mCrlAttr = mConfig.getString("crlAttr", LDAP_CRL_ATTR);
             mCrlObjectClass = mConfig.getString("crlObjectClass", LDAP_CRL_OBJECTCLASS);
@@ -184,7 +187,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 } else {
                     sslSocket = new PKISocketFactory(true);
                 }
-                sslSocket.init(cs);
+                sslSocket.init(socketConfig);
 
                 String mgr_dn = mConfig.getString("bindDN", null);
                 String mgr_pwd = mConfig.getString("bindPWD", null);

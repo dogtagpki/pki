@@ -31,6 +31,7 @@ import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
@@ -68,6 +69,8 @@ public class LdapConnModule implements ILdapConnModule {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
+
+        PKISocketConfig socketConfig = cs.getSocketConfig();
         IPasswordStore passwordStore = engine.getPasswordStore();
 
         mConfig = config;
@@ -98,7 +101,7 @@ public class LdapConnModule implements ILdapConnModule {
 
         logger.debug("Creating LdapBoundConnFactory for LdapConnModule.");
         mLdapConnFactory = new LdapBoundConnFactory("LDAPConnModule", minConns, maxConns, connInfo, authInfo);
-        mLdapConnFactory.init(cs, passwordStore);
+        mLdapConnFactory.init(socketConfig, passwordStore);
 
         mInited = true;
 

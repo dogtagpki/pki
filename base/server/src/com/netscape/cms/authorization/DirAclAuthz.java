@@ -33,6 +33,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -139,8 +140,10 @@ public class DirAclAuthz extends AAclAuthz
             }
         }
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         mLdapConnFactory = new LdapBoundConnFactory("DirAclAuthz");
-        mLdapConnFactory.init(cs, ldapConfig, engine.getPasswordStore());
+        mLdapConnFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
         // retrieve aclResources from the LDAP server and load
         // into memory

@@ -30,6 +30,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -57,9 +58,11 @@ public class LDAPSecurityDomainSessionTable
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig internaldb = cs.getInternalDBConfig();
+
         mLdapConnFactory = new LdapBoundConnFactory("LDAPSecurityDomainSessionTable");
-        mLdapConnFactory.init(cs, internaldb, engine.getPasswordStore());
+        mLdapConnFactory.init(socketConfig, internaldb, engine.getPasswordStore());
     }
 
     public int addEntry(String sessionId, String ip,

@@ -54,6 +54,7 @@ import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -301,6 +302,8 @@ public abstract class DirBasedAuthentication
             logger.info("DirBasedAuthentication: Group user ID name: " + mGroupUserIDName);
         }
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         mBoundConnEnable = mLdapConfig.getBoolean(PROP_LDAP_BOUND_CONN, false);
         logger.info("DirBasedAuthentication: Bound connection enable: " + mBoundConnEnable);
 
@@ -310,12 +313,12 @@ public abstract class DirBasedAuthentication
             logger.info("DirBasedAuthentication: Bind password prompt: " + mTag);
 
             LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
-            connFactory.init(cs, mLdapConfig, engine.getPasswordStore());
+            connFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
             mConnFactory = connFactory;
 
         } else {
             LdapAnonConnFactory connFactory = new LdapAnonConnFactory("DirBasedAuthentication");
-            connFactory.init(cs, mLdapConfig);
+            connFactory.init(socketConfig, mLdapConfig);
             mConnFactory = connFactory;
         }
 
@@ -427,6 +430,8 @@ public abstract class DirBasedAuthentication
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         try {
             if (mConnFactory == null) {
                 logger.debug(method + " mConnFactory null, getting conn factory");
@@ -437,12 +442,12 @@ public abstract class DirBasedAuthentication
                     logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
 
                     LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
-                    connFactory.init(cs, mLdapConfig, engine.getPasswordStore());
+                    connFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
                     mConnFactory = connFactory;
 
                 } else {
                     LdapAnonConnFactory connFactory = new LdapAnonConnFactory("DirBasedAuthentication");
-                    connFactory.init(cs, mLdapConfig);
+                    connFactory.init(socketConfig, mLdapConfig);
                     mConnFactory = connFactory;
                 }
 

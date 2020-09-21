@@ -32,6 +32,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -170,6 +171,8 @@ public class LdapCaCertPublisher
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         try {
             mCaCertAttr = mConfig.getString("caCertAttr", LDAP_CACERT_ATTR);
             mCaObjectclass = mConfig.getString("caObjectClass", LDAP_CA_OBJECTCLASS);
@@ -193,7 +196,7 @@ public class LdapCaCertPublisher
                 } else {
                     sslSocket = new PKISocketFactory(true);
                 }
-                sslSocket.init(cs);
+                sslSocket.init(socketConfig);
 
                 String mgr_dn = mConfig.getString("bindDN", null);
                 String mgr_pwd = mConfig.getString("bindPWD", null);

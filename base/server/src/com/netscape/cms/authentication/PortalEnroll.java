@@ -40,6 +40,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -157,9 +158,11 @@ public class PortalEnroll extends DirBasedAuthentication {
         if (mObjectClass == null || mObjectClass.length() == 0)
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "objectclass"));
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         /* Get connect parameter */
         mLdapFactory = new LdapBoundConnFactory("PortalEnroll");
-        mLdapFactory.init(cs, mLdapConfig, engine.getPasswordStore());
+        mLdapFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
 
         mLdapConn = mLdapFactory.getConn();
 

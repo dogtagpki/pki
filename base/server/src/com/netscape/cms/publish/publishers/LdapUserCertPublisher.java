@@ -34,6 +34,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -131,6 +132,8 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         // Bugscape #56124 - support multiple publishing directory
         // see if we should create local connection
         LDAPConnection altConn = null;
@@ -148,7 +151,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
                 } else {
                     sslSocket = new PKISocketFactory(true);
                 }
-                sslSocket.init(cs);
+                sslSocket.init(socketConfig);
 
                 String mgr_dn = mConfig.getString("bindDN", null);
                 String mgr_pwd = mConfig.getString("bindPWD", null);

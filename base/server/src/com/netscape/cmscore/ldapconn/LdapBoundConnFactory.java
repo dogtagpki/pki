@@ -18,7 +18,6 @@
 package com.netscape.cmscore.ldapconn;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
@@ -49,7 +48,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
 
     protected String id;
 
-    IConfigStore config;
+    PKISocketConfig config;
 
     protected int mMinConns = 5;
     protected int mMaxConns = 1000;
@@ -170,7 +169,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
     }
 
     public void init(
-            IConfigStore config,
+            PKISocketConfig config,
             IPasswordStore passwordStore
             ) throws ELdapException {
 
@@ -183,7 +182,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
     }
 
     public void init(
-            IConfigStore config,
+            PKISocketConfig config,
             LDAPConfig dbConfig,
             IPasswordStore passwordStore
             ) throws EBaseException, ELdapException {
@@ -193,7 +192,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         init(config, dbConfig);
     }
 
-    public void init(IConfigStore config, LDAPConfig dbConfig) throws EBaseException, ELdapException {
+    public void init(PKISocketConfig config, LDAPConfig dbConfig) throws EBaseException, ELdapException {
 
         logger.debug("LdapBoundConnFactory: initialization");
 

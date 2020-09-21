@@ -38,6 +38,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -126,7 +127,8 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             mLdapConnFactory = new LdapBoundConnFactory("CrossCertPairSubsystem");
 
             if (mLdapConnFactory != null) {
-                mLdapConnFactory.init(cs, ldapConfig, engine.getPasswordStore());
+                PKISocketConfig socketConfig = cs.getSocketConfig();
+                mLdapConnFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
             } else {
                 logger.warn(CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR", PROP_LDAP));
                 return;

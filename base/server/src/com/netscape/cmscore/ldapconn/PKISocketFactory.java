@@ -32,7 +32,6 @@ import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -89,16 +88,17 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     public void init() {
         init (null);
     }
-    public void init(IConfigStore cs) {
+    public void init(PKISocketConfig config) {
         try {
             if (!external) {
-                if (cs == null) {
+                if (config == null) {
                     CMSEngine engine = CMS.getCMSEngine();
-                    cs = engine.getConfigStore();
+                    config = engine.getConfig().getSocketConfig();
                 }
-                keepAlive = cs.getBoolean("tcp.keepAlive", true);
-            } else
+                keepAlive = config.isKeepAlive();
+            } else {
                 keepAlive = true;
+            }
             log("TCP Keep-Alive: " + keepAlive);
             sockListener = new PKIClientSocketListener();
 

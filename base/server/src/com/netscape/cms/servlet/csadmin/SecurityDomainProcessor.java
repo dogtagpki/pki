@@ -56,6 +56,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -165,6 +166,8 @@ public class SecurityDomainProcessor extends Processor {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
 
@@ -178,7 +181,7 @@ public class SecurityDomainProcessor extends Processor {
             String filter = "objectclass=pkiSecurityGroup";
 
             connFactory = new LdapBoundConnFactory("SecurityDomainProcessor");
-            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
+            connFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
             conn = connFactory.getConn();
 
@@ -477,6 +480,8 @@ public class SecurityDomainProcessor extends Processor {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
         String baseDN = ldapConfig.getBaseDN();
 
@@ -524,7 +529,7 @@ public class SecurityDomainProcessor extends Processor {
 
         try {
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
+            connFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
             conn = connFactory.getConn();
             conn.add(entry);
@@ -575,10 +580,12 @@ public class SecurityDomainProcessor extends Processor {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         try {
             LDAPConfig ldapConfig = cs.getInternalDBConfig();
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
+            connFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
             conn = connFactory.getConn();
             conn.modify(dn, mod);
@@ -619,10 +626,12 @@ public class SecurityDomainProcessor extends Processor {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         try {
             LDAPConfig ldapConfig = cs.getInternalDBConfig();
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
+            connFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
             conn = connFactory.getConn();
             conn.delete(dn);

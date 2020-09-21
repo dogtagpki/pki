@@ -31,6 +31,7 @@ import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
@@ -121,13 +122,15 @@ public class SubsystemDBInitCLI extends CommandCLI {
                 connInfo.getPort(),
                 connInfo.getSecure());
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         PKISocketFactory socketFactory;
         if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
             socketFactory = new PKISocketFactory(authInfo.getClientCertNickname());
         } else {
             socketFactory = new PKISocketFactory(connInfo.getSecure());
         }
-        socketFactory.init(cs);
+        socketFactory.init(socketConfig);
 
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig, instanceId);
@@ -204,6 +207,8 @@ public class SubsystemDBInitCLI extends CommandCLI {
         String subsystem = cs.getType().toLowerCase();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
         LDAPConnectionConfig replicaConnConfig = ldapConfig.getConnectionConfig();
         String replicaHostname = replicaConnConfig.getString("host", "");
@@ -214,7 +219,7 @@ public class SubsystemDBInitCLI extends CommandCLI {
         }
 
         LdapBoundConnFactory ldapFactory = new LdapBoundConnFactory("LDAPConfigurator");
-        ldapFactory.init(cs, ldapConfig, passwordStore);
+        ldapFactory.init(socketConfig, ldapConfig, passwordStore);
 
         LDAPConnection conn = ldapFactory.getConn();
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig, instanceId);
@@ -245,7 +250,7 @@ public class SubsystemDBInitCLI extends CommandCLI {
             }
 
             LdapBoundConnFactory masterFactory = new LdapBoundConnFactory("MasterLDAPConfigurator");
-            masterFactory.init(cs, masterConfig, passwordStore);
+            masterFactory.init(socketConfig, masterConfig, passwordStore);
 
             LDAPConnection masterConn = masterFactory.getConn();
             LDAPConfigurator masterConfigurator = new LDAPConfigurator(masterConn, masterConfig);

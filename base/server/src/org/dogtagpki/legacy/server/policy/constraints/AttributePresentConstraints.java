@@ -36,6 +36,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -262,10 +263,11 @@ public class AttributePresentConstraints extends APolicyRule
         getStringConfigParam(mConfig, PROP_ATTR);
         getStringConfigParam(mConfig, PROP_VALUE);
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
         mLdapConfig = mConfig.getSubStore(PROP_LDAP, LDAPConfig.class);
 
         mConnFactory = new LdapBoundConnFactory("AttributePresentConstraints");
-        mConnFactory.init(cs, mLdapConfig, engine.getPasswordStore());
+        mConnFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
 
         mCheckAttrLdapConnection = mConnFactory.getConn();
     }

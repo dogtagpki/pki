@@ -47,6 +47,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -168,9 +169,11 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         }
 
         if (mRemovePin) {
+            PKISocketConfig socketConfig = cs.getSocketConfig();
+
             removePinLdapConfigStore = config.getLDAPConfig();
             removePinLdapFactory = new LdapBoundConnFactory("UidPwdPinDirAuthentication");
-            removePinLdapFactory.init(cs, removePinLdapConfigStore, engine.getPasswordStore());
+            removePinLdapFactory.init(socketConfig, removePinLdapConfigStore, engine.getPasswordStore());
 
             removePinLdapConnection = removePinLdapFactory.getConn();
         }

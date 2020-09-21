@@ -36,6 +36,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 import netscape.ldap.LDAPConnection;
@@ -97,11 +98,13 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
         LdapConnInfo ldapinfo = dbSubsystem.getLdapConnInfo();
 
         mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo);
-        mAnonConnFactory.init(cs);
+        mAnonConnFactory.init(socketConfig);
 
         logger.info(CMS.getLogMessage("CMSCORE_AUTH_INIT_AUTH", mName));
     }

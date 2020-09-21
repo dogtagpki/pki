@@ -13,8 +13,12 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 public class EngineConfig extends PropConfigStore {
+
+    public EngineConfig() {
+    }
 
     public EngineConfig(ConfigStorage storage) {
         super(storage);
@@ -86,5 +90,9 @@ public class EngineConfig extends PropConfigStore {
 
     public PreOpConfig getPreOpConfig() {
         return getSubStore("preop", PreOpConfig.class);
+    }
+
+    public PKISocketConfig getSocketConfig() {
+        return getSubStore("tcp", PKISocketConfig.class);
     }
 }

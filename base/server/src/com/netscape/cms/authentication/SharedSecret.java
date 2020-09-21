@@ -49,6 +49,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -235,8 +236,10 @@ public class SharedSecret extends DirBasedAuthentication
             throw new EBaseException(msg);
         }
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         LdapBoundConnFactory connFactory = new LdapBoundConnFactory("SharedSecret");
-        connFactory.init(cs, shrTokLdapConfigStore, engine.getPasswordStore());
+        connFactory.init(socketConfig, shrTokLdapConfigStore, engine.getPasswordStore());
 
         shrTokLdapFactory = connFactory;
     }

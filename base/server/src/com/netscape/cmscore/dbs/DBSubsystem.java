@@ -42,6 +42,7 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSchema;
@@ -661,9 +662,11 @@ public class DBSubsystem implements ISubsystem {
         }
 
         try {
+            PKISocketConfig socketConfig = cs.getSocketConfig();
             LDAPConfig tmpConfig = (LDAPConfig) mConfig.clone();
             tmpConfig.setBaseDN(mBaseDN);
-            mLdapConnFactory.init(cs, tmpConfig, engine.getPasswordStore());
+
+            mLdapConnFactory.init(socketConfig, tmpConfig, engine.getPasswordStore());
 
         } catch (EPropertyNotDefined e) {
             logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);

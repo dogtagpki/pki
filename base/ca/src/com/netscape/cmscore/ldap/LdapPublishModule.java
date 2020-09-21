@@ -52,6 +52,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPConnection;
 
@@ -132,9 +133,10 @@ public class LdapPublishModule implements IRequestListener {
         mPubProcessor = p;
         mConfig = config;
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig ldapCfg = mConfig.getSubStore("ldap", LDAPConfig.class);
         mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
-        mLdapConnFactory.init(cs, ldapCfg, engine.getPasswordStore());
+        mLdapConnFactory.init(socketConfig, ldapCfg, engine.getPasswordStore());
 
         // initMappers(config);
         initHandlers();
@@ -153,9 +155,10 @@ public class LdapPublishModule implements IRequestListener {
         mAuthority = authority;
         mConfig = config;
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig ldapCfg = mConfig.getSubStore("ldap", LDAPConfig.class);
         mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
-        mLdapConnFactory.init(cs, ldapCfg, engine.getPasswordStore());
+        mLdapConnFactory.init(socketConfig, ldapCfg, engine.getPasswordStore());
 
         initMappers(config);
         initHandlers();

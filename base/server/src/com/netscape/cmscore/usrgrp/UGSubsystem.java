@@ -48,6 +48,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -125,6 +126,8 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         // initialize LDAP connection factory
         try {
             LDAPConfig ldapConfig = config.getSubStore("ldap", LDAPConfig.class);
@@ -132,7 +135,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
             mBaseDN = ldapConfig.getBaseDN();
 
             mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
-            mLdapConnFactory.init(cs, ldapConfig, engine.getPasswordStore());
+            mLdapConnFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
         } catch (EBaseException e) {
             logger.error("UGSubsystem: initialization failed: " + e.getMessage(), e);

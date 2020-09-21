@@ -40,9 +40,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.apache.tomcat.util.net.jss.TomcatJSS;
-
 import org.dogtagpki.server.PKIServerSocketListener;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
@@ -88,6 +86,7 @@ import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
@@ -423,8 +422,10 @@ public class CMSEngine implements ServletContextListener {
         String host = info.getHost();
         int port = info.getPort();
 
+        PKISocketConfig socketConfig = mConfig.getSocketConfig();
+
         PKISocketFactory socketFactory = new PKISocketFactory(info.getSecure());
-        socketFactory.init(mConfig);
+        socketFactory.init(socketConfig);
 
         LDAPConnection conn = new LDAPConnection(socketFactory);
 

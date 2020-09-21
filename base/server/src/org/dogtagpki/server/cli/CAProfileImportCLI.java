@@ -33,6 +33,7 @@ import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
@@ -114,13 +115,15 @@ public class CAProfileImportCLI extends CommandCLI {
                 connInfo.getPort(),
                 connInfo.getSecure());
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         PKISocketFactory socketFactory;
         if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
             socketFactory = new PKISocketFactory(authInfo.getClientCertNickname());
         } else {
             socketFactory = new PKISocketFactory(connInfo.getSecure());
         }
-        socketFactory.init(cs);
+        socketFactory.init(socketConfig);
 
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 

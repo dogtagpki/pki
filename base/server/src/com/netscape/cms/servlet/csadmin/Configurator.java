@@ -91,6 +91,7 @@ import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -1197,9 +1198,11 @@ public class Configurator {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig dbCfg = cs.getInternalDBConfig();
+
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
-        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
+        dbFactory.init(socketConfig, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
         LDAPEntry entry = null;
@@ -1639,11 +1642,12 @@ public class Configurator {
 
         UGSubsystem system = engine.getUGSubsystem();
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig dbCfg = cs.getInternalDBConfig();
         String userbasedn = "ou=people, " + dbCfg.getBaseDN();
 
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
-        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
+        dbFactory.init(socketConfig, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
 
@@ -1696,6 +1700,8 @@ public class Configurator {
         String endRequestNumStr = dbConfig.getString("endRequestNumber", "");
         String endSerialNumStr = dbConfig.getString("endSerialNumber", "");
 
+        PKISocketConfig socketConfig = cs.getSocketConfig();
+
         LDAPConfig ldapCfg = cs.getInternalDBConfig();
         String basedn = ldapCfg.getBaseDN();
 
@@ -1705,7 +1711,7 @@ public class Configurator {
 
         // update global next range entries
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
-        dbFactory.init(cs, ldapCfg, engine.getPasswordStore());
+        dbFactory.init(socketConfig, ldapCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
 

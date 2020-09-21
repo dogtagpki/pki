@@ -18,7 +18,6 @@
 package com.netscape.cmscore.ldapconn;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
@@ -39,7 +38,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
     protected String id;
 
-    IConfigStore config;
+    PKISocketConfig config;
 
     protected int mMinConns = 5;
     protected int mMaxConns = 1000;
@@ -142,7 +141,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         return mMaxConns;
     }
 
-    public void init(IConfigStore config) throws ELdapException {
+    public void init(PKISocketConfig config) throws ELdapException {
 
         logger.debug("LdapAnonConnFactory: initialization");
 
@@ -151,7 +150,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         init();
     }
 
-    public void init(IConfigStore config, LDAPConfig dbConfig) throws EBaseException, ELdapException {
+    public void init(PKISocketConfig config, LDAPConfig dbConfig) throws EBaseException, ELdapException {
 
         logger.debug("LdapAnonConnFactory: initialization");
 
