@@ -38,7 +38,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -57,7 +57,7 @@ import netscape.ldap.LDAPv2;
  * @version $Revision$, $Date$
  */
 public class UidPwdDirAuthentication extends DirBasedAuthentication
-        implements IProfileAuthenticator {
+        implements ProfileAuthenticator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UidPwdDirAuthentication.class);
 
@@ -370,7 +370,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
 
     public void populate(IAuthToken token, IRequest request)
             throws EProfileException {
-        request.setExtData(IProfileAuthenticator.AUTHENTICATED_NAME,
+        request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                 token.getInString(USER_DN));
     }
 

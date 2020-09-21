@@ -113,7 +113,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
@@ -418,7 +418,7 @@ public class CRSEnrollment extends HttpServlet {
         return allowed;
     }
 
-    public IAuthToken authenticate(AuthCredentials credentials, IProfileAuthenticator authenticator,
+    public IAuthToken authenticate(AuthCredentials credentials, ProfileAuthenticator authenticator,
             HttpServletRequest request) throws EBaseException {
 
         // build credential
@@ -633,7 +633,7 @@ public class CRSEnrollment extends HttpServlet {
                 logger.debug("Found profile '" + mProfileId + "'.");
             }
 
-            IProfileAuthenticator authenticator = null;
+            ProfileAuthenticator authenticator = null;
             try {
                 logger.debug("Retrieving authenticator");
                 authenticator = mProfileSubsystem.getProfileAuthenticator(profile);
@@ -1561,7 +1561,7 @@ public class CRSEnrollment extends HttpServlet {
             }
             Map<String, String> ctx = new HashMap<>();
 
-            IProfileAuthenticator authenticator = null;
+            ProfileAuthenticator authenticator = null;
             try {
                 logger.debug("Retrieving authenticator");
                 authenticator = mProfileSubsystem.getProfileAuthenticator(profile);

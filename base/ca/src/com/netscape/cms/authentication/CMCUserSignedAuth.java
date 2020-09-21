@@ -102,7 +102,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -130,7 +130,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @version $Revision$, $Date$
  */
 public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
-        IProfileAuthenticator {
+        ProfileAuthenticator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCUserSignedAuth.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
@@ -1280,7 +1280,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         String method = "CMCUserSignedAuth: populate: ";
         String authenticatedDN = token.getInString(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT);
         if (authenticatedDN != null) {
-            request.setExtData(IProfileAuthenticator.AUTHENTICATED_NAME,
+            request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                     authenticatedDN);
             logger.debug(method + "IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT is: "+
                     authenticatedDN);

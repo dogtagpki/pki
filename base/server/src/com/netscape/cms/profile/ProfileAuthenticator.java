@@ -39,7 +39,7 @@ import com.netscape.cms.profile.common.Profile;
  *
  * @version $Revision$, $Date$
  */
-public interface IProfileAuthenticator extends IAuthManager {
+public interface ProfileAuthenticator extends IAuthManager {
 
     public static final String AUTHENTICATED_NAME = "authenticatedName";
 

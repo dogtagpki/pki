@@ -38,7 +38,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
-import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfilePolicy;
@@ -245,7 +245,7 @@ public class ProfileSelectServlet extends ProfileServlet {
 
         // build authentication
         ArgList authlist = new ArgList();
-        IProfileAuthenticator authenticator = null;
+        ProfileAuthenticator authenticator = null;
 
         try {
             authenticator = ps.getProfileAuthenticator(profile);

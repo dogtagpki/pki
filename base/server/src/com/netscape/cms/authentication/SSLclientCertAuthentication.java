@@ -42,7 +42,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.Certificates;
-import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -55,7 +55,7 @@ import com.netscape.cmscore.apps.CMSEngine;
  *
  */
 public class SSLclientCertAuthentication implements IAuthManager,
-        IProfileAuthenticator {
+        ProfileAuthenticator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SSLclientCertAuthentication.class);
 
@@ -348,9 +348,9 @@ public class SSLclientCertAuthentication implements IAuthManager,
 
     public void populate(IAuthToken token, IRequest request)
             throws EProfileException {
-        request.setExtData(IProfileAuthenticator.AUTHENTICATED_NAME,
+        request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                 token.getInString(TOKEN_USERDN));
-        request.setExtData(IProfileAuthenticator.AUTHENTICATED_NAME,
+        request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
                 token.getInString("userDN"));
     }
 }

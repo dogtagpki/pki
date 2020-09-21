@@ -44,7 +44,7 @@ import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.AuthCredentials;
@@ -64,7 +64,7 @@ public class CertProcessor extends CAProcessor {
     protected void setCredentialsIntoContext(
             HttpServletRequest request,
             AuthCredentials creds,
-            IProfileAuthenticator authenticator,
+            ProfileAuthenticator authenticator,
             Map<String, String> ctx) {
 
         Enumeration<String> names = authenticator.getValueNames();
@@ -327,7 +327,7 @@ public class CertProcessor extends CAProcessor {
 
     protected void populateRequests(CertEnrollmentRequest data, boolean isRenewal,
             Locale locale, Date origNotAfter, String origSubjectDN, IRequest origReq, String profileId,
-            Profile profile, Map<String, String> ctx, IProfileAuthenticator authenticator, IAuthToken authToken,
+            Profile profile, Map<String, String> ctx, ProfileAuthenticator authenticator, IAuthToken authToken,
             IRequest[] reqs) throws Exception {
 
         for (IRequest req : reqs) {
@@ -335,7 +335,7 @@ public class CertProcessor extends CAProcessor {
             if (isRenewal) {
                 setInputsIntoRequest(origReq, profile, req, locale);
                 req.setExtData("origNotAfter", BigInteger.valueOf(origNotAfter.getTime()));
-                req.setExtData(IProfileAuthenticator.AUTHENTICATED_NAME, origSubjectDN);
+                req.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME, origSubjectDN);
                 req.setRequestType("renewal");
             } else {
                 setInputsIntoRequest(data, profile, req);

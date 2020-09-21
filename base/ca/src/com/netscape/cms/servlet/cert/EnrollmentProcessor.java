@@ -38,7 +38,7 @@ import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.AuthCredentials;
@@ -160,7 +160,7 @@ public class EnrollmentProcessor extends CertProcessor {
             logger.debug("EnrollmentProcessor: set Inputs into profile Context");
             setInputsIntoContext(data, profile, ctx);
 
-            IProfileAuthenticator authenticator = ps.getProfileAuthenticator(profile);
+            ProfileAuthenticator authenticator = ps.getProfileAuthenticator(profile);
             if (authenticator != null) {
                 logger.debug("EnrollmentProcessor: authenticator " + authenticator.getName() + " found");
                 setCredentialsIntoContext(request, credentials, authenticator, ctx);

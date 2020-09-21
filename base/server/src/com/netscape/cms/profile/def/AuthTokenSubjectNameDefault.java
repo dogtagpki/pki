@@ -29,7 +29,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -130,7 +130,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
         // to the certinfo
         try {
             X500Name name = new X500Name(
-                    request.getExtDataInString(IProfileAuthenticator.AUTHENTICATED_NAME));
+                    request.getExtDataInString(ProfileAuthenticator.AUTHENTICATED_NAME));
 
             logger.debug("AuthTokenSubjectNameDefault: X500Name=" + name.getName());
             info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(name));

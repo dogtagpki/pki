@@ -47,7 +47,7 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.input.SerialNumRenewInput;
@@ -234,8 +234,8 @@ public class RenewalProcessor extends CertProcessor {
             if (aidString != null)
                 ctx.put(EnrollProfile.REQUEST_AUTHORITY_ID, aidString);
 
-            IProfileAuthenticator authenticator = ps.getProfileAuthenticator(renewProfile);
-            IProfileAuthenticator origAuthenticator = ps.getProfileAuthenticator(profile);
+            ProfileAuthenticator authenticator = ps.getProfileAuthenticator(renewProfile);
+            ProfileAuthenticator origAuthenticator = ps.getProfileAuthenticator(profile);
 
             if (authenticator != null) {
                 logger.debug("RenewalSubmitter: authenticator " + authenticator.getName() + " found");

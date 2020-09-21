@@ -60,7 +60,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.util.IStatsSubsystem;
-import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSGateway;
@@ -347,7 +347,7 @@ public class CAProcessor extends Processor {
      *   to the session context
      */
     public IAuthToken authenticate(
-            IProfileAuthenticator authenticator,
+            ProfileAuthenticator authenticator,
             HttpServletRequest request,
             IRequest origReq,
             SessionContext context,
@@ -410,7 +410,7 @@ public class CAProcessor extends Processor {
     }
 
     public IAuthToken authenticate(
-            IProfileAuthenticator authenticator,
+            ProfileAuthenticator authenticator,
             HttpServletRequest request,
             AuthCredentials credentials) throws EBaseException {
 
@@ -449,7 +449,7 @@ public class CAProcessor extends Processor {
     public IAuthToken authenticate(
             HttpServletRequest request,
             IRequest origReq,
-            IProfileAuthenticator authenticator,
+            ProfileAuthenticator authenticator,
             SessionContext context,
             boolean isRenewal,
             AuthCredentials credentials) throws EBaseException {

@@ -32,7 +32,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 
@@ -44,7 +44,7 @@ import com.netscape.cmscore.apps.CMS;
  * (subject to constraints, etc).
  */
 public class SessionAuthentication
-        implements IProfileAuthenticator {
+        implements ProfileAuthenticator {
 
     private String instName = null;
     private String implName = null;

@@ -29,7 +29,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.cms.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -169,7 +169,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         return mProfileClassIds.get(id);
     }
 
-    public IProfileAuthenticator getProfileAuthenticator(Profile profile) throws EBaseException {
+    public ProfileAuthenticator getProfileAuthenticator(Profile profile) throws EBaseException {
 
         String authenticatorID = profile.getAuthenticatorId();
         if (StringUtils.isEmpty(authenticatorID)) return null;
@@ -177,7 +177,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         CMSEngine engine = CMS.getCMSEngine();
 
         AuthSubsystem authSub = engine.getAuthSubsystem();
-        IProfileAuthenticator auth = (IProfileAuthenticator) authSub.get(authenticatorID);
+        ProfileAuthenticator auth = (ProfileAuthenticator) authSub.get(authenticatorID);
 
         if (auth == null) {
             throw new EProfileException("Unable to load authenticator: " + authenticatorID);
