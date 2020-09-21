@@ -31,7 +31,6 @@ import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
-import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.util.CryptoProvider;
 
 
@@ -74,16 +73,7 @@ public class PKIClient {
         connection.setCallback(callback);
     }
 
-    public <T> T createProxy(String subsystem, Class<T> clazz) throws URISyntaxException {
-
-        if (subsystem == null) {
-            // by default use the subsystem specified in server URL
-            subsystem = getSubsystem();
-        }
-
-        if (subsystem == null) {
-            throw new PKIException("Missing subsystem name.");
-        }
+    public <T> T createProxy(String path, Class<T> clazz) throws URISyntaxException {
 
         URI serverURI = config.getServerURL().toURI();
         URI resourceURI = new URI(
@@ -91,7 +81,7 @@ public class PKIClient {
             serverURI.getUserInfo(),
             serverURI.getHost(),
             serverURI.getPort(),
-            "/" + subsystem + "/rest",
+            path,
             serverURI.getQuery(),
             serverURI.getFragment());
 

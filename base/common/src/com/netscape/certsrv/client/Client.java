@@ -31,19 +31,22 @@ public class Client {
     // subsystem name
     public String subsystem;
 
+    // API prefix
+    public String prefix;
+
     // client name
     public String name;
 
     public LinkedHashMap<String, Client> clients = new LinkedHashMap<String, Client>();
 
-    public Client(PKIClient client, String name) {
-        // by default use the subsystem specified in server URL
-        this(client, client.getSubsystem(), name);
+    public Client(PKIClient client, String subsystem, String name) {
+        this(client, subsystem, "rest", name);
     }
 
-    public Client(PKIClient client, String subsystem, String name) {
+    public Client(PKIClient client, String subsystem, String prefix, String name) {
         this.client = client;
         this.subsystem = subsystem;
+        this.prefix = prefix;
         this.name = name;
     }
 
@@ -68,6 +71,13 @@ public class Client {
     }
 
     public <T> T createProxy(Class<T> clazz) throws URISyntaxException {
-        return client.createProxy(subsystem, clazz);
+
+        String path = "/" + subsystem;
+
+        if (prefix != null) {
+            path += "/" + prefix;
+        }
+
+        return client.createProxy(path, clazz);
     }
 }
