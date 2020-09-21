@@ -25,7 +25,7 @@ import java.util.HashSet;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.rest.AccountService;
 
-import com.netscape.certsrv.account.AccountInfo;
+import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.cmscore.apps.CMS;
@@ -43,15 +43,15 @@ public class TPSAccountService extends AccountService {
     EngineConfig configStore = engine.getConfig();
 
     @Override
-    public AccountInfo createAccountInfo() {
+    public Account createAccount() {
 
-        AccountInfo accountInfo = super.createAccountInfo();
+        Account account = super.createAccount();
 
         try {
             // determine accessible components based on roles
             Collection<String> components = new HashSet<String>();
 
-            Collection<String> roles = accountInfo.getRoles();
+            Collection<String> roles = account.getRoles();
 
             if (roles.contains("Administrators")) {
                 String values = configStore.getString("target.configure.list", "");
@@ -72,13 +72,13 @@ public class TPSAccountService extends AccountService {
                 }
             }
 
-            accountInfo.setAttribute("components", StringUtils.join(components, ","));
+            account.setAttribute("components", StringUtils.join(components, ","));
 
         } catch (EBaseException e) {
             logger.error("TPSAccountService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
 
-        return accountInfo;
+        return account;
     }
 }

@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.account.AccountInfo;
+import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.account.AccountResource;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.realm.PKIPrincipal;
@@ -42,14 +42,14 @@ public class AccountService extends PKIService implements AccountResource {
 
     public static Logger logger = LoggerFactory.getLogger(AccountService.class);
 
-    protected AccountInfo createAccountInfo() {
+    protected Account createAccount() {
         Principal principal = servletRequest.getUserPrincipal();
         logger.info("Principal:");
 
-        AccountInfo accountInfo = new AccountInfo();
+        Account account = new Account();
         String name = principal.getName();
         logger.info("- ID: " + name);
-        accountInfo.setID(name);
+        account.setID(name);
 
         if (principal instanceof PKIPrincipal) {
             PKIPrincipal pkiPrincipal = (PKIPrincipal)principal;
@@ -57,11 +57,11 @@ public class AccountService extends PKIService implements AccountResource {
 
             String fullName = user.getFullName();
             logger.info("- Full Name: " + fullName);
-            if (!StringUtils.isEmpty(fullName)) accountInfo.setFullName(fullName);
+            if (!StringUtils.isEmpty(fullName)) account.setFullName(fullName);
 
             String email = user.getEmail();
             logger.info("- Email: " + email);
-            if (!StringUtils.isEmpty(email)) accountInfo.setEmail(email);
+            if (!StringUtils.isEmpty(email)) account.setEmail(email);
         }
 
         if (principal instanceof GenericPrincipal) {
@@ -70,10 +70,10 @@ public class AccountService extends PKIService implements AccountResource {
             for (String role : roles) {
                 logger.info("  - " + role);
             }
-            accountInfo.setRoles(Arrays.asList(roles));
+            account.setRoles(Arrays.asList(roles));
         }
 
-        return accountInfo;
+        return account;
     }
 
     @Override
@@ -81,8 +81,8 @@ public class AccountService extends PKIService implements AccountResource {
         HttpSession session = servletRequest.getSession();
         logger.info("Creating session " + session.getId());
 
-        AccountInfo accountInfo = createAccountInfo();
-        return createOKResponse(accountInfo);
+        Account account = createAccount();
+        return createOKResponse(account);
     }
 
     @Override

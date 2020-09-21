@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.netscape.certsrv.account.AccountInfo;
+import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
@@ -39,7 +39,7 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
  */
 @XmlRootElement(name = "ResourceMessage")
 @XmlSeeAlso({
-    AccountInfo.class,
+    Account.class,
     KeyArchivalRequest.class,
     KeyRecoveryRequest.class,
     SymKeyGenerationRequest.class,

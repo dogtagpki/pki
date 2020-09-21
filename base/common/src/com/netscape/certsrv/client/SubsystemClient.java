@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.account.AccountClient;
-import com.netscape.certsrv.account.AccountInfo;
+import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -63,7 +63,7 @@ public class SubsystemClient extends Client {
     /**
      * Log in to the subsystem.
      */
-    public AccountInfo login() throws Exception {
+    public Account login() throws Exception {
         return accountClient.login();
     }
 

@@ -41,22 +41,22 @@ public class AccountClient extends Client {
         resource = createProxy(AccountResource.class);
     }
 
-    public AccountInfo login() throws Exception {
+    public Account login() throws Exception {
         Response response = resource.login();
-        AccountInfo info = client.getEntity(response, AccountInfo.class);
+        Account account = client.getEntity(response, Account.class);
         loggedIn = true;
 
         logger.info("Account:");
-        logger.info("- User ID: " + info.getID());
-        logger.info("- Full Name: " + info.getFullName());
-        logger.info("- Email: " + info.getEmail());
+        logger.info("- User ID: " + account.getID());
+        logger.info("- Full Name: " + account.getFullName());
+        logger.info("- Email: " + account.getEmail());
 
         logger.info("- Roles:");
-        for (String role : info.getRoles()) {
+        for (String role : account.getRoles()) {
             logger.info("  - " + role);
         }
 
-        return info;
+        return account;
     }
 
     public void logout() throws Exception {

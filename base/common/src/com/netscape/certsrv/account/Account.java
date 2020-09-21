@@ -39,16 +39,16 @@ import com.netscape.certsrv.base.ResourceMessage;
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Account")
-public class AccountInfo extends ResourceMessage {
+public class Account extends ResourceMessage {
 
     public static Marshaller marshaller;
     public static Unmarshaller unmarshaller;
 
     static {
         try {
-            marshaller = JAXBContext.newInstance(AccountInfo.class).createMarshaller();
+            marshaller = JAXBContext.newInstance(Account.class).createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(AccountInfo.class).createUnmarshaller();
+            unmarshaller = JAXBContext.newInstance(Account.class).createUnmarshaller();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -116,7 +116,7 @@ public class AccountInfo extends ResourceMessage {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        AccountInfo other = (AccountInfo) obj;
+        Account other = (Account) obj;
         if (email == null) {
             if (other.email != null)
                 return false;
@@ -151,9 +151,9 @@ public class AccountInfo extends ResourceMessage {
         }
     }
 
-    public static AccountInfo valueOf(String string) throws Exception {
+    public static Account valueOf(String string) throws Exception {
         try {
-            return (AccountInfo)unmarshaller.unmarshal(new StringReader(string));
+            return (Account)unmarshaller.unmarshal(new StringReader(string));
         } catch (Exception e) {
             return null;
         }
@@ -184,7 +184,7 @@ public class AccountInfo extends ResourceMessage {
 
     public static void main(String args[]) throws Exception {
 
-        AccountInfo before = new AccountInfo();
+        Account before = new Account();
         before.setID("testuser");
         before.setFullName("Test User");
         before.setEmail("testuser@example.com");
@@ -193,7 +193,7 @@ public class AccountInfo extends ResourceMessage {
         String string = before.toString();
         System.out.println(string);
 
-        AccountInfo after = AccountInfo.valueOf(string);
+        Account after = Account.valueOf(string);
         System.out.println(before.equals(after));
     }
 }
