@@ -43,7 +43,6 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
-import com.netscape.certsrv.ldap.ILdapConnInfo;
 import com.netscape.certsrv.publish.EMapperNotFound;
 import com.netscape.certsrv.publish.EMapperPluginNotFound;
 import com.netscape.certsrv.publish.EPublisherNotFound;
@@ -474,10 +473,10 @@ public class PublisherAdminServlet extends AdminServlet {
                 String value = ldap.getString(name, "");
 
                 if (value == null || value.equals("")) {
-                    if (name.equals(LdapBoundConnFactory.PROP_LDAPCONNINFO + "." + ILdapConnInfo.PROP_HOST)) {
+                    if (name.equals(LdapBoundConnFactory.PROP_LDAPCONNINFO + "." + LdapConnInfo.PROP_HOST)) {
                         value = mConfig.getString(ConfigConstants.PR_MACHINE_NAME, null);
-                    } else if (name.equals(LdapBoundConnFactory.PROP_LDAPCONNINFO + "." + ILdapConnInfo.PROP_PORT)) {
-                        value = ILdapConnInfo.PROP_PORT_DEFAULT;
+                    } else if (name.equals(LdapBoundConnFactory.PROP_LDAPCONNINFO + "." + LdapConnInfo.PROP_PORT)) {
+                        value = LdapConnInfo.PROP_PORT_DEFAULT;
                     } else if (name.equals(LdapBoundConnFactory.PROP_LDAPAUTHINFO + "." + ILdapAuthInfo.PROP_BINDDN)) {
                         value = ILdapAuthInfo.PROP_BINDDN_DEFAULT;
                     }

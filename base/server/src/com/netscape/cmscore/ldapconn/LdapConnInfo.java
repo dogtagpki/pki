@@ -17,20 +17,30 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldapconn;
 
-import netscape.ldap.LDAPv2;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnInfo;
 import com.netscape.cmscore.apps.CMS;
+
+import netscape.ldap.LDAPv2;
 
 /**
  * class for reading ldap connection from the config store.
  * ldap connection info: host, port, secure connection
  */
-public class LdapConnInfo implements ILdapConnInfo {
+public class LdapConnInfo {
+
+    public final static String PROP_HOST = "host";
+    public final static String PROP_PORT = "port";
+    public final static String PROP_SECURE = "secureConn";
+    public final static String PROP_PROTOCOL = "version";
+    public final static String PROP_FOLLOW_REFERRALS = "followReferrals";
+    public final static String PROP_HOST_DEFAULT = "localhost";
+    public final static String PROP_PORT_DEFAULT = "389";
+
+    public final static int LDAP_VERSION_2 = 2;
+    public final static int LDAP_VERSION_3 = 3;
 
     private String mHost = null;
     private int mPort = -1;
@@ -115,5 +125,4 @@ public class LdapConnInfo implements ILdapConnInfo {
     public boolean getFollowReferrals() {
         return mFollowReferrals;
     }
-
 }
