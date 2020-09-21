@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ResourceMessage;
 
 /**
@@ -40,19 +41,6 @@ import com.netscape.certsrv.base.ResourceMessage;
  */
 @XmlRootElement(name="Account")
 public class Account extends ResourceMessage {
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(Account.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(Account.class).createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     String id;
     String fullName;
@@ -140,22 +128,39 @@ public class Account extends ResourceMessage {
         return true;
     }
 
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(Account.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        } catch (Exception e) {
-            return super.toString();
-        }
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static Account valueOf(String string) throws Exception {
+    public static Account fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(Account.class).createUnmarshaller();
+        return (Account) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static Account fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, Account.class);
+    }
+
+    public static Account valueOf(String xml) throws Exception {
+        return fromXML(xml);
+    }
+
+    public String toString() {
         try {
-            return (Account)unmarshaller.unmarshal(new StringReader(string));
+            return toXML();
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -190,10 +195,20 @@ public class Account extends ResourceMessage {
         before.setEmail("testuser@example.com");
         before.setRoles(Arrays.asList("admin", "agent"));
 
-        String string = before.toString();
-        System.out.println(string);
+        String xml = before.toXML();
+        System.out.println("XML (before): " + xml);
 
-        Account after = Account.valueOf(string);
-        System.out.println(before.equals(after));
+        Account afterXML = Account.fromXML(xml);
+        System.out.println("XML (after): " + afterXML.toXML());
+
+        System.out.println(before.equals(afterXML));
+
+        String json = before.toJSON();
+        System.out.println("JSON (before): " + json);
+
+        Account afterJSON = Account.fromJSON(json);
+        System.out.println("JSON (after): " + afterJSON.toJSON());
+
+        System.out.println(before.equals(afterJSON));
     }
 }
