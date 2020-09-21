@@ -20,16 +20,20 @@ package com.netscape.certsrv.client;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
+import org.jboss.resteasy.client.jaxrs.ProxyBuilder;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.util.CryptoProvider;
@@ -75,7 +79,21 @@ public class PKIClient {
     }
 
     public <T> T createProxy(String path, Class<T> clazz) throws Exception {
-        return connection.createProxy(path, clazz);
+        WebTarget target = connection.target(path);
+        ProxyBuilder<T> builder = ProxyBuilder.builder(clazz, target);
+
+        String messageFormat = config.getMessageFormat();
+        if (messageFormat == null) messageFormat = MESSAGE_FORMATS[0];
+
+        if (!Arrays.asList(MESSAGE_FORMATS).contains(messageFormat)) {
+            throw new Error("Unsupported message format: " + messageFormat);
+        }
+
+        MediaType contentType = MediaType.valueOf("application/" + messageFormat);
+        builder.defaultConsumes(contentType);
+        builder.defaultProduces(contentType);
+
+        return builder.build();
     }
 
     public String getSubsystem() {

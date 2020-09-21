@@ -29,7 +29,6 @@ import java.net.Socket;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.client.WebTarget;
@@ -68,7 +67,6 @@ import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
-import org.jboss.resteasy.client.jaxrs.ProxyBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 import org.mozilla.jss.CryptoManager;
@@ -405,24 +403,6 @@ public class PKIConnection {
             uri += path;
         }
         return client.target(uri);
-    }
-
-    public <T> T createProxy(String path, Class<T> clazz) throws Exception {
-        WebTarget target = target(path);
-        ProxyBuilder<T> builder = ProxyBuilder.builder(clazz, target);
-
-        String messageFormat = config.getMessageFormat();
-        if (messageFormat == null) messageFormat = PKIClient.MESSAGE_FORMATS[0];
-
-        if (!Arrays.asList(PKIClient.MESSAGE_FORMATS).contains(messageFormat)) {
-            throw new Error("Unsupported message format: " + messageFormat);
-        }
-
-        MediaType contentType = MediaType.valueOf("application/" + messageFormat);
-        builder.defaultConsumes(contentType);
-        builder.defaultProduces(contentType);
-
-        return builder.build();
     }
 
     public <T> T getEntity(Response response, Class<T> clazz) throws Exception {
