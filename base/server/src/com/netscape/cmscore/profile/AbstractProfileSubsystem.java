@@ -136,7 +136,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         }
         newProfile.setId(id);
         try {
-            newProfile.init(this, cs);
+            newProfile.init(cs);
         } catch (EBaseException e) {
             throw new EProfileException(
                     "Failed to initialise profile '" + id + "': " + e);

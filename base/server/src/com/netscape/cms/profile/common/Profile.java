@@ -28,7 +28,6 @@ import java.util.Vector;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
@@ -230,13 +229,12 @@ public abstract class Profile {
 
     /**
      * Initializes this profile.
-     *
-     * @param owner profile subsystem
      * @param config configuration store for this profile
+     *
      * @exception EBaseException failed to initialize
      */
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IConfigStore config) throws EBaseException {
+
         logger.debug("Profile: start init");
         mConfig = config;
 

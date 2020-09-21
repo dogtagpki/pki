@@ -137,7 +137,7 @@ public class ProfileSubsystem
             logger.debug("ProfileSubsystem: Initializing " + className);
             Profile profile = (Profile) Class.forName(className).newInstance();
             profile.setId(id);
-            profile.init(this, subStoreConfig);
+            profile.init(subStoreConfig);
 
             mProfiles.put(id, profile);
             mProfileClassIds.put(id, classid);
