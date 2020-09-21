@@ -84,6 +84,7 @@ jobs:
                 cd ci
                 sed -e "s/MASTER_IP/${MASTER_IP}/g" \
                     -e "s/CONTROLLER_IP/${CONTROLLER_IP}/g" \
+                    -e "s~COPR_REPO~${COPR_REPO}~g" \
                     -e "s/RELEASE/${{ matrix.os }}/g" \
                     Vagrantfile > ../Vagrantfile
 

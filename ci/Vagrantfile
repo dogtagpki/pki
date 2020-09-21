@@ -28,6 +28,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "master"  do |master|
     master.vm.network :private_network, ip: "MASTER_IP"
+    master.vm.provision "shell", inline: "dnf copr enable -y COPR_REPO"
     master.vm.provision "shell", inline: "find /vagrant -name '*.rpm' -and -not -name '*debuginfo*' | xargs sudo dnf -y install"
     master.vm.provider :virtualbox do |vb|
       vb.customize ["modifyvm", :id, "--memory", "2750"]
