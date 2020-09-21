@@ -20,7 +20,6 @@ package com.netscape.cmscore.ldapconn;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
@@ -47,7 +46,7 @@ public class LdapAuthInfo {
     public final static int LDAP_AUTHTYPE_BASICAUTH = 1;
     public final static int LDAP_AUTHTYPE_SSLCLIENTAUTH = 2;
 
-    IConfigStore config;
+    LDAPAuthenticationConfig config;
     String host;
     int port;
     boolean secure;
@@ -106,7 +105,7 @@ public class LdapAuthInfo {
     /**
      * initialize this class from the config store.
      */
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(LDAPAuthenticationConfig config) throws EBaseException {
         init(config, null, 0, true);
     }
 
@@ -118,7 +117,7 @@ public class LdapAuthInfo {
      *            If it is <code>null</code>, the password will not be verified.
      * @param port The port that the directory server is running on.
      */
-    public void init(IConfigStore config, String host, int port, boolean secure)
+    public void init(LDAPAuthenticationConfig config, String host, int port, boolean secure)
             throws EBaseException {
 
         logger.debug("LdapAuthInfo: init()");
