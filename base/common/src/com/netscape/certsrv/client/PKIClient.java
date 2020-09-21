@@ -18,6 +18,7 @@
 
 package com.netscape.certsrv.client;
 
+import java.io.File;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -150,5 +151,9 @@ public class PKIClient {
 
     public boolean isIgnored(Integer certStatus) {
         return ignoredCertStatuses.contains(certStatus);
+    }
+
+    public void setOutput(File output) {
+        connection.setOutput(output);
     }
 }

@@ -62,7 +62,6 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.cmstools.ca.CACLI;
 import com.netscape.cmstools.cert.ProxyCertCLI;
 import com.netscape.cmstools.client.ClientCLI;
@@ -618,9 +617,7 @@ public class MainCLI extends CLI {
         if (output != null) {
             File file = new File(output);
             file.mkdirs();
-
-            PKIConnection connection = client.getConnection();
-            connection.setOutput(file);
+            client.setOutput(file);
         }
 
         try {
