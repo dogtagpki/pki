@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -486,6 +487,15 @@ public class PKIConnection {
         }
         ResteasyWebTarget target = resteasyClient.target(uri);
         return target.request().get(responseType);
+    }
+
+    public <T> T post(String path, Class<T> responseType) throws Exception {
+        String uri = config.getServerURL().toString();
+        if (path != null) {
+            uri += path;
+        }
+        WebTarget target = resteasyClient.target(uri);
+        return target.request().post(null, responseType);
     }
 
     public String post(String path, MultivaluedMap<String, String> content) throws Exception {

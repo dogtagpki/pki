@@ -120,6 +120,10 @@ public class PKIClient {
         return connection.get(path, String.class);
     }
 
+    public String post(String path) throws Exception {
+        return connection.post(path, String.class);
+    }
+
     public String post(String path, MultivaluedMap<String, String> content) throws Exception {
         return connection.post(path, content);
     }

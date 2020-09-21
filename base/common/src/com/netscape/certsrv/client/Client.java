@@ -80,4 +80,48 @@ public class Client {
 
         return client.createProxy(path, clazz);
     }
+
+    public String get() throws Exception {
+        return get(null);
+    }
+
+    public String get(String suffix) throws Exception {
+        String path = "/" + subsystem;
+
+        if (prefix != null) {
+            path += "/" + prefix;
+        }
+
+        if (name != null) {
+            path += "/" + name;
+        }
+
+        if (suffix != null) {
+            path += "/" + suffix;
+        }
+
+        return client.get(path);
+    }
+
+    public String post() throws Exception {
+        return post(null);
+    }
+
+    public String post(String suffix) throws Exception {
+        String path = "/" + subsystem;
+
+        if (prefix != null) {
+            path += "/" + prefix;
+        }
+
+        if (name != null) {
+            path += "/" + name;
+        }
+
+        if (suffix != null) {
+            path += "/" + suffix;
+        }
+
+        return client.post(path);
+    }
 }
