@@ -48,7 +48,6 @@ import com.netscape.cms.profile.input.EnrollInput;
 import com.netscape.cms.profile.updater.IProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
@@ -102,7 +101,6 @@ public abstract class Profile {
 
     protected IConfigStore mConfig = null;
     protected PluginRegistry registry;
-    protected ProfileSubsystem mOwner;
 
     protected Vector<String> mInputNames = new Vector<String>();
     protected Hashtable<String, ProfileInput> mInputs = new Hashtable<String, ProfileInput>();
@@ -240,7 +238,6 @@ public abstract class Profile {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
         logger.debug("Profile: start init");
-        mOwner = (ProfileSubsystem) owner;
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();
