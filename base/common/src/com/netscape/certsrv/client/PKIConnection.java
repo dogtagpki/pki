@@ -72,9 +72,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.jboss.resteasy.client.jaxrs.ProxyBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
@@ -98,7 +96,7 @@ public class PKIConnection {
     SSLCertificateApprovalCallback callback;
 
     ApacheHttpClient4Engine engine;
-    ResteasyClient resteasyClient;
+    javax.ws.rs.client.Client client;
 
     int requestCounter;
     int responseCounter;
@@ -211,8 +209,8 @@ public class PKIConnection {
 
         engine = new ApacheHttpClient4Engine(httpClient);
 
-        resteasyClient = new ResteasyClientBuilder().httpEngine(engine).build();
-        resteasyClient.register(PKIRESTProvider.class);
+        client = new ResteasyClientBuilder().httpEngine(engine).build();
+        client.register(PKIRESTProvider.class);
     }
 
     public void setCallback(SSLCertificateApprovalCallback callback) {
@@ -405,7 +403,7 @@ public class PKIConnection {
     }
 
     public <T> T createProxy(URI uri, Class<T> clazz) throws URISyntaxException {
-        ResteasyWebTarget target = resteasyClient.target(uri);
+        WebTarget target = client.target(uri);
         ProxyBuilder<T> builder = ProxyBuilder.builder(clazz, target);
 
         String messageFormat = config.getMessageFormat();
@@ -485,7 +483,7 @@ public class PKIConnection {
         if (path != null) {
             uri += path;
         }
-        ResteasyWebTarget target = resteasyClient.target(uri);
+        WebTarget target = client.target(uri);
         return target.request().get(responseType);
     }
 
@@ -494,7 +492,7 @@ public class PKIConnection {
         if (path != null) {
             uri += path;
         }
-        WebTarget target = resteasyClient.target(uri);
+        WebTarget target = client.target(uri);
         return target.request().post(null, responseType);
     }
 
@@ -503,7 +501,7 @@ public class PKIConnection {
         if (path != null) {
             uri += path;
         }
-        ResteasyWebTarget target = resteasyClient.target(uri);
+        WebTarget target = client.target(uri);
         return target.request().post(Entity.form(content), String.class);
     }
 
