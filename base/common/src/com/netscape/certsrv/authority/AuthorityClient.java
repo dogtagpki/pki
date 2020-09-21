@@ -17,7 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authority;
 
-import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.ws.rs.core.GenericType;
@@ -34,11 +33,11 @@ public class AuthorityClient extends Client {
 
     public AuthorityResource proxy;
 
-    public AuthorityClient(SubsystemClient subsystemClient) throws URISyntaxException {
+    public AuthorityClient(SubsystemClient subsystemClient) throws Exception {
         this(subsystemClient.client, subsystemClient.getName());
     }
 
-    public AuthorityClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public AuthorityClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "authority");
         proxy = createProxy(AuthorityResource.class);
     }

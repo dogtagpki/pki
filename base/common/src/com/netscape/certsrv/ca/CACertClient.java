@@ -18,7 +18,6 @@
 package com.netscape.certsrv.ca;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import javax.ws.rs.core.Response;
 
@@ -49,16 +48,16 @@ public class CACertClient extends Client {
     public CertResource certClient;
     public CertRequestResource certRequestClient;
 
-    public CACertClient(SubsystemClient subsystemClient) throws URISyntaxException {
+    public CACertClient(SubsystemClient subsystemClient) throws Exception {
         this(subsystemClient.client, subsystemClient.getName());
     }
 
-    public CACertClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public CACertClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "cert");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         certClient = createProxy(CertResource.class);
         certRequestClient = createProxy(CertRequestResource.class);
     }

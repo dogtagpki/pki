@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tks;
 
-import java.net.URISyntaxException;
-
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
@@ -28,12 +26,12 @@ import com.netscape.certsrv.user.UserClient;
 
 public class TKSClient extends SubsystemClient {
 
-    public TKSClient(PKIClient client) throws URISyntaxException {
+    public TKSClient(PKIClient client) throws Exception {
         super(client, "tks");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         addClient(new GroupClient(this));
         addClient(new SelfTestClient(client, name));
         addClient(new TPSConnectorClient(client, name));

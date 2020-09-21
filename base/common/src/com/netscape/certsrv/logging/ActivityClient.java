@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
@@ -31,12 +29,12 @@ public class ActivityClient extends Client {
 
     public ActivityResource resource;
 
-    public ActivityClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public ActivityClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "activity");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         resource = createProxy(ActivityResource.class);
     }
 

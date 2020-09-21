@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps;
 
-import java.net.URISyntaxException;
-
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
@@ -42,7 +40,7 @@ public class TPSClient extends SubsystemClient {
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         addClient(new ActivityClient(client, name));
         addClient(new AuthenticatorClient(client, name));
         addClient(new TPSCertClient(client, name));

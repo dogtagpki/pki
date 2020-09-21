@@ -17,7 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.key;
 
-import java.net.URISyntaxException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -94,7 +93,7 @@ public class KeyClient extends Client {
         return ret;
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         keyClient = createProxy(KeyResource.class);
         keyRequestClient = createProxy(KeyRequestResource.class);
         kraInfoClient = createProxy(KRAInfoResource.class);

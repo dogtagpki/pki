@@ -18,9 +18,6 @@
 
 package org.dogtagpki.server.rest;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
 
@@ -178,8 +175,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
     /**
      * Construct KRAInfoClient given KRAConnectorInfo
      */
-    private static KRAInfoClient getKRAInfoClient(KRAConnectorInfo connInfo)
-            throws MalformedURLException, URISyntaxException, EBaseException {
+    private static KRAInfoClient getKRAInfoClient(KRAConnectorInfo connInfo) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();

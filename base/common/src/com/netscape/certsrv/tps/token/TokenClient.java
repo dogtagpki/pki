@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.token;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
@@ -31,12 +29,12 @@ public class TokenClient extends Client {
 
     public TokenResource resource;
 
-    public TokenClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public TokenClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "token");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         resource = createProxy(TokenResource.class);
     }
 

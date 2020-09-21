@@ -19,7 +19,6 @@ package org.dogtagpki.common;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,12 +46,12 @@ public class ConfigClient extends Client {
 
     public ConfigResource resource;
 
-    public ConfigClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public ConfigClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "config");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         resource = createProxy(ConfigResource.class);
     }
 

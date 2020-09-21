@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.net.URISyntaxException;
-
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -31,12 +29,12 @@ public class SystemConfigClient extends Client {
 
     private SystemConfigResource configClient;
 
-    public SystemConfigClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public SystemConfigClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "systemconfig");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         configClient = createProxy(SystemConfigResource.class);
     }
 }

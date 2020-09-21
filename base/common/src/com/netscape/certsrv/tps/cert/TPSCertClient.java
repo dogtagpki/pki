@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.cert;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
@@ -31,12 +29,12 @@ public class TPSCertClient extends Client {
 
     public TPSCertResource resource;
 
-    public TPSCertClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public TPSCertClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "cert");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         resource = createProxy(TPSCertResource.class);
     }
 

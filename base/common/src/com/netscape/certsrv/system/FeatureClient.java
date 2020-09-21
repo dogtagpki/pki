@@ -17,7 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.ws.rs.core.GenericType;
@@ -33,7 +32,7 @@ public class FeatureClient extends Client {
 
   public FeatureResource featureClient;
 
-  public FeatureClient(PKIClient client, String subsystem) throws URISyntaxException {
+  public FeatureClient(PKIClient client, String subsystem) throws Exception {
       super(client, subsystem, "feature");
       featureClient = createProxy(FeatureResource.class);
   }

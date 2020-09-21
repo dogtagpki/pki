@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
@@ -31,12 +29,12 @@ public class ProfileClient extends Client {
 
     public ProfileResource profileClient;
 
-    public ProfileClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public ProfileClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "profile");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         profileClient = createProxy(ProfileResource.class);
     }
 

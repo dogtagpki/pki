@@ -18,8 +18,6 @@
 
 package org.dogtagpki.common;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
@@ -32,12 +30,12 @@ public class InfoClient extends Client {
 
     public InfoResource resource;
 
-    public InfoClient(PKIClient client) throws URISyntaxException {
+    public InfoClient(PKIClient client) throws Exception {
         super(client, "pki", "info");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         resource = createProxy(InfoResource.class);
     }
 

@@ -18,8 +18,6 @@
 
 package com.netscape.certsrv.system;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
@@ -32,12 +30,12 @@ public class KRAConnectorClient extends Client {
 
     public KRAConnectorResource kraConnectorClient;
 
-    public KRAConnectorClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public KRAConnectorClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "kraconnector");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         kraConnectorClient = createProxy(KRAConnectorResource.class);
     }
 

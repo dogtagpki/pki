@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.group;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
@@ -32,16 +30,16 @@ public class GroupClient extends Client {
 
     public GroupResource groupClient;
 
-    public GroupClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public GroupClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "group");
         init();
     }
 
-    public GroupClient(SubsystemClient subsystemClient) throws URISyntaxException {
+    public GroupClient(SubsystemClient subsystemClient) throws Exception {
         this(subsystemClient.client, subsystemClient.getName());
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         groupClient = createProxy(GroupResource.class);
     }
 

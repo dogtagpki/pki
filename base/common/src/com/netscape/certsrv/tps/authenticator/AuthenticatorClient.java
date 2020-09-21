@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.authenticator;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
@@ -31,12 +29,12 @@ public class AuthenticatorClient extends Client {
 
     public AuthenticatorResource resource;
 
-    public AuthenticatorClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public AuthenticatorClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "authenticator");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         resource = createProxy(AuthenticatorResource.class);
     }
 

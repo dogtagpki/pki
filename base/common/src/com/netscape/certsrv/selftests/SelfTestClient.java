@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.selftests;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
@@ -31,12 +29,12 @@ public class SelfTestClient extends Client {
 
     public SelfTestResource resource;
 
-    public SelfTestClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public SelfTestClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "selftest");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         resource = createProxy(SelfTestResource.class);
     }
 

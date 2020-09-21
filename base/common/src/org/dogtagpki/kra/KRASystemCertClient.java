@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package org.dogtagpki.kra;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.cert.CertData;
@@ -32,12 +30,12 @@ public class KRASystemCertClient extends Client {
 
     public KRASystemCertResource resource;
 
-    public KRASystemCertClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public KRASystemCertClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "systemcert");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         resource = createProxy(KRASystemCertResource.class);
     }
 

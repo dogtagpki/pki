@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.net.URISyntaxException;
 import java.util.Collection;
 
 import javax.ws.rs.core.GenericType;
@@ -35,12 +34,12 @@ public class SecurityDomainClient extends Client {
     private SecurityDomainResource securityDomainClient;
     private SecurityDomainHostResource securityDomainHostClient;
 
-    public SecurityDomainClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public SecurityDomainClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "securitydomain");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         securityDomainClient = createProxy(SecurityDomainResource.class);
         securityDomainHostClient = createProxy(SecurityDomainHostResource.class);
     }

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.client;
 
-import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 
 /**
@@ -70,7 +69,7 @@ public class Client {
         clients.remove(name);
     }
 
-    public <T> T createProxy(Class<T> clazz) throws URISyntaxException {
+    public <T> T createProxy(Class<T> clazz) throws Exception {
 
         String path = "/" + subsystem;
 

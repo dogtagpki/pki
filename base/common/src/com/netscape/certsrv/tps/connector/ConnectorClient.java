@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.connector;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
@@ -31,12 +29,12 @@ public class ConnectorClient extends Client {
 
     public ConnectorResource resource;
 
-    public ConnectorClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public ConnectorClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "connector");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         resource = createProxy(ConnectorResource.class);
     }
 

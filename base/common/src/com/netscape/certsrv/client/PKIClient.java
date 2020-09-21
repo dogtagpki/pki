@@ -18,7 +18,6 @@
 
 package com.netscape.certsrv.client;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -73,19 +72,8 @@ public class PKIClient {
         connection.setCallback(callback);
     }
 
-    public <T> T createProxy(String path, Class<T> clazz) throws URISyntaxException {
-
-        URI serverURI = config.getServerURL().toURI();
-        URI resourceURI = new URI(
-            serverURI.getScheme(),
-            serverURI.getUserInfo(),
-            serverURI.getHost(),
-            serverURI.getPort(),
-            path,
-            serverURI.getQuery(),
-            serverURI.getFragment());
-
-        return connection.createProxy(resourceURI, clazz);
+    public <T> T createProxy(String path, Class<T> clazz) throws Exception {
+        return connection.createProxy(path, clazz);
     }
 
     public String getSubsystem() {

@@ -27,7 +27,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -402,8 +401,16 @@ public class PKIConnection {
 
     }
 
-    public <T> T createProxy(URI uri, Class<T> clazz) throws URISyntaxException {
-        WebTarget target = client.target(uri);
+    public WebTarget target(String path) throws Exception {
+        String uri = config.getServerURL().toString();
+        if (path != null) {
+            uri += path;
+        }
+        return client.target(uri);
+    }
+
+    public <T> T createProxy(String path, Class<T> clazz) throws Exception {
+        WebTarget target = target(path);
         ProxyBuilder<T> builder = ProxyBuilder.builder(clazz, target);
 
         String messageFormat = config.getMessageFormat();
@@ -479,30 +486,15 @@ public class PKIConnection {
     }
 
     public <T> T get(String path, Class<T> responseType) throws Exception {
-        String uri = config.getServerURL().toString();
-        if (path != null) {
-            uri += path;
-        }
-        WebTarget target = client.target(uri);
-        return target.request().get(responseType);
+        return target(path).request().get(responseType);
     }
 
     public <T> T post(String path, Class<T> responseType) throws Exception {
-        String uri = config.getServerURL().toString();
-        if (path != null) {
-            uri += path;
-        }
-        WebTarget target = client.target(uri);
-        return target.request().post(null, responseType);
+        return target(path).request().post(null, responseType);
     }
 
     public String post(String path, MultivaluedMap<String, String> content) throws Exception {
-        String uri = config.getServerURL().toString();
-        if (path != null) {
-            uri += path;
-        }
-        WebTarget target = client.target(uri);
-        return target.request().post(Entity.form(content), String.class);
+        return target(path).request().post(Entity.form(content), String.class);
     }
 
     public File getOutput() {

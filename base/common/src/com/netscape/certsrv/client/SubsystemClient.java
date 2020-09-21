@@ -20,7 +20,6 @@ package com.netscape.certsrv.client;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -53,7 +52,7 @@ public class SubsystemClient extends Client {
 
     public AccountClient accountClient;
 
-    public SubsystemClient(PKIClient client, String name) throws URISyntaxException {
+    public SubsystemClient(PKIClient client, String name) throws Exception {
         // subsystem name should match the client name
         super(client, name, name);
 

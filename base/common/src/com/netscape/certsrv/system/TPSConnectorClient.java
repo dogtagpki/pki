@@ -1,7 +1,5 @@
 package com.netscape.certsrv.system;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.base.ResourceNotFoundException;
@@ -13,12 +11,12 @@ public class TPSConnectorClient extends Client {
 
     private TPSConnectorResource tpsConnectorClient;
 
-    public TPSConnectorClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public TPSConnectorClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "tpsconnector");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         tpsConnectorClient = createProxy(TPSConnectorResource.class);
     }
 

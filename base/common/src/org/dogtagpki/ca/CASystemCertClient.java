@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package org.dogtagpki.ca;
 
-import java.net.URISyntaxException;
-
 import javax.ws.rs.core.Response;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -38,12 +36,12 @@ public class CASystemCertClient extends Client {
 
     public CASystemCertResource resource;
 
-    public CASystemCertClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public CASystemCertClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "systemcert");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         resource = createProxy(CASystemCertResource.class);
     }
 

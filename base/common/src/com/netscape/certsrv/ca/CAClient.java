@@ -19,7 +19,6 @@ package com.netscape.certsrv.ca;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -42,12 +41,12 @@ public class CAClient extends SubsystemClient {
 
     public final static Logger logger = LoggerFactory.getLogger(CAClient.class);
 
-    public CAClient(PKIClient client) throws URISyntaxException {
+    public CAClient(PKIClient client) throws Exception {
         super(client, "ca");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
         addClient(new AuthorityClient(client, name));
         addClient(new CACertClient(client, name));
         addClient(new FeatureClient(client, name));
