@@ -143,4 +143,4 @@ $ certbot unregister --server http://$HOSTNAME:8080/acme/directory
 ## See Also
 
 * [certbot](https://certbot.eff.org)
-* [Installing PKI ACME Responder](../../installation/acme/Installing_PKI_ACME_Responder.md)
+* [Using PKI ACME Responder](Using_PKI_ACME_Responder.md)
