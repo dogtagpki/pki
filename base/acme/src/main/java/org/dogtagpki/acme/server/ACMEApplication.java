@@ -28,6 +28,8 @@ public class ACMEApplication extends Application {
 
         classes.add(ACMELoginService.class);
         classes.add(ACMELogoutService.class);
+        classes.add(ACMEEnableService.class);
+        classes.add(ACMEDisableService.class);
 
         classes.add(ACMEDirectoryService.class);
         classes.add(ACMENewNonceService.class);

@@ -38,6 +38,16 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
     <servlet-mapping>
         <servlet-name>ACME</servlet-name>
+        <url-pattern>/enable</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ACME</servlet-name>
+        <url-pattern>/disable</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ACME</servlet-name>
         <url-pattern>/directory</url-pattern>
     </servlet-mapping>
 
@@ -106,6 +116,34 @@ SPDX-License-Identifier: GPL-2.0-or-later
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Enable ACME Service</web-resource-name>
+            <url-pattern>/enable</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>Administrators</role-name>
+            <role-name>Enterprise ACME Administrators</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Disable ACME Service</web-resource-name>
+            <url-pattern>/disable</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>Administrators</role-name>
+            <role-name>Enterprise ACME Administrators</role-name>
         </auth-constraint>
         <user-data-constraint>
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
