@@ -36,6 +36,13 @@ ISSUER_CLASSES = {
 
 ISSUER_TYPES = {value: key for key, value in ISSUER_CLASSES.items()}
 
+# TODO: auto-populate this map from /usr/share/pki/acme/realm
+REALM_CLASSES = {
+    'ds': 'org.dogtagpki.acme.database.DSDatabase'
+}
+
+REALM_TYPES = {value: key for key, value in REALM_CLASSES.items()}
+
 logger = logging.getLogger(__name__)
 
 
@@ -53,6 +60,7 @@ class ACMECLI(pki.cli.CLI):
         self.add_module(ACMEMetadataCLI())
         self.add_module(ACMEDatabaseCLI())
         self.add_module(ACMEIssuerCLI())
+        self.add_module(ACMERealmCLI())
 
 
 class ACMECreateCLI(pki.cli.CLI):
@@ -1178,3 +1186,306 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
             pki.util.set_property(config, 'profile', profile)
 
         instance.store_properties(issuer_conf, config)
+
+
+class ACMERealmCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(ACMERealmCLI, self).__init__(
+            'realm', 'ACME realm management commands')
+
+        self.add_module(ACMERealmShowCLI())
+        self.add_module(ACMERealmModifyCLI())
+
+
+class ACMERealmShowCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(ACMERealmShowCLI, self).__init__(
+            'show', 'Show ACME realm configuration')
+
+    def print_help(self):
+        print('Usage: pki-server acme-realm-show [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Unknown option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        acme_conf_dir = os.path.join(instance.conf_dir, 'acme')
+        realm_conf = os.path.join(acme_conf_dir, 'realm.conf')
+        config = {}
+
+        logger.info('Loading %s', realm_conf)
+        pki.util.load_properties(realm_conf, config)
+
+        realm_class = config.get('class')
+
+        realm_type = REALM_TYPES.get(realm_class)
+        print('  Realm Type: %s' % realm_type)
+
+        if realm_type == 'ds':
+
+            url = config.get('url')
+            if url:
+                print('  Server URL: %s' % url)
+
+            auth_type = config.get('authType')
+            if auth_type:
+                print('  Authentication Type: %s' % auth_type)
+
+            if auth_type == 'BasicAuth':
+
+                bind_dn = config.get('bindDN')
+                if bind_dn:
+                    print('  Bind DN: %s' % bind_dn)
+
+                password = config.get('bindPassword')
+                if password:
+                    print('  Bind Password: ********')
+
+            elif auth_type == 'SslClientAuth':
+
+                nickname = config.get('nickname')
+                if nickname:
+                    print('  Client Certificate: %s' % nickname)
+
+            users_dn = config.get('usersDN')
+
+            if users_dn:
+                print('  Users DN: %s' % users_dn)
+
+            groups_dn = config.get('groupsDN')
+
+            if groups_dn:
+                print('  Groups DN: %s' % groups_dn)
+
+
+class ACMERealmModifyCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(ACMERealmModifyCLI, self).__init__(
+            'mod', 'Modify ACME realm configuration')
+
+    def print_help(self):
+        print('Usage: pki-server acme-realm-mod [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --type <type>                  Realm type: {0}'
+              .format(', '.join(REALM_TYPES.values())))
+        print('      -D<name>=<value>               Set property value.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:vD:', [
+                'instance=', 'type=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        realm_type = None
+        props = {}
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--type':
+                realm_type = a
+                if realm_type not in REALM_TYPES.values():
+                    raise Exception('Invalid realm type: {0}'.format(realm_type))
+
+            elif o == '-D':
+                parts = a.split('=', 1)
+                name = parts[0]
+                value = parts[1]
+                props[name] = value
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Unknown option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        acme_conf_dir = os.path.join(instance.conf_dir, 'acme')
+        realm_conf = os.path.join(acme_conf_dir, 'realm.conf')
+        config = {}
+
+        if realm_type:
+            # if --type is specified, load the realm.conf template
+            source = '/usr/share/pki/acme/realm/{0}/realm.conf'.format(realm_type)
+        else:
+            # otherwise, load the realm.conf from the instance
+            source = realm_conf
+
+        logger.info('Loading %s', source)
+        pki.util.load_properties(source, config)
+
+        # if --type or -D is specified, use silent mode
+        if realm_type or props:
+
+            logger.info('Setting properties:')
+            for name, value in props.items():
+                logger.info('- %s: %s', name, value)
+                pki.util.set_property(config, name, value)
+
+            instance.store_properties(realm_conf, config)
+            return
+
+        # otherwise, use interactive mode
+
+        print('The current value is displayed in the square brackets.')
+        print('To keep the current value, simply press Enter.')
+        print('To change the current value, enter the new value.')
+        print('To remove the current value, enter a blank space.')
+
+        realm_class = config.get('class')
+
+        print()
+        print(
+            'Enter the type of the realm. '
+            'Available types: %s.' % ', '.join(REALM_TYPES.values()))
+        realm_type = REALM_TYPES.get(realm_class)
+        orig_realm_type = realm_type
+
+        realm_type = pki.util.read_text(
+            '  Realm Type',
+            options=REALM_TYPES.values(),
+            default=realm_type,
+            required=True)
+        pki.util.set_property(config, 'class', REALM_CLASSES.get(realm_type))
+
+        if orig_realm_type != realm_type:
+            source = '/usr/share/pki/acme/realm/{0}/realm.conf'.format(realm_type)
+            logger.info('Loading %s', source)
+            pki.util.load_properties(source, config)
+
+        if realm_type == 'ds':
+
+            print()
+            print('Enter the location of the LDAP server '
+                  '(e.g. ldap://localhost.localdomain:389).')
+            url = config.get('url')
+            url = pki.util.read_text('  Server URL', default=url, required=True)
+            pki.util.set_property(config, 'url', url)
+
+            print()
+            print('Enter the authentication type. Available types: BasicAuth, SslClientAuth.')
+            auth_type = config.get('authType')
+            auth_type = pki.util.read_text(
+                '  Authentication Type',
+                options=['BasicAuth', 'SslClientAuth'],
+                default=auth_type,
+                required=True)
+            pki.util.set_property(config, 'authType', auth_type)
+
+            if auth_type == 'BasicAuth':
+
+                print()
+                print('Enter the bind DN.')
+                bind_dn = config.get('bindDN')
+                bind_dn = pki.util.read_text('  Bind DN', default=bind_dn, required=True)
+                pki.util.set_property(config, 'bindDN', bind_dn)
+
+                print()
+                print('Enter the bind password.')
+                password = config.get('bindPassword')
+                password = pki.util.read_text(
+                    '  Bind Password',
+                    default=password,
+                    password=True,
+                    required=True)
+                pki.util.set_property(config, 'bindPassword', password)
+
+            elif auth_type == 'SslClientAuth':
+
+                print()
+                print('Enter the client certificate.')
+                nickname = config.get('nickname')
+                nickname = pki.util.read_text(
+                    '  Client Certificate',
+                    default=nickname,
+                    required=True)
+                pki.util.set_property(config, 'nickname', nickname)
+
+            print()
+            print('Enter the subtree DN for the ACME users.')
+
+            users_dn = config.get('usersDN')
+            users_dn = pki.util.read_text('  Users DN', default=users_dn, required=True)
+            pki.util.set_property(config, 'usersDN', users_dn)
+
+            print()
+            print('Enter the subtree DN for the ACME groups.')
+
+            groups_dn = config.get('groupsDN')
+            groups_dn = pki.util.read_text('  Groups DN', default=groups_dn, required=True)
+            pki.util.set_property(config, 'groupsDN', groups_dn)
+
+        instance.store_properties(realm_conf, config)
