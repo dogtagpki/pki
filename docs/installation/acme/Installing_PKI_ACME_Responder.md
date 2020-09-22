@@ -40,6 +40,10 @@ See [Configuring ACME Database](Configuring_ACME_Database.md).
 
 See [Configuring ACME Issuer](Configuring_ACME_Issuer.md).
 
+## Configuring ACME Realm
+
+See [Configuring ACME Realm](Configuring_ACME_Realm.md).
+
 ## Deploying ACME Responder
 
 Once everything is ready, deploy the ACME responder with the following command:
@@ -78,4 +82,5 @@ See also [pki-server-acme(8)](../../manuals/man8/pki-server-acme.8.md).
 ## See Also
 
 * [Installing CA](../ca/Installing_CA.md)
-* [Using PKI ACME Responder with Certbot](../../user/acme/Using_PKI_ACME_Responder_with_Certbot.md)
+* [Managing PKI ACME Responder](../../admin/acme/Managing_PKI_ACME_Responder.md)
+* [Using PKI ACME Responder](../../user/acme/Using_PKI_ACME_Responder.md)
