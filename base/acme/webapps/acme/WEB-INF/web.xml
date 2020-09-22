@@ -76,4 +76,16 @@ SPDX-License-Identifier: GPL-2.0-or-later
         <url-pattern>/revoke-cert</url-pattern>
     </servlet-mapping>
 
+    <login-config>
+        <realm-name>ACME</realm-name>
+    </login-config>
+
+    <security-role>
+        <role-name>Administrators</role-name>
+    </security-role>
+
+    <security-role>
+        <role-name>Enterprise ACME Administrators</role-name>
+    </security-role>
+
 </web-app>
