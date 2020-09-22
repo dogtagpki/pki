@@ -19,6 +19,8 @@ package com.netscape.certsrv.client;
 
 import java.util.LinkedHashMap;
 
+import javax.ws.rs.core.Response;
+
 /**
  * @author Endi S. Dewata
  */
@@ -80,11 +82,15 @@ public class Client {
         return client.createProxy(path, clazz);
     }
 
-    public String get() throws Exception {
-        return get(null);
+    public Response get() throws Exception {
+        return get((String) null);
     }
 
-    public String get(String suffix) throws Exception {
+    public <T> T get(Class<T> responseType) throws Exception {
+        return get((String) null, responseType);
+    }
+
+    public Response get(String suffix) throws Exception {
         String path = "/" + subsystem;
 
         if (prefix != null) {
@@ -99,14 +105,10 @@ public class Client {
             path += "/" + suffix;
         }
 
-        return client.get(path, String.class);
+        return client.get(path);
     }
 
-    public String post() throws Exception {
-        return post(null);
-    }
-
-    public String post(String suffix) throws Exception {
+    public <T> T get(String suffix, Class<T> responseType) throws Exception {
         String path = "/" + subsystem;
 
         if (prefix != null) {
@@ -121,6 +123,50 @@ public class Client {
             path += "/" + suffix;
         }
 
-        return client.post(path, String.class);
+        return client.get(path, responseType);
+    }
+
+    public Response post() throws Exception {
+        return post((String) null);
+    }
+
+    public <T> T post(Class<T> responseType) throws Exception {
+        return post((String) null, responseType);
+    }
+
+    public Response post(String suffix) throws Exception {
+        String path = "/" + subsystem;
+
+        if (prefix != null) {
+            path += "/" + prefix;
+        }
+
+        if (name != null) {
+            path += "/" + name;
+        }
+
+        if (suffix != null) {
+            path += "/" + suffix;
+        }
+
+        return client.post(path);
+    }
+
+    public <T> T post(String suffix, Class<T> responseType) throws Exception {
+        String path = "/" + subsystem;
+
+        if (prefix != null) {
+            path += "/" + prefix;
+        }
+
+        if (name != null) {
+            path += "/" + name;
+        }
+
+        if (suffix != null) {
+            path += "/" + suffix;
+        }
+
+        return client.post(path, responseType);
     }
 }
