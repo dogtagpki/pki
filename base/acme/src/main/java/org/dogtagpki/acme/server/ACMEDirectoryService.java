@@ -22,6 +22,7 @@ import org.dogtagpki.acme.ACMEDirectory;
  * @author Endi S. Dewata
  */
 @Path("directory")
+@ACMEManagedService
 public class ACMEDirectoryService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEDirectoryService.class);

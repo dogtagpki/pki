@@ -50,6 +50,7 @@ import org.dogtagpki.acme.ACMEOrder;
  * @author Endi S. Dewata
  */
 @Path("acct/{id}/orders")
+@ACMEManagedService
 public class ACMEAccountOrdersService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEAccountOrdersService.class);

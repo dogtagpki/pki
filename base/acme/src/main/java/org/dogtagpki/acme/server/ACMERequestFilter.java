@@ -8,14 +8,13 @@ package org.dogtagpki.acme.server;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.ext.Provider;
 
 /**
  * @author Fraser Tweedale
  */
 @Provider
-@PreMatching  // run filter before JAX-RS request matching
+@ACMEManagedService
 public class ACMERequestFilter implements ContainerRequestFilter {
 
     public static org.slf4j.Logger logger =
@@ -23,8 +22,11 @@ public class ACMERequestFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
+
         ACMEEngine engine = ACMEEngine.getInstance();
+
         if (!engine.isEnabled()) {
+            logger.info("ACMERequestFilter: ACME service is disabled");
             throw new ServiceUnavailableException("ACME service is disabled");
         }
     }

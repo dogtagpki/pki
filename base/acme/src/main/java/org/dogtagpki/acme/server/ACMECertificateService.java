@@ -24,6 +24,7 @@ import org.dogtagpki.acme.issuer.ACMEIssuer;
  * @author Endi S. Dewata
  */
 @Path("cert/{id}")
+@ACMEManagedService
 public class ACMECertificateService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMECertificateService.class);

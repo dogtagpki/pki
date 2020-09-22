@@ -29,6 +29,7 @@ import org.dogtagpki.acme.validator.ACMEValidator;
  * @author Endi S. Dewata
  */
 @Path("chall/{id}")
+@ACMEManagedService
 public class ACMEChallengeService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEChallengeService.class);

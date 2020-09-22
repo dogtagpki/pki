@@ -33,6 +33,7 @@ import org.dogtagpki.acme.validator.ACMEValidator;
  * @author Endi S. Dewata
  */
 @Path("authz/{id}")
+@ACMEManagedService
 public class ACMEAuthorizationService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEAuthorizationService.class);

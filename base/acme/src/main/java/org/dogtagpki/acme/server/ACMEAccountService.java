@@ -26,6 +26,7 @@ import org.dogtagpki.acme.JWS;
  * @author Endi S. Dewata
  */
 @Path("acct/{id}")
+@ACMEManagedService
 public class ACMEAccountService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEAccountService.class);

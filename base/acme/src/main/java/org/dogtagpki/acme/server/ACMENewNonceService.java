@@ -22,6 +22,7 @@ import org.dogtagpki.acme.ACMENonce;
  * @author Endi S. Dewata
  */
 @Path("new-nonce")
+@ACMEManagedService
 public class ACMENewNonceService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMENewNonceService.class);
