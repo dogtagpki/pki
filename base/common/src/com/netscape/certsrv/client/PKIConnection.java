@@ -32,10 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.Response.StatusType;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
@@ -405,37 +403,7 @@ public class PKIConnection {
         return client.target(uri);
     }
 
-    public <T> T getEntity(Response response, Class<T> clazz) throws Exception {
-        try {
-            Family family = response.getStatusInfo().getFamily();
-            if (!family.equals(Family.CLIENT_ERROR) && !family.equals(Family.SERVER_ERROR)) {
-                if (response.hasEntity())
-                    return response.readEntity(clazz);
-                return null;
-            }
-            handleErrorResponse(response);
-            return null;
-        } finally {
-            response.close();
-        }
-    }
-
-    public <T> T getEntity(Response response, GenericType<T> clazz) throws Exception {
-        try {
-            Family family = response.getStatusInfo().getFamily();
-            if (!family.equals(Family.CLIENT_ERROR) && !family.equals(Family.SERVER_ERROR)) {
-                if (response.hasEntity())
-                    return response.readEntity(clazz);
-                return null;
-            }
-            handleErrorResponse(response);
-            return null;
-        } finally {
-            response.close();
-        }
-    }
-
-    private void handleErrorResponse(Response response) throws Exception {
+    public void handleErrorResponse(Response response) throws Exception {
 
         StatusType status = response.getStatusInfo();
         MediaType contentType = response.getMediaType();

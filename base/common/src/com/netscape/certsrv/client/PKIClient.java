@@ -19,6 +19,7 @@
 package com.netscape.certsrv.client;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,12 +31,15 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status.Family;
+import javax.ws.rs.core.Response.StatusType;
 
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
 import org.jboss.resteasy.client.jaxrs.ProxyBuilder;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.util.CryptoProvider;
 
 
@@ -100,12 +104,75 @@ public class PKIClient {
         return config.getSubsystem();
     }
 
+    public void handleErrorResponse(Response response) throws Exception {
+
+        StatusType status = response.getStatusInfo();
+        MediaType contentType = response.getMediaType();
+
+        PKIException.Data data;
+        String className;
+
+        if (MediaType.APPLICATION_XML_TYPE.isCompatible(contentType)) {
+            data = response.readEntity(PKIException.Data.class);
+            className = data.getClassName();
+            logger.info(className + ":\n" + data.toXML());
+
+        } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(contentType)) {
+            data = response.readEntity(PKIException.Data.class);
+            className = data.getClassName();
+            logger.info(className + ":\n" + data.toJSON());
+
+        } else {
+            throw new PKIException(status.getStatusCode(), status.getReasonPhrase());
+        }
+
+        Class<? extends PKIException> exceptionClass =
+                Class.forName(className).asSubclass(PKIException.class);
+
+        Constructor<? extends PKIException> constructor =
+                exceptionClass.getConstructor(PKIException.Data.class);
+
+        throw constructor.newInstance(data);
+    }
+
     public <T> T getEntity(Response response, Class<T> clazz) throws Exception {
-        return connection.getEntity(response, clazz);
+        try {
+            Family family = response.getStatusInfo().getFamily();
+
+            if (family.equals(Family.CLIENT_ERROR) || family.equals(Family.SERVER_ERROR)) {
+                handleErrorResponse(response);
+                return null;
+            }
+
+            if (!response.hasEntity()) {
+                return null;
+            }
+
+            return response.readEntity(clazz);
+
+        } finally {
+            response.close();
+        }
     }
 
     public <T> T getEntity(Response response, GenericType<T> clazz) throws Exception {
-        return connection.getEntity(response, clazz);
+        try {
+            Family family = response.getStatusInfo().getFamily();
+
+            if (family.equals(Family.CLIENT_ERROR) || family.equals(Family.SERVER_ERROR)) {
+                handleErrorResponse(response);
+                return null;
+            }
+
+            if (!response.hasEntity()) {
+                return null;
+            }
+
+            return response.readEntity(clazz);
+
+        } finally {
+            response.close();
+        }
     }
 
     public ClientConfig getConfig() {
