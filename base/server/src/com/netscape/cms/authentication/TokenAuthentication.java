@@ -25,9 +25,9 @@ import java.util.Vector;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -218,7 +218,7 @@ public class TokenAuthentication implements AuthManager,
 
         String serverURL = "https://" + authHost + ":" + authPort;
         PKIClient client = Configurator.createClient(serverURL, null, null);
-        return client.post(authUrl, content);
+        return client.post(authUrl, content, String.class);
     }
 
     /**

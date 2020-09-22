@@ -33,8 +33,8 @@ import org.dogtagpki.common.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.account.Account;
+import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -108,7 +108,10 @@ public class SubsystemClient extends Client {
         content.putSingle("xmlOutput", "true");
         content.putSingle("sessionID", sessionID);
 
-        String response = client.post("/" + name + "/admin/" + name + "/updateNumberRange", content);
+        String response = client.post(
+                "/" + name + "/admin/" + name + "/updateNumberRange",
+                content,
+                String.class);
         logger.debug("Response: " + response);
 
         if (StringUtils.isEmpty(response)) {

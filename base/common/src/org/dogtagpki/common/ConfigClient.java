@@ -75,7 +75,11 @@ public class ConfigClient extends Client {
         content.putSingle("xmlOutput", "true");
         content.putSingle("sessionID", sessionID);
 
-        String response = client.post("/" + subsystem + "/admin/" + subsystem + "/getConfigEntries", content);
+        String response = client.post(
+                "/" + subsystem + "/admin/" + subsystem + "/getConfigEntries",
+                content,
+                String.class);
+        logger.debug("Response: " + response);
 
         if (response == null) {
             throw new IOException("Unable to get configuration properties");

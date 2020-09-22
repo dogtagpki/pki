@@ -191,16 +191,28 @@ public class PKIClient {
         return connection;
     }
 
-    public String get(String path) throws Exception {
-        return connection.target(path).request().get(String.class);
+    public Response get(String path) throws Exception {
+        return connection.target(path).request().get();
     }
 
-    public String post(String path) throws Exception {
-        return connection.target(path).request().post(null, String.class);
+    public <T> T get(String path, Class<T> responseType) throws Exception {
+        return connection.target(path).request().get(responseType);
     }
 
-    public String post(String path, MultivaluedMap<String, String> content) throws Exception {
-        return connection.target(path).request().post(Entity.form(content), String.class);
+    public Response post(String path) throws Exception {
+        return connection.target(path).request().post(null);
+    }
+
+    public <T> T post(String path, Class<T> responseType) throws Exception {
+        return connection.target(path).request().post(null, responseType);
+    }
+
+    public Response post(String path, MultivaluedMap<String, String> content) throws Exception {
+        return connection.target(path).request().post(Entity.form(content));
+    }
+
+    public <T> T post(String path, MultivaluedMap<String, String> content, Class<T> responseType) throws Exception {
+        return connection.target(path).request().post(Entity.form(content), responseType);
     }
 
     public Info getInfo() throws Exception {

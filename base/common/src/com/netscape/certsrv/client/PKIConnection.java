@@ -32,9 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.StatusType;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.http.Header;
@@ -76,8 +73,6 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.ssl.SSLSocketListener;
-
-import com.netscape.certsrv.base.PKIException;
 
 public class PKIConnection {
 
@@ -401,30 +396,6 @@ public class PKIConnection {
             uri += path;
         }
         return client.target(uri);
-    }
-
-    public void handleErrorResponse(Response response) throws Exception {
-
-        StatusType status = response.getStatusInfo();
-        MediaType contentType = response.getMediaType();
-
-        PKIException.Data data;
-        if (MediaType.APPLICATION_XML_TYPE.isCompatible(contentType)) {
-            data = response.readEntity(PKIException.Data.class);
-            logger.debug("XML response:\n" + data.toXML());
-
-        } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(contentType)) {
-            data = response.readEntity(PKIException.Data.class);
-            logger.debug("JSON response:\n" + data.toJSON());
-
-        } else {
-            throw new PKIException(status.getStatusCode(), status.getReasonPhrase());
-        }
-
-        String className = data.getClassName();
-        Class<?> exceptionClass = Class.forName(data.getClassName());
-
-        throw (PKIException) exceptionClass.getConstructor(PKIException.Data.class).newInstance(data);
     }
 
     public File getOutput() {

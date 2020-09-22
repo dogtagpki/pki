@@ -208,13 +208,14 @@ public class TPSConfigurator extends Configurator {
 
         String serverURL = "https://" + kraUri.getHost() + ":" + kraUri.getPort();
         PKIClient client = createClient(serverURL, null, null);
-        String c = client.post("/kra/admin/kra/getTransportCert", content);
+        String response = client.post("/kra/admin/kra/getTransportCert", content, String.class);
+        logger.debug("TPSConfigurator: " + response);
 
-        if (c == null) {
+        if (response == null) {
             return null;
         }
 
-        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
         XMLObject parser = new XMLObject(bis);
         String status = parser.getValue("Status");
 
@@ -249,7 +250,8 @@ public class TPSConfigurator extends Configurator {
         String targetURL = "/tks/admin/tks/importTransportCert";
 
         PKIClient client = createClient(serverURL, null, null);
-        String response = client.post(targetURL, content);
+        String response = client.post(targetURL, content, String.class);
+        logger.debug("TPSConfigurator: Response: " + response);
 
         if (response == null || response.equals("")) {
             logger.error("TPSConfigurator: The server " + targetURI + " is not available");
@@ -260,7 +262,7 @@ public class TPSConfigurator extends Configurator {
         XMLObject parser = new XMLObject(bis);
 
         String status = parser.getValue("Status");
-        logger.debug("TPSConfigurator: status: " + status);
+        logger.debug("TPSConfigurator: Status: " + status);
 
         if (status.equals(AUTH_FAILURE)) {
             throw new EAuthException(AUTH_FAILURE);

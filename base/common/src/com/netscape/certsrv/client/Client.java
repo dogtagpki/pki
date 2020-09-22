@@ -99,7 +99,7 @@ public class Client {
             path += "/" + suffix;
         }
 
-        return client.get(path);
+        return client.get(path, String.class);
     }
 
     public String post() throws Exception {
@@ -121,6 +121,6 @@ public class Client {
             path += "/" + suffix;
         }
 
-        return client.post(path);
+        return client.post(path, String.class);
     }
 }

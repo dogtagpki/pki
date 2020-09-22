@@ -58,7 +58,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXParseException;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -263,10 +262,10 @@ public class Configurator {
         String serverURL = "https://" + sdhost + ":" + sdport;
 
         PKIClient client = Configurator.createClient(serverURL, null, null);
-        String body = client.post("/ca/admin/ca/getCookie", content);
-        logger.debug("Configurator: response: " + body);
+        String response = client.post("/ca/admin/ca/getCookie", content, String.class);
+        logger.debug("Configurator: Response: " + response);
 
-        return getContentValue(body, "header.session_id");
+        return getContentValue(response, "header.session_id");
     }
 
     public String getContentValue(String body, String header) {
@@ -1134,14 +1133,15 @@ public class Configurator {
         String serverURL = "https://" + ca_hostname + ":" + ca_port;
 
         PKIClient client = Configurator.createClient(serverURL, null, null);
-        String c = client.post("/ca/ee/ca/profileSubmit", content);
+        String response = client.post("/ca/ee/ca/profileSubmit", content, String.class);
+        logger.info("Configurator: Response: " + response);
 
-        if (c == null) {
+        if (response == null) {
             logger.error("Unable to generate admin certificate: no response from CA");
             throw new IOException("Unable to generate admin certificate: no response from CA");
         }
 
-        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
         XMLObject parser = new XMLObject(bis);
 
         String status = parser.getValue("Status");
@@ -1372,36 +1372,30 @@ public class Configurator {
             client = Configurator.createClient(serverURL, null, null);
         }
 
-        String c = client.post(servlet, content);
+        String response = client.post(servlet, content, String.class);
+        logger.debug("Configurator: Response: " + response);
 
-        if (c == null || c.equals("")) {
+        if (response == null || response.equals("")) {
             logger.error("Unable to update security domain: empty response");
             throw new IOException("Unable to update security domain: empty response");
         }
 
-        try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-            XMLObject obj = new XMLObject(bis);
-            String status = obj.getValue("Status");
-            logger.debug("Configurator: updateDomainXML: status=" + status);
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
+        XMLObject obj = new XMLObject(bis);
+        String status = obj.getValue("Status");
+        logger.debug("Configurator: Status: " + status);
 
-            if (status.equals(SUCCESS)) {
-                return;
+        if (status.equals(SUCCESS)) {
+            return;
 
-            } else if (status.equals(AUTH_FAILURE)) {
-                logger.error("Unable to update security domain: authentication failure");
-                throw new IOException("Unable to update security domain: authentication failure");
+        } else if (status.equals(AUTH_FAILURE)) {
+            logger.error("Unable to update security domain: authentication failure");
+            throw new IOException("Unable to update security domain: authentication failure");
 
-            } else {
-                String error = obj.getValue("Error");
-                logger.error("Unable to update security domain: " + error);
-                throw new IOException("Unable to update security domain: " + error);
-            }
-
-        } catch (SAXParseException e) {
-            logger.error("Response: " + c);
-            logger.error("Unable to update security domain: " + e);
-            throw new IOException("Unable to update security domain: " + e, e);
+        } else {
+            String error = obj.getValue("Error");
+            logger.error("Unable to update security domain: " + error);
+            throw new IOException("Unable to update security domain: " + error);
         }
     }
 
@@ -1499,7 +1493,7 @@ public class Configurator {
         logger.info("Configurator: Getting subsystem certificate from " + serverURL);
 
         PKIClient client = createClient(serverURL, null, null);
-        String c = client.get("/ca/admin/ca/getSubsystemCert");
+        String c = client.get("/ca/admin/ca/getSubsystemCert", String.class);
 
         if (c == null) {
             logger.warn("Configurator: No response from " + serverURL);
@@ -1611,30 +1605,32 @@ public class Configurator {
         String serverURL = "https://" + targetURI.getHost() + ":" + targetURI.getPort();
 
         PKIClient client = Configurator.createClient(serverURL, null, null);
-        String response = client.post("/" + targetType + "/admin/" + targetType + "/registerUser", content);
+        String response = client.post(
+                "/" + targetType + "/admin/" + targetType + "/registerUser",
+                content,
+                String.class);
+        logger.debug("Configurator: Response: " + response);
 
         if (response == null || response.equals("")) {
-            logger.error("registerUser: response is empty or null.");
-            throw new IOException("The server " + targetURI + "is not available");
+            logger.error("Unable to add user: empty response");
+            throw new IOException("Unable to add user: empty response");
+        }
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
+        XMLObject parser = new XMLObject(bis);
+
+        String status = parser.getValue("Status");
+        logger.debug("Configurator: Status: " + status);
+
+        if (status.equals(SUCCESS)) {
+            logger.debug("Configurator: Successfully added user " + uid + " to " + targetURI);
+
+        } else if (status.equals(AUTH_FAILURE)) {
+            throw new EAuthException(AUTH_FAILURE);
 
         } else {
-            logger.debug("registerUser: response: " + response);
-            ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-            XMLObject parser = new XMLObject(bis);
-
-            String status = parser.getValue("Status");
-            logger.debug("registerUser: status=" + status);
-
-            if (status.equals(SUCCESS)) {
-                logger.debug("registerUser: Successfully added user " + uid + " to " + targetURI);
-
-            } else if (status.equals(AUTH_FAILURE)) {
-                throw new EAuthException(AUTH_FAILURE);
-
-            } else {
-                String error = parser.getValue("Error");
-                throw new IOException(error);
-            }
+            String error = parser.getValue("Error");
+            throw new IOException(error);
         }
     }
 

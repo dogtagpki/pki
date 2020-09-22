@@ -112,14 +112,18 @@ public class KRAConfigurator extends Configurator {
 
         logger.debug("KRAConfigurator: content: " + content);
         PKIClient client = createClient(serverURL, null, null);
-        String c = client.post("/ca/admin/ca/updateConnector", content);
+        String response = client.post(
+                "/ca/admin/ca/updateConnector",
+                content,
+                String.class);
+        logger.debug("Response: " + response);
 
-        if (c == null || c.equals("")) {
+        if (response == null || response.equals("")) {
             logger.error("KRAConfigurator: Unable to configure KRA connector: No response from CA");
             throw new IOException("Unable to configure KRA connector: No response from CA");
         }
 
-        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
         XMLObject parser = new XMLObject(bis);
 
         String status = parser.getValue("Status");

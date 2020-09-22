@@ -1172,19 +1172,19 @@ public class CertUtils {
         logger.debug("CertUtils: Calling profileSubmit");
         logger.debug("CertUtils: content: " + content);
 
-        String c = client.post("/ca/ee/ca/profileSubmit", content);
+        String response = client.post("/ca/ee/ca/profileSubmit", content, String.class);
+        logger.debug("CertUtils: Response: " + response);
 
-        if (c == null) {
+        if (response == null) {
             logger.error("CertUtils: Missing CA response");
             throw new Exception("Missing CA response");
         }
 
-        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
         XMLObject parser;
         try {
             parser = new XMLObject(bis);
         } catch (SAXException e) {
-            logger.error("Response: " + c);
             logger.error("CertUtils: Unable to parse XML response: " + e, e);
             throw e;
         }

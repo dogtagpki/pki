@@ -156,14 +156,18 @@ public class OCSPConfigurator extends Configurator {
         content.putSingle("ocsp_port", ocspPort + "");
 
         PKIClient client = createClient(serverURL, null, null);
-        String c = client.post("/ca/ee/ca/updateOCSPConfig", content);
+        String response = client.post(
+                "/ca/ee/ca/updateOCSPConfig",
+                content,
+                String.class);
+        logger.debug("OCSPConfigurator: Response: " + response);
 
-        if (c == null || c.equals("")) {
+        if (response == null || response.equals("")) {
             logger.error("OCSPConfigurator: Unable to update OCSP configuration: No response from CA");
             throw new IOException("Unable to update OCSP configuration: No response from CA");
         }
 
-        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
         XMLObject parser = new XMLObject(bis);
 
         String status = parser.getValue("Status");
