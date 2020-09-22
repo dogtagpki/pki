@@ -31,6 +31,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
  * @author Endi S. Dewata
  */
 @Path("order/{id}/finalize")
+@ACMEManagedService
 public class ACMEFinalizeOrderService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEFinalizeOrderService.class);

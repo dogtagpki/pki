@@ -28,6 +28,7 @@ import org.dogtagpki.acme.issuer.ACMEIssuer;
  * @author Endi S. Dewata
  */
 @Path("revoke-cert")
+@ACMEManagedService
 public class ACMERevokeCertificateService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMERevokeCertificateService.class);

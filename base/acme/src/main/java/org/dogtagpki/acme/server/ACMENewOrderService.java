@@ -30,6 +30,7 @@ import org.dogtagpki.acme.JWS;
  * @author Endi S. Dewata
  */
 @Path("new-order")
+@ACMEManagedService
 public class ACMENewOrderService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMENewOrderService.class);
