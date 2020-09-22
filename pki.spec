@@ -51,14 +51,15 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # Java
 ################################################################################
 
-%define java_home /usr/lib/jvm/jre-openjdk
 %define java_devel java-devel
 %define java_headless java-headless
 
 %if 0%{?fedora} && 0%{?fedora} >= 33
 %define min_java_version 1:11
+%define java_home /usr/lib/jvm/java-11-openjdk
 %else
 %define min_java_version 1:1.8.0
+%define java_home /usr/lib/jvm/java-1.8.0-openjdk
 %endif
 
 ################################################################################
@@ -857,7 +858,7 @@ cd build
     -DP11_KIT_TRUST=/etc/alternatives/libnssckbi.so.%{_arch} \
     -DJAVA_VERSION=${java_version} \
     -DJAVA_HOME=%java_home \
-    -DPKI_JAVA_PATH=%java \
+    -DPKI_JAVA_PATH=%java_home/bin/java \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
     -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
     -DAPP_SERVER=$app_server \
