@@ -190,6 +190,10 @@ public class ACMEEngine implements ServletContextListener {
         return config.isEnabled();
     }
 
+    public void setEnabled(boolean enabled) {
+        config.setEnabled(enabled);
+    }
+
     public void loadConfig(String filename) throws Exception {
 
         File configFile = new File(filename);
