@@ -28,6 +28,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
@@ -47,6 +49,7 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
     AsymKeyGenerationRequest.class
 })
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonInclude(Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ResourceMessage {
 
