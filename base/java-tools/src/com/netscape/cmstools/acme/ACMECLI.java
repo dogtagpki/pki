@@ -18,6 +18,8 @@ public class ACMECLI extends CLI {
         super("acme", "ACME management commands", mainCLI);
 
         addModule(new ACMEInfoCLI(this));
+        addModule(new ACMEEnableCLI(this));
+        addModule(new ACMEDisableCLI(this));
     }
 
     public String getFullName() {
