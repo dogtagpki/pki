@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 
 import javax.ws.rs.core.Response;
 
+import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -33,6 +34,35 @@ public class ACMEClient extends Client {
 
     public ACMEClient(PKIClient client) throws URISyntaxException {
         super(client, "acme", null, null);
+    }
+
+    public Account login() throws Exception {
+        Response response = post("login");
+        Account account = client.getEntity(response, Account.class);
+
+        logger.info("Account: " + account.getID());
+
+        logger.info("Roles:");
+        for (String role : account.getRoles()) {
+            logger.info("- " + role);
+        }
+
+        return account;
+    }
+
+    public void enable() throws Exception {
+        Response response = post("enable");
+        client.getEntity(response, Void.class);
+    }
+
+    public void disable() throws Exception {
+        Response response = post("disable");
+        client.getEntity(response, Void.class);
+    }
+
+    public void logout() throws Exception {
+        Response response = post("logout");
+        client.getEntity(response, Void.class);
     }
 
     public ACMEDirectory getDirectory() throws Exception {
