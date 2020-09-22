@@ -4,6 +4,19 @@ Copyright Red Hat, Inc.
 
 SPDX-License-Identifier: GPL-2.0-or-later
 -->
-<Context docBase="/usr/share/pki/acme/webapps/acme">
+<Context docBase="/usr/share/pki/acme/webapps/acme" crossContext="true">
+
+    <Manager secureRandomProvider="Mozilla-JSS" secureRandomAlgorithm="pkcs11prng"/>
+
+    <Valve className="com.netscape.cms.tomcat.ExternalAuthenticationValve" />
+
+    <Valve className="com.netscape.cms.tomcat.SSLAuthenticatorWithFallback"
+        alwaysUseSession="true"
+        secureRandomProvider="Mozilla-JSS"
+        secureRandomAlgorithm="pkcs11prng"/>
+
+    <Realm className="com.netscape.cms.tomcat.ProxyRealm" />
+
     <Resources allowLinking="true" />
+
 </Context>

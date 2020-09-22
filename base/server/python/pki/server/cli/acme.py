@@ -136,6 +136,11 @@ class ACMECreateCLI(pki.cli.CLI):
         logger.info('Creating %s', issuer_conf)
         instance.copy(issuer_template, issuer_conf, force=force)
 
+        realm_template = os.path.join(acme_share_dir, 'conf', 'realm.conf')
+        realm_conf = os.path.join(acme_conf_dir, 'realm.conf')
+        logger.info('Creating %s', realm_conf)
+        instance.copy(realm_template, realm_conf, force=force)
+
 
 class ACMERemoveCLI(pki.cli.CLI):
 
