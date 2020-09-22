@@ -4,16 +4,16 @@ javac(pki-acme-classes
     SOURCES
         src/main/java/*.java
     CLASSPATH
-        ${SERVLET_JAR}
+        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
         ${JAXRS_API_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG3_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
         ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR}
         ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
-        ${JSS_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
-        ${PKI_CMS_JAR}
+        ${JSS_JAR}
         ${LDAPJDK_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_TOMCAT_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
     DEPENDS
         pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
     OUTPUT_DIR
@@ -99,6 +99,13 @@ install(
         issuer/
     DESTINATION
         ${DATA_INSTALL_DIR}/acme/issuer/
+)
+
+install(
+    DIRECTORY
+        realm/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/acme/realm/
 )
 
 install(
