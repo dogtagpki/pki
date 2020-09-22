@@ -72,7 +72,7 @@ $ ldapmodify -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
 ```
 
 Next, prepare an LDIF file to create the ACME subtree.
-An sample LDIF file is available at [/usr/share/pki/acme/database/ds/create.ldif](../../../base/acme/database/ds/create.ldif).
+A sample LDIF file is available at [/usr/share/pki/acme/database/ds/create.ldif](../../../base/acme/database/ds/create.ldif).
 This example uses dc=acme,dc=pki,dc=example,dc=com as the base DN.
 Import the file with the following command:
 
@@ -89,7 +89,6 @@ or execute the following command to customize some of the parameters:
 
 ```
 $ pki-server acme-database-mod --type ds \
-    -DbaseDN=dc=acme,dc=pki,dc=example,dc=com \
     -DbindPassword=Secret.123
 ```
 
@@ -124,7 +123,7 @@ $ ldapadd -H ldapi:/// -Y EXTERNAL \
 ```
 
 Next, prepare an LDIF file to create the ACME subtree.
-An sample LDIF file is available at [/usr/share/pki/acme/database/openldap/create.ldif](../../../base/acme/database/openldap/create.ldif).
+A sample LDIF file is available at [/usr/share/pki/acme/database/openldap/create.ldif](../../../base/acme/database/openldap/create.ldif).
 This example uses dc=acme,dc=pki,dc=example,dc=com as the base DN.
 Import the file with the following command:
 
@@ -141,7 +140,6 @@ or execute the following command to customize some of the parameters:
 
 ```
 $ pki-server acme-database-mod --type openldap \
-    -DbaseDN=dc=acme,dc=pki,dc=example,dc=com \
     -DbindPassword=Secret.123
 ```
 
