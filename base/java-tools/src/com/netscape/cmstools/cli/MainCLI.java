@@ -61,6 +61,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.cmstools.acme.ACMECLI;
 import com.netscape.cmstools.ca.CACLI;
 import com.netscape.cmstools.cert.ProxyCertCLI;
 import com.netscape.cmstools.client.ClientCLI;
@@ -114,6 +115,7 @@ public class MainCLI extends CLI {
         addModule(new ProxyCLI(new SecurityDomainCLI(this), "ca"));
         addModule(new ProxyUserCLI(this));
 
+        addModule(new ACMECLI(this));
         addModule(new CACLI(this));
         addModule(new KRACLI(this));
         addModule(new OCSPCLI(this));
