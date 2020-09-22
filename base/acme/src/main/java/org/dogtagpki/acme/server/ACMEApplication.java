@@ -26,6 +26,9 @@ public class ACMEApplication extends Application {
 
         logger.info("Initializing ACMEApplication");
 
+        classes.add(ACMELoginService.class);
+        classes.add(ACMELogoutService.class);
+
         classes.add(ACMEDirectoryService.class);
         classes.add(ACMENewNonceService.class);
         classes.add(ACMENewAccountService.class);
