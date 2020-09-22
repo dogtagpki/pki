@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -37,6 +38,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
@@ -89,6 +91,8 @@ public class ACMEEngine implements ServletContextListener {
 
     private Properties monitorsConfig;
     private ACMEEngineConfigSource engineConfigSource = null;
+
+    public Random random;
 
     private ACMEMetadata metadata;
 
@@ -219,6 +223,10 @@ public class ACMEEngine implements ServletContextListener {
         logger.info("- certificate retention: " + policyConfig.getRetention().getCertificates());
 
         policy = new ACMEPolicy(policyConfig);
+    }
+
+    public void initRandomGenerator() throws Exception {
+        random = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
     }
 
     public void initMetadata(String filename) throws Exception {
@@ -413,6 +421,7 @@ public class ACMEEngine implements ServletContextListener {
         logger.info("ACME configuration directory: " + acmeConfDir);
         loadConfig(acmeConfDir + File.separator + "engine.conf");
 
+        initRandomGenerator();
         initMetadata(acmeConfDir + File.separator + "metadata.conf");
         initDatabase(acmeConfDir + File.separator + "database.conf");
         initValidators(acmeConfDir + File.separator + "validators.conf");
@@ -471,6 +480,12 @@ public class ACMEEngine implements ServletContextListener {
         shutdownDatabase();
 
         logger.info("ACME engine stopped");
+    }
+
+    public String randomAlphanumeric(int length) {
+        // Wrap RandomStringUtils.random instead of calling randomAlphanumeric
+        // so that we control choice of RNG.
+        return RandomStringUtils.random(length, 0, 0, true, true, null, random);
     }
 
     public ACMENonce createNonce() throws Exception {

@@ -9,10 +9,10 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import org.dogtagpki.acme.ACME;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMEError;
+import org.dogtagpki.acme.server.ACMEEngine;
 
 /**
  * @author Endi S. Dewata
@@ -65,7 +65,8 @@ public abstract class ACMEValidator {
             String authzID,
             String token) throws Exception {
 
-        String challengeID = ACME.randomAlphanumeric(10);
+        ACMEEngine engine = ACMEEngine.getInstance();
+        String challengeID = engine.randomAlphanumeric(10);
         logger.info("Creating " + name + " challenge: " + challengeID);
 
         ACMEChallenge challenge = new ACMEChallenge();

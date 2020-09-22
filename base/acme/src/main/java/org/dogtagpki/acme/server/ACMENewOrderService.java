@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.dogtagpki.acme.ACME;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEHeader;
@@ -100,7 +99,7 @@ public class ACMENewOrderService {
             identifier.setType(type);
             identifier.setValue(value);
 
-            String authzID = ACME.randomAlphanumeric(10);
+            String authzID = engine.randomAlphanumeric(10);
             logger.info("- authorization ID: " + authzID);
 
             ACMEAuthorization authorization = new ACMEAuthorization();
@@ -119,7 +118,7 @@ public class ACMENewOrderService {
             authzIDs.add(authzID);
         }
 
-        String orderID = ACME.randomAlphanumeric(10);
+        String orderID = engine.randomAlphanumeric(10);
         logger.info("Order ID: " + orderID);
 
         ACMEOrder order = new ACMEOrder();
