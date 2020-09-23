@@ -219,7 +219,7 @@ CMC requests must be submitted to the CA to be processed.
 Tool supported by PKI for submitting these requests is **HttpClient**.
 
 **Note:** For examples on how to use this tool, please see
-[Practical Usage Scenarios](http://www.dogtagpki.org/wiki/PKI_10.4_CMC_Feature_Update_(RFC5272)#Practical_Usage_Scenarios),
+[Practical Usage Scenarios](https://www.dogtagpki.org/wiki/PKI_10.4_CMC_Feature_Update_(RFC5272)#Practical_Usage_Scenarios),
 and their examples.
 
 ## SEE ALSO

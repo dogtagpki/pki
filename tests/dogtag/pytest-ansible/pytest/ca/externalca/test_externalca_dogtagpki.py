@@ -51,13 +51,13 @@ def test_externalca_dogtagpki(ansible_module):
 
       :Type: Functional
       :setup:
-      Refer: http://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_PKI_CA
+      Refer: https://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_PKI_CA
       1. Install RootCA which has rootca generated using dogtagpki utility.
       2. Make sure skid is enabled
       3. Test if the externalCA installation went through.
 
       :steps:
-      Refer: http://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_PKI_CA
+      Refer: https://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_PKI_CA
       1. Install RootCA which has rootca generated using dogtagpki utility.
       2. Make sure skid is enabled
       3. Test if the externalCA installation went through.
@@ -114,13 +114,13 @@ def test_ExternalCA_extensions_skid(ansible_module):
       :Requirement:CA Installation with existing certs-OCSP
       :Type: Functional
       :setup:
-      Refer: http://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_PKI_CA
+      Refer: https://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_PKI_CA
       1. Install RootCA which has rootca generated using dogtagpki utility.
       2. Make sure skid is enabled
       3. Test if the externalCA installation went through.
 
       :steps:
-      Refer: http://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_PKI_CA
+      Refer: https://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_PKI_CA
       1. Install RootCA which has rootca generated using dogtagpki utility.
       2. Make sure skid is enabled
       3. Test if the externalCA installation went through.

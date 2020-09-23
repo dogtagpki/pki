@@ -55,7 +55,7 @@ $(function() {
 <div id="wrap">
 <div id="header">
     <span class="message" name="logo">
-    <a href="http://www.dogtagpki.org/" title="Visit www.dogtagpki.org for more information about Certificate System products and services"><img src="/pki/images/logo_header.gif" alt="Certificate System" id="myLogo" /></a>
+    <a href="https://www.dogtagpki.org" title="Visit www.dogtagpki.org for more information about Certificate System products and services"><img src="/pki/images/logo_header.gif" alt="Certificate System" id="myLogo" /></a>
     </span>
     <div id="headertitle">
     <span class="message" name="title">

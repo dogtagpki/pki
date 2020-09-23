@@ -51,13 +51,13 @@ def test_externalca_nssdb_ski_01(ansible_module):
 
       :Type: Functional
       :setup:
-      Refer: http://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_NSS
+      Refer: https://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_NSS
       1. Install RootCA which has rootca generated using certutil utility.
       2. Make sure skid is enabled
       3. Test if the externalCA installation went through.
 
       :steps:
-      Refer: http://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_NSS
+      Refer: https://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_NSS
       1. Install RootCA which has rootca generated using certutil utility.
       2. Make sure skid is enabled
       3. Test if the externalCA installation went through.
@@ -98,13 +98,13 @@ def test_externalca_nssdb_ski_02(ansible_module):
 
       :Type: Functional
       :setup:
-      Refer: http://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_NSS
+      Refer: https://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_NSS
       1. Install RootCA which has rootca generated using certutil utility.
       2. Make sure skid is enabled
       3. Test if the externalCA installation went through.
 
       :steps:
-      Refer: http://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_NSS
+      Refer: https://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_NSS
       1. Install RootCA which has rootca generated using certutil utility.
       2. Make sure skid is enabled
       3. Test if the externalCA installation went through.
@@ -148,13 +148,13 @@ def test_externalca_nssdb_ski_03(ansible_module):
       :CaseComponent: \-
       :Type: Functional
       :setup:
-      Refer: http://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_NSS
+      Refer: https://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_NSS
       1. Install RootCA which has rootca generated using certutil utility.
       2. Make sure skid is enabled
       3. Test if the externalCA installation went through.
 
       :steps:
-      Refer: http://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_NSS
+      Refer: https://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_NSS
       1. Install RootCA which has rootca generated using certutil utility.
       2. Make sure skid is enabled
       3. Test if the externalCA installation went through.

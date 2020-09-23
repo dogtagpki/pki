@@ -7,7 +7,8 @@ Overview
 This page describes the process to install a CA subsystem as a clone of an existing CA subsystem.
 
 Before beginning with the installation, please ensure that you have configured the directory
-server and added base entries. This step is described [here](http://www.dogtagpki.org/wiki/Installing_DS).
+server and added base entries.
+The step is described [here](https://github.com/dogtagpki/pki/wiki/DS-Installation).
 
 Additionally, please verify that your FQDN is correctly reported by the following command:
 

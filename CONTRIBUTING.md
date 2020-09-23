@@ -20,7 +20,7 @@ We use github to host code and feature requests, as well as accept pull requests
 Pull requests are the best way to propose changes to the codebase (we use [Github Flow](https://guides.github.com/introduction/flow/index.html)). We actively welcome your pull requests:
 
 1. Fork the repo and create your branch from master.
-2. If you've changed or added APIs, update the documentation. (In [docs/](docs/) , [docs/man/](docs/manuals/) or [Dogtag wiki](http://dogtagpki.org/))
+2. If you've changed or added APIs, update the documentation. (In [docs/](docs/) , [docs/man/](docs/manuals/) or [Dogtag wiki](https://www.dogtagpki.org))
 3. Ensure the whole CI suite passes. This includes building, linting and testing a simple PKI deployment across **current stable Fedora releases**. Since [FreeIPA](https://github.com/freeipa/freeipa) depends on Dogtag PKI, we also include certificate related smoke tests in our CI suite.
 4. Issue that Pull Request! Ensure to follow [PR guidelines](#Pull-Request-Description) to write the description.
 5. Once a submission is approved and merged, we will of course make every effort to assure that proper credit for the contribution is reflected in the commit log.

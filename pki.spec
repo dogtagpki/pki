@@ -6,7 +6,7 @@ Name:             pki
 %global           brand Dogtag
 
 Summary:          %{brand} PKI Package
-URL:              http://www.dogtagpki.org/
+URL:              https://www.dogtagpki.org
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 

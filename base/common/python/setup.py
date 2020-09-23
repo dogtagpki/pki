@@ -122,7 +122,7 @@ and much more. The Dogtag Certificate System can be downloaded for free
 and set up in less than an hour.""",
     license='LGPLv3+',
     keywords='pki x509 cert certificate',
-    url='http://www.dogtagpki.org/',
+    url='https://www.dogtagpki.org',
     packages=['pki', 'pki.cli'],
     install_requires=['python-nss', 'requests', 'six', 'cryptography'],
     cmdclass={'version_info': VersionInfo},

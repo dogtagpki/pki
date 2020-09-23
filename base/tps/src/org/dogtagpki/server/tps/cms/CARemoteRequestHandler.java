@@ -857,7 +857,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
      * e.g. tps.connector.ca1.caNickname=CA1nickname
      *
      * See design:
-     * http://www.dogtagpki.org/wiki/TPS_-_Revocation_Routing
+     * https://www.dogtagpki.org/wiki/TPS_-_Revocation_Routing
      *
      * @param revoke true to revoke; false to unrevoke
      * @param serialno serial number for the (Un)RevokeCertificate() functions

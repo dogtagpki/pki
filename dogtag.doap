@@ -10,10 +10,10 @@
   including key archival, OCSP and smart card management,
   generation and publishing of Certificate Revocation Lists, SCEP,
   and much more.</description>
-  <homepage rdf:resource="http://www.dogtagpki.org" />
+  <homepage rdf:resource="https://www.dogtagpki.org" />
   <created>2008-03-19</created>
-  <wiki rdf:resource="http://www.dogtagpki.org/wiki/PKI_Main_Page" />
-  <download-page rdf:resource="http://www.dogtagpki.org/wiki/PKI_Download" />
+  <wiki rdf:resource="https://www.dogtagpki.org/wiki/PKI_Main_Page" />
+  <download-page rdf:resource="https://www.dogtagpki.org/wiki/PKI_Download" />
   <bug-database rdf:resource="https://bugzilla.redhat.com/" />
   <mailing-list>pki-devel@redhat.com</mailing-list>
   <mailing-list>pki-announce@redhat.com</mailing-list>
