@@ -113,7 +113,7 @@ public class LDAPDatabase extends ACMEDatabase {
     enum LoadChallenges { DoLoad , DontLoad };
     enum OnNoSuchObject { Ignore , Throw };
 
-    String basedn;
+    String baseDN;
 
     LdapBoundConnFactory connFactory = null;
 
@@ -215,13 +215,13 @@ public class LDAPDatabase extends ACMEDatabase {
             ldapConfig = cs.getSubStore("internaldb", LDAPConfig.class);
         }
 
-        basedn = config.getParameter("basedn");
-        if (basedn == null) {
-            basedn = config.getParameter("baseDN");
+        baseDN = config.getParameter("basedn");
+        if (baseDN == null) {
+            baseDN = config.getParameter("baseDN");
         } else {
             logger.warn("The basedn parameter has been deprecated. Use baseDN instead.");
         }
-        logger.info("- base DN: " + basedn);
+        logger.info("- base DN: " + baseDN);
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
@@ -230,7 +230,7 @@ public class LDAPDatabase extends ACMEDatabase {
     }
 
     public ACMENonce getNonce(String nonceID) throws Exception {
-        String dn = ATTR_NONCE_ID +  "=" + nonceID + "," + RDN_NONCE + "," + basedn;
+        String dn = ATTR_NONCE_ID +  "=" + nonceID + "," + RDN_NONCE + "," + baseDN;
         LDAPEntry entry = ldapGet(dn);
         if (entry == null) return null;
 
@@ -254,7 +254,7 @@ public class LDAPDatabase extends ACMEDatabase {
             new LDAPAttribute(ATTR_EXPIRES, dateFormat.format(nonce.getExpirationTime()))
         };
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
-        String dn = ATTR_NONCE_ID + "=" + nonce.getID() + "," + RDN_NONCE + "," + basedn;
+        String dn = ATTR_NONCE_ID + "=" + nonce.getID() + "," + RDN_NONCE + "," + baseDN;
         LDAPEntry entry = new LDAPEntry(dn, attrSet);
         ldapAdd(entry);
     }
@@ -263,7 +263,7 @@ public class LDAPDatabase extends ACMEDatabase {
         ACMENonce nonce = getNonce(nonceID);
         if (nonce == null) return null;
 
-        String dn = ATTR_NONCE_ID + "=" + nonceID + "," + RDN_NONCE + "," + basedn;
+        String dn = ATTR_NONCE_ID + "=" + nonceID + "," + RDN_NONCE + "," + baseDN;
         ldapDelete(dn, OnNoSuchObject.Ignore);
 
         return nonce;
@@ -272,7 +272,7 @@ public class LDAPDatabase extends ACMEDatabase {
     public void removeExpiredNonces(Date currentTime) throws Exception {
         String[] attrs = {"1.1"};  // suppress attrs for performance; we only need DN
         List<LDAPEntry> entries = ldapSearch(
-            RDN_NONCE + "," + basedn,
+            RDN_NONCE + "," + baseDN,
             "(" + ATTR_EXPIRES + "<=" + dateFormat.format(currentTime) + ")",
             attrs
         );
@@ -282,7 +282,7 @@ public class LDAPDatabase extends ACMEDatabase {
     }
 
     public ACMEAccount getAccount(String accountID) throws Exception {
-        String dn = ATTR_ACCOUNT_ID + "=" + accountID + "," + RDN_ACCOUNT + "," + basedn;
+        String dn = ATTR_ACCOUNT_ID + "=" + accountID + "," + RDN_ACCOUNT + "," + baseDN;
         LDAPEntry entry = ldapGet(dn);
         if (entry == null) return null;
 
@@ -323,7 +323,7 @@ public class LDAPDatabase extends ACMEDatabase {
             attrSet.add(new LDAPAttribute(ATTR_ACCOUNT_CONTACT, contacts));
         }
 
-        String dn = ATTR_ACCOUNT_ID + "=" + account.getID() + "," + RDN_ACCOUNT + "," + basedn;
+        String dn = ATTR_ACCOUNT_ID + "=" + account.getID() + "," + RDN_ACCOUNT + "," + baseDN;
         LDAPEntry entry = new LDAPEntry(dn, attrSet);
         ldapAdd(entry);
     }
@@ -333,7 +333,7 @@ public class LDAPDatabase extends ACMEDatabase {
      * and just perform the update.
      */
     public void updateAccount(ACMEAccount account) throws Exception {
-        String dn = ATTR_ACCOUNT_ID + "=" + account.getID() + "," + RDN_ACCOUNT + "," + basedn;
+        String dn = ATTR_ACCOUNT_ID + "=" + account.getID() + "," + RDN_ACCOUNT + "," + baseDN;
         LDAPModificationSet mods = new LDAPModificationSet();
         mods.add(
             LDAPModification.REPLACE,
@@ -350,7 +350,7 @@ public class LDAPDatabase extends ACMEDatabase {
     }
 
     public ACMEOrder getOrder(String orderID) throws Exception {
-        String dn = ATTR_ORDER_ID + "=" + orderID + "," + RDN_ORDER + "," + basedn;
+        String dn = ATTR_ORDER_ID + "=" + orderID + "," + RDN_ORDER + "," + baseDN;
         LDAPEntry entry = ldapGet(dn);
         if (entry == null) return null;
         return loadOrder(entry);
@@ -360,7 +360,7 @@ public class LDAPDatabase extends ACMEDatabase {
         Collection<ACMEOrder> orders = new ArrayList<>();
 
         List<LDAPEntry> entries = ldapSearch(
-            RDN_ORDER + "," + basedn,
+            RDN_ORDER + "," + baseDN,
             "(&(" + ATTR_OBJECTCLASS + "=" + OBJ_ORDER +
                 ")(" + ATTR_ACCOUNT_ID + "=" + accountID + "))"
         );
@@ -375,7 +375,7 @@ public class LDAPDatabase extends ACMEDatabase {
         Collection<ACMEOrder> orders = new ArrayList<>();
 
         List<LDAPEntry> entries = ldapSearch(
-            RDN_ORDER + "," + basedn,
+            RDN_ORDER + "," + baseDN,
             "(&(" + ATTR_OBJECTCLASS + "=" + OBJ_ORDER +
                 ")(" + ATTR_AUTHORIZATION_ID + "=" + authzID +
                 ")(" + ATTR_STATUS + "=" + status + "))"
@@ -389,7 +389,7 @@ public class LDAPDatabase extends ACMEDatabase {
     public ACMEOrder getOrderByCertificate(String certID)
             throws Exception {
         List<LDAPEntry> entries = ldapSearch(
-            RDN_ORDER + "," + basedn,
+            RDN_ORDER + "," + baseDN,
             "(&(" + ATTR_OBJECTCLASS + "=" + OBJ_ORDER +
                 ")(" + ATTR_CERTIFICATE_ID + "=" + certID + "))"
         );
@@ -485,13 +485,13 @@ public class LDAPDatabase extends ACMEDatabase {
             attrSet.add(new LDAPAttribute(ATTR_ERROR, error));
         }
 
-        String dn = ATTR_ORDER_ID + "=" + order.getID() + "," + RDN_ORDER + "," + basedn;
+        String dn = ATTR_ORDER_ID + "=" + order.getID() + "," + RDN_ORDER + "," + baseDN;
         LDAPEntry entry = new LDAPEntry(dn, attrSet);
         ldapAdd(entry);
     }
 
     public void updateOrder(ACMEOrder order) throws Exception {
-        String dn = ATTR_ORDER_ID + "=" + order.getID() + "," + RDN_ORDER + "," + basedn;
+        String dn = ATTR_ORDER_ID + "=" + order.getID() + "," + RDN_ORDER + "," + baseDN;
         LDAPModificationSet mods = new LDAPModificationSet();
         mods.add(
             LDAPModification.REPLACE,
@@ -532,7 +532,7 @@ public class LDAPDatabase extends ACMEDatabase {
     public void removeExpiredOrders(Date currentTime) throws Exception {
         String[] attrs = {"1.1"};  // suppress attrs for performance; we only need DN
         List<LDAPEntry> entries = ldapSearch(
-            RDN_ORDER + "," + basedn,
+            RDN_ORDER + "," + baseDN,
             "(" + ATTR_EXPIRES + "<=" + dateFormat.format(currentTime) + ")",
             attrs
         );
@@ -547,7 +547,7 @@ public class LDAPDatabase extends ACMEDatabase {
 
     private ACMEAuthorization getAuthorization(String authzID, LoadChallenges clc)
             throws Exception {
-        String dn = ATTR_AUTHORIZATION_ID + "=" + authzID + "," + RDN_AUTHORIZATION + "," + basedn;
+        String dn = ATTR_AUTHORIZATION_ID + "=" + authzID + "," + RDN_AUTHORIZATION + "," + baseDN;
         LDAPEntry entry = ldapGet(dn);
         if (entry == null) return null;
 
@@ -593,7 +593,7 @@ public class LDAPDatabase extends ACMEDatabase {
         if (clc == LoadChallenges.DoLoad) {
             List<ACMEChallenge> challenges = new ArrayList<>();
             Collection<LDAPEntry> entries = ldapSearch(
-                RDN_CHALLENGE + "," + basedn,
+                RDN_CHALLENGE + "," + baseDN,
                 "(&(" + ATTR_OBJECTCLASS + "=" + OBJ_CHALLENGE +
                     ")(" + ATTR_AUTHORIZATION_ID + "=" + authzID + "))"
             );
@@ -609,7 +609,7 @@ public class LDAPDatabase extends ACMEDatabase {
     private ACMEChallenge getChallenge(String challengeID)
             throws Exception {
         String dn = ATTR_CHALLENGE_ID + "=" + challengeID
-                        + "," + RDN_CHALLENGE + "," + basedn;
+                        + "," + RDN_CHALLENGE + "," + baseDN;
         LDAPEntry entry = ldapGet(dn);
         if (entry == null) return null;
         return loadChallenge(entry);
@@ -693,7 +693,7 @@ public class LDAPDatabase extends ACMEDatabase {
         attrSet.add(new LDAPAttribute(ATTR_AUTHORIZATION_WILDCARD, wildcardValue));
 
         String dn = ATTR_AUTHORIZATION_ID + "=" + authorization.getID()
-                        + "," + RDN_AUTHORIZATION + "," + basedn;
+                        + "," + RDN_AUTHORIZATION + "," + baseDN;
         LDAPEntry entry = new LDAPEntry(dn, attrSet);
         ldapAdd(entry);
     }
@@ -722,14 +722,14 @@ public class LDAPDatabase extends ACMEDatabase {
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
 
         String dn = ATTR_CHALLENGE_ID + "=" + challenge.getID()
-                        + "," + RDN_CHALLENGE + "," + basedn;
+                        + "," + RDN_CHALLENGE + "," + baseDN;
         LDAPEntry entry = new LDAPEntry(dn, attrSet);
         ldapAdd(entry);
     }
 
     public void updateAuthorization(ACMEAuthorization authorization) throws Exception {
         String dn = ATTR_AUTHORIZATION_ID + "=" + authorization.getID()
-                        + "," + RDN_AUTHORIZATION + "," + basedn;
+                        + "," + RDN_AUTHORIZATION + "," + baseDN;
         LDAPModificationSet mods = new LDAPModificationSet();
         mods.add(
             LDAPModification.REPLACE,
@@ -756,13 +756,13 @@ public class LDAPDatabase extends ACMEDatabase {
             getAuthorization(authorization.getID(), LoadChallenges.DoLoad);
         for (ACMEChallenge challenge : authzORIG.getChallenges()) {
             dn = ATTR_CHALLENGE_ID + "=" + challenge.getID()
-                    + "," + RDN_CHALLENGE + "," + basedn;
+                    + "," + RDN_CHALLENGE + "," + baseDN;
             ldapDelete(dn, OnNoSuchObject.Ignore);
         }
         // now add the possibly-changed challenges.
         for (ACMEChallenge challenge : authorization.getChallenges()) {
             dn = ATTR_CHALLENGE_ID + "=" + challenge.getID()
-                    + "," + RDN_CHALLENGE + "," + basedn;
+                    + "," + RDN_CHALLENGE + "," + baseDN;
             addChallenge(authorization.getAccountID(), challenge);
         }
         // NOTE: there are optimisation opportunities here.
@@ -812,7 +812,7 @@ public class LDAPDatabase extends ACMEDatabase {
          *   whether the identifier began with "*." or not.
          */
         List<LDAPEntry> entries = ldapSearch(
-            RDN_AUTHORIZATION + "," + basedn,
+            RDN_AUTHORIZATION + "," + baseDN,
             "(&(" + ATTR_OBJECTCLASS + "=" + OBJ_AUTHORIZATION
                 + ")(" + ATTR_ACCOUNT_ID + "=" + accountID
                 + ")(!(" + ATTR_EXPIRES + "<=" + dateFormat.format(time) + ")"
@@ -827,7 +827,7 @@ public class LDAPDatabase extends ACMEDatabase {
     public void removeExpiredAuthorizations(Date currentTime) throws Exception {
         String[] attrs = {"1.1"};  // suppress attrs for performance; we only need DN
         List<LDAPEntry> entries = ldapSearch(
-            RDN_AUTHORIZATION + "," + basedn,
+            RDN_AUTHORIZATION + "," + baseDN,
             "(" + ATTR_EXPIRES + "<=" + dateFormat.format(currentTime) + ")",
             attrs
         );
@@ -837,7 +837,7 @@ public class LDAPDatabase extends ACMEDatabase {
     }
 
     public ACMECertificate getCertificate(String certID) throws Exception {
-        String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + basedn;
+        String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + baseDN;
         LDAPEntry entry = ldapGet(dn);
         if (entry == null) return null;
 
@@ -860,7 +860,7 @@ public class LDAPDatabase extends ACMEDatabase {
 
     public void addCertificate(String certID, ACMECertificate certificate) throws Exception {
 
-        String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + basedn;
+        String dn = ATTR_CERTIFICATE_ID + "=" + certID + "," + RDN_CERTIFICATE + "," + baseDN;
         LDAPAttribute[] attrs = {
                 new LDAPAttribute(ATTR_OBJECTCLASS, OBJ_CERTIFICATE),
                 new LDAPAttribute(ATTR_CERTIFICATE_ID, certID),
@@ -883,7 +883,7 @@ public class LDAPDatabase extends ACMEDatabase {
     public void removeExpiredCertificates(Date currentTime) throws Exception {
         String[] attrs = {"1.1"};  // suppress attrs for performance; we only need DN
         List<LDAPEntry> entries = ldapSearch(
-            RDN_CERTIFICATE + "," + basedn,
+            RDN_CERTIFICATE + "," + baseDN,
             "(" + ATTR_EXPIRES + "<=" + dateFormat.format(currentTime) + ")",
             attrs
         );
