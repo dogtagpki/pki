@@ -24,6 +24,7 @@
 <script src="/pki/js/backbone.js"></script>
 <script src="/pki/js/pki.js"></script>
 <script src="/pki/js/pki-banner.js"></script>
+<script src="/pki/js/pki-app.js"></script>
 
 <script type="text/javascript" language="JavaScript">
 $(function() {
@@ -38,6 +39,30 @@ $(function() {
                 var message = $.i18n.prop(key);
                 $('span.message[name='+key+']').html(message);
             }
+        }
+    });
+
+    var table = $("table[name='apps']");
+    var template = $("tr", table).detach();
+
+    var apps = new AppCollection();
+    apps.fetch({
+        reset: true,
+        success: function(collection, response, options) {
+            apps.forEach(function(app){
+                var name = app.get("name");
+                var path = app.get("path");
+
+                var tr = template.clone();
+                $("a[name=path]", tr).attr("href", path);
+                $("span[name=name]", tr).text(name);
+                tr.show();
+
+                table.append(tr);
+            });
+        },
+        error: function(collection, response, options) {
+            alert('ERROR: ' + response);
         }
     });
 });
@@ -92,70 +117,11 @@ $(function() {
 
 <br>
 
-<table border="0" cellspacing="0" cellpadding="0">
-<tr valign="TOP">
+<table name="apps" border="0" cellspacing="0" cellpadding="0">
+<tr style="display: none">
     <td>
-<%
-    ServletContext caContext = getServletContext().getContext("/ca");
-    if (caContext != null) {
-        String caName = caContext.getServletContextName();
-        String caPath = caContext.getContextPath();
-        if (!"".equals(caPath)) {
-%>
         <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/ca"><%= caName %></a></font>
-<%
-        }
-    }
-
-    ServletContext kraContext = getServletContext().getContext("/kra");
-    if (kraContext != null) {
-        String kraName = kraContext.getServletContextName();
-        String kraPath = kraContext.getContextPath();
-        if (!"".equals(kraPath) && request.isSecure()) {
-%>
-        <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/kra"><%= kraName %></a></font>
-<%
-        }
-    }
-
-    ServletContext ocspContext = getServletContext().getContext("/ocsp");
-    if (ocspContext != null) {
-        String ocspName = ocspContext.getServletContextName();
-        String ocspPath = ocspContext.getContextPath();
-        if (!"".equals(ocspPath) && request.isSecure()) {
-%>
-        <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/ocsp"><%= ocspName %></a></font>
-<%
-        }
-    }
-
-    ServletContext tksContext = getServletContext().getContext("/tks");
-    if (tksContext != null) {
-        String tksName = tksContext.getServletContextName();
-        String tksPath = tksContext.getContextPath();
-        if (!"".equals(tksPath) && request.isSecure()) {
-%>
-        <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/tks"><%= tksName %></a></font>
-<%
-        }
-    }
-
-    ServletContext tpsContext = getServletContext().getContext("/tps");
-    if (tpsContext != null) {
-        String tpsName = tpsContext.getServletContextName();
-        String tpsPath = tpsContext.getContextPath();
-        if (!"".equals(tpsPath) && request.isSecure()) {
-%>
-        <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/tps/"><%= tpsName %></a></font>
-<%
-        }
-    }
-%>
+        <a name="path" href=""><span name="name"></span></a></font>
     </td>
 </tr>
 </table>

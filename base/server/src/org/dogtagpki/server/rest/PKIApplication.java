@@ -31,6 +31,7 @@ public class PKIApplication extends Application {
     public PKIApplication() {
 
         // services
+        classes.add(AppService.class);
         classes.add(InfoService.class);
         classes.add(LoginService.class);
 
