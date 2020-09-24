@@ -50,7 +50,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
     @Override
     public void process(BeginOpMsg beginMsg) throws TPSException, IOException {
         if (beginMsg == null) {
-            throw new TPSException("TPSPinResetProcessor.process: invalid input data, not beginMsg provided.",
+            throw new TPSException("TPSPinResetProcessor.process: invalid input data, no beginMsg provided.",
                     TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
         setBeginMessage(beginMsg);
@@ -306,7 +306,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
             logMsg = logMsg + ":" + e.toString();
             tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
-            throw new TPSException(logMsg);
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
         }
 
         CMS.debug(method + ": Token Pin successfully reset!");
