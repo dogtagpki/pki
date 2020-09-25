@@ -854,29 +854,12 @@ public class Configurator {
             cs.putString(subsystem + "." + tag + ".cert", certStr);
         }
 
-        cs.commit(false);
-
-        return cert;
-    }
-
-    public void handleCert(Cert cert) throws Exception {
-
-        String certTag = cert.getCertTag();
-        logger.debug("Configurator.handleCert(" + certTag + ")");
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String subsystem = cert.getSubsystem();
-        String nickname = cert.getNickname();
-
-        logger.debug("Configurator: cert type: " + cert.getType());
-
-        String tokenname = preopConfig.getString("module.token", "");
-
         byte[] certb = cert.getCert();
         X509CertImpl impl = new X509CertImpl(certb);
 
-        importCert(subsystem, certTag, tokenname, nickname, impl);
+        importCert(subsystem, tag, tokenName, nickname, impl);
+
+        return cert;
     }
 
     public void importCert(
@@ -930,8 +913,6 @@ public class Configurator {
 
         KeyPair keyPair = processKeyPair(certData);
         Cert cert = processCert(request, keyPair, certData);
-
-        handleCert(cert);
 
         // make sure to commit changes here for step 1
         cs.commit(false);
