@@ -77,7 +77,6 @@ import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.xml.sax.SAXException;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
@@ -88,7 +87,6 @@ import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -1028,45 +1026,6 @@ public class CertUtils {
         req.setRequestStatus(RequestStatus.COMPLETE);
 
         return req;
-    }
-
-    /**
-     * update local cert request with the actual request
-     * called from CertRequestPanel.java
-     * @throws EBaseException
-     * @throws EPropertyNotFound
-     */
-    public static void updateLocalRequest(
-            RequestId reqId,
-            byte[] certReq,
-            String reqType,
-            String subjectName
-            ) throws Exception {
-
-        logger.debug("CertUtils: updateLocalRequest(" + reqId + ")");
-
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        IRequestQueue queue = ca.getRequestQueue();
-
-        IRequest req = queue.findRequest(reqId);
-
-        if (certReq != null) {
-            logger.debug("CertUtils: updating cert request");
-            String certReqs = CryptoUtil.base64Encode(certReq);
-            String certReqf = CryptoUtil.reqFormat(certReqs);
-            req.setExtData("cert_request", certReqf);
-        }
-
-        req.setExtData("cert_request_type", reqType);
-
-        if (subjectName != null) {
-            logger.debug("CertUtils: updating request subject: " + subjectName);
-            req.setExtData("subject", subjectName);
-            new X500Name(subjectName); // check for errors
-        }
-
-        queue.updateRequest(req);
     }
 
     public static X509CertInfo createCertInfo(

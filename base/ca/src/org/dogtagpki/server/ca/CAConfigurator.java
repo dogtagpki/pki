@@ -35,6 +35,7 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
@@ -102,6 +103,43 @@ public class CAConfigurator extends Configurator {
                 installAdjustValidity);
     }
 
+    /**
+     * Update local cert request with the actual request.
+     */
+    public void updateLocalRequest(
+            RequestId reqId,
+            byte[] certReq,
+            String reqType,
+            String subjectName
+            ) throws Exception {
+
+        logger.info("CAConfigurator: Updating request " + reqId);
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
+        IRequestQueue queue = ca.getRequestQueue();
+        IRequest req = queue.findRequest(reqId);
+
+        if (subjectName != null) {
+            logger.debug("CAConfigurator: - subject: " + subjectName);
+            req.setExtData("subject", subjectName);
+            new X500Name(subjectName); // check for errors
+        }
+
+        logger.debug("CAConfigurator: - type:\n" + reqType);
+        req.setExtData("cert_request_type", reqType);
+
+        if (certReq != null) {
+            String b64Certreq = CryptoUtil.base64Encode(certReq);
+            String pemCertreq = CryptoUtil.reqFormat(b64Certreq);
+            logger.debug("CAConfigurator: - request:\n" + pemCertreq);
+            req.setExtData("cert_request", pemCertreq);
+        }
+
+        queue.updateRequest(req);
+    }
+
     @Override
     public void loadCert(Cert cert, org.mozilla.jss.crypto.X509Certificate x509Cert) throws Exception {
 
@@ -162,7 +200,7 @@ public class CAConfigurator extends Configurator {
         queue.updateRequest(req);
 
         // update the locally created request for renewal
-        CertUtils.updateLocalRequest(req.getRequestId(), cert.getRequest(), "pkcs10", null);
+        updateLocalRequest(req.getRequestId(), cert.getRequest(), "pkcs10", null);
 
         CertUtils.createCertRecord(req, profile, certImpl);
     }
@@ -229,7 +267,7 @@ public class CAConfigurator extends Configurator {
         queue.updateRequest(req);
 
         // update the locally created request for renewal
-        CertUtils.updateLocalRequest(reqId, cert.getRequest(), "pkcs10", null);
+        updateLocalRequest(reqId, cert.getRequest(), "pkcs10", null);
 
         if (tag.equals("subsystem")) {
             logger.debug("CAConfigurator: creating subsystem user");
@@ -381,7 +419,7 @@ public class CAConfigurator extends Configurator {
         queue.updateRequest(req);
 
         // update the locally created request for renewal
-        CertUtils.updateLocalRequest(reqId, binRequest, certRequestType, subject);
+        updateLocalRequest(reqId, binRequest, certRequestType, subject);
 
         if (ca != null) {
             PKCS7 pkcs7 = createCertChain(impl);
