@@ -427,7 +427,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new BadRequestException(message);
         }
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         ProfileSubsystem ps = engine.getProfileSubsystem();
 
         if (ps == null) {
@@ -488,7 +488,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         start = start == null ? DEFAULT_START : start;
         size = size == null ? DEFAULT_PAGESIZE : size;
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         ProfileSubsystem ps = engine.getProfileSubsystem();
 
         if (ps == null) {

@@ -39,8 +39,8 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.profile.ProfileAuthenticator;
-import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
@@ -87,7 +87,7 @@ public class ProfileSelectServlet extends ProfileServlet {
 
         Locale locale = getLocale(request);
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         IAuthToken authToken = null;

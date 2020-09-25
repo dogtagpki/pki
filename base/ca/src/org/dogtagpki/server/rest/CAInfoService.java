@@ -25,6 +25,7 @@ import org.dogtagpki.common.CAInfo;
 import org.dogtagpki.common.CAInfoResource;
 import org.dogtagpki.common.KRAInfo;
 import org.dogtagpki.common.KRAInfoClient;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.slf4j.Logger;
@@ -38,8 +39,6 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -126,7 +125,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
 
     private static void queryKRAInfo(KRAConnectorInfo connInfo) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         KRAInfoClient kraInfoClient = getKRAInfoClient(connInfo);
@@ -177,7 +176,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
      */
     private static KRAInfoClient getKRAInfoClient(KRAConnectorInfo connInfo) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
         IConfigStore kraConnectorConfig = cs.getSubStore(KRAConnectorProcessor.PREFIX);
 

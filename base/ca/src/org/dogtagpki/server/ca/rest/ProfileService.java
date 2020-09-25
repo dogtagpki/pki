@@ -92,7 +92,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     private ProfileSubsystem ps;
 
     public ProfileService() {
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         registry = engine.getPluginRegistry();
         ps = engine.getProfileSubsystem();
     }
@@ -358,7 +358,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     public static ProfileDataInfo createProfileDataInfo(String profileId, boolean visibleOnly, UriInfo uriInfo,
             Locale locale) throws EBaseException {
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         ProfileSubsystem ps = engine.getProfileSubsystem();
 
         if (profileId == null) {

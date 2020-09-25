@@ -27,6 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.authority.IAuthority;
@@ -58,7 +59,6 @@ import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
@@ -104,7 +104,7 @@ public class PublisherAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         String authority = config.getInitParameter(PROP_AUTHORITY);
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         if (authority != null)
             mAuth = (IAuthority) engine.getSubsystem(authority);
@@ -436,7 +436,7 @@ public class PublisherAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         IConfigStore config = mAuth.getConfigStore();
         IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
         IConfigStore ldapcfg = publishcfg.getSubStore(IPublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
@@ -505,7 +505,7 @@ public class PublisherAdminServlet extends AdminServlet {
     private void setLDAPDest(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         //Save New Settings to the config file
         IConfigStore config = mAuth.getConfigStore();
@@ -627,7 +627,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         logger.debug("PublisherAdmineServlet: in testSetLDAPDest");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();

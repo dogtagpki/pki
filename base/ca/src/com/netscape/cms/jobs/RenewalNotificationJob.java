@@ -45,7 +45,6 @@ import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
@@ -285,7 +284,7 @@ public class RenewalNotificationJob
      * responsible parties
      */
     public void run() {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         // for forming renewal URL at template
         mHttpHost = engine.getEEHost();
         mHttpPort = engine.getEESSLPort();
@@ -531,7 +530,7 @@ public class RenewalNotificationJob
             ICertRecord cr)
             throws IOException, ENotificationException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         IMailNotification mn = engine.getMailNotification();
 
         String rcp = null;

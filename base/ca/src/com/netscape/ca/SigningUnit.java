@@ -22,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -47,7 +48,6 @@ import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -244,7 +244,7 @@ public final class SigningUnit implements ISigningUnit {
      */
     public byte[] sign(byte[] data, String algname)
             throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         if (!mInited) {
             throw new EBaseException("CASigningUnit not initialized!");
         }
@@ -317,7 +317,7 @@ public final class SigningUnit implements ISigningUnit {
 
     public boolean verify(byte[] data, byte[] signature, String algname)
             throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         if (!mInited) {
             throw new EBaseException("CASigningUnit not initialized!");
         }

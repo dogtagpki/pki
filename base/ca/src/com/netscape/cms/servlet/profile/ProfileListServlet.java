@@ -74,7 +74,7 @@ public class ProfileListServlet extends ProfileServlet {
 
         logger.debug("ProfileListServlet: start serving");
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         Locale locale = getLocale(request);
 
         ArgSet args = new ArgSet();

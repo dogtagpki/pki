@@ -38,9 +38,9 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
@@ -105,7 +105,6 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -959,7 +958,7 @@ public class CMCUserSignedAuth implements AuthManager, IExtendedPluginInfo,
         String msg = "";
         logger.debug(method + "begins");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();

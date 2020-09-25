@@ -78,7 +78,6 @@ import com.netscape.cms.servlet.processors.KeyGenProcessor;
 import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
@@ -1483,7 +1482,7 @@ public class EnrollServlet extends CMSServlet {
     protected void addAdminAgent(CMSRequest cmsReq, X509CertImpl[] issuedCerts)
             throws EBaseException {
         String userid = cmsReq.getHttpParams().getValueAsString("uid");
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         UGSubsystem ug = engine.getUGSubsystem();
 
         IUser adminuser = ug.createUser(userid);

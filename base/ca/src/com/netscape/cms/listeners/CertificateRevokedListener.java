@@ -44,7 +44,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.EmailTemplate;
@@ -111,7 +110,7 @@ public class CertificateRevokedListener implements IRequestListener {
 
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -248,7 +247,7 @@ public class CertificateRevokedListener implements IRequestListener {
     }
 
     private void mailIt(String mEmail, RevokedCertImpl crlentries[]) {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);

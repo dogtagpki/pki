@@ -42,16 +42,15 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.profile.common.ProfileOutput;
-import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 
@@ -84,7 +83,7 @@ public class ProfileReviewServlet extends ProfileServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
@@ -111,7 +110,7 @@ public class ProfileReviewServlet extends ProfileServlet {
 
         logger.debug("ProfileReviewServlet: start serving");
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         Locale locale = getLocale(request);
         ArgSet args = new ArgSet();
         IAuthToken authToken = null;

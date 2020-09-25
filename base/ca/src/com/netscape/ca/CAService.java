@@ -88,7 +88,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.LocalConnector;
@@ -233,7 +232,7 @@ public class CAService implements ICAService, IService {
     public IConnector getConnector(IConfigStore config)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         IConnector connector = null;
@@ -342,7 +341,7 @@ public class CAService implements ICAService, IService {
             throw new EBaseException("profileId not found");
         }
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         ProfileSubsystem ps = engine.getProfileSubsystem();
         Profile profile = null;
 

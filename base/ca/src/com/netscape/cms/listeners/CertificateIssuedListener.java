@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authority.ICertAuthority;
@@ -41,7 +42,6 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.EmailTemplate;
@@ -108,7 +108,7 @@ public class CertificateIssuedListener implements IRequestListener {
 
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -270,7 +270,7 @@ public class CertificateIssuedListener implements IRequestListener {
     }
 
     private void mailIt(String mEmail, X509CertImpl issuedCert[]) {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
@@ -339,7 +339,7 @@ public class CertificateIssuedListener implements IRequestListener {
 
         // now we can mail
         if ((mEmail != null) && !mEmail.equals("")) {
-            CMSEngine engine = CMS.getCMSEngine();
+            CAEngine engine = CAEngine.getInstance();
             IMailNotification mn = engine.getMailNotification();
 
             mn.setFrom(mSenderEmail);

@@ -24,6 +24,7 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
@@ -47,7 +48,6 @@ import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -126,7 +126,7 @@ public class LdapPublishModule implements IRequestListener {
         if (mInited)
             return;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         mAuthority = authority;
@@ -149,7 +149,7 @@ public class LdapPublishModule implements IRequestListener {
         if (mInited)
             return;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         mAuthority = authority;

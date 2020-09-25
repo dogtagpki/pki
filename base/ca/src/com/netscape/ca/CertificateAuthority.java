@@ -137,7 +137,6 @@ import com.netscape.cms.servlet.cert.RenewalProcessor;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -1018,7 +1017,7 @@ public class CertificateAuthority
     public X509CRLImpl sign(X509CRLImpl crl, String algname)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         ensureReady();
         X509CRLImpl signedcrl = null;
 

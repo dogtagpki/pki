@@ -118,7 +118,6 @@ import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.profile.ProfileSubsystem;
@@ -233,7 +232,7 @@ public class CRSEnrollment extends HttpServlet {
         if (crsCA == null)
             crsCA = "ca";
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         mAuthority = (ICertAuthority) engine.getSubsystem(crsCA);
@@ -344,7 +343,7 @@ public class CRSEnrollment extends HttpServlet {
                       HttpServletResponse httpResp)
             throws ServletException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         boolean running_state = engine.isInRunningState();
 
         if (!running_state)

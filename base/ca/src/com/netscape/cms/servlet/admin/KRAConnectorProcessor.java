@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICAService;
 
@@ -35,8 +34,6 @@ import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.processors.CAProcessor;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -73,7 +70,7 @@ public class KRAConnectorProcessor extends CAProcessor {
             throw new BadRequestException("Bad Request: KRA Host or Port not defined");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         String host = cs.getString(PREFIX + ".host");
@@ -178,7 +175,7 @@ public class KRAConnectorProcessor extends CAProcessor {
 
     public void addConnector(KRAConnectorInfo info) throws EPropertyNotFound, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         String newHost = info.getHost();
@@ -235,7 +232,7 @@ public class KRAConnectorProcessor extends CAProcessor {
             throw new ConnectorNotFoundException("No KRAConnector has been configured.");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         KRAConnectorInfo info = new KRAConnectorInfo();
@@ -251,7 +248,7 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void addHost(String newHost, String newPort) throws EPropertyNotFound, EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         if ((newHost == null) || (newPort == null)) {

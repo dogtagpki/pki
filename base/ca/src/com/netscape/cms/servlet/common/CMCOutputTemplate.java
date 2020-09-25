@@ -101,7 +101,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -359,7 +358,7 @@ public class CMCOutputTemplate {
                 controlSeq.addElement(tagattr);
             }
 
-            CMSEngine engine = CMS.getCMSEngine();
+            CAEngine engine = CAEngine.getInstance();
             EngineConfig cs = engine.getConfig();
 
             if (success_bpids.size() > 0) {
@@ -1567,7 +1566,7 @@ public class CMCOutputTemplate {
                         // now check validity of the cert
                         java.security.cert.X509Certificate[] x509Certs = new java.security.cert.X509Certificate[1];
                         x509Certs[0] = cert;
-                        CMSEngine engine = CMS.getCMSEngine();
+                        CAEngine engine = CAEngine.getInstance();
                         if (engine.isRevoked(x509Certs)) {
                             logger.warn(method + "CMC signing cert is a revoked certificate");
                             return false;

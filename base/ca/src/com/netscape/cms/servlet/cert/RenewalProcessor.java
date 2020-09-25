@@ -31,6 +31,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -56,7 +57,6 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 public class RenewalProcessor extends CertProcessor {
@@ -89,7 +89,7 @@ public class RenewalProcessor extends CertProcessor {
 
             logger.debug("RenewalProcessor: processRenewal()");
 
-            CMSEngine engine = CMS.getCMSEngine();
+            CAEngine engine = CAEngine.getInstance();
 
             startTiming("enrollment");
             request.setAttribute("reqType", "renewal");

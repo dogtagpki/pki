@@ -54,7 +54,6 @@ import com.netscape.cms.servlet.cert.RequestProcessor;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 
@@ -76,7 +75,7 @@ public class CertRequestDAO extends CMSRequestDAO {
     public CertRequestDAO() {
         super("ca");
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         ca = engine.getCA();

@@ -329,7 +329,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
         logger.debug("ProfileSubmitCMCServlet: SubId=" + mProfileSubId);
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         ProfileSubsystem ps = engine.getProfileSubsystem();
 
         if (ps == null) {

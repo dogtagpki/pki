@@ -29,6 +29,7 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICMSCRLExtensions;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
@@ -81,7 +82,6 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -699,7 +699,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     private Vector<String> getProfileList(String list) {
         Enumeration<String> e = null;
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         IConfigStore pc = engine.getConfig().getSubStore("profile");
         if (pc != null)
             e = pc.getSubStoreNames();
@@ -2555,7 +2555,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         logger.debug("updateCRLNow: mEnableCRLUpdates =" + mEnableCRLUpdates);
         logger.debug("updateCRLNow: mDoLastAutoUpdate =" + mDoLastAutoUpdate);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate))
             return;
 
@@ -3122,7 +3122,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             throws EBaseException {
         SessionContext sc = SessionContext.getContext();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("crl_publishing");

@@ -49,7 +49,6 @@ import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
@@ -106,7 +105,7 @@ public class ProfileAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         registry = engine.getPluginRegistry();
         mProfileSub = engine.getProfileSubsystem();
     }
@@ -2366,7 +2365,7 @@ public class ProfileAdminServlet extends AdminServlet {
         String user = combo.substring(0, semicolon);
         String pw = combo.substring(semicolon + 1);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         engine.putPasswordCache(user, pw);
     }
 

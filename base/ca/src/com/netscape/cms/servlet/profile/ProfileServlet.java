@@ -32,6 +32,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.ca.CAEngine;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
@@ -45,8 +47,6 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.ServletUtils;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 
 /**
@@ -180,7 +180,7 @@ public class ProfileServlet extends CMSServlet {
         mGetClientCert = sc.getInitParameter(PROP_CLIENTAUTH);
         mAuthMgr = sc.getInitParameter(PROP_AUTHMGR);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         mAuthz = engine.getAuthzSubsystem();
 
         mAuthzResourceName = sc.getInitParameter(PROP_RESOURCEID);
@@ -258,7 +258,7 @@ public class ProfileServlet extends CMSServlet {
             return;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("output_template");
@@ -383,7 +383,7 @@ public class ProfileServlet extends CMSServlet {
     }
 
     public void startTiming(String event) {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming(event, true);
@@ -392,7 +392,7 @@ public class ProfileServlet extends CMSServlet {
     }
 
     public void endTiming(String event) {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.endTiming(event);

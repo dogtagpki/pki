@@ -37,8 +37,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtag.util.cert.CertUtil;
-import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthManager;
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.asn1.INTEGER;
@@ -84,7 +84,6 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
@@ -189,7 +188,7 @@ public class HashEnrollServlet extends CMSServlet {
             return;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String val = configStore.getString("hashDirEnrollment.name");
@@ -330,7 +329,7 @@ public class HashEnrollServlet extends CMSServlet {
         saveHttpHeaders(httpReq, req);
         saveHttpParams(httpParams, req);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         IAuthToken token = authenticate(cmsReq);

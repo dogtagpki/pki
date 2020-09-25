@@ -28,7 +28,6 @@ import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.profile.common.Profile;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 
 /**
@@ -105,7 +104,7 @@ public class CAPolicy implements IPolicy {
                 r.getRequestId().toString() + ",requestStatus=" +
                 r.getRequestStatus().toString() + ")");
 
-        CAEngine engine = (CAEngine) CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         if (isProfileRequest(r)) {
             logger.debug("CAPolicy: Profile-base Request " +
                     r.getRequestId().toString());

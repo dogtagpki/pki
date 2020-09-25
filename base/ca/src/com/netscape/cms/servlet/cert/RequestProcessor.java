@@ -60,7 +60,6 @@ import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 
 public class RequestProcessor extends CertProcessor {
@@ -217,7 +216,7 @@ public class RequestProcessor extends CertProcessor {
 
     private boolean grantPermission(IRequest req, IAuthToken token) {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         boolean enable = false;
