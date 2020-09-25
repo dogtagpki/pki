@@ -1503,7 +1503,7 @@ public class TokenServlet extends CMSServlet {
             if (!tpsList.isEmpty()) {
                 for (String tpsID : tpsList) {
                     TPSConnectorConfig tpsConfig = cs.getTPSConnectorConfig(tpsID);
-                    String sharedSecretName = tpsConfig.getString("nickname", "");
+                    String sharedSecretName = tpsConfig.getNickname();
 
                     // This one will be a fall back in case we can't get a specific one
                     if (firstSharedSecretName == null) {
@@ -1512,7 +1512,7 @@ public class TokenServlet extends CMSServlet {
 
                     if (!sharedSecretName.isEmpty()) {
                         if (mCurrentUID != null) {
-                            String csUid = tpsConfig.getString("userid", "");
+                            String csUid = tpsConfig.getUserID();
 
                             if (mCurrentUID.equalsIgnoreCase(csUid)) {
                                 logger.debug("TokenServlet.getSharedSecretName: found a match of the user id! " + csUid);

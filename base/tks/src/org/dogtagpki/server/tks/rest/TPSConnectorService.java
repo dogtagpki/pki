@@ -108,10 +108,10 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
         TPSConnectorData data = new TPSConnectorData();
         data.setID(tpsID);
-        data.setHost(tpsConfig.getString("host", ""));
-        data.setPort(tpsConfig.getString("port", ""));
-        data.setUserID(tpsConfig.getString("userid", ""));
-        data.setNickname(tpsConfig.getString("nickname", ""));
+        data.setHost(tpsConfig.getHost());
+        data.setPort(tpsConfig.getPort());
+        data.setUserID(tpsConfig.getUserID());
+        data.setNickname(tpsConfig.getNickname());
 
         URI uri = uriInfo.getBaseUriBuilder().path(TPSCertResource.class).path("{id}").build(tpsID);
         data.setLink(new Link("self", uri));
@@ -231,13 +231,13 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
         TPSConnectorConfig tpsConfig = cs.getTPSConnectorConfig(id);
 
         if (newData.getHost() != null)
-            tpsConfig.putString("host", newData.getHost());
+            tpsConfig.setHost(newData.getHost());
         if (newData.getPort() != null)
-            tpsConfig.putString("port", newData.getPort());
+            tpsConfig.setPort(newData.getPort());
         if (newData.getUserID() != null)
-            tpsConfig.putString("userid", newData.getUserID());
+            tpsConfig.setUserID(newData.getUserID());
         if (newData.getNickname() != null)
-            tpsConfig.putString("nickname", newData.getNickname());
+            tpsConfig.setNickname(newData.getNickname());
     }
 
     @Override
@@ -319,7 +319,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             CryptoUtil.createSharedSecret(nickname);
 
             TPSConnectorConfig tpsConfig = cs.getTPSConnectorConfig(id);
-            tpsConfig.putString("nickname", nickname);
+            tpsConfig.setNickname(nickname);
             cs.commit(true);
 
             //Create des3 session sym key to wrap the shared secret.
@@ -348,7 +348,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
     private String validateUser(String id) throws EBaseException {
         TPSConnectorConfig tpsConfig = cs.getTPSConnectorConfig(id);
-        String userid = tpsConfig.getString("userid", "");
+        String userid = tpsConfig.getUserID();
         if (userid.isEmpty()) {
             throw new PKIException("Bad TPS connection configuration: userid not defined");
         }
@@ -433,7 +433,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             TPSConnectorConfig tpsConfig = cs.getTPSConnectorConfig(id);
 
             // get user
-            String userid = tpsConfig.getString("userid", "");
+            String userid = tpsConfig.getUserID();
             if (userid.isEmpty()) {
                 throw new PKIException("Bad TPS connection configuration: userid not defined");
             }
@@ -444,7 +444,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             }
             CryptoUtil.deleteSharedSecret(nickname);
 
-            tpsConfig.putString("nickname", "");
+            tpsConfig.setNickname("");
             cs.commit(true);
 
             return createNoContentResponse();

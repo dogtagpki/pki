@@ -347,7 +347,7 @@ public class TKSKnownSessionKey
 
                 for (String tpsID : tpsList) {
                     TPSConnectorConfig tpsConfig = cs.getTPSConnectorConfig(tpsID);
-                    String sharedSecretName = tpsConfig.getString("nickname", "");
+                    String sharedSecretName = tpsConfig.getNickname();
                     if (!sharedSecretName.isEmpty()) {
                         logger.debug("TKSKnownSessionKey: testing with key " + sharedSecretName);
                         generateSessionKey(sharedSecretName);
