@@ -380,7 +380,7 @@ public class CAConfigurator extends Configurator {
         queue.updateRequest(req);
 
         // update the locally created request for renewal
-        CertUtils.updateLocalRequest(reqId.toString(), binRequest, certRequestType, subject);
+        CertUtils.updateLocalRequest(reqId, binRequest, certRequestType, subject);
 
         if (ca != null) {
             PKCS7 pkcs7 = createCertChain(impl);

@@ -68,6 +68,7 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
@@ -886,7 +887,7 @@ public class Configurator {
 
             } else {
                 // update requests in request queue for local certs to allow renewal
-                CertUtils.updateLocalRequest(reqId, cert.getRequest(), "pkcs10", null);
+                CertUtils.updateLocalRequest(new RequestId(reqId), cert.getRequest(), "pkcs10", null);
             }
         }
     }

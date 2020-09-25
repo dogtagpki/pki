@@ -1037,7 +1037,7 @@ public class CertUtils {
      * @throws EPropertyNotFound
      */
     public static void updateLocalRequest(
-            String reqId,
+            RequestId reqId,
             byte[] certReq,
             String reqType,
             String subjectName
@@ -1049,7 +1049,7 @@ public class CertUtils {
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         IRequestQueue queue = ca.getRequestQueue();
 
-        IRequest req = queue.findRequest(new RequestId(reqId));
+        IRequest req = queue.findRequest(reqId);
 
         if (certReq != null) {
             logger.debug("CertUtils: updating cert request");
