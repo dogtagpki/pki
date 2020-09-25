@@ -33,6 +33,7 @@ import java.util.Vector;
 import javax.crypto.BadPaddingException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.dogtagpki.server.kra.KRAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -68,7 +69,6 @@ import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -229,7 +229,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     public void init(IConfigStore config, boolean keySplitting)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         mConfig = config;
         mKeySplitting = keySplitting;
 
@@ -629,7 +629,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     public boolean changeAgentPassword(String id, String oldpwd,
             String newpwd) throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         // locate the id(s)
@@ -888,7 +888,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
 
     public void checkPassword(String userid, String pwd) throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         for (int i = 0;; i++) {
@@ -987,7 +987,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     private String constructPassword(Credential creds[])
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         // sort the credential according to the order in

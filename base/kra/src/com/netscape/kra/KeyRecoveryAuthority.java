@@ -83,7 +83,6 @@ import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
@@ -682,7 +681,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     private void verifyCredential(Vector<Credential> creds, String uid,
             String pwd) throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
 
         // see if we have the uid already
         if (!mConfig.getBoolean("keySplitting")) {
@@ -909,7 +908,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     public void addAgentAsyncKeyRecovery(String reqID, String agentID)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         IRequestQueue queue = null;
         IRequest r = null;
 
@@ -1750,7 +1749,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             throws NoSuchAlgorithmException, TokenException, InvalidAlgorithmParameterException,
             InvalidParameterException, PQGParamGenException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         CryptoToken token = getKeygenToken();
 
         logger.debug("NetkeyKeygenService: key pair is to be generated on slot: " + token.getName());

@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.rest.ACLInterceptor;
 import org.dogtagpki.server.rest.AccountService;
 import org.dogtagpki.server.rest.AuditService;
@@ -20,8 +21,6 @@ import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 
 public class KRAApplication extends Application {
@@ -43,7 +42,7 @@ public class KRAApplication extends Application {
         classes.add(KRAInstallerService.class);
 
         // security domain
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
         try {
             boolean standalone = cs.getBoolean("kra.standalone", false);

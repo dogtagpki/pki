@@ -42,7 +42,6 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IProofOfArchival;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class represents a proof of escrow. It indicates a key
@@ -308,7 +307,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     public void encodeAndSign(PrivateKey key, String algorithm,
             String provider, DerOutputStream out)
             throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         try {
             Signature sigEngine = null;
 

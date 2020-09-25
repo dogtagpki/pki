@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.kra.KRAEngine;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
@@ -46,7 +47,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -114,7 +114,7 @@ public class SymKeyGenService implements IService {
             throw new EBaseException("Bad data in SymKeyGenService.serviceRequest");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 

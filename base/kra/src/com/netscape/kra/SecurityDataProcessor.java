@@ -11,6 +11,7 @@ import java.util.Hashtable;
 
 import javax.crypto.spec.RC2ParameterSpec;
 
+import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.rest.KeyRequestService;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
@@ -49,7 +50,6 @@ import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -104,7 +104,7 @@ public class SecurityDataProcessor {
         logger.debug("SecurityDataProcessor.archive. Request id: " + requestId);
         logger.debug("SecurityDataProcessor.archive wrappedSecurityData: " + wrappedSecurityData);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         EngineConfig config = null;
@@ -372,7 +372,7 @@ public class SecurityDataProcessor {
 
         logger.debug("SecurityDataService.recover(): start");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         EngineConfig config = null;
@@ -722,7 +722,7 @@ public class SecurityDataProcessor {
         int numBytes = alg.getIVLength();
         byte[] bytes = new byte[numBytes];
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         SecureRandom random = jssSubsystem.getRandomNumberGenerator();
@@ -758,7 +758,7 @@ public class SecurityDataProcessor {
         int numBytes = alg.getBlockSize();
         byte[] bytes = new byte[numBytes];
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         SecureRandom random = jssSubsystem.getRandomNumberGenerator();

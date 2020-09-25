@@ -23,6 +23,7 @@ import java.net.URI;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.kra.KRASystemCertResource;
+import org.dogtagpki.server.kra.KRAEngine;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
@@ -34,8 +35,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.kra.KeyRecoveryAuthority;
 import com.netscape.kra.TransportKeyUnit;
 
@@ -48,7 +47,7 @@ public class KRASystemCertService extends PKIService implements KRASystemCertRes
 
     public Response getTransportCert() throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
         TransportKeyUnit tu = (TransportKeyUnit) kra.getTransportKeyUnit();
 

@@ -29,6 +29,7 @@ import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.kra.KRAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -41,7 +42,6 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
@@ -71,7 +71,6 @@ import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -145,7 +144,7 @@ public class RecoveryService implements IService {
         boolean isSSKeygen = false;
         String serverKeygenP12Pass = null;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         X509Certificate transportCert =
@@ -171,11 +170,11 @@ public class RecoveryService implements IService {
                 isSSKeygen = true;
                 CryptoToken token = CryptoUtil.getKeyStorageToken("internal");
 
-                byte[] sessionWrappedPassphrase = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdEnc");
+                byte[] sessionWrappedPassphrase = request.getExtDataInByteArray("serverSideKeygenP12PasswdEnc");
                 if (sessionWrappedPassphrase == null) {
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "Server-Side Keygen Enroll Key Retrieval: sessionWrappedPassphrase not found in Request"));
                 }
-                byte[] transWrappedSessionKey = (byte[]) request.getExtDataInByteArray("serverSideKeygenP12PasswdTransSession");
+                byte[] transWrappedSessionKey = request.getExtDataInByteArray("serverSideKeygenP12PasswdTransSession");
                 if (transWrappedSessionKey == null) {
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "Server-Side Keygen Enroll Key Retrieval: transWrappedSessionKey not found in Request"));
                 }
@@ -184,7 +183,7 @@ public class RecoveryService implements IService {
                 org.mozilla.jss.crypto.X509Certificate transCert =
                         cm.findCertByNickname(transportCertNick);
                 PrivateKey transPrivateKey =
-                        (org.mozilla.jss.crypto.PrivateKey) cm.findPrivKeyByCert(transCert);
+                        cm.findPrivKeyByCert(transCert);
                 if (transPrivateKey != null)
                     logger.debug("RecoveryService: serviceRequest: found private key");
 
@@ -505,7 +504,7 @@ public class RecoveryService implements IService {
         logger.debug("RecoverService: recoverKey: key to recover is RSA? "+
             isRSA);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         try {
             if (engine.getConfig().getBoolean("kra.keySplitting")) {
                 Credential creds[] = (Credential[])
@@ -558,7 +557,7 @@ public class RecoveryService implements IService {
 
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=false");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
@@ -716,7 +715,7 @@ public class RecoveryService implements IService {
      */
     public synchronized byte[] recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord)
             throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         if (engine.getConfig().getBoolean("kra.keySplitting")) {
             Credential creds[] = (Credential[])
                     request.get(ATTR_AGENT_CREDENTIALS);
@@ -755,7 +754,7 @@ public class RecoveryService implements IService {
 
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         String pwd = (String) params.get(ATTR_TRANSPORT_PWD);

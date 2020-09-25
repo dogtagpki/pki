@@ -22,13 +22,12 @@ import org.dogtagpki.server.kra.KRAEngine;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.cmscore.apps.CMS;
 
 public class KRAUpdateNumberRange extends UpdateNumberRange {
 
     public IRepository getRepository(String type) throws EBaseException {
 
-        KRAEngine engine = (KRAEngine) CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
 
         if (type.equals("request")) {

@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.ProofOfArchival;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
@@ -70,7 +71,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
@@ -144,7 +144,7 @@ public class EnrollmentService implements IService {
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         EngineConfig config = null;

@@ -20,6 +20,7 @@ package com.netscape.kra;
 import java.math.BigInteger;
 import java.security.KeyPair;
 
+import org.dogtagpki.server.kra.KRAEngine;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
@@ -40,8 +41,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -76,7 +75,7 @@ public class AsymKeyGenService implements IService {
     @Override
     public boolean serviceRequest(IRequest request) throws EBaseException {
         String method = "AsymKeyGenService:serviceRequest: ";
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
