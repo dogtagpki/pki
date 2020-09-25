@@ -35,6 +35,7 @@ import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.connector.IRemoteRequest;
 import org.dogtagpki.server.tks.TKSEngine;
 import org.dogtagpki.server.tks.TKSEngineConfig;
+import org.dogtagpki.server.tks.TPSConnectorConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -1501,7 +1502,8 @@ public class TokenServlet extends CMSServlet {
             String firstSharedSecretName = null;
             if (!tpsList.isEmpty()) {
                 for (String tpsID : tpsList) {
-                    String sharedSecretName = cs.getString("tps." + tpsID + ".nickname", "");
+                    TPSConnectorConfig tpsConfig = cs.getTPSConnectorConfig(tpsID);
+                    String sharedSecretName = tpsConfig.getString("nickname", "");
 
                     // This one will be a fall back in case we can't get a specific one
                     if (firstSharedSecretName == null) {
@@ -1510,7 +1512,7 @@ public class TokenServlet extends CMSServlet {
 
                     if (!sharedSecretName.isEmpty()) {
                         if (mCurrentUID != null) {
-                            String csUid = cs.getString("tps." + tpsID + ".userid", "");
+                            String csUid = tpsConfig.getString("userid", "");
 
                             if (mCurrentUID.equalsIgnoreCase(csUid)) {
                                 logger.debug("TokenServlet.getSharedSecretName: found a match of the user id! " + csUid);

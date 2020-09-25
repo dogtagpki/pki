@@ -30,6 +30,7 @@ import java.util.Locale;
 
 import org.dogtagpki.server.tks.TKSEngine;
 import org.dogtagpki.server.tks.TKSEngineConfig;
+import org.dogtagpki.server.tks.TPSConnectorConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -345,7 +346,8 @@ public class TKSKnownSessionKey
                 }
 
                 for (String tpsID : tpsList) {
-                    String sharedSecretName = cs.getString("tps." + tpsID + ".nickname", "");
+                    TPSConnectorConfig tpsConfig = cs.getTPSConnectorConfig(tpsID);
+                    String sharedSecretName = tpsConfig.getString("nickname", "");
                     if (!sharedSecretName.isEmpty()) {
                         logger.debug("TKSKnownSessionKey: testing with key " + sharedSecretName);
                         generateSessionKey(sharedSecretName);

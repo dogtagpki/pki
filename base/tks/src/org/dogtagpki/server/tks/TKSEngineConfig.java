@@ -32,4 +32,12 @@ public class TKSEngineConfig extends EngineConfig {
     public void setTPSConnectorIDs(Collection<String> list) throws EBaseException {
         putString("tps.list", StringUtils.join(list, ","));
     }
+
+    public TPSConnectorConfig getTPSConnectorConfig(String id) {
+        return getSubStore("tps." + id, TPSConnectorConfig.class);
+    }
+
+    public void removeTPSConnectorConfig(String id) {
+        removeSubStore("tps." + id);
+    }
 }
