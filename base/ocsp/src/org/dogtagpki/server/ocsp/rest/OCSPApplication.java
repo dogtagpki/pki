@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.dogtagpki.server.rest.ACLInterceptor;
 import org.dogtagpki.server.rest.AccountService;
 import org.dogtagpki.server.rest.AuditService;
@@ -19,8 +20,6 @@ import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 
 public class OCSPApplication extends Application {
@@ -42,7 +41,7 @@ public class OCSPApplication extends Application {
         classes.add(OCSPInstallerService.class);
 
         // security domain
-        CMSEngine engine = CMS.getCMSEngine();
+        OCSPEngine engine = OCSPEngine.getInstance();
         EngineConfig cs = engine.getConfig();
         try {
             boolean standalone = cs.getBoolean("ocsp.standalone", false);

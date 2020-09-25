@@ -63,7 +63,6 @@ import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.KeyHashID;
@@ -333,7 +332,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * Notifies this subsystem if owner is in running mode.
      */
     public void startup() throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        OCSPEngine engine = OCSPEngine.getInstance();
         try {
             if (mDefStore != null)
                 mDefStore.startup();
