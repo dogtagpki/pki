@@ -22,10 +22,8 @@ import java.io.PrintStream;
 import java.security.cert.X509Certificate;
 import java.util.StringTokenizer;
 
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -108,20 +106,6 @@ public class CertUtil {
         result.append("\n");
 
         return result.toString();
-    }
-
-    public static org.mozilla.jss.crypto.X509Certificate findCertificate(String fullnickname)
-            throws Exception {
-
-        CryptoManager cm = CryptoManager.getInstance();
-        logger.debug("CertUtil: searching for cert " + fullnickname);
-
-        try {
-            return cm.findCertByNickname(fullnickname);
-
-        } catch (ObjectNotFoundException e) {
-            return null;
-        }
     }
 
     public static void deleteCert(String tokenname, org.mozilla.jss.crypto.X509Certificate cert)
