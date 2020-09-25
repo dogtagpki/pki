@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.dogtagpki.server.tks.TKSEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -27,8 +28,6 @@ import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.pkcs11.PKCS11Constants;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -220,7 +219,7 @@ public class SecureChannelProtocol {
 
         logger.debug(method + " entering. nickname: " + keyNickName + " selectedToken: " + selectedToken);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         CryptoManager cm = null;
@@ -884,7 +883,7 @@ public class SecureChannelProtocol {
             throw new EBaseException(method + " Invalid key size!");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         KeyGenerator kg;

@@ -27,6 +27,8 @@ package com.netscape.cms.selftests.tks;
 import java.util.Arrays;
 import java.util.Locale;
 
+import org.dogtagpki.server.tks.TKSEngine;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -38,7 +40,6 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.symkey.SessionKey;
 
@@ -99,7 +100,7 @@ public class TKSKnownSessionKey
 
         super.initSelfTest(subsystem, instanceName, parameters);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         mTksSubId = getConfigString(PROP_TKS_SUB_ID);
         mToken = getConfigString("token");
         mKeyName = getConfigString("keyName");
@@ -330,7 +331,7 @@ public class TKSKnownSessionKey
      */
     public void runSelfTest(ILogEventListener listener) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
         try {

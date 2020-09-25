@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.connector.IRemoteRequest;
+import org.dogtagpki.server.tks.TKSEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -54,7 +55,6 @@ import com.netscape.certsrv.logging.event.EncryptDataRequestProcessedEvent;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -155,7 +155,7 @@ public class TokenServlet extends CMSServlet {
             }
             logger.debug("keySet selected: " + keySet);
 
-            CMSEngine engine = CMS.getCMSEngine();
+            TKSEngine engine = TKSEngine.getInstance();
             String masterKeyPrefix = engine.getConfig().getString("tks.master_key_prefix", null);
             String temp = req.getParameter(IRemoteRequest.TOKEN_KEYINFO); //#xx#xx
             String keyInfoMap = "tks." + keySet + ".mk_mappings." + temp;
@@ -206,7 +206,7 @@ public class TokenServlet extends CMSServlet {
     // CAREFUL:  Result returned may be negative due to java's lack of unsigned types.
     //           Negative values need to be treated as higher key numbers than positive key numbers.
     private static byte read_setting_nistSP800_108KdfOnKeyVersion(String keySet) throws Exception {
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         String nistSP800_108KdfOnKeyVersion_map = "tks." + keySet + ".nistSP800-108KdfOnKeyVersion";
         // KDF phase1: default to 00
         String nistSP800_108KdfOnKeyVersion_value =
@@ -241,7 +241,7 @@ public class TokenServlet extends CMSServlet {
     //   If "true" we use the CUID parameter within the NIST SP800-108 KDF.
     //   If "false" we use the KDD parameter within the NIST SP800-108 KDF.
     private static boolean read_setting_nistSP800_108KdfUseCuidAsKdd(String keySet) throws Exception {
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         String setting_map = "tks." + keySet + ".nistSP800-108KdfUseCuidAsKdd";
         // KDF phase1: default to "false"
         String setting_str =
@@ -324,7 +324,7 @@ public class TokenServlet extends CMSServlet {
         byte nistSP800_108KdfOnKeyVersion = (byte) 0xff;
         boolean nistSP800_108KdfUseCuidAsKdd = false;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         EngineConfig sconfig = engine.getConfig();
 
         boolean isCryptoValidate = false;
@@ -864,7 +864,7 @@ public class TokenServlet extends CMSServlet {
         //        PK11SymKey kek_session_key;
         SymmetricKey kek_key;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         EngineConfig sconfig = engine.getConfig();
         boolean isCryptoValidate = true;
         boolean missingParam = false;
@@ -1556,7 +1556,7 @@ public class TokenServlet extends CMSServlet {
         String badParams = "";
         byte[] xWrappedDekKey = null;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         EngineConfig sconfig = engine.getConfig();
         String rnewKeyInfo = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO);
         String newMasterKeyName = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO);
@@ -1925,7 +1925,7 @@ public class TokenServlet extends CMSServlet {
         String errorMsg = "";
         String badParams = "";
 
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         EngineConfig sconfig = engine.getConfig();
@@ -2273,7 +2273,7 @@ public class TokenServlet extends CMSServlet {
 
         SessionContext sContext = SessionContext.getContext();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         String agentId = "";
@@ -2471,7 +2471,7 @@ public class TokenServlet extends CMSServlet {
 
         boolean serversideKeygen = false;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         EngineConfig sconfig = engine.getConfig();
         boolean isCryptoValidate = true;
         boolean missingParam = false;
@@ -2952,7 +2952,7 @@ public class TokenServlet extends CMSServlet {
 
     private PK11SymKey getSharedSecretKey() throws EBaseException, NotInitializedException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String sharedSecretName = null;
         try {
@@ -3079,7 +3079,7 @@ public class TokenServlet extends CMSServlet {
         values.add(keycheck_s);
 
         //use DRM transport cert to wrap desKey
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         String drmTransNickname = engine.getConfig().getString("tks.drm_transport_cert_nickname", "");
 
         if ((drmTransNickname == null) || (drmTransNickname == "")) {
@@ -3158,7 +3158,7 @@ public class TokenServlet extends CMSServlet {
         String method = "TokenServlet.readGPSettings: ";
         String gp3Settings = "tks." + keySet + ".prot3";
 
-        CMSEngine engine = CMS.getCMSEngine();
+        TKSEngine engine = TKSEngine.getInstance();
         String divers = "emv";
         try {
             divers = engine.getConfig().getString(gp3Settings + ".divers", "emv");
