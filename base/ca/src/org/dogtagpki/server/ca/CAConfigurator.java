@@ -161,8 +161,8 @@ public class CAConfigurator extends Configurator {
         IRequestQueue queue = ca.getRequestQueue();
         queue.updateRequest(req);
 
-        RequestId reqId = req.getRequestId();
-        preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
+        // update the locally created request for renewal
+        CertUtils.updateLocalRequest(req.getRequestId(), cert.getRequest(), "pkcs10", null);
 
         CertUtils.createCertRecord(req, profile, certImpl);
     }
@@ -215,7 +215,6 @@ public class CAConfigurator extends Configurator {
         IRequest req = createRequest(tag, profile, x509key, info);
 
         RequestId reqId = req.getRequestId();
-        preopConfig.putString("cert." + tag + ".reqId", reqId.toString());
 
         X509CertImpl certImpl = CertUtils.createLocalCert(
                 req,
@@ -228,6 +227,9 @@ public class CAConfigurator extends Configurator {
 
         IRequestQueue queue = ca.getRequestQueue();
         queue.updateRequest(req);
+
+        // update the locally created request for renewal
+        CertUtils.updateLocalRequest(reqId, cert.getRequest(), "pkcs10", null);
 
         if (tag.equals("subsystem")) {
             logger.debug("CAConfigurator: creating subsystem user");
@@ -359,7 +361,6 @@ public class CAConfigurator extends Configurator {
                 true /* installAdjustValidity */);
 
         RequestId reqId = req.getRequestId();
-        preopConfig.putString("cert.admin.reqId", reqId.toString());
 
         String caSigningKeyAlgo;
         if (caType.equals("selfsign")) {

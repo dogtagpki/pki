@@ -68,7 +68,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
@@ -878,18 +877,6 @@ public class Configurator {
         X509CertImpl impl = new X509CertImpl(certb);
 
         importCert(subsystem, certTag, tokenname, nickname, impl);
-
-        if ((cert.getType().equals("local")) || (cert.getType().equals("selfsign"))) {
-
-            String reqId = preopConfig.getString("cert." + certTag + ".reqId", null);
-            if (reqId == null) {
-                logger.warn("Configurator: cert has no request record");
-
-            } else {
-                // update requests in request queue for local certs to allow renewal
-                CertUtils.updateLocalRequest(new RequestId(reqId), cert.getRequest(), "pkcs10", null);
-            }
-        }
     }
 
     public void importCert(
