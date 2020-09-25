@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.connector.IRemoteRequest;
 import org.dogtagpki.server.tks.TKSEngine;
+import org.dogtagpki.server.tks.TKSEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -55,7 +56,6 @@ import com.netscape.certsrv.logging.event.EncryptDataRequestProcessedEvent;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -156,10 +156,11 @@ public class TokenServlet extends CMSServlet {
             logger.debug("keySet selected: " + keySet);
 
             TKSEngine engine = TKSEngine.getInstance();
-            String masterKeyPrefix = engine.getConfig().getString("tks.master_key_prefix", null);
+            TKSEngineConfig config = engine.getConfig();
+            String masterKeyPrefix = config.getString("tks.master_key_prefix", null);
             String temp = req.getParameter(IRemoteRequest.TOKEN_KEYINFO); //#xx#xx
             String keyInfoMap = "tks." + keySet + ".mk_mappings." + temp;
-            String mappingValue = engine.getConfig().getString(keyInfoMap, null);
+            String mappingValue = config.getString(keyInfoMap, null);
             if (mappingValue != null) {
                 StringTokenizer st = new StringTokenizer(mappingValue, ":");
                 int tokenNumber = 0;
@@ -176,7 +177,7 @@ public class TokenServlet extends CMSServlet {
             {
                 temp = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO); //#xx#xx
                 String newKeyInfoMap = "tks." + keySet + ".mk_mappings." + temp;
-                String newMappingValue = engine.getConfig().getString(newKeyInfoMap, null);
+                String newMappingValue = config.getString(newKeyInfoMap, null);
                 if (newMappingValue != null) {
                     StringTokenizer st = new StringTokenizer(newMappingValue, ":");
                     int tokenNumber = 0;
@@ -207,10 +208,11 @@ public class TokenServlet extends CMSServlet {
     //           Negative values need to be treated as higher key numbers than positive key numbers.
     private static byte read_setting_nistSP800_108KdfOnKeyVersion(String keySet) throws Exception {
         TKSEngine engine = TKSEngine.getInstance();
+        TKSEngineConfig config = engine.getConfig();
         String nistSP800_108KdfOnKeyVersion_map = "tks." + keySet + ".nistSP800-108KdfOnKeyVersion";
         // KDF phase1: default to 00
         String nistSP800_108KdfOnKeyVersion_value =
-                engine.getConfig().getString(nistSP800_108KdfOnKeyVersion_map, "00" /*null*/);
+                config.getString(nistSP800_108KdfOnKeyVersion_map, "00" /*null*/);
         short nistSP800_108KdfOnKeyVersion_short = 0;
         // if value does not exist in file
         if (nistSP800_108KdfOnKeyVersion_value == null) {
@@ -242,10 +244,10 @@ public class TokenServlet extends CMSServlet {
     //   If "false" we use the KDD parameter within the NIST SP800-108 KDF.
     private static boolean read_setting_nistSP800_108KdfUseCuidAsKdd(String keySet) throws Exception {
         TKSEngine engine = TKSEngine.getInstance();
+        TKSEngineConfig config = engine.getConfig();
         String setting_map = "tks." + keySet + ".nistSP800-108KdfUseCuidAsKdd";
         // KDF phase1: default to "false"
-        String setting_str =
-                engine.getConfig().getString(setting_map, "false" /*null*/);
+        String setting_str = config.getString(setting_map, "false" /*null*/);
         boolean setting_boolean = false;
         // if value does not exist in file
         if (setting_str == null) {
@@ -325,7 +327,7 @@ public class TokenServlet extends CMSServlet {
         boolean nistSP800_108KdfUseCuidAsKdd = false;
 
         TKSEngine engine = TKSEngine.getInstance();
-        EngineConfig sconfig = engine.getConfig();
+        TKSEngineConfig config = engine.getConfig();
 
         boolean isCryptoValidate = false;
         byte[] keyInfo, xCUID = null, session_key = null;
@@ -443,10 +445,10 @@ public class TokenServlet extends CMSServlet {
         }
 
         String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo; //#xx#xx
-        String mappingValue = engine.getConfig().getString(keyInfoMap, null);
+        String mappingValue = config.getString(keyInfoMap, null);
         if (mappingValue == null) {
             selectedToken =
-                    engine.getConfig().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
+                    config.getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
             keyNickName = rKeyInfo;
         } else {
             StringTokenizer st = new StringTokenizer(mappingValue, ":");
@@ -458,14 +460,14 @@ public class TokenServlet extends CMSServlet {
 
         keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo; //#xx#xx
         try {
-            mappingValue = engine.getConfig().getString(keyInfoMap, null);
+            mappingValue = config.getString(keyInfoMap, null);
         } catch (EBaseException e1) {
             logger.warn("TokenServlet: " + e1.getMessage(), e1);
         }
         if (mappingValue == null) {
             try {
                 selectedToken =
-                        engine.getConfig().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
+                        config.getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
             } catch (EBaseException e) {
                 logger.warn("TokenServlet: " + e.getMessage(), e);
             }
@@ -481,7 +483,7 @@ public class TokenServlet extends CMSServlet {
         logger.debug("TokenServlet: processComputeSessionKeySCP02(): final keyNickname: " + keyNickName);
         String useSoftToken_s = null;
         try {
-            useSoftToken_s = engine.getConfig().getString("tks.useSoftToken", "true");
+            useSoftToken_s = config.getString("tks.useSoftToken", "true");
         } catch (EBaseException e1) {
             logger.warn("TokenServlet: " + e1.getMessage(), e1);
         }
@@ -498,7 +500,7 @@ public class TokenServlet extends CMSServlet {
 
         transportKeyName = null;
         try {
-            transportKeyName = getSharedSecretName(sconfig);
+            transportKeyName = getSharedSecretName(config);
         } catch (EBaseException e1) {
             logger.warn("TokenServlet: Can't find transport key name: " + e1.getMessage(), e1);
         }
@@ -506,7 +508,7 @@ public class TokenServlet extends CMSServlet {
         logger.debug("TokenServlet: processComputeSessionKeySCP02(): tksSharedSymKeyName: " + transportKeyName);
 
         try {
-            isCryptoValidate = sconfig.getBoolean("cardcryptogram.validate.enable", true);
+            isCryptoValidate = config.getBoolean("cardcryptogram.validate.enable", true);
         } catch (EBaseException eee) {
         }
 
@@ -521,7 +523,7 @@ public class TokenServlet extends CMSServlet {
 
         if (selectedToken != null && keyNickName != null && transportKeyName != null && missingSettingException == null) {
             try {
-                macKeyArray = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
+                macKeyArray = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(config.getString("tks."
                         + keySet + ".mac_key"));
 
                 sequenceCounter = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rSequenceCounter);
@@ -635,7 +637,7 @@ public class TokenServlet extends CMSServlet {
                             org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(keycheck);
 
                     //use DRM transport cert to wrap desKey
-                    String drmTransNickname = engine.getConfig().getString("tks.drm_transport_cert_nickname", "");
+                    String drmTransNickname = config.getString("tks.drm_transport_cert_nickname", "");
 
                     if ((drmTransNickname == null) || (drmTransNickname == "")) {
                         logger.error("TokenServlet.computeSessionKeySCP02:did not find DRM transport certificate nickname");
@@ -865,7 +867,7 @@ public class TokenServlet extends CMSServlet {
         SymmetricKey kek_key;
 
         TKSEngine engine = TKSEngine.getInstance();
-        EngineConfig sconfig = engine.getConfig();
+        TKSEngineConfig config = engine.getConfig();
         boolean isCryptoValidate = true;
         boolean missingParam = false;
 
@@ -900,7 +902,7 @@ public class TokenServlet extends CMSServlet {
         String keycheck_s = null;
 
         logger.debug("processComputeSessionKey:");
-        String useSoftToken_s = engine.getConfig().getString("tks.useSoftToken", "true");
+        String useSoftToken_s = config.getString("tks.useSoftToken", "true");
         if (!useSoftToken_s.equalsIgnoreCase("true"))
             useSoftToken_s = "false";
 
@@ -913,11 +915,11 @@ public class TokenServlet extends CMSServlet {
         }
 
         try {
-            isCryptoValidate = sconfig.getBoolean("cardcryptogram.validate.enable", true);
+            isCryptoValidate = config.getBoolean("cardcryptogram.validate.enable", true);
         } catch (EBaseException eee) {
         }
 
-        transportKeyName = getSharedSecretName(sconfig);
+        transportKeyName = getSharedSecretName(config);
 
         String rcard_challenge = req.getParameter(IRemoteRequest.TOKEN_CARD_CHALLENGE);
         String rhost_challenge = req.getParameter(IRemoteRequest.TOKEN_HOST_CHALLENGE);
@@ -1037,10 +1039,10 @@ public class TokenServlet extends CMSServlet {
             }
 
             String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo; //#xx#xx
-            String mappingValue = engine.getConfig().getString(keyInfoMap, null);
+            String mappingValue = config.getString(keyInfoMap, null);
             if (mappingValue == null) {
                 selectedToken =
-                        engine.getConfig().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
+                        config.getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
                 keyNickName = rKeyInfo;
             } else {
                 StringTokenizer st = new StringTokenizer(mappingValue, ":");
@@ -1057,7 +1059,7 @@ public class TokenServlet extends CMSServlet {
                 try {
 
                     byte macKeyArray[] =
-                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(config.getString("tks."
                                     + keySet + ".mac_key"));
                     logger.debug("TokenServlet about to try ComputeSessionKey selectedToken="
                             + selectedToken + " keyNickName=" + keyNickName);
@@ -1078,7 +1080,7 @@ public class TokenServlet extends CMSServlet {
                     }
 
                     byte encKeyArray[] =
-                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(config.getString("tks."
                                     + keySet + ".auth_key"));
                     SymmetricKey encKey = protocol.computeSessionKey_SCP01(SecureChannelProtocol.encType,
                             selectedToken,
@@ -1106,7 +1108,7 @@ public class TokenServlet extends CMSServlet {
                         logger.debug("TokenServlet: calling ComputeKekKey");
 
                         byte kekKeyArray[] =
-                                org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
+                                org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(config.getString("tks."
                                         + keySet + ".kek_key"));
 
                         kek_key = protocol.computeKEKKey_SCP01(selectedToken,
@@ -1193,7 +1195,7 @@ public class TokenServlet extends CMSServlet {
                                 org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(keycheck);
 
                         //use DRM transport cert to wrap desKey
-                        String drmTransNickname = engine.getConfig().getString("tks.drm_transport_cert_nickname", "");
+                        String drmTransNickname = config.getString("tks.drm_transport_cert_nickname", "");
 
                         if ((drmTransNickname == null) || (drmTransNickname == "")) {
                             logger.error("TokenServlet:did not find DRM transport certificate nickname");
@@ -1230,7 +1232,7 @@ public class TokenServlet extends CMSServlet {
                     } // if (serversideKeygen == true)
 
                     byte authKeyArray[] =
-                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(config.getString("tks."
                                     + keySet + ".auth_key"));
 
                     host_cryptogram = protocol.computeCryptogram_SCP01(selectedToken, keyNickName, card_challenge,
@@ -1557,7 +1559,7 @@ public class TokenServlet extends CMSServlet {
         byte[] xWrappedDekKey = null;
 
         TKSEngine engine = TKSEngine.getInstance();
-        EngineConfig sconfig = engine.getConfig();
+        TKSEngineConfig config = engine.getConfig();
         String rnewKeyInfo = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO);
         String newMasterKeyName = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO);
         String oldMasterKeyName = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
@@ -1671,7 +1673,7 @@ public class TokenServlet extends CMSServlet {
 
             }
         }
-        String useSoftToken_s = engine.getConfig().getString("tks.useSoftToken", "true");
+        String useSoftToken_s = config.getString("tks.useSoftToken", "true");
         if (!useSoftToken_s.equalsIgnoreCase("true"))
             useSoftToken_s = "false";
 
@@ -1737,10 +1739,10 @@ public class TokenServlet extends CMSServlet {
             tokKeyInfo = tokKeyInfo.substring(0,6);
             String oldKeyInfoMap = "tks." + keySet + ".mk_mappings." + tokKeyInfo; //#xx#xx
             logger.debug(method + " oldKeyInfoMap: " + oldKeyInfoMap);
-            String oldMappingValue = engine.getConfig().getString(oldKeyInfoMap, null);
+            String oldMappingValue = config.getString(oldKeyInfoMap, null);
             String oldSelectedToken = null;
             if (oldMappingValue == null) {
-                oldSelectedToken = engine.getConfig().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
+                oldSelectedToken = config.getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
                 oldKeyNickName = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
             } else {
                 StringTokenizer st = new StringTokenizer(oldMappingValue, ":");
@@ -1751,10 +1753,10 @@ public class TokenServlet extends CMSServlet {
 
             String newKeyInfoMap = "tks.mk_mappings." + rnewKeyInfo.substring(0,6); //#xx#xx
             logger.debug(method + " newKeyInfoMap: " + newKeyInfoMap);
-            String newMappingValue = engine.getConfig().getString(newKeyInfoMap, null);
+            String newMappingValue = config.getString(newKeyInfoMap, null);
             String newSelectedToken = null;
             if (newMappingValue == null) {
-                newSelectedToken = engine.getConfig().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
+                newSelectedToken = config.getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
                 newKeyNickName = rnewKeyInfo;
             } else {
                 StringTokenizer st = new StringTokenizer(newMappingValue, ":");
@@ -1767,9 +1769,9 @@ public class TokenServlet extends CMSServlet {
                     " oldKeyNickName=" + oldKeyNickName + " newKeyNickName=" +
                     newKeyNickName);
 
-            byte kekKeyArray[] = getDeveKeyArray("kek_key", sconfig, keySet);
-            byte macKeyArray[] = getDeveKeyArray("auth_key", sconfig, keySet);
-            byte encKeyArray[] = getDeveKeyArray("mac_key", sconfig, keySet);
+            byte kekKeyArray[] = getDeveKeyArray("kek_key", config, keySet);
+            byte macKeyArray[] = getDeveKeyArray("auth_key", config, keySet);
+            byte encKeyArray[] = getDeveKeyArray("mac_key", config, keySet);
 
             //        org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
 
@@ -1928,7 +1930,7 @@ public class TokenServlet extends CMSServlet {
         TKSEngine engine = TKSEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        EngineConfig sconfig = engine.getConfig();
+        TKSEngineConfig config = engine.getConfig();
         encryptedData = null;
         String rdata = req.getParameter(IRemoteRequest.TOKEN_DATA);
         String rKeyInfo = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
@@ -1959,7 +1961,7 @@ public class TokenServlet extends CMSServlet {
 
         logger.debug("keySet selected: " + keySet);
 
-        String s_isRandom = sconfig.getString("tks.EncryptData.isRandom", "true");
+        String s_isRandom = config.getString("tks.EncryptData.isRandom", "true");
         if (s_isRandom.equalsIgnoreCase("false")) {
             logger.debug("TokenServlet: processEncryptData(): Random number not to be generated");
             isRandom = false;
@@ -2049,7 +2051,7 @@ public class TokenServlet extends CMSServlet {
             }
         }
 
-        String useSoftToken_s = engine.getConfig().getString("tks.useSoftToken", "true");
+        String useSoftToken_s = config.getString("tks.useSoftToken", "true");
         if (!useSoftToken_s.equalsIgnoreCase("true"))
             useSoftToken_s = "false";
 
@@ -2087,9 +2089,9 @@ public class TokenServlet extends CMSServlet {
             keyInfo = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKeyInfo);
 
             String keyInfoMap = "tks." + keySet + ".mk_mappings." +  rKeyInfo.substring(0,6);
-            String mappingValue = engine.getConfig().getString(keyInfoMap, null);
+            String mappingValue = config.getString(keyInfoMap, null);
             if (mappingValue == null) {
-                selectedToken = engine.getConfig().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
+                selectedToken = config.getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
                 keyNickName = rKeyInfo;
             } else {
                 StringTokenizer st = new StringTokenizer(mappingValue, ":");
@@ -2120,7 +2122,7 @@ public class TokenServlet extends CMSServlet {
             }
 
             byte kekKeyArray[] =
-                    org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(config.getString("tks." + keySet + ".kek_key"));
             // AC: KDF SPEC CHANGE - check for error reading settings
             if (missingSetting_exception == null) {
 
@@ -2472,7 +2474,7 @@ public class TokenServlet extends CMSServlet {
         boolean serversideKeygen = false;
 
         TKSEngine engine = TKSEngine.getInstance();
-        EngineConfig sconfig = engine.getConfig();
+        TKSEngineConfig config = engine.getConfig();
         boolean isCryptoValidate = true;
         boolean missingParam = false;
 
@@ -2504,7 +2506,7 @@ public class TokenServlet extends CMSServlet {
         String kek_wrapped_desKeyString = null;
         String keycheck_s = null;
 
-        String useSoftToken_s = engine.getConfig().getString("tks.useSoftToken", "true");
+        String useSoftToken_s = config.getString("tks.useSoftToken", "true");
         if (!useSoftToken_s.equalsIgnoreCase("true"))
             useSoftToken_s = "false";
 
@@ -2519,13 +2521,13 @@ public class TokenServlet extends CMSServlet {
         logger.debug(method + " serversideKeygen: " + serversideKeygen);
 
         try {
-            isCryptoValidate = sconfig.getBoolean("cardcryptogram.validate.enable", true);
+            isCryptoValidate = config.getBoolean("cardcryptogram.validate.enable", true);
         } catch (EBaseException eee) {
         }
 
         logger.debug(method + " Do crypto validation: " + isCryptoValidate);
 
-        transportKeyName = getSharedSecretName(sconfig);
+        transportKeyName = getSharedSecretName(config);
 
         String rcard_challenge = req.getParameter(IRemoteRequest.TOKEN_CARD_CHALLENGE);
         String rhost_challenge = req.getParameter(IRemoteRequest.TOKEN_HOST_CHALLENGE);
@@ -2624,11 +2626,11 @@ public class TokenServlet extends CMSServlet {
             host_challenge = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rhost_challenge);
 
             String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo.substring(0,6); //#xx#xx
-            String mappingValue = engine.getConfig().getString(keyInfoMap, null);
+            String mappingValue = config.getString(keyInfoMap, null);
 
 
             if (mappingValue == null) {
-                selectedToken = engine.getConfig().getString("tks.defaultSlot", "internal");
+                selectedToken = config.getString("tks.defaultSlot", "internal");
                 keyNickName = rKeyInfo;
             } else {
                 StringTokenizer st = new StringTokenizer(mappingValue, ":");
@@ -2650,7 +2652,7 @@ public class TokenServlet extends CMSServlet {
                 try {
 
                     byte macKeyArray[] =
-                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(config.getString("tks."
                                     + keySet + ".mac_key"));
                     logger.debug("TokenServlet about to try ComputeSessionKey selectedToken="
                             + selectedToken + " keyNickName=" + keyNickName);
@@ -2670,7 +2672,7 @@ public class TokenServlet extends CMSServlet {
                     }
 
                     byte encKeyArray[] =
-                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(config.getString("tks."
                                     + keySet + ".auth_key"));
 
                     encSessionKey = protocol.computeSessionKey_SCP03(selectedToken, keyNickName,xkeyInfo,
@@ -2686,7 +2688,7 @@ public class TokenServlet extends CMSServlet {
                     }
 
                     byte kekKeyArray[] =
-                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(config.getString("tks."
                                     + keySet + ".kek_key"));
 
                     kekSessionKey = protocol.computeSessionKey_SCP03(selectedToken, keyNickName, xkeyInfo,
@@ -2709,7 +2711,7 @@ public class TokenServlet extends CMSServlet {
                     }
 
                     try {
-                        isCryptoValidate = sconfig.getBoolean("cardcryptogram.validate.enable", true);
+                        isCryptoValidate = config.getBoolean("cardcryptogram.validate.enable", true);
                     } catch (EBaseException eee) {
                     }
 
@@ -2953,11 +2955,11 @@ public class TokenServlet extends CMSServlet {
     private PK11SymKey getSharedSecretKey() throws EBaseException, NotInitializedException {
 
         TKSEngine engine = TKSEngine.getInstance();
-        EngineConfig configStore = engine.getConfig();
+        TKSEngineConfig config = engine.getConfig();
         String sharedSecretName = null;
         try {
 
-            sharedSecretName = getSharedSecretName(configStore);
+            sharedSecretName = getSharedSecretName(config);
 
         } catch (EBaseException e) {
             throw new EBaseException("TokenServlet.getSharedSecetKey: Internal error finding config value: "
@@ -3080,7 +3082,8 @@ public class TokenServlet extends CMSServlet {
 
         //use DRM transport cert to wrap desKey
         TKSEngine engine = TKSEngine.getInstance();
-        String drmTransNickname = engine.getConfig().getString("tks.drm_transport_cert_nickname", "");
+        TKSEngineConfig config = engine.getConfig();
+        String drmTransNickname = config.getString("tks.drm_transport_cert_nickname", "");
 
         if ((drmTransNickname == null) || (drmTransNickname == "")) {
             logger.error(method + " did not find DRM transport certificate nickname");
@@ -3159,9 +3162,10 @@ public class TokenServlet extends CMSServlet {
         String gp3Settings = "tks." + keySet + ".prot3";
 
         TKSEngine engine = TKSEngine.getInstance();
+        TKSEngineConfig config = engine.getConfig();
         String divers = "emv";
         try {
-            divers = engine.getConfig().getString(gp3Settings + ".divers", "emv");
+            divers = config.getString(gp3Settings + ".divers", "emv");
         } catch (EBaseException e) {
         }
 
@@ -3172,7 +3176,7 @@ public class TokenServlet extends CMSServlet {
         String diversVer1Keys = "emv";
 
         try {
-            diversVer1Keys = engine.getConfig().getString(gp3Settings + ".diversVer1Keys","emv");
+            diversVer1Keys = config.getString(gp3Settings + ".diversVer1Keys","emv");
         } catch (EBaseException e) {
         }
 
@@ -3181,7 +3185,7 @@ public class TokenServlet extends CMSServlet {
 
         String keyType = null;
         try {
-            keyType = engine.getConfig().getString(gp3Settings + ".devKeyType","DES3");
+            keyType = config.getString(gp3Settings + ".devKeyType","DES3");
         } catch (EBaseException e) {
         }
 
@@ -3190,7 +3194,7 @@ public class TokenServlet extends CMSServlet {
         params.setDevKeyType(keyType);
 
         try {
-            keyType = engine.getConfig().getString(gp3Settings + ".masterKeyType","DES3");
+            keyType = config.getString(gp3Settings + ".masterKeyType","DES3");
         } catch (EBaseException e) {
         }
 

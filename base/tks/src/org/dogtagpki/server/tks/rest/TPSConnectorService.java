@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.tks.TKSEngine;
+import org.dogtagpki.server.tks.TKSEngineConfig;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.SymmetricKey;
@@ -33,7 +34,6 @@ import com.netscape.certsrv.system.TPSConnectorResource;
 import com.netscape.certsrv.tps.cert.TPSCertResource;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -44,7 +44,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     private static final String TPS_LIST = "tps.list";
 
     TKSEngine engine = TKSEngine.getInstance();
-    EngineConfig cs = engine.getConfig();
+    TKSEngineConfig cs = engine.getConfig();
 
     public UGSubsystem userGroupManager = engine.getUGSubsystem();
 
