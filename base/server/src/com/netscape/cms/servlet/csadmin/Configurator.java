@@ -854,51 +854,30 @@ public class Configurator {
             cs.putString(subsystem + "." + tag + ".cert", certStr);
         }
 
-        byte[] certb = cert.getCert();
-        X509CertImpl impl = new X509CertImpl(certb);
-
-        importCert(subsystem, tag, tokenName, nickname, impl);
-
-        return cert;
-    }
-
-    public void importCert(
-            String subsystem,
-            String tag,
-            String tokenname,
-            String nickname,
-            X509CertImpl impl
-            ) throws Exception {
-
         logger.debug("Configurator.importCert(" + tag + ")");
 
         if (tag.equals("sslserver")) {
             logger.info("Configurator: temporary SSL server cert will be replaced on restart");
-            return;
+            return cert;
         }
 
-        String fullNickname = nickname;
-        if (!CryptoUtil.isInternalToken(tokenname)) {
-            fullNickname = tokenname + ":" + nickname;
-        }
-
-        X509Certificate cert = CertUtil.findCertificate(fullNickname);
-
-        if (cert != null) {
+        if (x509Cert != null) {
             logger.debug("Configurator: deleting existing " + tag + " cert");
-            CertUtil.deleteCert(tokenname, cert);
+            CertUtil.deleteCert(tokenName, x509Cert);
         }
 
         logger.debug("Configurator: importing " + tag + " cert");
-        cert = CryptoUtil.importUserCertificate(impl.getEncoded(), nickname);
+        x509Cert = CryptoUtil.importUserCertificate(cert.getCert(), nickname);
 
         if (tag.equals("signing") && subsystem.equals("ca")) { // set trust flags to CT,C,C
-            CryptoUtil.trustCACert(cert);
+            CryptoUtil.trustCACert(x509Cert);
 
         } else if (tag.equals("audit_signing")) { // set trust flags to u,u,Pu
-            CryptoUtil.trustAuditSigningCert(cert);
+            CryptoUtil.trustAuditSigningCert(x509Cert);
 
         } // user certs will have u,u,u by default
+
+        return cert;
     }
 
     public Cert setupCert(CertificateSetupRequest request) throws Exception {
