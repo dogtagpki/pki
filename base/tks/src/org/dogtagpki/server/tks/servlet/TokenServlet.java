@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletConfig;
@@ -1492,14 +1493,14 @@ public class TokenServlet extends CMSServlet {
     // key based on some parameter in the request in future.
     //
     // On legacy systems, this method just returns what was previously returned.
-    private String getSharedSecretName(IConfigStore cs) throws EBaseException {
+    private String getSharedSecretName(TKSEngineConfig cs) throws EBaseException {
         boolean useNewNames = cs.getBoolean("tks.useNewSharedSecretNames", false);
 
         if (useNewNames) {
-            String tpsList = cs.getString("tps.list", "");
+            Collection<String> tpsList = cs.getTPSConnectorIDs();
             String firstSharedSecretName = null;
             if (!tpsList.isEmpty()) {
-                for (String tpsID : tpsList.split(",")) {
+                for (String tpsID : tpsList) {
                     String sharedSecretName = cs.getString("tps." + tpsID + ".nickname", "");
 
                     // This one will be a fall back in case we can't get a specific one

@@ -4,7 +4,6 @@ import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.TreeSet;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.tks.TKSEngine;
 import org.dogtagpki.server.tks.TKSEngineConfig;
@@ -41,8 +39,6 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSConnectorService.class);
 
-    private static final String TPS_LIST = "tps.list";
-
     TKSEngine engine = TKSEngine.getInstance();
     TKSEngineConfig cs = engine.getConfig();
 
@@ -57,8 +53,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
 
-            String tpsList = cs.getString(TPS_LIST, "");
-            Iterator<String> entries = Arrays.asList(StringUtils.split(tpsList, ",")).iterator();
+            Collection<String> tpsList = cs.getTPSConnectorIDs();
+            Iterator<String> entries = tpsList.iterator();
 
             TPSConnectorCollection response = new TPSConnectorCollection();
             int i = 0;
@@ -501,13 +497,13 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     }
 
     private boolean connectorExists(String id) throws EBaseException {
-        String tpsList = cs.getString(TPS_LIST, "");
-        return ArrayUtils.contains(StringUtils.split(tpsList, ","), id);
+        Collection<String> tpsList = cs.getTPSConnectorIDs();
+        return tpsList.contains(id);
     }
 
     private String getConnectorID(String host, String port) throws EBaseException {
-        String tpsList = cs.getString(TPS_LIST, "");
-        for (String tpsID : StringUtils.split(tpsList, ",")) {
+        Collection<String> tpsList = cs.getTPSConnectorIDs();
+        for (String tpsID : tpsList) {
             TPSConnectorData data = createTPSConnectorData(tpsID);
             if (data.getHost().equals(host) && data.getPort().equals(port))
                 return tpsID;
@@ -516,25 +512,25 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     }
 
     private void addToConnectorList(String id) throws EBaseException {
-        String tpsList = cs.getString(TPS_LIST, "");
+        Collection<String> tpsList = cs.getTPSConnectorIDs();
         Collection<String> sorted = new TreeSet<String>();
-        sorted.addAll(Arrays.asList(StringUtils.split(tpsList, ",")));
+        sorted.addAll(tpsList);
         sorted.add(id);
-        cs.putString(TPS_LIST, StringUtils.join(sorted, ","));
+        cs.setTPSConnectorIDs(sorted);
     }
 
     private void removeFromConnectorList(String id) throws EBaseException {
-        String tpsList = cs.getString(TPS_LIST, "");
+        Collection<String> tpsList = cs.getTPSConnectorIDs();
         Collection<String> sorted = new TreeSet<String>();
-        sorted.addAll(Arrays.asList(StringUtils.split(tpsList, ",")));
+        sorted.addAll(tpsList);
         sorted.remove(id);
-        cs.putString(TPS_LIST, StringUtils.join(sorted, ","));
+        cs.setTPSConnectorIDs(sorted);
     }
 
     private String findNextConnectorID() throws EBaseException {
-        String tpsList = cs.getString(TPS_LIST, "");
+        Collection<String> tpsList = cs.getTPSConnectorIDs();
         Collection<String> sorted = new TreeSet<String>();
-        sorted.addAll(Arrays.asList(StringUtils.split(tpsList, ",")));
+        sorted.addAll(tpsList);
 
         int index = 0;
         while (sorted.contains(Integer.toString(index)))

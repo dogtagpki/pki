@@ -25,6 +25,7 @@ package com.netscape.cms.selftests.tks;
 ///////////////////////
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Locale;
 
 import org.dogtagpki.server.tks.TKSEngine;
@@ -337,13 +338,13 @@ public class TKSKnownSessionKey
         try {
             boolean useNewNames = cs.getBoolean("tks.useNewSharedSecretNames", false);
             if (useNewNames) {
-                String tpsList = cs.getString("tps.list", "");
+                Collection<String> tpsList = cs.getTPSConnectorIDs();
                 if (tpsList.isEmpty()) {
                     logger.warn("TKSKnownSessionKey: no shared secrets configured, exiting");
                     return;
                 }
 
-                for (String tpsID : tpsList.split(",")) {
+                for (String tpsID : tpsList) {
                     String sharedSecretName = cs.getString("tps." + tpsID + ".nickname", "");
                     if (!sharedSecretName.isEmpty()) {
                         logger.debug("TKSKnownSessionKey: testing with key " + sharedSecretName);
