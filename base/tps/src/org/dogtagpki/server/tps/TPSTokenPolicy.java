@@ -22,8 +22,6 @@ import org.dogtagpki.tps.main.TPSException;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 
 /*
@@ -59,7 +57,7 @@ public class TPSTokenPolicy {
     }
 
     public String getDefaultPolicySetString() {
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String configName = "tokendb.defaultPolicy";
         String policySetString;

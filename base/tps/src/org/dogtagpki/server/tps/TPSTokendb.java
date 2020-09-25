@@ -40,8 +40,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.tps.token.TokenStatus;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 
 /*
@@ -571,7 +569,7 @@ public class TPSTokendb {
 
         logger.debug(method + "begins: tokenReason=" + tokenReason);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         try {
 
             EngineConfig configStore = engine.getConfig();
@@ -637,7 +635,7 @@ public class TPSTokendb {
         String method = "TPSTokendb.unrevokeCert";
         String logMsg;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         try {
             EngineConfig configStore = engine.getConfig();
 
@@ -692,7 +690,7 @@ public class TPSTokendb {
 
         String method = "TPSTokendb.checkShouldRevoke:";
         String msg = "";
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         if (cert == null) {

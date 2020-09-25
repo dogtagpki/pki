@@ -31,8 +31,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IConnector;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;
 
@@ -52,7 +50,7 @@ public class ConnectionManager
     public ConnectionManager() throws EBaseException {
         // initialize the ca list for revocation routing:
         //    tps.connCAList=ca1,ca2...ca<n>
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         IConfigStore conf = subsystem.getConfigStore();
         String caListString;
@@ -100,7 +98,7 @@ public class ConnectionManager
 
         logger.debug("ConnectionManager: initConnectors(): begins.");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         IConfigStore conf = subsystem.getConfigStore();
         IConfigStore connectorSubstore = conf.getSubStore("connector");

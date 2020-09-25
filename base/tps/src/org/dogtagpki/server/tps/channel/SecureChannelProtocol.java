@@ -28,8 +28,6 @@ import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.pkcs11.PKCS11Constants;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -370,7 +368,7 @@ public class SecureChannelProtocol {
             throw new EBaseException(method + " Invalid key size!");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         KeyGenerator kg;

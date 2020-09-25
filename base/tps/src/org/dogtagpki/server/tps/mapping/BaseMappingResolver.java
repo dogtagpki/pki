@@ -2,8 +2,6 @@ package org.dogtagpki.server.tps.mapping;
 
 import org.dogtagpki.tps.main.TPSException;
 
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 
 /**
@@ -23,7 +21,7 @@ public abstract class BaseMappingResolver {
         instanceName = instName;
         prefix = MappingResolverManager.MAPPING_RESOLVER_CFG +
                 "." + instanceName;
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         configStore = engine.getConfig();
     }
 

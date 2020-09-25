@@ -28,8 +28,6 @@ import org.dogtagpki.server.rest.AccountService;
 import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 
 /**
@@ -39,7 +37,7 @@ public class TPSAccountService extends AccountService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSAccountService.class);
 
-    CMSEngine engine = CMS.getCMSEngine();
+    org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
     EngineConfig configStore = engine.getConfig();
 
     @Override

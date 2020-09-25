@@ -26,8 +26,6 @@ import org.dogtagpki.server.authentication.AuthenticationConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 
 /**
@@ -83,7 +81,7 @@ public class AuthenticationManager
      */
     public void initAuthInstances() throws EBaseException {
         logger.debug("AuthenticationManager: initAuthInstances(): begins.");
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig conf = engine.getConfig();
         AuthenticationConfig authConfig = conf.getAuthenticationConfig();
 

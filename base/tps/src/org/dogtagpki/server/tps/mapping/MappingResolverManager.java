@@ -20,13 +20,9 @@ package org.dogtagpki.server.tps.mapping;
 
 import java.util.HashMap;
 
-import org.dogtagpki.server.tps.TPSEngine;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.registry.PluginRegistry;
 
@@ -84,10 +80,9 @@ public class MappingResolverManager
         String method = "mappingResolverManager.initMappingResolverInstance:";
         logger.debug(method + " begins");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        TPSEngine tpsEngine = (TPSEngine) engine;
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
 
-        registry = tpsEngine.getPluginRegistry();
+        registry = engine.getPluginRegistry();
 
         if (registry == null) {
             logger.warn(method + " registry null");

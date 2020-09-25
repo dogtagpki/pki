@@ -35,7 +35,6 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements a self test to check the validity of the TPS.
@@ -148,7 +147,7 @@ public class TPSValidity extends ASelfTest {
      */
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(tpsSubId);
         if (tps == null) {
             // log that the TPS is not installed

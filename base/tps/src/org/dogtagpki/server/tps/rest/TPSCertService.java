@@ -38,8 +38,6 @@ import com.netscape.certsrv.tps.cert.TPSCertCollection;
 import com.netscape.certsrv.tps.cert.TPSCertData;
 import com.netscape.certsrv.tps.cert.TPSCertResource;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
@@ -118,7 +116,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
@@ -165,7 +163,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
         logger.debug("TPSCertService.getCert(\"" + certID + "\")");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();

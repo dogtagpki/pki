@@ -52,13 +52,8 @@ import org.dogtagpki.tps.main.Util;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.pkcs11.PKCS11Constants;
-import org.mozilla.jss.crypto.IllegalBlockSizeException;
-
-import java.security.InvalidAlgorithmParameterException;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 
 public class SecureChannel {
@@ -331,7 +326,7 @@ public class SecureChannel {
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         final String keyCapabilities = "keyCapabilities";

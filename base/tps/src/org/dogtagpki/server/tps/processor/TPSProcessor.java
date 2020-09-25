@@ -34,9 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
@@ -107,7 +107,6 @@ import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
@@ -999,7 +998,7 @@ public class TPSProcessor {
 
         logger.debug("TPSProcessor.checkUpdateAppletEncryption entering...");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String appletEncryptionConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
@@ -1196,7 +1195,7 @@ public class TPSProcessor {
             logger.error(logMsg);
             throw new EBaseException(logMsg);
         }
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String configName = prefix + "." + tokenType + ".auth.id";
         String authId;
@@ -1222,7 +1221,7 @@ public class TPSProcessor {
             throw new EBaseException(logMsg);
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         AuthenticationConfig authConfig = configStore.getAuthenticationConfig();
         AuthManagersConfig instancesConfig = authConfig.getAuthManagersConfig();
@@ -1544,7 +1543,7 @@ public class TPSProcessor {
 
         logger.debug("TPSProcessor.isTokenRecordPresent: " + appletInfo.getCUIDhexString());
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         try {
@@ -1572,7 +1571,7 @@ public class TPSProcessor {
      */
     protected String getCAConnectorID(String enrollType, String keyType)
             throws TPSException {
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String id = null;
         String config = null;
@@ -1613,7 +1612,7 @@ public class TPSProcessor {
         String logMsg;
         logger.debug(method + ": begins");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert";
         boolean revokeCert = false;
@@ -1636,7 +1635,7 @@ public class TPSProcessor {
         String method = "getRevocationReasonAtFormat";
         String logMsg;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert.reason";
         logger.debug(method + " finding config: " + configName);
@@ -1673,7 +1672,7 @@ public class TPSProcessor {
         }
         logger.debug(method + ": begins for cuid:" + cuid);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         boolean isTokenPresent = tps.tdb.isTokenPresent(cuid);
         if (!isTokenPresent) {
@@ -1822,7 +1821,7 @@ public class TPSProcessor {
     public boolean allowRecoverInvalidCert() throws TPSException {
         String method = "TPSProcessor.allowRecoverInvalidCert:";
         boolean ret = true;
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String configName = "externalReg.allowRecoverInvalidCert.enable";
         try {
@@ -1861,7 +1860,7 @@ public class TPSProcessor {
         String tVal;
         String[] vals;
         ExternalRegAttrs erAttrs = new ExternalRegAttrs(authId);
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String attributesToProcessStr = configStore.getString(
@@ -2026,7 +2025,7 @@ public class TPSProcessor {
     protected void setExternalRegSelectedTokenType(ExternalRegAttrs erAttrs)
             throws TPSException {
         String method = "TPSProcessor.setExternalRegSelectedTokenType: ";
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
@@ -2057,7 +2056,7 @@ public class TPSProcessor {
 
     protected void format(boolean skipAuth) throws TPSException, IOException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String configName = null;
         String logMsg = null;
@@ -2511,7 +2510,7 @@ public class TPSProcessor {
     protected String getResolverInstanceName() throws TPSException {
 
         logger.debug("TPSProcessor.getResolverInstanceName: entering for operaiton : " + currentTokenOperation);
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String resolverInstName = null;
 
@@ -2555,7 +2554,7 @@ public class TPSProcessor {
     protected String getKeySetResolverInstanceName() throws TPSException {
         String method = "TPSProcessor.getKeySetResolverInstanceName: ";
         logger.debug(method + " begins");
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String resolverInstName = null;
 
@@ -2629,7 +2628,7 @@ public class TPSProcessor {
     }
 
     protected String getIssuerInfoValue() throws TPSException {
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String info = null;
 
@@ -2680,7 +2679,7 @@ public class TPSProcessor {
 
         logger.debug("TPSProcessor.checkIssuerEnabled entering...");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String issuerEnabledConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
@@ -2706,7 +2705,7 @@ public class TPSProcessor {
     //Obtain value and set class property.
     protected void checkIsExternalReg() throws TPSException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String External_Reg_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." + "enable";
         logger.debug("TPS_Processor.checkIsExternalReg: getting config:" + External_Reg_Cfg);
@@ -2730,7 +2729,7 @@ public class TPSProcessor {
     boolean checkServerSideKeyGen(String connId) throws TPSException {
 
         boolean result;
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String profileConfig = "conn." + connId + "." + ".serverKeygen";
@@ -2748,7 +2747,7 @@ public class TPSProcessor {
 
     void checkAllowNoAppletToken(String operation) throws TPSException {
         boolean allow = true;
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String noAppletConfig = operation + "." + selectedTokenType + "." + TPSEngine.CFG_ALLOW_NO_APPLET;
@@ -2771,7 +2770,7 @@ public class TPSProcessor {
     boolean checkForAppletUpdateEnabled() throws TPSException {
         boolean enabled = false;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String appletUpdate = "op." + currentTokenOperation + "." + selectedTokenType + "."
@@ -2791,7 +2790,7 @@ public class TPSProcessor {
 
     protected String checkForAppletUpgrade(String operation) throws TPSException, IOException {
         String requiredVersion = null;
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         acquireChannelPlatformAndProtocolInfo();
@@ -2831,7 +2830,7 @@ public class TPSProcessor {
     protected void checkAllowUnknownToken(String operation) throws TPSException {
         boolean allow = true;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String unknownConfig = "op." + operation + "." + TPSEngine.CFG_ALLOW_UNKNOWN_TOKEN;
@@ -2853,7 +2852,7 @@ public class TPSProcessor {
     }
 
     protected String getTKSConnectorID() throws TPSException {
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String id = null;
 
@@ -2876,7 +2875,7 @@ public class TPSProcessor {
     protected TPSBuffer getNetkeyAID() throws TPSException {
 
         String NetKeyAID = null;
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         logger.debug("TPSProcessor.getNetkeyAID: getting config: " + TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
         try {
@@ -2897,7 +2896,7 @@ public class TPSProcessor {
     protected TPSBuffer getNetkeyPAID() throws TPSException {
 
         String NetKeyPAID = null;
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         logger.debug("TPSProcessor.getNetkeyPAID: getting config: " + TPSEngine.CFG_DEF_NETKEY_FILE_AID);
         try {
@@ -2918,7 +2917,7 @@ public class TPSProcessor {
     protected TPSBuffer getCardManagerAID() throws TPSException {
 
         String cardMgrAID = null;
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         logger.debug("TPSProcessor.getCardManagerAID: getting config: " + TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID);
         try {
@@ -2937,7 +2936,7 @@ public class TPSProcessor {
     }
 
     protected String getAppletExtension() throws TPSException {
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String extension = null;
         String extensionConfig = TPSEngine.CFG_APPLET_EXTENSION;
@@ -2956,7 +2955,7 @@ public class TPSProcessor {
 
     protected String getAppletDirectory(String operation) throws TPSException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String directory = null;
 
@@ -2979,7 +2978,7 @@ public class TPSProcessor {
     }
 
     protected int getChannelBlockSize() throws TPSException {
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         int blockSize = 0;
         try {
@@ -2997,7 +2996,7 @@ public class TPSProcessor {
     }
 
     protected int getChannelInstanceSize() throws TPSException {
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         int instanceSize = 0;
         try {
@@ -3017,7 +3016,7 @@ public class TPSProcessor {
     }
 
     protected int getAppletMemorySize() throws TPSException {
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         int memSize = 0;
         try {
@@ -3035,7 +3034,7 @@ public class TPSProcessor {
     }
 
     protected int getChannelDefKeyVersion() throws TPSException {
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         int ver = 0;
         try {
@@ -3054,7 +3053,7 @@ public class TPSProcessor {
     }
 
     protected int getChannelDefKeyIndex() throws TPSException {
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         int index = 0;
         try {
@@ -3074,7 +3073,7 @@ public class TPSProcessor {
 
     protected String getSharedSecretTransportKeyName(String connId) throws TPSException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         String sharedSecretName = null;
         try {
@@ -3169,7 +3168,7 @@ public class TPSProcessor {
     }
 
     public TPSEngine getTPSEngine() {
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         return subsystem.getEngine();
@@ -3278,7 +3277,7 @@ public class TPSProcessor {
     protected boolean checkSymmetricKeysEnabled() throws TPSException {
         boolean result = true;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String symmConfig = "op" + "." + currentTokenOperation + "." + selectedTokenType + "."
@@ -3298,7 +3297,7 @@ public class TPSProcessor {
     protected int getSymmetricKeysRequiredVersion() throws TPSException {
         int version = 0;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String requiredVersionConfig = "op" + "." + currentTokenOperation + "." + selectedTokenType + "."
@@ -3349,7 +3348,7 @@ public class TPSProcessor {
             throw new TPSException("TPSProcessor.checkAndUpgradeSymKeys: invalid input data!");
         }
 
-        CMSEngine eng = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine eng = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem tps = (TPSSubsystem) eng.getSubsystem(TPSSubsystem.ID);
         SecureChannel channel = null;
 
@@ -3699,7 +3698,7 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
 
         String pinResetEnableConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
@@ -3778,7 +3777,7 @@ public class TPSProcessor {
             opPrefix = TPSEngine.OP_PIN_RESET_PREFIX;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         if (!isExternalReg) {
             // authenticate per profile/tokenType configuration
             String configName = opPrefix + "." + tokenType + ".auth.enable";
@@ -3992,7 +3991,7 @@ public class TPSProcessor {
     boolean checkCardGPKeyVersionIsInRange(String CUID, String KDD, String keyInfoData) throws TPSException {
         boolean result = true;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         String method = "checkCardGPKeyVersionIsInRange: ";
@@ -4148,7 +4147,7 @@ public class TPSProcessor {
             throw new TPSException(method + " invalid input data!");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         EngineConfig configStore = engine.getConfig();
 
@@ -4223,8 +4222,8 @@ public class TPSProcessor {
             String keyInfoData) throws TPSException {
 
         String method = "checkCardGPKeyVersionMatchesTokenDB: ";
-        CMSEngine eng = CMS.getCMSEngine();
-        TPSSubsystem tps = (TPSSubsystem) eng.getSubsystem(TPSSubsystem.ID);
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         if(CUID == null || KDD == null || keyInfoData == null) {
             throw new TPSException(method + " Invalid input data!");
@@ -4232,7 +4231,6 @@ public class TPSProcessor {
 
         boolean result = true;
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig configStore = engine.getConfig();
 
         String checkValidateVersion = "op." + currentTokenOperation + "." + selectedTokenType + "."
@@ -4330,7 +4328,7 @@ public class TPSProcessor {
     }
 
     protected void checkInvalidTokenStatus(TokenRecord tokenRecord, String activityDBOperation) throws TPSException {
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TokenStatus status = tokenRecord.getTokenStatus();
 

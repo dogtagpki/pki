@@ -24,7 +24,6 @@ import org.dogtagpki.server.tps.config.ConnectorDatabase;
 import org.dogtagpki.server.tps.config.ConnectorRecord;
 
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
@@ -46,7 +45,7 @@ public class TPSInstaller {
 
     public void configureCAConnector(URI uri, String nickname) {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
         EngineConfig cs = engine.getConfig();
@@ -66,7 +65,7 @@ public class TPSInstaller {
 
     public void configureTKSConnector(URI uri, String nickname) {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
         EngineConfig cs = engine.getConfig();
@@ -86,7 +85,7 @@ public class TPSInstaller {
 
     public void configureKRAConnector(Boolean keygen, URI uri, String nickname) {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
         EngineConfig cs = engine.getConfig();

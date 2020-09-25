@@ -27,8 +27,6 @@ import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
@@ -113,7 +111,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKey(): input parameter null.");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig conf = engine.getConfig();
 
         boolean serverKeygen = false;
@@ -265,7 +263,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException(method +  " invalid input!");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig conf = engine.getConfig();
 
         boolean serverKeygen =
@@ -437,7 +435,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKeySCP02(): input parameter null.");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig conf = engine.getConfig();
 
         boolean serverKeygen =
@@ -566,7 +564,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: createKeySetData(): input parameter null.");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig conf = engine.getConfig();
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
@@ -661,7 +659,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         logger.debug("TKSRemoteRequestHandler: computeRandomData(): sending request to tks.");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
@@ -738,7 +736,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: encryptData(): input parameter null.");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig conf = engine.getConfig();
 
         if (keySet == null)

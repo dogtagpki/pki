@@ -37,8 +37,6 @@ import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.event.TokenPinResetEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 
 public class TPSPinResetProcessor extends TPSProcessor {
@@ -73,7 +71,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
         logger.debug(method + ": entering...");
 
         String logMsg = null;
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         AppletInfo appletInfo = null;

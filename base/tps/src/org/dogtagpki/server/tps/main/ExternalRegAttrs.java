@@ -7,8 +7,6 @@ import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 
 public class ExternalRegAttrs {
@@ -32,7 +30,7 @@ public class ExternalRegAttrs {
 
     public ExternalRegAttrs(String authId) {
         String method = "ExternalRegAttrs";
-        CMSEngine engine = CMS.getCMSEngine();
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
         AuthenticationConfig authConfig = configStore.getAuthenticationConfig();
         AuthManagersConfig instancesConfig = authConfig.getAuthManagersConfig();
