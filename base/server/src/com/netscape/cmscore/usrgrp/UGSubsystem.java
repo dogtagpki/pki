@@ -170,7 +170,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
     }
 
     public IGroup createGroup(String id) {
-        return new Group(this, id);
+        return new Group(id);
     }
 
     /**
@@ -1458,7 +1458,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
             throw new EUsrGrpException("Cannot build group. No Attribute cn in LDAP Entry " + entry.getDN());
         }
         String groupName = cn.getStringValues().nextElement();
-        IGroup grp = createGroup(this, groupName);
+        IGroup grp = createGroup(groupName);
 
         LDAPAttribute grpDesc = entry.getAttribute("description");
 
@@ -1521,10 +1521,6 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
         }
 
         return grp;
-    }
-
-    protected IGroup createGroup(IUsrGrp scope, String id) {
-        return new Group(scope, id);
     }
 
     /**

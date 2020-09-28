@@ -22,7 +22,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUsrGrp;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -36,8 +35,7 @@ public class Group implements IGroup {
      *
      */
     private static final long serialVersionUID = -1264387079578766750L;
-    @SuppressWarnings("unused")
-    private IUsrGrp mBase;
+
     private String mName = null;
 
     // TODO: replace Vector with Set
@@ -56,8 +54,7 @@ public class Group implements IGroup {
     /**
      * Constructs local group.
      */
-    public Group(IUsrGrp base, String name) {
-        mBase = base;
+    public Group(String name) {
         mName = name;
     }
 
