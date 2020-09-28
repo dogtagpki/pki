@@ -46,6 +46,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -167,7 +168,7 @@ public class RegisterUser extends CMSServlet {
             certs[0] = cert;
 
             // test to see if the cert already belongs to a user
-            CertUserLocator cul = ugsys.getCertUserLocator();
+            CertUserLocator cul = new ExactMatchCertUserLocator();
             com.netscape.certsrv.usrgrp.Certificates c =
                     new com.netscape.certsrv.usrgrp.Certificates(certs);
             user = cul.locateUser(c);

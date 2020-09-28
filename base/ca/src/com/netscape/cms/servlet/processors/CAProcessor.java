@@ -70,6 +70,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 public class CAProcessor extends Processor {
@@ -148,7 +149,7 @@ public class CAProcessor extends Processor {
         authority = engine.getCA();
         authz = engine.getAuthzSubsystem();
         ug = engine.getUGSubsystem();
-        ul = ug.getCertUserLocator();
+        ul = new ExactMatchCertUserLocator();
 
         IConfigStore cs = config.getSubStore("processor." + id);
         this.profileID = cs.getString(PROFILE_ID, "").isEmpty() ? null : cs.getString(PROFILE_ID);
