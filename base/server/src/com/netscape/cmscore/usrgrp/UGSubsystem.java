@@ -166,7 +166,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
     }
 
     public IUser createUser(String id) {
-        return new User(this, id);
+        return new User(id);
     }
 
     public IGroup createGroup(String id) {
@@ -450,7 +450,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
         if (uid == null) {
             throw new EUsrGrpException("No Attribute UID in LDAP Entry " + entry.getDN());
         }
-        IUser id = createUser(this, uid.getStringValues().nextElement());
+        IUser id = createUser(uid.getStringValues().nextElement());
         LDAPAttribute cnAttr = entry.getAttribute("cn");
 
         if (cnAttr != null) {
@@ -509,7 +509,7 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
         if (uid == null) {
             throw new EUsrGrpException("No Attribute UID in LDAP Entry " + entry.getDN());
         }
-        IUser id = createUser(this, uid.getStringValues().nextElement());
+        IUser id = createUser(uid.getStringValues().nextElement());
         LDAPAttribute cnAttr = entry.getAttribute("cn");
 
         if (cnAttr != null) {
@@ -660,10 +660,6 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsr
         }
 
         return id;
-    }
-
-    protected IUser createUser(IUsrGrp base, String id) {
-        return new User(base, id);
     }
 
     /**

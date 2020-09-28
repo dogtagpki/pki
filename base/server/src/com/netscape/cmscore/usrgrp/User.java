@@ -26,7 +26,6 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.certsrv.usrgrp.IUsrGrp;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -42,8 +41,7 @@ public class User implements IUser {
      */
     private static final long serialVersionUID = -7407288327775546979L;
     public static final String ATTR_X509_CERTIFICATES = "userCertificates";
-    @SuppressWarnings("unused")
-    private IUsrGrp mBase;
+
     private String mUserid = null;
     private String mUserDN = null;
     private String mFullName = null;
@@ -94,8 +92,7 @@ public class User implements IUser {
     /**
      * Constructs a user.
      */
-    public User(IUsrGrp base, String userid) {
-        mBase = base;
+    public User(String userid) {
         mUserid = userid;
     }
 
