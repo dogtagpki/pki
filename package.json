@@ -1,5 +1,5 @@
 {
-  "name": "pki",
+  "name": "dogtag-pki",
   "version": "10.10.0",
   "description": "Dogtag PKI",
   "main": "index.js",
@@ -15,7 +15,7 @@
     "url": "git+https://github.com/dogtagpki/pki.git"
   },
   "author": "Dogtag PKI Team <pki-devel@redhat.com>",
-  "license": "GPLv2 and LGPLv2",
+  "license": "GPL-2.0-or-later OR LGPL-2.0-or-later",
   "bugs": {
     "url": "https://pagure.io/dogtagpki/issues"
   },
