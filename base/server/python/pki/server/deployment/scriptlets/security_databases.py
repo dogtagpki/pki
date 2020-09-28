@@ -388,6 +388,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem.config['log.instance.SignedAudit.signedAuditCertNickname'] = audit_nickname
 
+        san_inject = config.str2bool(deployer.mdict['pki_san_inject'])
+        logger.info('Injecting SAN: %s', san_inject)
+
+        san_for_server_cert = deployer.mdict.get('pki_san_for_server_cert')
+        logger.info('SSL server cert SAN: %s', san_for_server_cert)
+
+        if san_inject and san_for_server_cert:
+            subsystem.config['service.injectSAN'] = 'true'
+            subsystem.config['service.sslserver.san'] = san_for_server_cert
+
         subsystem.save()
 
         # Place 'slightly' less restrictive permissions on

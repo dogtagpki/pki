@@ -606,9 +606,6 @@ class PKIConfigParser:
             if 'pki_subordinate' not in self.mdict or\
                not len(self.mdict['pki_subordinate']):
                 self.mdict['pki_subordinate'] = "false"
-            if 'pki_san_inject' not in self.mdict or\
-               not len(self.mdict['pki_san_inject']):
-                self.mdict['pki_san_inject'] = "false"
 
             # PKI Target (slot substitution) name/value pairs
             self.mdict['pki_target_cs_cfg'] = \

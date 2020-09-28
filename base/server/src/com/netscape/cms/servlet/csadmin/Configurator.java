@@ -495,12 +495,6 @@ public class Configurator {
         logger.debug("Configurator: token: " + tokenName);
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
-        if (tag.equals("sslserver") && certData.getServerCertSAN() != null) {
-            logger.debug("Configurator: injecting SAN into server cert");
-            cs.putString("service.injectSAN", "true");
-            cs.putString("service.sslserver.san", certData.getServerCertSAN());
-        }
-
         cs.commit(false);
 
         KeyPair pair;
@@ -597,12 +591,9 @@ public class Configurator {
     //              embed a certificate extension into
     //              a PKCS #10 certificate request.
     //
-    public void injectSANExtension(MultivaluedMap<String, String> content) throws Exception {
+    public void injectSANExtension(String[] dnsNames, MultivaluedMap<String, String> content) throws Exception {
 
         logger.debug("Configurator: Injecting SAN extension");
-
-        String list = cs.getString("service.sslserver.san");
-        String[] dnsNames = StringUtils.split(list, ",");
 
         int i = 0;
         for (String dnsName : dnsNames) {
@@ -641,7 +632,11 @@ public class Configurator {
         logger.debug("Configurator: injectSAN: " + injectSAN);
 
         if (tag.equals("sslserver") && injectSAN) {
-            injectSANExtension(content);
+
+            String list = cs.getString("service.sslserver.san");
+            String[] dnsNames = StringUtils.split(list, ",");
+
+            injectSANExtension(dnsNames, content);
         }
 
         String serverURL = "https://" + hostname + ":" + port;
