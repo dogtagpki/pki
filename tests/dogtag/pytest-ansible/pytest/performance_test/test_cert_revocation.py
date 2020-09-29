@@ -96,6 +96,6 @@ if __name__ == "__main__":
     log.info("Number of certs Revoked (N)={}".format(N))
     log.info("Minimum execution time (T)={}".format(min(revocation_times)))
     log.info("Maximum execution time (T)={}".format(max(revocation_times)))
-    log.info("Average execution time (T)={}".format(sum(revocation_times)/len(revocation_times))
+    log.info("Average execution time (T)={}".format(sum(revocation_times)/len(revocation_times)))
     log.info("Test execution time (T)={}".format(T))
     log.info("Throughput (V = N/T)={}".format(N / T))
