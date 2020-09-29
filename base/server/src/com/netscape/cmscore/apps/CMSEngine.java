@@ -165,6 +165,8 @@ public class CMSEngine implements ServletContextListener {
     public String unsecurePort;
     public String securePort;
 
+    private Map<String, StartupNotifier> startupNotifiers = new LinkedHashMap<>();
+
     private static final int PW_OK =0;
     //private static final int PW_BAD_SETUP = 1;
     private static final int PW_INVALID_PASSWORD = 2;
@@ -1017,6 +1019,17 @@ public class CMSEngine implements ServletContextListener {
         mStartupTime = System.currentTimeMillis();
 
         logger.info(name + " engine started");
+
+        for (Map.Entry<String, StartupNotifier> kv : startupNotifiers.entrySet()) {
+            try {
+                kv.getValue().notifyReady();
+            } catch (Throwable e) {
+                logger.warn(
+                    "Startup notification failed for notifier '" + kv.getKey() + "'.",
+                    e
+                );
+            }
+        }
     }
 
     public boolean isInRunningState() {
