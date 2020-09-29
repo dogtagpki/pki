@@ -117,6 +117,8 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 %define debug_package %{nil}
 %endif
 
+%bcond_without sdnotify
+
 # ignore unpackaged files from native 'tpsclient'
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
 %define _unpackaged_files_terminate_build 0
@@ -870,6 +872,7 @@ cd build
 %if ! %{with server} && ! %{with acme} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
     -DWITH_SERVER:BOOL=OFF \
 %endif
+    -DWITH_SYSTEMD_NOTIFICATION:BOOL=%{?with_sdnotify:ON}%{!?with_sdnotify:OFF} \
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
     -DTHEME=%{?with_theme:%{vendor_id}} \
@@ -1185,8 +1188,6 @@ fi
 %{_javadir}/pki/pki-cms.jar
 %{_javadir}/pki/pki-cmsbundle.jar
 %{_javadir}/pki/pki-tomcat.jar
-# TODO make pki-systemd.jar conditional
-%{_javadir}/pki/pki-systemd.jar
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz
 %{_mandir}/man5/pki_default.cfg.5.gz
@@ -1210,6 +1211,10 @@ fi
 %{_mandir}/man8/pki-healthcheck.8.gz
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
+
+%if %{with sdnotify}
+%{_javadir}/pki/pki-systemd.jar
+%endif
 
 # with server
 %endif

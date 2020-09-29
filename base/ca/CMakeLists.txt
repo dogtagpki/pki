@@ -24,11 +24,13 @@ add_custom_command(
     COMMAND ln -sf /usr/share/java/pki/pki-ca.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-ca.jar
 )
 
+if(WITH_SYSTEMD_NOTIFICATION)
 add_custom_target(pki-ca-links-systemd-jar ALL
     COMMENT "Creating link to pki-systemd.jar for CA webapp library"
     DEPENDS pki-ca-links
     COMMAND ln -sf /usr/share/java/pki/pki-systemd.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-systemd.jar
 )
+endif(WITH_SYSTEMD_NOTIFICATION)
 
 # install directories
 install(
