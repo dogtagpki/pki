@@ -513,6 +513,12 @@ Requires(postun): systemd-units
 Requires(pre):    shadow-utils
 Requires:         tomcatjss >= 7.5.0
 
+# JNA is used to bind to libsystemd
+%if %{with sdnotify}
+BuildRequires:    jna
+Requires:         jna
+%endif
+
 # pki-healthcheck depends on the following library
 %if 0%{?rhel}
 Requires:         ipa-healthcheck-core
