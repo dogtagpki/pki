@@ -266,6 +266,23 @@ public class CMSEngine implements ServletContextListener {
         debug.init(debugConfig);
     }
 
+    public void initStartupNotifiers() throws Exception {
+        IConfigStore snConfig = config.getSubStore("startupNotifiers");
+        String ids = snConfig.getString("list", null);
+        if (ids == null) return;
+        for (String id : ids.split(",")) {
+            id = id.trim();
+            if (id.isEmpty()) continue;
+            IConfigStore instanceConfig = snConfig.getSubStore(id);
+            String className = instanceConfig.getString("class");
+            Class<? extends StartupNotifier> clazz =
+                Class.forName(className).asSubclass(StartupNotifier.class);
+            StartupNotifier sn = clazz.newInstance();
+            sn.init(instanceConfig);
+            startupNotifiers.put(id, sn);
+        }
+    }
+
     public void initPasswordStore() throws Exception {
 
         int state = config.getState();
@@ -978,6 +995,7 @@ public class CMSEngine implements ServletContextListener {
 
         initDebug();
         initPasswordStore();
+        initStartupNotifiers();
         initSecurityProvider();
         initPluginRegistry();
         initDatabase();
