@@ -5,12 +5,19 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/pki-systemd.mf
 )
 
+find_file(JNA_JAR
+    NAMES
+        jna.jar
+    PATHS
+        /usr/share/java
+)
+
 # build systemd classes
 javac(pki-systemd-classes
     SOURCES
         *.java
     CLASSPATH
-        ${PKI_CMS_JAR}
+        ${JNA_JAR} ${PKI_CMS_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS

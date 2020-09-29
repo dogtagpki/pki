@@ -119,6 +119,14 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_NET_JAR} common/lib/commons-net.jar
 )
 
+if(WITH_SYSTEMD_NOTIFICATION)
+add_custom_target(pki-server-common-lib-jna ALL
+    COMMENT "Creating link to jna.jar for PKI server common library"
+    DEPENDS pki-server-common-lib
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JNA_JAR} common/lib/jna.jar
+)
+endif(WITH_SYSTEMD_NOTIFICATION)
+
 if(JAVA_VERSION GREATER 10)
     add_custom_target(pki-server-java11plus-lib ALL
         DEPENDS pki-server-common-lib
