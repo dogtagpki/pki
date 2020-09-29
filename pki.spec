@@ -1081,8 +1081,8 @@ fi
 %files -n pki-tools
 ################################################################################
 
-%license base/native-tools/LICENSE
-%doc base/native-tools/doc/README
+%license base/tools/LICENSE
+%doc base/tools/doc/README
 %{_bindir}/p7tool
 %{_bindir}/pistool
 %{_bindir}/pki
@@ -1090,7 +1090,7 @@ fi
 %{_bindir}/setpin
 %{_bindir}/sslget
 %{_bindir}/tkstool
-%{_datadir}/pki/native-tools/
+%{_datadir}/pki/tools/
 %{_bindir}/AtoB
 %{_bindir}/AuditVerify
 %{_bindir}/BtoA

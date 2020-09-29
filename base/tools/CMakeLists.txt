@@ -1,3 +1,3 @@
-project(native-tools)
+project(tools)
 
 add_subdirectory(src)
