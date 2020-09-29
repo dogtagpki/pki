@@ -27,6 +27,7 @@ add_subdirectory(src)
 add_subdirectory(cmsbundle)
 add_subdirectory(test)
 add_subdirectory(healthcheck)
+add_subdirectory(systemd)
 
 # build server classes
 javac(pki-server-classes

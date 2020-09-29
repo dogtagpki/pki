@@ -1,0 +1,3 @@
+Name: pki-systemd
+Specification-Version: ${APPLICATION_VERSION}
+Implementation-Version: ${VERSION}

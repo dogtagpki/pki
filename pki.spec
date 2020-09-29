@@ -1186,6 +1186,8 @@ fi
 %{_javadir}/pki/pki-cms.jar
 %{_javadir}/pki/pki-cmsbundle.jar
 %{_javadir}/pki/pki-tomcat.jar
+# TODO make pki-systemd.jar conditional
+%{_javadir}/pki/pki-systemd.jar
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz
 %{_mandir}/man5/pki_default.cfg.5.gz
