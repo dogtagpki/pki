@@ -477,7 +477,6 @@ Summary:          PKI Server Package
 BuildArch:        noarch
 
 Requires:         hostname
-Requires:         net-tools
 
 Requires:         policycoreutils
 Requires:         procps-ng
