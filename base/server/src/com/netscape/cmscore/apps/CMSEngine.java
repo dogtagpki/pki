@@ -664,15 +664,6 @@ public class CMSEngine implements ServletContextListener {
         return mSecurityDomainSessionTable;
     }
 
-    public String getEEHost() {
-        String host = "";
-        try {
-            host = mConfig.getHostname();
-        } catch (Exception e) {
-        }
-        return host;
-    }
-
     public String getEENonSSLHost() {
         String host = "";
         try {

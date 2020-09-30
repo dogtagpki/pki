@@ -42,6 +42,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.EmailTemplate;
@@ -108,7 +109,10 @@ public class CertificateIssuedListener implements IRequestListener {
 
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
+
         CAEngine engine = CAEngine.getInstance();
+        EngineConfig cs = engine.getConfig();
+
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -159,7 +163,7 @@ public class CertificateIssuedListener implements IRequestListener {
         mSubject = new String(mSubject_Success);
 
         // form the cert retrieval URL for the notification
-        mHttpHost = engine.getEEHost();
+        mHttpHost = cs.getHostname();
         mHttpPort = engine.getEESSLPort();
 
         // register for this event listener

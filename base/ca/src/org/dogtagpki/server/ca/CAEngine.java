@@ -937,7 +937,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         String parentDNString = parentCA.getX500Name().toLdapDNString();
 
-        String keyHost = getEEHost() + ":" + getEESSLPort();
+        String keyHost = mConfig.getHostname() + ":" + getEESSLPort();
         logger.info("CAEngine: - key host: " + keyHost);
 
         LDAPAttribute[] attrs = {

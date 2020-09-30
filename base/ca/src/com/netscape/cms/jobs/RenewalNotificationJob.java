@@ -45,6 +45,7 @@ import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
@@ -285,12 +286,13 @@ public class RenewalNotificationJob
      */
     public void run() {
         CAEngine engine = CAEngine.getInstance();
-        // for forming renewal URL at template
-        mHttpHost = engine.getEEHost();
-        mHttpPort = engine.getEESSLPort();
-
-        // read from the configuration file
+        EngineConfig cs = engine.getConfig();
         try {
+            // for forming renewal URL at template
+            mHttpHost = cs.getHostname();
+            mHttpPort = engine.getEESSLPort();
+
+            // read from the configuration file
             mPreDays = mConfig.getInteger(PROP_NOTIFYTRIGGEROFFSET, 30); // in days
             mPostDays = mConfig.getInteger(PROP_NOTIFYENDOFFSET, 15); // in days
 

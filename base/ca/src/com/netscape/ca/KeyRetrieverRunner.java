@@ -29,6 +29,7 @@ import org.mozilla.jss.crypto.X509Certificate;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class KeyRetrieverRunner implements Runnable {
@@ -82,6 +83,7 @@ public class KeyRetrieverRunner implements Runnable {
     private boolean _run() {
 
         CAEngine engine = CAEngine.getInstance();
+        EngineConfig cs = engine.getConfig();
 
         KeyRetriever.Result krr = null;
         try {
@@ -166,7 +168,7 @@ public class KeyRetrieverRunner implements Runnable {
 
         logger.debug("Adding self to authorityKeyHosts attribute");
         try {
-            String host = engine.getEEHost() + ":" + engine.getEESSLPort();
+            String host = cs.getHostname() + ":" + engine.getEESSLPort();
             engine.addAuthorityKeyHost(ca, host);
         } catch (Throwable e) {
             /* We retrieved key, imported it, and successfully

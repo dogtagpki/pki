@@ -519,7 +519,7 @@ public class CAConfigurator extends Configurator {
         // cloning a domain master CA, the clone is also master of its domain
 
         cs.putString("securitydomain.select", "new");
-        cs.putString("securitydomain.host", engine.getEEHost());
+        cs.putString("securitydomain.host", cs.getHostname());
         cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
         cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
         cs.putString("securitydomain.httpsagentport", engine.getAgentPort());

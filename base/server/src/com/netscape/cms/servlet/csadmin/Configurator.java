@@ -250,7 +250,7 @@ public class Configurator {
 
     public String getOldCookie(String sdhost, int sdport, String user, String passwd) throws Exception {
 
-        String subca_url = "https://" + engine.getEEHost() + ":"
+        String subca_url = "https://" + cs.getHostname() + ":"
                 + engine.getAdminPort() + "/ca/admin/console/config/wizard" +
                 "?p=5&subsystem=" + cs.getType();
 
