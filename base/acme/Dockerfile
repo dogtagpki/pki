@@ -90,4 +90,4 @@ VOLUME [ \
     "/var/lib/tomcats/pki/conf/acme/database", \
     "/var/lib/tomcats/pki/conf/acme/issuer" ]
 
-CMD [ "/usr/share/pki/acme/sbin/pki-acme-run" ]
+CMD [ "/usr/share/pki/acme/bin/pki-acme-run" ]

@@ -70,9 +70,9 @@ install(
 
 install(
     DIRECTORY
-        sbin/
+        bin/
     DESTINATION
-        ${DATA_INSTALL_DIR}/acme/sbin/
+        ${DATA_INSTALL_DIR}/acme/bin/
     FILE_PERMISSIONS
         OWNER_EXECUTE OWNER_READ
         GROUP_EXECUTE GROUP_READ
