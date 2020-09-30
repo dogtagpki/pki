@@ -70,10 +70,7 @@ public class UGSubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UGSubsystem.class);
 
-    public static final String ID = "usrgrp";
     public static final String SUPER_CERT_ADMINS = "Administrators";
-
-    private String mId = ID;
 
     protected static final String OBJECTCLASS_ATTR = "objectclass";
     protected static final String MEMBER_ATTR = "uniquemember";
@@ -91,20 +88,6 @@ public class UGSubsystem {
      * Constructs LDAP based usr/grp management
      */
     public UGSubsystem() {
-    }
-
-    /**
-     * Retrieves identifier of this scope.
-     */
-    public String getId() {
-        return mId;
-    }
-
-    /**
-     * Sets identifier of this manager
-     */
-    public void setId(String id) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
     }
 
     public void init(
