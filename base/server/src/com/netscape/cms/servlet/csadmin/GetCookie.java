@@ -139,7 +139,7 @@ public class GetCookie extends CMSServlet {
             header.addStringValue("sd_uid", "");
             header.addStringValue("sd_pwd", "");
             header.addStringValue("host", u.getHost());
-            header.addStringValue("sdhost", engine.getEESSLHost());
+            header.addStringValue("sdhost", cs.getHostname());
             header.addStringValue("subsystem", subsystem);
             header.addStringValue("url", StringEscapeUtils.escapeHtml4(url_e));
             header.addStringValue("errorString", "Failed Authentication");

@@ -681,15 +681,6 @@ public class CMSEngine implements ServletContextListener {
         return unsecurePort;
     }
 
-    public String getEESSLHost() {
-        String host = "";
-        try {
-            host = mConfig.getHostname();
-        } catch (Exception e) {
-        }
-        return host;
-    }
-
     public String getEESSLIP() {
         return hostname;
     }

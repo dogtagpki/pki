@@ -1196,7 +1196,7 @@ public class Configurator {
         }
 
         // Add this host
-        String cn = engine.getEESSLHost() + ":" + engine.getAdminPort();
+        String cn = cs.getHostname() + ":" + engine.getAdminPort();
         dn = "cn=" + LDAPUtil.escapeRDNValue(cn) + ",cn=CAList,ou=Security Domain," + basedn;
         logger.info("Configurator: adding " + dn);
 
@@ -1204,7 +1204,7 @@ public class Configurator {
 
         attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", new String[] { "top", "pkiSubsystem" }));
-        attrs.add(new LDAPAttribute("Host", engine.getEESSLHost()));
+        attrs.add(new LDAPAttribute("Host", cs.getHostname()));
         attrs.add(new LDAPAttribute("SecurePort", engine.getEESSLPort()));
         attrs.add(new LDAPAttribute("SecureAgentPort", engine.getAgentPort()));
         attrs.add(new LDAPAttribute("SecureAdminPort", engine.getAdminPort()));
@@ -1259,7 +1259,7 @@ public class Configurator {
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("list", type + "List");
         content.putSingle("type", type);
-        content.putSingle("host", engine.getEESSLHost());
+        content.putSingle("host", cs.getHostname());
         content.putSingle("name", subsystemName);
         content.putSingle("sport", engine.getEESSLPort());
         content.putSingle("dm", cloneMaster ? "true" : "false");

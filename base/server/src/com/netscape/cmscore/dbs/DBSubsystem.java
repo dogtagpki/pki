@@ -422,6 +422,7 @@ public class DBSubsystem implements ISubsystem {
     public String getNextRange(int repo) {
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
 
         LDAPConnection conn = null;
         String nextRange = null;
@@ -463,7 +464,7 @@ public class DBSubsystem implements ISubsystem {
             attrs.add(new LDAPAttribute("beginRange", nextRange));
             attrs.add(new LDAPAttribute("endRange", endRange));
             attrs.add(new LDAPAttribute("cn", nextRange));
-            attrs.add(new LDAPAttribute("host", engine.getEESSLHost()));
+            attrs.add(new LDAPAttribute("host", cs.getHostname()));
             attrs.add(new LDAPAttribute("securePort", engine.getEESSLPort()));
             String dn2 = "cn=" + nextRange + "," + rangeDN;
             LDAPEntry rangeEntry = new LDAPEntry(dn2, attrs);
@@ -505,6 +506,7 @@ public class DBSubsystem implements ISubsystem {
     public boolean hasRangeConflict(int repo) {
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
 
         LDAPConnection conn = null;
         boolean conflict = false;
@@ -517,7 +519,7 @@ public class DBSubsystem implements ISubsystem {
             conn = mLdapConnFactory.getConn();
             String rangedn = h.get(PROP_RANGE_DN) + "," + mBaseDN;
             String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
-                    engine.getEESSLHost() + ")(SecurePort=" + engine.getEESSLPort() +
+                    cs.getHostname() + ")(SecurePort=" + engine.getEESSLPort() +
                     ")(beginRange=" + nextRangeStart + "))";
             LDAPSearchResults results = conn.search(rangedn, LDAPv3.SCOPE_SUB,
                     filter, null, false);
