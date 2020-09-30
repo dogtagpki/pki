@@ -99,6 +99,7 @@ import com.netscape.cmscore.session.LDAPSecurityDomainSessionTable;
 import com.netscape.cmscore.session.SecurityDomainSessionTable;
 import com.netscape.cmscore.session.SessionTimer;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
@@ -503,7 +504,7 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void initUGSubsystem() throws Exception {
-        IConfigStore ugConfig = config.getSubStore(UGSubsystem.ID);
+        UGSubsystemConfig ugConfig = config.getUGSubsystemConfig();
         ugSubsystem.init(ugConfig);
         ugSubsystem.startup();
     }

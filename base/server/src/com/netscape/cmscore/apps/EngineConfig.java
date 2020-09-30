@@ -14,6 +14,7 @@ import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 
 public class EngineConfig extends PropConfigStore {
 
@@ -94,5 +95,9 @@ public class EngineConfig extends PropConfigStore {
 
     public PKISocketConfig getSocketConfig() {
         return getSubStore("tcp", PKISocketConfig.class);
+    }
+
+    public UGSubsystemConfig getUGSubsystemConfig() {
+        return getSubStore("usrgrp", UGSubsystemConfig.class);
     }
 }
