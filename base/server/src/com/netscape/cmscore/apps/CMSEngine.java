@@ -504,8 +504,12 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void initUGSubsystem() throws Exception {
+
+        PKISocketConfig socketConfig = config.getSocketConfig();
         UGSubsystemConfig ugConfig = config.getUGSubsystemConfig();
-        ugSubsystem.init(ugConfig);
+        IPasswordStore passwordStore = getPasswordStore();
+
+        ugSubsystem.init(socketConfig, ugConfig, passwordStore);
         ugSubsystem.startup();
     }
 

@@ -29,10 +29,7 @@ import java.util.Vector;
 import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.base.BaseSubsystem;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -42,12 +39,11 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -70,7 +66,7 @@ import netscape.ldap.LDAPv2;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public final class UGSubsystem extends BaseSubsystem implements ISubsystem {
+public class UGSubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UGSubsystem.class);
 
@@ -90,7 +86,6 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem {
 
     protected transient LdapBoundConnFactory mLdapConnFactory = null;
     protected String mBaseDN = null;
-    protected static UGSubsystem mUG = null;
 
     /**
      * Constructs LDAP based usr/grp management
@@ -112,35 +107,18 @@ public final class UGSubsystem extends BaseSubsystem implements ISubsystem {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
     }
 
-    /**
-     * Connects to LDAP server.
-     */
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(
+            PKISocketConfig socketConfig,
+            UGSubsystemConfig config,
+            IPasswordStore passwordStore) throws Exception {
 
-        logger.debug("UGSubsystem: Initializing user/group subsystem");
-        super.init(config);
+        logger.info("UGSubsystem: Initializing user/group subsystem");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        LDAPConfig ldapConfig = config.getLDAPConfig();
+        mBaseDN = ldapConfig.getBaseDN();
 
-        PKISocketConfig socketConfig = cs.getSocketConfig();
-
-        // initialize LDAP connection factory
-        try {
-            LDAPConfig ldapConfig = config.getSubStore("ldap", LDAPConfig.class);
-
-            mBaseDN = ldapConfig.getBaseDN();
-
-            mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
-            mLdapConnFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
-
-        } catch (EBaseException e) {
-            logger.error("UGSubsystem: initialization failed: " + e.getMessage(), e);
-            throw e;
-        }
-
-        logger.debug("UGSubsystem: initialization complete");
+        mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
+        mLdapConnFactory.init(socketConfig, ldapConfig, passwordStore);
     }
 
     /**
