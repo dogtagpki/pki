@@ -134,13 +134,6 @@ public class UGSubsystem {
     }
 
     /**
-     * Retrieves the description of this scope.
-     */
-    public String getDescription() {
-        return "User/Group Manager";
-    }
-
-    /**
      * Retrieves a user from LDAP
      */
     public IUser getUser(String userID) throws EUsrGrpException {
