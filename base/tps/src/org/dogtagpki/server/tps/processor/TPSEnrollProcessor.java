@@ -620,8 +620,19 @@ public class TPSEnrollProcessor extends TPSProcessor {
         ArrayList<TPSCertRecord> certRecords = certsInfo.toTPSCertRecords(tokenRecord.getId(), tokenRecord.getUserID());
 
         logger.debug(method + " adding certs to token with tdbAddCertificatesForCUID...");
-        tps.tdb.tdbAddCertificatesForCUID(tokenRecord.getId(), certRecords);
-        logger.debug(method + " tokendb updated with certs to the cuid so that it reflects what's on the token");
+
+        try {
+            tps.tdb.tdbAddCertificatesForCUID(tokenRecord.getId(), certRecords);
+            logger.debug(method + " tokendb updated with certs to the cuid so that it reflects what's on the token");
+        } catch(TPSException e) {
+            logger.debug(method + " Exception occurred in tdbAddCertificatesForCUID: " + e.getMessage());
+            try {
+                auditEnrollment(userid, "enrollment", appletInfo, "failure", channel.getKeyInfoData().toHexStringPlain(), null, null, e.getMessage());
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), e.getMessage(), "failure");
+            } catch(Exception f) {
+                logger.debug(method + " Failed to log previous exception: " + f);
+            }
+        }
 
         String finalAppletVersion = appletInfo.getFinalAppletVersion();
         if(finalAppletVersion == null)
