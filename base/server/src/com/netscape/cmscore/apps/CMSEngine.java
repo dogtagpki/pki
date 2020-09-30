@@ -692,15 +692,6 @@ public class CMSEngine implements ServletContextListener {
         return securePort;
     }
 
-    public String getAdminHost() {
-        String host = "";
-        try {
-            host = mConfig.getHostname();
-        } catch (Exception e) {
-        }
-        return host;
-    }
-
     public String getAdminIP() {
         return hostname;
     }
