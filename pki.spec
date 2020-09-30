@@ -1189,6 +1189,7 @@ fi
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz
 %{_mandir}/man5/pki_default.cfg.5.gz
+%{_mandir}/man5/pki_healthcheck.conf.5.gz
 %{_mandir}/man5/pki-server-logging.5.gz
 %{_mandir}/man8/pki-server-upgrade.8.gz
 %{_mandir}/man8/pkidestroy.8.gz
@@ -1232,11 +1233,7 @@ fi
 %license base/ca/LICENSE
 %{_javadir}/pki/pki-ca.jar
 %dir %{_datadir}/pki/ca
-%{_datadir}/pki/ca/conf/
-%{_datadir}/pki/ca/emails/
-%{_datadir}/pki/ca/profiles/
-%{_datadir}/pki/ca/setup/
-%{_datadir}/pki/ca/webapps/
+%{_datadir}/pki/ca/
 
 # with ca
 %endif
@@ -1249,9 +1246,7 @@ fi
 %license base/kra/LICENSE
 %{_javadir}/pki/pki-kra.jar
 %dir %{_datadir}/pki/kra
-%{_datadir}/pki/kra/conf/
-%{_datadir}/pki/kra/setup/
-%{_datadir}/pki/kra/webapps/
+%{_datadir}/pki/kra/
 
 # with kra
 %endif
@@ -1264,9 +1259,7 @@ fi
 %license base/ocsp/LICENSE
 %{_javadir}/pki/pki-ocsp.jar
 %dir %{_datadir}/pki/ocsp
-%{_datadir}/pki/ocsp/conf/
-%{_datadir}/pki/ocsp/setup/
-%{_datadir}/pki/ocsp/webapps/
+%{_datadir}/pki/ocsp/
 
 # with ocsp
 %endif
@@ -1279,9 +1272,7 @@ fi
 %license base/tks/LICENSE
 %{_javadir}/pki/pki-tks.jar
 %dir %{_datadir}/pki/tks
-%{_datadir}/pki/tks/conf/
-%{_datadir}/pki/tks/setup/
-%{_datadir}/pki/tks/webapps/
+%{_datadir}/pki/tks/
 
 # with tks
 %endif
@@ -1294,10 +1285,7 @@ fi
 %license base/tps/LICENSE
 %{_javadir}/pki/pki-tps.jar
 %dir %{_datadir}/pki/tps
-%{_datadir}/pki/tps/applets/
-%{_datadir}/pki/tps/conf/
-%{_datadir}/pki/tps/setup/
-%{_datadir}/pki/tps/webapps/
+%{_datadir}/pki/tps/
 %{_mandir}/man5/pki-tps-connector.5.gz
 %{_mandir}/man5/pki-tps-profile.5.gz
 %{_mandir}/man1/tpsclient.1.gz
