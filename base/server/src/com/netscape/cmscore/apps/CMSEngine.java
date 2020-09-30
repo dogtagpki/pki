@@ -161,7 +161,6 @@ public class CMSEngine implements ServletContextListener {
     public final Map<String, SubsystemInfo> subsystemInfos = new LinkedHashMap<>();
     public final Map<String, ISubsystem> subsystems = new LinkedHashMap<>();
 
-    public String hostname;
     public String unsecurePort;
     public String securePort;
 
@@ -664,16 +663,8 @@ public class CMSEngine implements ServletContextListener {
         return mSecurityDomainSessionTable;
     }
 
-    public String getEENonSSLIP() {
-        return hostname;
-    }
-
     public String getEENonSSLPort() {
         return unsecurePort;
-    }
-
-    public String getEESSLIP() {
-        return hostname;
     }
 
     public String getEESSLPort() {
@@ -684,16 +675,8 @@ public class CMSEngine implements ServletContextListener {
         return securePort;
     }
 
-    public String getAgentIP() {
-        return hostname;
-    }
-
     public String getAgentPort() {
         return securePort;
-    }
-
-    public String getAdminIP() {
-        return hostname;
     }
 
     public String getAdminPort() {
