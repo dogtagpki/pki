@@ -101,6 +101,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.BigIntegerMapper;
 import com.netscape.cmscore.dbs.DateMapper;
@@ -956,7 +957,13 @@ public class KeyCertUtil {
 
         if ((aia != null) && (aia.equals(Constants.TRUE))) {
             CMSEngine engine = CMS.getCMSEngine();
-            String hostname = engine.getEENonSSLHost();
+            EngineConfig cs = engine.getConfig();
+            String hostname;
+            try {
+                hostname = cs.getHostname();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             String port = engine.getEENonSSLPort();
             AuthInfoAccessExtension aiaExt = new AuthInfoAccessExtension(false);
             if (hostname != null && port != null) {

@@ -434,7 +434,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
 
                     if (location == null || location.equals("")) {
                         if (method.equals("1.3.6.1.5.5.7.48.1")) {
-                            String hostname = engine.getEENonSSLHost();
+                            String hostname = cs.getHostname();
                             String port = engine.getEENonSSLPort();
                             String uri = "";
                             if (hostname != null && port != null)

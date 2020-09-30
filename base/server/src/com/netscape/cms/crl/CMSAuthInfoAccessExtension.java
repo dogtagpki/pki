@@ -35,6 +35,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * This represents a Authority Information Access CRL extension.
@@ -139,7 +140,8 @@ public class CMSAuthInfoAccessExtension
                 } else {
                     accessLocationType = PROP_URINAME;
                     CMSEngine engine = CMS.getCMSEngine();
-                    String hostname = engine.getEENonSSLHost();
+                    EngineConfig cs = engine.getConfig();
+                    String hostname = cs.getHostname();
                     String port = engine.getEENonSSLPort();
                     if (hostname != null && port != null) {
                         accessLocation = "http://" + hostname + ":" + port + "/ca/ee/ca/getCAChain?op=downloadBIN";
@@ -221,7 +223,8 @@ public class CMSAuthInfoAccessExtension
                 nvp.put(PROP_ACCESS_LOCATION + i, accessLocation);
             } else {
                 CMSEngine engine = CMS.getCMSEngine();
-                String hostname = engine.getEENonSSLHost();
+                EngineConfig cs = engine.getConfig();
+                String hostname = cs.getHostname();
                 String port = engine.getEENonSSLPort();
                 if (hostname != null && port != null) {
                     accessLocation = "http://" + hostname + ":" + port + "/ca/ee/ca/getCAChain?op=downloadBIN";
