@@ -145,7 +145,7 @@ public class OCSPConfigurator extends Configurator {
 
         logger.debug("OCSPConfigurator: Updating OCSP configuration in CA at " + serverURL);
 
-        String ocspHost = engine.getAgentHost();
+        String ocspHost = cs.getHostname();
         int ocspPort = Integer.parseInt(engine.getAgentPort());
         String sessionId = request.getInstallToken().getToken();
 

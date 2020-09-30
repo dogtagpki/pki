@@ -92,7 +92,7 @@ public class KRAConfigurator extends Configurator {
 
         logger.debug("KRAConfigurator: Configuring KRA connector in CA at " + serverURL);
 
-        String kraHost = engine.getAgentHost();
+        String kraHost = cs.getHostname();
         String kraPort = engine.getAgentPort();
         String transportCert = cs.getString("kra.transport.cert", "");
         String sessionId = request.getInstallToken().getToken();

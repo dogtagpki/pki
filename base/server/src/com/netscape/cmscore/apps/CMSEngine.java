@@ -684,15 +684,6 @@ public class CMSEngine implements ServletContextListener {
         return securePort;
     }
 
-    public String getAgentHost() {
-        String host = "";
-        try {
-            host = mConfig.getHostname();
-        } catch (Exception e) {
-        }
-        return host;
-    }
-
     public String getAgentIP() {
         return hostname;
     }
