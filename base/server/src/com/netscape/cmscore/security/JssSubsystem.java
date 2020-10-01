@@ -114,7 +114,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public static final String ID = "jss";
 
-    private static final String CONFIG_DIR = "configDir";
     private static final String OBSCURE_METHOD = "obscureMethod";
     private static final String mId = ID;
     protected JssSubsystemConfig config;
@@ -293,7 +292,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             // XXX - add new exception
         }
 
-        String certDir = config.getString(CONFIG_DIR, null);
+        String certDir = config.getNSSDatabaseDir();
         logger.debug("JssSubsystem: NSS database: " + certDir);
 
         InitializationValues vals = new InitializationValues(certDir, "", "", "secmod.db");

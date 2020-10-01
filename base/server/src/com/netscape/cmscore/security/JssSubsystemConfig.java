@@ -26,4 +26,8 @@ public class JssSubsystemConfig extends PropConfigStore {
     public boolean isEnabled() throws EBaseException {
         return getBoolean("enable", true);
     }
+
+    public String getNSSDatabaseDir() throws EBaseException {
+        return getString("configDir", null);
+    }
 }
