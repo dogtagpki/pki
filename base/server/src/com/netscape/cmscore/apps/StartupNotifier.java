@@ -9,9 +9,6 @@ package com.netscape.cmscore.apps;
 import com.netscape.certsrv.base.IConfigStore;
 
 public interface StartupNotifier {
-    default void init(IConfigStore cs) {
-        // default implementation ignores value
-    };
-
+    void init(IConfigStore cs);
     void notifyReady() throws RuntimeException;
 }

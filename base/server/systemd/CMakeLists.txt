@@ -17,7 +17,7 @@ javac(pki-systemd-classes
     SOURCES
         *.java
     CLASSPATH
-        ${JNA_JAR} ${PKI_CMS_JAR}
+        ${JNA_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
