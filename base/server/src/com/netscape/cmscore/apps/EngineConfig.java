@@ -15,6 +15,7 @@ import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
+import com.netscape.cmsutil.password.PasswordStoreConfig;
 
 public class EngineConfig extends PropConfigStore {
 
@@ -103,5 +104,15 @@ public class EngineConfig extends PropConfigStore {
 
     public UGSubsystemConfig getUGSubsystemConfig() {
         return getSubStore("usrgrp", UGSubsystemConfig.class);
+    }
+
+    public PasswordStoreConfig getPasswordStoreConfig() throws EBaseException {
+
+        PasswordStoreConfig config = new PasswordStoreConfig();
+        config.setID(getString("instanceId"));
+        config.setClassName(getString("passwordClass"));
+        config.setFileName(getString("passwordFile", null));
+
+        return config;
     }
 }

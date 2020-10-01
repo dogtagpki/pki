@@ -19,11 +19,15 @@ package com.netscape.cmsutil.password;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.cmsutil.util.NuxwdogUtil;
 
 public interface IPasswordStore {
+
+    public static Logger logger = LoggerFactory.getLogger(IPasswordStore.class);
 
     /**
      * Construct a password store.
@@ -34,32 +38,28 @@ public interface IPasswordStore {
      * value of the "passwordFile" key in the map, and the instance is
      * returned.
      */
-    public static IPasswordStore getPasswordStore(String id, Map<String, String> kv)
-            throws RuntimeException {
-        String pwdClass = null;
-        String pwdPath = null;
+    public static IPasswordStore create(PasswordStoreConfig psc) throws Exception {
+
+        String className;
+        String fileName;
 
         if (NuxwdogUtil.startedByNuxwdog()) {
-            pwdClass = NuxwdogPasswordStore.class.getName();
-            // note: pwdPath is expected to be null in this case
+            className = NuxwdogPasswordStore.class.getName();
+            fileName = null;
+
         } else {
-            pwdClass = kv.get("passwordClass");
-            if (pwdClass == null) {
-                throw new RuntimeException(
-                    "IPasswordStore.getPasswordStore: passwordClass not defined");
-            }
-
-            pwdPath = kv.get("passwordFile");
+            className = psc.getClassName();
+            fileName = psc.getFileName();
         }
 
-        try {
-            IPasswordStore ps = (IPasswordStore) Class.forName(pwdClass).newInstance();
-            ps.init(pwdPath);
-            ps.setId(id);
-            return ps;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to construct or initialise password store", e);
-        }
+        Class<? extends IPasswordStore> clazz = Class.forName(className)
+                .asSubclass(IPasswordStore.class);
+
+        IPasswordStore ps = clazz.newInstance();
+        ps.setId(psc.getID());
+        ps.init(fileName);
+
+        return ps;
     }
 
     public void init(String pwdPath) throws IOException;

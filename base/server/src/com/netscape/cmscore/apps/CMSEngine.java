@@ -103,6 +103,7 @@ import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStoreConfig;
 import com.netscape.cmsutil.util.NuxwdogUtil;
 
 import netscape.ldap.LDAPConnection;
@@ -248,10 +249,8 @@ public class CMSEngine implements ServletContextListener {
     public synchronized IPasswordStore getPasswordStore() throws EBaseException {
         if (mPasswordStore == null) {
             try {
-                /* mConfig.getProperties() is O(n), but we cache the returned
-                 * password store so this is fine */
-                mPasswordStore =
-                    IPasswordStore.getPasswordStore(instanceId, mConfig.getProperties());
+                PasswordStoreConfig psc = mConfig.getPasswordStoreConfig();
+                mPasswordStore = IPasswordStore.create(psc);
             } catch (Exception e) {
                 throw new EBaseException(
                     "Failed to initialise password store: " + e.getMessage(), e);

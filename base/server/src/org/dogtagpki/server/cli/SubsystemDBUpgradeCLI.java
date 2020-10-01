@@ -40,6 +40,7 @@ import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStoreConfig;
 
 /**
  * @author Endi S. Dewata
@@ -75,14 +76,8 @@ public class SubsystemDBUpgradeCLI extends CommandCLI {
         cs.load();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
-        String instanceId = cs.getInstanceID();
-        String pwdClass = cs.getString("passwordClass");
-        String pwdPath = cs.getString("passwordFile", null);
-
-        logger.info("Creating " + pwdClass);
-        IPasswordStore passwordStore = (IPasswordStore) Class.forName(pwdClass).newInstance();
-        passwordStore.init(pwdPath);
-        passwordStore.setId(instanceId);
+        PasswordStoreConfig psc = cs.getPasswordStoreConfig();
+        IPasswordStore passwordStore = IPasswordStore.create(psc);
 
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
         LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();

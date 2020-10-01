@@ -35,6 +35,7 @@ import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStoreConfig;
 
 import netscape.ldap.LDAPConnection;
 
@@ -101,13 +102,9 @@ public class SubsystemDBInitCLI extends CommandCLI {
         logger.info("Initializing database " + database + " for " + baseDN);
 
         String instanceId = cs.getInstanceID();
-        String pwdClass = cs.getString("passwordClass");
-        String pwdPath = cs.getString("passwordFile", null);
 
-        logger.info("Creating " + pwdClass);
-        IPasswordStore passwordStore = (IPasswordStore) Class.forName(pwdClass).newInstance();
-        passwordStore.init(pwdPath);
-        passwordStore.setId(instanceId);
+        PasswordStoreConfig psc = cs.getPasswordStoreConfig();
+        IPasswordStore passwordStore = IPasswordStore.create(psc);
 
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
         LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();

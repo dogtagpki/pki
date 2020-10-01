@@ -143,8 +143,8 @@ public class LDAPRealm extends ACMERealm {
             cs = new EngineConfig(new FileConfigStore(configFile));
             cs.load();
 
-            ps = IPasswordStore.getPasswordStore("acme", cs.getProperties());
-            ldapConfig = cs.getSubStore("internaldb", LDAPConfig.class);
+            ps = IPasswordStore.create(cs.getPasswordStoreConfig());
+            ldapConfig = cs.getInternalDBConfig();
         }
 
         socketConfig = cs.getSocketConfig();
