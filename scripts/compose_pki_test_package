@@ -74,10 +74,10 @@ mkdir bin
 CLASSPATH=$PKI_SOURCE_DIR/base/test/src
 CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/tests/dogtag/dev_java_tests/src
 CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/base/symkey/src
-CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/base/util/src
-CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/base/util/test
-CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/base/common/src
-CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/base/common/functional/src
+CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/base/util/src/main/java
+CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/base/util/src/test/java
+CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/base/common/src/main/java
+CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/base/common/src/test/java
 CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/base/java-tools/src
 CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/base/server/tomcat/src
 CLASSPATH=$CLASSPATH:$PKI_SOURCE_DIR/base/server/cms/src
