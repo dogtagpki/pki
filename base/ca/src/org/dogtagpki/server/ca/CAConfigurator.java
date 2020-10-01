@@ -22,18 +22,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.Principal;
-import java.security.cert.X509Certificate;
 import java.util.Collection;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -317,26 +312,6 @@ public class CAConfigurator extends Configurator {
         return cert;
     }
 
-    public PKCS7 createCertChain(X509CertImpl cert) throws IOException {
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
-
-        X509Certificate[] caCerts = ca.getCACertChain().getChain();
-        X509Certificate[] certs = new X509Certificate[caCerts.length + 1];
-
-        certs[0] = cert;
-        for (int i=0; i < caCerts.length; i++) {
-            certs[i + 1] = caCerts[i];
-        }
-
-        return new PKCS7(
-                new AlgorithmId[0],
-                new ContentInfo(new byte[0]),
-                certs,
-                new SignerInfo[0]);
-    }
-
     public X509CertImpl createLocalAdminCert(String certRequest, String certRequestType, String subject) throws Exception {
 
         byte[] binRequest = Utils.base64decode(certRequest);
@@ -418,16 +393,6 @@ public class CAConfigurator extends Configurator {
 
         // update the locally created request for renewal
         updateLocalRequest(reqId, binRequest, certRequestType, subject);
-
-        if (ca != null) {
-            PKCS7 pkcs7 = createCertChain(impl);
-            byte[] bytes = pkcs7.getBytes();
-            String base64 = Utils.base64encodeSingleLine(bytes);
-
-            preopConfig.putString("admincert.pkcs7", base64);
-        }
-
-        preopConfig.putString("admincert.serialno.0", impl.getSerialNumber().toString(16));
 
         return impl;
     }

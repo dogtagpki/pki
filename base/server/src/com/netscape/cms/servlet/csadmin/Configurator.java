@@ -1103,17 +1103,15 @@ public class Configurator {
 
         String id = parser.getValue("Id");
         logger.info("Configurator: Request ID: " + id);
-        preopConfig.putString("admincert.requestId.0", id);
 
         String serial = parser.getValue("serialno");
         logger.info("Configurator: Serial: " + serial);
-        preopConfig.putString("admincert.serialno.0", serial);
 
         String b64 = parser.getValue("b64");
         logger.info("Configurator: Cert: " + b64);
+
         b64 = CryptoUtil.stripCertBrackets(b64.trim());
         byte[] bytes = CryptoUtil.base64Decode(b64);
-
         return new X509CertImpl(bytes);
     }
 
