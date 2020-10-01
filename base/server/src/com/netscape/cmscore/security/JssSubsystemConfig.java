@@ -42,4 +42,8 @@ public class JssSubsystemConfig extends PropConfigStore {
     public RandomConfig getRandomConfig() {
         return getSubStore("random", RandomConfig.class);
     }
+
+    public SSLConfig getSSLConfig() {
+        return getSubStore("ssl", SSLConfig.class);
+    }
 }

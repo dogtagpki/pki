@@ -134,9 +134,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     // SSL related variables.
 
-    private IConfigStore mSSLConfig = null;
+    private SSLConfig sslConfig;
 
-    private static final String PROP_SSL = "ssl";
     private static final String PROP_SSL_CIPHERPREF = Constants.PR_CIPHER_PREF;
     private static final String PROP_SSL_ECTYPE = Constants.PR_ECTYPE;
 
@@ -407,8 +406,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public String getCipherPreferences() throws EBaseException {
         String cipherpref = "";
 
-        if (mSSLConfig != null) {
-            cipherpref = mSSLConfig.getString(PROP_SSL_CIPHERPREF, "");
+        if (sslConfig != null) {
+            cipherpref = sslConfig.getString(PROP_SSL_CIPHERPREF, "");
             if (cipherpref.equals("")) {
                 cipherpref = DEFAULT_CIPHERPREF;
             }
@@ -417,9 +416,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     public String getECType(String certType) throws EBaseException {
-        if (mSSLConfig != null) {
+        if (sslConfig != null) {
             // for SSL server, check the value of jss.ssl.sslserver.ectype
-            return mSSLConfig.getString(certType + "." + PROP_SSL_ECTYPE, "ECDHE");
+            return sslConfig.getString(certType + "." + PROP_SSL_ECTYPE, "ECDHE");
         } else {
             return "ECDHE";
         }
@@ -444,10 +443,10 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public void setCipherPreferences(String cipherPrefs)
             throws EBaseException {
-        if (mSSLConfig != null) {
+        if (sslConfig != null) {
             if (cipherPrefs.equals(""))
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_EMPTY_CIPHERPREFS"));
-            mSSLConfig.putString(Constants.PR_CIPHER_PREF, cipherPrefs);
+            sslConfig.putString(Constants.PR_CIPHER_PREF, cipherPrefs);
         }
     }
 
@@ -464,10 +463,10 @@ public final class JssSubsystem implements ICryptoSubsystem {
         } catch (SocketException e) {
         }
 
-        mSSLConfig = config.getSubStore(PROP_SSL);
+        sslConfig = config.getSSLConfig();
         String sslCiphers = null;
 
-        if (mSSLConfig != null)
+        if (sslConfig != null)
             sslCiphers = getCipherPreferences();
         logger.trace("configured ssl cipher prefs is " + sslCiphers);
 
