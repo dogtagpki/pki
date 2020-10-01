@@ -1039,12 +1039,11 @@ public class CMSEngine implements ServletContextListener {
         logger.info(name + " engine started");
 
         for (Map.Entry<String, StartupNotifier> kv : startupNotifiers.entrySet()) {
-            try {
-                kv.getValue().notifyReady();
-            } catch (Throwable e) {
+            StartupNotifier.NotifyResult r = kv.getValue().notifyReady();
+            if (r.getStatus() == StartupNotifier.NotifyResultStatus.Failure) {
                 logger.warn(
-                    "Startup notification failed for notifier '" + kv.getKey() + "'.",
-                    e
+                    "Startup notification failed for notifier '" + kv.getKey() + "': "
+                    + r.getMessage()
                 );
             }
         }
