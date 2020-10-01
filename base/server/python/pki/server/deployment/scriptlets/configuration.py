@@ -558,12 +558,22 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Configuring subsystem')
 
         try:
-            PKISPAWN_STARTUP_TIMEOUT_SECONDS = \
-                int(os.environ['PKISPAWN_STARTUP_TIMEOUT_SECONDS'])
+            startup_timeout = int(os.environ['PKISPAWN_STARTUP_TIMEOUT_SECONDS'])
         except (KeyError, ValueError):
-            PKISPAWN_STARTUP_TIMEOUT_SECONDS = 60
-        if PKISPAWN_STARTUP_TIMEOUT_SECONDS <= 0:
-            PKISPAWN_STARTUP_TIMEOUT_SECONDS = 60
+            startup_timeout = 60
+
+        if startup_timeout <= 0:
+            startup_timeout = 60
+
+        # Configure status request timeout. This is used for each
+        # status request in wait_for_startup().
+        value = deployer.mdict['pki_status_request_timeout']
+        if len(value) == 0:
+            request_timeout = None
+        else:
+            request_timeout = int(value)
+            if request_timeout <= 0:
+                raise ValueError("timeout must be greater than zero")
 
         instance = self.instance
         instance.load()
@@ -930,20 +940,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Restarting server')
             instance.restart()
 
-        # Configure status request timeout.  This is used for each
-        # status request in wait_for_startup
-        value = deployer.mdict['pki_status_request_timeout']
-        if len(value) == 0:
-            status_request_timeout = None
-        else:
-            status_request_timeout = int(value)
-            if status_request_timeout <= 0:
-                raise ValueError("timeout must be greater than zero")
-
         deployer.instance.wait_for_startup(
             subsystem,
-            PKISPAWN_STARTUP_TIMEOUT_SECONDS,
-            request_timeout=status_request_timeout,
+            startup_timeout,
+            request_timeout,
         )
 
         # Optionally wait for debugger to attach (e. g. - 'eclipse'):
@@ -1080,8 +1080,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.instance.wait_for_startup(
             subsystem,
-            PKISPAWN_STARTUP_TIMEOUT_SECONDS,
-            request_timeout=status_request_timeout,
+            startup_timeout,
+            request_timeout,
         )
 
     def destroy(self, deployer):

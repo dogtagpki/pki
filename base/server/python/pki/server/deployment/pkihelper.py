@@ -844,14 +844,14 @@ class Instance:
     def wait_for_startup(
         self,
         subsystem,
-        timeout,
+        startup_timeout,
         request_timeout=None,
     ):
         """
         Wait for Dogtag to start and become ready to serve requests.
 
-        :param timeout: Absolute timeout.  Unsuccessful status requests will
-            be retried until this timeout is exceeded
+        :param startup_timeout: Total timeout. Unsuccessful status requests will
+            be retried until this timeout is exceeded.
         :param request_timeout: connect/receive timeout for each individual
             status request (default: None)
 
@@ -886,9 +886,9 @@ class Instance:
                 stop_time = datetime.today()
                 counter = (stop_time - start_time).total_seconds()
 
-                if counter >= timeout:
+                if counter >= startup_timeout:
                     raise Exception('%s subsystem did not start after %ds' %
-                                    (subsystem.type, timeout)) from exc
+                                    (subsystem.type, startup_timeout)) from exc
 
                 logger.info(
                     'Waiting for %s subsystem to start (%ds)',
