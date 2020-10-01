@@ -539,7 +539,7 @@ public class KRATool {
 
     private static final String KRATOOL_CFG_FILE_EXAMPLE = KRATOOL_CFG_FILE
                              + " "
-                             + "/usr/share/pki/java-tools/KRATool.cfg";
+                             + "/usr/share/pki/tools/KRATool.cfg";
 
     private static final String SOURCE_LDIF_FILE = "-source_ldif_file";
 

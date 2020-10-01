@@ -1,4 +1,4 @@
-project(java-tools-wrapper)
+project(tools-wrapper)
 
 set(PKI_PRODUCT pki)
 set(PKI_COMMANDS

@@ -399,7 +399,6 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
     add_subdirectory(util)
     add_subdirectory(common)
     add_subdirectory(tools)
-    add_subdirectory(java-tools)
 
     if(WITH_SERVER)
 
