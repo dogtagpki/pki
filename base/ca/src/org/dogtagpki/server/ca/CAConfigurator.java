@@ -18,7 +18,6 @@
 package org.dogtagpki.server.ca;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyPair;
@@ -43,7 +42,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -339,7 +337,7 @@ public class CAConfigurator extends Configurator {
                 new SignerInfo[0]);
     }
 
-    public void createLocalAdminCert(String certRequest, String certRequestType, String subject) throws Exception {
+    public X509CertImpl createLocalAdminCert(String certRequest, String certRequestType, String subject) throws Exception {
 
         byte[] binRequest = Utils.base64decode(certRequest);
         X509Key x509key;
@@ -430,27 +428,18 @@ public class CAConfigurator extends Configurator {
         }
 
         preopConfig.putString("admincert.serialno.0", impl.getSerialNumber().toString(16));
+
+        return impl;
     }
 
     public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
 
         logger.info("CAConfigurator: Generating admin cert");
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        String adminSubjectDN = request.getAdminSubjectDN();
-
-        createLocalAdminCert(
+        return createLocalAdminCert(
                 request.getAdminCertRequest(),
                 request.getAdminCertRequestType(),
-                adminSubjectDN);
-
-        String serialno = preopConfig.getString("admincert.serialno.0");
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
-        ICertificateRepository repo = ca.getCertificateRepository();
-
-        return repo.getX509Certificate(new BigInteger(serialno, 16));
+                request.getAdminSubjectDN());
     }
 
     @Override
