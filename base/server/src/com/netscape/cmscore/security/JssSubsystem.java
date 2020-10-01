@@ -329,13 +329,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
         // by default use PK11SecureRandom from JSS
         // see https://www.dogtagpki.org/wiki/Random_Number_Generator
 
-        IConfigStore randomConfig = config.getSubStore("random");
+        RandomConfig randomConfig = config.getRandomConfig();
         logger.debug("JssSubsystem: random:");
 
-        String algorithm = randomConfig.getString("algorithm", "pkcs11prng");
+        String algorithm = randomConfig.getAlgorithm();
         logger.debug("JssSubsystem: - algorithm: " + algorithm);
 
-        String provider = randomConfig.getString("provider", "Mozilla-JSS");
+        String provider = randomConfig.getProvider();
         logger.debug("JssSubsystem: - provider: " + provider);
 
         try {

@@ -38,4 +38,8 @@ public class JssSubsystemConfig extends PropConfigStore {
     public boolean getCloseNSSDatabase() throws EBaseException {
         return getBoolean("closeDatabases", false);
     }
+
+    public RandomConfig getRandomConfig() {
+        return getSubStore("random", RandomConfig.class);
+    }
 }
