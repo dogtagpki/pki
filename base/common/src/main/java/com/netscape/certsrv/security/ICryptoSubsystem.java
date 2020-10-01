@@ -27,15 +27,13 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PQGParams;
 import org.mozilla.jss.crypto.TokenException;
-
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.common.NameValuePairs;
-
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.NameValuePairs;
 
 /**
  * This interface represents the cryptographics subsystem
@@ -43,7 +41,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
  *
  * @version $Revision$, $Date$
  */
-public interface ICryptoSubsystem extends ISubsystem {
+public interface ICryptoSubsystem {
 
     public static final String ID = "jss";
 

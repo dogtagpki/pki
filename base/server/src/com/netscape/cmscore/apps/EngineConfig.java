@@ -14,6 +14,7 @@ import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.security.JssSubsystemConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
@@ -114,5 +115,9 @@ public class EngineConfig extends PropConfigStore {
         config.setFileName(getString("passwordFile", null));
 
         return config;
+    }
+
+    public JssSubsystemConfig getJssSubsystemConfig() {
+        return getSubStore("jss", JssSubsystemConfig.class);
     }
 }

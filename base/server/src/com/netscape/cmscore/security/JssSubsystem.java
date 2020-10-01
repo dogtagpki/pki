@@ -118,7 +118,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     private static final String PROP_ENABLE = "enable";
     private static final String OBSCURE_METHOD = "obscureMethod";
     private static final String mId = ID;
-    protected IConfigStore mConfig = null;
+    protected JssSubsystemConfig config;
     private boolean mInited = false;
     private CryptoManager mCryptoManager = null;
     private SecureRandom random;
@@ -267,8 +267,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
      * Initializes the Jss security subsystem.
      * <P>
      */
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(JssSubsystemConfig config) throws EBaseException {
 
         logger.debug("JssSubsystem: initializing JSS subsystem");
 
@@ -279,7 +278,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             return;
         }
 
-        mConfig = config;
+        this.config = config;
 
         // If disabled, just return
         boolean enabled = config.getBoolean(PROP_ENABLE, true);
@@ -469,7 +468,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         } catch (SocketException e) {
         }
 
-        mSSLConfig = mConfig.getSubStore(PROP_SSL);
+        mSSLConfig = config.getSubStore(PROP_SSL);
         String sslCiphers = null;
 
         if (mSSLConfig != null)
@@ -516,8 +515,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
      * Retrieves a configuration store of this subsystem.
      * <P>
      */
-    public IConfigStore getConfigStore() {
-        return mConfig;
+    public JssSubsystemConfig getConfigStore() {
+        return config;
     }
 
     /**
@@ -534,7 +533,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             // After talking to NSS teamm, we should not call close databases
             // which will call NSS_Shutdown. Web Server will call NSS_Shutdown
-            boolean isClosing = mConfig.getBoolean("closeDatabases", false);
+            boolean isClosing = config.getBoolean("closeDatabases", false);
             if (isClosing) {
                 JSSDatabaseCloser closer = new JSSDatabaseCloser();
                 closer.closeDatabases();

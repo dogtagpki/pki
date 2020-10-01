@@ -93,6 +93,7 @@ import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.CertRequestConstants;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmscore.security.JssSubsystemConfig;
 import com.netscape.cmscore.security.PWsdrCache;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmscore.session.LDAPSecurityDomainSessionTable;
@@ -490,7 +491,7 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void initJssSubsystem() throws Exception {
-        IConfigStore jssConfig = config.getSubStore(JssSubsystem.ID);
+        JssSubsystemConfig jssConfig = config.getJssSubsystemConfig();
         jssSubsystem.init(jssConfig);
         jssSubsystem.startup();
     }
