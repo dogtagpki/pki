@@ -5,6 +5,7 @@
 //
 package com.netscape.cmscore.security;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
@@ -20,5 +21,13 @@ public class SSLConfig extends PropConfigStore {
 
     public SSLConfig(String name, SimpleProperties source) {
         super(name, source);
+    }
+
+    public String getCipherPreferences() throws EBaseException {
+        return getString("cipherpref", "");
+    }
+
+    public void setCipherPreferences(String cipherPrefs) throws EBaseException {
+        putString("cipherpref", cipherPrefs);
     }
 }

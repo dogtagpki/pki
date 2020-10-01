@@ -407,7 +407,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         String cipherpref = "";
 
         if (sslConfig != null) {
-            cipherpref = sslConfig.getString(PROP_SSL_CIPHERPREF, "");
+            cipherpref = sslConfig.getCipherPreferences();
             if (cipherpref.equals("")) {
                 cipherpref = DEFAULT_CIPHERPREF;
             }
@@ -446,7 +446,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         if (sslConfig != null) {
             if (cipherPrefs.equals(""))
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_EMPTY_CIPHERPREFS"));
-            sslConfig.putString(Constants.PR_CIPHER_PREF, cipherPrefs);
+            sslConfig.setCipherPreferences(cipherPrefs);
         }
     }
 
