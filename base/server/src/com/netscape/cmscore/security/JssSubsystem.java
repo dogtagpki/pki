@@ -137,7 +137,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
     private SSLConfig sslConfig;
 
     private static final String PROP_SSL_CIPHERPREF = Constants.PR_CIPHER_PREF;
-    private static final String PROP_SSL_ECTYPE = Constants.PR_ECTYPE;
 
     private static Hashtable<String, Integer> mCipherNames = new Hashtable<String, Integer>();
 
@@ -418,7 +417,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public String getECType(String certType) throws EBaseException {
         if (sslConfig != null) {
             // for SSL server, check the value of jss.ssl.sslserver.ectype
-            return sslConfig.getString(certType + "." + PROP_SSL_ECTYPE, "ECDHE");
+            return sslConfig.getECType(certType);
         } else {
             return "ECDHE";
         }

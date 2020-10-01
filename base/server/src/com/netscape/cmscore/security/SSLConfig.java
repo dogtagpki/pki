@@ -30,4 +30,8 @@ public class SSLConfig extends PropConfigStore {
     public void setCipherPreferences(String cipherPrefs) throws EBaseException {
         putString("cipherpref", cipherPrefs);
     }
+
+    public String getECType(String certType) throws EBaseException {
+        return getString(certType + ".ectype", "ECDHE");
+    }
 }
