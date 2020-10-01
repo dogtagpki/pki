@@ -529,7 +529,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             // After talking to NSS teamm, we should not call close databases
             // which will call NSS_Shutdown. Web Server will call NSS_Shutdown
-            boolean isClosing = config.getBoolean("closeDatabases", false);
+            boolean isClosing = config.getCloseNSSDatabase();
             if (isClosing) {
                 JSSDatabaseCloser closer = new JSSDatabaseCloser();
                 closer.closeDatabases();

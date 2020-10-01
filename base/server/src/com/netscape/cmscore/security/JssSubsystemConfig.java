@@ -34,4 +34,8 @@ public class JssSubsystemConfig extends PropConfigStore {
     public String getObscureMethod() throws EBaseException {
         return getString("obscureMethod", "zeroes");
     }
+
+    public boolean getCloseNSSDatabase() throws EBaseException {
+        return getBoolean("closeDatabases", false);
+    }
 }
