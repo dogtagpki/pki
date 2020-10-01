@@ -115,7 +115,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public static final String ID = "jss";
 
     private static final String CONFIG_DIR = "configDir";
-    private static final String PROP_ENABLE = "enable";
     private static final String OBSCURE_METHOD = "obscureMethod";
     private static final String mId = ID;
     protected JssSubsystemConfig config;
@@ -281,7 +280,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         this.config = config;
 
         // If disabled, just return
-        boolean enabled = config.getBoolean(PROP_ENABLE, true);
+        boolean enabled = config.isEnabled();
         logger.debug("JssSubsystem: enabled: " + enabled);
 
         if (!enabled) {
