@@ -134,7 +134,6 @@ $ java-imports                       \
   ~/src/dogtag/pki/base/symkey       \
   ~/src/dogtag/pki/base/tools        \
   ~/src/dogtag/pki/base/util         \
-  ~/src/dogtag/pki/base/java-tools   \
   ~/src/dogtag/pki/base/common       \
   ~/src/dogtag/pki/base/selinux      \
   ~/src/dogtag/pki/base/ca           \
