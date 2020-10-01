@@ -10,6 +10,7 @@ import com.sun.jna.Native;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.StartupNotifier;
+import com.netscape.cmscore.apps.StartupNotifier.NotifyResult;
 
 public class SystemdStartupNotifier implements StartupNotifier {
     interface Systemd extends Library {
@@ -25,15 +26,20 @@ public class SystemdStartupNotifier implements StartupNotifier {
         return System.getenv("NOTIFY_SOCKET") != null;
     }
 
-    void notify(String status) {
+    NotifyResult notify(String status) {
         if (systemd == null) {
-            System.err.println("Failed to load libsystemd");
+            return new NotifyResult(NotifyResultStatus.Failure, "Failed to load libsystemd");
         } else if (!systemdBooted) {
-            System.err.println("Not running under systemd");
+            return new NotifyResult(NotifyResultStatus.Failure, "Not running under systemd");
         } else if (!hasNotifySocket()) {
-            System.err.println("No systemd notify socket");
+            return new NotifyResult(NotifyResultStatus.Failure, "No systemd notify socket");
         } else {
-            systemd.sd_notify(0 /* unset_environment */, status);
+            int r = systemd.sd_notify(0 /* unset_environment */, status);
+            if (r < 1) {
+                return new NotifyResult(NotifyResultStatus.Failure, "sd_notify returned " + r);
+            } else {
+                return new NotifyResult(NotifyResultStatus.Success, "sd_notify returned " + r);
+            }
         }
     }
 
@@ -50,7 +56,7 @@ public class SystemdStartupNotifier implements StartupNotifier {
         }
     }
 
-    public void notifyReady() {
-        notify("READY=1");
+    public NotifyResult notifyReady() {
+        return notify("READY=1");
     }
 }
