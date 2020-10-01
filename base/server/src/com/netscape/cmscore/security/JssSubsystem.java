@@ -114,7 +114,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public static final String ID = "jss";
 
-    private static final String OBSCURE_METHOD = "obscureMethod";
     private static final String mId = ID;
     protected JssSubsystemConfig config;
     private boolean mInited = false;
@@ -348,8 +347,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             throw new EBaseException(e);
         }
 
-        obscureMethod = config.getString(JssSubsystem.OBSCURE_METHOD,"zeroes");
-
+        obscureMethod = config.getObscureMethod();
 
         mInited = true;
 

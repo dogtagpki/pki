@@ -30,4 +30,8 @@ public class JssSubsystemConfig extends PropConfigStore {
     public String getNSSDatabaseDir() throws EBaseException {
         return getString("configDir", null);
     }
+
+    public String getObscureMethod() throws EBaseException {
+        return getString("obscureMethod", "zeroes");
+    }
 }
