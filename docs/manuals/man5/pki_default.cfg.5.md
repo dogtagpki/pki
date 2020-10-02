@@ -81,7 +81,13 @@ Secure and unsecure ports.  Defaults to standard Tomcat ports 8443 and 8080, res
 Ports for Tomcat subsystems.  Defaults to standard Tomcat ports of 8009 and 8005, respectively.
 
 **pki_ajp_host**  
-Host on which to listen for AJP requests.  Defaults to localhost to listen to local traffic only.
+Host on which to listen for AJP requests.  Defaults to localhost4 to listen to local traffic only on IPv4 stack. **NOTE** Deprecated in favor of **pki_ajp_host_ipv4**.
+
+**pki_ajp_host_ipv4**
+Host on which to listen for AJP requests.  Defaults to localhost4 to listen to local traffic only on IPv4 stack.
+
+**pki_ajp_host_ipv6**
+Host on which to listen for AJP requests.  Defaults to localhost6 to listen to local traffic only on IPv6 stack.
 
 **pki_proxy_http_port**, **pki_proxy_https_port**, **pki_enable_proxy**  
 Ports for an Apache proxy server.
