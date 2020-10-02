@@ -715,8 +715,14 @@ class PKIConfigParser:
                 self.mdict['pki_https_port']
             self.mdict['PKI_AJP_PORT_SLOT'] = \
                 self.mdict['pki_ajp_port']
-            self.mdict['PKI_AJP_HOST_SLOT'] = \
+            self.mdict['PKI_AJP_HOST_IPv4_SLOT'] = \
                 self.mdict['pki_ajp_host']
+            if (self.mdict['pki_ajp_host'] == 'localhost4' and
+                    self.mdict['pki_ajp_host_ipv4'] != 'localhost4'):
+                self.mdict['PKI_AJP_HOST_IPv4_SLOT'] = \
+                    self.mdict['pki_ajp_host_ipv4']
+            self.mdict['PKI_AJP_HOST_IPv6_SLOT'] = \
+                self.mdict['pki_ajp_host_ipv6']
             self.mdict['PKI_AJP_SECRET_SLOT'] = \
                 self.mdict['pki_ajp_secret']
             self.mdict['PKI_AJP_REDIRECT_PORT_SLOT'] = \
