@@ -53,6 +53,7 @@ CERT_FOOTER = "-----END CERTIFICATE-----"
 #  - backslash since it's causing SSL handshake failure
 #  - it should be relatively safe in an XML attribute
 PUNCTUATIONS = '!#*+,-./:;^_|~'
+GEN_PASS_CHARSET = string.digits + string.ascii_lowercase + string.ascii_uppercase + PUNCTUATIONS
 
 # Map from X.509 attribute OID to short name.
 # Source: https://github.com/freeipa/freeipa/blob/master/ipapython/dn.py
@@ -159,7 +160,7 @@ def get_info(name):
     raise Exception('Property not found: %s' % name)
 
 
-def generate_password():
+def generate_password(charset=GEN_PASS_CHARSET, length=12):
     """
     This function generates FIPS-compliant password.
 
@@ -189,32 +190,26 @@ def generate_password():
 
     rnd = random.SystemRandom()
 
-    valid_chars = string.digits +\
-        string.ascii_lowercase +\
-        string.ascii_uppercase +\
-        PUNCTUATIONS
-
     chars = []
 
-    # add 1 random char from each char class to meet
+    # add 1 random char from each present char class to meet
     # the minimum number of char class requirement
-    chars.append(rnd.choice(string.digits))
-    chars.append(rnd.choice(string.ascii_lowercase))
-    chars.append(rnd.choice(string.ascii_uppercase))
-    chars.append(rnd.choice(PUNCTUATIONS))
+    if string.digits in charset:
+        chars.append(rnd.choice(string.digits))
+    if string.ascii_lowercase in charset:
+        chars.append(rnd.choice(string.ascii_lowercase))
+    if string.ascii_uppercase in charset:
+        chars.append(rnd.choice(string.ascii_uppercase))
+    if PUNCTUATIONS in charset:
+        chars.append(rnd.choice(PUNCTUATIONS))
 
-    # add 6 additional random chars
-    chars.extend(rnd.choice(valid_chars) for i in range(6))
+    # extend chars to specified length via any valid character classes
+    chars.extend(rnd.choice(charset) for i in range(length - len(chars)))
 
     # randomize the char order
     rnd.shuffle(chars)
 
-    # add 2 random chars at the beginning and the end
-    # to maintain the minimum number of char class
-    chars.insert(0, rnd.choice(valid_chars))
-    chars.append(rnd.choice(valid_chars))
-
-    # final password is 12 chars
+    # final password is `length` chars
     password = ''.join(chars)
 
     return password
