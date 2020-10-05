@@ -43,24 +43,11 @@ public class TPSInstaller {
     public TPSInstaller() {
     }
 
-    public void configureCAConnector(URI uri, String nickname) {
-
+    public void configureCAConnector(URI uri, String nickname) throws Exception {
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
-        EngineConfig cs = engine.getConfig();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        // TODO: see if this is only needed by wizard-based installation
-        preopConfig.putString("cainfo.select", uri.toString());
-
-        try {
-            database.addCAConnector(uri.getHost(), uri.getPort(), nickname);
-
-        } catch (Exception e) {
-            logger.error("Unable to create CA connector: " + e.getMessage(), e);
-            throw new PKIException("Unable to create CA connector: " + e.getMessage(), e);
-        }
+        database.addCAConnector(uri.getHost(), uri.getPort(), nickname);
     }
 
     public void configureTKSConnector(URI uri, String nickname) {
