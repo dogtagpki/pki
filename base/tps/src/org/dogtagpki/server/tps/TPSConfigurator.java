@@ -55,7 +55,7 @@ public class TPSConfigurator extends Configurator {
         installer.configureCAConnector(caURI, nickname);
     }
 
-    public void configureTKSConnector(URI tksURI, String nickname) {
+    public void configureTKSConnector(URI tksURI, String nickname) throws Exception {
 
         // TODO: get installer from session
         TPSInstaller installer = new TPSInstaller();

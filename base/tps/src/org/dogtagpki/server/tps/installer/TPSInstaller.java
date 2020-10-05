@@ -50,24 +50,12 @@ public class TPSInstaller {
         database.addCAConnector(uri.getHost(), uri.getPort(), nickname);
     }
 
-    public void configureTKSConnector(URI uri, String nickname) {
+    public void configureTKSConnector(URI uri, String nickname) throws Exception {
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
-        EngineConfig cs = engine.getConfig();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        // TODO: see if this is only needed by wizard-based installation
-        preopConfig.putString("tksinfo.select", uri.toString());
-
-        try {
-            database.addTKSConnector(uri.getHost(), uri.getPort(), nickname, false);
-
-        } catch (Exception e) {
-            logger.error("Unable to create TKS connector: " + e.getMessage(), e);
-            throw new PKIException("Unable to create TKS connector: " + e.getMessage(), e);
-        }
+        database.addTKSConnector(uri.getHost(), uri.getPort(), nickname, false);
     }
 
     public void configureKRAConnector(Boolean keygen, URI uri, String nickname) {
