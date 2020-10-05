@@ -43,7 +43,6 @@ import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -121,14 +120,6 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         if (cert == null)
             return;
 
-        EngineConfig mainConfig = engine.getConfig();
-
-        int num = 0;
-        try {
-            num = mainConfig.getInteger("subsystem.count", 0);
-        } catch (Exception e) {
-        }
-
         UGSubsystem system = engine.getUGSubsystem();
 
         String requestor_name = "subsystem";
@@ -141,13 +132,6 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         // i.e. tps-1.2.3.4-4
         String id = requestor_name;
 
-        num++;
-        mainConfig.putInteger("subsystem.count", num);
-
-        try {
-            mainConfig.commit(false);
-        } catch (Exception e) {
-        }
         String auditParams = "Scope;;users+Operation;;OP_ADD+source;;SubsystemGroupUpdater" +
                              "+Resource;;" + id +
                              "+fullname;;" + id +

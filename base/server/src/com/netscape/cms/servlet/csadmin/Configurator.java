@@ -1342,17 +1342,9 @@ public class Configurator {
 
     public void setupSubsystemUser(X509CertImpl cert) throws Exception {
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
         String sysType = cs.getType();
         String machineName = cs.getHostname();
         String securePort = cs.getString("service.securePort", "");
-
-        int num = preopConfig.getInteger("subsystem.count", 0);
-        num++;
-        preopConfig.putInteger("subsystem.count", num);
-        cs.putInteger("subsystem.count", num);
-        cs.commit(false);
 
         String id = sysType + "-" + machineName + "-" + securePort;
         String groupName = "Subsystem Group";
@@ -1374,12 +1366,6 @@ public class Configurator {
         if (cert == null) {
             throw new Exception("Unable to retrieve subsystem certificate from " + url);
         }
-
-        int num = preopConfig.getInteger("subsystem.count", 0);
-        num++;
-        preopConfig.putInteger("subsystem.count", num);
-        cs.putInteger("subsystem.count", num);
-        cs.commit(false);
 
         String id = "CA-" + host + "-" + port;
         String groupName = "Trusted Managers";
