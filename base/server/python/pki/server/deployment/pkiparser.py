@@ -26,6 +26,7 @@ import getpass
 import ldap
 import logging
 import os
+import string
 import xml.etree.ElementTree as ET
 
 from six.moves import input  # pylint: disable=W0622,F0401
@@ -271,6 +272,7 @@ class PKIConfigParser:
         application_version = str(pki.util.Version(
             pki.specification_version()))
 
+        charset = string.digits + string.ascii_lowercase + string.ascii_uppercase
         self.deployer.main_config = configparser.SafeConfigParser({
             'application_version': application_version,
             'pki_instance_name': default_instance_name,
@@ -283,7 +285,7 @@ class PKIConfigParser:
             'java_home': java_home,
             'home_dir': os.path.expanduser("~"),
             'pki_hostname': self.deployer.hostname,
-            'pki_random_ajp_secret': pki.generate_password()})
+            'pki_random_ajp_secret': pki.generate_password(charset, length=25)})
 
         # Make keys case-sensitive!
         self.deployer.main_config.optionxform = str
