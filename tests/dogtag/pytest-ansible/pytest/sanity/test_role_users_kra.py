@@ -67,7 +67,9 @@ def test_setup_kra_role_users(ansible_module):
 
 @pytest.mark.parametrize("certnick,expected", [("KRA_AdminV", ['Status: Enabled', 'Signed: true',
                                                                'Interval (seconds): 5',
-                                                               'Buffer size (bytes): 512'])
+                                                               'Buffer size (bytes): 512']),
+                                               # ("KRA_AdminE", ['FATAL: SSL alert received: CERTIFICATE_EXPIRED']),
+                                               # ("KRA_AdminR", ['FATAL: SSL alert received: CERTIFICATE_REVOKED']),
                                                ])
 def test_kra_audit_with_role_users(ansible_module, certnick, expected):
     """

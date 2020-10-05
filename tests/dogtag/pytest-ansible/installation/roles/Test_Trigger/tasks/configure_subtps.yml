@@ -1,0 +1,42 @@
+- name: Replace SubTPS specific changes
+  replace: dest={{item}} regexp="tpspki_https_port" replace={{tpspki_https_port}}
+  with_items:
+  - /tmp/test_dir/subtps.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace http port for SubTPS.
+  replace: dest={{item}} regexp="tpspki_http_port" replace={{tpspki_http_port}}
+  with_items:
+  - /tmp/test_dir/subtps.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace ajp port for SubTPS
+  replace: dest={{item}} regexp="tpspki_ajp_port" replace={{tpspki_ajp_port}}
+  with_items:
+  - /tmp/test_dir/subtps.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for SubTPS
+  replace: dest={{item}} regexp="tpspki_tomcat_server_port" replace={{tpspki_tomcat_server_port}}
+  with_items:
+  - /tmp/test_dir/subtps.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace SubTPS security domain port
+  replace: dest={{item}} regexp="secure_domain_port" replace={{subpki_https_port}}
+  with_items:
+  - /tmp/test_dir/subtps.cfg
+
+- name : Replace ca uri for SubTPS
+  replace: dest=/tmp/test_dir/subtps.cfg regexp="capki_https_port" replace={{subpki_https_port}}
+
+- name : Replace kra uri for SubTPS
+  replace: dest=/tmp/test_dir/subtps.cfg regexp="krapki_https_port" replace={{krapki_https_port}}
+
+- name : Replace tks uri for TPS
+  replace: dest=/tmp/test_dir/subtps.cfg regexp="tkspki_https_port" replace={{tkspki_https_port}}
+
+- name: Replace authdb port for SubTPS
+  replace: dest={{item}} regexp="tps_authdb_port" replace={{ldapServerPort}}
+  with_items:
+  - /tmp/test_dir/subtps.cfg

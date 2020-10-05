@@ -1,0 +1,26 @@
+- name: Replace SubOCSP specific changes
+  replace: dest={{item}} regexp="ocsppki_https_port" replace={{ocsppki_https_port}}
+  with_items:
+  - /tmp/test_dir/subocsp.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace http port for SubOCSP.
+  replace: dest={{item}} regexp="ocsppki_http_port" replace={{ocsppki_http_port}}
+  with_items:
+  - /tmp/test_dir/subocsp.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace ajp port for SubOCSP
+  replace: dest={{item}} regexp="ocsppki_ajp_port" replace={{ocsppki_ajp_port}}
+  with_items:
+  - /tmp/test_dir/subocsp.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for SubOCSP
+  replace: dest={{item}} regexp="ocsppki_tomcat_server_port" replace={{ocsppki_tomcat_server_port}}
+  with_items:
+  - /tmp/test_dir/subocsp.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace SubOCSP security domain port
+  replace: dest=/tmp/test_dir/subocsp.cfg regexp="secure_domain_port" replace={{subpki_https_port}}

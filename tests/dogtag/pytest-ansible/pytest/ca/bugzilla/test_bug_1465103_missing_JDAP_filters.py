@@ -31,12 +31,13 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import logging
 import os
 import sys
-import re
-import tempfile
-
+import time
 import pytest
+
+from pki.testlib.common import utils
 
 try:
     from pki.testlib.common import constants
@@ -45,12 +46,42 @@ except Exception:
         sys.path.append('/tmp/test_dir')
         import constants
 
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+topology = int(constants.CA_INSTANCE_NAME.split("-")[-2])
+userop = utils.UserOperations(nssdb=constants.NSSDB)
+CS_CFG_FILE = '/var/lib/pki/{}/ca/conf/CS.cfg'
 
-@pytest.mark.ansible_playbook_setup('enableAuditEventFilter.yml')
-@pytest.mark.setup
-def test_setup(ansible_playbook):
-    pass
 
+@pytest.fixture(autouse=True)
+def test_setup(ansible_module):
+    stop_server = 'systemctl stop pki-tomcatd@{}'.format(constants.CA_INSTANCE_NAME)
+    start_server = 'systemctl start pki-tomcatd@{}'.format(constants.CA_INSTANCE_NAME)
+    filter = 'log.instance.SignedAudit.filters.CERT_REQUEST_PROCESSED=(|(InfoName=rejectReason)(InfoName=cancelReason))'
+    stopped = ansible_module.shell(stop_server)
+    for res in stopped.values():
+        assert res['rc'] == 0
+
+    ansible_module.lineinfile(path=CS_CFG_FILE.format(constants.CA_INSTANCE_NAME),
+                              line=filter, insertafter="EOF")
+    started = ansible_module.shell(start_server)
+    for res in started.values():
+        assert res['rc'] == 0
+
+    yield
+    stopped = ansible_module.shell(stop_server)
+    for res in stopped.values():
+        assert res['rc'] == 0
+    new_filter = 'log.instance.SignedAudit.filters.CERT_REQUEST_PROCESSED=*'
+    ansible_module.lineinfile(path=CS_CFG_FILE.format(constants.CA_INSTANCE_NAME),
+                              regexp=new_filter, line="")
+
+    started = ansible_module.shell(start_server)
+    for res in started.values():
+        assert res['rc'] == 0
+
+
+@pytest.mark.skipif("topology != 2")
 def test_missing_JDAP_filters(ansible_module):
     """
     :id: 898a8c4a-6223-4271-8708-705694903377'
@@ -59,7 +90,7 @@ def test_missing_JDAP_filters(ansible_module):
 
     :Description: Bug 1465103 - Missing getter methods in JDAPFilter classes
 
-    :Requirement: Audit Logging
+    :Requirement: RHCS-REQ Audit Logging
 
     :Setup:
         Use subsystems setup via ansible playbooks
@@ -73,168 +104,65 @@ def test_missing_JDAP_filters(ansible_module):
     :Expectedresults:
             1. After adding the filter in CS.cfg CA instance should be restarted successfully
             2. A certificate should be rejected successfully and the logs should be similar to below
-               root@csqa4-guest01 ~ # grep -nr "\[AuditEvent\=CERT_REQUEST_PROCESSED\]" /var/log/pki/<instance_name>/ca/signedAudit/ca_audit
-               45:0.http-bio-8443-exec-16 - [03/Jan/2018:23:46:08 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=7][CertSerialNum=175797671] certificate request processed
-               52:0.http-bio-8443-exec-20 - [03/Jan/2018:23:46:11 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=8][CertSerialNum=25082264] certificate request processed
-               59:0.http-bio-8443-exec-24 - [03/Jan/2018:23:46:14 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=9][CertSerialNum=78183912] certificate request processed
-               69:0.http-bio-8443-exec-4 - [03/Jan/2018:23:46:17 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=10][CertSerialNum=261210011] certificate request processed
-               76:0.http-bio-8443-exec-10 - [03/Jan/2018:23:46:20 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=11][CertSerialNum=245038855] certificate request processed
-               83:0.http-bio-8443-exec-18 - [03/Jan/2018:23:46:21 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=12][CertSerialNum=195767496] certificate request processed
-               165:0.http-bio-8443-exec-5 - [03/Jan/2018:23:58:56 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=13][CertSerialNum=240995390] certificate request processed
-               248:0.http-bio-8443-exec-13 - [04/Jan/2018:01:20:50 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Failure][ReqID=15][InfoName=cancelReason][InfoValue=<null>] certificate request processed
+               [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Failure][ReqID=15][InfoName=cancelReason]
+               [InfoValue=<null>] certificate request processed
                Only rejected request is shown in logs. Approved certificate requests are not shown in logs
             3. A certificate should be cancelled successfully
-               root@csqa4-guest01 ~ # grep -nr "\[AuditEvent\=CERT_REQUEST_PROCESSED\]" /var/log/pki/<instance_name>/ca/signedAudit/ca_audit
-               45:0.http-bio-8443-exec-16 - [03/Jan/2018:23:46:08 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=7][CertSerialNum=175797671] certificate request processed
-               52:0.http-bio-8443-exec-20 - [03/Jan/2018:23:46:11 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=8][CertSerialNum=25082264] certificate request processed
-               59:0.http-bio-8443-exec-24 - [03/Jan/2018:23:46:14 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=9][CertSerialNum=78183912] certificate request processed
-               69:0.http-bio-8443-exec-4 - [03/Jan/2018:23:46:17 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=10][CertSerialNum=261210011] certificate request processed
-               76:0.http-bio-8443-exec-10 - [03/Jan/2018:23:46:20 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=11][CertSerialNum=245038855] certificate request processed
-               83:0.http-bio-8443-exec-18 - [03/Jan/2018:23:46:21 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=12][CertSerialNum=195767496] certificate request processed
-               165:0.http-bio-8443-exec-5 - [03/Jan/2018:23:58:56 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Success][ReqID=13][CertSerialNum=240995390] certificate request processed
-               248:0.http-bio-8443-exec-13 - [04/Jan/2018:01:20:50 EST] [14] [6] [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Failure][ReqID=15][InfoName=cancelReason][InfoValue=<null>] certificate request processed
+               [AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=caadmin][Outcome=Failure][ReqID=15][InfoName=cancelReason]
+               [InfoValue=<null>] certificate request processed
                Only cancelled request is shown in logs. Approved certificate requests are not shown in logs
     :Automated: Yes
 
     :CaseComponent: \-
     """
-    temp_dir = tempfile.mkdtemp()
+    log_file = '/var/log/pki/{}/ca/signedAudit/ca_audit'.format(constants.CA_INSTANCE_NAME)
 
-    client_init_output = ansible_module.pki(
-        cli='client-init',
-        nssdb=temp_dir,
-        protocol='http',
-        port=constants.CA_HTTP_PORT,
-    )
-    for result in client_init_output.values():
-        assert "Client initialized" in result['stdout']
+    subject = 'UID=testuser1,CN=testuser1'
+    time.sleep(10)
+    req_id = userop.create_certificate_request(ansible_module, subject=subject)
+    cert_id = userop.process_certificate_request(ansible_module, request_id=req_id, action='approve')
+    assert req_id is not None
+    audit_log = "[AuditEvent=CERT_REQUEST_PROCESSED][SubjectID={}]" \
+                "[Outcome=Success][ReqID={}]".format(constants.CA_ADMIN_USERNAME, req_id)
 
-    pkcs12_import_output = ansible_module.pki(
-        cli='client-cert-import',
-        nssdb=temp_dir,
-        extra_args='--pkcs12 %s/ca_admin_cert.p12 --pkcs12-password %s'
-        % (constants.CA_CLIENT_DIR, constants.CLIENT_DATABASE_PASSWORD),
-        protocol='http',
-        port=constants.CA_HTTP_PORT,
-        )
-    for result in pkcs12_import_output.values():
-        assert "Imported certificates from PKCS #12 file" in result['stdout']
-
-    # Approve a certificate request and check audit log
-    cert_req_output = ansible_module.pki(
-        cli='client-cert-request',
-        nssdb=temp_dir,
-        protocol='http',
-        port=constants.CA_HTTP_PORT,
-        extra_args='uid=foobar1 --profile caDualCert'
-    )
-
-    request_id = None
-    for result in cert_req_output.values():
-        assert "Submitted certificate request" in result['stdout']
-        assert "Type: enrollment" in result['stdout']
-        assert "Request Status: pending" in result['stdout']
-        assert "Operation Result: success" in result['stdout']
-        request_id = re.findall('Request ID\: [0-9]+', result['stdout'])
-        request_id = request_id[0].split(':')[1].strip()
-
-    cert_approve_output = ansible_module.pki(
-        cli='cert-request-review',
-        nssdb=temp_dir,
-        protocol='http',
-        port=constants.CA_HTTP_PORT,
-        extra_args='%s --action approve' % request_id
-    )
-    for result in cert_approve_output.values():
-        assert "Approved certificate request %s" % request_id in result['stdout']
-        assert "Request ID: %s" % request_id in result['stdout']
-        assert "Type: enrollment" in result['stdout']
-        assert "Request Status: complete" in result['stdout']
-        assert "Operation Result: success" in result['stdout']
-        assert "Certificate ID:" in result['stdout']
-
-    audit_log_output = ansible_module.command('tail -n 100 /var/log/pki/{}/ca/signedAudit/ca_audit'\
-                                              .format(constants.CA_INSTANCE_NAME))
+    audit_log_output = ansible_module.shell('tail -n 30 {}'.format(log_file))
     for result in audit_log_output.values():
-        assert "[AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=%s][Outcome=Success][ReqID=%s]"\
-               % (constants.CA_ADMIN_USERNAME, request_id) not in result['stdout']
+        if result['rc'] == 0:
+            assert audit_log not in result['stdout']
+            log.info("Log not found: {}".format(audit_log))
+        else:
+            log.error("Failed to create certificate request.")
+            pytest.xfail()
 
-    # Reject a certificate request and check audit log
-    cert_req_output = ansible_module.pki(
-        cli='client-cert-request',
-        nssdb=temp_dir,
-        protocol='http',
-        port=constants.CA_HTTP_PORT,
-        extra_args='uid=foobar2 --profile caDualCert'
-    )
+    subject = 'UID=testuser2,CN=testuser2'
+    req_id = userop.create_certificate_request(ansible_module, subject=subject)
+    cert_id = userop.process_certificate_request(ansible_module, request_id=req_id, action='reject')
+    assert req_id is not None
+    audit_log = "[AuditEvent=CERT_REQUEST_PROCESSED][SubjectID={}][Outcome=Failure][ReqID={}]" \
+                "[InfoName=rejectReason][InfoValue=<null>] certificate " \
+                "request processed".format(constants.CA_ADMIN_USERNAME, req_id)
 
-    request_id = None
-    for result in cert_req_output.values():
-        assert "Submitted certificate request" in result['stdout']
-        assert "Type: enrollment" in result['stdout']
-        assert "Request Status: pending" in result['stdout']
-        assert "Operation Result: success" in result['stdout']
-        request_id = re.findall('Request ID\: [0-9]+', result['stdout'])
-        request_id = request_id[0].split(':')[1].strip()
-
-    cert_reject_output = ansible_module.pki(
-        cli='cert-request-review',
-        nssdb=temp_dir,
-        protocol='http',
-        port=constants.CA_HTTP_PORT,
-        extra_args='%s --action reject' % request_id
-    )
-    for result in cert_reject_output.values():
-        assert "Rejected certificate request %s" % request_id in result['stdout']
-        assert "Request ID: %s" % request_id in result['stdout']
-        assert "Type: enrollment" in result['stdout']
-        assert "Request Status: rejected" in result['stdout']
-        assert "Operation Result: success" in result['stdout']
-
-    audit_log_output = ansible_module.command('tail -n 100 /var/log/pki/{}/ca/signedAudit/ca_audit'\
-                                              .format(constants.CA_INSTANCE_NAME))
+    audit_log_output = ansible_module.shell('tail -n 30 {}'.format(log_file))
     for result in audit_log_output.values():
-        assert "[AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=%s][Outcome=Success][ReqID=%s]" \
-               % (constants.CA_ADMIN_USERNAME, request_id) not in result['stdout']
-        assert "[AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=%s][Outcome=Failure][ReqID=%s][InfoName=rejectReason][InfoValue=<null>] certificate request processed"\
-               % (constants.CA_ADMIN_USERNAME, request_id) in result['stdout']
+        if result['rc'] == 0:
+            assert audit_log in result['stdout']
+            log.info("Log found: {}".format(audit_log))
+        else:
+            log.error("Failed to create certificate request.")
+            pytest.xfail()
 
-    # Cancel a certificate request and check audit log
-    cert_req_output = ansible_module.pki(
-        cli='client-cert-request',
-        nssdb=temp_dir,
-        protocol='http',
-        port=constants.CA_HTTP_PORT,
-        extra_args='uid=foobar3 --profile caDualCert'
-    )
-
-    request_id = None
-    for result in cert_req_output.values():
-        assert "Submitted certificate request" in result['stdout']
-        assert "Type: enrollment" in result['stdout']
-        assert "Request Status: pending" in result['stdout']
-        assert "Operation Result: success" in result['stdout']
-        request_id = re.findall('Request ID\: [0-9]+', result['stdout'])
-        request_id = request_id[0].split(':')[1].strip()
-
-    cert_cancel_output = ansible_module.pki(
-        cli='cert-request-review',
-        nssdb=temp_dir,
-        protocol='http',
-        port=constants.CA_HTTP_PORT,
-        extra_args='%s --action cancel' % request_id
-    )
-    for result in cert_cancel_output.values():
-        assert "Canceled certificate request %s" % request_id in result['stdout']
-        assert "Request ID: %s" % request_id in result['stdout']
-        assert "Type: enrollment" in result['stdout']
-        assert "Request Status: canceled" in result['stdout']
-        assert "Operation Result: success" in result['stdout']
-
-    audit_log_output = ansible_module.command('tail -n 100 /var/log/pki/{}/ca/signedAudit/ca_audit'\
-                                              .format(constants.CA_INSTANCE_NAME))
+    subject = 'UID=testuser3,CN=testuser3'
+    req_id = userop.create_certificate_request(ansible_module, subject=subject)
+    cert_id = userop.process_certificate_request(ansible_module, request_id=req_id, action='cancel')
+    assert req_id is not None
+    audit_log = "[AuditEvent=CERT_REQUEST_PROCESSED][SubjectID={}][Outcome=Failure][ReqID={}]" \
+                "[InfoName=cancelReason][InfoValue=<null>] " \
+                "certificate request processed".format(constants.CA_ADMIN_USERNAME, req_id)
+    audit_log_output = ansible_module.shell('tail -n 30 {}'.format(log_file))
     for result in audit_log_output.values():
-        assert "[AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=%s][Outcome=Success][ReqID=%s]" \
-               % (constants.CA_ADMIN_USERNAME, request_id) not in result['stdout']
-        assert "[AuditEvent=CERT_REQUEST_PROCESSED][SubjectID=%s][Outcome=Failure][ReqID=%s][InfoName=cancelReason][InfoValue=<null>] certificate request processed"\
-               % (constants.CA_ADMIN_USERNAME, request_id) in result['stdout']
+        if result['rc'] == 0:
+            assert audit_log in result['stdout']
+            log.info("Log found: {}".format(audit_log))
+        else:
+            log.error("Failed to create certificate request.")
+            pytest.xfail()

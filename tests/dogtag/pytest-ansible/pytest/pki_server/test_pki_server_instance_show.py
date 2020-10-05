@@ -31,10 +31,10 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import os
 import sys
 from subprocess import CalledProcessError
 
-import os
 import pytest
 
 try:
@@ -43,6 +43,7 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
 
 
 def test_pki_server_instance_show_command(ansible_module):
@@ -57,20 +58,24 @@ def test_pki_server_instance_show_command(ansible_module):
     :ExpectedResults: Verify whether pki-server instance-show command shows
         the instance is present or not.
     """
-    subsystems = [constants.CA_INSTANCE_NAME, constants.KRA_INSTANCE_NAME,
-                  constants.OCSP_INSTANCE_NAME, constants.TKS_INSTANCE_NAME,
-                  constants.TPS_INSTANCE_NAME]
+    subsystems = ['ca', 'kra']  # TODO remove after build , 'ocsp', 'tks', 'tps']
 
     for system in subsystems:
-        instance_show = 'pki-server instance-show {}'.format(system)
+        if TOPOLOGY == '01':
+            instance = 'pki-tomcat'
+            topology_name = 'topology-01-CA'
+        else:
+            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
+        ansible_module.command('pki-server instance-start {}'.format(instance))
+        instance_show = 'pki-server instance-show {}'.format(instance)
 
         cmd_output = ansible_module.command(instance_show)
         for result in cmd_output.values():
             if result['rc'] == 0:
-                assert "Instance ID: {}".format(system) in result['stdout']
+                assert "Instance ID: {}".format(instance) in result['stdout']
                 assert "Active: True" in result['stdout']
             else:
-                pytest.xfail("Failed to run pki-server instance-show " + system + " command")
+                pytest.skip("Failed to run pki-server instance-show " + instance + " command")
 
 
 def test_pki_server_instance_show_with_help_command(ansible_module):
@@ -98,12 +103,12 @@ def test_pki_server_instance_show_with_help_command(ansible_module):
     cmd_output = ansible_module.command(help_command)
     for result in cmd_output.values():
         if result['rc'] == 0:
-            assert "Usage: pki-server instance-show [OPTIONS] <instance ID>" in \
-                   result['stdout']
-            assert "  -v, --verbose                Run in verbose mode." in result['stdout']
-            assert "      --help                   Show help message." in result['stdout']
+            assert "Usage: pki-server instance-show [OPTIONS] <instance ID>" in result['stdout']
+            assert "-v, --verbose                      Run in verbose mode." in result['stdout']
+            assert "--debug                        Run in debug mode." in result['stdout']
+            assert "--help                         Show help message." in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server instance-show --help command")
+            pytest.skip("Failed to run pki-server instance-show --help command")
 
 
 def test_pki_server_instance_show_when_instance_is_disabled(ansible_module):
@@ -119,14 +124,18 @@ def test_pki_server_instance_show_when_instance_is_disabled(ansible_module):
         1. Verify whether pki-server instance-show command shows the instance name and active
         status False when it is disabled.
     """
-    subsystems = [constants.CA_INSTANCE_NAME, constants.KRA_INSTANCE_NAME,
-                  constants.OCSP_INSTANCE_NAME, constants.TKS_INSTANCE_NAME,
-                  constants.TPS_INSTANCE_NAME]
+    subsystems = ['ca', 'kra']  # TODO remove after build , 'ocsp', 'tks', 'tps']
 
     for system in subsystems:
-        instance_stop = 'pki-server instance-stop {}'.format(system)
-        instance_start = 'pki-server instance-start {}'.format(system)
-        instance_show = 'pki-server instance-show {}'.format(system)
+        if TOPOLOGY == '01':
+            instance = 'pki-tomcat'
+            topology_name = 'topology-01-CA'
+        else:
+            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
+            topology_name = constants.CA_INSTANCE_NAME
+        instance_stop = 'pki-server instance-stop {}'.format(instance)
+        instance_start = 'pki-server instance-start {}'.format(instance)
+        instance_show = 'pki-server instance-show {}'.format(instance)
 
         stop_instance = ansible_module.command(instance_stop)
         for result in stop_instance.values():
@@ -136,16 +145,15 @@ def test_pki_server_instance_show_when_instance_is_disabled(ansible_module):
         show_instance = ansible_module.command(instance_show)
         for result in show_instance.values():
             if result['rc'] == 0:
-                assert 'Instance ID: {}'.format(system) in result['stdout']
+                assert 'Instance ID: {}'.format(instance) in result['stdout']
                 assert 'Active: False' in result['stdout']
             else:
-                pytest.xfail("Failed to ran pki-server instance-show command when instance "
-                             "is disabled.")
+                pytest.skip()
 
         ansible_module.command(instance_start)
 
 
-@pytest.mark.xfail(raises=CalledProcessError)
+#@pytest.mark.xfail(raises=CalledProcessError)
 def test_pki_server_instance_show_when_instance_is_not_present(ansible_module):
     """
     :id: d7dd5455-9f48-494e-b9c3-bae1bd897bda
@@ -169,7 +177,7 @@ def test_pki_server_instance_show_when_instance_is_not_present(ansible_module):
         if result['rc'] == 0:
             assert "Instance ID: " + system in result['stdout']
             assert "Active: False" in result['stdout']
-            pytest.xfail("Failed to ran pki-server instance-show command with invalid instance.")
+            pytest.skip("Failed to ran pki-server instance-show command with invalid instance.")
 
 
 def test_pki_server_instance_show_when_instance_is_enabled(ansible_module):
@@ -186,27 +194,31 @@ def test_pki_server_instance_show_when_instance_is_enabled(ansible_module):
         active status True when it is enabled.
     """
     # Store subsystems in list
-    subsystems = [constants.CA_INSTANCE_NAME, constants.KRA_INSTANCE_NAME,
-                  constants.OCSP_INSTANCE_NAME, constants.TKS_INSTANCE_NAME,
-                  constants.TPS_INSTANCE_NAME]
+    subsystems = ['ca', 'kra']  # TODO remove after build, 'ocsp', 'tks', 'tps']
 
     for system in subsystems:
         # Store commands in list
-        instance_start = 'pki-server instance-start {}'.format(system)
-        instance_show = 'pki-server instance-show {}'.format(system)
+        if TOPOLOGY == '01':
+            instance = 'pki-tomcat'
+            topology_name = 'topology-01-CA'
+        else:
+            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
+            topology_name = constants.CA_INSTANCE_NAME
+        instance_start = 'pki-server instance-start {}'.format(instance)
+        instance_show = 'pki-server instance-show {}'.format(instance)
 
         cmd_output = ansible_module.command(instance_start)
         for result in cmd_output.values():
             if result['rc'] == 0:
                 if 'already started' not in result['stdout']:
-                    assert system + " instance started" in result['stdout']
+                    assert instance + " instance started" in result['stdout']
                 else:
-                    assert system + " instance already started" in result['stdout']
+                    assert instance + " instance already started" in result['stdout']
         cmd_show = ansible_module.command(instance_show)
         for result in cmd_show.values():
             if result['rc'] == 0:
-                assert 'Instance ID: ' + system in result['stdout']
+                assert 'Instance ID: ' + instance in result['stdout']
                 assert 'Active: True' in result['stdout']
             else:
-                pytest.xfail("Failed to ran pki-server instance-show command when instance "
+                pytest.skip("Failed to ran pki-server instance-show command when instance "
                              "is disabled.")

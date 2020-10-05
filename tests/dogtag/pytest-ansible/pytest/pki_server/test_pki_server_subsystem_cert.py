@@ -27,9 +27,10 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import logging
+import os
 import sys
 
-import os
 import pytest
 
 try:
@@ -38,10 +39,12 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
-Topology = int(''.join(constants.CA_INSTANCE_NAME.split("-")[1]))
+TOPOLOGY = int(constants.CA_INSTANCE_NAME.split("-")[-2])
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
-@pytest.mark.xfail(reason='BZ-1340718')
+# @pytest.mark.xfail(reason='BZ-1340718')
 def test_pki_server_subsystem_cert_find_help(ansible_module):
     """
     :id: 23181198-bd7d-410d-8f36-d5179440956a
@@ -63,8 +66,10 @@ def test_pki_server_subsystem_cert_find_help(ansible_module):
             assert "--show-all                  Show all attributes." in result['stdout']
             assert "-v, --verbose                   Run in verbose mode." in result['stdout']
             assert "--help                      Show help message." in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-find --help command..!!")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_subsystem_cert(ansible_module):
@@ -82,17 +87,15 @@ def test_pki_server_subsystem_cert(ansible_module):
     find_out = ansible_module.command('pki-server subsystem-cert')
     for result in find_out.values():
         if result['rc'] == 0:
-            assert "subsystem-cert-find           Find subsystem certificates" in \
-                   result['stdout']
-            assert "subsystem-cert-show           Show subsystem certificate" in \
-                   result['stdout']
-            assert "subsystem-cert-export         Export subsystem certificate" in \
-                   result['stdout']
-            assert "subsystem-cert-update         Update subsystem certificate" in \
-                   result['stdout']
+            assert "subsystem-cert-find           Find subsystem certificates" in result['stdout']
+            assert "subsystem-cert-show           Show subsystem certificate" in result['stdout']
+            assert "subsystem-cert-export         Export subsystem certificate" in result['stdout']
+            assert "subsystem-cert-update         Update subsystem certificate" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
 
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert command..!!")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_subsystem_cert_find_ca(ansible_module):
@@ -107,33 +110,34 @@ def test_pki_server_subsystem_cert_find_ca(ansible_module):
     :ExpectedResults: 
         Verify whether pki-server subsystem-cert-find command lists the ca subsystem certificates.
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.CA_INSTANCE_NAME
     find_out = ansible_module.command('pki-server subsystem-cert-find '
-                                      '-i {} ca'.format(constants.CA_INSTANCE_NAME))
+                                      '-i {} ca'.format(instance))
     for result in find_out.values():
         if result['rc'] == 0:
             assert "entries matched" in result['stdout']
             assert "Cert ID: signing" in result['stdout']
-            assert "Nickname: caSigningCert cert-" + constants.CA_INSTANCE_NAME + " CA" in \
-                   result['stdout']
-            assert "Token: Internal Key Storage Token" in result['stdout']
+            assert "Nickname: caSigningCert cert-" + instance + " CA" in result['stdout']
+            assert "Token: internal" in result['stdout']
             assert "Cert ID: ocsp_signing" in result['stdout']
-            assert "Nickname: ocspSigningCert cert-" + constants.CA_INSTANCE_NAME + " CA" in \
-                   result['stdout']
-            assert "Token: Internal Key Storage Token" in result['stdout']
+            assert "Nickname: ocspSigningCert cert-" + instance + " CA" in result['stdout']
+            assert "Token: internal" in result['stdout']
             assert "Cert ID: sslserver" in result['stdout']
-            assert "Nickname: Server-Cert cert-" + constants.CA_INSTANCE_NAME in \
-                   result['stdout']
-            assert "Token: Internal Key Storage Token" in result['stdout']
+            assert "Nickname: Server-Cert cert-" + instance in result['stdout']
+            assert "Token: internal" in result['stdout']
             assert "Cert ID: subsystem" in result['stdout']
-            assert "Nickname: subsystemCert cert-" + constants.CA_INSTANCE_NAME in \
-                   result['stdout']
-            assert "Token: Internal Key Storage Token" in result['stdout']
+            assert "Nickname: subsystemCert cert-" + instance in result['stdout']
+            assert "Token: internal" in result['stdout']
             assert "Cert ID: audit_signing" in result['stdout']
-            assert "Nickname: auditSigningCert cert-" + constants.CA_INSTANCE_NAME + " CA" in \
-                   result['stdout']
-            assert "Token: Internal Key Storage Token" in result['stdout']
+            assert "Nickname: auditSigningCert cert-" + instance + " CA" in result['stdout']
+            assert "Token: internal" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-find command..!!")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_subsystem_cert_find_kra(ansible_module):
@@ -149,34 +153,35 @@ def test_pki_server_subsystem_cert_find_kra(ansible_module):
         1. Verify whether pki-server subsystem-cert-find command lists the kra 
             subsystem certificates.
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.KRA_INSTANCE_NAME
     kra_out = ansible_module.command('pki-server subsystem-cert-find '
-                                     '-i {} kra'.format(constants.KRA_INSTANCE_NAME))
+                                     '-i {} kra'.format(instance))
 
     for result in kra_out.values():
         if result['rc'] == 0:
             assert "entries matched" in result['stdout']
             assert "Cert ID: transport" in result['stdout']
-            assert "Nickname: transportCert cert-" + constants.KRA_INSTANCE_NAME + " KRA" in \
-                   result['stdout']
+            assert "Nickname: transportCert cert-" + instance + " KRA" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Cert ID: storage" in result['stdout']
-            assert "Nickname: storageCert cert-" + constants.KRA_INSTANCE_NAME + " KRA" in \
-                   result['stdout']
+            assert "Nickname: storageCert cert-" + instance + " KRA" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Cert ID: sslserver" in result['stdout']
-            assert "Nickname: Server-Cert cert-" + constants.KRA_INSTANCE_NAME in \
-                   result['stdout']
+            assert "Nickname: Server-Cert cert-" + instance in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Cert ID: subsystem" in result['stdout']
-            assert "Nickname: subsystemCert cert-" + constants.KRA_INSTANCE_NAME in \
-                   result['stdout']
+            assert "Nickname: subsystemCert cert-" + instance in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Cert ID: audit_signing" in result['stdout']
-            assert "Nickname: auditSigningCert cert-" + constants.KRA_INSTANCE_NAME + " KRA" in \
-                   result['stdout']
+            assert "Nickname: auditSigningCert cert-" + instance + " KRA" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-find command..!!")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_subsystem_cert_find_ocsp(ansible_module):
@@ -191,29 +196,31 @@ def test_pki_server_subsystem_cert_find_ocsp(ansible_module):
     :ExpectedResults:
         Verify whether pki-server subsystem-cert-find command lists the OCSP subsystem certificates.
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.OCSP_INSTANCE_NAME
     ocsp_out = ansible_module.command('pki-server subsystem-cert-find '
-                                      '-i {} ocsp'.format(constants.OCSP_INSTANCE_NAME))
+                                      '-i {} ocsp'.format(instance))
     for result in ocsp_out.values():
         if result['rc'] == 0:
             assert "entries matched" in result['stdout']
             assert "Cert ID: signing" in result['stdout']
-            assert "Nickname: ocspSigningCert cert-" + constants.OCSP_INSTANCE_NAME + " OCSP" in \
-                   result['stdout']
+            assert "Nickname: ocspSigningCert cert-" + instance + " OCSP" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Cert ID: sslserver" in result['stdout']
-            assert "Nickname: Server-Cert cert-" + constants.OCSP_INSTANCE_NAME in \
-                   result['stdout']
+            assert "Nickname: Server-Cert cert-" + instance in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Cert ID: subsystem" in result['stdout']
-            assert "Nickname: subsystemCert cert-" + constants.OCSP_INSTANCE_NAME in \
-                   result['stdout']
+            assert "Nickname: subsystemCert cert-" + instance in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Cert ID: audit_signing" in result['stdout']
-            assert "Nickname: auditSigningCert cert-" + constants.OCSP_INSTANCE_NAME + " OCSP" in \
-                   result['stdout']
+            assert "Nickname: auditSigningCert cert-" + instance + " OCSP" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-find command..!!")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_subsystem_cert_find_tks(ansible_module):
@@ -229,25 +236,28 @@ def test_pki_server_subsystem_cert_find_tks(ansible_module):
         1. Verify whether pki-server subsystem-cert-find command lists the tks 
            subsystem certificates.
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.TKS_INSTANCE_NAME
     tks_out = ansible_module.command('pki-server subsystem-cert-find '
-                                     '-i {} tks'.format(constants.TKS_INSTANCE_NAME))
+                                     '-i {} tks'.format(instance))
     for result in tks_out.values():
         if result['rc'] == 0:
             assert "entries matched" in result['stdout']
             assert "Cert ID: sslserver" in result['stdout']
-            assert "Nickname: Server-Cert cert-" + constants.TKS_INSTANCE_NAME in \
-                   result['stdout']
+            assert "Nickname: Server-Cert cert-" + instance in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Cert ID: subsystem" in result['stdout']
-            assert "Nickname: subsystemCert cert-" + constants.TKS_INSTANCE_NAME in \
-                   result['stdout']
+            assert "Nickname: subsystemCert cert-" + instance in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Cert ID: audit_signing" in result['stdout']
-            assert "Nickname: auditSigningCert cert-" + constants.TKS_INSTANCE_NAME + " TKS" in \
-                   result['stdout']
+            assert "Nickname: auditSigningCert cert-" + instance + " TKS" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-find command..!!")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_subsystem_cert_find_tps(ansible_module):
@@ -263,28 +273,31 @@ def test_pki_server_subsystem_cert_find_tps(ansible_module):
         1. Verify whether pki-server subsystem-cert-find command lists the tps 
             subsystem certificates.
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.TPS_INSTANCE_NAME
     tps_out = ansible_module.command('pki-server subsystem-cert-find '
-                                     '-i {} tps'.format(constants.TPS_INSTANCE_NAME))
+                                     '-i {} tps'.format(instance))
     for result in tps_out.values():
         if result['rc'] == 0:
             assert "entries matched" in result['stdout']
             assert "Cert ID: sslserver" in result['stdout']
-            assert "Nickname: Server-Cert cert-" + constants.TPS_INSTANCE_NAME in \
-                   result['stdout']
+            assert "Nickname: Server-Cert cert-" + instance in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Cert ID: subsystem" in result['stdout']
-            assert "Nickname: subsystemCert cert-" + constants.TPS_INSTANCE_NAME in \
-                   result['stdout']
+            assert "Nickname: subsystemCert cert-" + instance in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Cert ID: audit_signing" in result['stdout']
-            assert "Nickname: auditSigningCert cert-" + constants.TPS_INSTANCE_NAME + " TPS" in \
-                   result['stdout']
+            assert "Nickname: auditSigningCert cert-" + instance + " TPS" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-find command..!!")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 def test_pki_server_subsystem_cert_find_clone_ca(ansible_module):
     """
     :id: 520d1ea5-b1db-4adf-afc9-b4b3e886093f
@@ -324,10 +337,10 @@ def test_pki_server_subsystem_cert_find_clone_ca(ansible_module):
                    in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-find command..!!")
+            pytest.skip("Failed to run pki-server subsystem-cert-find command..!!")
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 def test_pki_server_subsystem_cert_find_clone_kra(ansible_module):
     """
     :id: 1aec4676-7707-4d9c-a990-b9b80b2d2236
@@ -368,10 +381,10 @@ def test_pki_server_subsystem_cert_find_clone_kra(ansible_module):
             assert "Token: Internal Key Storage Token" in result['stdout']
 
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-find command..!!")
+            pytest.skip("Failed to run pki-server subsystem-cert-find command..!!")
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 def test_pki_server_subsystem_cert_find_clone_ocsp(ansible_module):
     """
     :id: 9176c1b4-5703-4396-8c58-d3048467f6cb
@@ -407,10 +420,10 @@ def test_pki_server_subsystem_cert_find_clone_ocsp(ansible_module):
                    constants.CLONEOCSP1_INSTANCE_NAME + " OCSP" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-find command..!!")
+            pytest.skip("Failed to run pki-server subsystem-cert-find command..!!")
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 def test_pki_server_subsystem_cert_find_clone_tks(ansible_module):
     """
     :id: d454a71c-2562-4dfc-8434-65c9cfa5390e
@@ -442,10 +455,10 @@ def test_pki_server_subsystem_cert_find_clone_tks(ansible_module):
                    constants.CLONETKS1_INSTANCE_NAME + " TKS" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-find command..!!")
+            pytest.skip("Failed to run pki-server subsystem-cert-find command..!!")
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 def test_pki_server_subsystem_cert_find_subca(ansible_module):
     """
     :id: 68592172-ec7a-44c6-ad62-5779442d25c6
@@ -485,4 +498,4 @@ def test_pki_server_subsystem_cert_find_subca(ansible_module):
                    result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-find command..!!")
+            pytest.skip("Failed to run pki-server subsystem-cert-find command..!!")

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?><testsuite errors="0" failures="1" name="pytest" skips="0" tests="1" time="0.128"><testcase classname="pytest.ca.externalca.test_externalca_dogtagpki" file="pytest/ca/externalca/test_externalca_dogtagpki.py" line="109" name="test_ExternalCA_extensions_skid" time="0.0193922519684"><failure message="NameError: global name &apos;constants&apos; is not defined">ansible_module = &lt;pytest_ansible.plugin.AnsibleV2Module object at 0x7f0464ba3ed0&gt;
+
+    def test_ExternalCA_extensions_skid(ansible_module):
+        &apos;&apos;&apos;
+          :Title: Test the skid and akid extensions for ExternalCA
+          :Description: This is test when ski is not enabled for ExternalCA signing certificate
+          :Requirement:CA Installation with existing certs-OCSP
+          :Type: Functional
+          :setup:
+          Refer: http://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_PKI_CA
+          1. Install RootCA which has rootca generated using dogtagpki utility.
+          2. Make sure skid is enabled
+          3. Test if the externalCA installation went through.
+    
+          :steps:
+          Refer: http://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_PKI_CA
+          1. Install RootCA which has rootca generated using dogtagpki utility.
+          2. Make sure skid is enabled
+          3. Test if the externalCA installation went through.
+          4. Make sure SKID is part of signed certificate and exist.
+    
+          :expectedresults:
+          1. Installation is successful.
+          2. ca-user-find command should work.
+          3. Certificate generated using externalCA method has all the needed extensions and fields
+        &apos;&apos;&apos;
+        log = logging.getLogger(&quot;test_externalca_dogtagpki&quot;)
+&gt;       instance_creation = pki_externalca()
+
+test_externalca_dogtagpki.py:135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;utils.pki_externalca object at 0x7f0464b77350&gt;, kwargs = {}
+
+    def __init__(self, **kwargs):
+&gt;       self.ca_http_port = kwargs[&apos;ca_http_port&apos;] if &apos;ca_http_port&apos; in kwargs.keys() else constants.CA_HTTP_PORT
+E       NameError: global name &apos;constants&apos; is not defined
+
+utils.py:88: NameError</failure></testcase></testsuite>

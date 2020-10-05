@@ -1,0 +1,26 @@
+- name: Replace SubKRA specific changes
+  replace: dest={{item}} regexp="krapki_https_port" replace={{krapki_https_port}}
+  with_items:
+  - /tmp/test_dir/subkra.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace http port for SubKRA.
+  replace: dest={{item}} regexp="krapki_http_port" replace={{krapki_http_port}}
+  with_items:
+  - /tmp/test_dir/subkra.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace ajp port for SubKRA
+  replace: dest={{item}} regexp="krapki_ajp_port" replace={{krapki_ajp_port}}
+  with_items:
+  - /tmp/test_dir/subkra.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for SubKRA
+  replace: dest={{item}} regexp="krapki_tomcat_server_port" replace={{krapki_tomcat_server_port}}
+  with_items:
+  - /tmp/test_dir/subkra.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace SubKRA security domain port
+  replace: dest=/tmp/test_dir/subkra.cfg regexp="secure_domain_port" replace={{subpki_https_port}}

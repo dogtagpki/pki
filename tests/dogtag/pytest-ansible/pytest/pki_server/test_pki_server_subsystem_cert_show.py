@@ -27,9 +27,10 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import logging
+import os
 import sys
 
-import os
 import pytest
 
 try:
@@ -39,10 +40,12 @@ except Exception as e:
         sys.path.append('/tmp/test_dir')
         import constants
 
-Topology = int(''.join(constants.CA_INSTANCE_NAME.split("-")[1]))
+TOPOLOGY = int(''.join(constants.CA_INSTANCE_NAME.split("-")[1]))
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
-@pytest.mark.xfail(reason='BZ-1340718')
+# @pytest.mark.xfail(reason='BZ-1340718')
 def test_pki_server_subsystem_cert_show_help(ansible_module):
     """
     :id: 7c87ea5e-aee8-49d5-856e-a707cd3ca0eb
@@ -66,8 +69,10 @@ def test_pki_server_subsystem_cert_show_help(ansible_module):
             assert "--show-all                  Show all attributes." in result['stdout']
             assert "-v, --verbose                   Run in verbose mode." in result['stdout']
             assert "--help                      Show help message." in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-show --help command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 @pytest.mark.parametrize('cert_id,nick', (['signing', 'caSigningCert cert-{} CA'],
@@ -96,17 +101,21 @@ def test_pki_server_subsystem_cert_show_ca_signing(ansible_module, cert_id, nick
         4. pki-server subsystem-cert-show should show the subsystem certificate info.
         5. pki-server subsystem-cert-show should show the audit_signing certificate info.
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.CA_INSTANCE_NAME
     signing_out = ansible_module.command('pki-server subsystem-cert-show '
-                                         '-i {} ca {}'.format(constants.CA_INSTANCE_NAME,
-                                                              cert_id))
+                                         '-i {} ca {}'.format(instance, cert_id))
     for result in signing_out.values():
         if result['rc'] == 0:
             assert "Cert ID: {}".format(cert_id) in result['stdout']
-            assert "Nickname: {}".format(nick.format(constants.CA_INSTANCE_NAME)) in \
-                   result['stdout']
-            assert "Token: Internal Key Storage Token" in result['stdout']
+            assert "Nickname: {}".format(nick.format(instance)) in result['stdout']
+            assert "Token: internal" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-show command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 @pytest.mark.parametrize('cert_id,nick', (['transport', 'transportCert cert-{} KRA'],
@@ -135,17 +144,22 @@ def test_pki_server_subsystem_cert_show_kra_certs(ansible_module, cert_id, nick)
         4. pki-server subsystem-cert-show should show the kra subsystem certificate info.
         5. pki-server subsystem-cert-show should show the kra audit_signing certificate info.
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.KRA_INSTANCE_NAME
     signing_out = ansible_module.command('pki-server subsystem-cert-show '
-                                         '-i {} kra {}'.format(constants.KRA_INSTANCE_NAME,
-                                                               cert_id))
+                                         '-i {} kra {}'.format(instance, cert_id))
     for result in signing_out.values():
         if result['rc'] == 0:
             assert "Cert ID: {}".format(cert_id) in result['stdout']
-            assert "Nickname: {}".format(nick.format(constants.KRA_INSTANCE_NAME)) in \
-                   result['stdout']
-            assert "Token: Internal Key Storage Token" in result['stdout']
+            assert "Nickname: {}".format(nick.format(instance)) in result['stdout']
+            assert "Token:" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-show command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
+
 
 
 @pytest.mark.parametrize('cert_id,nick', (['signing', 'ocspSigningCert cert-{} OCSP'],
@@ -171,17 +185,21 @@ def test_pki_server_subsystem_cert_show_ocsp_certs(ansible_module, cert_id, nick
         3. pki-server subsystem-cert-show should show the ocsp subsystem certificate info.
         4. pki-server subsystem-cert-show should show the ocsp audit_signing certificate info.
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.OCSP_INSTANCE_NAME
     signing_out = ansible_module.command('pki-server subsystem-cert-show '
-                                         '-i {} ocsp {}'.format(constants.OCSP_INSTANCE_NAME,
-                                                                cert_id))
+                                         '-i {} ocsp {}'.format(instance, cert_id))
     for result in signing_out.values():
         if result['rc'] == 0:
             assert "Cert ID: {}".format(cert_id) in result['stdout']
-            assert "Nickname: {}".format(nick.format(constants.OCSP_INSTANCE_NAME)) in \
-                   result['stdout']
+            assert "Nickname: {}".format(nick.format(instance)) in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-show command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 @pytest.mark.parametrize('cert_id,nick', (['sslserver', 'Server-Cert cert-{}'],
@@ -204,17 +222,21 @@ def test_pki_server_subsystem_cert_show_tks_sslserver(ansible_module, cert_id, n
         2. pki-server subsystem-cert-show should show the tks subsystem certificate info.
         3. pki-server subsystem-cert-show should show the tks audit_signing certificate info.
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.TKS_INSTANCE_NAME
     signing_out = ansible_module.command('pki-server subsystem-cert-show '
-                                         '-i {} tks {}'.format(constants.TKS_INSTANCE_NAME,
-                                                               cert_id))
+                                         '-i {} tks {}'.format(instance, cert_id))
     for result in signing_out.values():
         if result['rc'] == 0:
             assert "Cert ID: {}".format(cert_id) in result['stdout']
-            assert "Nickname: {}".format(nick.format(constants.TKS_INSTANCE_NAME)) in \
-                   result['stdout']
+            assert "Nickname: {}".format(nick.format(instance)) in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-show command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 @pytest.mark.parametrize('cert_id,nick', (['sslserver', 'Server-Cert cert-{}'],
@@ -238,20 +260,24 @@ def test_pki_server_subsystem_cert_show_tps_sslserver(ansible_module, cert_id, n
         3. pki-server subsystem-cert-show should show the tps audit_signing certificate info.
 
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.TPS_INSTANCE_NAME
     signing_out = ansible_module.command('pki-server subsystem-cert-show '
-                                         '-i {} tps {}'.format(constants.TPS_INSTANCE_NAME,
-                                                               cert_id))
+                                         '-i {} tps {}'.format(instance, cert_id))
     for result in signing_out.values():
         if result['rc'] == 0:
             assert "Cert ID: {}".format(cert_id) in result['stdout']
-            assert "Nickname: {}".format(nick.format(constants.TPS_INSTANCE_NAME)) in \
-                   result['stdout']
+            assert "Nickname: {}".format(nick.format(instance)) in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-show command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id,nick', (['signing', 'caSigningCert cert-{} CA'],
                                           ['ocsp_signing', 'ocspSigningCert cert-{} CA'],
                                           ['sslserver', 'Server-Cert cert-{}'],
@@ -287,11 +313,13 @@ def test_pki_server_subsystem_cert_show_clone_ca_certs(ansible_module, cert_id, 
             assert "Nickname: {}".format(nick.format(constants.CLONECA1_INSTANCE_NAME)) in \
                    result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-show command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id,nick', (['transport', 'transportCert cert-{} KRA'],
                                           ['storage', 'storageCert cert-{} KRA'],
                                           ['sslserver', 'Server-Cert cert-{}'],
@@ -327,11 +355,13 @@ def test_pki_server_subsystem_cert_show_clone_kra_certs(ansible_module, cert_id,
             assert "Nickname: {}".format(nick.format(constants.CLONEKRA1_INSTANCE_NAME)) in \
                    result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-show command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id,nick', (['signing', 'ocspSigningCert cert-{} OCSP'],
                                           ['sslserver', 'Server-Cert cert-{}'],
                                           ['subsystem', 'subsystemCert cert-{}'],
@@ -364,11 +394,13 @@ def test_pki_server_subsystem_cert_show_clone_ocsp_certs(ansible_module, cert_id
             assert "Nickname: {}".format(nick.format(constants.CLONEOCSP1_INSTANCE_NAME)) in \
                    result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-show command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id,nick', (['sslserver', 'Server-Cert cert-{}'],
                                           ['subsystem', 'subsystemCert cert-{}'],
                                           ['audit_signing', 'auditSigningCert cert-{} TKS']))
@@ -399,11 +431,13 @@ def test_pki_server_subsystem_cert_show_clone_tks_certs(ansible_module, cert_id,
             assert "Nickname: {}".format(nick.format(constants.CLONETKS1_INSTANCE_NAMENE)) in \
                    result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-show command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id,nick', (['signing', 'caSigningCert cert-{} CA'],
                                           ['ocsp_signing', 'ocspSigningCert cert-{} CA'],
                                           ['sslserver', 'Server-Cert cert-{}'],
@@ -440,5 +474,7 @@ def test_pki_server_subsystem_cert_show_subca_signing(ansible_module, cert_id, n
             assert "Nickname: {}".format(nick.format(constants.CLONECA1_INSTANCE_NAME)) in \
                    result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-show command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()

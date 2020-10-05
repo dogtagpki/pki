@@ -27,13 +27,14 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import logging
 import os
-import random
-import string
 import sys
 import time
 
 import pytest
+
+from pki.testlib.common.utils import UserOperations, get_random_string
 
 try:
     from pki.testlib.common import constants
@@ -42,10 +43,13 @@ except Exception as e:
         sys.path.append('/tmp/test_dir')
         import constants
 
-Topology = int(''.join(constants.CA_INSTANCE_NAME.split("-")[1]))
+TOPOLOGY = int(constants.CA_INSTANCE_NAME.split("-")[-2])
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+userop = UserOperations(nssdb=constants.NSSDB)
 
 
-@pytest.mark.xfail(reason='BZ-1340718')
+# @pytest.mark.xfail(reason='BZ-1340718')
 def test_pki_server_subsystem_enable_help(ansible_module):
     """
     :id: 7aca2cd6-ab26-455d-8aff-08115e64d94d
@@ -62,12 +66,13 @@ def test_pki_server_subsystem_enable_help(ansible_module):
         if result['rc'] == 0:
             assert "Usage: pki-server subsystem-enable [OPTIONS] <subsystem ID>" in \
                    result['stdout']
-            assert "-i, --instance <instance ID>    Instance ID (default: pki-tomcat)" in \
-                   result['stdout']
+            assert "-i, --instance <instance ID>    Instance ID (default: pki-tomcat)" in result['stdout']
             assert "-v, --verbose                   Run in verbose mode." in result['stdout']
             assert "--help                      Show help message." in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-enable --help command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_subsystem_enable_ca(ansible_module):
@@ -82,30 +87,39 @@ def test_pki_server_subsystem_enable_ca(ansible_module):
     :ExpectedResults: 
         1. Verify whether pki-server subsystem-enable command enables the ca subsystem
     """
-    cert_request = 'pki -d {} -c {} -h localhost -p {} client-cert-request ' \
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.CA_INSTANCE_NAME
+    cert_request = 'pki -d {} -c {} -h localhost -P http -p {} client-cert-request ' \
                    '"UID=foo1,E=example.org"'.format(constants.NSSDB,
                                                      constants.CLIENT_DIR_PASSWORD,
                                                      constants.CA_HTTP_PORT)
-    ca_out = ansible_module.command('pki-server subsystem-enable -i {} '
-                                    'ca'.format(constants.CA_INSTANCE_NAME))
+    ca_out = ansible_module.command('pki-server subsystem-enable -i {} ca'.format(instance))
     for result in ca_out.values():
         if result['rc'] == 0:
             assert "Subsystem ID: ca" in result['stdout']
-            assert "Instance ID: %s" % constants.CA_INSTANCE_NAME in result['stdout']
+            assert "Instance ID: {}".format(instance) in result['stdout']
             assert "Enabled: True" in result['stdout']
             time.sleep(20)
             request_out = ansible_module.command(cert_request)
             for res in request_out.values():
                 if res['rc'] == 0:
-                    assert "Submitted certificate request" in res['stdout']
-                    assert "Type: enrollment" in res['stdout']
+                    assert "Request ID:" in res['stdout']
+                    assert "Type:" in res['stdout']
                     assert "Request Status: pending" in res['stdout']
                     assert "Operation Result: success" in res['stdout']
+                    log.info("Successfully run : {}".format(" ".join(res['cmd'])))
                 else:
-                    pytest.xfail("Failed to run pki-server subsystem-enable command.")
+                    log.error("Failed to run : {}".format(" ".join(res['cmd'])))
+                    pytest.skip()
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
+        else:
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.parametrize('subsystem', ['kra', 'ocsp', 'tks', 'tps'])
+@pytest.mark.parametrize('subsystem', ['kra'])  # TODO Remove after build. 'ocsp', 'tks', 'tps'])
 def test_pki_server_subsystem_enable_other_systems(ansible_module, subsystem):
     """
     :id: 0f6b9e9e-7e2b-4307-8bc3-d7f99fa8d1b4
@@ -117,7 +131,12 @@ def test_pki_server_subsystem_enable_other_systems(ansible_module, subsystem):
     :Steps:
     :ExpectedResults: Verify whether pki-server subsystem-enable command enables the kra subsystem
     """
-    instance = eval("constants.{}_INSTANCE_NAME".format(subsystem.upper()))
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+        instance = eval("constants.{}_INSTANCE_NAME".format(subsystem.upper()))
     cmd_out = ansible_module.command('pki-server subsystem-enable '
                                      '-i {} {}'.format(instance, subsystem))
     for result in cmd_out.values():
@@ -125,11 +144,13 @@ def test_pki_server_subsystem_enable_other_systems(ansible_module, subsystem):
             assert "Subsystem ID: {}".format(subsystem) in result['stdout']
             assert "Instance ID: " + instance in result['stdout']
             assert "Enabled: True" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to enable subsystem.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 def test_pki_server_subsystem_enable_clone_ca(ansible_module):
     """
     :id: a1f12120-b798-482a-ab9b-90d4f94c9e84
@@ -161,11 +182,14 @@ def test_pki_server_subsystem_enable_clone_ca(ansible_module):
                     assert "Type: enrollment" in result['stdout']
                     assert "Request Status: pending" in result['stdout']
                     assert "Operation Result: success" in result['stdout']
+                    log.info("Successfully run : {}".format(" ".join(res['cmd'])))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-enable command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 def test_pki_server_subsystem_enable_clone_kra(ansible_module):
     """
     :id: eca4b6c8-7dfc-42e8-9c7a-9a3d67472994
@@ -187,11 +211,14 @@ def test_pki_server_subsystem_enable_clone_kra(ansible_module):
             assert "Subsystem ID: kra" in result['stdout']
             assert "Instance ID: " + instance in result['stdout']
             assert "Enabled: True" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to enable subsystem.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+
+@pytest.mark.skipif("TOPOLOGY <= 3")
 def test_pki_server_subsystem_enable_clone_ocsp(ansible_module):
     """
     :id: e782a486-5656-4e0b-bc16-784603bd1260
@@ -213,11 +240,13 @@ def test_pki_server_subsystem_enable_clone_ocsp(ansible_module):
             assert "Subsystem ID: ocsp" in result['stdout']
             assert "Instance ID: " + instance in result['stdout']
             assert "Enabled: True" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to enable subsystem.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 def test_pki_server_subsystem_enable_clone_tks(ansible_module):
     """
     :id: 8dcbdb47-1431-40ab-ae51-be434f620d2d
@@ -239,11 +268,13 @@ def test_pki_server_subsystem_enable_clone_tks(ansible_module):
             assert "Subsystem ID: ocsp" in result['stdout']
             assert "Instance ID: " + instance in result['stdout']
             assert "Enabled: True" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to enable subsystem.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 def test_pki_server_subsystem_enable_clone_subca(ansible_module):
     """
     :id: a1508386-07c0-4920-b758-e14cdfaae646
@@ -275,8 +306,11 @@ def test_pki_server_subsystem_enable_clone_subca(ansible_module):
                     assert "Type: enrollment" in result['stdout']
                     assert "Request Status: pending" in result['stdout']
                     assert "Operation Result: success" in result['stdout']
+                    log.info("Successfully run : {}".format(" ".join(res['cmd'])))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-enable command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_subsystem_enable_invalid_instance(ansible_module):
@@ -291,22 +325,23 @@ def test_pki_server_subsystem_enable_invalid_instance(ansible_module):
         1. Verify whether pki-server subsystem-enable command throws error when non existing
         instance name is supplied.
     """
-    junk_instance = ''.join(random.choice(string.ascii_uppercase + string.digits)
-                            for _ in range(10))
+    junk_instance = get_random_string(len=10)
     ca_out = ansible_module.command('pki-server subsystem-enable -i {} ca'.format(junk_instance))
     for result in ca_out.values():
         if result['rc'] >= 1:
-            assert "ERROR: Invalid instance " + junk_instance in result['stdout']
+            assert "ERROR: Invalid instance " + junk_instance in result['stderr']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed: Disabled the Invalid subsystem.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.xfail(reason="BZ=1356609")
+# @pytest.mark.xfail(reason="BZ=1356609")
 def test_pki_server_subsystem_enable_invalid_subsystemType(ansible_module):
     """
     :id: 485e589a-8f7f-4c81-b652-a4ca8b05b7da
-    :Title: Test pki-server subsystem-enable with invalid subsystem type
-    :Description: test pki-server subsystem-enable command
+    :Title: Test pki-server subsystem-enable with invalid subsystem type, BZ: 1356609
+    :Description: test pki-server subsystem-enable command, BZ:1356609
     :CaseComponent: \-
     :Requirement: Pki Server Subsystem
     :Setup: Use the subsystems setup in ansible to run subsystem commands
@@ -315,18 +350,20 @@ def test_pki_server_subsystem_enable_invalid_subsystemType(ansible_module):
         1. Verify whether pki-server subsystem-enable command throws error when non existing
         subsystem type is supplied.
     """
-    junk_subsystemType = ''.join(random.choice(string.ascii_uppercase + string.digits)
-                                 for _ in range(10))
-    subsystem_enable = 'pki-server subsystem-enable -i {} ' \
-                       '{}'.format(constants.CA_INSTANCE_NAME, junk_subsystemType)
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.CA_INSTANCE_NAME
+    junk_subsystemType = get_random_string()
+    subsystem_enable = 'pki-server subsystem-enable -i {} {}'.format(instance, junk_subsystemType)
     ca_out = ansible_module.command(subsystem_enable)
     for result in ca_out.values():
         if result['rc'] >= 1:
-            assert "ERROR: No {} subsystem in " \
-                   "instance {}".format(junk_subsystemType,
-                                        constants.CA_INSTANCE_NAME) in result['stderr']
+            assert "ERROR: No {} subsystem in instance {}".format(junk_subsystemType, instance) in result['stderr']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed: Disabled the subsystem with invalid subsystem type.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_subsystem_enable_enabled_subsystem(ansible_module):
@@ -342,15 +379,21 @@ def test_pki_server_subsystem_enable_enabled_subsystem(ansible_module):
         1. Verify whether pki-server subsystem-enable command throws error when trying to enable
         the enabled subsystem.
     """
-    ansible_module.command('pki-server subsystem-enable '
-                           '-i {} ca'.format(constants.CA_INSTANCE_NAME))
-    ca_out = ansible_module.command('pki-server subsystem-enable '
-                                    '-i {} ca'.format(constants.CA_INSTANCE_NAME))
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.CA_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    ansible_module.command('pki-server subsystem-enable -i {} ca'.format(instance))
+    ca_out = ansible_module.command('pki-server subsystem-enable -i {} ca'.format(instance))
     for result in ca_out.values():
-        if result['stdout'] == 0:
+        if result['rc'] == 0:
             assert 'Subsystem "ca" is already enabled' in result['stdout']
             assert "Subsystem ID: ca" in result['stdout']
-            assert "Instance ID: %s" % constants.CA_INSTANCE_NAME in result['stdout']
+            assert "Instance ID: {}".format(instance) in result['stdout']
             assert "Enabled: True" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to enable the already enabled subsystem")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()

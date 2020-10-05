@@ -32,9 +32,14 @@
 """
 
 from subprocess import CalledProcessError
+import logging
+import sys
 
 import pytest
 from pki.testlib.common import utils
+
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def test_pki_server(ansible_module):
@@ -51,7 +56,7 @@ def test_pki_server(ansible_module):
     """
 
     try:
-        server_out = ansible_module.command('pki-server --help')
+        server_out = ansible_module.shell('pki-server --help')
         for result in server_out.values():
             assert "-v, --verbose                Run in verbose mode." in result['stdout']
             assert "--debug                  Show debug messages." in result['stdout']
@@ -66,7 +71,7 @@ def test_pki_server(ansible_module):
             assert "migrate                       Migrate system" in result['stdout']
             assert "nuxwdog                       Nuxwdog related commands" in result['stdout']
     except CalledProcessError:
-        pytest.xfail("Failed to run pki-server command.")
+        pytest.fail("Failed to run pki-server command.")
 
 
 def test_pki_server_junk(ansible_module):
@@ -82,12 +87,15 @@ def test_pki_server_junk(ansible_module):
         1. Verify whether pki-server command fails with junk option
     """
     junk = utils.get_random_string(len=10)
-    junk_out = ansible_module.command('pki-server {}'.format(junk))
+    junk_out = ansible_module.shell('pki-server {}'.format(junk))
     for result in junk_out.values():
-        if result['rc'] >= 1:
-            assert junk in result['stdout']
+        if result['rc'] > 0:
+            assert 'ERROR: Invalid module "{}".'.format(junk) in result['stderr']
+            log.info("Successfully ran : {}".format(result['cmd']))
         else:
-            pytest.xfail("Failed to run pki-server {} option.".format(junk))
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to run pki-server {} option.".format(junk))
 
 
 @pytest.mark.parametrize('subsystems', ['ca', 'kra', 'ocsp', 'tks', 'tps'])
@@ -103,7 +111,7 @@ def test_pki_server_ca(ansible_module, subsystems):
         1. Verify whether pki-server ca command shows ca-cert, ca-clone commands
     """
     try:
-        pki_ca_out = ansible_module.command('pki-server {}'.format(subsystems))
+        pki_ca_out = ansible_module.shell('pki-server {}'.format(subsystems))
         for result in pki_ca_out.values():
             if subsystems == 'ca':
                 assert "ca-cert                       CA certificates management commands" in \
@@ -132,7 +140,7 @@ def test_pki_server_ca(ansible_module, subsystems):
                        result['stdout']
                 assert "tps-audit                     Audit management commands" in result['stdout']
     except CalledProcessError:
-        pytest.xfail("Failed to run pki-server ca command.")
+        pytest.fail("Failed to run pki-server ca command.")
 
 
 @pytest.mark.parametrize('subsystem', ['ca', 'kra', 'ocsp', 'tks', 'tps'])
@@ -153,6 +161,9 @@ def test_pki_server_with_junk(ansible_module, subsystem):
     junk_output = ansible_module.shell('pki-server {} {}'.format(subsystem, junk))
     for result in junk_output.values():
         if result['rc'] >= 1:
-            assert "ERROR: Invalid module \"{}\"".format(junk) in result['stdout']
+            assert 'ERROR: Invalid module "{}".'.format(junk) in result['stderr']
+            log.info('Successfully ran the command {}'.format(result['cmd']))
         else:
-            pytest.xfail("Failed to run pki-server with junk option.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to run pki-server with junk option.")

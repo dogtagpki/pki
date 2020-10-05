@@ -49,6 +49,16 @@ except Exception as e:
         sys.path.append('/tmp/test_dir')
         import constants
 
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+
+
+if TOPOLOGY == '01':
+    ca_instance_name = 'pki-tomcat'
+    topology_name = 'topology-01-CA'
+else:
+    ca_instance_name = constants.CA_INSTANCE_NAME
+    topology_name = constants.CA_INSTANCE_NAME
+
 
 def test_pki_server_ca_cert(ansible_module):
     """
@@ -62,7 +72,7 @@ def test_pki_server_ca_cert(ansible_module):
         1. Verify whether pki-server ca-cert command shows ca-cert-chain, ca-cert-request commands
     """
 
-    ca_cert_out = ansible_module.command('pki-server ca-cert')
+    ca_cert_out = ansible_module.shell('pki-server ca-cert')
     for result in ca_cert_out.values():
         if result['rc'] == 0:
             assert "ca-cert-chain                 CA certificate chain " \
@@ -70,7 +80,7 @@ def test_pki_server_ca_cert(ansible_module):
             assert "ca-cert-request               CA certificate requests " \
                    "management commands" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server ca-cert command..!!")
+            pytest.fail("Failed to run pki-server ca-cert command..!!")
 
 
 def test_pki_server_ca_cert_chain(ansible_module):
@@ -86,14 +96,14 @@ def test_pki_server_ca_cert_chain(ansible_module):
                 ca-cert-chain-export commands
     """
 
-    output = ansible_module.command('pki-server ca-cert-chain')
+    output = ansible_module.shell('pki-server ca-cert-chain')
 
     for result in output.values():
         if result['rc'] == 0:
             assert "ca-cert-chain-export          Export certificate chain" in \
                    result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server ca-cert-chain command..!!")
+            pytest.fail("Failed to run pki-server ca-cert-chain command..!!")
 
 
 def test_pki_server_ca_cert_chain_export_help(ansible_module):
@@ -108,7 +118,7 @@ def test_pki_server_ca_cert_chain_export_help(ansible_module):
         1. Verify whether pki-server ca-cert-chain-export command exports ca cert chain
     """
 
-    help_out = ansible_module.command('pki-server ca-cert-chain-export --help')
+    help_out = ansible_module.shell('pki-server ca-cert-chain-export --help')
     for result in help_out.values():
         if result['rc'] == 0:
             assert "-i, --instance <instance ID>       Instance ID " \
@@ -124,7 +134,7 @@ def test_pki_server_ca_cert_chain_export_help(ansible_module):
             assert "--help                         Show help message" in \
                    result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server ca-cert-chain-export "
+            pytest.fail("Failed to run pki-server ca-cert-chain-export "
                          "--help command.")
 
 
@@ -142,11 +152,11 @@ def test_pki_server_ca_cert_chain_export(ansible_module):
     """
     cmd = 'pki-server ca-cert-chain-export -i {} ' \
           '--pkcs12-file /tmp/ca_cert_chain.p12' \
-          '--pkcs12-password {}'.format(constants.CA_INSTANCE_NAME,
+          '--pkcs12-password {}'.format(ca_instance_name,
                                         constants.CLIENT_PKCS12_PASSWORD)
     password = 'pass:{}'.format(constants.CLIENT_PKCS12_PASSWORD)
     openssl_cmd = 'openssl pkcs12 -info -in /tmp/ca_cert_chain.p12 -password {}'
-    export_out = ansible_module.command(cmd)
+    export_out = ansible_module.shell(cmd)
     for result in export_out.values():
         if result['rc'] == 0:
             assert "Export complete" in result['stdout']
@@ -155,13 +165,13 @@ def test_pki_server_ca_cert_chain_export(ansible_module):
             for res in status.values():
                 if res['stat']['exists']:
 
-                    output = ansible_module.command(
+                    output = ansible_module.shell(
                         openssl_cmd.format(password))
                     for r1 in output.values():
                         assert "-----BEGIN CERTIFICATE-----" in r1['stdout']
                         assert "-----END CERTIFICATE-----" in r1['stdout']
                 else:
-                    pytest.xfail("Failed to run pki-server "
+                    pytest.fail("Failed to run pki-server "
                                  "ca-cert-chain-export command.")
 
 
@@ -178,13 +188,13 @@ def test_pki_server_ca_cert_chain_export_password_file(ansible_module):
     """
     chain_export = 'pki-server ca-cert-chain-export -i {} ' \
                    '--pkcs12-file /tmp/ca_cert_chain.p12 ' \
-                   '--pkcs12-password-file /tmp/password.txt'.format(constants.CA_INSTANCE_NAME)
+                   '--pkcs12-password-file /tmp/password.txt'.format(ca_instance_name)
     password = 'pass:{}'.format(constants.CLIENT_PKCS12_PASSWORD)
     openssl_cmd = 'openssl pkcs12 -info -in /tmp/ca_cert_chain.p12 -password {}'
 
-    ansible_module.command("echo '{}' /tmp/password.txt".format(
+    ansible_module.shell("echo '{}' /tmp/password.txt".format(
         constants.CLIENT_PKCS12_PASSWORD))
-    export_out = ansible_module.command(chain_export)
+    export_out = ansible_module.shell(chain_export)
     for result in export_out.values():
         if result['rc'] == 0:
             assert "Export complete" in result['stdout']
@@ -193,13 +203,13 @@ def test_pki_server_ca_cert_chain_export_password_file(ansible_module):
             for res in status.values():
                 if res['stat']['exists']:
 
-                    output = ansible_module.command(
+                    output = ansible_module.shell(
                         openssl_cmd.format(password))
                     for r1 in output.values():
                         assert "-----BEGIN CERTIFICATE-----" in r1['stdout']
                         assert "-----END CERTIFICATE-----" in r1['stdout']
                 else:
-                    pytest.xfail("Failed to run pki-server "
+                    pytest.fail("Failed to run pki-server "
                                  "ca-cert-chain-export command.")
 
 
@@ -219,17 +229,17 @@ def test_pki_server_ca_cert_chain_export_with_incorrect_db_pass(ansible_module):
     password = utils.get_random_string(len=8)
     chain_export = 'pki-server ca-cert-chain-export -i {} ' \
                    '--pkcs12-file /tmp/ca_cert_chain.p12 ' \
-                   '--pkcs12-password {}'.format(constants.CA_INSTANCE_NAME, password)
+                   '--pkcs12-password {}'.format(ca_instance_name, password)
 
     openssl_cmd = 'openssl pkcs12 -info -in /tmp/ca_cert_chain.p12 -password pass:{}'
 
-    ansible_module.command("echo '{}' /tmp/password.txt".format(
+    ansible_module.shell("echo '{}' /tmp/password.txt".format(
         constants.CLIENT_PKCS12_PASSWORD))
     status = ansible_module.stat(path='/tmp/ca_cert_chain.p12')
     for r1 in status.values():
         if r1['stat']['exists']:
-            ansible_module.command('rm -rf /tmp/ca_cert_chain.p12')
-            export_out = ansible_module.command(chain_export)
+            ansible_module.shell('rm -rf /tmp/ca_cert_chain.p12')
+            export_out = ansible_module.shell(chain_export)
             for result in export_out.values():
                 if result['rc'] == 0:
                     assert "Export complete" in result['stdout']
@@ -237,10 +247,10 @@ def test_pki_server_ca_cert_chain_export_with_incorrect_db_pass(ansible_module):
                     status = ansible_module.stat(path='/tmp/ca_cert_chain.p12')
                     for res in status.values():
                         if res['stat']['exists']:
-                            output = ansible_module.command(openssl_cmd.format(password))
+                            output = ansible_module.shell(openssl_cmd.format(password))
                             for r1 in output.values():
                                 assert "-----BEGIN CERTIFICATE-----" in r1['stdout']
                                 assert "-----END CERTIFICATE-----" in r1['stdout']
                         else:
-                            pytest.xfail("Failed to run pki-server "
+                            pytest.fail("Failed to run pki-server "
                                          "ca-cert-chain-export command.")

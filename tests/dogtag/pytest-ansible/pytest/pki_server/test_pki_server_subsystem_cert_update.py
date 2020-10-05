@@ -27,11 +27,12 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import logging
+import os
 import sys
 
-import os
 import pytest
-import re
+from pki.testlib.common.utils import UserOperations
 
 try:
     from pki.testlib.common import constants
@@ -39,9 +40,13 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
+TOPOLOGY = int(constants.CA_INSTANCE_NAME.split("-")[-2])
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+userop = UserOperations(nssdb=constants.NSSDB)
 
 
-@pytest.mark.xfail(reason='BZ-1340718')
+# @pytest.mark.xfail(reason='BZ-1340718')
 def test_pki_server_subsystem_cert_update_help(ansible_module):
     """
     :id: 39e76a9d-ddec-4d64-aa14-dfe123bad278
@@ -58,20 +63,18 @@ def test_pki_server_subsystem_cert_update_help(ansible_module):
     cert_update_help = ansible_module.command('pki-server subsystem-cert-update --help')
     for result in cert_update_help.values():
         if result['rc'] == 0:
-            assert "Usage: pki-server subsystem-cert-update [OPTIONS] <subsystem ID> <cert ID>" \
-                   in result['stdout']
-            assert "-i, --instance <instance ID>    Instance ID (default: pki-tomcat)." in \
-                   result['stdout']
-            assert "-v, --verbose                   Run in verbose mode." in \
-                   result['stdout']
+            assert "Usage: pki-server subsystem-cert-update [OPTIONS] <subsystem ID> <cert ID>" in result['stdout']
+            assert "-i, --instance <instance ID>    Instance ID (default: pki-tomcat)." in result['stdout']
+            assert "-v, --verbose                   Run in verbose mode." in result['stdout']
             assert "--help                      Show help message." in result['stdout']
-            assert "--cert <certificate>        New certificate to be added" in \
-                   result['stdout']
+            assert "--cert <certificate>        New certificate to be added" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-update --help command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.xfail(reason='BZ-1340455')
+# @pytest.mark.xfail(reason='BZ-1340455')
 def test_pki_server_subsystem_cert_update(ansible_module):
     """
     :id: e990a3bb-88c2-45d1-a4d3-b7b0015bf40c
@@ -84,13 +87,21 @@ def test_pki_server_subsystem_cert_update(ansible_module):
     :Expectedresults:
         1. Verify whether pki-server subsystem-cert-update command updates the certificate.
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.CA_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
     cert_update = ansible_module.command('pki-server subsystem-cert-update '
-                                         '-i {} ca signing'.format(constants.CA_INSTANCE_NAME))
+                                         '-i {} ca signing'.format(instance))
     for result in cert_update.values():
         if result['rc'] == 0:
             assert 'Updated "signing" subsystem certificate' in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-update command.")
+            log.info("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_subsystem_cert_update_with_CA_instance(ansible_module):
@@ -109,63 +120,52 @@ def test_pki_server_subsystem_cert_update_with_CA_instance(ansible_module):
     :ExpectedResults:
         1.  Certificate should get updated in to the database.
     """
-    request_id = None
-    certificate_id = None
-    new_subsystem_cert = '/tmp/certificate_{}.pem'
-    subject = "CN=CA Subsystem Certificate,OU={},O={}".format(constants.CA_INSTANCE_NAME,
-                                                              constants.CA_SECURITY_DOMAIN_NAME)
+    cert = _id = None
+    profile = 'caSubsystemCert'
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.CA_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    alias_dir = '/var/lib/pki/{}/alias'.format(instance)
+    subject = "CN=CA Subsystem Certificate,OU={},O={}".format(instance, security_domain)
 
-    client_cert_request = 'pki -d {} -c {} -p {} -P https client-cert-request ' \
-                          '--profile caSubsystemCert ' \
-                          ' "{}"'.format(constants.NSSDB, constants.CLIENT_DIR_PASSWORD,
-                                         constants.CA_HTTPS_PORT, subject)
+    internal = ansible_module.shell('grep internal= /var/lib/pki/{}/conf/password.conf'.format(instance))
+    internal_pass = [res['stdout'] for res in internal.values()][0].split("=")[1]
+    userop = UserOperations(nssdb=alias_dir, db_pass="'{}'".format(internal_pass))
+    request_id = userop.create_certificate_request(ansible_module, subject=subject, request_type='pkcs10', algo='rsa',
+                                                   keysize='2048', profile=profile)
+    userop1 = UserOperations(nssdb=constants.NSSDB)
+    cert_id = userop1.process_certificate_request(ansible_module, request_id=request_id, action='approve')
 
-    create_req = ansible_module.command(client_cert_request)
-    for result in create_req.values():
-        if result['rc'] == 0:
-            stdout = re.findall('Request ID: [\w].*', result['stdout'])
-            request_id = stdout[0].split(":")[1].strip()
-        else:
-            pytest.xfail("Failed to create certificate request.")
-    if request_id:
-        cert_request_review = 'pki -d {} -c {} -p {} -P https -n "{}" ca-cert-request-review {} ' \
-                              '--action approve'.format(constants.NSSDB,
-                                                        constants.CLIENT_DIR_PASSWORD,
-                                                        constants.CA_HTTPS_PORT,
-                                                        constants.CA_ADMIN_NICK, request_id)
-        review = ansible_module.command(cert_request_review)
-        for result in review.values():
-            if result['rc'] == 0:
-                stdout = re.findall('Certificate ID: [\w].*', result['stdout'])
-                certificate_id = stdout[0].split(":")[1].strip()
-                new_subsystem_cert = new_subsystem_cert.format(certificate_id)
-                ansible_module.command('pki -d {} -c {} -p {} client-cert-import '
-                                       '"Subsystem Cert" '
-                                       '--serial {}'.format(constants.NSSDB,
-                                                            constants.CLIENT_DIR_PASSWORD,
-                                                            constants.CA_HTTP_PORT,
-                                                            certificate_id))
+    if cert_id:
+        new_subsystem_cert = '/tmp/certificate_{}.pem'.format(cert_id)
+        log.info("Certificate generated: {} Subject: {}".format(cert_id, subject))
+        ansible_module.command('pki -P http -p {} ca-cert-show {} '
+                               '--output {}'.format(constants.CA_HTTP_PORT, cert_id, new_subsystem_cert))
 
-                ansible_module.command('pki -d {} -c {} client-cert-show --cert {} '
-                                       '"Subsystem Cert"'.format(constants.NSSDB,
-                                                                 constants.CLIENT_DIR_PASSWORD,
-                                                                 new_subsystem_cert))
-    if certificate_id:
         cert_update = ansible_module.command('pki-server subsystem-cert-update ca subsystem -i {} '
-                                             '--cert {}'.format(constants.CA_INSTANCE_NAME,
-                                                                new_subsystem_cert))
+                                             '--cert {}'.format(instance, new_subsystem_cert))
         for result in cert_update.values():
             if result['rc'] == 0:
                 assert 'Updated "subsystem" subsystem certificate' in result['stdout']
-                ansible_module.command('systemctl restart pki-tomcatd@{}'.format(
-                    constants.CA_INSTANCE_NAME))
-                is_active = ansible_module.command('systemctl is-active pki-tomcatd@{}'.format(
-                    constants.CA_INSTANCE_NAME))
+                log.info("Updated the subsystem certificate.")
+                ansible_module.command('systemctl restart pki-tomcatd@{}'.format(instance))
+                is_active = ansible_module.command('systemctl is-active pki-tomcatd@{}'.format(instance))
                 for res in is_active.values():
                     if res['rc'] == 0:
                         assert 'active' in res['stdout']
+                        log.info("Server up successfully.")
                     else:
-                        pytest.xfail("Failed to restart the server.")
+                        log.error("Failed to restart the server.")
+                        pytest.skip()
+            else:
+                log.error("Failed to run: {}".format(" ".join(result['cmd'])))
+                pytest.skip()
+    else:
+        log.error("Failed to generate the certificate")
+        pytest.skip()
 
 
 def test_pki_server_subsystem_cert_update_with_invalid_instance(ansible_module):
@@ -179,17 +179,24 @@ def test_pki_server_subsystem_cert_update_with_invalid_instance(ansible_module):
     :Steps:
     :ExpectedResults:
     """
-    ansible_module.command('pki -p {} -P https cert-show 0x2 --encoded '
-                           '--output /tmp/certificate_0x2.pem')
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.CA_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    ansible_module.command('pki -p {} cert-show 0x2 --encoded --output '
+                           '/tmp/certificate_0x2.pem'.format(constants.CA_HTTP_PORT))
     pki_subsystem_cmd = 'pki-server subsystem-cert-update  ca ocsp_signing -i  invalid_instance ' \
                         '--cert /tmp/certificate_0x2.pem'
     cmd_out = ansible_module.command(pki_subsystem_cmd)
     for result in cmd_out.values():
         if result['rc'] == 0:
-            pytest.xfail("Failed to run pki-server subsystem cert command with "
-                         "invalid instance.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
         else:
-            assert "ERROR: Invalid instance invalid_instance" in result['stdout']
+            assert "ERROR: Invalid instance invalid_instance" in result['stderr']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
 
 
 def test_pki_server_subsystem_cert_update_without_subsystem_id(ansible_module):
@@ -203,17 +210,24 @@ def test_pki_server_subsystem_cert_update_without_subsystem_id(ansible_module):
     :Steps:
     :ExpectedResults:
     """
-    ansible_module.command('pki -p {} -P https cert-show 0x2 --encoded '
-                           '--output /tmp/certificate_0x2.pem')
-    pki_subsystem_cmd = 'pki-server subsystem-cert-update  ocsp_signing -i  invalid_instance ' \
-                        '--cert /tmp/certificate_0x2.pem'
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.CA_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    ansible_module.command('pki -p {} cert-show 0x2 --encoded --output '
+                           '/tmp/certificate_0x2.pem'.format(constants.CA_HTTP_PORT))
+    pki_subsystem_cmd = 'pki-server subsystem-cert-update  ocsp_signing -i {} ' \
+                        '--cert /tmp/certificate_0x2.pem'.format(instance)
     cmd_out = ansible_module.command(pki_subsystem_cmd)
     for result in cmd_out.values():
         if result['rc'] == 0:
-            pytest.xfail("Failed to run pki-server subsystem cert command with "
-                         "invalid instance.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
         else:
-            assert "ERROR: missing cert ID" in result['stdout']
+            assert "ERROR: Missing cert ID" in result['stderr']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
 
 
 def test_pki_server_subsystem_cert_update_without_cert_id(ansible_module):
@@ -227,17 +241,24 @@ def test_pki_server_subsystem_cert_update_without_cert_id(ansible_module):
     :Steps:
     :ExpectedResults:
     """
-    ansible_module.command('pki -p {} -P https cert-show 0x2 --encoded '
-                           '--output /tmp/certificate_0x2.pem')
-    pki_subsystem_cmd = 'pki-server subsystem-cert-update ca -i  invalid_instance ' \
-                        '--cert /tmp/certificate_0x2.pem'
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.CA_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    ansible_module.command('pki -P http -p {} cert-show 0x2 --encoded --output '
+                           '/tmp/certificate_0x2.pem'.format(constants.CA_HTTP_PORT))
+    pki_subsystem_cmd = 'pki-server subsystem-cert-update ca -i {} ' \
+                        '--cert /tmp/certificate_0x2.pem'.format(instance)
     cmd_out = ansible_module.command(pki_subsystem_cmd)
     for result in cmd_out.values():
         if result['rc'] == 0:
-            pytest.xfail("Failed to run pki-server subsystem cert command with "
-                         "invalid instance.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
         else:
-            assert "ERROR: missing cert ID" in result['stdout']
+            assert "ERROR: Missing cert ID" in result['stderr']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
 
 
 def test_pki_server_subsystem_cert_update_invalid_subsystem_id(ansible_module):
@@ -252,18 +273,25 @@ def test_pki_server_subsystem_cert_update_invalid_subsystem_id(ansible_module):
     :Steps:
     :ExpectedResults:
     """
-    ansible_module.command('pki -p {} -P https cert-show 0x2 --encoded '
-                           '--output /tmp/certificate_0x2.pem')
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.CA_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    ansible_module.command('pki -P http -p {} cert-show 0x2 --encoded --output '
+                           '/tmp/certificate_0x2.pem'.format(constants.CA_HTTP_PORT))
     pki_subsystem_cmd = 'pki-server subsystem-cert-update not_exists ocsp_signing ' \
-                        '-i  {} --cert /tmp/certificate_0x2.pem'.format(constants.CA_INSTANCE_NAME)
+                        '-i  {} --cert /tmp/certificate_0x2.pem'.format(instance)
     cmd_out = ansible_module.command(pki_subsystem_cmd)
     for result in cmd_out.values():
         if result['rc'] == 0:
-            pytest.xfail("Failed to run pki-server subsystem cert command with "
-                         "invalid instance.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
         else:
             assert "ERROR: No not_exists subsystem in " \
-                   "instance {}.".format(constants.CA_INSTANCE_NAME) in result['stdout']
+                   "instance {}.".format(instance) in result['stderr']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
 
 
 def test_pki_server_subsystem_cert_update_when_file_does_not_exists(ansible_module):
@@ -277,13 +305,20 @@ def test_pki_server_subsystem_cert_update_when_file_does_not_exists(ansible_modu
     :Steps:
     :ExpectedResults:
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.CA_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
     pki_subsystem_cmd = 'pki-server subsystem-cert-update ca ocsp_signing -i {} ' \
-                        '--cert /tmp/dosjf.pem'.format(constants.CA_INSTANCE_NAME)
+                        '--cert /tmp/dosjf.pem'.format(instance)
 
     pki_subsystem_out = ansible_module.command(pki_subsystem_cmd)
     for result in pki_subsystem_out.values():
         if result['rc'] == 0:
-            pytest.xfail("Failed to run pki-server subsystem cert command when cert file does "
-                         "not exists.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
         else:
-            assert "ERROR: /tmp/dosjf.pem certificate does not exist." in result['stdout']
+            assert "ERROR: /tmp/dosjf.pem certificate does not exist." in result['stderr']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))

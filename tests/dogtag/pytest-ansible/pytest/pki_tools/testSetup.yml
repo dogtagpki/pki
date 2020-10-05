@@ -1,0 +1,21 @@
+- hosts: master
+  gather_facts: false
+  tasks:
+    - name: Install latest java-1.8.0-openjdk-devel
+      dnf:
+        name: java-1.8.0-openjdk-devel
+        state: latest
+
+    - name: Copy test.java to test macine
+      copy:
+        src: test.java
+        dest: /tmp/test.java
+        owner: root
+        group: root
+        mode: u=r,g=r,o=r
+
+#    - name: Install pip
+#      shell: easy_install pip
+
+    - name: Install pexpect
+      shell: pip3 install pexpect

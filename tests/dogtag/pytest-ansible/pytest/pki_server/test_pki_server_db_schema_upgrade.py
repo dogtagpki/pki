@@ -31,9 +31,10 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import logging
+import os
 import sys
 
-import os
 import pytest
 
 try:
@@ -43,10 +44,21 @@ except Exception as e:
         sys.path.append('/tmp/test_dir')
         import constants
 
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+
+if TOPOLOGY == '01':
+    ca_instance_name = 'pki-tomcat'
+    topology_name = 'topology-01-CA'
+else:
+    ca_instance_name = constants.CA_INSTANCE_NAME
+    topology_name = constants.CA_INSTANCE_NAME
+
 
 @pytest.fixture(autouse=False)
 def ds_instance(ansible_module):
-    instance_name = '{}-testingmaster'.format("-".join(constants.CA_INSTANCE_NAME.split("-")[:-1]))
+    instance_name = '{}-testingmaster'.format("-".join(topology_name.split("-")[:-1]))
     stop_ds = 'systemctl stop dirsrv@slapd-{}'.format(instance_name)
     ansible_module.command(stop_ds)
     yield
@@ -56,11 +68,10 @@ def ds_instance(ansible_module):
 
 @pytest.fixture(autouse=False)
 def stop_pki_instance(ansible_module):
-    instance = constants.CA_INSTANCE_NAME
-    stop_instance = 'pki-server instance-stop {}'.format(instance)
-    start_instance = 'pki-server instance-start {}'.format(instance)
+    stop_instance = 'pki-server instance-stop {}'.format(ca_instance_name)
+    start_instance = 'pki-server instance-start {}'.format(ca_instance_name)
     ansible_module.command(stop_instance)
-    yield instance
+    yield ca_instance_name
     ansible_module.command(start_instance)
 
 
@@ -100,7 +111,7 @@ def test_pki_server_db_schema_upgrade_help_command(ansible_module):
             assert "  -v, --verbose                      Run in verbose mode." in result['stdout']
             assert "      --help                         Show help message." in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server db-schema-upgrade --help command.")
+            pytest.skip("Failed to run pki-server db-schema-upgrade --help command.")
 
 
 def test_pki_server_db_schema_upgrade_command(ansible_module):
@@ -119,21 +130,33 @@ def test_pki_server_db_schema_upgrade_command(ansible_module):
     subsystem = ['ca', 'kra', 'ocsp', 'tks', 'tps']
     bind_dn = "'cn=Directory Manager'"
     bind_pass = constants.CLIENT_DIR_PASSWORD
-    for system in subsystem:
-        instance = None
-        try:
-            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
-        except:
-            pytest.skip("Instance is not present")
-        db_upgrade = 'pki-server db-schema-upgrade -i {} -D {} -w {}'.format(instance, bind_dn,
-                                                                             bind_pass)
+    if TOPOLOGY == '01':
+        instance = 'pki-tomcat'
+        db_upgrade = 'pki-server db-schema-upgrade -i {} -D {} ' \
+                     '-w {}'.format(instance, bind_dn, bind_pass)
         cmd_output = ansible_module.command(db_upgrade)
         for result in cmd_output.values():
             if result['rc'] == 0:
                 assert "Upgrade complete" in result['stdout']
+                log.info("Successfully run : {}".format(" ".join(result['cmd'])))
             else:
-                pytest.xfail("Failed to run pki-server db-schema-upgrade command for "
-                             "instance %s." % system)
+                log.error("Failed to run: {}".format(" ".join(result['cmd'])))
+                pytest.skip()
+
+    else:
+        for system in subsystem:
+            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
+            db_upgrade = 'pki-server db-schema-upgrade -i {} -D {} ' \
+                         '-w {}'.format(instance, bind_dn, bind_pass)
+            cmd_output = ansible_module.command(db_upgrade)
+            for result in cmd_output.values():
+                if result['rc'] == 0:
+                    assert "Upgrade complete" in result['stdout']
+                    log.info("Successfully run : {}".format(" ".join(result['cmd'])))
+
+                else:
+                    log.error("Failed to run: {}".format(" ".join(result['cmd'])))
+                    pytest.skip()
 
 
 def test_pki_server_db_schema_upgrade_when_password_is_wrong(ansible_module):
@@ -149,27 +172,38 @@ def test_pki_server_db_schema_upgrade_when_password_is_wrong(ansible_module):
         1. Verify whether pki-server db-schema-upgrade command do not upgrade the pki server
            database when password is wrong.
     """
-    subsystem = ['ca', 'kra', 'ocsp', 'tks', 'tps']
+    subsystem = ['ca', 'kra']  # TODO remove after build, 'ocsp', 'tks', 'tps']
     bind_dn = "cn=Directory Manager"
-    bind_pass = "SECret.123231"
+    bind_pass = "Secret123231"
 
-    for system in subsystem:
-        instance = None
-        try:
-            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
-        except:
-            pytest.skip("Instance is not present")
-        db_schema_upgrade = 'pki-server db-schema-upgrade -i {} -D {} -w {}'.format(instance,
-                                                                                    bind_dn,
-                                                                                    bind_pass)
-        cmd_output = ansible_module.command(db_schema_upgrade)
+    if TOPOLOGY == '01':
+        instance = 'pki-tomcat'
+        db_upgrade = 'pki-server db-schema-upgrade -i {} -D {} ' \
+                     '-w {}'.format(instance, bind_dn, bind_pass)
+        cmd_output = ansible_module.command(db_upgrade)
         for result in cmd_output.values():
             if result['rc'] == 0:
                 assert "Upgrade complete" in result['stdout']
-                pytest.xfail("Failed to run pki-server db-schema-upgrade command for "
-                             "instance %s." % system)
+                log.error("Failed to run: {}".format(" ".join(result['cmd'])))
+                pytest.skip()
             else:
-                assert "ERROR: ldap_bind: Invalid credentials (49)" in result['stdout']
+                assert "ERROR: Unable to update schema: " in result['stderr']
+                log.info("Successfully run : {}".format(" ".join(result['cmd'])))
+
+    else:
+        for system in subsystem:
+            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
+            db_upgrade = 'pki-server db-schema-upgrade -i {} -D {} ' \
+                         '-w {}'.format(instance, bind_dn, bind_pass)
+            cmd_output = ansible_module.command(db_upgrade)
+            for result in cmd_output.values():
+                if result['rc'] == 0:
+                    assert "Upgrade complete" in result['stdout']
+                    log.error("Failed to run: {}".format(" ".join(result['cmd'])))
+                    pytest.skip()
+                else:
+                    assert "ERROR: Unable to update schema: " in result['stderr']
+                    log.info("Successfully run : {}".format(" ".join(result['cmd'])))
 
 
 def test_pki_server_db_schema_upgrade_when_bind_DN_is_wrong(ansible_module):
@@ -186,29 +220,38 @@ def test_pki_server_db_schema_upgrade_when_bind_DN_is_wrong(ansible_module):
             pki server database when bind DN is wrong.
 
     """
-    subsystem = ['ca', 'kra', 'ocsp', 'tks', 'tps']
+    subsystem = ['ca', 'kra']  # TODO remove after build , 'ocsp', 'tks', 'tps']
     bind_dn = "cn=Data Manager"
     bind_pass = constants.CLIENT_DIR_PASSWORD
 
-    for system in subsystem:
-
-        instance = None
-        try:
-            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
-        except:
-            pytest.skip("Instance is not present")
-        db_schema_upgrade = 'pki-server db-schema-upgrade -i {} -D {} -w {}'.format(instance,
-                                                                                    bind_dn,
-                                                                                    bind_pass)
-        cmd_output = ansible_module.command(db_schema_upgrade)
-
+    if TOPOLOGY == '01':
+        instance = 'pki-tomcat'
+        db_upgrade = 'pki-server db-schema-upgrade -i {} -D {} ' \
+                     '-w {}'.format(instance, bind_dn, bind_pass)
+        cmd_output = ansible_module.command(db_upgrade)
         for result in cmd_output.values():
             if result['rc'] == 0:
                 assert "Upgrade complete" in result['stdout']
-                pytest.xfail("Failed to run pki-server db-schema-upgrade command for "
-                             "instance %s." % system)
+                log.error("Failed to run: {}".format(" ".join(result['cmd'])))
+                pytest.skip()
             else:
-                assert "ERROR: ldap_bind: Invalid credentials (49)" in result['stdout']
+                assert "ERROR: Unable to update schema: " in result['stderr']
+                log.info("Successfully run : {}".format(" ".join(result['cmd'])))
+
+    else:
+        for system in subsystem:
+            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
+            db_upgrade = 'pki-server db-schema-upgrade -i {} -D {} ' \
+                         '-w {}'.format(instance, bind_dn, bind_pass)
+            cmd_output = ansible_module.command(db_upgrade)
+            for result in cmd_output.values():
+                if result['rc'] == 0:
+                    assert "Upgrade complete" in result['stdout']
+                    log.error("Failed to run: {}".format(" ".join(result['cmd'])))
+                    pytest.skip()
+                else:
+                    assert "ERROR: Unable to update schema: " in result['stderr']
+                    log.info("Successfully run : {}".format(" ".join(result['cmd'])))
 
 
 def test_pki_server_db_schema_upgrade_while_ds_instance_is_down(ansible_module, ds_instance):
@@ -226,29 +269,39 @@ def test_pki_server_db_schema_upgrade_while_ds_instance_is_down(ansible_module, 
 
     """
 
-    subsystem = ['ca', 'kra', 'ocsp', 'tks', 'tps']
+    subsystem = ['ca', 'kra']  # TODO remove after build , 'ocsp', 'tks', 'tps']
 
-    bind_dn = "cn=Data Manager"
+    bind_dn = "cn=Directory Manager"
     bind_pass = constants.CLIENT_DIR_PASSWORD
 
-    for system in subsystem:
-        instance = None
-        try:
-            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
-        except:
-            pytest.skip("Instance is not present")
-
-        db_schema_upgrade = 'pki-server db-schema-upgrade -i {} -D {} -w {}'.format(instance,
-                                                                                    bind_dn,
-                                                                                    bind_pass)
-        cmd_output = ansible_module.command(db_schema_upgrade)
-
+    if TOPOLOGY == '01':
+        instance = 'pki-tomcat'
+        db_upgrade = 'pki-server db-schema-upgrade -i {} -D {} ' \
+                     '-w {}'.format(instance, bind_dn, bind_pass)
+        cmd_output = ansible_module.command(db_upgrade)
         for result in cmd_output.values():
             if result['rc'] == 0:
                 assert "Upgrade complete" in result['stdout']
-                pytest.xfail("Failed to run pki-server db-schema-upgrade command.")
+                log.error("Failed to run: {}".format(" ".join(result['cmd'])))
+                pytest.skip()
             else:
-                assert "ERROR: ldap_bind: Invalid credentials (49)" in result['stdout']
+                assert "ERROR: Unable to update schema: " in result['stderr']
+                log.info("Successfully run : {}".format(" ".join(result['cmd'])))
+
+    else:
+        for system in subsystem:
+            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
+            db_upgrade = 'pki-server db-schema-upgrade -i {} -D {} ' \
+                         '-w {}'.format(instance, bind_dn, bind_pass)
+            cmd_output = ansible_module.command(db_upgrade)
+            for result in cmd_output.values():
+                if result['rc'] == 0:
+                    assert "Upgrade complete" in result['stdout']
+                    log.error("Failed to run: {}".format(" ".join(result['cmd'])))
+                    pytest.skip()
+                else:
+                    assert "ERROR: Unable to update schema: " in result['stderr']
+                    log.info("Successfully run : {}".format(" ".join(result['cmd'])))
 
 
 def test_pki_server_db_schema_upgrade_with_wrong_instance(ansible_module):
@@ -270,20 +323,22 @@ def test_pki_server_db_schema_upgrade_with_wrong_instance(ansible_module):
     bind_pass = constants.CLIENT_DIR_PASSWORD
 
     for system in subsystem:
-        db_schema_upgrade = 'pki-server db-schema-upgrade -i {} -D {} -w {}'.format(system,
-                                                                                    bind_dn,
-                                                                                    bind_pass)
+        db_schema_upgrade = 'pki-server db-schema-upgrade -i {} -D {} ' \
+                            '-w {}'.format(system, bind_dn, bind_pass)
         cmd_output = ansible_module.command(db_schema_upgrade)
 
         for result in cmd_output.values():
             if result['rc'] == 0:
                 assert "Upgrade complete" in result['stdout']
-                pytest.xfail("Failed to run pki-server db-schema-upgrade command.")
+                log.error("Failed to run: {}".format(" ".join(result['cmd'])))
+                pytest.skip()
             else:
-                assert "ERROR: Invalid instance {}".format(system) in result['stdout']
+                assert "ERROR: Invalid instance: {}".format(system) in result['stderr']
+                log.info("Successfully run : {}".format(" ".join(result['cmd'])))
 
 
-def test_pki_server_db_schema_upgrade_with_stopped_instance(ansible_module, stop_pki_instance):
+def test_pki_server_db_schema_upgrade_with_stopped_instance(ansible_module,
+                                                            stop_pki_instance):
     """
     :id: 1a03f42d-934f-409e-8249-74d864081172
     :Title: Test pki-server db-schema-upgrade with stopped instance
@@ -300,14 +355,15 @@ def test_pki_server_db_schema_upgrade_with_stopped_instance(ansible_module, stop
     bind_dn = "cn=Directory Manager"
     bind_pass = constants.CLIENT_DIR_PASSWORD
     instance = stop_pki_instance
-    db_schema_upgrade = 'pki-server db-schema-upgrade -i {} -D {} -w {}'.format(instance,
-                                                                                bind_dn,
-                                                                                bind_pass)
+    db_schema_upgrade = 'pki-server db-schema-upgrade -i {} -D {} ' \
+                        '-w {}'.format(instance, bind_dn, bind_pass)
     cmd_output = ansible_module.command(db_schema_upgrade)
 
     for result in cmd_output.values():
         if result['rc'] == 0:
             assert "Upgrade complete" in result['stdout']
-            pytest.xfail("Failed to run pki-server db-schema-upgrade command.")
+            log.error("Failed to run: {}".format(" ".join(result['cmd'])))
+            pytest.skip()
         else:
-            assert "ERROR: ldap_bind: Invalid credentials (49)" in result['stdout']
+            assert "ERROR: Unable to update schema: " in result['stderr']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))

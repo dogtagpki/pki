@@ -29,8 +29,10 @@ import os
 import random
 import string
 import sys
+import re
 
 import pytest
+from pki.testlib.common.utils import get_random_string
 
 try:
     from pki.testlib.common import constants
@@ -38,19 +40,23 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
+import logging
 
-
-def get_random_string(len=10):
-    random_string = ''.join(random.choice(string.ascii_uppercase +
-                                          string.digits +
-                                          string.ascii_letters +
-                                          string.punctuation)
-                            for _ in range(len))
-    return random_string
-
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 db1 = '/tmp/db1_test'
 db2 = '/tmp/db2_test'
+
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+
+
+if TOPOLOGY == '01':
+    instance_name = 'pki-tomcat'
+    topology_name = 'topology-01-CA'
+else:
+    instance_name = constants.CA_INSTANCE_NAME
+    topology_name = constants.CA_INSTANCE_NAME
 
 
 @pytest.mark.ansible_playbook_setup('init_dir.yaml')
@@ -82,12 +88,6 @@ def test_pki_pkcs12_import_help(ansible_module):
     for result in import_out.values():
         if result['rc'] == 0:
             assert "Usage: pki pkcs12-import [OPTIONS]" in result['stdout']
-            assert "--pkcs12-file <path>           PKCS #12 file containing certificates and " \
-                   "keys" in result['stdout']
-            assert "--pkcs12-password <password>   Password for the PKCS #12 file." in \
-                   result['stdout']
-            assert "--pkcs12-password-file <path>  containing the PKCS #12 password." in \
-                   result['stdout']
             assert "--no-trust-flags               Do not include trust flags" in result['stdout']
             assert "--no-user-certs                Do not import user certificates" in \
                    result['stdout']
@@ -98,7 +98,7 @@ def test_pki_pkcs12_import_help(ansible_module):
             assert "--help                         Show help message." in result['stdout']
 
         else:
-            pytest.xfail("Failed to run pkcs12-import command.")
+            pytest.fail("Failed to run pkcs12-import command.")
 
 
 def test_pki_pkcs12_import(ansible_module):
@@ -122,14 +122,21 @@ def test_pki_pkcs12_import(ansible_module):
     import_out = ansible_module.command(import_cmd)
     for result in import_out.values():
         if result['rc'] == 0:
-            assert "Import complete" in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
             cert_find_output = ansible_module.command(cert_find)
             for res in cert_find_output.values():
                 if res['rc'] == 0:
                     assert "Nickname: {}".format(constants.CA_ADMIN_NICK) in res['stdout']
+                    log.info("Successfully found nicknames")
+                else:
+                    log.error(result['stdout'])
+                    log.error(result['stderr'])
+                    pytest.fail()
 
         else:
-            pytest.xfail("Failed to import the cert.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail()
     ansible_module.command('rm -rf {}'.format(p12_file))
 
 
@@ -160,13 +167,16 @@ def test_pki_pkcs12_import_passowrd_file(ansible_module):
     import_out = ansible_module.command(import_cmd)
     for result in import_out.values():
         if result['rc'] == 0:
-            assert "Import complete" in result['stdout']
+            assert result['rc'] == 0
+            log.info("Successfully ran : {}".format(result['cmd']))
             cert_find_output = ansible_module.command(cert_find)
             for res in cert_find_output.values():
                 if res['rc'] == 0:
                     assert "Nickname: {}".format(constants.CA_ADMIN_NICK) in res['stdout']
         else:
-            pytest.xfail("Failed to import the cert.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to import the cert.")
     ansible_module.command('rm -rf {} {}'.format(p12_file, password_file))
 
 
@@ -199,7 +209,8 @@ def test_pki_pkcs12_import_no_ca_certs(ansible_module):
     import_out = ansible_module.command(import_cmd)
     for result in import_out.values():
         if result['rc'] == 0:
-            assert "Import complete" in result['stdout']
+            assert result['rc'] == 0
+            log.info("Successfully ran : {}".format(result['cmd']))
             cert_find_out = ansible_module.command(cert_find.format(db2,
                                                                     constants.CLIENT_DIR_PASSWORD))
             for res in cert_find_out.values():
@@ -208,17 +219,15 @@ def test_pki_pkcs12_import_no_ca_certs(ansible_module):
                     assert 'Nickname: CA' not in res['stdout']
                     assert constants.CA_ADMIN_NICK in res['stdout']
                     assert constants.KRA_ADMIN_NICK in res['stdout']
-                    assert constants.OCSP_ADMIN_NICK in res['stdout']
-                    assert constants.TKS_ADMIN_NICK in res['stdout']
-                    assert constants.TPS_ADMIN_NICK in res['stdout']
                 else:
-                    pytest.xfail("Failed to import the cert.")
+                    pytest.fail("Failed to import the cert.")
         else:
-            pytest.xfail("Failed to import the cert.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to import the cert.")
     ansible_module.command('rm -rf {} {}'.format(p12_file, password_file))
 
 
-@pytest.mark.xfail(reason='BZ-1351039')
 def test_pki_pkcs12_import_no_user_certs(ansible_module):
     """
     :id: ef79bc99-3c52-49e2-a1a9-b2162a654e8d
@@ -246,18 +255,21 @@ def test_pki_pkcs12_import_no_user_certs(ansible_module):
     import_out = ansible_module.command(import_cmd)
     for result in import_out.values():
         if result['rc'] == 0:
-            assert "Import complete" in result['stdout']
+            assert result['rc'] == 0
+            log.info('Successfully ran : {}'.format(result['cmd']))
             cert_out = ansible_module.command(cert_find)
             for res in cert_out.values():
                 if res['rc'] == 0:
                     assert "Nickname: {}".format(constants.CA_ADMIN_NICK) not in res['stdout']
                     assert 'Nickname: CA' in res['stdout']
         else:
-            pytest.xfail("Failed to import the cert.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to import the cert.")
     ansible_module.command('rm -rf {} {}'.format(p12_file, password_file))
 
 
-@pytest.mark.xfail(reason='BZ-1351039')
+@pytest.mark.skip(reason='BZ-1351039')
 def test_pki_pkcs12_import_no_trust_flags(ansible_module):
     """
     :id: 0e43b1ca-ccb9-438a-a932-bf3a98755ded
@@ -285,14 +297,17 @@ def test_pki_pkcs12_import_no_trust_flags(ansible_module):
     import_out = ansible_module.command(import_cmd)
     for result in import_out.values():
         if result['rc'] == 0:
-            assert "Import complete" in result['stdout']
+            assert result['rc'] == 0
+            log.info("Successfully ran : {}".format(result['cmd']))
             cert_out = ansible_module.command(cert_find)
             for res in cert_out.values():
                 if res['rc'] == 0:
                     assert "u,u,u" not in res['stdout']
                     assert 'CT,C,C' not in res['stdout']
         else:
-            pytest.xfail("Failed to import the cert.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to import the cert.")
     ansible_module.command('rm -rf {} {}'.format(p12_file, password_file))
 
 
@@ -311,28 +326,33 @@ def test_pki_pkcs12_import_other_trust_flags(ansible_module):
         1. Verify whether pki pkcs12-import imports the certs to db with trust flags
     other than u,u,u
     """
+    certs = {'caSigningCert': 'CTu,Cu,Cu', 'auditSigningCert': 'u,u,Pu'}
     p12_file = '/tmp/all_certs.p12'
     pki_server_subsystem = 'pki-server subsystem-cert-export -i {} --pkcs12-file {} ' \
-                           '--pkcs12-password {} ca'.format(constants.CA_INSTANCE_NAME, p12_file,
+                           '--pkcs12-password {} ca'.format(instance_name, p12_file,
                                                             constants.CLIENT_PKCS12_PASSWORD)
     import_cmd = 'pki -d {} -c {} pkcs12-import --pkcs12-file {} ' \
                  '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD, p12_file,
-                                                    constants.CLIENT_PKCS12_PASSWORD)
+                                               constants.CLIENT_PKCS12_PASSWORD)
     certutil = 'certutil -L -d {}'.format(db2)
     ansible_module.command(pki_server_subsystem)
     import_out = ansible_module.command(import_cmd)
     for result in import_out.values():
         if result['rc'] == 0:
-            assert "Import complete" in result['stdout']
+            assert result['rc'] == 0
+            log.info("Successfully ran : {}".format(result['cmd']))
             cert_find_out = ansible_module.command(certutil)
             for res in cert_find_out.values():
                 if res['rc'] == 0:
-                    assert "caSigningCert cert-{} CA" \
-                           "                         " \
-                           "CTu,Cu,Cu".format(constants.CA_INSTANCE_NAME) in res['stdout']
-                    assert "auditSigningCert cert-{} CA" \
-                           "                      u,u,Pu".format(constants.CA_INSTANCE_NAME) in \
-                           res['stdout']
+                    for name, trust in certs.items():
+                        cert_names = re.findall(name + ".*", res['stdout'])[0]
+                        assert "{} cert-{} CA".format(name, instance_name) in cert_names
+                        assert trust in cert_names
+                else:
+                    pytest.fail("Failed to run certutil")
+
         else:
-            pytest.xfail("Failed to import the cert.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to import the cert.")
     ansible_module.command('rm -rf {}'.format(p12_file))

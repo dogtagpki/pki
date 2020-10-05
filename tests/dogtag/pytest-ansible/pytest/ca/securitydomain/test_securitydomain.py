@@ -1,6 +1,3 @@
-#!/usr/bin/python3
-# -*- coding: UTF-8 -*-
-
 """
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -15,7 +12,7 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   Copyright (c) 2018 Red Hat, Inc. All rights reserved.
+#   Copyright (c) 2016 Red Hat, Inc. All rights reserved.
 #
 #   This copyrighted material is made available to anyone wishing
 #   to use, modify, copy, or redistribute it subject to the terms
@@ -52,15 +49,25 @@ topology = constants.CA_INSTANCE_NAME.split("-")[-1]
 
 def test_securitydomain_command(ansible_module):
     """
-    :Title: Test pki securitydomain --help command
+    :id: e0f327ef-5471-421f-8151-7ae7b3f7b4dd
+    
+    :Title: RHCS-TC Test pki securitydomain --help command
+    
+    :Test: Test pki securitydomain --help command
+    
     :Description: This command will show securitydomain help message.
+    
     :Requirement: Securitydomain
+    
     :CaseComponent: \-
+    
     :Setup:
+    
     :Steps:
-        1. Run pki securitydomain --help
+            1. Run pki securitydomain --help
+            
     :Expectedresults:
-        1. It will show securitydomain sub commands, like securitydomain-show.
+                1. It will show securitydomain sub commands, like securitydomain-show.
     """
     securitydomain_out = ansible_module.pki(cli='securitydomain',
                                             nssdb=constants.NSSDB,
@@ -69,7 +76,7 @@ def test_securitydomain_command(ansible_module):
                                             extra_args='--help')
     for host, result in securitydomain_out.items():
         if result['rc'] == 0:
-            assert "securitydomain-show     Show domain info" in result['stdout']
+            assert "securitydomain-show               Show domain info" in result['stdout']
         else:
             pytest.xfail("Failed to run pki securitydomain --help command")
 
@@ -77,15 +84,25 @@ def test_securitydomain_command(ansible_module):
 @pytest.mark.parametrize('args', ('', '--help'))
 def test_securitydomain_show_help_command(ansible_module, args):
     """
-    :Title: Test pki securitydomain-show --help command
+    :id: 1ab8c27e-9eac-4d8d-a697-54752d6c75ce
+    
+    :Title: RHCS-TC Test pki securitydomain-show --help command
+    
+    :Test: Test pki securitydomain-show --help command.
+    
     :Description: This test will show the help message of securitydomain-show command
+    
     :Requirement: Securitydomain
+    
     :CaseComponent: \-
+    
     :Setup: Use the subsystems setup in ansible to run subsystem commands
+    
     :Steps:
-        1. Test pki securitydomain-show --help command
+            1. Test pki securitydomain-show --help command
+            
     :Expectedresults:
-        1. It will show help message for command.
+                1. It will show help message for command.
     """
     securitydomain_out = ansible_module.pki(cli=cmd,
                                             nssdb=constants.NSSDB,
@@ -96,7 +113,7 @@ def test_securitydomain_show_help_command(ansible_module, args):
         if result['rc'] == 0:
             if args == '--help':
                 assert "usage: securitydomain-show [OPTIONS...]" in result['stdout']
-                assert "    --help   Show help options" in result['stdout']
+                assert "--help      Show help message" in result['stdout']
             else:
                 assert '  Domain: {}'.format(constants.CA_SECURITY_DOMAIN_NAME) in result['stdout']
 
@@ -115,15 +132,25 @@ def test_securitydomain_show_help_command(ansible_module, args):
 @pytest.mark.skipif("topology >= 3")
 def test_securitydomain_show_command(ansible_module):
     """
-    :Title: Test pki securitydomain-show command with topology-01 and topology-02.
+    :id: 84cf2bc8-540b-470d-aaab-3461a4e98172
+
+    :Title: RHCS-TC Test pki securitydomain-show command with topology-01 and topology-02.
+
+    :Test: Test pki securitydomain-show command with topology-01 and topology-02.
+
     :Description: This command will show securitydomain information for topology-01 and topology-02.
+
     :Requirement: Securitydomain
+
     :CaseComponent: \-
+
     :Setup: Use the subsystems setup in ansible to run subsystem commands
+
     :Steps:
-        1. Run pki securitydomain-show
+            1. Run pki securitydomain-show
+
     :Expectedresults:
-        1. It should show the securitydomain information.
+                1. It should show the securitydomain information.
     """
     securitydomain_out = ansible_module.pki(cli=cmd,
                                             nssdb=constants.NSSDB,
@@ -187,21 +214,32 @@ def test_securitydomain_show_command(ansible_module):
 @pytest.mark.parametrize('certs', (['CA_AgentV', 'CA_AdminV', 'CA_AuditV']))
 def test_securitydomain_show_command_with_valid_certs(ansible_module, certs):
     """
-    :Title: Test pki securitydomain-show command with valid admin certificate for
+    :id: 5536e72f-032a-4c18-ba48-432417ea972b
+
+    :Title: RHCS-TC Test pki securitydomain-show command with valid admin certificate for 
             topology-02 and topology-01
+
+    :Test: Test pki securitydomain-show command with valid admin certificate for topology-02
+            and topology-01
+
     :Description: pki securitydomain-show with different valid certificate should show the
                   securitydomain information.
+
     :Requirement: Securitydomain
+
     :CaseComponent: \-
+
     :Setup: Use the subsystems setup in ansible to run subsystem commands
+
     :Steps:
-        1. Run pki -n 'CA_AdminV' securitydomain-show
-        2. Run pki -n 'CA_AgentV' securitydomain-show
-        3. Run pki -n 'CA_AuditV' securitydomain-show
+            1. Run pki -n 'CA_AdminV' securitydomain-show
+            2. Run pki -n 'CA_AgentV' securitydomain-show
+            3. Run pki -n 'CA_AuditV' securitydomain-show
+
     :Expectedresults:
-        1. It should show securitydomain information for topology-02 and topology-01.
-        2. It should show securitydomain information for topology-02 and topology-01.
-        3. It should show securitydomain information for topology-02 and topology-01.
+                1. It should show securitydomain information for topology-02 and topology-01.
+                2. It should show securitydomain information for topology-02 and topology-01.
+                3. It should show securitydomain information for topology-02 and topology-01.
     """
     securitydomain_out = ansible_module.pki(cli=cmd,
                                             nssdb=constants.NSSDB,
@@ -265,15 +303,25 @@ def test_securitydomain_show_command_with_valid_certs(ansible_module, certs):
 @pytest.mark.skipif("topology != 3")
 def test_securitydomain_show_for_topology_03(ansible_module):
     """
-    :Title: Test pki securitydomain-show command with topology-03.
+    :id: 381eee0d-1105-414a-aeb2-9526677151d9
+
+    :Title: RHCS-TC Test pki securitydomain-show command with topology-03.
+
+    :Test: Test pki securitydomain-show command with topology-03.
+
     :Description: This command will show securitydomain information for topology-03.
+
     :Requirement: Securitydomain
+
     :CaseComponent: \-
+
     :Setup: Use the subsystems setup in ansible to run subsystem commands
+
     :Steps:
-        1. Run pki securitydomain-show
+            1. Run pki securitydomain-show
+
     :Expectedresults:
-        1. It should show the securitydomain information.
+                1. It should show the securitydomain information.
     """
     securitydomain_out = ansible_module.pki(cli=cmd,
                                             nssdb=constants.NSSDB,
@@ -315,21 +363,31 @@ def test_securitydomain_show_for_topology_03(ansible_module):
 @pytest.mark.parametrize('certs', (['CA_AgentV', 'CA_AdminV', 'CA_AuditV']))
 def test_securitydomain_show_with_valid_admin_cert_for_topology_03(ansible_module, certs):
     """
-    :Title: Test pki securitydomain-show command with valid admin certificate for
+    :id: 7eb499ea-55ff-404d-a07d-3f9a2667f12c
+
+    :Title: RHCS-TC Test pki securitydomain-show command with valid admin certificate for 
             topology-03
+
+    :Test: Test pki securitydomain-show command with valid admin certificate for topology-03
+
     :Description: pki securitydomain-show with different valid certificate should show the
                   securitydomain information.
+
     :Requirement: Securitydomain
+
     :CaseComponent: \-
+
     :Setup: Use the subsystems setup in ansible to run subsystem commands
+
     :Steps:
-        1. Run pki -n 'CA_AdminV' securitydomain-show
-        2. Run pki -n 'CA_AgentV' securitydomain-show
-        3. Run pki -n 'CA_AuditV' securitydomain-show
+            1. Run pki -n 'CA_AdminV' securitydomain-show
+            2. Run pki -n 'CA_AgentV' securitydomain-show
+            3. Run pki -n 'CA_AuditV' securitydomain-show
+
     :Expectedresults:
-        1. It should show securitydomain information for topology-03.
-        2. It should show securitydomain information for topology-03.
-        3. It should show securitydomain information for topology-03.
+                1. It should show securitydomain information for topology-03.
+                2. It should show securitydomain information for topology-03.
+                3. It should show securitydomain information for topology-03.
     """
     securitydomain_out = ansible_module.pki(cli=cmd,
                                             nssdb=constants.NSSDB,
@@ -374,15 +432,25 @@ def test_securitydomain_show_with_valid_admin_cert_for_topology_03(ansible_modul
 @pytest.mark.skipif("topology != 4")
 def test_securitydomain_show_for_topology_04(ansible_module):
     """
-    :Title: Test pki securitydomain-show command with topology-04.
+    :id: 3fc84722-fa57-42aa-a1cc-b134cefc20c6
+
+    :Title: RHCS-TC Test pki securitydomain-show command with topology-04.
+
+    :Test: Test pki securitydomain-show command with topology-04.
+
     :Description: This command will show securitydomain information for topology-04.
+
     :Requirement: Securitydomain
+
     :CaseComponent: \-
+
     :Setup: Use the subsystems setup in ansible to run subsystem commands
+
     :Steps:
-        1. Run pki securitydomain-show
+            1. Run pki securitydomain-show
+
     :Expectedresults:
-        1. It should show the securitydomain information.
+                1. It should show the securitydomain information.
     """
 
     securitydomain_out = ansible_module.pki(cli=cmd,
@@ -429,20 +497,30 @@ def test_securitydomain_show_for_topology_04(ansible_module):
 @pytest.mark.parametrize('certs', (['CA_AgentV', 'CA_AdminV', 'CA_AuditV']))
 def test_securitydomain_show_with_valid_certs_for_topology_04(ansible_module, certs):
     """
-    :Title: Test pki securitydomain-show command with valid admin certificate for topology-04
+    :id: 46bab5c8-d375-4396-b7dd-1acd1f31e859
+    
+    :Title: RHCS-TC Test pki securitydomain-show command with valid admin certificate for topology-04
+    
+    :Test: Test pki securitydomain-show command with valid admin certificate for topology-04
+    
     :Description: pki securitydomain-show with different valid certificate should show the
                   securitydomain information.
+    
     :Requirement: Securitydomain
+    
     :CaseComponent: \-
+    
     :Setup: Use the subsystems setup in ansible to run subsystem commands
+    
     :Steps:
-        1. Run pki -n 'CA_AdminV' securitydomain-show
-        2. Run pki -n 'CA_AgentV' securitydomain-show
-        3. Run pki -n 'CA_AuditV' securitydomain-show
+            1. Run pki -n 'CA_AdminV' securitydomain-show
+            2. Run pki -n 'CA_AgentV' securitydomain-show
+            3. Run pki -n 'CA_AuditV' securitydomain-show
+
     :Expectedresults:
-        1. It should show securitydomain information for topology-04.
-        2. It should show securitydomain information for topology-04.
-        3. It should show securitydomain information for topology-04.
+                1. It should show securitydomain information for topology-04.
+                2. It should show securitydomain information for topology-04.
+                3. It should show securitydomain information for topology-04.
     """
     securitydomain_out = ansible_module.pki(cli=cmd,
                                             nssdb=constants.NSSDB,
@@ -487,15 +565,25 @@ def test_securitydomain_show_with_valid_certs_for_topology_04(ansible_module, ce
 @pytest.mark.skipif("topology != 5")
 def test_securitydomain_show_for_topology_05(ansible_module):
     """
-    :Title: Test pki securitydomain-show command with topology-05.
+    :id: 656efa86-9c80-42af-becd-c3ae57377737
+    
+    :Title: RHCS-TC Test pki securitydomain-show command with topology-05.
+    
+    :Test: Test pki securitydomain-show command with topology-05.
+    
     :Description: This command will show securitydomain information for topology-05.
+    
     :Requirement: Securitydomain
+    
     :CaseComponent: \-
+    
     :Setup: Use the subsystems setup in ansible to run subsystem commands
+    
     :Steps:
-        1. Run pki securitydomain-show
+            1. Run pki securitydomain-show
+            
     :Expectedresults:
-        1. It should show the securitydomain information.
+                1. It should show the securitydomain information.
     """
     securitydomain_out = ansible_module.pki(cli=cmd,
                                             nssdb=constants.NSSDB,
@@ -589,20 +677,30 @@ def test_securitydomain_show_for_topology_05(ansible_module):
 @pytest.mark.parametrize('certs', (['CA_AgentV', 'CA_AdminV', 'CA_AuditV']))
 def test_securitydomain_show_with_valid_certs_for_topology_05(ansible_module, certs):
     """
-    :Title: Test pki securitydomain-show with valid certificates.
+    :id: 50932718-32e7-4d85-81e4-b5546ead633b
+    
+    :Title: RHCS-TC Test pki securitydomain-show with valid certificates.
+    
+    :Test: Test pki securitydomain-show with valid certificates.
+    
     :Description: pki securitydomain-show with different valid certificate should show the
                   securitydomain information.
+    
     :Requirement: Securitydomain
+    
     :CaseComponent: \-
+    
     :Setup: Use the subsystems setup in ansible to run subsystem commands
+    
     :Steps:
-        1. Run pki -n 'CA_AdminV' securitydomain-show
-        2. Run pki -n 'CA_AgentV' securitydomain-show
-        3. Run pki -n 'CA_AuditV' securitydomain-show
+            1. Run pki -n 'CA_AdminV' securitydomain-show
+            2. Run pki -n 'CA_AgentV' securitydomain-show
+            3. Run pki -n 'CA_AuditV' securitydomain-show
+
     :Expectedresults:
-        1. It should show securitydomain information for topology-05.
-        2. It should show securitydomain information for topology-05.
-        3. It should show securitydomain information for topology-05.
+                1. It should show securitydomain information for topology-05.
+                2. It should show securitydomain information for topology-05.
+                3. It should show securitydomain information for topology-05.
     """
     securitydomain_out = ansible_module.pki(cli=cmd,
                                             nssdb=constants.NSSDB,
@@ -696,15 +794,25 @@ def test_securitydomain_show_with_valid_certs_for_topology_05(ansible_module, ce
 
 def test_securitydomain_show_with_expired_admin_cert(ansible_module):
     """
-    :Title: Test pki securitydomain-show with expired admin certificate.
+    :id: bd77fd7b-de29-4f50-9e8a-f3d4a7c4f57f
+    
+    :Title: RHCS-TC Test pki securitydomain-show with expired admin certificate.
+    
+    :Test: Test pki securitydomain-show with expired admin certificate.
+    
     :Description: pki securitydomain-show with expired admin certificate will throw an error.
+    
     :Requirement: Securitydomain
+    
     :CaseComponent: \-
+    
     :Setup: Use the subsystems setup in ansible to run subsystem commands
+    
     :Steps:
-        1. Run pki -n 'CA_AdminE' securitydomain-show
+            1. Run pki -n 'CA_AdminE' securitydomain-show
+            
     :Expectedresults:
-        1. It will throw an error: IOException: SocketException cannot write on socket
+                1. It will throw an error: IOException: SocketException cannot write on socket
     """
     securitydomain_out = ansible_module.pki(cli=cmd,
                                             nssdb=constants.NSSDB,
@@ -714,7 +822,7 @@ def test_securitydomain_show_with_expired_admin_cert(ansible_module):
     for host, result in securitydomain_out.items():
 
         if result['rc'] >= 1:
-            assert "IOException: SocketException cannot write on socket" in result['stderr']
+            assert "CERTIFICATE_EXPIRED" in result['stderr']
 
         if result['rc'] == 0:
             pytest.xfail("Failed to run pki -n CA_AdminE securitydomain-show command")
@@ -722,16 +830,26 @@ def test_securitydomain_show_with_expired_admin_cert(ansible_module):
 
 def test_securitydomain_show_with_revoked_admin_cert(ansible_module):
     """
-    :Title: Test pki securitydomain-show with revoked admin certificate.
+    :id: 33cd7818-6450-4ba4-bbbc-cdc8c4ce5760
+    
+    :Title: RHCS-TC Test pki securitydomain-show with revoked admin certificate.
+    
+    :Test: Test pki securitydomain-show with revoked admin certificate.
+    
     :Description: Test pki securitydomain-show with revoked admin certificate.
                   It should throw an error
+    
     :Requirement: Securitydomain
+    
     :CaseComponent: \-
+    
     :Setup: Use the subsystems setup in ansible to run subsystem commands
+    
     :Steps:
-        1. Run pki -n 'CA_AdminR' securitydomain-show
+            1. Run pki -n 'CA_AdminR' securitydomain-show
+            
     :Expectedresults:
-        1. It should throw an error: "PKIException: Unauthorized"
+                1. It should throw an error: "PKIException: Unauthorized"
     """
     securitydomain_out = ansible_module.pki(cli=cmd,
                                             nssdb=constants.NSSDB,
@@ -745,4 +863,3 @@ def test_securitydomain_show_with_revoked_admin_cert(ansible_module):
 
         if result['rc'] == 0:
             pytest.xfail("Failed to run pki -n CA_AdminR securitydomain-show command")
-

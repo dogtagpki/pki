@@ -30,6 +30,7 @@ import os
 import random
 import string
 import sys
+import logging
 
 import pytest
 
@@ -39,6 +40,8 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def get_random_string(len=10):
@@ -87,16 +90,16 @@ def test_pki_pkcs12_cert_del_help(ansible_module, options):
         if result['rc'] == 0:
             assert "usage: pkcs12-cert-del <nickname> [OPTIONS...]" in result['stdout']
             assert "--debug                         Run in debug mode." in result['stdout']
-            assert "--help                          Show help options" in result['stdout']
+            assert "--help                          Show help message." in result['stdout']
             assert "--pkcs12-file <path>            PKCS #12 file" in result['stdout']
             assert "--pkcs12-password <password>    PKCS #12 password" in result['stdout']
             assert "--pkcs12-password-file <path>   PKCS #12 password file" in result['stdout']
             assert "-v,--verbose                       Run in verbose mode." in result['stdout']
         else:
             if options == '':
-                assert 'Error: Missing certificate nickname.' in result['stderr']
+                assert 'ERROR: Missing certificate nickname.' in result['stderr']
             if options != '--help' and options != '':
-                assert 'Error: Missing PKCS #12 file.' in result['stderr']
+                assert 'ERROR: Missing PKCS #12 file.' in result['stderr']
 
 
 def test_pki_pkcs12_cert_del(ansible_module):
@@ -123,7 +126,7 @@ def test_pki_pkcs12_cert_del(ansible_module):
         if result['rc'] == 0:
             assert 'Deleted certificate "{}"'.format(constants.CA_ADMIN_NICK) in result['stdout']
         else:
-            pytest.xfail("Failed to run pki pkcs12-cert-del command.")
+            pytest.fail("Failed to run pki pkcs12-cert-del command.")
     ansible_module.command('rm -rf {}/ca_admin_cert.p12'.format(db2))
 
 
@@ -157,7 +160,7 @@ def test_pki_pkcs12_cert_del_password_file(ansible_module):
         if result['rc'] == 0:
             assert 'Deleted certificate "{}"'.format(constants.CA_ADMIN_NICK) in result['stdout']
         else:
-            pytest.xfail("Failed to run pki pkcs12-cert-del command.")
+            pytest.fail("Failed to run pki pkcs12-cert-del command.")
 
     pkcs12_import = 'pki -d {} -c {} pkcs12-import --pkcs12-file {}/ca_admin_cert.p12 ' \
                     '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD,
@@ -165,7 +168,11 @@ def test_pki_pkcs12_cert_del_password_file(ansible_module):
     pkcs12_import_out = ansible_module.command(pkcs12_import)
     for result in pkcs12_import_out.values():
         if result['rc'] == 0:
-            assert 'Import complete' in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
+        else:
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail()
 
     cert_find = ansible_module.command(client_cert_find)
     for result in cert_find.values():
@@ -199,9 +206,9 @@ def test_pki_pkcs12_cert_del_wrong_pkcs_password(ansible_module):
     for result in del_cert.values():
         if result['rc'] == 0:
             assert 'Deleted certificate "{}"'.format(constants.CA_ADMIN_NICK) in result['stdout']
-            pytest.xfail("Failed to run pki pkcs12-cert-del command.")
+            pytest.fail("Failed to run pki pkcs12-cert-del command.")
         else:
-            assert 'Error: Unable to validate PKCS #12 file: Digests do not match' in \
+            assert 'ERROR: Unable to validate PKCS #12 file: Digests do not match' in \
                    result['stderr']
 
     ansible_module.command('rm -rf {}/ca_admin_cert.p12'.format(db2))
@@ -221,17 +228,20 @@ def test_pki_pkcs12_cert_del_wrong_db_password(ansible_module):
         1. Verify whether pki pkcs12-export command with wrong db password throws error.
     """
     wrong_password = get_random_string(len=10)
-    cert_del = 'pki -d {} -c "{}" pkcs12-cert-del "{}" --pkcs12-file /{}/ca_admin_cert.p12 ' \
-               '--pkcs12-password {}'.format(db1, wrong_password, constants.CA_ADMIN_NICK, db2,
+    cert_del = 'pki -d {} -c "{}" pkcs12-cert-del "{}" --pkcs12-file {}/ca_admin_cert.p12 ' \
+               '--pkcs12-password {}'.format(db1, wrong_password, constants.CA_ADMIN_NICK, constants.CA_CLIENT_DIR,
                                              constants.CLIENT_PKCS12_PASSWORD)
     del_cert = ansible_module.command(cert_del)
 
     for result in del_cert.values():
-        if result['rc'] >= 1:
-            assert 'Error: Incorrect client security database password.' in result['stderr']
+        if result['rc'] > 0:
+            assert 'ERROR: Incorrect password for internal token' in result['stderr']
+            log.info("Successfully ran : {}".format(result['cmd']))
         else:
+            log.error(result['stdout'])
+            log.error(result['stderr'])
             assert 'Deleted certificate "{}"'.format(constants.CA_ADMIN_NICK) in result['stdout']
-            pytest.xfail("Failed to run pki pkcs12-cert-del command.")
+            pytest.fail("Failed to run pki pkcs12-cert-del command.")
 
 
 def test_bug_1358462_pki_pkcs12_cert_del_with_wrong_nick_name(ansible_module):
@@ -256,9 +266,9 @@ def test_bug_1358462_pki_pkcs12_cert_del_with_wrong_nick_name(ansible_module):
                                                   constants.CLIENT_PKCS12_PASSWORD))
     for result in del_cert.values():
         if result['rc'] == 0:
-            pytest.xfail("Failed to run pki pkcs12-cert-del command with invalid certificate nick.")
+            pytest.fail("Failed to run pki pkcs12-cert-del command with invalid certificate nick.")
         else:
-            assert "Error: Certificate not found: %sabc" % constants.CA_ADMIN_NICK in \
+            assert "ERROR: Certificate not found: %sabc" % constants.CA_ADMIN_NICK in \
                    result['stderr']
     ansible_module.command('rm -rf {}/ca_admin_cert.p12'.format(db2))
 
@@ -297,11 +307,11 @@ def test_pki_pkcs12_cert_del_when_cert_is_already_deleted_from_file(ansible_modu
                                                           constants.CLIENT_PKCS12_PASSWORD))
             for res in cert_del.values():
                 if res['rc'] == 0:
-                    pytest.xfail("Failed to run pki pkcs12-cert-del command with "
+                    pytest.fail("Failed to run pki pkcs12-cert-del command with "
                                  "invalid certificate nick.")
                 else:
-                    assert "Error: Certificate not found: %s" % constants.CA_ADMIN_NICK in \
+                    assert "ERROR: Certificate not found: %s" % constants.CA_ADMIN_NICK in \
                            res['stderr']
         else:
-            pytest.xfail("Failed to run pki pkcs12-cert-del")
+            pytest.fail("Failed to run pki pkcs12-cert-del")
     ansible_module.command('rm -rf {}/ca_admin_cert.p12'.format(db2))

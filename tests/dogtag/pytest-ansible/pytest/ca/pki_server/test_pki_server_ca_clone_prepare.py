@@ -42,6 +42,14 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+
+if TOPOLOGY == '01':
+    ca_instance_name = 'pki-tomcat'
+    topology_name = 'topology-01-CA'
+else:
+    ca_instance_name = constants.CA_INSTANCE_NAME
+    topology_name = constants.CA_INSTANCE_NAME
 
 
 def test_pki_server_ca_clone(ansible_module):
@@ -55,12 +63,12 @@ def test_pki_server_ca_clone(ansible_module):
     :ExpectedResults: 
         1.Verify whether pki-server ca-clone shows ca-clone-prepare command
     """
-    clone_out = ansible_module.command('pki-server ca-clone')
+    clone_out = ansible_module.shell('pki-server ca-clone')
     for result in clone_out.values():
         if result['rc'] == 0:
             assert "ca-clone-prepare              Prepare CA clone" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server ca-clone command.")
+            pytest.fail("Failed to run pki-server ca-clone command.")
 
 
 def test_pki_server_ca_clone_prepare_help(ansible_module):
@@ -75,22 +83,23 @@ def test_pki_server_ca_clone_prepare_help(ansible_module):
     :ExpectedResults:
         1. Verify whether pki-server ca-clone-prepare --help command shows help option
     """
-    help_out = ansible_module.command('pki-server ca-clone-prepare --help')
+    help_out = ansible_module.shell('pki-server ca-clone-prepare --help')
     for result in help_out.values():
         if result['rc'] == 0:
-            assert "-i, --instance <instance ID>       Instance ID (default: pki-tomcat)" in \
+            assert "Usage: pki-server ca-clone-prepare [OPTIONS]" in result['stdout']
+            assert "-i, --instance <instance ID>       Instance ID (default: pki-tomcat)." in \
                    result['stdout']
-            assert "--pkcs12-file <path>           PKCS #12 file to store certificates and keys" \
+            assert "--pkcs12-file <path>           PKCS #12 file to store certificates and keys." \
                    in result['stdout']
-            assert "--pkcs12-password <password>   Password for the PKCS #12 file" in \
+            assert "--pkcs12-password <password>   Password for the PKCS #12 file." in \
                    result['stdout']
-            assert "--pkcs12-password-file <path>  File containing the PKCS #12 password" in \
+            assert "--pkcs12-password-file <path>  File containing the PKCS #12 password." in \
                    result['stdout']
-            assert "-v, --verbose                      Run in verbose mode" in result['stdout']
-            assert "--help                         Show help message" in result['stdout']
+            assert "-v, --verbose                      Run in verbose mode." in result['stdout']
+            assert "--help                         Show help message." in result['stdout']
 
         else:
-            pytest.xfail("Failed to run pki-server ca-clone-prepare --help command..!!")
+            pytest.fail("Failed to run pki-server ca-clone-prepare --help command..!!")
 
 
 def test_pki_server_ca_clone_prepare(ansible_module):
@@ -106,17 +115,17 @@ def test_pki_server_ca_clone_prepare(ansible_module):
         1. Verify whether pki-server ca-clone-prepare command exports ca backup keys
     """
     cmd = 'pki-server ca-clone-prepare -i {} --pkcs12-file /tmp/ca_backup_keys.p12 ' \
-          '--pkcs12-password {}'.format(constants.CA_INSTANCE_NAME,
-                                        constants.CLIENT_PKCS12_PASSWORD)
-    export_out = ansible_module.command(cmd)
+          '--pkcs12-password {}'.format(ca_instance_name, constants.CLIENT_PKCS12_PASSWORD)
+    export_out = ansible_module.shell(cmd)
     for result in export_out.values():
         if result['rc'] == 0:
-            assert "Added certificate" in result['stdout']
+            assert "Imported certificate" in result['stdout']
             isfile = ansible_module.stat(path='/tmp/ca_backup_keys.p12')
             for res in isfile.values():
                 assert res['stat']['exists']
         else:
-            pytest.xfail("Failed to run pki-server ca-clone-prepare command..!!")
+            pytest.fail("Failed to run pki-server ca-clone-prepare command..!!")
+    ansible_module.shell('rm -rf /tmp/ca_backup_keys.p12')
 
 
 def test_pki_server_ca_clone_prepare_password_file(ansible_module):
@@ -133,20 +142,16 @@ def test_pki_server_ca_clone_prepare_password_file(ansible_module):
            exports ca backup keys.
     """
     cmd = 'pki-server ca-clone-prepare -i {} --pkcs12-file /tmp/ca_backup_keys.p12 ' \
-          '--pkcs12-password-file /tmp/password.txt'.format(constants.CA_INSTANCE_NAME,
-                                                            constants.CLIENT_PKCS12_PASSWORD)
+          '--pkcs12-password-file /tmp/password.txt'.format(ca_instance_name, constants.CLIENT_PKCS12_PASSWORD)
     ansible_module.shell("echo '{}' > /tmp/password.txt".format(constants.CLIENT_PKCS12_PASSWORD))
     status = ansible_module.stat(path='/tmp/ca_backup_keys.p12')
-    for r1 in status.values():
-        if r1['stat']['exists']:
-            ansible_module.command('rm -rf /tmp/ca_backup_keys.p12')
-
-        export_out = ansible_module.command(cmd)
-        for result in export_out.values():
-            if result['rc'] == 0:
-                assert "Added certificate" in result['stdout']
-                isfile = ansible_module.stat(path='/tmp/ca_backup_keys.p12')
-                for res in isfile.values():
-                    assert res['stat']['exists']
-            else:
-                pytest.xfail("Failed to run pki-server ca-clone-prepare command.")
+    export_out = ansible_module.shell(cmd)
+    for result in export_out.values():
+        if result['rc'] == 0:
+            assert "Imported certificate" in result['stdout']
+            isfile = ansible_module.stat(path='/tmp/ca_backup_keys.p12')
+            for res in isfile.values():
+                assert res['stat']['exists']
+        else:
+            pytest.fail("Failed to run pki-server ca-clone-prepare command.")
+    ansible_module.shell('rm -rf /tmp/ca_backup_keys.p12')

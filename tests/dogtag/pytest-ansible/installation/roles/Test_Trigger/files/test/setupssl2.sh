@@ -19,7 +19,7 @@ lpass="Secret123"
 
 while true
 do
-    case "$1" in 
+    case "$1" in
         -d )
             shift
             if [ "$1" -a -d "$1" ] ; then
@@ -29,7 +29,7 @@ do
             fi
         ;;
 
-        -p ) 
+        -p )
             shift
             if [ "$1" ] ; then
                 ldapport=$1
@@ -49,7 +49,7 @@ do
             fi
         ;;
 
-        * ) 
+        * )
             break
         ;;
     esac
@@ -249,4 +249,3 @@ chmod 400 nss.conf
 fi
 
 echo "Done. You must restart the directory server and the admin server for the changes to take effect."
-

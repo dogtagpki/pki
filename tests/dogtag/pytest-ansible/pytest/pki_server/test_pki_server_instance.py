@@ -79,4 +79,4 @@ def test_pki_server_instance_command(ansible_module):
             assert "instance-externalcert-del     Delete external certificate from the " \
                    "instance" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server instance --help commnad")
+            pytest.skip("Failed to run pki-server instance --help command")

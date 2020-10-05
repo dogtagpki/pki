@@ -31,12 +31,12 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import logging
+import os
 import random
 import sys
 
-import os
 import pytest
-
 from pki.testlib.common import utils
 
 try:
@@ -48,6 +48,16 @@ except Exception as e:
 userop = utils.UserOperations(nssdb=constants.NSSDB)
 
 BASE_DB_DIR = '/var/lib/pki/{}/alias'
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+
+if TOPOLOGY == '01':
+    ca_instance_name = 'pki-tomcat'
+    topology_name = 'topology-01-CA'
+else:
+    ca_instance_name = constants.CA_INSTANCE_NAME
+    topology_name = constants.CA_INSTANCE_NAME
 
 
 def create_cert(ansible_module):
@@ -63,7 +73,7 @@ def create_cert(ansible_module):
     cert_id = userop.process_certificate_request(ansible_module, subject=subject)
     if cert_id:
         cert_file = "/tmp/{}.pem".format(user)
-        ansible_module.command('pki -d {} -c {} -p {} client-cert-import "{}" '
+        ansible_module.command('pki -d {} -c {} -P http -p {} client-cert-import "{}" '
                                '--serial {}'.format(constants.NSSDB, constants.CLIENT_DIR_PASSWORD,
                                                     constants.CA_HTTP_PORT, user, cert_id))
         ansible_module.command('pki -d {} -c {} client-cert-show "{}" '
@@ -110,7 +120,7 @@ def test_pki_server_instance_externalcert_del_help_command(ansible_module):
             assert "--help                         Show help message." in result['stdout']
 
         else:
-            pytest.xfail("Failed to run pki-server instance-externalcert-del --help command")
+            pytest.skip("Failed to run pki-server instance-externalcert-del --help command")
 
 
 def test_pki_server_instance_externalcert_del_command(ansible_module):
@@ -130,37 +140,42 @@ def test_pki_server_instance_externalcert_del_command(ansible_module):
     user_id = cert_file.split("/")[-1].split(".")[0]
 
     cert_add = 'pki-server instance-externalcert-add -i {} --cert-file {} --trust-args ' \
-               '"u,u,u" --nickname "{}" --token internal'.format(constants.CA_INSTANCE_NAME,
+               '"u,u,u" --nickname "{}" --token internal'.format(ca_instance_name,
                                                                  cert_file, user_id)
 
     del_cert = 'pki-server instance-externalcert-del -i {} --nickname "{}" ' \
-               '--token internal'.format(constants.CA_INSTANCE_NAME, user_id)
+               '--token internal'.format(ca_instance_name, user_id)
 
     certutil_cmd = 'certutil -L -d {} | ' \
-                   'grep \"{}\"'.format(BASE_DB_DIR.format(constants.CA_INSTANCE_NAME), user_id)
+                   'grep \"{}\"'.format(BASE_DB_DIR.format(ca_instance_name), user_id)
 
     cmd_output = ansible_module.command(cert_add)
     for result in cmd_output.values():
         if result['rc'] == 0:
-            assert "Certificate imported for instance " + constants.CA_INSTANCE_NAME \
-                   in result['stdout']
+            assert "Certificate imported for instance " + ca_instance_name in result['stdout']
+            log.info("Successfully run: {}".format(" ".join(result['cmd'])))
         else:
-            assert "ERROR: Certificate already imported for instance %s." % \
-                   constants.CA_INSTANCE_NAME in result['stdout']
+            error = "ERROR: Certificate already imported for instance {}.".format(ca_instance_name)
+            assert error in result['stdout']
 
     certImported = ansible_module.command(certutil_cmd)
     for res in certImported.values():
         if res['rc'] == 0:
             assert user_id in res['stdout']
+            log.info("Successfully run: {}".format(res['cmd']))
+        else:
+            log.error("Failed to run : {}".format(res['cmd']))
+            pytest.skip()
 
     cmd_output = ansible_module.command(del_cert)
     for result in cmd_output.values():
         if result['rc'] == 0:
-            assert "Certificate removed from instance " + constants.CA_INSTANCE_NAME + "." in \
-                   result['stdout']
+            assert "Certificate removed from instance " + ca_instance_name + "." in result['stdout']
+            log.info("Successfully run: {}".format(" ".join(result['cmd'])))
 
         else:
-            pytest.xfail("Failed to run pki-server instance-externalcert-del command")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_instance_externalcert_del_when_instance_is_stopped(ansible_module):
@@ -180,30 +195,29 @@ def test_pki_server_instance_externalcert_del_when_instance_is_stopped(ansible_m
     cert_id, cert_file = create_cert(ansible_module)
     user_id = cert_file.split("/")[-1].split(".")[0]
 
-    instance = constants.CA_INSTANCE_NAME
+    instance = ca_instance_name
     stop_instance = 'pki-server instance-stop {}'.format(instance)
     start_instance = 'pki-server instance-start {}'.format(instance)
     ansible_module.command(stop_instance)
+    log.info("Stopped {} instance.".format(instance))
 
     cert_add = 'pki-server instance-externalcert-add -i {} --cert-file {} --trust-args ' \
-               '"u,u,u" --nickname "{}" --token internal'.format(constants.CA_INSTANCE_NAME,
-                                                                 cert_file, user_id)
+               '"u,u,u" --nickname "{}" --token internal'.format(instance, cert_file, user_id)
 
     del_cert = 'pki-server instance-externalcert-del -i {} --nickname "{}" ' \
-               '--token internal'.format(constants.CA_INSTANCE_NAME, user_id)
+               '--token internal'.format(instance, user_id)
 
     certutil_cmd = 'certutil -L -d {} | ' \
-                   'grep \"{}\"'.format(BASE_DB_DIR.format(constants.CA_INSTANCE_NAME), user_id)
+                   'grep \"{}\"'.format(BASE_DB_DIR.format(instance), user_id)
 
     cmd_output = ansible_module.command(cert_add)
     for result in cmd_output.values():
         if result['rc'] == 0:
-            assert "Certificate imported for instance " + constants.CA_INSTANCE_NAME \
-                   in result['stdout']
+            assert "Certificate imported for instance " + instance in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            assert "ERROR: Certificate already imported for instance %s." % \
-                   constants.CA_INSTANCE_NAME in result['stdout']
-
+            assert "ERROR: Certificate already imported for instance {}.".format(ca_instance_name) in result['stdout']
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
     certImported = ansible_module.command(certutil_cmd)
     for res in certImported.values():
         if res['rc'] == 0:
@@ -212,65 +226,9 @@ def test_pki_server_instance_externalcert_del_when_instance_is_stopped(ansible_m
     cmd_output = ansible_module.command(del_cert)
     for result in cmd_output.values():
         if result['rc'] == 0:
-            assert "Certificate removed from instance " + constants.CA_INSTANCE_NAME + "." in \
-                   result['stdout']
-
+            assert "Certificate removed from instance " + ca_instance_name + "." in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server instance-externalcert-del command")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
     ansible_module.command(start_instance)
-
-
-def test_pki_server_instance_externalcert_del_with_token_NHSM6000(ansible_module):
-    """
-    :id: e25f9d90-aa85-4579-bcb9-867bdd7acb68
-    :Title: Test pki-server instance-externalcert-del with NHSM6000 token
-    :Description: test pki-server instance-externalcert-del command
-    :CaseComponent: \-
-    :Requirement: Pki Server Instance
-    :Setup: Use the subsystems setup in ansible to run subsystem commands
-    :Steps:
-    :ExpectedResults:
-        1. Verify whether pki-server instance-externalcert-del command delete the certificate to
-        the instance when the token is NHSM6000.
-    """
-
-    cert_id, file_name = create_cert(ansible_module)
-    user_id = file_name.split("/")[-1].split(".")[0]
-
-    certificate_add_cmd = 'pki-server instance-externalcert-add -i {} --cert-file {} ' \
-                          '--token NHSM6000 --nickname "{}"'.format(constants.CA_INSTANCE_NAME,
-                                                                    file_name, user_id)
-
-    certutil_cmd = 'certutil -L -d  {} | grep \"{}\"'.format(BASE_DB_DIR.format(
-        constants.CA_INSTANCE_NAME), user_id)
-
-    del_cert = 'pki-server instance-externalcert-del -i {} --nickname "{}" ' \
-               '--token NHSM6000'.format(constants.CA_INSTANCE_NAME, user_id)
-
-    add_cmd_output = ansible_module.expect(command=certificate_add_cmd,
-                                           responses={
-                                               "Enter password for NHSM6000: ": "SECret.579"})
-    for result in add_cmd_output.values():
-        if result['rc'] == 0:
-            assert "Certificate imported for instance " + constants.CA_INSTANCE_NAME in \
-                   result['stdout']
-
-            certImported = ansible_module.command(certutil_cmd)
-            for res in certImported.values():
-                if res['rc'] == 0:
-                    assert user_id in res['stdout']
-                else:
-                    pytest.xfail("Failed to run pki-server instance-external-cert-add "
-                                 "command with NHSM6000 token")
-        else:
-            assert "certutil: could not find the slot NHSM6000: SEC_ERROR_NO_TOKEN: The security " \
-                   "card or token does not exist, needs to be initialized, or has " \
-                   "been removed." in result['stdout']
-    ansible_module.command('rm -rf {}'.format(file_name))
-    cmd_output = ansible_module.expect(command=del_cert,
-                                       responses={
-                                           "Enter password for NHSM6000: ": "SECret.579"})
-    for result in cmd_output.values():
-        if result['rc'] == 0:
-            assert "Certificate removed from " \
-                   "instance {}.".format(constants.CA_INSTANCE_NAME) in result['stdout']

@@ -1,0 +1,35 @@
+- name: Sleep for a while to give time of any other instances to come up.
+  shell: sleep 7s
+
+- name: Install SubKRA master
+  shell: pkispawn -s KRA -f /tmp/test_dir/subkra.cfg --debug
+
+- name : Stopping SubKRA Subsystem
+  shell: echo "Stopping Subsystem for enabling Audit logging"
+  notify:
+    - STOPSubKRA
+    - INC_CONSTANTS
+
+- meta: flush_handlers
+
+- name: Enable SignedAudit
+  shell: pki-server kra-audit-config-mod -i {{ variable.KRA_INSTANCE_NAME }} --logSigning True
+
+- name: Enable SubOCSP for SubKRA
+  replace: dest=/etc/pki/{{ topology }}-KRA/server.xml regexp='enableOCSP="false"' replace='enableOCSP="true"'
+
+- name: Pointing SubKRA to correct SubOCSP port
+  replace: dest=/etc/pki/{{ topology }}-KRA/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.SUBCA_HTTP_PORT }}/ca/ocsp
+
+- name: Enable OCSP Policy to Native for tls as false
+  block:
+  - name: Picking the password in run-time from password.conf of KRA
+    shell: grep -i "internal=" /etc/pki/{{ topology }}-KRA/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
+
+  - name: Importing OCSP certificate in kra nssdb
+    shell: certutil -A -d /etc/pki/{{ topology }}-KRA/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
+
+- name: Starting SubKRA Subsystem
+  service:
+    name: pki-tomcatd@{{ topology }}-KRA.service
+    state: started

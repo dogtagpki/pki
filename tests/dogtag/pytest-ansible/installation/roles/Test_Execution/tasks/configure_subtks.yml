@@ -1,0 +1,40 @@
+- name: Sleep for a while to give time of any other instances to come up.
+  shell: sleep 7s
+
+- name: Install SubTKS master
+  shell: pkispawn -s TKS -f /tmp/test_dir/subtks.cfg --debug
+
+- name : Stopping SubTKS Subsystem
+  shell: echo "Stopping Subsystem for enabling Audit logging"
+  notify:
+    - STOPSubTKS
+    - INC_CONSTANTS
+
+- meta: flush_handlers
+
+- name: Enable SignedAudit
+  replace: dest=/etc/pki/{{ topology }}-TKS/tks/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
+
+- name: Enable SubOCSP for SubTKS
+  replace: dest=/etc/pki/{{ topology }}-TKS/server.xml regexp='enableOCSP="false"' replace='enableOCSP="true"'
+
+- name: Pointing SubTKS to correct SubOCSP port
+  replace: dest=/etc/pki/{{ topology }}-TKS/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.SUBCA_HTTP_PORT }}/ca/ocsp
+
+- name: Enable OCSP Policy to Native for tls as false
+  block:
+  - name: Picking the password in run-time from password.conf of TKS
+    shell: grep -i "internal=" /etc/pki/{{ topology }}-TKS/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
+
+  - name: Importing OCSP certificate in TKS nssdb
+    shell: certutil -A -d /etc/pki/{{ topology }}-TKS/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
+
+- meta: flush_handlers
+
+- name: Starting SubTKS Subsystem
+  service:
+    name: pki-tomcatd@{{ topology }}-TKS.service
+    state: started
+
+- name: Sleep for a while to start TKS
+  shell: sleep 3s

@@ -31,9 +31,10 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import logging
+import os
 import sys
 
-import os
 import pytest
 
 try:
@@ -42,6 +43,10 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
+
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def test_pki_server_migrate_help_command(ansible_module):
@@ -71,11 +76,12 @@ def test_pki_server_migrate_help_command(ansible_module):
             assert "-v, --verbose                Run in verbose mode." in result['stdout']
             assert "--debug                  Show debug messages." in result['stdout']
             assert "--help                   Show help message." in result['stdout']
-
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server migrate --help command")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
-
+@pytest.mark.skip(reason="pki-servlet-container is not supported in Rhel 8.2")
 def test_pki_server_migrate_command(ansible_module):
     """
     :id: 2659a948-ed42-4564-b89a-781858e23a8a
@@ -90,10 +96,10 @@ def test_pki_server_migrate_command(ansible_module):
             next or previous tomcat version if it is supported by RHEL and CS.
     """
     version = None
-    cmd_output = ansible_module.command('rpm -qa tomcat')
+    cmd_output = ansible_module.command('rpm -qa pki-servlet-container')
     for result in cmd_output.values():
         if result['rc'] == 0:
-            version = result['stdout'].split("-")[1].split(".")[0]
+            version = result['stdout'].split("-")[3].split(".")[0]
             version_old = int(version)
             version_new = version_old + 1
 
@@ -103,12 +109,15 @@ def test_pki_server_migrate_command(ansible_module):
                 for res in cmd_output.values():
                     if res['rc'] == 0:
                         assert "System migrated" in res['stdout']
+                        log.info("Successfully run : {}".format(" ".join(res['cmd'])))
+
             else:
                 cmd_output = ansible_module.command(cmdstr.format(version_old))
                 for res in cmd_output.values():
                     if res['rc'] == 0:
                         assert "System migrated" in res['stdout']
-
+                        log.info("Successfully run : {}".format(" ".join(res['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server migrate --tomcat " + version + " command")
-    ansible_module.command('pki-server migrate --tomcat {}'.format(version))
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
+        ansible_module.command('pki-server migrate --tomcat {}'.format(version))

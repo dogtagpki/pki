@@ -32,99 +32,95 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
-from utils import *
-ldap_port = "389"
-ldap_password = "SECret.123"
-pki_password = "SECret.123"
-kra_https_port = "21443"
-kra_http_port = "21080"
-kra_ajp_port = "21045"
-kra_tomcat_port = "21049"
-ocsp_https_port = "22443"
-ocsp_http_port = "22080"
-ocsp_ajp_port = "22045"
-ocsp_tomcat_port = "22049"
-tks_https_port = "23443"
-tks_http_port = "23080"
-tks_ajp_port = "23045"
-tks_tomcat_port = "23049"
-tps_https_port = "25443"
-tps_http_port = "25080"
-tps_ajp_port = "25045"
-tps_tomcat_port = "25049"
+import logging
+import os
+import sys
 
+import pytest
+from utils import NuxwdogOperations
+
+try:
+    from pki.testlib.common import constants
+except Exception as e:
+    if os.path.isfile('/tmp/test_dir/constants.py'):
+        sys.path.append('/tmp/test_dir')
+        import constants
+
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+subsystems = ['ca', 'kra', 'ocsp', 'tks', 'tps']
+
+
+@pytest.mark.skip(reason='bz: https://bugzilla.redhat.com/show_bug.cgi?id=1805042')
 def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_ca(ansible_module):
-
     """
     :Title: Non pkiuser can be assigned as owner of CA instance.
             Automation of BZ: 1523410 and 1534030
-
     :Description: This automation tests if a CA instance can be configured with a non pkiuser ownership.
-
-    :Requirement: Installation and Deployment
-
-    :Setup:
-	Have all the required packages installed.
-
+    :Requirement: RHCS-REQ Installation and Deployment
+    :Setup: Have all the required packages installed.
     :Steps:
             1. Add a user: useradd pkiuser2
             2. Create an installation file for CA with
                pki_user=pkiuser2
                pki_group=pkiuser2
             3. Install and configure CA
-
     :Expectedresults:
             1. Instance should start up correctly as that user.
             2. The override file (and directory) should be created:
                /etc/systemd/system/pki-tomcatd@<instance_name>.service.d/user.conf
-
     :Automated: Yes
-
     :CaseComponent: \-
     """
-    output = ansible_module.command('hostname')
+    user_conf_file = '/etc/systemd/system/pki-tomcatd@{}.service.d/user.conf'
+    ansible_module.command('cp -R /tmp/test_dir/ /tmp/test_conf')
+    ansible_module.lineinfile(dest='/tmp/test_conf/ca.cfg',
+                              insertafter="^pki_http_port.*",
+                              line="pki_user=pkiuser2")
+    ansible_module.lineinfile(dest='/tmp/test_conf/ca.cfg',
+                              insertafter="^pki_user.*",
+                              line="pki_group=pkiuser2")
+    ansible_module.replace(dest='/tmp/test_conf/ldap.cfg',
+                           regexp='^port.*',
+                           replace='port = 389')
+    ansible_module.replace(dest='/tmp/test_conf/ca.cfg',
+                           regexp='pki_ds_ldap_port.*',
+                           replace='pki_ds_ldap_port=389')
+    install_ds = ansible_module.shell('dscreate from-file /tmp/test_conf/ldap.cfg')
+    for result in install_ds.values():
+        assert result['rc'] == 0
+        log.info("Setup DS instance.")
+    install_ca = ansible_module.shell('pkispawn -s CA -f /tmp/test_conf/ca.cfg')
+    for result in install_ca.values():
+        assert result['rc'] == 0
+        log.info("CA Installed successfully")
+
+    output = ansible_module.shell('ls {}'.format(user_conf_file.format(constants.CA_INSTANCE_NAME)))
     for result in output.values():
-        currentHost = result['stdout']
-    config = Config()
-    ldap_general_info = {"FullMachineName":"%s"%currentHost, "SuiteSpotUserID":"nobody", "SuiteSpotGroupID":"nobody",
-                         "ConfigDirectoryAdminID":"admin"}
-    ldap_slapd_info = {"ServerIdentifier":"testingmaster", "ServerPort":"389", "RootDN":"CN=Directory Manager",
-                       "RootDNPwd":"%s" % ldap_password}
-    default_info = {"pki_instance_name":"pki-ca-non-pkiuser", "pki_hostname":"%s"%currentHost, "pki_user":"pkiuser2", "pki_group":"pkiuser2",
-                    "pki_ds_password":"%s" % ldap_password, "pki_ds_ldap_port":"389", "pki_token_password":"%s" % pki_password,
-                    "pki_admin_password":"%s" % pki_password, "pki_security_domain_password":"%s" % pki_password,
-                    "pki_client_pkcs12_password":"%s" % pki_password, "pki_backup_keys":"True", "pki_backup_password":"%s" % pki_password}
-    subsystem_info = {"pki_import_admin_cert":"False",
-                      "pki_admin_nickname":"PKI CA Administrator for Example.Org"}
+        assert user_conf_file.format(constants.CA_INSTANCE_NAME) in result['stdout']
+        log.info("File found: {}".format(user_conf_file.format(constants.CA_INSTANCE_NAME)))
+    nuxwdog = NuxwdogOperations(ansible_module, subsystem_type='CA',
+                                subsystem_name=constants.CA_INSTANCE_NAME,
+                                pki_user='pkiuser2')
+    nuxwdog.enable_nuxwdog()
 
-    config.subsystem("/tmp/ldap.inf", 'General', **ldap_general_info)
-    config.subsystem("/tmp/ldap.inf", 'slapd', **ldap_slapd_info)
-    config.default("/tmp/ca.inf", **default_info)
-    config.subsystem('/tmp/ca.inf', 'CA', **subsystem_info)
-    ansible_module.copy(src='/tmp/ca.inf', dest='/tmp/ca.inf')
-    ansible_module.copy(src='/tmp/ldap.inf', dest='/tmp/ldap.inf')
-    ansible_module.shell('setup-ds.pl --silent --file=/tmp/ldap.inf')
-    ansible_module.shell('pkispawn -s CA -f /tmp/ca.inf')
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-ca-non-pkiuser.service.d/user.conf')
+    output = ansible_module.shell('ps -ef | grep {}'.format(constants.CA_INSTANCE_NAME))
     for result in output.values():
-        assert "/etc/systemd/system/pki-tomcatd@pki-ca-non-pkiuser.service.d/user.conf" in result['stdout']
-    nuxwdog = NuxwdogOperations(subsystem_type='CA', subsystem_name='pki-ca-non-pkiuser', pki_user='pkiuser2')
-    nuxwdog.enable_nuxwdog(ansible_module)
-
-    output = ansible_module.shell('ps -ef | grep nuxwdog')
-    for result in output.values():
-        assert "pkiuser2" in result['stdout']
+        if result['rc'] == 0:
+            assert "pkiuser2" in result['stdout']
+        else:
+            pytest.xfail("Failed to run: {}".format(" ".join(result['cmd'])))
 
 
+@pytest.mark.skip(reason='bz: https://bugzilla.redhat.com/show_bug.cgi?id=1805042')
 def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_kra(ansible_module):
-
     """
     :Title: Non pkiuser can be assigned as owner of KRA instance.
             Automation of BZ: 1523410 and 1534030
 
     :Description: This automation tests if a KRA instance can be configured with a non pkiuser ownership.
 
-    :Requirement: Installation and Deployment
+    :Requirement: RHCS-REQ Installation and Deployment
 
     :CaseComponent: \-
 
@@ -142,46 +138,50 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_kra(ansible_module):
 
     :Automated: Yes
     """
-    output = ansible_module.command('hostname')
+
+    user_conf_file = '/etc/systemd/system/pki-tomcatd@{}.service.d/user.conf'
+    ansible_module.command('cp -R /tmp/test_dir/ /tmp/test_conf')
+    ansible_module.lineinfile(path='/tmp/test_conf/kra.cfg',
+                              insertafter="^pki_http_port.*",
+                              line="pki_user=pkiuser2")
+    ansible_module.lineinfile(path='/tmp/test_conf/kra.cfg',
+                              insertafter="^pki_user.*",
+                              line="pki_group=pkiuser2")
+    ansible_module.replace(dest='/tmp/test_conf/kra.cfg',
+                           regexp='pki_ds_ldap_port.*',
+                           replace='pki_ds_ldap_port=389')
+    install_kra = ansible_module.shell('pkispawn -s KRA -f /tmp/test_conf/kra.cfg')
+    for result in install_kra.values():
+        assert result['rc'] == 0
+        log.info("KRA installed successfully.")
+
+    output = ansible_module.shell('ls {}'.format(user_conf_file.format(constants.KRA_INSTANCE_NAME)))
     for result in output.values():
-        currentHost = result['stdout']
-    config = Config()
-    default_info = {"pki_instance_name":"pki-kra-non-pkiuser", "pki_https_port":"%s" % kra_https_port, "pki_http_port":"%s" % kra_http_port,
-                    "pki_hostname":"%s"%currentHost,"pki_user":"pkiuser2", "pki_group":"pkiuser2",
-                    "pki_security_domain_hostname":"%s" % currentHost, "pki_security_domain_https_port":"8443",
-                    "pki_ds_password":"%s" % ldap_password, "pki_ds_ldap_port":"389", "pki_token_password":"%s" % pki_password,
-                    "pki_admin_password":"%s" % pki_password, "pki_security_domain_password":"%s" % pki_password,
-                    "pki_client_pkcs12_password":"%s" % pki_password, "pki_backup_keys":"True",
-                    "pki_backup_password":"%s" % pki_password, "pki_client_database_password":"%s" % pki_password}
-    tomcat_info = {"pki_ajp_port":"%s" % kra_ajp_port, "pki_tomcat_server_port":"%s" % kra_tomcat_port}
-    subsystem_info = {"pki_import_admin_cert":"False",
-                      "pki_admin_nickname":"PKI KRA Administrator for Example.Org"}
+        assert user_conf_file.format(constants.KRA_INSTANCE_NAME) in result['stdout']
+        log.info("File exists: {}".format(user_conf_file.format(constants.KRA_INSTANCE_NAME)))
 
-    config.default("/tmp/kra.inf", **default_info)
-    config.subsystem('/tmp/kra.inf', 'Tomcat', **tomcat_info)
-    config.subsystem('/tmp/kra.inf', 'KRA', **subsystem_info)
-    ansible_module.copy(src='/tmp/kra.inf', dest='/tmp/kra.inf')
-    ansible_module.shell('pkispawn -s KRA -f /tmp/kra.inf')
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-kra-non-pkiuser.service.d/user.conf')
+    log.info("Enabling Nuxwdog.")
+    nuxwdog = NuxwdogOperations(ansible_module, subsystem_type='KRA',
+                                subsystem_name=constants.KRA_INSTANCE_NAME,
+                                pki_user='pkiuser2')
+    nuxwdog.enable_nuxwdog()
+    output = ansible_module.shell('ps -ef | grep {}'.format(constants.KRA_INSTANCE_NAME))
     for result in output.values():
-        assert "/etc/systemd/system/pki-tomcatd@pki-kra-non-pkiuser.service.d/user.conf" in result['stdout']
-    nuxwdog = NuxwdogOperations(subsystem_type='KRA', subsystem_name='pki-kra-non-pkiuser', pki_user='pkiuser2')
-    nuxwdog.enable_nuxwdog(ansible_module)
-
-    output = ansible_module.shell('ps -ef | grep pki-kra-non-pkiuser')
-    for result in output.values():
-        assert "pkiuser2" in result['stdout']
+        if result['rc'] == 0:
+            assert "pkiuser2" in result['stdout']
+        else:
+            pytest.xfail("Failed to run: {}".format(" ".join(result['cmd'])))
 
 
+@pytest.mark.skip(reason='bz: https://bugzilla.redhat.com/show_bug.cgi?id=1805042')
 def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_ocsp(ansible_module):
-
     """
     :Title: Non pkiuser can be assigned as owner of OCSP instance.
             Automation of BZ: 1523410 and 1534030
 
     :Description: This automation tests if a OCSP instance can be configured with a non pkiuser ownership.
 
-    :Requirement: Installation and Deployment
+    :Requirement: RHCS-REQ Installation and Deployment
 
     :CaseComponent: \-
 
@@ -199,46 +199,49 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_ocsp(ansible_module):
 
     :Automated: Yes
     """
-    output = ansible_module.command('hostname')
+
+    user_conf_file = '/etc/systemd/system/pki-tomcatd@{}.service.d/user.conf'
+    ansible_module.command('cp -R /tmp/test_dir/ /tmp/test_conf')
+    ansible_module.lineinfile(path='/tmp/test_conf/ocsp.cfg',
+                              insertafter="^pki_http_port.*",
+                              line="pki_user=pkiuser2")
+    ansible_module.lineinfile(path='/tmp/test_conf/ocsp.cfg',
+                              insertafter="^pki_user.*",
+                              line="pki_group=pkiuser2")
+    ansible_module.replace(dest='/tmp/test_conf/ocsp.cfg',
+                           regexp='pki_ds_ldap_port.*',
+                           replace='pki_ds_ldap_port=389')
+    install_ocsp = ansible_module.shell('pkispawn -s OCSP -f /tmp/test_conf/ocsp.cfg')
+    for result in install_ocsp.values():
+        assert result['rc'] == 0
+        log.info("OCSP installed successfully.")
+
+    output = ansible_module.shell('ls {}'.format(user_conf_file.format(constants.OCSP_INSTANCE_NAME)))
     for result in output.values():
-        currentHost = result['stdout']
-    config = Config()
-    default_info = {"pki_instance_name":"pki-ocsp-non-pkiuser", "pki_https_port":"%s" % ocsp_https_port, "pki_http_port":"%s" % ocsp_http_port,
-                    "pki_hostname":"%s"%currentHost,"pki_user":"pkiuser2", "pki_group":"pkiuser2",
-                    "pki_security_domain_hostname":"%s" % currentHost, "pki_security_domain_https_port":"8443",
-                    "pki_ds_password":"%s" % ldap_password, "pki_ds_ldap_port":"389", "pki_token_password":"%s" % pki_password,
-                    "pki_admin_password":"%s" % pki_password, "pki_security_domain_password":"%s" % pki_password,
-                    "pki_client_pkcs12_password":"%s" % pki_password, "pki_backup_keys":"True",
-                    "pki_backup_password":"%s" % pki_password, "pki_client_database_password":"%s" % pki_password}
-    tomcat_info = {"pki_ajp_port":"%s" % ocsp_ajp_port, "pki_tomcat_server_port":"%s" % ocsp_tomcat_port}
-    subsystem_info = {"pki_import_admin_cert":"False",
-                      "pki_admin_nickname":"PKI OCSP Administrator for Example.Org"}
+        assert user_conf_file.format(constants.OCSP_INSTANCE_NAME) in result['stdout']
+        log.info("File exists: {}".format(user_conf_file.format(constants.OCSP_INSTANCE_NAME)))
 
-    config.default("/tmp/ocsp.inf", **default_info)
-    config.subsystem('/tmp/ocsp.inf', 'Tomcat', **tomcat_info)
-    config.subsystem('/tmp/ocsp.inf', 'OCSP', **subsystem_info)
-    ansible_module.copy(src='/tmp/ocsp.inf', dest='/tmp/ocsp.inf')
-    ansible_module.shell('pkispawn -s OCSP -f /tmp/ocsp.inf')
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-ocsp-non-pkiuser.service.d/user.conf')
+    log.info("Enabling Nuxwdog.")
+    nuxwdog = NuxwdogOperations(ansible_module, subsystem_type='OCSP',
+                                subsystem_name=constants.OCSP_INSTANCE_NAME, pki_user='pkiuser2')
+    nuxwdog.enable_nuxwdog()
+    output = ansible_module.shell('ps -ef | grep {}'.format(constants.OCSP_INSTANCE_NAME))
     for result in output.values():
-        assert "/etc/systemd/system/pki-tomcatd@pki-ocsp-non-pkiuser.service.d/user.conf" in result['stdout']
-    nuxwdog = NuxwdogOperations(subsystem_type='OCSP', subsystem_name='pki-ocsp-non-pkiuser', pki_user='pkiuser2')
-    nuxwdog.enable_nuxwdog(ansible_module)
-
-    output = ansible_module.shell('ps -ef | grep pki-ocsp-non-pkiuser')
-    for result in output.values():
-        assert "pkiuser2" in result['stdout']
+        if result['rc'] == 0:
+            assert "pkiuser2" in result['stdout']
+        else:
+            pytest.xfail("Failed to run: {}".format(" ".join(result['cmd'])))
 
 
+@pytest.mark.skip(reason='bz: https://bugzilla.redhat.com/show_bug.cgi?id=1805042')
 def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_tks(ansible_module):
-
     """
     :Title: Non pkiuser can be assigned as owner of TKS instance.
             Automation of BZ: 1523410 and 1534030
 
     :Description: This automation tests if a TKS instance can be configured with a non pkiuser ownership.
 
-    :Requirement: Installation and Deployment
+    :Requirement: RHCS-REQ Installation and Deployment
 
     :CaseComponent: \-
 
@@ -256,46 +259,50 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_tks(ansible_module):
 
     :Automated: Yes
     """
-    output = ansible_module.command('hostname')
+
+    user_conf_file = '/etc/systemd/system/pki-tomcatd@{}.service.d/user.conf'
+    ansible_module.command('cp -R /tmp/test_dir/ /tmp/test_conf')
+    ansible_module.lineinfile(path='/tmp/test_conf/tks.cfg',
+                              insertafter="^pki_http_port.*",
+                              line="pki_user=pkiuser2")
+    ansible_module.lineinfile(path='/tmp/test_conf/tks.cfg',
+                              insertafter="^pki_user.*",
+                              line="pki_group=pkiuser2")
+    ansible_module.replace(dest='/tmp/test_conf/tks.cfg',
+                           regexp='pki_ds_ldap_port.*',
+                           replace='pki_ds_ldap_port=389')
+    install_tks = ansible_module.shell('pkispawn -s TKS -f /tmp/test_conf/tks.cfg')
+    for result in install_tks.values():
+        assert result['rc'] == 0
+        log.info("TKS installed successfully.")
+
+    output = ansible_module.shell('ls {}'.format(user_conf_file.format(constants.TKS_INSTANCE_NAME)))
     for result in output.values():
-        currentHost = result['stdout']
-    config = Config()
-    default_info = {"pki_instance_name":"pki-tks-non-pkiuser", "pki_https_port":"%s" % tks_https_port, "pki_http_port":"%s" % tks_http_port,
-                    "pki_hostname":"%s"%currentHost,"pki_user":"pkiuser2", "pki_group":"pkiuser2",
-                    "pki_security_domain_hostname":"%s" % currentHost, "pki_security_domain_https_port":"8443",
-                    "pki_ds_password":"%s" % ldap_password, "pki_ds_ldap_port":"389", "pki_token_password":"%s" % pki_password,
-                    "pki_admin_password":"%s" % pki_password, "pki_security_domain_password":"%s" % pki_password,
-                    "pki_client_pkcs12_password":"%s" % pki_password, "pki_backup_keys":"True",
-                    "pki_backup_password":"%s" % pki_password, "pki_client_database_password":"%s" % pki_password}
-    tomcat_info = {"pki_ajp_port":"%s" % tks_ajp_port, "pki_tomcat_server_port":"%s" % tks_tomcat_port}
-    subsystem_info = {"pki_import_admin_cert":"False",
-                      "pki_admin_nickname":"PKI TKS Administrator for Example.Org"}
+        assert user_conf_file.format(constants.TKS_INSTANCE_NAME) in result['stdout']
+        log.info("File exists: {}".format(user_conf_file.format(constants.TKS_INSTANCE_NAME)))
 
-    config.default("/tmp/tks.inf", **default_info)
-    config.subsystem('/tmp/tks.inf', 'Tomcat', **tomcat_info)
-    config.subsystem('/tmp/tks.inf', 'TKS', **subsystem_info)
-    ansible_module.copy(src='/tmp/tks.inf', dest='/tmp/tks.inf')
-    ansible_module.shell('pkispawn -s TKS -f /tmp/tks.inf')
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-tks-non-pkiuser.service.d/user.conf')
+    log.info("Enabling Nuxwdog.")
+    nuxwdog = NuxwdogOperations(ansible_module, subsystem_type='TKS',
+                                subsystem_name=constants.TKS_INSTANCE_NAME, pki_user='pkiuser2')
+    nuxwdog.enable_nuxwdog()
+    log.info("Nuxwdog enabled.")
+    output = ansible_module.shell('ps -ef | grep {}'.format(constants.TKS_INSTANCE_NAME))
     for result in output.values():
-        assert "/etc/systemd/system/pki-tomcatd@pki-tks-non-pkiuser.service.d/user.conf" in result['stdout']
-    nuxwdog = NuxwdogOperations(subsystem_type='TKS', subsystem_name='pki-tks-non-pkiuser', pki_user='pkiuser2')
-    nuxwdog.enable_nuxwdog(ansible_module)
-
-    output = ansible_module.shell('ps -ef | grep pki-tks-non-pkiuser')
-    for result in output.values():
-        assert "pkiuser2" in result['stdout']
+        if result['rc'] == 0:
+            assert "pkiuser2" in result['stdout']
+        else:
+            pytest.xfail("Failed to run: {}".format(" ".join(result['cmd'])))
 
 
+@pytest.mark.skip(reason='bz: https://bugzilla.redhat.com/show_bug.cgi?id=1805042')
 def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_tps(ansible_module):
-
     """
     :Title: Non pkiuser can be assigned as owner of TPS instance.
             Automation of BZ: 1523410 and 1534030
 
     :Description: This automation tests if a TKS instance can be configured with a non pkiuser ownership.
 
-    :Requirement: Installation and Deployment
+    :Requirement: RHCS-REQ Installation and Deployment
 
     :CaseComponent: \-
 
@@ -313,49 +320,49 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_tps(ansible_module):
 
     :Automated: Yes
     """
-    output = ansible_module.command('hostname')
+    user_conf_file = '/etc/systemd/system/pki-tomcatd@{}.service.d/user.conf'
+    ansible_module.command('cp -R /tmp/test_dir/ /tmp/test_conf')
+    ansible_module.lineinfile(path='/tmp/test_conf/tps.cfg',
+                              insertafter="^pki_http_port.*",
+                              line="pki_user=pkiuser2")
+    ansible_module.lineinfile(path='/tmp/test_conf/tps.cfg',
+                              insertafter="^pki_user.*",
+                              line="pki_group=pkiuser2")
+    ansible_module.replace(dest='/tmp/test_conf/tps.cfg',
+                           regexp='pki_ds_ldap_port.*',
+                           replace='pki_ds_ldap_port=389')
+    install_kra = ansible_module.shell('pkispawn -s TPS -f /tmp/test_conf/tps.cfg')
+    for result in install_kra.values():
+        assert result['rc'] == 0
+        log.info("TPS installed successfully.")
+
+    output = ansible_module.shell('ls {}'.format(user_conf_file.format(constants.TPS_INSTANCE_NAME)))
     for result in output.values():
-        currentHost = result['stdout']
-    config = Config()
-    default_info = {"pki_instance_name":"pki-tps-non-pkiuser", "pki_https_port":"%s" % tps_https_port, "pki_http_port":"%s" % tps_http_port,
-                    "pki_hostname":"%s"%currentHost,"pki_user":"pkiuser2", "pki_group":"pkiuser2",
-                    "pki_security_domain_hostname":"%s" % currentHost, "pki_security_domain_https_port":"8443",
-                    "pki_ds_password":"%s" % ldap_password, "pki_ds_ldap_port":"389", "pki_token_password":"%s" % pki_password,
-                    "pki_admin_password":"%s" % pki_password, "pki_security_domain_password":"%s" % pki_password,
-                    "pki_client_pkcs12_password":"%s" % pki_password, "pki_backup_keys":"True",
-                    "pki_backup_password":"%s" % pki_password, "pki_client_database_password":"%s" % pki_password}
-    tomcat_info = {"pki_ajp_port":"%s" % tps_ajp_port, "pki_tomcat_server_port":"%s" % tps_tomcat_port}
-    subsystem_info = {"pki_import_admin_cert":"False",
-                      "pki_admin_nickname":"PKI TPS Administrator for Example.Org",
-                      "pki_authdb_basedn":"ou=People,dc=example,dc=org", "pki_authdb_hostname":"%s" % currentHost,
-                      "pki_authdb_port":"389", "pki_ca_uri":"https://%s:8443" % currentHost,
-                      "pki_kra_uri":"https://%s:21443" % currentHost, "pki_tks_uri":"https://%s:23443" % currentHost}
+        assert user_conf_file.format(constants.TPS_INSTANCE_NAME) in result['stdout']
+        log.info("File exists: {}".format(user_conf_file.format(constants.TPS_INSTANCE_NAME)))
 
-    config.default("/tmp/tps.inf", **default_info)
-    config.subsystem('/tmp/tps.inf', 'Tomcat', **tomcat_info)
-    config.subsystem('/tmp/tps.inf', 'TPS', **subsystem_info)
-    ansible_module.copy(src='/tmp/tps.inf', dest='/tmp/tps.inf')
-    ansible_module.shell('pkispawn -s TPS -f /tmp/tps.inf')
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-tps-non-pkiuser.service.d/user.conf')
+    log.info("Enabling Nuxwdog.")
+    nuxwdog = NuxwdogOperations(ansible_module, subsystem_type='TPS',
+                                subsystem_name=constants.TPS_INSTANCE_NAME, pki_user='pkiuser2')
+    nuxwdog.enable_nuxwdog()
+    log.info("Nuxwdog enabled.")
+    output = ansible_module.shell('ps -ef | grep {}'.format(constants.TPS_INSTANCE_NAME))
     for result in output.values():
-        assert "/etc/systemd/system/pki-tomcatd@pki-tps-non-pkiuser.service.d/user.conf" in result['stdout']
-    nuxwdog = NuxwdogOperations(subsystem_type='TPS', subsystem_name='pki-tps-non-pkiuser', pki_user='pkiuser2')
-    nuxwdog.enable_nuxwdog(ansible_module)
-
-    output = ansible_module.shell('ps -ef | grep pki-tps-non-pkiuser')
-    for result in output.values():
-        assert "pkiuser2" in result['stdout']
+        if result['rc'] == 0:
+            assert "pkiuser2" in result['stdout']
+        else:
+            pytest.xfail("Failed to run: {}".format(" ".join(result['cmd'])))
 
 
+@pytest.mark.skip(reason='bz: https://bugzilla.redhat.com/show_bug.cgi?id=1805042')
 def test_bug_1523410_non_pkiuser_owned_pkidestroy_tps(ansible_module):
-
     """
     :Title: TPS pkidestroy with nuxwdog
             Automation of BZ: 1523410
 
     :Description: This automation tests pkidestroy of TPS when nuxwdog is enabled
 
-    :Requirement: Installation and Deployment
+    :Requirement: RHCS-REQ Installation and Deployment
 
     :CaseComponent: \-
 
@@ -375,22 +382,27 @@ def test_bug_1523410_non_pkiuser_owned_pkidestroy_tps(ansible_module):
 
     :Automated: Yes
     """
-    nuxwdog = NuxwdogOperations(subsystem_type='TPS', subsystem_name='pki-tps-non-pkiuser', pki_user='pkiuser2')
-    nuxwdog.pkidestroy_nuxwdog(ansible_module)
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-tps-non-pkiuser.service.d/user.conf')
+    user_conf_file = '/etc/systemd/system/pki-tomcatd@{}.service.d/user.conf'
+    log.info("Disabling Nuxwdog for {}".format(constants.TPS_INSTANCE_NAME))
+    nuxwdog = NuxwdogOperations(ansible_module, subsystem_type='TPS',
+                                subsystem_name=constants.TPS_INSTANCE_NAME, pki_user='pkiuser2')
+    nuxwdog.pkidestroy_nuxwdog()
+    log.info("Removed {}".format(constants.TPS_INSTANCE_NAME))
+    output = ansible_module.shell('ls {}'.format(user_conf_file.format(constants.TPS_INSTANCE_NAME)))
     for result in output.values():
         assert "No such file or directory" in result['stderr']
+        log.info("File {} does not exists.".format(user_conf_file.format(constants.TPS_INSTANCE_NAME)))
 
 
+@pytest.mark.skip(reason='bz: https://bugzilla.redhat.com/show_bug.cgi?id=1805042')
 def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_tks(ansible_module):
-
     """
     :Title: TKS pkidestroy with nuxwdog
             Automation of BZ: 1523410 and 1534030
 
     :Description: This automation tests pkidestroy of TKS when nuxwdog is enabled
 
-    :Req Installation and Deployment
+    :Requirement: RHCS-REQ Installation and Deployment
 
     :CaseComponent: \-
 
@@ -410,22 +422,27 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_tks(ansible_module):
 
     :Automated: Yes
     """
-    nuxwdog = NuxwdogOperations(subsystem_type='TKS', subsystem_name='pki-tks-non-pkiuser', pki_user='pkiuser2')
-    nuxwdog.pkidestroy_nuxwdog(ansible_module)
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-tks-non-pkiuser.service.d/user.conf')
+    user_conf_file = '/etc/systemd/system/pki-tomcatd@{}.service.d/user.conf'
+    log.info("Disabling Nuxwdog for {}".format(constants.TKS_INSTANCE_NAME))
+    nuxwdog = NuxwdogOperations(ansible_module, subsystem_type='TKS',
+                                subsystem_name=constants.TKS_INSTANCE_NAME, pki_user='pkiuser2')
+    nuxwdog.pkidestroy_nuxwdog()
+    log.info("Removed {}".format(constants.TKS_INSTANCE_NAME))
+    output = ansible_module.shell('ls {}'.format(user_conf_file.format(constants.TKS_INSTANCE_NAME)))
     for result in output.values():
         assert "No such file or directory" in result['stderr']
+        log.info("File {} does not exists.".format(user_conf_file.format(constants.TKS_INSTANCE_NAME)))
 
 
+@pytest.mark.skip(reason='bz: https://bugzilla.redhat.com/show_bug.cgi?id=1805042')
 def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_ocsp(ansible_module):
-
     """
     :Title: OCSP pkidestroy with nuxwdog
             Automation of BZ: 1523410 and 1534030
 
     :Description: This automation tests pkidestroy of OCSP when nuxwdog is enabled
 
-    :Requirement: Installation and Deployment
+    :Requirement: RHCS-REQ Installation and Deployment
 
     :CaseComponent: \-
 
@@ -445,22 +462,27 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_ocsp(ansible_module):
 
     :Automated: Yes
     """
-    nuxwdog = NuxwdogOperations(subsystem_type='OCSP', subsystem_name='pki-ocsp-non-pkiuser', pki_user='pkiuser2')
-    nuxwdog.pkidestroy_nuxwdog(ansible_module)
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-ocsp-non-pkiuser.service.d/user.conf')
+    user_conf_file = '/etc/systemd/system/pki-tomcatd@{}.service.d/user.conf'
+    log.info("Disabling Nuxwdog for {}".format(constants.OCSP_INSTANCE_NAME))
+    nuxwdog = NuxwdogOperations(ansible_module, subsystem_type='OCSP',
+                                subsystem_name=constants.OCSP_INSTANCE_NAME, pki_user='pkiuser2')
+    nuxwdog.pkidestroy_nuxwdog()
+    log.info("Removed {}".format(constants.OCSP_INSTANCE_NAME))
+    output = ansible_module.shell('ls {}'.format(user_conf_file.format(constants.OCSP_INSTANCE_NAME)))
     for result in output.values():
         assert "No such file or directory" in result['stderr']
+        log.info("File {} does not exists.".format(user_conf_file.format(constants.OCSP_INSTANCE_NAME)))
 
 
+@pytest.mark.skip(reason='bz: https://bugzilla.redhat.com/show_bug.cgi?id=1805042')
 def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_kra(ansible_module):
-
     """
     :Title: KRA pkidestroy with nuxwdog
             Automation of BZ: 1523410 and 1534030
 
     :Description: This automation tests pkidestroy of KRA when nuxwdog is enabled
 
-    :Requirement: Installation and Deployment
+    :Requirement: RHCS-REQ Installation and Deployment
 
     :CaseComponent: \-
 
@@ -480,22 +502,27 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_kra(ansible_module):
 
     :Automated: Yes
     """
-    nuxwdog = NuxwdogOperations(subsystem_type='KRA', subsystem_name='pki-kra-non-pkiuser', pki_user='pkiuser2')
-    nuxwdog.pkidestroy_nuxwdog(ansible_module)
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-kra-non-pkiuser.service.d/user.conf')
+    user_conf_file = '/etc/systemd/system/pki-tomcatd@{}.service.d/user.conf'
+    log.info("Disabling Nuxwdog for {}".format(constants.KRA_INSTANCE_NAME))
+    nuxwdog = NuxwdogOperations(ansible_module, subsystem_type='KRA',
+                                subsystem_name=constants.KRA_INSTANCE_NAME, pki_user='pkiuser2')
+    nuxwdog.pkidestroy_nuxwdog()
+    log.info("Removed {}".format(constants.KRA_INSTANCE_NAME))
+    output = ansible_module.shell('ls {}'.format(user_conf_file.format(constants.KRA_INSTANCE_NAME)))
     for result in output.values():
         assert "No such file or directory" in result['stderr']
+        log.info("File {} does not exists.".format(user_conf_file.format(constants.KRA_INSTANCE_NAME)))
 
 
+@pytest.mark.skip(reason='bz: https://bugzilla.redhat.com/show_bug.cgi?id=1805042')
 def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_ca(ansible_module):
-
     """
     :Title: CA pkidestroy with nuxwdog
             Automation of BZ: 1523410 and 1534030
 
     :Description: This automation tests pkidestroy of CA when nuxwdog is enabled
 
-    :Requirement: Installation and Deployment
+    :Requirement: RHCS-REQ Installation and Deployment
 
     :CaseComponent: \-
 
@@ -515,12 +542,15 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_ca(ansible_module):
 
     :Automated: Yes
     """
-    nuxwdog = NuxwdogOperations(subsystem_type='CA', subsystem_name='pki-ca-non-pkiuser', pki_user='pkiuser2')
-    nuxwdog.pkidestroy_nuxwdog(ansible_module)
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-ca-non-pkiuser.service.d/user.conf')
+    user_conf_file = '/etc/systemd/system/pki-tomcatd@{}.service.d/user.conf'
+    log.info("Disabling Nuxwdog for {}".format(constants.CA_INSTANCE_NAME))
+    nuxwdog = NuxwdogOperations(ansible_module, subsystem_type='CA',
+                                subsystem_name=constants.CA_INSTANCE_NAME, pki_user='pkiuser2')
+    nuxwdog.pkidestroy_nuxwdog()
+    log.info("Nuxwdog disable for {}".format(constants.CA_INSTANCE_NAME))
+    output = ansible_module.shell('ls {}'.format(user_conf_file.format(constants.CA_INSTANCE_NAME)))
     for result in output.values():
         assert "No such file or directory" in result['stderr']
-    ansible_module.shell('remove-ds.pl -f -i slapd-testingmaster')
-    ansible_module.shell('rm -rf /tmp/ca.inf /tmp/kra.inf /tmp/ldap.inf /tmp/CA-password.conf '
-                         '/tmp/ocsp.inf /tmp/tks.inf /tmp/tps.inf '
-                         '/tmp/KRA-password.conf, /tmp/OCSP-password.conf /tmp/TKS-password.conf /tmp/TPS-password.conf')
+        log.info("File {} does not exists.".format(user_conf_file.format(constants.CA_INSTANCE_NAME)))
+    ansible_module.shell('dsctl topology-00-testingmaster remove --do-it')
+    ansible_module.shell('rm -rf /tmp/test_conf/')

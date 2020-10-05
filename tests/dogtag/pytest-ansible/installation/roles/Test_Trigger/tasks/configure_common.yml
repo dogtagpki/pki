@@ -61,8 +61,12 @@
   include_vars: "{{ item }}"
   with_items:
   - "{{ playbook_dir }}/vars/ldap.yml"
-  - "{{ playbook_dir }}/vars/ca.yml"
   - "{{ playbook_dir }}/vars/subca.yml"
+  - "{{ playbook_dir }}/vars/ca.yml"
+  - "{{ playbook_dir }}/vars/kra.yml"
+  - "{{ playbook_dir }}/vars/ocsp.yml"
+  - "{{ playbook_dir }}/vars/tks.yml"
+  - "{{ playbook_dir }}/vars/tps.yml"
   when: topology  == "topology-SubCA"
 
 - name: Creates directory
@@ -83,6 +87,10 @@
   - /tmp/test_dir/tps.cfg
   - /tmp/test_dir/constants.py
   - /tmp/test_dir/subca.cfg
+  - /tmp/test_dir/subkra.cfg
+  - /tmp/test_dir/subocsp.cfg
+  - /tmp/test_dir/subtks.cfg
+  - /tmp/test_dir/subtps.cfg
 
 - name: Replace  Ldap server secure port in config files
   replace: dest={{item}} regexp="ldapSecureServerPort" replace={{ldapSecureServerPort}}
@@ -101,6 +109,10 @@
   - /tmp/test_dir/tps.cfg
   - /tmp/test_dir/constants.py
   - /tmp/test_dir/subca.cfg
+  - /tmp/test_dir/subkra.cfg
+  - /tmp/test_dir/subocsp.cfg
+  - /tmp/test_dir/subtks.cfg
+  - /tmp/test_dir/subtps.cfg
 
 - name : Substitute SHA512withEC with SHA512withRSA when topology=topology-ecc
   replace: dest={{item}} regexp="SHA512withRSA" replace="SHA512withEC"
@@ -153,6 +165,10 @@
   - /tmp/test_dir/token_format.txt
   - /tmp/test_dir/token_enroll.txt
   - /tmp/test_dir/subca.cfg
+  - /tmp/test_dir/subkra.cfg
+  - /tmp/test_dir/subocsp.cfg
+  - /tmp/test_dir/subtks.cfg
+  - /tmp/test_dir/subtps.cfg
 
 - name: Replace ServerName in all configuration files.
   replace: dest={{item}} regexp="SERVERNAME" replace=pki1.example.com

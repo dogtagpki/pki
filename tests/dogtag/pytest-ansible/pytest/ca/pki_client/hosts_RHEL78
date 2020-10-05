@@ -1,0 +1,2 @@
+[master]
+10.0.145.132 ansible_python_interpreter=/usr/bin/python2.7

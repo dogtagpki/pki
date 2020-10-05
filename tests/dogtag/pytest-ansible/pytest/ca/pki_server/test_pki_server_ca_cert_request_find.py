@@ -36,6 +36,7 @@ import sys
 
 import os
 import pytest
+import logging
 
 from pki.testlib.common import utils
 
@@ -47,8 +48,16 @@ except Exception as e:
         import constants
 
 userop = utils.UserOperations(nssdb=constants.NSSDB)
-
 BASE_DB_DIR = '/var/lib/pki/{}/alias'
+
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+
+if TOPOLOGY == '01':
+    ca_instance_name = 'pki-tomcat'
+    topology_name = 'topology-01-CA'
+else:
+    ca_instance_name = constants.CA_INSTANCE_NAME
+    topology_name = constants.CA_INSTANCE_NAME
 
 
 def create_cert(ansible_module):
@@ -62,14 +71,14 @@ def create_cert(ansible_module):
     cert_id = userop.process_certificate_request(ansible_module, subject=subject)
     if cert_id:
         cert_file = "/tmp/{}.pem".format(user)
-        ansible_module.command('pki -d {} -c {} -p {} client-cert-import "{}" '
+        ansible_module.shell('pki -d {} -c {} -p {} client-cert-import "{}" '
                                '--serial {}'.format(constants.NSSDB, constants.CLIENT_DIR_PASSWORD,
                                                     constants.CA_HTTP_PORT, user, cert_id))
-        ansible_module.command('pki -d {} -c {} client-cert-show "{}" '
+        ansible_module.shell('pki -d {} -c {} client-cert-show "{}" '
                                '--cert /tmp/{}.pem '.format(constants.NSSDB,
                                                             constants.CLIENT_DIR_PASSWORD,
                                                             user, user))
-        ansible_module.command('pki -d {} -c {} client-cert-del '
+        ansible_module.shell('pki -d {} -c {} client-cert-del '
                                '"{}"'.format(constants.NSSDB, constants.CLIENT_DIR_PASSWORD,
                                              user))
         return [cert_id, cert_file]
@@ -88,13 +97,13 @@ def test_pki_server_ca_cert_request(ansible_module):
         1. Verify whether pki-server ca-cert-request command shows ca-cert-request-find,
            ca-cert-request-find commands.
     """
-    ca_cert_out = ansible_module.command('pki-server ca-cert-request')
+    ca_cert_out = ansible_module.shell('pki-server ca-cert-request')
     for result in ca_cert_out.values():
         if result['rc'] == 0:
             assert "ca-cert-request-find          Find CA certificate requests" in result['stdout']
             assert "ca-cert-request-show          Show CA certificate request" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server ca-cert-request-find command.")
+            pytest.fail("Failed to run pki-server ca-cert-request-find command.")
 
 
 def test_pki_server_ca_cert_request_find(ansible_module):
@@ -112,11 +121,11 @@ def test_pki_server_ca_cert_request_find(ansible_module):
         1. Verify whether pki-server ca-cert-request-find command shows the cert
            request with default pki-tomcat instance.
     """
-    cmd = 'pki-server ca-cert-request-find'
-    request_out = ansible_module.command(cmd)
+    cmd = 'pki-server ca-cert-request-find -i {}'.format(ca_instance_name)
+    request_out = ansible_module.shell(cmd)
     for result in request_out.values():
         if result['rc'] >= 1:
-            assert "ERROR: Invalid instance pki-tomcat." in result['stdout']
+            assert "ERROR: 'extdata-cert--005frequest'" in result['stderr']
         else:
             assert "entries matched" in result['stdout']
             assert "Request ID:" in result['stdout']
@@ -124,8 +133,7 @@ def test_pki_server_ca_cert_request_find(ansible_module):
             assert "Status: " in result['stdout']
 
 
-@pytest.mark.parametrize("instance_name", [constants.CA_INSTANCE_NAME,
-                                           "invalid_instance"])
+@pytest.mark.parametrize("instance_name", [ca_instance_name, "invalid_instance"])
 def test_pki_server_ca_cert_request_find_with_instance_name(ansible_module, instance_name):
     """
     :id: 30b662b4-4371-4829-86c9-4d84dc8f4b09
@@ -141,13 +149,13 @@ def test_pki_server_ca_cert_request_find_with_instance_name(ansible_module, inst
     """
     cmd = 'pki-server ca-cert-request-find -i {}'.format(instance_name)
 
-    request_out = ansible_module.command(cmd)
+    request_out = ansible_module.shell(cmd)
     for result in request_out.values():
         if result['rc'] >= 1:
-            if 'Invalid' in result['stdout']:
-                assert "ERROR: Invalid instance %s" % instance_name in result['stdout']
+            if 'Invalid' in result['stderr']:
+                assert "ERROR: Invalid instance: %s" % instance_name in result['stderr']
             else:
-                assert "ERROR: 'extdata-cert--005frequest'" in result['stdout']
+                assert "ERROR: 'extdata-cert--005frequest'" in result['stderr']
         else:
             assert "entries matched" in result['stdout']
             assert "Request ID:" in result['stdout']
@@ -155,7 +163,7 @@ def test_pki_server_ca_cert_request_find_with_instance_name(ansible_module, inst
             assert "Status: " in result['stdout']
 
 
-@pytest.mark.xfail(reason="Not implemented correctly")
+@pytest.mark.skip(reason="Not implemented correctly")
 def test_pki_server_ca_cert_request_find_with_cert_option(ansible_module):
     """
     :id: 08997b38-1f9c-4b18-8863-10efd400302a
@@ -170,23 +178,22 @@ def test_pki_server_ca_cert_request_find_with_cert_option(ansible_module):
     """
     cert_id, cert_file = create_cert(ansible_module)
 
-    cert_out = ansible_module.command('pki-server ca-cert-request-find '
-                                      '-i {} --cert {}'.format(constants.CA_INSTANCE_NAME,
-                                                               cert_id))
+    cert_out = ansible_module.shell('pki-server ca-cert-request-find '
+                                      '-i {} --cert {}'.format(ca_instance_name, cert_id))
 
     for result in cert_out.values():
         if result['rc'] == 0:
             if '0 entries matched' in result['stdout']:
-                pytest.xfail("Failed to run pki-server ca-cert-request-find.")
+                pytest.fail("Failed to run pki-server ca-cert-request-find.")
             elif '0 entries matched' not in result['stdout']:
                 assert 'Request ID: ' in result['stdout']
                 assert 'Type:' in result['stdout']
                 assert 'Status:' in result['stdout']
             else:
-                pytest.xfail("Failed to run pki-server ca-cert-request-find.")
+                pytest.fail("Failed to run pki-server ca-cert-request-find.")
 
 
-@pytest.mark.xfail(reason="Not implemented correctly")
+@pytest.mark.skip(reason="Not implemented correctly")
 def test_pki_server_ca_cert_request_find_with_cert_file_option(ansible_module):
     """
     :id: 3237f537-b262-4698-b10f-4b907fa4a961
@@ -201,17 +208,16 @@ def test_pki_server_ca_cert_request_find_with_cert_file_option(ansible_module):
     """
     cert_id, cert_file = create_cert(ansible_module)
 
-    cert_out = ansible_module.command('pki-server ca-cert-request-find '
-                                      '-i {} --cert {}'.format(constants.CA_INSTANCE_NAME,
-                                                               cert_id))
+    cert_out = ansible_module.shell('pki-server ca-cert-request-find '
+                                      '-i {} --cert-file {}'.format(ca_instance_name, cert_file))
 
     for result in cert_out.values():
         if result['rc'] == 0:
             if '0 entries matched' in result['stdout']:
-                pytest.xfail("Failed to run pki-server ca-cert-request-find.")
+                pytest.fail("Failed to run pki-server ca-cert-request-find.")
             elif '0 entries matched' not in result['stdout']:
                 assert 'Request ID: ' in result['stdout']
                 assert 'Type:' in result['stdout']
                 assert 'Status:' in result['stdout']
             else:
-                pytest.xfail("Failed to run pki-server ca-cert-request-find.")
+                pytest.fail("Failed to run pki-server ca-cert-request-find.")

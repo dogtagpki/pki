@@ -27,11 +27,11 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import logging
+import os
 import sys
 
-import os
 import pytest
-
 from pki.testlib.common import utils
 
 try:
@@ -40,6 +40,9 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def test_pki_server_subsystem(ansible_module):
@@ -62,10 +65,11 @@ def test_pki_server_subsystem(ansible_module):
             assert "subsystem-enable              Enable subsystem" in result['stdout']
             assert "subsystem-find                Find subsystems" in result['stdout']
             assert "subsystem-show                Show subsystem" in result['stdout']
-            assert "subsystem-cert                Subsystem certificate management commands" in \
-                   result['stdout']
+            assert "subsystem-cert                Subsystem certificate management commands" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem command..!!")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_subsystem_junk(ansible_module):
@@ -84,4 +88,8 @@ def test_pki_server_subsystem_junk(ansible_module):
     subsystem_junk_output = ansible_module.command('pki-server subsystem {}'.format(junk))
     for result in subsystem_junk_output.values():
         if result['rc'] >= 1:
-            assert junk_exception in result['stdout']
+            assert junk_exception in result['stderr']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
+        else:
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()

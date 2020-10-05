@@ -30,13 +30,15 @@
 """
 
 import os
-import random
 import re
-import string
+import logging
 import sys
 
 import pytest
 
+from pki.testlib.common.utils import get_random_string
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 try:
     from pki.testlib.common import constants
 except Exception as e:
@@ -44,18 +46,16 @@ except Exception as e:
         sys.path.append('/tmp/test_dir')
         import constants
 
-
-def get_random_string(len=10):
-    random_string = ''.join(random.choice(string.ascii_uppercase +
-                                          string.digits +
-                                          string.ascii_letters +
-                                          string.punctuation)
-                            for _ in range(len))
-    return random_string
-
-
 db1 = '/tmp/db1_test'
 db2 = '/tmp/db2_test'
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+
+if TOPOLOGY == '01':
+    instance_name = 'pki-tomcat'
+    topology_name = 'topology-01-CA'
+else:
+    instance_name = constants.CA_INSTANCE_NAME
+    topology_name = constants.CA_INSTANCE_NAME
 
 
 @pytest.mark.ansible_playbook_setup('init_dir.yaml')
@@ -90,10 +90,10 @@ def test_pki_pkcs12_key(ansible_module):
     key_out = ansible_module.command('pki pkcs12-key')
     for result in key_out.values():
         if result['rc'] == 0:
-            assert "pkcs12-key-find         Find keys in PKCS #12 file" in result['stdout']
-            assert "pkcs12-key-del          Remove key from PKCS #12 file" in result['stdout']
+            assert "pkcs12-key-find" in result['stdout']
+            assert "pkcs12-key-del" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki pkcs12-key command.!!")
+            pytest.fail("Failed to run pki pkcs12-key command.!!")
 
 
 def test_pki_pkcs12_key_find_help(ansible_module):
@@ -114,13 +114,13 @@ def test_pki_pkcs12_key_find_help(ansible_module):
         if result['rc'] == 0:
             assert "usage: pkcs12-key-find [OPTIONS...]" in result['stdout']
             assert "--debug                         Run in debug mode" in result['stdout']
-            assert "--help                          Show help options" in result['stdout']
+            assert "--help                          Show help message." in result['stdout']
             assert "--pkcs12-file <path>            PKCS #12 file" in result['stdout']
             assert "--pkcs12-password <password>    PKCS #12 password" in result['stdout']
             assert "--pkcs12-password-file <path>   PKCS #12 password file" in result['stdout']
             assert "-v,--verbose                       Run in verbose mode." in result['stdout']
         else:
-            pytest.xfail("Failed to run pki pkcs12-key-find command.!!")
+            pytest.fail("Failed to run pki pkcs12-key-find command.!!")
 
 
 def test_pki_pkcs12_key_find_found(ansible_module):
@@ -138,7 +138,7 @@ def test_pki_pkcs12_key_find_found(ansible_module):
     """
     p12_file = '/tmp/all_certs.p12'
     pki_server_subsystem = 'pki-server subsystem-cert-export -i {} --pkcs12-file {} ' \
-                           '--pkcs12-password {} ca'.format(constants.CA_INSTANCE_NAME, p12_file,
+                           '--pkcs12-password {} ca'.format(instance_name, p12_file,
                                                             constants.CLIENT_PKCS12_PASSWORD)
     key_find = 'pki pkcs12-key-find --pkcs12-file {} --pkcs12-password {}'
     ansible_module.command(pki_server_subsystem)
@@ -149,9 +149,9 @@ def test_pki_pkcs12_key_find_found(ansible_module):
         if result['rc'] == 0:
             assert "entries found" in result['stdout']
             assert "Key ID:" in result['stdout']
-            assert "Subject DN:" in result['stdout']
+            assert "Friendly Name:" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki pkcs12-key-find command.")
+            pytest.fail("Failed to run pki pkcs12-key-find command.")
     ansible_module.command('rm -rf {}'.format(p12_file))
 
 
@@ -172,7 +172,7 @@ def test_pki_pkcs12_key_find_notfound(ansible_module):
     keys = []
     p12_file = '/tmp/all_certs.p12'
     pki_server_subsystem = 'pki-server subsystem-cert-export -i {} --pkcs12-file {} ' \
-                           '--pkcs12-password {} ca'.format(constants.CA_INSTANCE_NAME, p12_file,
+                           '--pkcs12-password {} ca'.format(instance_name, p12_file,
                                                             constants.CLIENT_PKCS12_PASSWORD)
     key_find = 'pki pkcs12-key-find --pkcs12-file {} ' \
                '--pkcs12-password {}'.format(p12_file, constants.CLIENT_PKCS12_PASSWORD)
@@ -192,14 +192,14 @@ def test_pki_pkcs12_key_find_notfound(ansible_module):
             if result['rc'] == 0:
                 assert 'Deleted key "{}"'.format(key) in result['stdout']
             else:
-                pytest.xfail("Failed to run pki pkcs12-key-del command.")
+                pytest.fail("Failed to run pki pkcs12-key-del command.")
 
     key_out = ansible_module.command(key_find)
     for result in key_out.values():
         if result['rc'] == 0:
             assert "0 entries found" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki pkcs12-key-find command.")
+            pytest.fail("Failed to run pki pkcs12-key-find command.")
     ansible_module.command('rm -rf {}'.format(p12_file))
 
 
@@ -216,26 +216,24 @@ def test_pki_pkcs12_key_find_wrong_pkcs12_password(ansible_module):
     :ExpectedResults:
          Verify whether pki pkcs12-key-find command with wrong password throws error.
     """
-    wrong_password = ''.join(random.choice(string.ascii_uppercase +
-                                           string.digits +
-                                           string.ascii_letters +
-                                           string.punctuation)
-                             for _ in range(8))
+    wrong_password = get_random_string(len=10)
     p12_file = '/tmp/all_certs.p12'
     pki_server_subsystem = 'pki-server subsystem-cert-export -i {} --pkcs12-file {} ' \
-                           '--pkcs12-password {} ca'.format(constants.CA_INSTANCE_NAME, p12_file,
+                           '--pkcs12-password {} ca'.format(instance_name, p12_file,
                                                             constants.CLIENT_PKCS12_PASSWORD)
     key_find = 'pki pkcs12-key-find --pkcs12-file {} ' \
-               '--pkcs12-password {}'.format(p12_file, wrong_password)
+               '--pkcs12-password "{}"'.format(p12_file, wrong_password)
     ansible_module.command(pki_server_subsystem)
 
     key_out = ansible_module.command(key_find)
     for result in key_out.values():
-        if result['rc'] >= 1:
-            assert "Error: Unable to validate PKCS #12 file: Digests do not match" in \
-                   result['stderr']
+        if result['rc'] >= 0:
+            assert "ERROR: Unable to validate PKCS #12 file: Digests do not match" in result['stderr']
+            log.info("Successfully ran : {}".format(result['cmd']))
         else:
-            pytest.xfail("Failed to run pki pkcs12-key-find command.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to run pki pkcs12-key-find command.")
 
 
 def test_pki_pkcs12_key_find_wrong_db_password(ansible_module):
@@ -251,27 +249,25 @@ def test_pki_pkcs12_key_find_wrong_db_password(ansible_module):
     :ExpectedResults:
          Verify whether pki pkcs12-key-find command with wrong password throws error.
     """
-    wrong_password = ''.join(random.choice(string.ascii_uppercase +
-                                           string.digits +
-                                           string.ascii_letters +
-                                           string.punctuation)
-                             for _ in range(8))
+    wrong_password = get_random_string(len=10)
 
     p12_file = '/tmp/all_certs.p12'
     pki_server_subsystem = 'pki-server subsystem-cert-export -i {} --pkcs12-file {} ' \
-                           '--pkcs12-password {} ca'.format(constants.CA_INSTANCE_NAME, p12_file,
+                           '--pkcs12-password {} ca'.format(instance_name, p12_file,
                                                             constants.CLIENT_PKCS12_PASSWORD)
     key_find = 'pki pkcs12-key-find --pkcs12-file {} ' \
-               '--pkcs12-password {}'.format(p12_file, wrong_password)
+               '--pkcs12-password "{}"'.format(p12_file, wrong_password)
     ansible_module.command(pki_server_subsystem)
 
     key_out = ansible_module.command(key_find)
     for result in key_out.values():
-        if result['rc'] >= 1:
-            assert "Error: Unable to validate PKCS #12 file: Digests do not match" in \
-                   result['stderr']
+        if result['rc'] > 0:
+            assert "ERROR: Unable to validate PKCS #12 file: Digests do not match" in result['stderr']
+            log.info("Successfully ran : {}".format(result['cmd']))
         else:
-            pytest.xfail("Failed to run pki pkcs12-key-find command.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to run pki pkcs12-key-find command.")
 
 
 def test_pki_pkcs12_key_find_password_file(ansible_module):
@@ -293,7 +289,7 @@ def test_pki_pkcs12_key_find_password_file(ansible_module):
                         dest=password_file,
                         force=True)
     pki_server_subsystem = 'pki-server subsystem-cert-export -i {} --pkcs12-file {} ' \
-                           '--pkcs12-password {} ca'.format(constants.CA_INSTANCE_NAME, p12_file,
+                           '--pkcs12-password {} ca'.format(instance_name, p12_file,
                                                             constants.CLIENT_PKCS12_PASSWORD)
     key_find = 'pki pkcs12-key-find --pkcs12-file {} ' \
                '--pkcs12-password-file {}'.format(p12_file, password_file)
@@ -303,9 +299,9 @@ def test_pki_pkcs12_key_find_password_file(ansible_module):
         if result['rc'] == 0:
             assert "entries found" in result['stdout']
             assert "Key ID:" in result['stdout']
-            assert "Subject DN:" in result['stdout']
+            assert "Friendly Name:" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki pkcs12-key-find command.")
+            pytest.fail("Failed to run pki pkcs12-key-find command.")
     ansible_module.command('rm -rf {} {}'.format(p12_file, password_file))
 
 
@@ -328,10 +324,10 @@ def test_pki_pkcs12_key_find_invalid_pkcs_file_path(ansible_module):
                '--pkcs12-password {}'.format(p12_file, constants.CLIENT_PKCS12_PASSWORD)
     key_find_out = ansible_module.command(key_find)
     for result in key_find_out.values():
-        if result['rc'] >= 1:
+        if result['rc'] > 0:
             assert "NoSuchFileException: {}".format(p12_file) in result['stderr']
         else:
-            pytest.xfail("Failed to run pki pkcs12-key-find command.")
+            pytest.fail("Failed to run pki pkcs12-key-find command.")
 
 
 def test_bug_1461533_unable_to_find_keys_in_pkcs12_file(ansible_module):
@@ -354,7 +350,7 @@ def test_bug_1461533_unable_to_find_keys_in_pkcs12_file(ansible_module):
     """
     p12_file = '/tmp/all_certs.p12'
     signing_cert_nick = ''
-    get_signing_cert_nick = 'certutil  -L -d /var/lib/pki/%s/alias' % constants.CA_INSTANCE_NAME
+    get_signing_cert_nick = 'certutil  -L -d /var/lib/pki/{}/alias'.format(instance_name)
     cert_nicks = ansible_module.command(get_signing_cert_nick)
     for result in cert_nicks.values():
         if result['rc'] == 0:
@@ -363,12 +359,11 @@ def test_bug_1461533_unable_to_find_keys_in_pkcs12_file(ansible_module):
     export_subsystem_cert = 'pki-server subsystem-cert-export ca --pkcs12-file {} ' \
                             '--pkcs12-password {} -i {}'.format(p12_file,
                                                                 constants.CLIENT_PKCS12_PASSWORD,
-                                                                constants.CA_INSTANCE_NAME)
+                                                                instance_name)
     cert_find = 'pki pkcs12-cert-find --pkcs12-file {} ' \
                 '--pkcs12-password {}'.format(p12_file, constants.CLIENT_PKCS12_PASSWORD)
 
-    signing_cert_DN = 'CN=CA Signing Certificate,OU=%s,O=%s' % (constants.CA_INSTANCE_NAME,
-                                                                constants.CA_SECURITY_DOMAIN_NAME)
+    signing_cert_DN = 'CN=CA Signing Certificate,OU={},O={}'.format(instance_name, constants.CA_SECURITY_DOMAIN_NAME)
 
     ansible_module.command(export_subsystem_cert)
     show_certs_out = ansible_module.command(cert_find)
@@ -387,7 +382,7 @@ def test_bug_1461533_unable_to_find_keys_in_pkcs12_file(ansible_module):
                             assert 'Deleted certificate "{}"'.format(nick.strip()) in \
                                    res['stdout']
                         else:
-                            pytest.xfail("Failed to run pki pkcs12-cert-show command.")
+                            pytest.fail("Failed to run pki pkcs12-cert-show command.")
 
                     key_find = 'pki pkcs12-key-find --pkcs12-file {} --pkcs12-password {}'
                     key_find_out = ansible_module.command(key_find.format(p12_file,
@@ -396,8 +391,8 @@ def test_bug_1461533_unable_to_find_keys_in_pkcs12_file(ansible_module):
                         if res1['rc'] == 0:
                             assert "entries found" in res1['stdout']
                             assert "Key ID:" in res1['stdout']
-                            assert "Subject DN: %s" % signing_cert_DN in res1['stdout']
+                            assert "Friendly Name: {}".format(signing_cert_DN) in res1['stdout']
                             assert nick.strip() not in res1['stdout']
                         else:
-                            pytest.xfail("Failed to run pki pkcs12-key-find command.")
+                            pytest.fail("Failed to run pki pkcs12-key-find command.")
     ansible_module.command('rm -rf {}'.format(p12_file))

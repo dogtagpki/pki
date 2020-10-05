@@ -33,69 +33,143 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
-import os
-import random
+import logging
+import sys
 import re
-import ConfigParser
+
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
 
 class NuxwdogOperations(object):
-    def __init__(self, **kwargs):
+    def __init__(self, ansible_module, **kwargs):
         self.subsystem_type = kwargs.get('subsystem_type', 'CA')
         self.subsystem_name = kwargs.get('subsystem_name', 'pki-tomcat')
         self.pki_user = kwargs.get('pki_user', 'pkiuser')
+        self.ansible_module = ansible_module
+        self.password = {}
+        self.password_conf = kwargs.get('password_conf', '/var/lib/pki/{}/conf/password.conf')
+        password_conf = self.password_conf.format(self.subsystem_name)
+        file_stat = ansible_module.stat(path=password_conf)
+        for result1 in file_stat.values():
+            if result1['stat']['exists']:
+                output = ansible_module.shell("cat {}".format(password_conf))
+                for result in output.values():
+                    [self.password.update({i.split("=")[0]: i.split("=")[1]})
+                     for i in result['stdout'].split("\n")]
+            else:
+                output = ansible_module.shell("cat /tmp/{}-password.conf".format(self.subsystem_type))
+                for result in output.values():
+                    [self.password.update({i.split("=")[0]: i.split("=")[1]})
+                     for i in result['stdout'].split("\n")]
 
-    def enable_nuxwdog(self, ansible_module):
+    def _validate_nuxwdog_non_pkiuser(self):
+        """
+        The method validates that nuxwdog is enabled for non pkiuser owned instances
+        The test steps applicable for test_bug_1523410_1534030_non_pkiuser_owned_instances tests.
+        """
 
-        ansible_module.shell("systemctl stop pki-tomcatd@%s" % self.subsystem_name)
-        ansible_module.shell("pki-server instance-nuxwdog-enable %s" % self.subsystem_name)
-        output = ansible_module.shell("cat /var/lib/pki/%s/conf/nuxwdog.conf | grep %s" % (self.subsystem_name, self.pki_user))
+        output = self.ansible_module.shell("grep {} /var/lib/pki/{}/conf/nuxwdog.conf".format(self.pki_user,
+                                                                                              self.subsystem_name))
         for result in output.values():
-          assert "%s" % self.pki_user in result['stdout']
-        ansible_module.shell("mv /var/lib/pki/%s/conf/password.conf /tmp/%s-password.conf" % (self.subsystem_name, self.subsystem_type))
-        password = {}
-        output = ansible_module.shell("cat /tmp/%s-password.conf" % self.subsystem_type)
-        for result in output.values():
-            [password.update({i.split("=")[0]: i.split("=")[1]}) for i in result['stdout'].split("\n")]
-        if 'TPS' not in self.subsystem_type:
-            ansible_module.expect(command='systemctl start pki-tomcatd-nuxwdog@%s' % self.subsystem_name, responses={
-                '\[%s\] Please provide the password for internal:' % self.subsystem_name: '%s' % password['internal'],
-                '\[%s\] Please provide the password for internaldb:' % self.subsystem_name: '%s' % password['internaldb'],
-                '\[%s\] Please provide the password for replicationdb:' % self.subsystem_name: '%s' % password['replicationdb']})
+            assert self.pki_user in result['stdout']
+
+    def enable_nuxwdog(self):
+        """
+        This method enable the nuxwdog for pki instance.
+        """
+        stop_subsysem = 'systemctl stop pki-tomcatd@{}'.format(self.subsystem_name)
+        enable_nuxwdog = 'pki-server instance-nuxwdog-enable {}'.format(self.subsystem_name)
+
+        stop_sub_out = self.ansible_module.shell(stop_subsysem)
+        for result in stop_sub_out.values():
+            assert result['rc'] == 0
+            log.info("Stopped subsystem {}".format(self.subsystem_name))
+
+        nuxwdog_enable_out = self.ansible_module.shell(enable_nuxwdog)
+        for result in nuxwdog_enable_out.values():
+            assert result['rc'] == 0
+            assert "Nuxwdog enabled for instance {}".format(self.subsystem_name) in result['stdout']
+            log.info("Nuxwdog enabled for instance {}".format(self.subsystem_name))
+
+        if self.pki_user != 'pkiuser':
+            self._validate_nuxwdog_non_pkiuser()
+
+        self.ansible_module.shell("mv /var/lib/pki/{}/conf/password.conf "
+                                  "/tmp/{}-password.conf".format(self.subsystem_name, self.subsystem_type))
+
+        if 'TPS' != self.subsystem_type.upper():
+            enabled = self.ansible_module.expect(
+                command='systemctl start pki-tomcatd-nuxwdog@{}'.format(self.subsystem_name),
+                responses={'\[{}\] Please provide the password for internal: '.format(self.subsystem_name):
+                               self.password['internal'],
+                           '\[{}\] Please provide the password for internaldb: '.format(self.subsystem_name):
+                               self.password['internaldb'],
+                           '\[{}\] Please provide the password for replicationdb:'.format(self.subsystem_name):
+                               self.password['replicationdb']})
+            for result in enabled.values():
+                assert result['rc'] == 0
+                log.info("Instance {} successfully started with nuxwdog".format(self.subsystem_name))
+
         else:
-            ansible_module.expect(command='systemctl start pki-tomcatd-nuxwdog@%s' % self.subsystem_name, responses={
-                '\[%s\] Please provide the password for internal:' % self.subsystem_name: '%s' % password['internal'],
-                '\[%s\] Please provide the password for internaldb:' % self.subsystem_name: '%s' % password['internaldb']})
+            enabled = self.ansible_module.expect(
+                command='systemctl start pki-tomcatd-nuxwdog@{}'.format(self.subsystem_name),
+                responses={
+                    '\[{}\] Please provide the password for internal: '.format(self.subsystem_name):
+                        self.password['internal'],
+                    '\[{}\] Please provide the password for internaldb: '.format(self.subsystem_name):
+                        self.password['internaldb']})
+            for result in enabled.values():
+                assert result['rc'] == 0
+                log.info("Instance {} successfully started with nuxwdog".format(self.subsystem_name))
 
-    def pkidestroy_nuxwdog(self, ansible_module):
-        output = ansible_module.shell('cat /tmp/%s-password.conf | grep internal= | cut -d \'=\' -f 2'
-                                      % self.subsystem_type)
-        for result in output.values():
-            internal = result['stdout']
-        output = ansible_module.expect(command='pkidestroy -s %s -i %s' % (self.subsystem_type, self.subsystem_name),
-                                       responses={"Password for token internal:": "%s" % internal})
+    def disable_nuxwdog(self):
+        """
+        This method disable the nuxwdog for pki instance.
+        """
+        stop_subsysem = 'systemctl stop pki-tomcatd-nuxwdog@{}'.format(self.subsystem_name)
+        disable_nuxwdog = 'pki-server instance-nuxwdog-disable {}'.format(self.subsystem_name)
+
+        stop_sub_out = self.ansible_module.shell(stop_subsysem)
+        for result in stop_sub_out.values():
+            assert result['rc'] == 0
+            log.info("Stopped subsystem {}".format(self.subsystem_name))
+
+        nuxwdog_disable_out = self.ansible_module.shell(disable_nuxwdog)
+        for result in nuxwdog_disable_out.values():
+            assert result['rc'] == 0
+            assert "Nuxwdog disabled for instance {}".format(self.subsystem_name) in result['stdout']
+            log.info("Nuxwdog disabled for instance {}".format(self.subsystem_name))
+
+        self.ansible_module.shell("mv /tmp/{}-password.conf /var/lib/pki/{}/conf/password.conf "
+                                  .format(self.subsystem_type, self.subsystem_name))
+
+        self.ansible_module.shell("chown {}:{} /var/lib/pki/{}/conf/password.conf "
+                                  .format(self.pki_user, self.pki_user, self.subsystem_name))
+        start_subsystem = 'systemctl start pki-tomcatd@{}'.format(self.subsystem_name)
+        start_sub_out = self.ansible_module.shell(start_subsystem)
+        for result in start_sub_out.values():
+            assert result['rc'] == 0
+            log.info("Started subsystem {}".format(self.subsystem_name))
+
+    def pkidestroy_nuxwdog(self):
+        output = self.ansible_module.expect(
+            command='pkidestroy -s {} -i {}'.format(self.subsystem_type, self.subsystem_name),
+            responses={"Password for token internal: ": self.password['internal']})
         for result in output.values():
             assert "Uninstallation complete." in result['stdout']
+            log.info("Subsystem {} uninstalled successfully".format(self.subsystem_name))
 
-
-class Config:
-
-    def default(self,conf,**kwargs):
-            if kwargs.keys() is not None:
-                config = ConfigParser.RawConfigParser()
-                config.optionxform = str
-                for key in kwargs.keys():
-                    config.set('DEFAULT', key, kwargs[key])
-                with open(conf, 'w') as f:
-                    config.write(f)
-
-    def subsystem(self, conf, subsystem,**kwargs):
-            if kwargs.keys() is not None:
-                config = ConfigParser.RawConfigParser()
-                config.optionxform = str
-                config.add_section('{}'.format(subsystem))
-
-                for key in kwargs.keys():
-                    config.set('{}'.format(subsystem), key, kwargs[key])
-                with open(conf, 'a') as f:
-                    config.write(f)
-
+    def pkiserver_nuxwdog(self):
+        """
+        This method validates the pki-server status command for nuxwdog enabled instance
+        """
+        output = self.ansible_module.shell('pki-server status {}'.format(self.subsystem_name))
+        for result in output.values():
+            assert re.search("Instance ID:\s+{}".format(self.subsystem_name), result['stdout'])
+            assert re.search("Active:\s+True", result['stdout'])
+            assert re.search("Enabled:\s+True", result['stdout'])
+            # Todo : RHEL 8.4 https://bugzilla.redhat.com/show_bug.cgi?id=1732981#c10
+            #  https://github.com/dogtagpki/pki/pull/515
+            # assert re.search("Nuxwdog Enabled:\s+True", result['stdout'])
+        log.info("pki-server status command success")

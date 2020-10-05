@@ -33,7 +33,7 @@ import os
 import random
 import string
 import sys
-
+import logging
 import pytest
 
 try:
@@ -42,6 +42,8 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def get_random_string(len=10):
@@ -91,14 +93,14 @@ def test_pki_pkcs12_cert(ansible_module):
     cert_out = ansible_module.command('pki pkcs12-cert')
     for result in cert_out.values():
         if result['rc'] == 0:
-            assert "pkcs12-cert-add         Add certificate into PKCS #12 file" in result['stdout']
-            assert "pkcs12-cert-export      Export certificate from PKCS #12 file" in \
-                   result['stdout']
-            assert "pkcs12-cert-find        Find certificates in PKCS #12 file" in result['stdout']
-            assert "pkcs12-cert-del         Remove certificate from PKCS #12 file" in \
-                   result['stdout']
+            assert "pkcs12-cert-add" in result['stdout']
+            assert "pkcs12-cert-export" in result['stdout']
+            assert "pkcs12-cert-find" in result['stdout']
+            assert "pkcs12-cert-del" in result['stdout']
+            assert "pkcs12-cert-import" in result['stdout']
+            assert "pkcs12-cert-mod" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki pkcs12-cert command.")
+            pytest.fail("Failed to run pki pkcs12-cert command.")
 
 
 def test_pki_pkcs12_cert_find_help(ansible_module):
@@ -120,13 +122,10 @@ def test_pki_pkcs12_cert_find_help(ansible_module):
         if result['rc'] == 0:
             assert "usage: pkcs12-cert-find [OPTIONS...]" in result['stdout']
             assert "--debug                         Run in debug mode." in result['stdout']
-            assert "--help                          Show help options" in result['stdout']
-            assert "--pkcs12-file <path>            PKCS #12 file" in result['stdout']
-            assert "--pkcs12-password <password>    PKCS #12 password" in result['stdout']
-            assert "--pkcs12-password-file <path>   PKCS #12 password file" in result['stdout']
+            assert "--help                          Show help message." in result['stdout']
             assert "-v,--verbose                       Run in verbose mode." in result['stdout']
         else:
-            pytest.xfail("Failed to run pki pkcs12-cert-find command.")
+            pytest.fail("Failed to run pki pkcs12-cert-find command.")
 
 
 def test_pki_pkcs12_cert_find(ansible_module):
@@ -156,13 +155,16 @@ def test_pki_pkcs12_cert_find(ansible_module):
             assert "entries found" in result['stdout']
             assert "Certificate ID:" in result['stdout']
             assert "Serial Number:" in result['stdout']
-            assert "Nickname: " in result['stdout']
+            assert "Friendly Name: " in result['stdout']
             assert "Subject DN:" in result['stdout']
             assert "Issuer DN:" in result['stdout']
             assert "Trust Flags:" in result['stdout']
             assert "Has Key:" in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
         else:
-            pytest.xfail("Failed to run pki pkcs12-cert-find command.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to run pki pkcs12-cert-find command.")
 
 
 def test_pki_pkcs12_cert_find_password_file(ansible_module):
@@ -194,13 +196,16 @@ def test_pki_pkcs12_cert_find_password_file(ansible_module):
             assert "entries found" in result['stdout']
             assert "Certificate ID:" in result['stdout']
             assert "Serial Number:" in result['stdout']
-            assert "Nickname: " in result['stdout']
+            assert "Friendly Name: " in result['stdout']
             assert "Subject DN:" in result['stdout']
             assert "Issuer DN:" in result['stdout']
             assert "Trust Flags:" in result['stdout']
             assert "Has Key:" in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
         else:
-            pytest.xfail("Failed to run pki pkcs12-cert-find command.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to run pki pkcs12-cert-find command.")
     ansible_module.command('rm -rf {} {}'.format(p12_file, password_file))
 
 
@@ -224,15 +229,16 @@ def test_pki_pkcs12_cert_find_wrong_pkcs_password(ansible_module):
                                                 p12_file,
                                                 constants.CLIENT_PKCS12_PASSWORD)
     ansible_module.command(export_cert)
-    find_cmd = 'pki pkcs12-cert-find --pkcs12-file {} --pkcs12-password {}'.format(p12_file,
-                                                                                   wrong_password)
+    find_cmd = 'pki pkcs12-cert-find --pkcs12-file {} --pkcs12-password "{}"'.format(p12_file, wrong_password)
     find_out = ansible_module.command(find_cmd)
     for result in find_out.values():
-        if result['rc'] >= 0:
-            assert "Error: Unable to validate PKCS #12 file: Digests do not match" in \
-                   result['stderr']
+        if result['rc'] > 0:
+            assert "ERROR: Unable to validate PKCS #12 file: Digests do not match" in result['stderr']
+            log.info("Successfully ran : {}".format(result['cmd']))
         else:
-            pytest.xfail("Failed: Ran pki pkcs12-cert-find command with wrong pkcs password.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed: Ran pki pkcs12-cert-find command with wrong pkcs password.")
 
 
 def test_pki_pkcs12_cert_find_wrong_db_password(ansible_module):
@@ -261,10 +267,13 @@ def test_pki_pkcs12_cert_find_wrong_db_password(ansible_module):
                                              constants.CLIENT_PKCS12_PASSWORD)
     find_out = ansible_module.command(find_cmd)
     for result in find_out.values():
-        if result['rc'] >= 1:
-            assert "Error: Incorrect client security database password." in result['stderr']
+        if result['rc'] > 0:
+            assert "ERROR: Incorrect password for internal token" in result['stderr']
+            log.info("Successfully ran : {}".format(result['cmd']))
         else:
-            pytest.xfail("Failed: Ran pki pkcs12-cert-find command with wrong db password.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed: Ran pki pkcs12-cert-find command with wrong db password.")
 
 
 def test_pki_pkcs12_cert_find_with_verbose_mode(ansible_module):
@@ -292,14 +301,16 @@ def test_pki_pkcs12_cert_find_with_verbose_mode(ansible_module):
     find_out = ansible_module.command(find_cmd)
     for result in find_out.values():
         if result['rc'] == 0:
-            assert 'INFO: Loading PKCS #12 file' in result['stderr']
             assert "Certificate ID:" in result['stdout']
             assert "Serial Number:" in result['stdout']
-            assert "Nickname: " in result['stdout']
+            assert "Friendly Name: " in result['stdout']
             assert "Subject DN:" in result['stdout']
             assert "Issuer DN:" in result['stdout']
             assert "Trust Flags:" in result['stdout']
             assert "Has Key:" in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
         else:
-            pytest.xfail("Failed to run pki pkcs12-cert-find with verbose mode.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to run pki pkcs12-cert-find with verbose mode.")
     ansible_module.command('rm -rf {}'.format(p12_file))

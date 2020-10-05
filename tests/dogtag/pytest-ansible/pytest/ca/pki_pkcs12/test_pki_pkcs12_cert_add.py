@@ -28,11 +28,12 @@
 """
 
 import os
-import random
-import string
 import sys
 
 import pytest
+
+from pki.testlib.common.utils import get_random_string
+import logging
 
 try:
     from pki.testlib.common import constants
@@ -40,19 +41,20 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
-
-
-def get_random_string(len=10):
-    random_string = ''.join(random.choice(string.ascii_uppercase +
-                                          string.digits +
-                                          string.ascii_letters +
-                                          string.punctuation)
-                            for _ in range(len))
-    return random_string
-
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 db1 = '/tmp/db1_test'
 db2 = '/tmp/db2_test'
+
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+
+if TOPOLOGY == '01':
+    instance_name = 'pki-tomcat'
+    topology_name = 'topology-01-CA'
+else:
+    instance_name = constants.CA_INSTANCE_NAME
+    topology_name = constants.CA_INSTANCE_NAME
 
 
 @pytest.mark.ansible_playbook_setup('init_dir.yaml')
@@ -89,7 +91,7 @@ def test_pki_pkcs12_cert_add_help(ansible_module, options):
         if result['rc'] == 0:
             assert "usage: pkcs12-cert-add <nickname> [OPTIONS...]" in result['stdout']
             assert "--debug                         Run in debug mode." in result['stdout']
-            assert "--help                          Show help options" in result['stdout']
+            assert "--help                          Show help message." in result['stdout']
             assert "--new-file                      Create a new PKCS #12 file" in result['stdout']
             assert "--no-chain                      Do not include certificate chain" in \
                    result['stdout']
@@ -102,9 +104,9 @@ def test_pki_pkcs12_cert_add_help(ansible_module, options):
         else:
             if options not in ['--help']:
                 if options == '':
-                    assert 'Error: Missing certificate nickname.' in result['stderr']
+                    assert 'ERROR: Missing certificate nickname.' in result['stderr']
                 else:
-                    assert 'Error: Missing PKCS #12 file.' in result['stderr']
+                    assert 'ERROR: Missing PKCS #12 file.' in result['stderr']
 
 
 def test_pki_pkcs12_cert_add1(ansible_module):
@@ -128,17 +130,14 @@ def test_pki_pkcs12_cert_add1(ansible_module):
     p12_file = '/tmp/ca_admin_cert.p12'
     ansible_module.command('cp -rf {}/ca_admin_cert.p12 /tmp/'.format(constants.CA_CLIENT_DIR))
 
-    nicks = [constants.KRA_ADMIN_NICK, constants.OCSP_ADMIN_NICK]
+    add_cert = ansible_module.command('pki -d {} -c {} pkcs12-cert-add "{}" --pkcs12-file {} '
+                                      '--pkcs12-password {}'.format(db1, constants.CLIENT_DIR_PASSWORD,
+                                                                    constants.CA_ADMIN_NICK,
+                                                                    p12_file, constants.CLIENT_PKCS12_PASSWORD))
 
-    for nick in nicks:
-        add_cert = ansible_module.command(
-            'pki -d {} -c {} pkcs12-cert-add "{}" --pkcs12-file {} '
-            '--pkcs12-password {}'.format(db1, constants.CLIENT_DIR_PASSWORD, nick, p12_file,
-                                          constants.CLIENT_PKCS12_PASSWORD))
-
-        for result in add_cert.values():
-            if result['rc'] == 0:
-                assert 'Added certificate "{}"'.format(nick) in result['stdout']
+    for result in add_cert.values():
+        if result['rc'] == 0:
+            assert 'Added certificate "{}"'.format(constants.CA_ADMIN_NICK) in result['stdout']
 
     pkcs12_import = 'pki -d {} -c {} pkcs12-import --pkcs12-file {} ' \
                     '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD,
@@ -146,16 +145,18 @@ def test_pki_pkcs12_cert_add1(ansible_module):
     pkcs12_import_out = ansible_module.command(pkcs12_import)
     for result in pkcs12_import_out.values():
         if result['rc'] == 0:
-            assert 'Import complete' in result['stdout']
+            log.info("Successfully Imported the CA Admin cert")
 
-    cert_find = ansible_module.command("pki -d {} -c {} "
-                                       "client-cert-find".format(db2,
-                                                                 constants.CLIENT_DIR_PASSWORD))
+    cert_find = ansible_module.command("pki -d {} -c {} client-cert-find".format(db2, constants.CLIENT_DIR_PASSWORD))
     for result in cert_find.values():
         if result['rc'] == 0:
             assert constants.CA_ADMIN_NICK in result['stdout']
-            assert constants.KRA_ADMIN_NICK in result['stdout']
-            assert constants.OCSP_ADMIN_NICK in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
+        else:
+            assert result['rc'] > 0
+            log.error(result['stderr'])
+            log.error(result['stdout'])
+            pytest.fail()
 
     ansible_module.command('rm -rf {}'.format(p12_file))
 
@@ -198,7 +199,7 @@ def test_pki_pkcs12_cert_add_password_file(ansible_module):
             if result['rc'] == 0:
                 assert 'Added certificate "{}"'.format(nick) in result['stdout']
             else:
-                pytest.xfail("Failed to export the certificate to file.")
+                pytest.fail("Failed to export the certificate to file.")
 
     pkcs12_import = 'pki -d {} -c {} pkcs12-import --pkcs12-file {} ' \
                     '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD,
@@ -206,7 +207,11 @@ def test_pki_pkcs12_cert_add_password_file(ansible_module):
     pkcs12_import_out = ansible_module.command(pkcs12_import)
     for result in pkcs12_import_out.values():
         if result['rc'] == 0:
-            assert 'Import complete' in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
+        else:
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail()
 
     cert_find = ansible_module.command(client_cert_find)
     for result in cert_find.values():
@@ -249,7 +254,7 @@ def test_pki_pkcs12_cert_add_new_file(ansible_module):
             assert 'Added certificate "{}"'.format(constants.CA_ADMIN_NICK) in \
                    result['stdout']
         else:
-            pytest.xfail("Failed to export the certificate to file.")
+            pytest.fail("Failed to export the certificate to file.")
 
     pkcs12_import = 'pki -d {} -c {} pkcs12-import --pkcs12-file {} ' \
                     '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD,
@@ -257,7 +262,11 @@ def test_pki_pkcs12_cert_add_new_file(ansible_module):
     pkcs12_import_out = ansible_module.command(pkcs12_import)
     for result in pkcs12_import_out.values():
         if result['rc'] == 0:
-            assert 'Import complete' in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
+        else:
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail()
 
     cert_find = ansible_module.command(client_cert_find)
     for result in cert_find.values():
@@ -296,7 +305,7 @@ def test_pki_pkcs12_cert_add_no_chain(ansible_module):
             assert 'Added certificate "{}"'.format(constants.CA_ADMIN_NICK) in \
                    result['stdout']
         else:
-            pytest.xfail("Failed to export the certificate to file.")
+            pytest.fail("Failed to export the certificate to file.")
 
     pkcs12_import = 'pki -d {} -c {} pkcs12-import --pkcs12-file {} ' \
                     '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD,
@@ -304,7 +313,11 @@ def test_pki_pkcs12_cert_add_no_chain(ansible_module):
     pkcs12_import_out = ansible_module.command(pkcs12_import)
     for result in pkcs12_import_out.values():
         if result['rc'] == 0:
-            assert 'Import complete' in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
+        else:
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail()
 
     cert_find = ansible_module.command(client_cert_find)
     for result in cert_find.values():
@@ -312,11 +325,11 @@ def test_pki_pkcs12_cert_add_no_chain(ansible_module):
             assert 'Nickname: CA' not in result['stdout']
             assert constants.CA_ADMIN_NICK in result['stdout']
         else:
-            pytest.xfail("Failed to run pki client-cert-find command.")
+            pytest.fail("Failed to run pki client-cert-find command.")
     ansible_module.command('rm -rf {}'.format(new_p12_file))
 
 
-@pytest.mark.xfail(reason="BZ 1572057")
+@pytest.mark.skip(reason="BZ 1572057")
 def test_pki_pkcs12_cert_add_no_key(ansible_module):
     """
     :id: 57233db2-fb96-4b1d-8d66-506c3eca6a2b
@@ -337,15 +350,14 @@ def test_pki_pkcs12_cert_add_no_key(ansible_module):
 
     add_cert_to_file = 'pki -d {} -c {} pkcs12-cert-add "{}" --pkcs12-file {} ' \
                        '--pkcs12-password {} --no-key'.format(db1, constants.CLIENT_DIR_PASSWORD,
-                                                                constants.CA_ADMIN_NICK, new_p12_file,
-                                                                constants.CLIENT_PKCS12_PASSWORD)
+                                                              constants.CA_ADMIN_NICK, new_p12_file,
+                                                              constants.CLIENT_PKCS12_PASSWORD)
     add_cert = ansible_module.command(add_cert_to_file)
     for result in add_cert.values():
         if result['rc'] == 0:
-            assert 'Added certificate "{}"'.format(constants.CA_ADMIN_NICK) in \
-                   result['stdout']
+            assert 'Added certificate "{}"'.format(constants.CA_ADMIN_NICK) in result['stdout']
         else:
-            pytest.xfail("Failed to export the certificate to file.")
+            pytest.fail("Failed to export the certificate to file.")
 
     pkcs12_import = 'pki -d {} -c {} pkcs12-import --pkcs12-file {} ' \
                     '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD,
@@ -353,7 +365,11 @@ def test_pki_pkcs12_cert_add_no_key(ansible_module):
     pkcs12_import_out = ansible_module.command(pkcs12_import)
     for result in pkcs12_import_out.values():
         if result['rc'] == 0:
-            assert 'Import complete' in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
+        else:
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail()
 
     cert_find = ansible_module.command(client_cert_find)
     for result in cert_find.values():
@@ -362,11 +378,11 @@ def test_pki_pkcs12_cert_add_no_key(ansible_module):
             assert constants.CA_ADMIN_NICK in result['stdout']
             assert 'u,u,u' not in result['stdout']
         else:
-            pytest.xfail("Failed to verify key attributes in database.")
+            pytest.fail("Failed to verify key attributes in database.")
     ansible_module.command('rm -rf {}'.format(new_p12_file))
 
 
-@pytest.mark.xfail(reason="BZ 1572057")
+@pytest.mark.skip(reason="BZ 1572057")
 def test_pki_pkcs12_cert_add_no_trust_flag(ansible_module):
     """
     :id: aa508fcd-6962-4dda-bb76-d3448143a60d
@@ -389,14 +405,14 @@ def test_pki_pkcs12_cert_add_no_trust_flag(ansible_module):
     add_cert_to_file = 'pki -d {} -c {} pkcs12-cert-add "{}" --pkcs12-file {} ' \
                        '--pkcs12-password {} ' \
                        '--no-trust-flag'.format(db1, constants.CLIENT_DIR_PASSWORD,
-                                                constants.CA_ADMIN_NICK,new_p12_file,
+                                                constants.CA_ADMIN_NICK, new_p12_file,
                                                 constants.CLIENT_PKCS12_PASSWORD)
     add_cert = ansible_module.command(add_cert_to_file)
     for result in add_cert.values():
         if result['rc'] == 0:
             assert 'Added certificate "{}"'.format(constants.CA_ADMIN_NICK) in result['stdout']
         else:
-            pytest.xfail("Failed to export the certificate to file.")
+            pytest.fail("Failed to export the certificate to file.")
 
     pkcs12_import = 'pki -d {} -c {} pkcs12-import --pkcs12-file {} ' \
                     '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD,
@@ -404,7 +420,11 @@ def test_pki_pkcs12_cert_add_no_trust_flag(ansible_module):
     pkcs12_import_out = ansible_module.command(pkcs12_import)
     for result in pkcs12_import_out.values():
         if result['rc'] == 0:
-            assert 'Import complete' in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
+        else:
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail()
 
     cert_find = ansible_module.command(client_cert_find)
     for result in cert_find.values():
@@ -412,7 +432,7 @@ def test_pki_pkcs12_cert_add_no_trust_flag(ansible_module):
             assert constants.CA_ADMIN_NICK in result['stdout']
             assert ',,' in result['stdout']
         else:
-            pytest.xfail("Failed to run pki client-cert-find command.")
+            pytest.fail("Failed to run pki client-cert-find command.")
 
     ansible_module.command('rm -rf {}'.format(new_p12_file))
 
@@ -431,21 +451,22 @@ def test_pki_pkcs12_cert_add_wrong_pkcs12_password(ansible_module):
     """
 
     ansible_module.command('cp -rf {}/ca_admin_cert.p12 '
-                           '/{}/ca_admin_cert.p12'.format(
-        constants.CA_CLIENT_DIR, db2))
+                           '/{}/ca_admin_cert.p12'.format(constants.CA_CLIENT_DIR, db2))
     add_cert_to_file = 'pki -d {} -c {} pkcs12-cert-add "{}" --pkcs12-file {}/ca_admin_cert.p12 ' \
                        '--pkcs12-password "{}"'.format(db2, constants.CLIENT_DIR_PASSWORD,
-                                                     constants.CA_ADMIN_NICK, db2,
-                                                     get_random_string(len=10))
+                                                       constants.CA_ADMIN_NICK, db2,
+                                                       get_random_string(len=10))
 
     add_cert = ansible_module.command(add_cert_to_file)
     for result in add_cert.values():
-        if result['rc'] >= 1:
-            assert 'Error: Unable to validate PKCS #12 file: Digests do not ' \
-                   'match' in result['stderr']
+        if result['rc'] > 0:
+            assert 'ERROR: Unable to validate PKCS #12 file: Digests do not match' in result['stderr']
+            log.info("Successfully ran : {}".format(result['cmd']))
         else:
+            log.error(result['stdout'])
+            log.error(result['stderr'])
             assert 'Added certificate "{}"'.format(constants.CA_ADMIN_NICK) in result['stdout']
-            pytest.xfail("Failed to export the certificate to file.")
+            pytest.fail("Failed to export the certificate to file.")
 
 
 def test_pki_pkcs12_cert_add_wrong_db_password(ansible_module):
@@ -471,11 +492,14 @@ def test_pki_pkcs12_cert_add_wrong_db_password(ansible_module):
     add_cert = ansible_module.command(add_cert_to_file)
 
     for result in add_cert.values():
-        if result['rc'] >= 1:
-            assert "Error: Incorrect client security database password." in result['stderr']
+        if result['rc'] > 0:
+            assert "ERROR: Incorrect password for internal token" in result['stderr']
+            log.info("Successfully ran : {}".format(result['cmd']))
         else:
+            log.error(result['stdout'])
+            log.error(result['stderr'])
             assert 'Added certificate "{}"'.format(constants.CA_ADMIN_NICK) in result['stdout']
-            pytest.xfail("Failed to export the certificate to file.")
+            pytest.fail("Failed to export the certificate to file.")
 
 
 def test_pki_pkcs12_cert_add_verbose(ansible_module):
@@ -504,24 +528,20 @@ def test_pki_pkcs12_cert_add_verbose(ansible_module):
 
     for result in add_cert.values():
         if result['rc'] == 0:
-            assert 'INFO: Loading certificate "{}" from NSS ' \
-                   'database'.format(constants.CA_ADMIN_NICK) in result['stderr']
-            assert 'INFO: Loading private key for certificate "{}" ' \
-                   'from NSS database'.format(constants.CA_ADMIN_NICK) in \
-                   result['stderr']
-            assert 'INFO: Generating PKCS #12 data' in result['stderr']
-            assert 'INFO: Storing data into PKCS #12 file' in result['stderr']
-            assert 'Added certificate "{}"'.format(constants.CA_ADMIN_NICK) in \
-                   result['stdout']
+            assert 'Added certificate "{}"'.format(constants.CA_ADMIN_NICK) in result['stdout']
         else:
-            pytest.xfail("Failed to export the certificate to file.")
+            pytest.fail("Failed to export the certificate to file.")
     pkcs12_import = 'pki -d {} -c {} pkcs12-import --pkcs12-file {} ' \
                     '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD,
                                                   p12_file, constants.CLIENT_PKCS12_PASSWORD)
     pkcs12_import_out = ansible_module.command(pkcs12_import)
     for result in pkcs12_import_out.values():
         if result['rc'] == 0:
-            assert 'Import complete' in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
+        else:
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail()
 
     cert_find = ansible_module.command(client_cert_find)
     for result in cert_find.values():
@@ -556,12 +576,10 @@ def test_pki_pkcs12_cert_add_debug(ansible_module):
     add_cert = ansible_module.command(add_cert_to_file)
     for result in add_cert.values():
         if result['rc'] == 0:
-            assert "INFO: Generating PKCS #12 data" in result['stderr']
-            assert 'INFO: Storing data into PKCS #12 file' in result['stderr']
             assert 'Added certificate "{}"'.format(constants.CA_ADMIN_NICK) in \
                    result['stdout']
         else:
-            pytest.xfail("Failed to export the certificate to file.")
+            pytest.fail("Failed to export the certificate to file.")
     pkcs12_import = 'pki -d {} -c {} pkcs12-import --pkcs12-file {} ' \
                     '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD,
                                                   p12_file, constants.CLIENT_PKCS12_PASSWORD)
@@ -569,7 +587,11 @@ def test_pki_pkcs12_cert_add_debug(ansible_module):
 
     for result in pkcs12_import_out.values():
         if result['rc'] == 0:
-            assert 'Import complete' in result['stdout']
+            log.info("Successfully ran : {}".format(result['cmd']))
+        else:
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail()
 
     cert_find = ansible_module.command(client_cert_find)
     for result in cert_find.values():

@@ -34,7 +34,7 @@ import os
 import sys
 import re
 import tempfile
-
+import time
 try:
     from pki.testlib.common import constants
 except Exception:
@@ -80,7 +80,7 @@ def test_bug_1523443_HAProxy_rejection(ansible_module):
     """
     temp_dir = tempfile.mkdtemp(suffix="_test", prefix='profile_', dir="/tmp/")
     ca_cs_cfg = os.path.join(temp_dir, '/CS.cfg')
-    ansible_module.command('systemctl stop pki-tomcatd@%s.service' % constants.CA_INSTANCE_NAME)
+    ansible_module.shell('systemctl stop pki-tomcatd@%s.service' % constants.CA_INSTANCE_NAME)
     ansible_module.fetch(src='/var/lib/pki/%s/ca/conf/CS.cfg' % constants.CA_INSTANCE_NAME,
                          dest=ca_cs_cfg, flat=True)
     if os.path.isfile(ca_cs_cfg):
@@ -93,20 +93,20 @@ def test_bug_1523443_HAProxy_rejection(ansible_module):
 
     ansible_module.copy(src='/tmp/CS.cfg',
                         dest="/var/lib/pki/%s/ca/conf/CS.cfg" % constants.CA_INSTANCE_NAME)
-    ansible_module.command('systemctl start pki-tomcatd@%s.service' % constants.CA_INSTANCE_NAME)
-
-    cert_find_output = ansible_module.command("pki -d %s -c %s -p %s ca-cert-find --name 'CA Signing'" %
+    ansible_module.shell('systemctl start pki-tomcatd@%s.service' % constants.CA_INSTANCE_NAME)
+    time.sleep(10)
+    cert_find_output = ansible_module.shell("pki -d %s -c %s -p %s ca-cert-find --name 'CA Signing'" %
                                               (constants.NSSDB, constants.CLIENT_DATABASE_PASSWORD,
-                                               constants.CA_HTTP_PORT))
+                                               constants.CA_HTTPS_PORT))
     cert_serial = None
     cert_serial = re.findall("Serial Number\: [0-9a-zA-Z]+", cert_find_output.values()[0]['stdout'])
     cert_serial = cert_serial[0].split(':')[1].strip()
-    cert_show_output = ansible_module.command('pki -p %s cert-show %s --output /tmp/ca.crt' %
-                                              (constants.CA_HTTP_PORT, cert_serial))
+    cert_show_output = ansible_module.shell('pki -d %s -p %s cert-show %s --output /tmp/ca.crt' %
+                                              (constants.NSSDB, constants.CA_HTTPS_PORT, cert_serial))
     for result in cert_show_output.values():
         assert "Serial Number: %s" % cert_serial in result['stdout']
         assert "Status: VALID" in result['stdout']
-    openssl_output = ansible_module.command('openssl ocsp -CAfile /tmp/ca.crt -issuer /tmp/ca.crt \
+    openssl_output = ansible_module.shell('openssl ocsp -CAfile /tmp/ca.crt -issuer /tmp/ca.crt \
                                             -url http://pki1.example.com:%s/ca/ocsp -serial %s \
                                             -no_nonce' % (constants.CA_HTTP_PORT, cert_serial))
 

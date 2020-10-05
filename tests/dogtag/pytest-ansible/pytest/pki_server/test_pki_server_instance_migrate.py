@@ -31,10 +31,10 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import os
 import sys
 from subprocess import CalledProcessError
 
-import os
 import pytest
 
 try:
@@ -43,6 +43,7 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
 
 
 def test_pki_server_instance_migrate_help_command(ansible_module):
@@ -79,10 +80,9 @@ def test_pki_server_instance_migrate_help_command(ansible_module):
             assert '--debug                  Show debug messages.' in result['stdout']
             assert '--help                   Show help message.' in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server instance-migrate --help command.")
+            pytest.skip("Failed to run pki-server instance-migrate --help command.")
 
 
-@pytest.mark.xfail(raises=CalledProcessError)
 def test_pki_server_instance_migrate_without_tomcat_command(ansible_module):
     """
     :id: b03eaa9e-4ad1-4c1f-ae6c-12d8629d6ca7
@@ -101,7 +101,7 @@ def test_pki_server_instance_migrate_without_tomcat_command(ansible_module):
     cmd_output = ansible_module.command(migrate)
     for result in cmd_output.values():
         if result['rc'] >= 1:
-            assert "ERROR: option --tomcat requires argument" in result['stdout']
+            assert "ERROR: option --tomcat requires argument" in result['stderr']
             assert 'Usage: pki-server instance-migrate [OPTIONS] <instance ID>' in \
                    result['stdout']
             assert '--tomcat <version>       Use the specified Tomcat version.' in \
@@ -110,9 +110,10 @@ def test_pki_server_instance_migrate_without_tomcat_command(ansible_module):
             assert '--debug                  Show debug messages.' in result['stdout']
             assert '--help                   Show help message.' in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server instance-migrate without tomcat version.")
+            pytest.skip("Failed to run pki-server instance-migrate without tomcat version.")
 
 
+@pytest.mark.skip(reason="pki-servlet-container is not supported in Rhel 8.2")
 def test_pki_server_instance_migrate_command(ansible_module):
     """
     :id: 9f101b62-9ba2-4b88-bea1-a75bac9f694f
@@ -128,27 +129,31 @@ def test_pki_server_instance_migrate_command(ansible_module):
            RHEL and CS.
     """
     # Store subsystems in list
-    subsystems = [constants.CA_INSTANCE_NAME, constants.KRA_INSTANCE_NAME,
-                  constants.OCSP_INSTANCE_NAME, constants.TKS_INSTANCE_NAME,
-                  constants.TPS_INSTANCE_NAME]
+    subsystems = ['ca', 'kra']  # TODO remove after build, 'ocsp', 'tks', 'tps']
 
     # Check tomcat version.
-    rpm_cmd = 'rpm -qa tomcat'
+    rpm_cmd = 'rpm -qa pki-servlet-container'
     cmd_output = ansible_module.command(rpm_cmd)
     version = None
     for result in cmd_output.values():
         if result['rc'] == 0:
-            version = int(result['stdout'].split("-")[1].split(".")[0])
+            version = int(result['stdout'].split("-")[3].split(".")[0])
 
     for system in subsystems:
+        if TOPOLOGY == '01':
+            instance = 'pki-tomcat'
+            topology_name = 'topology-01-CA'
+        else:
+            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
+            topology_name = constants.CA_INSTANCE_NAME
         cmd_output = ansible_module.command('pki-server instance-migrate '
-                                            '--tomcat {} {}'.format(str(version + 1), system))
+                                            '--tomcat {} {}'.format(str(version + 1), instance))
         for res in cmd_output.values():
             if res['rc'] == 0:
-                assert system + " instance migrated" in res['stdout']
+                assert instance + " instance migrated" in res['stdout']
 
             else:
-                pytest.xfail("Failed to run pki-server instance-start " + system + " command")
+                pytest.skip("Failed to run pki-server instance-start " + instance + " command")
         else:
             ansible_module.command('pki-server instance-migrate '
-                                   '--tomcat {} {}'.format(str(version + 1), system))
+                                   '--tomcat {} {}'.format(str(version - 1), instance))

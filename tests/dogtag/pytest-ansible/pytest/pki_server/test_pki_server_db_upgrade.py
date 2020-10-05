@@ -31,10 +31,10 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
-import sys
-from subprocess import CalledProcessError
-
+import logging
 import os
+import sys
+
 import pytest
 
 try:
@@ -44,29 +44,43 @@ except Exception as e:
         sys.path.append('/tmp/test_dir')
         import constants
 
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+
+if TOPOLOGY == '01':
+    ca_instance_name = 'pki-tomcat'
+    topology_name = 'topology-01-CA'
+else:
+    ca_instance_name = constants.CA_INSTANCE_NAME
+    topology_name = constants.CA_INSTANCE_NAME
+
 
 @pytest.fixture(autouse=False)
 def ds_instance(ansible_module):
     """
     Start/stop ds instance
     """
-    instance_name = '{}-testingmaster'.format("-".join(constants.CA_INSTANCE_NAME.split("-")[:-1]))
+    instance_name = '{}-testingmaster'.format("-".join(topology_name.split("-")[:-1]))
     stop_ds = 'systemctl stop dirsrv@slapd-{}'.format(instance_name)
     ansible_module.command(stop_ds)
+    log.info("Stopped instance {}".format(instance_name))
     yield
     start_ds = 'systemctl start dirsrv@slapd-{}'.format(instance_name)
     ansible_module.command(start_ds)
+    log.info("Started instance {}".format(instance_name))
 
 
 @pytest.fixture(autouse=False)
 def stop_pki_instance(ansible_module):
     "start/stop pki-instance fixture."
-    instance = constants.CA_INSTANCE_NAME
-    stop_instance = 'pki-server instance-stop {}'.format(instance)
-    start_instance = 'pki-server instance-start {}'.format(instance)
+    stop_instance = 'pki-server instance-stop {}'.format(ca_instance_name)
+    start_instance = 'pki-server instance-start {}'.format(ca_instance_name)
     ansible_module.command(stop_instance)
-    yield instance
+    log.info("Stopped instance {}".format(ca_instance_name))
+    yield ca_instance_name
     ansible_module.command(start_instance)
+    log.info("Started instance {}".format(ca_instance_name))
 
 
 def test_pki_server_db_upgrade_help_command(ansible_module):
@@ -97,8 +111,10 @@ def test_pki_server_db_upgrade_help_command(ansible_module):
                    result['stdout']
             assert " -v, --verbose                      Run in verbose mode." in result['stdout']
             assert "     --help                         Show help message." in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server db-upgrade --help command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_db_upgrade_command(ansible_module):
@@ -113,14 +129,16 @@ def test_pki_server_db_upgrade_command(ansible_module):
     :ExpectedResult:
         1. Verify whether pki-server db-upgrade command upgrade the pki server database.
     """
-    db_upgrade = 'pki-server db-upgrade -i {} ca'.format(constants.CA_INSTANCE_NAME)
+    db_upgrade = 'pki-server db-upgrade -i {} ca'.format(ca_instance_name)
     cmd_output = ansible_module.command(db_upgrade)
 
     for result in cmd_output.values():
         if result['rc'] == 0:
-            assert "Upgrade complete" in result['stdout']
+            assert "CA database upgraded" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server db-upgrade command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_db_upgrade_while_ds_instance_is_down(ansible_module, ds_instance):
@@ -137,14 +155,16 @@ def test_pki_server_db_upgrade_while_ds_instance_is_down(ansible_module, ds_inst
 
     """
     # Store commands in veriables.
-    db_upgrade = 'pki-server db-upgrade -i {} ca'.format(constants.CA_INSTANCE_NAME)
+    db_upgrade = 'pki-server db-upgrade -i {} ca'.format(ca_instance_name)
 
     cmd_output = ansible_module.command(db_upgrade)
     for result in cmd_output.values():
         if result['rc'] == 0:
-            assert "Upgrade complete" in result['stdout']
+            assert "CA database upgraded" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server db-upgrade command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_db_upgrade_with_wrong_instance(ansible_module):
@@ -160,19 +180,19 @@ def test_pki_server_db_upgrade_with_wrong_instance(ansible_module):
         while specifying wrong instance.
 
     """
-    subsystem = [constants.KRA_INSTANCE_NAME, constants.OCSP_INSTANCE_NAME,
-                 constants.TKS_INSTANCE_NAME, constants.TPS_INSTANCE_NAME]
-
-    for system in subsystem:
-        db_upgrade = 'pki-server db-upgrade -i {} ca'.format(system)
-        cmd_output = ansible_module.command(db_upgrade)
-        for result in cmd_output.values():
-            if result['rc'] == 0:
-                assert "Upgrade complete" in result['stdout']
-                pytest.xfail("Failed to run pki-server db-upgrade command for "
-                             "instance %s ." % system)
-            else:
-                assert "ERROR: No CA subsystem in instance {}.".format(system) in result['stdout']
+    instance = 'ROOTCA'
+    db_upgrade = 'pki-server db-upgrade -i {} ca'.format(instance)
+    cmd_output = ansible_module.command(db_upgrade)
+    for result in cmd_output.values():
+        if result['rc'] == 0:
+            assert "Upgrade complete" in result['stdout']
+            pytest.skip()
+        else:
+            # if "Invalid instance" in result['stdout']:
+            assert "ERROR: Invalid instance: ROOTCA" in result['stderr']
+            # else:
+            #   assert "ERROR: Invalid instance: ROOTCA" in result['stderr']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
 
 
 def test_pki_server_db_upgrade_with_stopped_instance(ansible_module, stop_pki_instance):
@@ -188,12 +208,16 @@ def test_pki_server_db_upgrade_with_stopped_instance(ansible_module, stop_pki_in
            when instance is stopped.
     """
     # Store commands in veriables.
-    db_upgrade = 'pki-server db-upgrade -i {} ca'.format(constants.CA_INSTANCE_NAME)
+    if TOPOLOGY == '01':
+        instance = ca_instance_name
+    else:
+        instance = constants.CA_INSTANCE_NAME
+    db_upgrade = 'pki-server db-upgrade -i {} ca'.format(instance)
 
     cmd_output = ansible_module.command(db_upgrade)
-
     for result in cmd_output.values():
         if result['rc'] == 0:
-            assert "Upgrade complete" in result['stdout']
+            assert "CA database upgraded" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server db-upgrade command when instance stopped.")
+            pytest.skip("Failed to run pki-server db-upgrade command when instance stopped.")

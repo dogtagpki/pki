@@ -30,10 +30,11 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
+import logging
+import os
 import sys
 from subprocess import CalledProcessError
 
-import os
 import pytest
 
 try:
@@ -42,6 +43,10 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
+
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def test_pki_server_instance_start_help_command(ansible_module):
@@ -67,12 +72,14 @@ def test_pki_server_instance_start_help_command(ansible_module):
 
     for result in cmd_output.values():
         if result['rc'] == 0:
-            assert "Usage: pki-server instance-start [OPTIONS] <instance ID>" in \
-                   result['stdout']
-            assert "  -v, --verbose                Run in verbose mode." in result['stdout']
-            assert "      --help                   Show help message." in result['stdout']
+            assert "Usage: pki-server instance-start [OPTIONS] <instance ID>" in result['stdout']
+            assert "-v, --verbose                      Run in verbose mode." in result['stdout']
+            assert "--debug                        Run in debug mode." in result['stdout']
+            assert "--help                         Show help message." in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to ran pki-server instance-start --help command")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_instance_start_command(ansible_module):
@@ -87,25 +94,28 @@ def test_pki_server_instance_start_command(ansible_module):
     :ExpectedResults:
         1. Verify whether pki-server instance-start command start the instance.
     """
-    subsystems = [constants.CA_INSTANCE_NAME, constants.KRA_INSTANCE_NAME,
-                  constants.OCSP_INSTANCE_NAME, constants.TKS_INSTANCE_NAME,
-                  constants.TPS_INSTANCE_NAME]
+    subsystems = ['ca', 'kra']  # TODO remove after build , 'ocsp', 'tks', 'tps']
 
     for system in subsystems:
-
-        stop_command = 'pki-server instance-stop {}'.format(system)
-        start_command = 'pki-server instance-start {}'.format(system)
+        if TOPOLOGY == "01":
+            instance = 'pki-tomcat'
+        else:
+            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
+        stop_command = 'pki-server instance-stop {}'.format(instance)
+        start_command = 'pki-server instance-start {}'.format(instance)
         # Start the instance
         start_instance = ansible_module.command(start_command)
         for result in start_instance.values():
             if result['rc'] == 0:
                 if " instance already started" in result['stdout']:
-                    assert '{} instance already started'.format(system) in result['stdout']
+                    assert '{} instance already started'.format(instance) in result['stdout']
                 else:
-                    assertstr = system + " instance started"
+                    assertstr = instance + " instance started"
                     assert assertstr in result['stdout']
+                    log.info("Successfully run : {}".format(" ".join(result['cmd'])))
             else:
-                pytest.xfail("Failed to ran pki-server instance-start " + system + " command")
+                log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+                pytest.skip()
 
 
 @pytest.mark.exfail(raises=CalledProcessError)
@@ -130,9 +140,11 @@ def test_pki_server_instance_start_command_when_instance_does_not_exists(ansible
     for result in cmd_output.values():
         if result['rc'] >= 1:
             assertstr = "ERROR: Invalid instance %s." % system
-            assert assertstr in result['stdout']
+            assert assertstr in result['stderr']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to ran pki-server instance-start command")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_instance_start_command_when_it_is_already_started(ansible_module):
@@ -147,22 +159,25 @@ def test_pki_server_instance_start_command_when_it_is_already_started(ansible_mo
     :ExpectedResults:
         1. Verify whether pki-server instance-start command start the instance.
     """
-    subsystems = [constants.CA_INSTANCE_NAME, constants.KRA_INSTANCE_NAME,
-                  constants.OCSP_INSTANCE_NAME, constants.TKS_INSTANCE_NAME,
-                  constants.TPS_INSTANCE_NAME]
+    subsystems = ['ca', 'kra']  # TODO Remove after build , 'ocsp', 'tks', 'tps']
 
     for system in subsystems:
-        start_command = 'pki-server instance-start {}'.format(system)
+        if TOPOLOGY == "01":
+            instance = 'pki-tomcat'
+        else:
+            instance = eval("constants.{}_INSTANCE_NAME".format(system.upper()))
+        start_command = 'pki-server instance-start {}'.format(instance)
 
         cmd_output = ansible_module.command(start_command)
-        assertstr = system + " instance already started"
-        assertstr2 = system + " instance start"
+        assertstr = instance + " instance already started"
+        assertstr2 = instance + " instance start"
         for result in cmd_output.values():
             if result['rc'] == 0:
                 if assertstr in result['stdout']:
                     assert assertstr in result['stdout']
                 else:
                     assert assertstr2 in result['stdout']
-
+                log.info("Successfully run : {}".format(" ".join(result['cmd'])))
             else:
-                pytest.xfail("Failed to ran pki-server instance-start " + system + " command")
+                log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+                pytest.skip()

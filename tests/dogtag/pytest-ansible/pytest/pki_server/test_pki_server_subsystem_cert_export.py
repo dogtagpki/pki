@@ -26,10 +26,10 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
-
+import logging
+import os
 import sys
 
-import os
 import pytest
 
 try:
@@ -38,7 +38,9 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
-Topology = int(''.join(constants.CA_INSTANCE_NAME.split("-")[1]))
+TOPOLOGY = int(''.join(constants.CA_INSTANCE_NAME.split("-")[1]))
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def test_pki_server_subsystem_cert_export_help(ansible_module):
@@ -81,8 +83,10 @@ def test_pki_server_subsystem_cert_export_help(ansible_module):
             assert "-v, --verbose                      Run in verbose mode" in result['stdout']
             assert "--debug                        Run in debug mode" in result['stdout']
             assert "--help                         Show help message" in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export --help command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 @pytest.mark.parametrize('cert_id', ('signing', 'ocsp_signing', 'sslserver',
@@ -107,7 +111,10 @@ def test_pki_server_subsystem_cert_export_ca_certs(ansible_module, cert_id):
     cert_file = '/tmp/ca_{}.pem'.format(cert_id)
     csr_file = '/tmp/ca_{}_csr.pem'.format(cert_id)
     p12_file = '/tmp/ca_{}.p12'.format(cert_id)
-    instance = constants.CA_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.CA_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --cert-file {} --csr-file {} ' \
                   '--pkcs12-file {} --pkcs12-password {} ' \
                   'ca {}'.format(instance, cert_file, csr_file, p12_file,
@@ -120,8 +127,11 @@ def test_pki_server_subsystem_cert_export_ca_certs(ansible_module, cert_id):
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
     for f in [cert_file, csr_file, p12_file]:
         ansible_module.command('rm -rf {}'.format(f))
 
@@ -148,7 +158,10 @@ def test_pki_server_subsystem_cert_export_kra_certs(ansible_module, cert_id):
     cert_file = '/tmp/kra_{}.pem'.format(cert_id)
     csr_file = '/tmp/kra_{}_csr.pem'.format(cert_id)
     p12_file = '/tmp/kra_{}.p12'.format(cert_id)
-    instance = constants.KRA_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.KRA_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --cert-file {} --csr-file {} ' \
                   '--pkcs12-file {} --pkcs12-password {} ' \
                   'kra {}'.format(instance, cert_file, csr_file, p12_file,
@@ -162,8 +175,11 @@ def test_pki_server_subsystem_cert_export_kra_certs(ansible_module, cert_id):
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
     for f in [cert_file, csr_file, p12_file]:
         ansible_module.command('rm -rf {}'.format(f))
 
@@ -188,7 +204,10 @@ def test_pki_server_subsystem_cert_export_ocsp_certs(ansible_module, cert_id):
     cert_file = '/tmp/ocsp_{}.pem'.format(cert_id)
     csr_file = '/tmp/ocsp_{}_csr.pem'.format(cert_id)
     p12_file = '/tmp/ocsp_{}.p12'.format(cert_id)
-    instance = constants.OCSP_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.OCSP_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --cert-file {} --csr-file {} ' \
                   '--pkcs12-file {} --pkcs12-password {} ' \
                   'ocsp {}'.format(instance, cert_file, csr_file, p12_file,
@@ -201,8 +220,11 @@ def test_pki_server_subsystem_cert_export_ocsp_certs(ansible_module, cert_id):
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
     for f in [cert_file, csr_file, p12_file]:
         ansible_module.command('rm -rf {}'.format(f))
 
@@ -227,7 +249,10 @@ def test_pki_server_subsystem_cert_export_tks_subsystem(ansible_module, cert_id)
     cert_file = '/tmp/tks_{}.pem'.format(cert_id)
     csr_file = '/tmp/tks_{}_csr.pem'.format(cert_id)
     p12_file = '/tmp/tks_{}.p12'.format(cert_id)
-    instance = constants.TKS_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.TKS_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --cert-file {} --csr-file {} ' \
                   '--pkcs12-file {} --pkcs12-password {} ' \
                   'tks {}'.format(instance, cert_file, csr_file, p12_file,
@@ -240,8 +265,11 @@ def test_pki_server_subsystem_cert_export_tks_subsystem(ansible_module, cert_id)
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
     for f in [cert_file, csr_file, p12_file]:
         ansible_module.command('rm -rf {}'.format(f))
 
@@ -266,7 +294,10 @@ def test_pki_server_subsystem_cert_export_tps_subsystem(ansible_module, cert_id)
     cert_file = '/tmp/tps_{}.pem'.format(cert_id)
     csr_file = '/tmp/tps_{}_csr.pem'.format(cert_id)
     p12_file = '/tmp/tps_{}.p12'.format(cert_id)
-    instance = constants.TPS_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.TPS_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --cert-file {} --csr-file {} ' \
                   '--pkcs12-file {} --pkcs12-password {} ' \
                   'tps {}'.format(instance, cert_file, csr_file, p12_file,
@@ -279,13 +310,16 @@ def test_pki_server_subsystem_cert_export_tps_subsystem(ansible_module, cert_id)
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
     for f in [cert_file, csr_file, p12_file]:
         ansible_module.command('rm -rf {}'.format(f))
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id', ('signing', 'ocsp_signing', 'sslserver',
                                      'subsystem', 'audit_signing'))
 def test_pki_server_subsystem_cert_export_clone_ca_certs(ansible_module, cert_id):
@@ -307,7 +341,10 @@ def test_pki_server_subsystem_cert_export_clone_ca_certs(ansible_module, cert_id
     cert_file = '/tmp/ca_{}.pem'.format(cert_id)
     csr_file = '/tmp/ca_{}_csr.pem'.format(cert_id)
     p12_file = '/tmp/ca_{}.p12'.format(cert_id)
-    instance = constants.CLONECA1_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.CLONECA1_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --cert-file {} --csr-file {} ' \
                   '--pkcs12-file {} --pkcs12-password {} ' \
                   'ca {}'.format(instance, cert_file, csr_file, p12_file,
@@ -320,13 +357,16 @@ def test_pki_server_subsystem_cert_export_clone_ca_certs(ansible_module, cert_id
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
     for f in [cert_file, csr_file, p12_file]:
         ansible_module.command('rm -rf {}'.format(f))
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id', ('transport', 'storage', 'sslserver', 'subsystem',
                                      'audit_signing'))
 def test_pki_server_subsystem_cert_export_clone_kra_certs(ansible_module, cert_id):
@@ -349,7 +389,10 @@ def test_pki_server_subsystem_cert_export_clone_kra_certs(ansible_module, cert_i
     cert_file = '/tmp/kra_{}.pem'.format(cert_id)
     csr_file = '/tmp/kra_{}_csr.pem'.format(cert_id)
     p12_file = '/tmp/kra_{}.p12'.format(cert_id)
-    instance = constants.CLONEKRA1_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.CLONEKRA1_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --cert-file {} --csr-file {} ' \
                   '--pkcs12-file {} --pkcs12-password {} ' \
                   'kra {}'.format(instance, cert_file, csr_file, p12_file,
@@ -362,13 +405,17 @@ def test_pki_server_subsystem_cert_export_clone_kra_certs(ansible_module, cert_i
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
+
     for f in [cert_file, csr_file, p12_file]:
         ansible_module.command('rm -rf {}'.format(f))
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id', ('signing', 'sslserver', 'subsystem', 'audit_signing'))
 def test_pki_server_subsystem_cert_export_clone_ocsp_certs(ansible_module, cert_id):
     """
@@ -389,7 +436,10 @@ def test_pki_server_subsystem_cert_export_clone_ocsp_certs(ansible_module, cert_
     cert_file = '/tmp/ocsp_{}.pem'.format(cert_id)
     csr_file = '/tmp/ocsp_{}_csr.pem'.format(cert_id)
     p12_file = '/tmp/ocsp_{}.p12'.format(cert_id)
-    instance = constants.CLONEOCSP1_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.CLONEOCSP1_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --cert-file {} --csr-file {} ' \
                   '--pkcs12-file {} --pkcs12-password {} ' \
                   'ocsp {}'.format(instance, cert_file, csr_file, p12_file,
@@ -402,13 +452,16 @@ def test_pki_server_subsystem_cert_export_clone_ocsp_certs(ansible_module, cert_
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
     for f in [cert_file, csr_file, p12_file]:
         ansible_module.command('rm -rf {}'.format(f))
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id', ('signing', 'sslserver', 'subsystem', 'audit_signing'))
 def test_pki_server_subsystem_cert_export_clone_tks_sslserver(ansible_module, cert_id):
     """
@@ -429,7 +482,10 @@ def test_pki_server_subsystem_cert_export_clone_tks_sslserver(ansible_module, ce
     cert_file = '/tmp/tks_{}.pem'.format(cert_id)
     csr_file = '/tmp/tks_{}_csr.pem'.format(cert_id)
     p12_file = '/tmp/tks_{}.p12'.format(cert_id)
-    instance = constants.TKS_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.TKS_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --cert-file {} --csr-file {} ' \
                   '--pkcs12-file {} --pkcs12-password {} ' \
                   'tks {}'.format(instance, cert_file, csr_file, p12_file,
@@ -442,13 +498,17 @@ def test_pki_server_subsystem_cert_export_clone_tks_sslserver(ansible_module, ce
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
+
     for f in [cert_file, csr_file, p12_file]:
         ansible_module.command('rm -rf {}'.format(f))
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id', ('signing', 'ocsp_signing', 'sslserver',
                                      'subsystem', 'audit_signing'))
 def test_pki_server_subsystem_cert_export_subca_signing(ansible_module, cert_id):
@@ -471,7 +531,10 @@ def test_pki_server_subsystem_cert_export_subca_signing(ansible_module, cert_id)
     cert_file = '/tmp/subca_{}.pem'.format(cert_id)
     csr_file = '/tmp/subca_{}_csr.pem'.format(cert_id)
     p12_file = '/tmp/subca_{}.p12'.format(cert_id)
-    instance = constants.SUBCA1_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.SUBCA1_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --cert-file {} --csr-file {} ' \
                   '--pkcs12-file {} --pkcs12-password {} ' \
                   'ca {}'.format(instance, cert_file, csr_file, p12_file,
@@ -484,8 +547,11 @@ def test_pki_server_subsystem_cert_export_subca_signing(ansible_module, cert_id)
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
     for f in [cert_file, csr_file, p12_file]:
         ansible_module.command('rm -rf {}'.format(f))
 
@@ -512,8 +578,11 @@ def test_pki_server_subsystem_cert_export_with_append(ansible_module):
 
     client_cert_find = 'pki pkcs12-cert-find --pkcs12-file {} ' \
                        '--pkcs12-password {}'.format(p12_file, constants.CLIENT_PKCS12_PASSWORD)
-    for subsystem in ['ca', 'kra', 'ocsp', 'tks', 'tps']:
-        instance = eval("constants.{}_INSTANCE_NAME".format(subsystem.upper()))
+    for subsystem in ['ca', 'kra']:  # TODO Remove after build , 'ocsp', 'tks', 'tps']:
+        if TOPOLOGY == 1:
+            instance = 'pki-tomcat'
+        else:
+            instance = eval("constants.{}_INSTANCE_NAME".format(subsystem.upper()))
         cert_export = 'pki-server subsystem-cert-export -i {} --pkcs12-file {} --pkcs12-password ' \
                       '{} {} subsystem --append'.format(instance, p12_file,
                                                         constants.CLIENT_PKCS12_PASSWORD, subsystem)
@@ -525,15 +594,22 @@ def test_pki_server_subsystem_cert_export_with_append(ansible_module):
                     exists = ansible_module.stat(path=f)
                     for res in exists.values():
                         assert res['stat']['exists']
+                        log.info("File {} exists.".format(f))
+                log.info("Successfully run : {}".format(" ".join(result['cmd'])))
             else:
-                pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+                log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+                pytest.skip()
 
     cert_find = ansible_module.command(client_cert_find)
     for result in cert_find.values():
         if result['rc'] == 0:
-            for s in ['ca', 'kra', 'ocsp', 'tks', 'tps']:
-                instance = eval("constants.{}_INSTANCE_NAME".format(s.upper()))
-                assert 'Nickname: subsystemCert cert-{}'.format(instance) in result['stdout']
+            for s in ['ca', 'kra']:  # TODO remove after build, 'ocsp', 'tks', 'tps']:
+                if TOPOLOGY == 1:
+                    instance = 'pki-tomcat'
+                else:
+                    instance = eval("constants.{}_INSTANCE_NAME".format(s.upper()))
+                assert 'Friendly Name: subsystemCert cert-{}'.format(instance) in result['stdout']
+
     for f in [p12_file, tmp_dir]:
         ansible_module.command('rm -rf {}'.format(f))
 
@@ -555,10 +631,12 @@ def test_pki_server_subsystem_cert_export_with_pkcs12_password_file(ansible_modu
     p12_file = '/tmp/ca_subsystem.p12'
     ansible_module.shell('echo "{}" > {}'.format(constants.CLIENT_PKCS12_PASSWORD, password_file))
 
-    instance = constants.CA_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.CA_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --pkcs12-file {} ' \
-                  '--pkcs12-password-file {} ' \
-                  'ca subsystem'.format(instance, p12_file, password_file)
+                  '--pkcs12-password-file {} ca subsystem'.format(instance, p12_file, password_file)
     signing_out = ansible_module.command(cert_export)
     for result in signing_out.values():
         if result['rc'] == 0:
@@ -567,17 +645,22 @@ def test_pki_server_subsystem_cert_export_with_pkcs12_password_file(ansible_modu
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
     client_cert_find = 'pki pkcs12-cert-find --pkcs12-file {} ' \
                        '--pkcs12-password-file {}'.format(p12_file, password_file)
     cert_find = ansible_module.command(client_cert_find)
     for result in cert_find.values():
         if result['rc'] == 0:
-            for s in ['ca']:
-                instance = eval("constants.{}_INSTANCE_NAME".format(s.upper()))
-                assert 'Nickname: subsystemCert cert-{}'.format(instance) in result['stdout']
+            if TOPOLOGY == 1:
+                instance = 'pki-tomcat'
+            else:
+                instance = constants.CA_INSTANCE_NAME
+            assert 'Friendly Name: subsystemCert cert-{}'.format(instance) in result['stdout']
     for f in [p12_file, password_file]:
         ansible_module.command('rm -rf {}'.format(f))
 
@@ -596,7 +679,10 @@ def test_pki_server_subsystem_cert_export_with_no_key_option(ansible_module):
                 1. It should not export private key in to the p12 file.
     """
     p12_file = '/tmp/ca_subsystem.p12'
-    instance = constants.CA_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.CA_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --pkcs12-file {} --pkcs12-password ' \
                   '{} ca subsystem --no-key'.format(instance, p12_file,
                                                     constants.CLIENT_PKCS12_PASSWORD)
@@ -608,18 +694,23 @@ def test_pki_server_subsystem_cert_export_with_no_key_option(ansible_module):
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
     client_cert_find = 'pki pkcs12-cert-find --pkcs12-file {} ' \
                        '--pkcs12-password {}'.format(p12_file, constants.CLIENT_PKCS12_PASSWORD)
     cert_find = ansible_module.command(client_cert_find)
     for result in cert_find.values():
         if result['rc'] == 0:
-            for s in ['ca']:
-                instance = eval("constants.{}_INSTANCE_NAME".format(s.upper()))
-                assert 'Nickname: subsystemCert cert-{}'.format(instance) in result['stdout']
-                assert 'Has Key: false'
+            if TOPOLOGY == 1:
+                instance = 'pki-tomcat'
+            else:
+                instance = constants.CA_INSTANCE_NAME
+            assert 'Friendly Name: subsystemCert cert-{}'.format(instance) in result['stdout']
+            assert 'Has Key: false'
     for f in [p12_file]:
         ansible_module.command('rm -rf {}'.format(f))
 
@@ -638,7 +729,10 @@ def test_pki_server_subsystem_cert_export_with_no_chain_option(ansible_module):
                 1. It should not export CA certificate in to the p12 file.
     """
     p12_file = '/tmp/ca_subsystem.p12'
-    instance = constants.CA_INSTANCE_NAME
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+    else:
+        instance = constants.CA_INSTANCE_NAME
     cert_export = 'pki-server subsystem-cert-export -i {} --pkcs12-file {} --pkcs12-password ' \
                   '{} ca subsystem --no-chain'.format(instance, p12_file,
                                                       constants.CLIENT_PKCS12_PASSWORD)
@@ -650,16 +744,22 @@ def test_pki_server_subsystem_cert_export_with_no_chain_option(ansible_module):
                 exists = ansible_module.stat(path=f)
                 for res in exists.values():
                     assert res['stat']['exists']
+                    log.info("File {} exists.".format(f))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-export command.")
+            log.error("Failed to run : {}".format(" ".join(result['cmd'])))
+            pytest.skip()
 
     client_cert_find = 'pki pkcs12-cert-find --pkcs12-file {} ' \
                        '--pkcs12-password {}'.format(p12_file, constants.CLIENT_PKCS12_PASSWORD)
     cert_find = ansible_module.command(client_cert_find)
     for result in cert_find.values():
         if result['rc'] == 0:
-            instance = constants.CA_INSTANCE_NAME
-            assert 'Nickname: subsystemCert cert-{}'.format(instance) in result['stdout']
+            if TOPOLOGY == 1:
+                instance = 'pki-tomcat'
+            else:
+                instance = constants.CA_INSTANCE_NAME
+            assert 'Friendly Name: subsystemCert cert-{}'.format(instance) in result['stdout']
             assert 'Has Key: true' in result['stdout']
             assert 'Nickname: CA Signing Certificate' not in result['stdout']
             assert 'Trust Flags: CT,C,C' not in result['stdout']

@@ -42,6 +42,10 @@ except Exception as e:
     if os.path.isfile('/tmp/test_dir/constants.py'):
         sys.path.append('/tmp/test_dir')
         import constants
+import logging
+
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def get_random_string(len=10):
@@ -90,18 +94,15 @@ def test_pki_pkcs12_export_help(ansible_module):
             assert "--append                        Append into an existing PKCS #12 file" in \
                    result['stdout']
             assert "--debug                         Run in debug mode." in result['stdout']
-            assert "--help                          Show help options" in result['stdout']
+            assert "--help                          Show help message." in result['stdout']
             assert "--no-chain                      Do not include certificate chain" in \
                    result['stdout']
             assert "--no-key                        Do not include private key" in result['stdout']
             assert "--no-trust-flags                Do not include trust flags" in result['stdout']
-            assert "--pkcs12-file <path>            PKCS #12 file" in result['stdout']
-            assert "--pkcs12-password <password>    PKCS #12 password" in result['stdout']
-            assert "--pkcs12-password-file <path>   PKCS #12 password file" in result['stdout']
             assert "-v,--verbose                       Run in verbose mode" in result['stdout']
 
         else:
-            pytest.xfail("Failed to run pki pkcs12-export command.!!")
+            pytest.fail("Failed to run pki pkcs12-export command.!!")
 
 
 def test_pki_pkcs12_export_without_nick(ansible_module):
@@ -152,7 +153,7 @@ def test_pki_pkcs12_export_without_nick(ansible_module):
                         for cert in certs:
                             assert cert in r2['stdout']
         else:
-            pytest.xfail("Failed to Export cert using pkcs12-export command.")
+            pytest.fail("Failed to Export cert using pkcs12-export command.")
     ansible_module.command('rm -rf {}'.format(p12_file))
 
 
@@ -204,9 +205,9 @@ def test_pki_pkcs12_export_with_nick(ansible_module):
                         if r2['rc'] == 0:
                             assert cert in r2['stdout']
                         else:
-                            pytest.xfail("Failed to run pki pkcs12-cert-find.")
+                            pytest.fail("Failed to run pki pkcs12-cert-find.")
             else:
-                pytest.xfail("Failed to Export cert using pkcs12-export command.")
+                pytest.fail("Failed to Export cert using pkcs12-export command.")
 
     ansible_module.command('rm -rf {}'.format(p12_file))
 
@@ -226,24 +227,23 @@ def test_pki_pkcs12_export_with_mulitple_nicks(ansible_module):
     """
     certs = []
     p12_file = '/tmp/all_certs.p12'
-    client_cert_find = 'pki -d {} -c {} client-cert-find'.format(db2, constants.CLIENT_DIR_PASSWORD)
+    client_cert_find = 'pki -d {} -c {} client-cert-find'.format(db1, constants.CLIENT_DIR_PASSWORD)
 
     import_file = 'pki -d {} -c {} client-cert-import --pkcs12 {} ' \
                   '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD, p12_file,
                                                 constants.CLIENT_PKCS12_PASSWORD)
-    get_certs = ansible_module.command(client_cert_find.format(db1, constants.CLIENT_DIR_PASSWORD))
+    get_certs = ansible_module.command(client_cert_find)
     for r_certs in get_certs.values():
         if r_certs['rc'] == 0:
             certs = re.findall('Nickname: [\w].*', r_certs['stdout'])
             certs = [i.split(":")[1].strip() for i in certs]
     nicks = ""
     for i in certs:
-        nicks += " '{}'".format(i)
+        nicks += " '{}' ".format(i)
 
     export_cmd = 'pki -d {} -c {} pkcs12-export --pkcs12-file {} ' \
-                 '--pkcs12-password {} "{}"'.format(db1, constants.CLIENT_DIR_PASSWORD,
-                                                    p12_file, constants.CLIENT_PKCS12_PASSWORD,
-                                                    nicks)
+                 '--pkcs12-password {} {}'.format(db1, constants.CLIENT_DIR_PASSWORD,
+                                                  p12_file, constants.CLIENT_PKCS12_PASSWORD, nicks)
     export_out = ansible_module.command(export_cmd)
     for result in export_out.values():
         if result['rc'] == 0:
@@ -261,12 +261,13 @@ def test_pki_pkcs12_export_with_mulitple_nicks(ansible_module):
                         for cert in certs:
                             assert cert in r2['stdout']
         else:
-            pytest.xfail("Failed to Export cert using pkcs12-export command.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed to Export cert using pkcs12-export command.")
 
     ansible_module.command('rm -rf {}'.format(p12_file))
 
 
-@pytest.mark.xfail(reason='BZ-1351039')
 def test_pki_pkcs12_export_append(ansible_module):
     """
     :id: 82ab4424-ac46-4007-8323-264618aacd29
@@ -303,16 +304,13 @@ def test_pki_pkcs12_export_append(ansible_module):
         if r2['rc'] == 0:
             assert constants.CA_ADMIN_NICK in r2['stdout']
             assert constants.KRA_ADMIN_NICK in r2['stdout']
-            assert constants.OCSP_ADMIN_NICK in r2['stdout']
-            assert constants.TKS_ADMIN_NICK in r2['stdout']
-            assert constants.TPS_ADMIN_NICK in r2['stdout']
 
         else:
-            pytest.xfail("Failed to Export cert using pkcs12-export command.")
+            pytest.fail("Failed to Export cert using pkcs12-export command.")
     ansible_module.command('rm -rf {}'.format(p12_file))
 
 
-@pytest.mark.xfail(reason="BZ-1572057")
+@pytest.mark.skip(reason="BZ-1572057")
 def test_pki_pkcs12_export_no_chain(ansible_module):
     """
     :id: d80e0ab5-0041-4e90-af9b-509c60d3ed6a
@@ -350,11 +348,10 @@ def test_pki_pkcs12_export_no_chain(ansible_module):
                 assert 'CA' not in r2['stdout']
                 assert constants.CA_ADMIN_NICK in r2['stdout']
             else:
-                pytest.xfail("Failed to Export cert using pkcs12-export command.")
+                pytest.fail("Failed to Export cert using pkcs12-export command.")
     ansible_module.command('rm -rf {}'.format(p12_file))
 
 
-@pytest.mark.xfail(reason="BZ-1572057")
 def test_pki_pkcs12_export_no_key(ansible_module):
     """
     :id: ec37238a-6861-4496-8a21-0bb279bec3e7
@@ -366,7 +363,7 @@ def test_pki_pkcs12_export_no_key(ansible_module):
     :Steps:
         1. pki pkcs12-export <cert_id> --no-key --pkcs12-password <pass> --pkcs12-file <file>
     :ExpectedResults:
-        1. Verify whether pki pkcs12-export --no-chain command exports the cert without private key
+        1. Verify whether pki pkcs12-export --no-key command exports the cert without private key
     """
     p12_file = '/tmp/all_certs.p12'
     pkcs12_export = 'pki -d {} -c {} pkcs12-export --pkcs12-file {} ' \
@@ -393,11 +390,10 @@ def test_pki_pkcs12_export_no_key(ansible_module):
                         for key in has_key:
                             assert 'Has Key: false' in key
                     else:
-                        pytest.xfail("Failed to Export cert using pkcs12-export --no-key command.")
+                        pytest.fail("Failed to Export cert using pkcs12-export --no-key command.")
     ansible_module.command('rm -rf {}'.format(p12_file))
 
 
-@pytest.mark.xfail(reason="BZ-1572057")
 def test_pki_pkcs12_export_no_trust_flag(ansible_module):
     """
     :id: 9dbdad30-a684-49e5-b062-4b07a60828c4
@@ -422,7 +418,7 @@ def test_pki_pkcs12_export_no_trust_flag(ansible_module):
         if result['rc'] == 0:
             assert "Export complete" in result['stdout']
         else:
-            pytest.xfail("Failed to run pki-server pkcs12-export command.")
+            pytest.fail("Failed to run pki-server pkcs12-export command.")
     ansible_module.command('rm -rf {}'.format(p12_file))
 
 
@@ -457,7 +453,7 @@ def test_pki_pkcs12_export_password_file(ansible_module):
             for r in is_file.values():
                 assert r['stat']['exists']
         else:
-            pytest.xfail("Failed to Export cert using pkcs12-export command.")
+            pytest.fail("Failed to Export cert using pkcs12-export command.")
     ansible_module.command('rm -rf {}'.format(p12_file))
 
 
@@ -480,18 +476,19 @@ def test_pki_pkcs12_export_wrong_db_password(ansible_module):
                                            string.ascii_letters +
                                            string.punctuation)
                              for _ in range(8))
-    export_cmd = 'pki -d {} -c {} pkcs12-export --pkcs12-file {} ' \
+    export_cmd = 'pki -d {} -c "{}" pkcs12-export --pkcs12-file {} ' \
                  '--pkcs12-password {}'.format(db2, wrong_password, p12_file,
                                                constants.CLIENT_PKCS12_PASSWORD)
     export_out = ansible_module.command(export_cmd)
     for result in export_out.values():
-        if result['rc'] >= 1:
-            assert "Error: Incorrect client security database password." in result['stderr']
+        if result['rc'] > 0:
+            assert "ERROR: Incorrect password for internal token" in result['stderr']
         else:
-            pytest.xfail("Failed: Ran pki pkcs12-export command with wrong db password.")
+            log.error(result['stdout'])
+            log.error(result['stderr'])
+            pytest.fail("Failed: Ran pki pkcs12-export command with wrong db password.")
 
 
-@pytest.mark.xfail(reason="BZ-1572057")
 def test_pki_pkcs12_export_with_invalid_nick(ansible_module):
     """
     :id: a983deec-02ed-4454-88aa-9e48c3db0dce
@@ -516,7 +513,9 @@ def test_pki_pkcs12_export_with_invalid_nick(ansible_module):
                                                     constants.CLIENT_PKCS12_PASSWORD, wrong_nick)
     export_out = ansible_module.command(export_cmd)
     for result in export_out.values():
-        if result['rc'] == 0:
-            assert "Export complete" not in result['stdout']
+        if result['rc'] > 0:
+            assert "ERROR: Certificate not found: {}".format(wrong_nick) in result['stderr']
+            log.info('Successfully ran : {}'.format(result['cmd']))
         else:
-            pytest.xfail("Failed: Ran pki pkcs12-export command with wrong db password.")
+            assert result['rc'] == 0
+            pytest.skip("Failed: BZ-1572057")

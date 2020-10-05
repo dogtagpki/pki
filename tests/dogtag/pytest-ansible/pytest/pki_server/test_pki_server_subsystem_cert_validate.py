@@ -26,13 +26,15 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
-
+import logging
+import os
 import random
 import string
 import sys
 
-import os
 import pytest
+
+from pki.testlib.common.utils import UserOperations
 
 try:
     from pki.testlib.common import constants
@@ -41,10 +43,13 @@ except Exception as e:
         sys.path.append('/tmp/test_dir')
         import constants
 
-Topology = int(''.join(constants.CA_INSTANCE_NAME.split("-")[1]))
+TOPOLOGY = int(constants.CA_INSTANCE_NAME.split("-")[-2])
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+userop = UserOperations(nssdb=constants.NSSDB)
 
 
-@pytest.mark.xfail(reason='BZ-1340718')
+# @pytest.mark.xfail(reason='BZ-1340718')
 def test_pki_server_subsystem_cert_validate_help(ansible_module):
     """
     :id: 210358d0-9a7d-4678-8440-0c125e694a5a
@@ -66,8 +71,10 @@ def test_pki_server_subsystem_cert_validate_help(ansible_module):
                    result['stdout']
             assert "-v, --verbose                   Run in verbose mode." in result['stdout']
             assert "--help                      Show help message." in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate --help command.")
+            log.error("Failed to run pki-server subsystem-cert-validate --help command.")
+            pytest.skip()
 
 
 @pytest.mark.parametrize('cert_id,nick', (['signing', 'caSigningCert cert-{} CA'],
@@ -88,18 +95,26 @@ def test_pki_server_subsystem_cert_validate_ca_certs(ansible_module, cert_id, ni
         1. Verify whether pki-server subsystem-cert-validate command validates the
         signing certificate.
     """
-    signing_out = ansible_module.command('pki-server subsystem-cert-validate '
-                                         '-i {} ca {}'.format(constants.CA_INSTANCE_NAME, cert_id))
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.CA_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    signing_out = ansible_module.command('pki-server subsystem-cert-validate -i {} ca {}'.format(instance, cert_id))
     for result in signing_out.values():
         if result['rc'] == 0:
             assert "Cert ID: {}".format(cert_id) in result['stdout']
-            assert "Nickname: {}".format(nick.format(constants.CA_INSTANCE_NAME)) in \
-                   result['stdout']
+            assert "Nickname: {}".format(nick.format(instance)) in result['stdout']
             assert "Usage:" in result['stdout']
-            assert "Token: Internal Key Storage Token" in result['stdout']
+            assert "Token: internal" in result['stdout']
             assert "Status: VALID" in result['stdout']
+            log.info("Validate certificate : {}".format(cert_id))
+            log.info("Validate certificate Nick : {}".format(nick.format(instance)))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 @pytest.mark.parametrize('cert_id,nick', (['transport', 'transportCert cert-{} KRA'],
@@ -120,21 +135,28 @@ def test_pki_server_subsystem_cert_validate_kra_certs(ansible_module, cert_id, n
         1. Verify whether pki-server subsystem-cert-validate command validates the kra
         transport certificate.
     """
-
-    cert_out = ansible_module.command('pki-server subsystem-cert-validate'
-                                      ' -i {} kra {}'.format(constants.KRA_INSTANCE_NAME,
-                                                             cert_id))
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.KRA_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    cert_out = ansible_module.command('pki-server subsystem-cert-validate -i {} kra {}'.format(instance, cert_id))
     for result in cert_out.values():
 
         if result['rc'] == 0:
             assert "Cert ID: {}".format(cert_id) in result['stdout']
-            assert "Nickname: {}".format(nick.format(constants.KRA_INSTANCE_NAME)) in \
-                   result['stdout']
+            assert "Nickname: {}".format(nick.format(instance)) in result['stdout']
             assert "Usage:" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Status: VALID" in result['stdout']
+            log.info("Validate certificate : {}".format(cert_id))
+            log.info("Validate certificate Nick : {}".format(nick.format(instance)))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
+
 
 
 @pytest.mark.parametrize('cert_id,nick', (['signing', 'ocspSigningCert cert-{} OCSP'],
@@ -154,19 +176,28 @@ def test_pki_server_subsystem_cert_validate_ocsp_certs(ansible_module, cert_id, 
         1. Verify whether pki-server subsystem-cert-validate command validates the OCSP
         signing certificate.
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.OCSP_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
     cert_out = ansible_module.command('pki-server subsystem-cert-validate'
-                                      ' -i {} ocsp {}'.format(constants.OCSP_INSTANCE_NAME,
-                                                              cert_id))
+                                      ' -i {} ocsp {}'.format(instance, cert_id))
     for result in cert_out.values():
         if result['rc'] == 0:
             assert "Cert ID: {}".format(cert_id) in result['stdout']
-            assert "Nickname: {}".format(nick.format(constants.OCSP_INSTANCE_NAME)) in \
-                   result['stdout']
+            assert "Nickname: {}".format(nick.format(instance)) in result['stdout']
             assert "Usage:" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Status: VALID" in result['stdout']
+            log.info("Validate certificate : {}".format(cert_id))
+            log.info("Validate certificate Nick : {}".format(nick.format(instance)))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
+
 
 
 @pytest.mark.parametrize('cert_id,nick', (['sslserver', 'Server-Cert cert-{}'],
@@ -184,18 +215,27 @@ def test_pki_server_subsystem_cert_validate_tks_certs(ansible_module, cert_id, n
         1. Verify whether pki-server subsystem-cert-validate command validates the tks
         sslserver certificate.
     """
-    cert_out = ansible_module.command('pki-server subsystem-cert-validate'
-                                      ' -i {} tks {}'.format(constants.TKS_INSTANCE_NAME, cert_id))
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.TKS_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    cert_out = ansible_module.command('pki-server subsystem-cert-validate  -i {} tks {}'.format(instance, cert_id))
     for result in cert_out.values():
         if result['rc'] == 0:
             assert "Cert ID: {}".format(cert_id) in result['stdout']
-            assert "Nickname: {}".format(nick.format(constants.TKS_INSTANCE_NAME)) in \
-                   result['stdout']
+            assert "Nickname: {}".format(nick.format(instance)) in result['stdout']
             assert "Usage:" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Status: VALID" in result['stdout']
+            log.info("Validate certificate : {}".format(cert_id))
+            log.info("Validate certificate Nick : {}".format(nick.format(instance)))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
+
 
 
 @pytest.mark.parametrize('cert_id,nick', (['sslserver', 'Server-Cert cert-{}'],
@@ -214,21 +254,29 @@ def test_pki_server_subsystem_cert_validate_tps_certs(ansible_module, cert_id, n
         1. Verify whether pki-server subsystem-cert-validate command validates the tps sslserver
         certificate.
     """
-    cert_out = ansible_module.command('pki-server subsystem-cert-validate'
-                                      ' -i {} tps {}'.format(constants.TPS_INSTANCE_NAME, cert_id))
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.TPS_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    cert_out = ansible_module.command('pki-server subsystem-cert-validate  -i {} tps {}'.format(instance, cert_id))
     for result in cert_out.values():
         if result['rc'] == 0:
             assert "Cert ID: {}".format(cert_id) in result['stdout']
-            assert "Nickname: {}".format(nick.format(constants.TPS_INSTANCE_NAME)) in \
-                   result['stdout']
+            assert "Nickname: {}".format(nick.format(instance)) in result['stdout']
             assert "Usage:" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Status: VALID" in result['stdout']
+            log.info("Validate certificate : {}".format(cert_id))
+            log.info("Validate certificate Nick : {}".format(nick.format(instance)))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id,nick', (['signing', 'caSigningCert cert-{} CA'],
                                           ['ocsp_signing', 'ocspSigningCert cert-{} CA'],
                                           ['sslserver', 'Server-Cert cert-{}'],
@@ -258,11 +306,15 @@ def test_pki_server_subsystem_cert_validate_ca_clone_certs(ansible_module, cert_
             assert "Usage:" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Status: VALID" in result['stdout']
+            log.info("Validate certificate : {}".format(cert_id))
+            log.info("Validate certificate Nick : {}".format(nick.format(constants.CLONECA1_INSTANCE_NAME)))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id,nick', (['transport', 'transportCert cert-{} KRA'],
                                           ['storage', 'storageCert cert-{} KRA'],
                                           ['sslserver', 'Server-Cert cert-{}'],
@@ -292,11 +344,15 @@ def test_pki_server_subsystem_cert_validate_kra_clone_certs(ansible_module, cert
             assert "Usage:" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Status: VALID" in result['stdout']
+            log.info("Validate certificate : {}".format(cert_id))
+            log.info("Validate certificate Nick : {}".format(nick.format(constants.CLONEKRA1_INSTANCE_NAME)))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id,nick', (['signing', 'ocspSigningCert cert-{} OCSP'],
                                           ['sslserver', 'Server-Cert cert-{}'],
                                           ['subsystem', 'subsystemCert cert-{}'],
@@ -325,11 +381,15 @@ def test_pki_server_subsystem_cert_validate_ocsp_clone_certs(ansible_module, cer
             assert "Usage:" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Status: VALID" in result['stdout']
+            log.info("Validate certificate : {}".format(cert_id))
+            log.info("Validate certificate Nick : {}".format(nick.format(constants.CLONEOCSP1_INSTANCE_NAME)))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id,nick', (['sslserver', 'Server-Cert cert-{}'],
                                           ['subsystem', 'subsystemCert cert-{}'],
                                           ['audit_signing', 'auditSigningCert cert-{} TKS']))
@@ -348,7 +408,7 @@ def test_pki_server_subsystem_cert_validate_tks_clone_certs(ansible_module, cert
     """
     cert_out = ansible_module.command('pki-server subsystem-cert-validate'
                                       ' -i {} tks {}'.format(constants.CLONETKS1_INSTANCE_NAME,
-                                                              cert_id))
+                                                             cert_id))
     for result in cert_out.values():
         if result['rc'] == 0:
             assert "Cert ID: {}".format(cert_id) in result['stdout']
@@ -357,11 +417,15 @@ def test_pki_server_subsystem_cert_validate_tks_clone_certs(ansible_module, cert
             assert "Usage:" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Status: VALID" in result['stdout']
+            log.info("Validate certificate : {}".format(cert_id))
+            log.info("Validate certificate Nick : {}".format(nick.format(constants.CLONETKS1_INSTANCE_NAME)))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 @pytest.mark.parametrize('cert_id,nick', (['signing', 'caSigningCert cert-{} CA'],
                                           ['ocsp_signing', 'ocspSigningCert cert-{} CA'],
                                           ['sslserver', 'Server-Cert cert-{}'],
@@ -382,7 +446,7 @@ def test_pki_server_subsystem_cert_validate_subca_certs(ansible_module, cert_id,
     """
     cert_out = ansible_module.command('pki-server subsystem-cert-validate'
                                       ' -i {} ca {}'.format(constants.SUBCA1_INSTANCE_NAME,
-                                                              cert_id))
+                                                            cert_id))
     for result in cert_out.values():
         if result['rc'] == 0:
             assert "Cert ID: {}".format(cert_id) in result['stdout']
@@ -391,8 +455,12 @@ def test_pki_server_subsystem_cert_validate_subca_certs(ansible_module, cert_id,
             assert "Usage:" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Status: VALID" in result['stdout']
+            log.info("Validate certificate : {}".format(cert_id))
+            log.info("Validate certificate Nick : {}".format(nick.format(constants.SUBCA1_INSTANCE_NAME)))
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
 def test_pki_server_subsystem_cert_validate_junk_instance(ansible_module):
@@ -416,9 +484,11 @@ def test_pki_server_subsystem_cert_validate_junk_instance(ansible_module):
             assert "Usage:" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Status: VALID" in result['stdout']
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
         else:
-            assert "ERROR: Invalid instance {}".format(junk_instance) in result['stdout']
+            assert "ERROR: Invalid instance {}".format(junk_instance) in result['stderr']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
 
 
 def test_pki_server_subsystem_cert_validate_junk_subsystemType(ansible_module):
@@ -434,24 +504,29 @@ def test_pki_server_subsystem_cert_validate_junk_subsystemType(ansible_module):
         1. Verify whether pki-server subsystem-cert-validate command throws error when junk 
         subsystem type is supplied.
     """
+    if TOPOLOGY == 1:
+        instance = 'pki-tomcat'
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
+    else:
+        instance = constants.CA_INSTANCE_NAME
+        security_domain = constants.CA_SECURITY_DOMAIN_NAME
     junk_instance = ''.join(random.choice(string.ascii_uppercase + string.digits)
                             for _ in range(10))
     cert_out = ansible_module.command('pki-server subsystem-cert-validate'
-                                      ' -i {} {} signing'.format(constants.CA_INSTANCE_NAME,
-                                                                 junk_instance))
+                                      ' -i {} {} signing'.format(instance, junk_instance))
     for result in cert_out.values():
         if result['rc'] == 0:
             assert "Usage:" in result['stdout']
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Status: VALID" in result['stdout']
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
         else:
-            assert "ERROR: No {} subsystem in instance {}.".format(junk_instance,
-                                                                   constants.CA_INSTANCE_NAME) in \
-                   result['stdout']
+            assert "ERROR: No {} subsystem in instance {}.".format(junk_instance, instance) in result['stdout']
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 def test_pki_server_subsystem_cert_validate_junk_certID(ansible_module):
     """
     :id: 8f365f88-3e33-43c4-b477-feea74acd28d
@@ -475,10 +550,11 @@ def test_pki_server_subsystem_cert_validate_junk_certID(ansible_module):
             assert "Validation failed" in result['stdout']
 
         else:
-            pytest.xfail("Failed: Validated the cert with junk cert ID.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
 
 
-@pytest.mark.skipif("Topology <= 3")
+@pytest.mark.skipif("TOPOLOGY <= 3")
 def test_pki_server_subsystem_cert_validate_disabled_subsystem(ansible_module):
     """
     :id: c667bbbd-b9dd-4c20-bdfd-a81fa2117e44
@@ -506,8 +582,11 @@ def test_pki_server_subsystem_cert_validate_disabled_subsystem(ansible_module):
             assert "Token: Internal Key Storage Token" in result['stdout']
             assert "Status: VALID" in result['stdout']
             assert "Validation succeeded" in result['stdout']
+            log.info("Validate certificate : {}".format('audit_signing'))
+            log.info("Validate certificate Nick : auditSigningCert cert-" + constants.CA_INSTANCE_NAME + " CA")
+            log.info("Successfully run : {}".format(" ".join(result['cmd'])))
         else:
-            pytest.xfail("Failed to run pki-server subsystem-cert-validate command when "
-                         "subsystem is disabled.")
+            log.error("Failed to run {}.".format(" ".join(result['cmd'])))
+            pytest.skip()
     ansible_module.command('pki-server subsystem-enable -i {} '
                            'ca'.format(constants.CA_INSTANCE_NAME))

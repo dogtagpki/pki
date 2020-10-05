@@ -1,0 +1,39 @@
+- name: Sleep for a while to give time of any other instances to come up.
+  shell: sleep 7s
+
+- name: Install SubTPS master
+  shell: pkispawn -s TPS -f /tmp/test_dir/subtps.cfg --debug
+
+- name : Stopping SubTPS Subsystem
+  shell: echo "Stopping Subsystem for enabling Audit logging"
+  notify:
+    - STOPSubTPS
+    - INC_CONSTANTS
+
+- meta: flush_handlers
+
+- name: Enable SignedAudit
+  replace: dest=/etc/pki/{{ topology }}-TPS/tps/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
+
+- name: Enable SubOCSP for SubTPS
+  replace: dest=/etc/pki/{{ topology }}-TPS/server.xml regexp='enableOCSP="false"' replace='enableOCSP="true"'
+
+- name: Pointing SubTPS to correct SubOCSP port
+  replace: dest=/etc/pki/{{ topology }}-TPS/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.SUBCA_HTTP_PORT }}/ca/ocsp
+
+# Replacing the TPS's phoneHome url port to match the unsecure tps port in the token_enroll.txt file
+- name: Pointing TPS phoneHome url to its unsecure port
+  replace: dest=/var/lib/pki/{{ topology }}-TPS/conf/tps/phoneHome.xml regexp="https://pki1.example.com:25443/tps/tps" replace="http://pki1.example.com:25080/tps/tps"
+
+- name: Enable SubOCSP Policy to Native for tls as false
+  block:
+  - name: Picking the password in run-time from password.conf of TPS
+    shell: grep -i "internal=" /etc/pki/{{ topology }}-TPS/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
+
+  - name: Importing SubOCSP certificate in tps nssdb
+    shell: certutil -A -d /etc/pki/{{ topology }}-TPS/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
+
+- name: Starting SubTPS Subsystem
+  service:
+    name: pki-tomcatd@{{ topology }}-TPS.service
+    state: started

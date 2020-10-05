@@ -1,0 +1,26 @@
+- name: Replace SubTKS specific changes
+  replace: dest={{item}} regexp="tkspki_https_port" replace={{tkspki_https_port}}
+  with_items:
+  - /tmp/test_dir/subtks.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace http port for SubTKS.
+  replace: dest={{item}} regexp="tkspki_http_port" replace={{tkspki_http_port}}
+  with_items:
+  - /tmp/test_dir/subtks.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace ajp port for SubTKS
+  replace: dest={{item}} regexp="tkspki_ajp_port" replace={{tkspki_ajp_port}}
+  with_items:
+  - /tmp/test_dir/subtks.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for SubTKS
+  replace: dest={{item}} regexp="tkspki_tomcat_server_port" replace={{tkspki_tomcat_server_port}}
+  with_items:
+  - /tmp/test_dir/subtks.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for SubTKS
+  replace: dest=/tmp/test_dir/subtks.cfg regexp="secure_domain_port" replace={{subpki_https_port}}

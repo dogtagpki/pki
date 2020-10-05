@@ -53,6 +53,12 @@
 import pytest
 import random
 import os
+import logging
+import sys
+
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
 if os.path.isfile('/tmp/test_dir/constants.py'):
     import sys
     sys.path.append('/tmp/test_dir')
@@ -62,10 +68,15 @@ if os.path.isfile('/tmp/test_dir/constants.py'):
 master = pytest.mark.ansible(host_pattern="master")
 negative = pytest.mark.negative
 positive = pytest.mark.positive
+if 'topology-01' in constants.CA_INSTANCE_NAME:
+    instance_name = 'pki-tomcat'
+else:
+    instance_name = constants.CA_INSTANCE_NAME
 
 @master
 @pytest.fixture
 def create_delete_banner(ansible_module):
+    log.info('Executing create banner\n')
     bannertext = ("WARNING!\n"
                   "Access to this service is restricted to those individuals with\n"
                   "specific permissions. If you are not an authorized user, disconnect\n"
@@ -74,19 +85,25 @@ def create_delete_banner(ansible_module):
                   )
     ansible_module.file(path="/tmp/banner.txt", state="touch")
     ansible_module.copy(content=bannertext, dest="/tmp/banner.txt")
-    ansible_module.command("cp /tmp/banner.txt /etc/pki/%s/" % constants.CA_INSTANCE_NAME)
+    ansible_module.command("cp /tmp/banner.txt /etc/pki/%s/" % instance_name)
     yield
-    ansible_module.command("rm -rf /etc/pki/%s/banner.txt" % constants.CA_INSTANCE_NAME)
+    log.info('Executing Delete banner\n')
+    ansible_module.command("rm -rf /etc/pki/%s/banner.txt" % instance_name)
 
 @master
 @pytest.fixture
 def import_admin_certs(ansible_module):
-    ansible_module.command("mkdir /opt/tmp_nssdb")
-    ansible_module.command("pki -d /opt/tmp_nssdb -c SECret.123 client-init")
-    ansible_module.command("pki -d /opt/tmp_nssdb -c SECret.123 -h pki1.example.com -p %s client-cert-import \"RootCA\" --ca-server" % constants.CA_HTTP_PORT)
-    ansible_module.command("pki -d /opt/tmp_nssdb -c SECret.123 client-cert-import  --pkcs12 /opt/topology-02-CA/ca_admin_cert.p12  --pkcs12-password SECret.123")
+    log.info('Importing certs\n')
+    ansible_module.command("mkdir {}".format(constants.NSSDB))
+    ansible_module.command("pki -d {} -c {} client-init --force".format(constants.NSSDB, constants.CA_PASSWORD))
+    ansible_module.command("pki -d {} -c {} -h pki1.example.com -p {} -P http client-cert-import \"RootCA\""
+                           " --ca-server".format(constants.NSSDB, constants.CA_PASSWORD, constants.CA_HTTP_PORT))
+    ansible_module.command("pki -d {0} -c {1} client-cert-import --pkcs12 /opt/{2}/ca_admin_cert.p12"
+                           " --pkcs12-password {1}".format(constants.NSSDB, constants.CA_PASSWORD,
+                                                           constants.CA_INSTANCE_NAME))
     yield
-    ansible_module.command("rm -rf /opt/tmp_nssdb")
+    log.info('Removing cert dir\n')
+    ansible_module.command("rm -rf {}".format(constants.NSSDB))
 
 @master
 @positive
@@ -134,7 +151,7 @@ def test_banner_not_installed_banner_validate(ansible_module):
         1. message should appear stating Banner is not installed
     :CaseComponent: \-
     """
-    output = ansible_module.command("pki-server banner-validate -i %s" % constants.CA_INSTANCE_NAME)
+    output = ansible_module.command("pki-server banner-validate -i %s" % instance_name)
     for result in output.values():
         assert result['rc'] == 0
         assert "Banner is not installed" in result['stdout']
@@ -154,10 +171,13 @@ def test_banner_not_installed_banner_show(ansible_module):
        1.  Error message should appear with banner is not installed
     :CaseComponent: \-
     """
-    output = ansible_module.command("pki-server banner-show -i %s" % constants.CA_INSTANCE_NAME)
+    output = ansible_module.command("pki-server banner-show -i %s" % instance_name)
     for result in output.values():
         assert result['rc'] != 0
-        assert "ERROR: Banner is not installed" in result['stdout']
+        try:
+            assert "ERROR: Banner is not installed" in result['stdout']
+        except AssertionError:
+            assert "ERROR: Banner is not installed" in result['stderr']
 
 @master
 @positive
@@ -176,7 +196,7 @@ def test_banner_is_installed_banner_show(create_delete_banner, ansible_module):
         2. Banner text should appear
     :CaseComponent: \-
     """
-    output = ansible_module.command("pki-server banner-show -i %s" % constants.CA_INSTANCE_NAME)
+    output = ansible_module.command("pki-server banner-show -i %s" % instance_name)
     for result in output.values():
         assert result['rc'] == 0
         assert "WARNING!" in result['stdout']
@@ -198,7 +218,7 @@ def test_banner_is_installed_banner_validate(create_delete_banner, ansible_modul
         2. Banner is valid message should appear.
     :CaseComponent: \-
     """
-    output = ansible_module.command("pki-server banner-validate -i %s" % constants.CA_INSTANCE_NAME)
+    output = ansible_module.command("pki-server banner-validate -i %s" % instance_name)
     for result in output.values():
         assert result['rc'] == 0
         assert "Banner is valid" in result['stdout']
@@ -220,11 +240,14 @@ def test_banner_empty_banner_validate(ansible_module):
         2. Error message should appear Banner is empty..
     :CaseComponent: \-
     """
-    ansible_module.file(path="/etc/pki/%s/banner.txt" % constants.CA_INSTANCE_NAME, state="touch")
-    output = ansible_module.command("pki-server banner-validate -i %s" % constants.CA_INSTANCE_NAME)
+    ansible_module.file(path="/etc/pki/%s/banner.txt" % instance_name, state="touch")
+    output = ansible_module.command("pki-server banner-validate -i %s" % instance_name)
     for result in output.values():
         assert result['rc'] != 0
-        assert "ERROR: Banner is empty" in result['stdout']
+        try:
+            assert "ERROR: Banner is empty" in result['stdout']
+        except AssertionError:
+            assert "ERROR: Banner is empty" in result['stderr']
 
 @master
 @negative
@@ -243,8 +266,8 @@ def test_banner_empty_banner_show(ansible_module):
         2. Empty banner text should appear.
     :CaseComponent: \-
     """
-    ansible_module.file(path="/etc/pki/%s/banner.txt" % constants.CA_INSTANCE_NAME, state="touch")
-    output_banner_show = ansible_module.command("pki-server banner-show -i %s" % constants.CA_INSTANCE_NAME)
+    ansible_module.file(path="/etc/pki/%s/banner.txt" % instance_name, state="touch")
+    output_banner_show = ansible_module.command("pki-server banner-show -i %s" % instance_name)
     for result in output_banner_show.values():
         assert "" in result['stdout']
 
@@ -267,12 +290,12 @@ def test_modify_banner_text_banner_show_banner_validate(create_delete_banner, an
         3. modified should be present in banner text.
     :CaseComponent: \-
     """
-    ansible_module.shell("echo modified >> /etc/pki/%s/banner.txt" % constants.CA_INSTANCE_NAME)
-    output_banner_validate = ansible_module.command("pki-server banner-validate -i %s" % constants.CA_INSTANCE_NAME)
+    ansible_module.shell("echo modified >> /etc/pki/%s/banner.txt" % instance_name)
+    output_banner_validate = ansible_module.command("pki-server banner-validate -i %s" % instance_name)
     for result in output_banner_validate.values():
         assert result['rc'] == 0
         assert "Banner is valid" in result['stdout']
-    output_banner_show = ansible_module.command("pki-server banner-show -i %s" % constants.CA_INSTANCE_NAME)
+    output_banner_show = ansible_module.command("pki-server banner-show -i %s" % instance_name)
     for result in output_banner_show.values():
         assert "modified" in result['stdout']
 
@@ -290,22 +313,17 @@ def test_banner_reject_pki_command(create_delete_banner, import_admin_certs, ans
         2. reject banner
     :ExpectedResults:
         1. command should run and banner should appear
-        2. banner should be rejected and user should not be added.
+        2. banner should be reject and command should exit with rc 0.
     :CaseComponent: \-
     """
     rand = random.randint(0, 100)
     output = ansible_module.expect(
-        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s -n "%s" user-add tuser-%s --fullName testuser-%s' % (
-        constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand, rand),
+        command='pki -d %s -c %s -h pki1.example.com -p %s -P %s -n "%s" ca-user-add tuser-%s '
+                '--fullName testuser-%s' % (constants.NSSDB, constants.CA_PASSWORD, constants.CA_HTTP_PORT,
+                                            constants.PROTOCOL_UNSECURE, constants.CA_ADMIN_NICK, rand, rand),
         responses={"\(y\/N\)\?":"N"})
-    output2 = ansible_module.expect(
-        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s -n "%s" user-show tuser-%s' % (
-          constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand),
-          responses={"\(y\/N\)\?":"y",
-                     "Import CA certificate \(Y\/n\)\? ": "Y",
-                     "CA server URL \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
-    for result in output2.values():
-        assert "UserNotFoundException: User tuser-%s not found" %rand in result['stdout']
+    for result in output.values():
+        assert result['rc'] == 0
 
 
 @master
@@ -327,11 +345,11 @@ def test_banner_accept_pki_command(create_delete_banner, import_admin_certs, ans
     """
     rand = random.randint(0, 100)
     output = ansible_module.expect(
-        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s -n "%s" user-add tuser-%s --fullName testuser-%s' % (
-        constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand, rand),
-        responses={"\(y\/N\)\?": "y",
-                   "Import CA certificate \(Y\/n\)\? ": "Y",
-                   "CA server URL \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
+        command='pki -d %s -c %s -h pki1.example.com -p %s -P %s -n "%s" ca-user-add tuser-%s '
+                '--fullName testuser-%s' % (constants.NSSDB, constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.PROTOCOL_UNSECURE,
+                                            constants.CA_ADMIN_NICK, rand, rand),
+        responses={"\(y\/N\)": "y",
+                   "\(y\/N\)": "y"})
     for result in output.values():
         assert "Added user \"tuser-%s\"" % rand in result['stdout']
 
@@ -352,10 +370,10 @@ def test_ignore_banner_pki_command(create_delete_banner, import_admin_certs, ans
     """
     rand = random.randint(0, 100)
     output = ansible_module.expect(
-        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s --ignore-banner -n "%s" user-add tuser-%s --fullName testuser-%s' % (
-        constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand, rand),
-        responses={"Import CA certificate \(Y\/n\)\? ": "Y",
-                   "CA server URL \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
+        command='pki -d %s -c %s -h pki1.example.com -p %s -P %s --ignore-banner -n "%s"'
+                ' ca-user-add tuser-%s --fullName testuser-%s' % (constants.NSSDB, constants.CA_PASSWORD, constants.CA_HTTP_PORT,
+                                                constants.PROTOCOL_UNSECURE, constants.CA_ADMIN_NICK, rand, rand),
+        responses={"\(y\/N\)": "y"})
     for result in output.values():
         assert "Added user \"tuser-%s\"" % rand in result['stdout']
 
@@ -380,10 +398,11 @@ def test_ignore_banner_specified_in_userspace_pki_command(create_delete_banner, 
     ansible_module.file(path="~/.dogtag/pki.conf", state="touch")
     ansible_module.copy(content=clioption, dest="~/.dogtag/pki.conf")
     output = ansible_module.expect(
-        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s -n "%s" user-add tuser-%s --fullName testuser-%s' % (
-            constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand, rand),
-        responses={"Import CA certificate \(Y\/n\)\? ": "Y",
-                   "CA server URL \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
+        command='pki -d %s -c %s -h pki1.example.com -p %s -P %s -n "%s" ca-user-add tuser-%s '
+                '--fullName testuser-%s' % (constants.NSSDB, constants.CA_PASSWORD, constants.CA_HTTP_PORT,
+                                            constants.PROTOCOL_UNSECURE,
+                                            constants.CA_ADMIN_NICK, rand, rand),
+        responses={"\(y\/N\)": "y"})
     for result in output.values():
         assert "Added user \"tuser-%s\"" % rand in result['stdout']
     ansible_module.command("rm -rf ~/.dogtag")

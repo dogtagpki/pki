@@ -47,8 +47,15 @@ except Exception as e:
         import constants
 
 userop = utils.UserOperations(nssdb=constants.NSSDB)
-
 BASE_DB_DIR = '/var/lib/pki/{}/alias'
+TOPOLOGY = constants.CA_INSTANCE_NAME.split("-")[-2]
+
+if TOPOLOGY == '01':
+    ca_instance_name = 'pki-tomcat'
+    topology_name = 'topology-01-CA'
+else:
+    ca_instance_name = constants.CA_INSTANCE_NAME
+    topology_name = constants.CA_INSTANCE_NAME
 
 
 def create_cert(ansible_module):
@@ -62,21 +69,20 @@ def create_cert(ansible_module):
     cert_id = userop.process_certificate_request(ansible_module, subject=subject)
     if cert_id:
         cert_file = "/tmp/{}.pem".format(user)
-        ansible_module.command('pki -d {} -c {} -p {} client-cert-import "{}" '
-                               '--serial {}'.format(constants.NSSDB, constants.CLIENT_DIR_PASSWORD,
-                                                    constants.CA_HTTP_PORT, user, cert_id))
-        ansible_module.command('pki -d {} -c {} client-cert-show "{}" '
-                               '--cert /tmp/{}.pem '.format(constants.NSSDB,
-                                                            constants.CLIENT_DIR_PASSWORD,
-                                                            user, user))
-        ansible_module.command('pki -d {} -c {} client-cert-del '
-                               '"{}"'.format(constants.NSSDB, constants.CLIENT_DIR_PASSWORD,
-                                             user))
+        ansible_module.shell('pki -d {} -c {} -p {} client-cert-import "{}" '
+                             '--serial {}'.format(constants.NSSDB, constants.CLIENT_DIR_PASSWORD,
+                                                  constants.CA_HTTP_PORT, user, cert_id))
+        ansible_module.shell('pki -d {} -c {} client-cert-show "{}" '
+                             '--cert /tmp/{}.pem '.format(constants.NSSDB,
+                                                          constants.CLIENT_DIR_PASSWORD,
+                                                          user, user))
+        ansible_module.shell('pki -d {} -c {} client-cert-del '
+                             '"{}"'.format(constants.NSSDB, constants.CLIENT_DIR_PASSWORD,
+                                           user))
         return [cert_id, cert_file]
 
 
-@pytest.mark.parametrize("instance_name", [constants.CA_INSTANCE_NAME, "invalid_instance"])
-def test_pki_server_ca_cert_request_show(ansible_module, instance_name):
+def test_pki_server_ca_cert_request_show(ansible_module):
     """
     :id: 5b1aaaac-1cf3-4b5b-a6ba-f86db04a4042
     :Title: Test pki-server ca-cert-request-show command, BZ: 1289605
@@ -89,49 +95,23 @@ def test_pki_server_ca_cert_request_show(ansible_module, instance_name):
         1. Verify whether pki-server ca-cert-request-show command shows the
            specified request id.
     """
-    cmd = 'pki-server ca-cert-request-show 1 -i {}'.format(instance_name)
+    cmd = 'pki-server ca-cert-request-show 1 -i {}'.format('invalid_instance')
 
-    cmd_out = ansible_module.command(cmd)
+    cmd_out = ansible_module.shell(cmd)
     for result in cmd_out.values():
         if result['rc'] == 0:
             assert "Request ID:" in result['stdout']
             assert "Type: enrollment" in result['stdout']
             assert "Status: complete" in result['stdout']
             assert "Request:" in result['stdout']
+            assert "-----BEGIN CERTIFICATE REQUEST-----" in result['stdout']
+            assert "-----END CERTIFICATE REQUEST-----" in result['stdout']
+            pytest.fail('Failed to run {}'.format(cmd))
         else:
-            assert "ERROR: Invalid instance %s" % instance_name in result['stdout']
+            assert "ERROR: Invalid instance: {}".format('invalid_instance') in result['stderr']
 
 
-@pytest.mark.parametrize("instance_name", [constants.CA_INSTANCE_NAME,
-                                           "invalid_instance"])
-def test_pki_server_ca_cert_request_show_with_instance_name(ansible_module, instance_name):
-    """
-    :id: 791544da-d5eb-42b5-8b4a-8728f10064bd
-    :Title: Bug - 1289605 : Test pki-server ca-cert-request-show -i <instance_name>
-            command, it should fail on invalid instance name.
-    :Description: Test pki-server ca-cert-request-show -i <instance> command. Should failed with
-            invalid instance name.
-    :Setup: Use the subsystems setup in ansible to run subsystem commands
-    :CaseComponent: \-
-    :Requirement: Pki Server CA
-    :Steps:
-    :ExpectedResults:
-        1. Verify whether pki-server ca-cert-request-show -i <instance_name> command shows
-            the specified request id, and should fail on invalid instance name.
-    """
-    cmd = 'pki-server ca-cert-request-show 1 -i {}'.format(instance_name)
-
-    cmd_out = ansible_module.command(cmd)
-    for result in cmd_out.values():
-        if result['rc'] == 0:
-            assert "Request ID: 1" in result['stdout']
-            assert "Type: enrollment" in result['stdout']
-            assert "Status: complete" in result['stdout']
-            assert "Request:" in result['stdout']
-        else:
-            assert "ERROR: Invalid instance %s." % instance_name in result['stdout']
-
-
+@pytest.mark.skip(reason="https://bugzilla.redhat.com/show_bug.cgi?id=1807232")
 def test_pki_server_ca_cert_request_show_with_output_file(ansible_module):
     """
     :id: 72679079-f7ae-4452-9a54-df9bd1e0d862
@@ -146,19 +126,19 @@ def test_pki_server_ca_cert_request_show_with_output_file(ansible_module):
     """
 
     cmd = 'pki-server ca-cert-request-show 1 -i {} ' \
-          '--output-file /tmp/request1.req'.format(constants.CA_INSTANCE_NAME)
+          '--output-file /tmp/request1.req'.format(ca_instance_name)
 
-    req_out = ansible_module.command(cmd)
+    req_out = ansible_module.shell(cmd)
     for result in req_out.values():
         if result['rc'] == 0:
             is_file = ansible_module.stat(path='/tmp/request1.req')
             for res in is_file.values():
                 assert res['stat']['exists']
 
-            print_file = ansible_module.command('cat /tmp/request1.req')
+            print_file = ansible_module.shell('cat /tmp/request1.req')
             for res in print_file.values():
                 if res['rc'] == 0:
                     assert '-----BEGIN CERTIFICATE REQUEST-----' in res['stdout']
                     assert '-----END CERTIFICATE REQUEST-----' in res['stdout']
         else:
-            pytest.xfail("Failed to run pki-server ca-cert-request-show --output-file.")
+            pytest.fail("Failed to run pki-server ca-cert-request-show --output-file.")

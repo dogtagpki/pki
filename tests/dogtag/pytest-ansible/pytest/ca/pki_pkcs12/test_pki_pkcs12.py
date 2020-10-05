@@ -48,15 +48,12 @@ def test_pki_pkcs12(ansible_module, options):
     pki_pkcs12_output = ansible_module.command('pki pkcs12 {}'.format(options))
     for result in pki_pkcs12_output.values():
         if result['rc'] == 0:
-            assert "pkcs12-cert             PKCS #12 certificate management commands" in \
-                   result['stdout']
-            assert "pkcs12-export           Export NSS database into PKCS #12 file" in \
-                   result['stdout']
-            assert "pkcs12-import           Import PKCS #12 file into NSS database" in \
-                   result['stdout']
-            assert "pkcs12-key              PKCS #12 key management commands" in result['stdout']
+            assert "pkcs12-cert" in result['stdout']
+            assert "pkcs12-export" in result['stdout']
+            assert "pkcs12-import" in result['stdout']
+            assert "pkcs12-key" in result['stdout']
         elif result['rc'] >= 1:
             if options in result['stderr']:
-                assert 'Error: Invalid module "pkcs12-{}".'.format(options) in result['stderr']
+                assert 'ERROR: Invalid module "pkcs12-{}".'.format(options) in result['stderr']
             else:
-                pytest.xfail("Failed to run pki pkcs12 command.")
+                pytest.fail()
