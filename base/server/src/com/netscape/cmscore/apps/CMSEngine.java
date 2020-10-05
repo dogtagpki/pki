@@ -58,7 +58,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.notification.IMailNotification;
@@ -1464,8 +1463,8 @@ public class CMSEngine implements ServletContextListener {
         }
     }
 
-    private ICertificateRepository getCertDB() {
-        ICertificateRepository certDB = null;
+    private CertificateRepository getCertDB() {
+        CertificateRepository certDB = null;
 
         try {
             ICertificateAuthority ca = (ICertificateAuthority) subsystems.get("ca");
@@ -1531,7 +1530,7 @@ public class CMSEngine implements ServletContextListener {
 
         boolean revoked = false;
 
-        CertificateRepository certDB = (CertificateRepository) getCertDB();
+        CertificateRepository certDB = getCertDB();
 
         if (certDB != null) {
             try {

@@ -43,7 +43,6 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -60,6 +59,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * Update the configured LDAP server with specified objects
@@ -380,7 +380,7 @@ public class UpdateDir extends CMSServlet {
             }
         }
 
-        ICertificateRepository certificateRepository = mCA.getCertificateRepository();
+        CertificateRepository certificateRepository = mCA.getCertificateRepository();
 
         // all or ca
         if ((updateValue[UPDATE_ALL] != null &&

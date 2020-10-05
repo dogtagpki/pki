@@ -49,7 +49,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzEvent;
@@ -69,6 +68,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -134,7 +134,7 @@ public class CAProcessor extends Processor {
     protected CertUserLocator ul;
     protected IRequestQueue queue;
     protected ProfileSubsystem ps;
-    protected ICertificateRepository certdb;
+    protected CertificateRepository certdb;
 
     //logging and stats
 

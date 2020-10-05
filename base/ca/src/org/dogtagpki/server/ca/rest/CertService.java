@@ -70,7 +70,6 @@ import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -81,6 +80,7 @@ import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -93,7 +93,7 @@ public class CertService extends PKIService implements CertResource {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertService.class);
 
     CertificateAuthority authority;
-    ICertificateRepository repo;
+    CertificateRepository repo;
     SecureRandom random;
 
     public static final int DEFAULT_MAXTIME = 0;

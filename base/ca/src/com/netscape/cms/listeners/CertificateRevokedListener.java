@@ -33,7 +33,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
@@ -45,6 +44,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.EmailTemplate;
@@ -306,7 +306,7 @@ public class CertificateRevokedListener implements IRequestListener {
         try {
             RevokedCertImpl revCert = crlentries[0];
             CertificateAuthority ca = engine.getCA();
-            ICertificateRepository certDB = ca.getCertificateRepository();
+            CertificateRepository certDB = ca.getCertificateRepository();
             X509Certificate cert = certDB.getX509Certificate(revCert.getSerialNumber());
 
             mContentParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,

@@ -38,7 +38,6 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.publish.ILdapMapper;
@@ -50,6 +49,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -345,7 +345,7 @@ public class LdapPublishModule implements IRequestListener {
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
 
         try {
-            ICertificateRepository certdb = ca.getCertificateRepository();
+            CertificateRepository certdb = ca.getCertificateRepository();
             ICertRecord certRec = certdb.readCertificateRecord(serialNo);
             MetaInfo metaInfo = certRec.getMetaInfo();
 

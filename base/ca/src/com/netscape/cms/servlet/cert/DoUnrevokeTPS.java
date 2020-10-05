@@ -42,7 +42,6 @@ import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
@@ -55,6 +54,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
@@ -68,7 +68,7 @@ public class DoUnrevokeTPS extends CMSServlet {
     private static final long serialVersionUID = -6245049221697655642L;
 
     @SuppressWarnings("unused")
-    private ICertificateRepository mCertDB;
+    private CertificateRepository mCertDB;
 
     private IRequestQueue mQueue = null;
     private IPublisherProcessor mPublisherProcessor = null;

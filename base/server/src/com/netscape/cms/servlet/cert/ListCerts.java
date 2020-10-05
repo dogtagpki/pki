@@ -48,7 +48,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -57,6 +56,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * Retrieve a paged list of certs matching the specified query
@@ -74,7 +74,7 @@ public class ListCerts extends CMSServlet {
     private final static String USE_CLIENT_FILTER = "useClientFilter";
     private final static String ALLOWED_CLIENT_FILTERS = "allowedClientFilters";
 
-    private ICertificateRepository mCertDB = null;
+    private CertificateRepository mCertDB;
     private X500Name mAuthName = null;
     private String mFormPath = null;
     private boolean mReverse = false;

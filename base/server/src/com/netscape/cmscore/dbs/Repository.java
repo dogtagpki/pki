@@ -25,7 +25,6 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.dbs.repository.IRepository;
@@ -251,7 +250,7 @@ public abstract class Repository implements IRepository {
 
         logger.debug("Repository: in InitCache");
 
-        if (this instanceof ICertificateRepository) {
+        if (this instanceof CertificateRepository) {
             logger.debug("Repository: Instance of Certificate Repository.");
             mRadix = 16;
             mRepo = DBSubsystem.CERTS;
@@ -446,7 +445,7 @@ public abstract class Repository implements IRepository {
         // if so, move to next range
         BigInteger randomLimit = null;
         BigInteger rangeLength = null;
-        if ((this instanceof ICertificateRepository) &&
+        if ((this instanceof CertificateRepository) &&
             dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
             rangeLength = mMaxSerialNo.subtract(mMinSerialNo).add(BigInteger.ONE);
             randomLimit = rangeLength.subtract(mLowWaterMarkNo.shiftRight(1));
@@ -524,7 +523,7 @@ public abstract class Repository implements IRepository {
             initCache();
 
         BigInteger numsInRange = null;
-        if ((this instanceof ICertificateRepository) &&
+        if ((this instanceof CertificateRepository) &&
             dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
             numsInRange = (mMaxSerialNo.subtract(mMinSerialNo)).subtract(mCounter);
         } else {

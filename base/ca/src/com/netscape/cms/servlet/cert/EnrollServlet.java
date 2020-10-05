@@ -58,7 +58,6 @@ import com.netscape.certsrv.base.KeyGenInfo;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -81,6 +80,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -123,7 +123,7 @@ public class EnrollServlet extends CMSServlet {
     private ICMSTemplateFiller mEnrollSuccessFiller = new ImportCertsTemplateFiller();
 
     ICertificateAuthority mCa = null;
-    ICertificateRepository mRepository = null;
+    CertificateRepository mRepository;
 
     private boolean enforcePop = false;
 

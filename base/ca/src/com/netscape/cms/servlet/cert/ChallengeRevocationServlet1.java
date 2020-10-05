@@ -50,7 +50,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
@@ -66,6 +65,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * Takes the certificate info (serial number) and optional challenge phrase, creates a
@@ -83,7 +83,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
     // revocation templates.
     private final static String TPL_FILE = "revocationResult.template";
 
-    private ICertificateRepository mCertDB = null;
+    private CertificateRepository mCertDB;
     private String mFormPath = null;
     private IRequestQueue mQueue = null;
     private IPublisherProcessor mPublisherProcessor = null;

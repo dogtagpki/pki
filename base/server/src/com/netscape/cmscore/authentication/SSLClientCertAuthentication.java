@@ -24,10 +24,10 @@ import java.math.BigInteger;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -38,13 +38,13 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * SSL client based authentication.
@@ -64,7 +64,7 @@ public class SSLClientCertAuthentication implements AuthManager {
     protected static String[] mRequiredCreds = { CRED_CERT };
 
     private ICertificateAuthority mCA = null;
-    private ICertificateRepository mCertDB = null;
+    private CertificateRepository mCertDB;
     private String mName = null;
     private String mImplName = null;
     private AuthenticationConfig authenticationConfig;

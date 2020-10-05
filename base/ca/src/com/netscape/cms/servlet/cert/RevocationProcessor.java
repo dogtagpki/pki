@@ -41,7 +41,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
@@ -53,6 +52,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * @author Endi S. Dewata
@@ -68,7 +68,7 @@ public class RevocationProcessor extends CertProcessor {
     long startTime;
 
     ICertificateAuthority authority;
-    ICertificateRepository repo;
+    CertificateRepository repo;
     IRequestQueue requestQueue;
     IPublisherProcessor publisherProcessor;
 

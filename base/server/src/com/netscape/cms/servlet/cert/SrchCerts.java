@@ -50,7 +50,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -59,6 +58,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -77,7 +77,7 @@ public class SrchCerts extends CMSServlet {
     private final static String CURRENT_TIME = "currentTime";
     private final static int MAX_RESULTS = 1000;
 
-    private ICertificateRepository mCertDB = null;
+    private CertificateRepository mCertDB;
     private X500Name mAuthName = null;
     private String mFormPath = null;
     private int mMaxReturns = MAX_RESULTS;

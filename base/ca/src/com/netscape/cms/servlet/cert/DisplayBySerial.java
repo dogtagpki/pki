@@ -55,7 +55,6 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
@@ -68,6 +67,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * Display detailed information about a certificate
@@ -84,7 +84,7 @@ public class DisplayBySerial extends CMSServlet {
     private final static String TPL_FILE1 = "displayBySerial.template";
     private final static BigInteger MINUS_ONE = new BigInteger("-1");
 
-    private ICertificateRepository mCertDB = null;
+    private CertificateRepository mCertDB;
     private String mForm1Path = null;
     private X509Certificate mCACerts[] = null;
 

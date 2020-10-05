@@ -42,7 +42,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -50,6 +49,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -66,7 +66,7 @@ public class ReasonToRevoke extends CMSServlet {
     private final static String TPL_FILE = "reasonToRevoke.template";
     private final static String INFO = "ReasonToRevoke";
 
-    private ICertificateRepository mCertDB = null;
+    private CertificateRepository mCertDB;
     private String mFormPath = null;
     private ICertificateAuthority mCA = null;
     private SecureRandom mRandom = null;

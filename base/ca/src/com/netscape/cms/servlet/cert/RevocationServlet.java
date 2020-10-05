@@ -46,7 +46,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
@@ -58,6 +57,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -225,7 +225,7 @@ public class RevocationServlet extends CMSServlet {
 
             certsToRevoke = ((ICertificateAuthority) mAuthority).getCertificateRepository().getX509Certificates(
                         old_cert.getSubjectDN().toString(),
-                        ICertificateRepository.ALL_UNREVOKED_CERTS);
+                        CertificateRepository.ALL_UNREVOKED_CERTS);
 
         } else if (mAuthority instanceof IRegistrationAuthority) {
             IRequest req = mRequestQueue.newRequest(IRequest.GETCERTS_REQUEST);

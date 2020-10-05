@@ -51,7 +51,6 @@ import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.certdb.RenewableCertificateCollection;
 import com.netscape.certsrv.dbs.repository.IRepository;
@@ -66,18 +65,20 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchResults;
 
 /**
- * A class represents a certificate repository. It
- * stores all the issued certificate.
- * <P>
+ * A classrepresents a certificate repository.
+ * It stores all the issued certificate.
  *
  * @author thomask
  * @author kanda
  * @version $Revision$, $Date$
  */
-public class CertificateRepository extends Repository
-        implements ICertificateRepository {
+public class CertificateRepository extends Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateRepository.class);
+
+    public final static int ALL_CERTS = 0;
+    public final static int ALL_VALID_CERTS = 1;
+    public final static int ALL_UNREVOKED_CERTS = 2;
 
     public final static String PROP_INCREMENT = "certdbInc";
     public final static String PROP_CERT_BASE_DN = "CertificateRepositoryDN";
@@ -131,14 +132,36 @@ public class CertificateRepository extends Repository
         mDBConfig = dbSubsystem.getDBConfigStore();
     }
 
+    /**
+     * Creates certificate record.
+     *
+     * @param id serial number
+     * @param cert certificate
+     * @param meta meta information
+     * @return certificate record
+     */
     public ICertRecord createCertRecord(BigInteger id, Certificate cert, MetaInfo meta) {
         return new CertRecord(id, cert, meta);
     }
 
+    /**
+     * Retrieves serial number management mode.
+     *
+     * @return serial number management mode,
+     * "true" indicates random serial number management,
+     * "false" indicates sequential serial number management.
+     */
     public boolean getEnableRandomSerialNumbers() {
         return mEnableRandomSerialNumbers;
     }
 
+    /**
+     * Sets serial number management mode for certificates..
+     *
+     * @param random "true" sets random serial number management, "false" sequential
+     * @param updateMode "true" updates "description" attribute in certificate repository
+     * @param forceModeChange "true" forces certificate repository mode change
+     */
     public void setEnableRandomSerialNumbers(boolean random, boolean updateMode, boolean forceModeChange) {
         logger.debug("CertificateRepository:  setEnableRandomSerialNumbers   random="+random+"  updateMode="+updateMode);
 
@@ -264,6 +287,13 @@ public class CertificateRepository extends Repository
         return nextSerialNumber;
     }
 
+    /**
+     * Retrieves the next certificate serial number, and also increases
+     * the serial number by one.
+     *
+     * @return serial number
+     * @exception EBaseException failed to retrieve next serial number
+     */
     public synchronized BigInteger getNextSerialNumber()
             throws EBaseException {
 
@@ -556,7 +586,10 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Removes all objects with this repository.
+     * Removes certificate records with this repository.
+     *
+     * @param beginS BigInteger with radix 16
+     * @param endS BigInteger with radix 16
      */
     public void removeCertRecords(BigInteger beginS, BigInteger endS) throws EBaseException {
         String filter = "(" + CertRecord.ATTR_CERT_STATUS + "=*" + ")";
@@ -602,9 +635,15 @@ public class CertificateRepository extends Repository
     }
 
     /**
+     * Sets certificate status update internal.
+     *
      * interval value: (in seconds)
      * 0 - disable
      * >0 - enable
+     *
+     * @param requestRepo request repository
+     * @param interval update interval
+     * @param listenToCloneModifications enable listening to clone modifications
      */
     public void setCertStatusUpdateInterval(IRepository requestRepository, int interval,
             boolean listenToCloneModifications) {
@@ -660,6 +699,11 @@ public class CertificateRepository extends Repository
         serialNumberUpdateTask.start();
     }
 
+    /**
+     * Updates certificate status now. This is a blocking method.
+     *
+     * @exception EBaseException failed to update
+     */
     public void updateCertStatus() throws EBaseException {
 
         logger.debug("In updateCertStatus()");
@@ -702,8 +746,7 @@ public class CertificateRepository extends Repository
     /**
      * Adds a certificate record to the repository. Each certificate
      * record contains four parts: certificate, meta-attributes,
-     * issue information and reovcation information.
-     * <P>
+     * issue information and revocation information.
      *
      * @param cert X.509 certificate
      * @exception EBaseException failed to add new certificate to
@@ -1004,6 +1047,10 @@ public class CertificateRepository extends Repository
 
     /**
      * Reads the certificate identified by the given serial no.
+     *
+     * @param serialNo serial number of certificate
+     * @return certificate
+     * @exception EBaseException failed to retrieve certificate
      */
     public X509CertImpl getX509Certificate(BigInteger serialNo)
             throws EBaseException {
@@ -1013,7 +1060,10 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Deletes certificate record.
+     * Deletes certificate from this repository.
+     *
+     * @param serialNo serial number of certificate
+     * @exception EBaseException failed to delete
      */
     public void deleteCertificateRecord(BigInteger serialNo)
             throws EBaseException {
@@ -1032,6 +1082,10 @@ public class CertificateRepository extends Repository
 
     /**
      * Reads certificate from repository.
+     *
+     * @param serialNo serial number of certificate
+     * @return certificate record
+     * @exception EBaseException failed to retrieve certificate
      */
     public ICertRecord readCertificateRecord(BigInteger serialNo)
             throws EBaseException {
@@ -1094,6 +1148,13 @@ public class CertificateRepository extends Repository
         }
     }
 
+    /**
+     * Modifies certificate record.
+     *
+     * @param serialNo serial number of record
+     * @param mods modifications
+     * @exception EBaseException failed to modify
+     */
     public synchronized void modifyCertificateRecord(BigInteger serialNo,
             ModificationSet mods) throws EBaseException {
         IDBSSession s = dbSubsystem.createSession();
@@ -1112,7 +1173,11 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Checks if the specified certificate is in the repository.
+     * Checks if the certificate exists in this repository.
+     *
+     * @param serialNo serial number of certificate
+     * @return true if it exists
+     * @exception EBaseException failed to check
      */
     public boolean containsCertificate(BigInteger serialNo)
             throws EBaseException {
@@ -1128,17 +1193,30 @@ public class CertificateRepository extends Repository
 
     /**
      * Marks certificate as revoked.
+     *
      * isAlreadyRevoked - boolean to indicate that the cert was revoked
      * ( possibly onHold )
      * When a cert was originally revoked (possibly onHold),
      * some of the ldap attributes already exist,
      * so "MOD_REPLACE" is needed instead of "MOD_ADD"
+     *
+     * @param id serial number
+     * @param info revocation information
+     * @exception EBaseException failed to mark
      */
     public void markAsRevoked(BigInteger id, IRevocationInfo info)
             throws EBaseException {
         markAsRevoked(id, info, false);
     }
 
+    /**
+     * Marks certificate as revoked.
+     *
+     * @param id serial number
+     * @param info revocation information
+     * @param isAlreadyOnHold boolean to indicate if the cert was revoked onHold
+     * @exception EBaseException failed to mark
+     */
     public void markAsRevoked(BigInteger id, IRevocationInfo info, boolean isAlreadyRevoked)
             throws EBaseException {
         ModificationSet mods = new ModificationSet();
@@ -1182,7 +1260,13 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Unmarks revoked certificate.
+     * Unmark a revoked certificates.
+     *
+     * @param id serial number
+     * @param info revocation information
+     * @param revokedOn revocation date
+     * @param revokedBy userid
+     * @exception EBaseException failed to unmark
      */
     public void unmarkRevoked(BigInteger id, IRevocationInfo info,
             Date revokedOn, String revokedBy)
@@ -1198,7 +1282,11 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Updates the certificiate record status to the specified.
+     * Updates certificate status.
+     *
+     * @param id serial number
+     * @param status certificate status
+     * @exception EBaseException failed to update status
      */
     public void updateStatus(BigInteger id, String status)
             throws EBaseException {
@@ -1210,6 +1298,16 @@ public class CertificateRepository extends Repository
         modifyCertificateRecord(id, mods);
     }
 
+    /**
+     * Finds a list of certificate records that satisifies
+     * the filter.
+     *
+     * @param filter search filter
+     * @param maxSize max size to return
+     * @param sortAttribute Attribute of ICertRecord to sort the results
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
     public Enumeration<Object> searchCertificates(String filter, int maxSize,String sortAttribute)
             throws EBaseException {
         IDBSSession s = dbSubsystem.createSession();
@@ -1225,6 +1323,35 @@ public class CertificateRepository extends Repository
         return e;
     }
 
+    /**
+     * Finds a list of certificate records that satisifies
+     * the filter.
+     * Here is a list of filter
+     * attribute can be used:
+     *
+     * <pre>
+     *   certRecordId
+     *   certMetaInfo
+     *   certStatus
+     *   certCreateTime
+     *   certModifyTime
+     *   x509Cert.notBefore
+     *   x509Cert.notAfter
+     *   x509Cert.subject
+     * </pre>
+     *
+     * The filter should follow RFC1558 LDAP filter syntax.
+     * For example,
+     *
+     * <pre>
+     *   (&(certRecordId=5)(x509Cert.notBefore=934398398))
+     * </pre>
+     *
+     * @param filter search filter
+     * @param maxSize max size to return
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
     public Enumeration<Object> searchCertificates(String filter, int maxSize)
             throws EBaseException {
         IDBSSession s = dbSubsystem.createSession();
@@ -1240,6 +1367,16 @@ public class CertificateRepository extends Repository
         return e;
     }
 
+    /**
+     * Finds a list of certificate records that satisifies
+     * the filter.
+     *
+     * @param filter search filter
+     * @param maxSize max size to return
+     * @param timeLimit timeout value
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
     public Enumeration<ICertRecord> searchCertificates(String filter, int maxSize, int timeLimit)
             throws EBaseException {
         IDBSSession s = dbSubsystem.createSession();
@@ -1258,6 +1395,17 @@ public class CertificateRepository extends Repository
         return v.elements();
     }
 
+    /**
+     * Finds a list of certificate records that satisifies
+     * the filter.
+     *
+     * @param filter search filter
+     * @param maxSize max size to return
+     * @param timeLimit timeout value
+     * @param sortAttribute Attribute of ICertRecord to sort the results
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
     public Enumeration<ICertRecord> searchCertificates(String filter, int maxSize,
             int timeLimit,String sortAttribute) throws EBaseException {
         IDBSSession s = dbSubsystem.createSession();
@@ -1279,9 +1427,13 @@ public class CertificateRepository extends Repository
 
 
     /**
-     * Returns a list of X509CertImp that satisfies the filter.
+     * Finds certificate records.
      *
      * @deprecated replaced by <code>findCertificatesInList</code>
+     *
+     * @param filter search filter
+     * @return a list of certificate records
+     * @exception EBaseException failed to retrieve cert records
      */
     public Enumeration<Object> findCertRecs(String filter)
             throws EBaseException {
@@ -1314,6 +1466,13 @@ public class CertificateRepository extends Repository
 
     }
 
+    /**
+     * Finds all certificates given a filter.
+     *
+     * @param filter search filter
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
     public Enumeration<X509CertImpl> findCertificates(String filter)
             throws EBaseException {
         Enumeration<ICertRecord> e = findCertRecords(filter);
@@ -1332,6 +1491,10 @@ public class CertificateRepository extends Repository
      * the filter.
      * If you are going to process everything in the list,
      * use this.
+     *
+     * @param filter search filter
+     * @return a list of certificates
+     * @exception EBaseException failed to search
      */
     public Enumeration<ICertRecord> findCertRecords(String filter)
             throws EBaseException {
@@ -1374,6 +1537,12 @@ public class CertificateRepository extends Repository
      * <pre>
      *   (&(certRecordId=5)(x509Cert.notBefore=934398398))
      * </pre>
+     *
+     * @param filter search filter
+     * @param attrs selected attribute
+     * @param pageSize page size
+     * @return a list of certificates
+     * @exception EBaseException failed to search
      */
     public ICertRecordList findCertRecordsInList(String filter,
             String attrs[], int pageSize) throws EBaseException {
@@ -1381,6 +1550,17 @@ public class CertificateRepository extends Repository
                 pageSize);
     }
 
+    /**
+     * Finds a list of certificate records that satisifies
+     * the filter.
+     *
+     * @param filter search filter
+     * @param attrs selected attribute
+     * @param sortKey key to use for sorting the returned elements
+     * @param pageSize page size
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
     public ICertRecordList findCertRecordsInList(String filter,
             String attrs[], String sortKey, int pageSize)
             throws EBaseException {
@@ -1405,6 +1585,18 @@ public class CertificateRepository extends Repository
         }
     }
 
+    /**
+     * Finds a list of certificate records that satisifies
+     * the filter.
+     *
+     * @param filter search filter
+     * @param attrs selected attribute
+     * @param jumpTo jump to index
+     * @param sortKey key to use for sorting the returned elements
+     * @param pageSize page size
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
     public ICertRecordList findCertRecordsInList(String filter,
             String attrs[], String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
@@ -1412,6 +1604,19 @@ public class CertificateRepository extends Repository
 
     }
 
+    /**
+     * Finds a list of certificate records that satisifies
+     * the filter.
+     *
+     * @param filter search filter
+     * @param attrs selected attribute
+     * @param jumpTo jump to index
+     * @param hardJumpTo
+     * @param sortKey key to use for sorting the returned elements
+     * @param pageSize page size
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
     public ICertRecordList findCertRecordsInList(String filter,
             String attrs[], String jumpTo, boolean hardJumpTo,
                          String sortKey, int pageSize)
@@ -1447,6 +1652,18 @@ public class CertificateRepository extends Repository
         return list;
     }
 
+    /**
+     * Finds a list of certificate records that satisifies
+     * the filter.
+     *
+     * @param filter search filter
+     * @param attrs selected attribute
+     * @param jumpTo jump to index
+     * @param sortKey key to use for sorting the returned elements
+     * @param pageSize page size
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
     public ICertRecordList findCertRecordsInListRawJumpto(String filter,
             String attrs[], String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
@@ -1470,6 +1687,9 @@ public class CertificateRepository extends Repository
 
     /**
      * Marks certificate as renewable.
+     *
+     * @param record certificate record to modify
+     * @exception EBaseException failed to update
      */
     public void markCertificateAsRenewable(ICertRecord record)
             throws EBaseException {
@@ -1478,7 +1698,10 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Marks certificate as renewable.
+     * Marks certificate as not renewable.
+     *
+     * @param record certificate record to modify
+     * @exception EBaseException failed to update
      */
     public void markCertificateAsNotRenewable(ICertRecord record)
             throws EBaseException {
@@ -1486,11 +1709,23 @@ public class CertificateRepository extends Repository
                 CertRecord.AUTO_RENEWAL_DISABLED);
     }
 
+    /**
+     * Marks certificate as renewed.
+     *
+     * @param serialNo certificate record to modify
+     * @exception EBaseException failed to update
+     */
     public void markCertificateAsRenewed(String serialNo)
             throws EBaseException {
         changeRenewalAttribute(serialNo, CertRecord.AUTO_RENEWAL_DONE);
     }
 
+    /**
+     * Marks certificate as renewed and notified.
+     *
+     * @param serialNo certificate record to modify
+     * @exception EBaseException failed to update
+     */
     public void markCertificateAsRenewalNotified(String serialNo)
             throws EBaseException {
         changeRenewalAttribute(serialNo, CertRecord.AUTO_RENEWAL_NOTIFIED);
@@ -1514,6 +1749,13 @@ public class CertificateRepository extends Repository
         }
     }
 
+    /**
+     * Retrieves renewable certificates.
+     *
+     * @param renewalTime renewal time
+     * @return certificates
+     * @exception EBaseException failed to retrieve
+     */
     public Hashtable<String, RenewableCertificateCollection> getRenewableCertificates(String renewalTime)
             throws EBaseException {
         IDBSSession s = dbSubsystem.createSession();
@@ -1570,6 +1812,7 @@ public class CertificateRepository extends Repository
      * @param subjectDN The distinguished name of the subject.
      * @param validityType The type of certificates to get.
      * @return An array of certificates.
+     * @throws EBaseException on error.
      */
 
     public X509CertImpl[] getX509Certificates(String subjectDN,
@@ -1660,10 +1903,12 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Retrives all valid certificates excluding ones already revoked.
+     * Retrieves valid certificates.
      *
-     * @param from The starting point of the serial number range.
-     * @param to The ending point of the serial number range.
+     * @param from starting serial number
+     * @param to ending serial number
+     * @return a list of certificates
+     * @exception EBaseException failed to retrieve
      */
     public Enumeration<ICertRecord> getValidCertificates(String from, String to)
             throws EBaseException {
@@ -1755,11 +2000,12 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Retrives all valid not published certificates
-     * excluding ones already revoked.
+     * Retrieves valid and not published certificates.
      *
-     * @param from The starting point of the serial number range.
-     * @param to The ending point of the serial number range.
+     * @param from starting serial number
+     * @param to ending serial number
+     * @return a list of certificates
+     * @exception EBaseException failed to retrieve
      */
     public Enumeration<ICertRecord> getValidNotPublishedCertificates(String from, String to)
             throws EBaseException {
@@ -1837,10 +2083,12 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Retrives all expired certificates.
+     * Retrieves expired certificates.
      *
-     * @param from The starting point of the serial number range.
-     * @param to The ending point of the serial number range.
+     * @param from starting serial number
+     * @param to ending serial number
+     * @return a list of certificates
+     * @exception EBaseException failed to retrieve
      */
     public Enumeration<ICertRecord> getExpiredCertificates(String from, String to)
             throws EBaseException {
@@ -1904,10 +2152,12 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Retrives all expired published certificates.
+     * Retrieves expired and published certificates.
      *
-     * @param from The starting point of the serial number range.
-     * @param to The ending point of the serial number range.
+     * @param from starting serial number
+     * @param to ending serial number
+     * @return a list of certificates
+     * @exception EBaseException failed to retrieve
      */
     public Enumeration<ICertRecord> getExpiredPublishedCertificates(String from, String to)
             throws EBaseException {
@@ -1980,6 +2230,15 @@ public class CertificateRepository extends Repository
         return e;
     }
 
+    /**
+     * Gets Invalid certs orderes by noAfter date, jumps to records
+     * where notAfter date is greater than current.
+     *
+     * @param date reference date
+     * @param pageSize page size
+     * @return a list of certificate records
+     * @exception EBaseException failed to retrieve
+     */
     public ICertRecordList getInvalidCertsByNotBeforeDate(Date date, int pageSize)
             throws EBaseException {
 
@@ -2016,6 +2275,15 @@ public class CertificateRepository extends Repository
 
     }
 
+    /**
+     * Gets valid certs orderes by noAfter date, jumps to records
+     * where notAfter date is greater than current.
+     *
+     * @param date reference date
+     * @param pageSize page size
+     * @return a list of certificate records
+     * @exception EBaseException failed to retrieve
+     */
     public ICertRecordList getValidCertsByNotAfterDate(Date date, int pageSize)
             throws EBaseException {
 
@@ -2044,6 +2312,15 @@ public class CertificateRepository extends Repository
         return list;
     }
 
+    /**
+     * Gets Revoked certs orderes by noAfter date, jumps to records
+     * where notAfter date is greater than current.
+     *
+     * @param date reference date
+     * @param pageSize page size
+     * @return a list of certificate records
+     * @exception EBaseException failed to retrieve
+     */
     public ICertRecordList getRevokedCertsByNotAfterDate(Date date, int pageSize)
             throws EBaseException {
 
@@ -2078,10 +2355,12 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Retrieves all revoked certificates in the serial number range.
+     * Retrieves revoked certificates.
      *
-     * @param from The starting point of the serial number range.
-     * @param to The ending point of the serial number range.
+     * @param from starting serial number
+     * @param to ending serial number
+     * @return a list of certificates
+     * @exception EBaseException failed to retrieve
      */
     public Enumeration<ICertRecord> getRevokedCertificates(String from, String to)
             throws EBaseException {
@@ -2112,8 +2391,11 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Retrives all revoked certificates including ones already expired or
-     * not yet valid.
+    * Retrieves all revoked certificates including ones that have expired
+     * or that are not yet valid.
+     *
+     * @return a list of revoked certificates
+     * @exception EBaseException failed to search
      */
     public Enumeration<ICertRecord> getAllRevokedCertificates()
             throws EBaseException {
@@ -2139,10 +2421,12 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Retrieves all revoked publishedcertificates in the serial number range.
+     * Retrieves revoked and published certificates.
      *
-     * @param from The starting point of the serial number range.
-     * @param to The ending point of the serial number range.
+     * @param from starting serial number
+     * @param to ending serial number
+     * @return a list of certificates
+     * @exception EBaseException failed to retrieve
      */
     public Enumeration<ICertRecord> getRevokedPublishedCertificates(String from, String to)
             throws EBaseException {
@@ -2207,6 +2491,10 @@ public class CertificateRepository extends Repository
 
     /**
      * Retrieves all revoked certificates that have not expired.
+     *
+     * @param asOfDate as of date
+     * @return a list of revoked certificates
+     * @exception EBaseException failed to retrieve
      */
     public Enumeration<ICertRecord> getRevokedCertificates(Date asOfDate)
             throws EBaseException {
@@ -2238,7 +2526,10 @@ public class CertificateRepository extends Repository
     }
 
     /**
-     * Retrives all revoked certificates excluing ones already expired.
+     * Retrieves all revoked but not expired certificates.
+     *
+     * @return a list of revoked certificates
+     * @exception EBaseException failed to search
      */
     public Enumeration<ICertRecord> getAllRevokedNonExpiredCertificates()
             throws EBaseException {
@@ -2267,6 +2558,11 @@ public class CertificateRepository extends Repository
         return session.persistentSearch(getDN(), filter, null);
     }
 
+    /**
+     * Retrieves modified certificate records.
+     *
+     * @param entry LDAPEntry with modified data
+     */
     public void getModifications(LDAPEntry entry) {
         if (entry != null) {
             logger.debug("getModifications  entry DN=" + entry.getDN());

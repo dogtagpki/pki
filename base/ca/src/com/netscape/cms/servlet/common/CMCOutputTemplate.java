@@ -87,7 +87,6 @@ import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -103,6 +102,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -768,7 +768,7 @@ public class CMCOutputTemplate {
                     boolean confirmAccepted = false;
                     if (n.toString().equalsIgnoreCase(caName.toString())) {
                         logger.debug("CMCOutputTemplate: Issuer names are equal");
-                        ICertificateRepository repository = ca.getCertificateRepository();
+                        CertificateRepository repository = ca.getCertificateRepository();
                         try {
                             repository.getX509Certificate(serialno);
                         } catch (EBaseException ee) {
@@ -825,8 +825,7 @@ public class CMCOutputTemplate {
                     logger.error("CMCOutputTemplate: Issuer names are equal in the GetCert Control");
                     throw new EBaseException("Certificate is not found");
                 }
-                ICertificateRepository repository =
-                        ca.getCertificateRepository();
+                CertificateRepository repository = ca.getCertificateRepository();
                 X509CertImpl impl = repository.getX509Certificate(serialno);
                 byte[] bin = impl.getEncoded();
                 Certificate.Template certTemplate = new Certificate.Template();
@@ -1199,7 +1198,7 @@ public class CMCOutputTemplate {
 
                 if (revoke) {
                     CertificateAuthority ca = engine.getCA();
-                    ICertificateRepository repository = ca.getCertificateRepository();
+                    CertificateRepository repository = ca.getCertificateRepository();
                     ICertRecord record = null;
                     try {
                         record = repository.readCertificateRecord(revokeSerial);

@@ -39,7 +39,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestRecord;
@@ -50,6 +49,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * Provide statistical queries of request and certificate records.
@@ -64,7 +64,7 @@ public class Monitor extends CMSServlet {
     private static final long serialVersionUID = -8492837942132357692L;
     private final static String TPL_FILE = "monitor.template";
 
-    private ICertificateRepository mCertDB = null;
+    private CertificateRepository mCertDB;
     private IRequestQueue mQueue = null;
     private X500Name mAuthName = null;
     private String mFormPath = null;

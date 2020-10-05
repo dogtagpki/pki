@@ -43,10 +43,10 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -152,7 +152,7 @@ public class SharedSecret extends DirBasedAuthentication
     protected CryptoToken token = null;
     protected byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
     EncryptionAlgorithm encryptAlgorithm = EncryptionAlgorithm.AES_128_CBC_PAD;
-    ICertificateRepository certRepository = null;
+    CertificateRepository certRepository;
 
     public SharedSecret() {
         super();

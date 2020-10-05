@@ -35,12 +35,12 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * An email resolver that first checks the request email, if none,
@@ -102,7 +102,7 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
         if (request instanceof RevokedCertImpl) {
             RevokedCertImpl revCert = (RevokedCertImpl) request;
             CertificateAuthority ca = engine.getCA();
-            ICertificateRepository certDB = ca.getCertificateRepository();
+            CertificateRepository certDB = ca.getCertificateRepository();
 
             cert = certDB.getX509Certificate(revCert.getSerialNumber());
         } else

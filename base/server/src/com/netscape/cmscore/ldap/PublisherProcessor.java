@@ -37,7 +37,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.publish.ILdapMapper;
@@ -54,6 +53,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 import netscape.ldap.LDAPConnection;
 
@@ -782,7 +782,7 @@ public class PublisherProcessor implements
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
 
         try {
-            ICertificateRepository certdb = ca.getCertificateRepository();
+            CertificateRepository certdb = ca.getCertificateRepository();
             ICertRecord certRec = certdb.readCertificateRecord(serialNo);
             MetaInfo metaInfo = certRec.getMetaInfo();
 

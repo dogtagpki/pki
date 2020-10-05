@@ -30,7 +30,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
@@ -39,6 +38,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 public class LdapRequestListener implements IRequestListener {
 
@@ -348,8 +348,7 @@ class LdapRevocationListener implements IRequestListener {
                         !(auth instanceof ICertificateAuthority)) {
                     logger.warn("Trying to get a certificate from non certificate authority.");
                 } else {
-                    ICertificateRepository certdb =
-                            ((ICertificateAuthority) auth).getCertificateRepository();
+                    CertificateRepository certdb = ((ICertificateAuthority) auth).getCertificateRepository();
 
                     if (certdb == null) {
                         logger.warn("Cert DB is null for " + auth);
@@ -453,7 +452,7 @@ class LdapUnrevocationListener implements IRequestListener {
                         !(auth instanceof ICertificateAuthority)) {
                     logger.warn("Trying to get a certificate from non certificate authority");
                 } else {
-                    ICertificateRepository certdb = ((ICertificateAuthority) auth).getCertificateRepository();
+                    CertificateRepository certdb = ((ICertificateAuthority) auth).getCertificateRepository();
 
                     if (certdb == null) {
                         logger.warn("Cert DB is null for " + auth);

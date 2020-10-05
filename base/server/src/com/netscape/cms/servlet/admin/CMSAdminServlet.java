@@ -65,7 +65,6 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -84,6 +83,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -1481,8 +1481,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            ICertificateRepository repository =
-                    ca.getCertificateRepository();
+            CertificateRepository repository = ca.getCertificateRepository();
             ISigningUnit signingUnit = ca.getSigningUnit();
             String oldtokenname = null;
             //this is the old nick name

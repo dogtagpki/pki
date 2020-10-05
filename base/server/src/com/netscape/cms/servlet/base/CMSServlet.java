@@ -70,7 +70,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -106,6 +105,7 @@ import com.netscape.cmscore.apps.CommandQueue;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -1029,8 +1029,7 @@ public abstract class CMSServlet extends HttpServlet {
             logger.error(CMS.getLogMessage("CMSGW_NON_CERT_AUTH"));
             return null;
         }
-        ICertificateRepository certdb =
-                ((ICertificateAuthority) mAuthority).getCertificateRepository();
+        CertificateRepository certdb = ((ICertificateAuthority) mAuthority).getCertificateRepository();
 
         if (certdb == null) {
             logger.error(CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
@@ -1082,8 +1081,7 @@ public abstract class CMSServlet extends HttpServlet {
             logger.error(CMS.getLogMessage("CMSGW_NOT_CERT_AUTH"));
             return null;
         }
-        ICertificateRepository certdb =
-                ((ICertificateAuthority) mAuthority).getCertificateRepository();
+        CertificateRepository certdb = ((ICertificateAuthority) mAuthority).getCertificateRepository();
 
         if (certdb == null) {
             logger.error(CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));

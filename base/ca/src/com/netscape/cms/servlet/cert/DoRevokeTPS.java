@@ -49,7 +49,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
@@ -66,6 +65,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * Revoke a Certificate
@@ -79,7 +79,7 @@ public class DoRevokeTPS extends CMSServlet {
     private static final long serialVersionUID = -2980600514636454836L;
     private final static String TPL_FILE = "revocationResult.template";
 
-    private ICertificateRepository mCertDB = null;
+    private CertificateRepository mCertDB;
     private String mFormPath = null;
     private IRequestQueue mQueue = null;
     private IPublisherProcessor mPublisherProcessor = null;

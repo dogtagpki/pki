@@ -21,10 +21,10 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 
@@ -36,7 +36,6 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -44,6 +43,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * Challenge phrase based authentication.
@@ -70,7 +70,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
     /* config parameters to pass to console (none) */
     protected static String[] mConfigParams = null;
     protected ICertificateAuthority mCA = null;
-    protected ICertificateRepository mCertDB = null;
+    protected CertificateRepository mCertDB;
 
     private String mName = null;
     private String mImplName = null;

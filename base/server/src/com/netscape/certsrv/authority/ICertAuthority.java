@@ -17,14 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authority;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.publish.IPublisherProcessor;
-import com.netscape.certsrv.request.IRequestListener;
-
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.publish.IPublisherProcessor;
+import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * Authority that handles certificates needed by the cert registration
@@ -41,7 +41,7 @@ public interface ICertAuthority extends IAuthority {
      *
      * @return the certificate repository.
      */
-    public ICertificateRepository getCertificateRepository();
+    public CertificateRepository getCertificateRepository();
 
     /**
      * Returns CA's certificate chain.

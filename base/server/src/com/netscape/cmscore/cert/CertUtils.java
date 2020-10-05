@@ -80,7 +80,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -95,6 +94,7 @@ import com.netscape.cms.servlet.csadmin.CertInfoProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -1041,7 +1041,7 @@ public class CertUtils {
 
         CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        ICertificateRepository cr = ca.getCertificateRepository();
+        CertificateRepository cr = ca.getCertificateRepository();
         BigInteger serialNo = cr.getNextSerialNumber();
 
         X509CertInfo info;
@@ -1085,7 +1085,7 @@ public class CertUtils {
 
         CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        ICertificateRepository cr = ca.getCertificateRepository();
+        CertificateRepository cr = ca.getCertificateRepository();
 
         MetaInfo meta = new MetaInfo();
         meta.set(ICertRecord.META_REQUEST_ID, request.getRequestId().toString());

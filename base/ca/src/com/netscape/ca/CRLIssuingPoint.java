@@ -62,7 +62,6 @@ import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
@@ -152,7 +151,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Reference to the cert repository maintained in CA.
      */
-    private ICertificateRepository mCertRepository = null;
+    private CertificateRepository mCertRepository;
 
     /**
      * Enable CRL issuing point.
@@ -527,7 +526,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mCountMod = mConfigStore.getCountMod();
         mCRLRepository = mCA.getCRLRepository();
         mCertRepository = mCA.getCertificateRepository();
-        ((CertificateRepository) mCertRepository).addCRLIssuingPoint(mId, this);
+        mCertRepository.addCRLIssuingPoint(mId, this);
         mPublisherProcessor = mCA.getPublisherProcessor();
 
         //mCRLPublisher = mCA.getCRLPublisher();
@@ -2090,7 +2089,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         // NOTE: dangerous cast.
         // correct way would be to modify interface and add
         // accessor but we don't want to touch the interface
-        CertificateRepository cr = (CertificateRepository) mCertRepository;
+        CertificateRepository cr = mCertRepository;
 
         synchronized (cr.certStatusUpdateTask) {
             logger.debug("Starting processRevokedCerts (entered lock)");

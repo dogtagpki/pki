@@ -37,7 +37,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.request.IRequestListener;
@@ -45,6 +44,7 @@ import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
@@ -110,7 +110,7 @@ public interface ICertificateAuthority extends ISubsystem {
      *
      * @return CA's certificate repository
      */
-    public ICertificateRepository getCertificateRepository();
+    public CertificateRepository getCertificateRepository();
 
     /**
      * Retrieves the request queue of this certificate authority.

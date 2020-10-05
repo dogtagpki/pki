@@ -35,7 +35,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
@@ -46,6 +45,7 @@ import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.SubjectNameDefault;
 import com.netscape.cms.profile.def.UserSubjectNameDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * This class implements the unique subject name constraint.
@@ -153,7 +153,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
         CertificateAuthority ca = engine.getCA();
 
         mKeyUsageExtensionChecking = getConfigBoolean(CONFIG_KEY_USAGE_EXTENSION_CHECKING);
-        ICertificateRepository certdb = ca.getCertificateRepository();
+        CertificateRepository certdb = ca.getCertificateRepository();
 
         try {
             sn = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);
