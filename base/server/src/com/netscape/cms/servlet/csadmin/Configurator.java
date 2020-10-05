@@ -1631,11 +1631,9 @@ public class Configurator {
 
     public void updateNextRanges() throws EBaseException, LDAPException {
 
-        String type = cs.getType();
-
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
-        String endRequestNumStr = dbConfig.getString("endRequestNumber", "");
-        String endSerialNumStr = dbConfig.getString("endSerialNumber", "");
+        String endRequestNumStr = dbConfig.getEndRequestNumber();
+        String endSerialNumStr = dbConfig.getEndSerialNumber();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
@@ -1652,18 +1650,13 @@ public class Configurator {
 
         LDAPConnection conn = dbFactory.getConn();
 
-        String serialdn = "";
-        if (type.equals("CA")) {
-            serialdn = "ou=certificateRepository,ou=" + LDAPUtil.escapeRDNValue(type.toLowerCase()) + "," + basedn;
-        } else {
-            serialdn = "ou=keyRepository,ou=" + LDAPUtil.escapeRDNValue(type.toLowerCase()) + "," + basedn;
-        }
+        String serialdn = dbConfig.getSerialDN() + "," + basedn;
         LDAPAttribute attrSerialNextRange =
                 new LDAPAttribute("nextRange", endSerialNum.add(oneNum).toString());
         LDAPModification serialmod = new LDAPModification(LDAPModification.REPLACE, attrSerialNextRange);
         conn.modify(serialdn, serialmod);
 
-        String requestdn = "ou=" + LDAPUtil.escapeRDNValue(type.toLowerCase()) + ",ou=requests," + basedn;
+        String requestdn = dbConfig.getRequestDN() + "," + basedn;
         LDAPAttribute attrRequestNextRange =
                 new LDAPAttribute("nextRange", endRequestNum.add(oneNum).toString());
         LDAPModification requestmod = new LDAPModification(LDAPModification.REPLACE, attrRequestNextRange);
