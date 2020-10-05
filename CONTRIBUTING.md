@@ -13,7 +13,7 @@ Therefore we would love any input you would consent to share! Any and all contri
 
 ## We Develop with Github
 
-We use github to host code and feature requests, as well as accept pull requests. We use [Pagure](https://pagure.io/dogtagpki/issues) to track issues (we will be moving to github issues soon).
+We use GitHub to [host code](https://github.com/dogtagpki/pki/), [pull requests](https://github.com/dogtagpki/pki/pulls), and to [track issues](https://github.com/dogtagpki/pki/issues).
 
 ## Submitting Code Changes
 
@@ -29,9 +29,7 @@ See also [PKI specific github cheatsheet](https://www.dogtagpki.org/wiki/GitHub_
 
 ## Report Issues
 
-We use Pagure issues to track public bugs. Report a bug by [opening a new issue](https://pagure.io/dogtagpki/new_issue); it's that easy!
-
-**Note:** *We will be moving to Github Issues soon. All existing Pagure issues will be migrated.*
+We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/dogtagpki/pki/issues/new/choose); it's that easy!
 
 ### Bug Reports
 
@@ -47,7 +45,7 @@ We use Pagure issues to track public bugs. Report a bug by [opening a new issue]
 
 **Notes:** possibly include theories to explain the behaviour, or steps you tried that didn't work or any other information you think that’s valuable that will help our team to provide a fix soon.
 
-People ***love*** thorough bug reports. [This is a good example](https://pagure.io/dogtagpki/issue/3194) of a thorough bug report.
+People ***love*** thorough bug reports. [This is a good example](https://github.com/dogtagpki/pki/issues/3311) of a thorough bug report.
 
 ## Documentation
 

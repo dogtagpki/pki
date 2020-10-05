@@ -17,7 +17,7 @@
   "author": "Dogtag PKI Team <pki-devel@redhat.com>",
   "license": "GPL-2.0-or-later OR LGPL-2.0-or-later",
   "bugs": {
-    "url": "https://pagure.io/dogtagpki/issues"
+    "url": "https://github.com/dogtagpki/pki/issues"
   },
   "homepage": "https://www.dogtagpki.org",
   "dependencies": {
