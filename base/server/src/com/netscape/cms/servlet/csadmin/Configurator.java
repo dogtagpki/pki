@@ -61,7 +61,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.authentication.EAuthException;
-import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -477,53 +476,14 @@ public class Configurator {
         return pair;
     }
 
-    public KeyPair processKeyPair(SystemCertData certData) throws Exception {
+    public KeyPair createKeyPair(String tag, CryptoToken token, String keyType, String keySize) throws Exception {
 
-        String tag = certData.getTag();
-        logger.debug("Configurator.processKeyPair(" + tag + ")");
+        if (keyType.equals("ecc")) {
+            return createECCKeyPair(tag, token, keySize);
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        String keytype = preopConfig.getString("cert." + tag + ".keytype");
-
-        String tokenName = certData.getToken();
-        if (StringUtils.isEmpty(tokenName)) {
-            tokenName = preopConfig.getString("module.token", null);
+        } else {
+            return createRSAKeyPair(tag, token, keySize);
         }
-
-        String fullName = certData.getNickname();
-        if (!CryptoUtil.isInternalToken(tokenName)) {
-            fullName = tokenName + ":" + fullName;
-        }
-
-        logger.debug("Configurator: token: " + tokenName);
-
-        CryptoManager cm = CryptoManager.getInstance();
-        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-
-        cs.commit(false);
-
-        KeyPair pair;
-
-        try {
-            logger.debug("Configurator: loading existing key pair from NSS database");
-            X509Certificate cert = cm.findCertByNickname(fullName);
-            pair = loadKeyPair(cert);
-            logger.info("Configurator: loaded existing key pair for " + tag + " certificate");
-
-        } catch (ObjectNotFoundException e) {
-
-            logger.debug("Configurator: key pair not found, generating new key pair");
-            logger.info("Configurator: generating new key pair for " + tag + " certificate");
-
-            if (keytype.equals("ecc")) {
-                pair = createECCKeyPair(tag, token, certData.getKeySize());
-
-            } else {
-                pair = createRSAKeyPair(tag, token, certData.getKeySize());
-            }
-        }
-
-        return pair;
     }
 
     public void generateRemoteCert(
@@ -877,15 +837,48 @@ public class Configurator {
 
     public Cert setupCert(CertificateSetupRequest request) throws Exception {
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String tag = request.getTag();
         SystemCertData certData = request.getSystemCert();
 
-        if (certData == null) {
-            logger.error("SystemConfigService: missing certificate: " + tag);
-            throw new BadRequestException("Missing certificate: " + tag);
+        String nickname = certData.getNickname();
+        logger.debug("Configurator: nickname: " + nickname);
+
+        String tokenName = certData.getToken();
+        if (StringUtils.isEmpty(tokenName)) {
+            tokenName = preopConfig.getString("module.token", null);
         }
 
-        KeyPair keyPair = processKeyPair(certData);
+        logger.debug("Configurator: token: " + tokenName);
+
+        String fullName = nickname;
+        if (!CryptoUtil.isInternalToken(tokenName)) {
+            fullName = tokenName + ":" + nickname;
+        }
+
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+
+        X509Certificate x509Cert;
+        KeyPair keyPair;
+
+        try {
+            logger.info("Configurator: Loading " + tag + " cert from NSS database: " + fullName);
+            CryptoManager cm = CryptoManager.getInstance();
+            x509Cert = cm.findCertByNickname(fullName);
+
+            logger.info("Configurator: Loading " + tag + " key pair from NSS database");
+            keyPair = loadKeyPair(x509Cert);
+
+        } catch (ObjectNotFoundException e) {
+            logger.info("Configurator: " + tag + " cert not found: " + fullName);
+            x509Cert = null;
+
+            String keyType = preopConfig.getString("cert." + tag + ".keytype");
+            String keySize = certData.getKeySize();
+            keyPair = createKeyPair(tag, token, keyType, keySize);
+        }
+
         Cert cert = processCert(request, keyPair, certData);
 
         // make sure to commit changes here for step 1
