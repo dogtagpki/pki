@@ -23,10 +23,8 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.ConnectorDatabase;
 import org.dogtagpki.server.tps.config.ConnectorRecord;
 
-import com.netscape.certsrv.base.PKIException;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.apps.PreOpConfig;
 
 /**
  * Utility class for TPS installation to be used both by the RESTful installer
@@ -58,31 +56,21 @@ public class TPSInstaller {
         database.addTKSConnector(uri.getHost(), uri.getPort(), nickname, false);
     }
 
-    public void configureKRAConnector(Boolean keygen, URI uri, String nickname) {
+    public void configureKRAConnector(Boolean keygen, URI uri, String nickname) throws Exception {
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
         EngineConfig cs = engine.getConfig();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         if (keygen) {
-            // TODO: see if this is only needed by wizard-based installation
-            preopConfig.putString("krainfo.select", uri.toString());
-
             // TODO: see if there are other profiles need to be configured
             cs.putString("op.enroll.userKey.keyGen.encryption.serverKeygen.enable", "true");
             cs.putString("op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable", "true");
             cs.putString("op.enroll.soKey.keyGen.encryption.serverKeygen.enable", "true");
             cs.putString("op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable", "true");
 
-            try {
-                database.addKRAConnector(uri.getHost(), uri.getPort(), nickname);
-
-            } catch (Exception e) {
-                logger.error("Unable to create KRA connector: " + e.getMessage(), e);
-                throw new PKIException("Unable to create KRA connector: " + e.getMessage(), e);
-            }
+            database.addKRAConnector(uri.getHost(), uri.getPort(), nickname);
 
         } else { // no keygen
             // TODO: see if there are other profiles need to be configured
@@ -96,17 +84,11 @@ public class TPSInstaller {
             cs.putString("op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme", "GenerateNewKey");
         }
 
-        try {
-            String id = "tks1"; // there is only one default TKS connector
+        String id = "tks1"; // there is only one default TKS connector
 
-            // update keygen in TKS connector
-            ConnectorRecord record = database.getRecord(id);
-            record.setProperty(database.prefix + "." + id + ".serverKeygen", keygen.toString());
-            database.updateRecord(id, record);
-
-        } catch (Exception e) {
-            logger.error("Unable to update TKS connector: " + e.getMessage(), e);
-            throw new PKIException("Unable to update TKS connector", e);
-        }
+        // update keygen in TKS connector
+        ConnectorRecord record = database.getRecord(id);
+        record.setProperty(database.prefix + "." + id + ".serverKeygen", keygen.toString());
+        database.updateRecord(id, record);
     }
 }

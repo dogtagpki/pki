@@ -62,7 +62,7 @@ public class TPSConfigurator extends Configurator {
         installer.configureTKSConnector(tksURI, nickname);
     }
 
-    public void configureKRAConnector(URI kraURI, String nickname, boolean keygen) {
+    public void configureKRAConnector(URI kraURI, String nickname, boolean keygen) throws Exception {
 
         // TODO: get installer from session
         TPSInstaller installer = new TPSInstaller();
