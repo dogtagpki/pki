@@ -5,10 +5,6 @@
 //
 package org.dogtagpki.acme.validator;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMEError;
@@ -79,17 +75,14 @@ public abstract class ACMEValidator {
         return challenge;
     }
 
-    public void validateChallenge(
+    /**
+     * Validate the challenge.
+     *
+     * Validators SHOULD catch all exceptions (including unchecked
+     * exceptions) and return an appropriate ValidationResult.
+     */
+    public abstract ValidationResult validateChallenge(
             ACMEAuthorization authorization,
-            ACMEChallenge challenge) throws Exception {
-    }
+            ACMEChallenge challenge);
 
-    public void throwError(Response.Status status, ACMEError error) throws WebApplicationException {
-
-        ResponseBuilder builder = Response.status(status);
-        builder.type("application/problem+json");
-        builder.entity(error);
-
-        throw new WebApplicationException(builder.build());
-    }
 }

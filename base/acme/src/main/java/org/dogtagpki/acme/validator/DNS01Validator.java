@@ -12,7 +12,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.acme.ACMEAuthorization;
@@ -43,58 +42,41 @@ public class DNS01Validator extends ACMEValidator {
         return Base64.encodeBase64URLSafeString(hash);
     }
 
-    public void validateChallenge(
+    public ValidationResult validateChallenge(
             ACMEAuthorization authorization,
-            ACMEChallenge challenge) throws Exception {
+            ACMEChallenge challenge) {
 
         String accountID = authorization.getAccountID();
-        String keyAuthorization = generateKeyAuthorization(accountID, challenge);
+        String keyAuthorization = "";
+        try {
+            keyAuthorization = generateKeyAuthorization(accountID, challenge);
+        } catch (Exception e) {
+            ACMEError error = new ACMEError();
+            error.setType("urn:ietf:params:acme:error:serverInternal");
+            error.setDetail("Failed to construct key authorization value: " + e);
+            return ValidationResult.fail(error);
+        }
         logger.info("Key authorization: " + keyAuthorization);
 
         ACMEIdentifier identifier = authorization.getIdentifier();
         String hostname = identifier.getValue();
         String recordName = "_acme-challenge." + hostname;
 
-        // TODO: move retry to ACMEChallengeProcessor.processChallenge()
-        // TODO: make it configurable
-
-        int maxCount = 5;
-        int interval = 5;
-
-        int count = 1;
         String response = null;
-        Exception exception = null;
 
-        while (true) {
-            try {
-                response = getResponse(recordName);
-                break;
-
-            } catch (Exception e) {
-                // TODO: catch more specific DNS exception
-
-                logger.error(e.getMessage());
-                if (count >= maxCount) {
-                    exception = e;
-                    break;
-                }
-
-                Thread.sleep(interval * 1000);
-                count++;
-            }
-        }
-
-        if (exception != null) {
-
-            logger.error("Unable to validate DNS-01 challenge: " + exception.getMessage(), exception);
+        try {
+            response = getResponse(recordName);
+        } catch (Exception e) {
+            // TODO: catch more specific DNS exception
+            logger.info("Unable to validate DNS-01 challenge: " + e.getMessage(), e);
 
             ACMEError error = new ACMEError();
             error.setType("urn:ietf:params:acme:error:dns");
             error.setDetail(
                     "Unable to validate DNS-01 challenge at " + recordName + "\n" +
-                    "Error: " + exception.getMessage());
+                    "Error: " + e.getMessage());
 
-            throwError(Response.Status.BAD_REQUEST, error);
+            return ValidationResult.fail(error);
         }
 
         if (response == null || !response.equals(keyAuthorization)) {
@@ -107,8 +89,10 @@ public class DNS01Validator extends ACMEValidator {
                     "Unable to validate DNS-01 challenge at " + recordName + "\n" +
                     "Incorrect response: " + response);
 
-            throwError(Response.Status.BAD_REQUEST, error);
+            return ValidationResult.fail(error);
         }
+
+        return ValidationResult.ok();
     }
 
     public String getResponse(String recordName) throws Exception {
