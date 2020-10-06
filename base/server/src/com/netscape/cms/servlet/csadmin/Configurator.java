@@ -375,9 +375,13 @@ public class Configurator {
         return new KeyPair(publicKey, privateKey);
     }
 
-    public KeyPair createECCKeyPair(CryptoToken token, String curveName, String ct)
+    public KeyPair createECCKeyPair(String tag, CryptoToken token, String curveName)
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
             NotInitializedException, EPropertyNotFound, EBaseException {
+
+        if (curveName == null) {
+            curveName = cs.getString("keys.ecc.curve.default");
+        }
 
         logger.debug("Configurator.createECCKeyPair(" + token + ", " + curveName + ")");
 
@@ -398,7 +402,7 @@ public class Configurator {
          */
         String sslType = "ECDHE";
         try {
-            sslType = preopConfig.getString("cert." + ct + "ec.type", "ECDHE");
+            sslType = preopConfig.getString("cert." + tag + ".ec.type", "ECDHE");
         } catch (Exception e) {
         }
 
@@ -414,13 +418,13 @@ public class Configurator {
         };
 
         do {
-            if (ct.equals("sslserver") && sslType.equalsIgnoreCase("ECDH")) {
+            if (tag.equals("sslserver") && sslType.equalsIgnoreCase("ECDH")) {
                 logger.debug("Configurator: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set "
                         +
                         "properly with -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
                 pair = CryptoUtil.generateECCKeyPair(token, curveName, null, ECDH_usages_mask);
             } else {
-                if (ct.equals("sslserver")) {
+                if (tag.equals("sslserver")) {
                     logger.debug("Configurator: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set "
                             +
                             "properly with +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
@@ -506,10 +510,7 @@ public class Configurator {
             logger.info("Configurator: generating new key pair for " + tag + " certificate");
 
             if (keytype.equals("ecc")) {
-                String curvename = certData.getKeySize() != null ?
-                        certData.getKeySize() : cs.getString("keys.ecc.curve.default");
-                preopConfig.putString("cert." + tag + ".curvename.name", curvename);
-                pair = createECCKeyPair(token, curvename, tag);
+                pair = createECCKeyPair(tag, token, certData.getKeySize());
 
             } else {
                 String keysize = certData.getKeySize() != null ?
