@@ -447,14 +447,20 @@ public class Configurator {
         return pair;
     }
 
-    public KeyPair createRSAKeyPair(CryptoToken token, int keysize, String ct)
+    public KeyPair createRSAKeyPair(String tag, CryptoToken token, String keySize)
             throws Exception {
 
         logger.debug("Configurator.createRSAKeyPair(" + token + ")");
 
+        if (keySize == null) {
+            keySize = cs.getString("keys.rsa.keysize.default");
+        }
+
+        int size = Integer.parseInt(keySize);
+
         KeyPair pair = null;
         do {
-            pair = CryptoUtil.generateRSAKeyPair(token, keysize);
+            pair = CryptoUtil.generateRSAKeyPair(token, size);
             byte id[] = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
             String kid = CryptoUtil.encodeKeyID(id);
 
@@ -513,10 +519,7 @@ public class Configurator {
                 pair = createECCKeyPair(tag, token, certData.getKeySize());
 
             } else {
-                String keysize = certData.getKeySize() != null ?
-                        certData.getKeySize() : cs.getString("keys.rsa.keysize.default");
-                preopConfig.putString("cert." + tag + ".keysize.size", keysize);
-                pair = createRSAKeyPair(token, Integer.parseInt(keysize), tag);
+                pair = createRSAKeyPair(tag, token, certData.getKeySize());
             }
         }
 
