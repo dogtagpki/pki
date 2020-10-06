@@ -264,10 +264,12 @@ public class CAConfigurator extends Configurator {
     }
 
     @Override
-    public void generateCert(CertificateSetupRequest request, KeyPair keyPair, Cert cert) throws Exception {
-
-        String tag = cert.getCertTag();
-        byte[] certreq = cert.getRequest();
+    public X509CertImpl createCert(
+            String tag,
+            CertificateSetupRequest request,
+            KeyPair keyPair,
+            byte[] certreq,
+            String certType) throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -301,7 +303,6 @@ public class CAConfigurator extends Configurator {
             certImpl = createRemoteCert(hostname, port, sessionID, profileID, certreq, dnsNames);
 
         } else {
-            String certType = cert.getType();
             certImpl = createLocalCert(tag, keyPair, certType, profileID, certreq);
         }
 
@@ -310,7 +311,7 @@ public class CAConfigurator extends Configurator {
             setupSubsystemUser(certImpl);
         }
 
-        cert.setCert(certImpl.getEncoded());
+        return certImpl;
     }
 
     public Cert setupCert(CertificateSetupRequest request) throws Exception {

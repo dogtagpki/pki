@@ -486,9 +486,13 @@ public class Configurator {
         }
     }
 
-    public void generateCert(CertificateSetupRequest request, KeyPair keyPair, Cert cert) throws Exception {
+    public X509CertImpl createCert(
+            String tag,
+            CertificateSetupRequest request,
+            KeyPair keyPair,
+            byte[] certreq,
+            String certType) throws Exception {
 
-        String tag = cert.getCertTag();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String hostname;
@@ -508,8 +512,6 @@ public class Configurator {
         String profileID = preopConfig.getString("cert." + tag + ".profile");
         logger.debug("Configurator: profile ID: " + profileID);
 
-        byte[] certreq = cert.getRequest();
-
         Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
         logger.debug("Configurator: inject SAN: " + injectSAN);
         String[] dnsNames = null;
@@ -520,8 +522,7 @@ public class Configurator {
             dnsNames = StringUtils.split(list, ",");
         }
 
-        X509CertImpl certImpl = createRemoteCert(hostname, port, sessionID, profileID, certreq, dnsNames);
-        cert.setCert(certImpl.getEncoded());
+        return createRemoteCert(hostname, port, sessionID, profileID, certreq, dnsNames);
     }
 
     // Dynamically apply the SubjectAlternativeName extension to a
@@ -776,8 +777,8 @@ public class Configurator {
             logger.debug("Configurator: request: " + certreq);
             cs.putString(type.toLowerCase() + "." + tag + ".certreq", certreq);
 
-            logger.info("Configurator: Generating " + tag + " certificate");
-            generateCert(request, keyPair, cert);
+            X509CertImpl certImpl = createCert(tag, request, keyPair, binCertRequest, certType);
+            cert.setCert(certImpl.getEncoded());
 
             String certStr = CryptoUtil.base64Encode(cert.getCert());
             logger.debug("Configurator: cert: " + certStr);
