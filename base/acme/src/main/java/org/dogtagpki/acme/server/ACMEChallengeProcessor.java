@@ -12,8 +12,10 @@ import java.util.Date;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEChallenge;
+import org.dogtagpki.acme.ACMEError;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.validator.ACMEValidator;
+import org.dogtagpki.acme.validator.ValidationResult;
 
 /**
  * @author Endi S. Dewata
@@ -52,12 +54,29 @@ public class ACMEChallengeProcessor implements Runnable {
         String challengeID = challenge.getID();
         logger.info("Processing challenge " + challengeID);
 
-        try {
-            validator.validateChallenge(authorization, challenge);
-            finalizeValidAuthorization();
+        // TODO make retry parameters configurable
+        int maxAttempts = 5;
+        int delaySeconds = 5;
+        int attempts = 0;
+        ValidationResult r = null;
 
-        } catch (Exception e) {
-            finalizeInvalidAuthorization(e);
+        while (attempts++ < maxAttempts) {
+            try {
+                r = validator.validateChallenge(authorization, challenge);
+            } catch (Exception e) {
+                ACMEError error = new ACMEError();
+                error.setType("urn:ietf:params:acme:error:serverInternal");
+                error.setDetail("Internal server error: " + e);
+                r = ValidationResult.fail(error);
+            }
+            if (r.isOK()) break;
+            Thread.sleep(delaySeconds * 1000);
+        }
+
+        if (r.isOK()) {
+            finalizeValidAuthorization();
+        } else {
+            finalizeInvalidAuthorization(r.getError());
         }
     }
 
@@ -129,7 +148,7 @@ public class ACMEChallengeProcessor implements Runnable {
         }
     }
 
-    public void finalizeInvalidAuthorization(Exception e) throws Exception {
+    public void finalizeInvalidAuthorization(ACMEError err) throws Exception {
 
         Date currentTime = new Date();
 
@@ -150,6 +169,7 @@ public class ACMEChallengeProcessor implements Runnable {
 
         logger.info("Challenge " + challengeID + " is invalid");
         challenge.setStatus("invalid");
+        challenge.setError(err.toJSON());
 
         // RFC 8555 Section 7.5.1: Responding to Challenges
         //

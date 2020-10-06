@@ -6,8 +6,7 @@
 package org.dogtagpki.acme.validator;
 
 import java.net.URI;
-
-import javax.ws.rs.core.Response;
+import java.net.URISyntaxException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -32,9 +31,9 @@ public class HTTP01Validator extends ACMEValidator {
         super("HTTP-01", "http-01");
     }
 
-    public void validateChallenge(
+    public ValidationResult validateChallenge(
             ACMEAuthorization authorization,
-            ACMEChallenge challenge) throws Exception {
+            ACMEChallenge challenge) {
 
         // HTTP-01 key authorization
         // https://tools.ietf.org/html/rfc8555
@@ -47,49 +46,46 @@ public class HTTP01Validator extends ACMEValidator {
         ACMEIdentifier identifier = authorization.getIdentifier();
         String hostname = identifier.getValue();
         String validationPath = "/.well-known/acme-challenge/" + token;
-        URI validationURL = new URI("http", hostname, validationPath, null);
 
-        // TODO: move retry to ACMEChallengeProcessor.processChallenge()
-        // TODO: make it configurable
-
-        int maxCount = 5;
-        int interval = 5;
-
-        int count = 1;
-        String response = null;
-        Exception exception = null;
-
-        while (true) {
-            try {
-                response = getResponse(validationURL);
-                break;
-
-            } catch (Exception e) {
-
-                // TODO: catch more specific HTTP exception
-
-                logger.error(e.getMessage());
-                if (count >= maxCount) {
-                    exception = e;
-                    break;
-                }
-
-                Thread.sleep(interval * 1000);
-                count++;
-            }
+        URI validationURL;
+        try {
+            /* It was suggested to catch URISyntaxException and return
+             * urn:ietf:params:acme:error:malformed.  A close inspection leads
+             * to a different conclusion.
+             *
+             * `hostname` comes from `identifier` object, via `authorization`.
+             * `validationPath` is derived from `token` which comes from
+             * `challenge`.  All of the source objects are looked up
+             * server-side, not supplied by the client.  If we got this far,
+             * the client request was fine but there are missing or corrupt
+             * data on the server side.  Therefore the correct error is
+             * urn:ietf:params:acme:error:serverInternal.
+             */
+            validationURL = new URI("http", hostname, validationPath, null);
+        } catch (URISyntaxException e) {
+            ACMEError error = new ACMEError();
+            error.setType("urn:ietf:params:acme:error:serverInternal");
+            error.setDetail(
+                "Failed to construct validation URI for hostname '" + hostname + "' "
+                + "and path '" + validationPath + "': " + e);
+            return ValidationResult.fail(error);
         }
 
-        if (exception != null) {
+        String response = null;
 
-            logger.error("Unable to validate HTTP-01 challenge: " + exception.getMessage(), exception);
+        try {
+            response = getResponse(validationURL);
+        } catch (Exception e) {
+            // TODO: catch more specific HTTP exception
+            logger.info("Unable to validate HTTP-01 challenge: " + e.getMessage(), e);
 
             ACMEError error = new ACMEError();
             error.setType("urn:ietf:params:acme:error:connection");
             error.setDetail(
                     "Unable to validate HTTP-01 challenge at " + validationURL + "\n" +
-                    "Error: " + exception.getMessage());
+                    "Error: " + e.getMessage());
 
-            throwError(Response.Status.BAD_REQUEST, error);
+            return ValidationResult.fail(error);
         }
 
         if (response == null || !response.equals(keyAuthorization)) {
@@ -102,8 +98,10 @@ public class HTTP01Validator extends ACMEValidator {
                     "Unable to validate HTTP-01 challenge at " + validationURL + "\n" +
                     "Incorrect response: " + response);
 
-            throwError(Response.Status.BAD_REQUEST, error);
+            return ValidationResult.fail(error);
         }
+
+        return ValidationResult.ok();
     }
 
     public String getResponse(URI validationURL) throws Exception {
