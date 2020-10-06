@@ -86,13 +86,17 @@ public class CAConfigurator extends Configurator {
 
         boolean installAdjustValidity = !tag.equals("signing");
 
-        return CertUtils.createLocalRequest(
-                queue,
+        IRequest req = queue.newRequest("enrollment");
+
+        CertUtils.initLocalRequest(
+                req,
                 profile,
                 info,
                 x509key,
                 sanHostnames,
                 installAdjustValidity);
+
+        return req;
     }
 
     /**
@@ -368,8 +372,10 @@ public class CAConfigurator extends Configurator {
 
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
 
-        IRequest req = CertUtils.createLocalRequest(
-                queue,
+        IRequest req = queue.newRequest("enrollment");
+
+        CertUtils.initLocalRequest(
+                req,
                 profile,
                 info,
                 x509key,

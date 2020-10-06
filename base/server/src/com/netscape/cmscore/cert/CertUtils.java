@@ -85,7 +85,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -938,11 +937,11 @@ public class CertUtils {
         return tmp.toString();
     }
 
-    /*
-     * create requests so renewal can work on these initial certs
+    /**
+     * Initialize request for future renewal.
      */
-    public static IRequest createLocalRequest(
-            IRequestQueue queue,
+    public static void initLocalRequest(
+            IRequest req,
             CertInfoProfile profile,
             X509CertInfo info,
             X509Key x509key,
@@ -955,8 +954,6 @@ public class CertUtils {
         //        IRequest r = new EnrollmentRequest(rid);
 
         logger.info("CertUtils: Creating local request");
-
-        IRequest req = queue.newRequest("enrollment");
 
         req.setExtData("profile", "true");
         req.setExtData("requestversion", "1.0.0");
@@ -1024,8 +1021,6 @@ public class CertUtils {
         // mark request as complete
         logger.debug("CertUtils: calling setRequestStatus");
         req.setRequestStatus(RequestStatus.COMPLETE);
-
-        return req;
     }
 
     public static X509CertInfo createCertInfo(
