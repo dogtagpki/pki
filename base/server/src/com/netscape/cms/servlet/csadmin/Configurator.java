@@ -494,20 +494,30 @@ public class Configurator {
             Cert cert) throws Exception {
 
         String tag = cert.getCertTag();
-        logger.info("Configurator: Generating remote " + tag + " certificate");
+        logger.info("Configurator: Creating remote " + tag + " certificate");
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String profileID = preopConfig.getString("cert." + tag + ".profile");
-        logger.debug("Configurator: profile ID: " + profileID);
+        logger.debug("Configurator: profile: " + profileID);
 
-        X509CertImpl certImpl = configRemoteCert(
+        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+        logger.debug("Configurator: inject SAN: " + injectSAN);
+        String[] dnsNames = null;
+
+        if (tag.equals("sslserver") && injectSAN) {
+            String list = cs.getString("service.sslserver.san");
+            logger.debug("Configurator: DNS names: " + list);
+            dnsNames = StringUtils.split(list, ",");
+        }
+
+        X509CertImpl certImpl = createRemoteCert(
                 hostname,
                 port,
                 sessionID,
                 profileID,
                 cert.getRequest(),
-                tag);
+                dnsNames);
 
         cert.setCert(certImpl.getEncoded());
     }
@@ -553,11 +563,8 @@ public class Configurator {
     //
     public void injectSANExtension(String[] dnsNames, MultivaluedMap<String, String> content) throws Exception {
 
-        logger.debug("Configurator: Injecting SAN extension");
-
         int i = 0;
         for (String dnsName : dnsNames) {
-            logger.debug("Configurator: - " + dnsName);
             content.putSingle("req_san_pattern_" + i, dnsName);
             i++;
         }
@@ -565,16 +572,14 @@ public class Configurator {
         content.putSingle("req_san_entries", "" + i);
     }
 
-    private X509CertImpl configRemoteCert(
+    public X509CertImpl createRemoteCert(
             String hostname,
             int port,
             String sessionID,
             String profileID,
             byte[] request,
-            String tag)
+            String[] dnsNames)
             throws Exception {
-
-        logger.info("Configurator: Creating remote " + tag + " certificate");
 
         String sysType = cs.getType();
         String machineName = cs.getHostname();
@@ -588,14 +593,7 @@ public class Configurator {
         content.putSingle("xmlOutput", "true");
         content.putSingle("sessionID", sessionID);
 
-        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        logger.debug("Configurator: injectSAN: " + injectSAN);
-
-        if (tag.equals("sslserver") && injectSAN) {
-
-            String list = cs.getString("service.sslserver.san");
-            String[] dnsNames = StringUtils.split(list, ",");
-
+        if (dnsNames != null) {
             injectSANExtension(dnsNames, content);
         }
 
