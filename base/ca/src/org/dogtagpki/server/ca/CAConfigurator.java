@@ -134,11 +134,7 @@ public class CAConfigurator extends Configurator {
     }
 
     @Override
-    public void loadCert(Cert cert, org.mozilla.jss.crypto.X509Certificate x509Cert) throws Exception {
-
-        super.loadCert(cert, x509Cert);
-
-        String tag = cert.getCertTag();
+    public void loadCert(String tag, byte[] certreq, org.mozilla.jss.crypto.X509Certificate x509Cert) throws Exception {
 
         // checking whether the cert was issued by existing CA
         logger.debug("CAConfigurator: issuer DN: " + x509Cert.getIssuerDN());
@@ -173,10 +169,7 @@ public class CAConfigurator extends Configurator {
         String profileID = preopConfig.getString("cert." + tag + ".profile");
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileID);
 
-        String certreqStr = cs.getString("ca." + tag + ".certreq");
-        byte[] certreqBytes = CryptoUtil.base64Decode(certreqStr);
-
-        PKCS10 pkcs10 = new PKCS10(certreqBytes);
+        PKCS10 pkcs10 = new PKCS10(certreq);
         X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
 
         byte[] bytes = x509Cert.getEncoded();
@@ -186,14 +179,14 @@ public class CAConfigurator extends Configurator {
         IRequest req = createRequest(tag, profile, x509key, info);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, certImpl);
-        req.setExtData("cert_request", certreqBytes);
+        req.setExtData("cert_request", certreq);
         req.setExtData("cert_request_type", "pkcs10");
 
         IRequestQueue queue = ca.getRequestQueue();
         queue.updateRequest(req);
 
         // update the locally created request for renewal
-        updateLocalRequest(req.getRequestId(), cert.getRequest(), "pkcs10", null);
+        updateLocalRequest(req.getRequestId(), certreq, "pkcs10", null);
 
         CertUtils.createCertRecord(req, profile, certImpl);
     }

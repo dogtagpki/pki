@@ -694,26 +694,7 @@ public class Configurator {
         }
     }
 
-    public void loadCert(Cert cert, X509Certificate x509Cert) throws Exception {
-
-        String type = cs.getType();
-        String tag = cert.getCertTag();
-        logger.info("Configurator: Loading existing " + tag + " certificate");
-
-        byte[] bytes = x509Cert.getEncoded();
-        String b64 = CryptoUtil.base64Encode(bytes);
-        String certStr = CryptoUtil.normalizeCertStr(b64);
-        logger.debug("Configurator: cert: " + certStr);
-
-        cert.setCert(bytes);
-
-        logger.info("Configurator: Loading existing " + tag + " cert request");
-
-        String certreqStr = cs.getString(type.toLowerCase() + "." + tag + ".certreq");
-        logger.debug("Configurator: request: " + certreqStr);
-
-        byte[] certreqBytes = CryptoUtil.base64Decode(certreqStr);
-        cert.setRequest(certreqBytes);
+    public void loadCert(String tag, byte[] certreq, X509Certificate x509Cert) throws Exception {
     }
 
     public Cert processCert(
@@ -768,7 +749,18 @@ public class Configurator {
                 || type.equals("KRA") && (request.isExternal() || request.getStandAlone())
                 || type.equals("OCSP") && (request.isExternal() || request.getStandAlone())) {
 
-            loadCert(cert, x509Cert);
+            logger.info("Configurator: Loading existing " + tag + " cert request");
+
+            String certreq = cs.getString(type.toLowerCase() + "." + tag + ".certreq");
+            logger.debug("Configurator: request: " + certreq);
+
+            byte[] binCertRequest = CryptoUtil.base64Decode(certreq);
+            cert.setRequest(binCertRequest);
+
+            logger.info("Configurator: Loading existing " + tag + " certificate");
+            cert.setCert(x509Cert.getEncoded());
+
+            loadCert(tag, binCertRequest, x509Cert);
 
         } else {
             byte[] binCertRequest = createCertRequest(tag, keyPair);
