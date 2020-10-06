@@ -39,7 +39,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
@@ -100,19 +99,17 @@ public class CAConfigurator extends Configurator {
      * Update local cert request with the actual request.
      */
     public void updateLocalRequest(
-            RequestId reqId,
+            IRequest req,
             byte[] certReq,
             String reqType,
             String subjectName
             ) throws Exception {
 
-        logger.info("CAConfigurator: Updating request " + reqId);
+        logger.info("CAConfigurator: Updating request " + req.getRequestId());
 
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
-
         IRequestQueue queue = ca.getRequestQueue();
-        IRequest req = queue.findRequest(reqId);
 
         if (subjectName != null) {
             logger.debug("CAConfigurator: - subject: " + subjectName);
@@ -186,7 +183,7 @@ public class CAConfigurator extends Configurator {
         queue.updateRequest(req);
 
         // update the locally created request for renewal
-        updateLocalRequest(req.getRequestId(), certreq, "pkcs10", null);
+        updateLocalRequest(req, certreq, "pkcs10", null);
 
         CertUtils.createCertRecord(req, profile, certImpl);
     }
@@ -238,8 +235,6 @@ public class CAConfigurator extends Configurator {
 
         IRequest req = createRequest(tag, profile, x509key, info);
 
-        RequestId reqId = req.getRequestId();
-
         X509CertImpl certImpl = CertUtils.createLocalCert(
                 req,
                 profile,
@@ -251,7 +246,7 @@ public class CAConfigurator extends Configurator {
         queue.updateRequest(req);
 
         // update the locally created request for renewal
-        updateLocalRequest(reqId, certreq, "pkcs10", null);
+        updateLocalRequest(req, certreq, "pkcs10", null);
 
         return certImpl;
     }
@@ -386,8 +381,6 @@ public class CAConfigurator extends Configurator {
                 null /* sanHostnames */,
                 true /* installAdjustValidity */);
 
-        RequestId reqId = req.getRequestId();
-
         String caSigningKeyAlgo;
         if (caType.equals("selfsign")) {
             caSigningKeyAlgo = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
@@ -407,7 +400,7 @@ public class CAConfigurator extends Configurator {
         queue.updateRequest(req);
 
         // update the locally created request for renewal
-        updateLocalRequest(reqId, binRequest, certRequestType, subject);
+        updateLocalRequest(req, binRequest, certRequestType, subject);
 
         return impl;
     }
