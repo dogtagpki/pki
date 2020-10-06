@@ -734,10 +734,11 @@ public class Configurator {
 
         String nickname = preopConfig.getString("cert." + tag + ".nickname");
         String dn = preopConfig.getString("cert." + tag + ".dn");
+
+        // cert type is selfsign, local, or remote
         String certType = preopConfig.getString("cert." + tag + ".type");
 
         Cert cert = new Cert(tokenName, nickname, tag);
-        cert.setType(certType);
 
         String fullName;
         if (!CryptoUtil.isInternalToken(tokenName)) {

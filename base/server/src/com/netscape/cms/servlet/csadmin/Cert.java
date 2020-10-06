@@ -24,7 +24,6 @@ public class Cert {
     private String mTokenname = "";
     private byte[] request;
     private byte[] cert;
-    private String mType = ""; // "selfsign," "local," or "remote"
     private String mCertTag = "";
     private String mCertpp = "";
     private String mUserFriendlyName = "";
@@ -95,14 +94,6 @@ public class Cert {
 
     public void setCert(byte[] cert) {
         this.cert = cert;
-    }
-
-    public String getType() {
-        return mType;
-    }
-
-    public void setType(String type) {
-        mType = type;
     }
 
     public String escapeForHTML(String s) {
