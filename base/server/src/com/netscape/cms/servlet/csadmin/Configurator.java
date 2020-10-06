@@ -365,23 +365,11 @@ public class Configurator {
         return dir.delete();
     }
 
-    public KeyPair loadKeyPair(String nickname, String token) throws Exception {
-
-        logger.debug("Configurator: loadKeyPair(" + nickname + ", " + token + ")");
+    public KeyPair loadKeyPair(X509Certificate cert) throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
 
-        if (!CryptoUtil.isInternalToken(token)) {
-            nickname = token + ":" + nickname;
-        }
-
-        logger.debug("Configurator: loading cert: " + nickname);
-        X509Certificate cert = cm.findCertByNickname(nickname);
-
-        logger.debug("Configurator: loading public key");
         PublicKey publicKey = cert.getPublicKey();
-
-        logger.debug("Configurator: loading private key");
         PrivateKey privateKey = cm.findPrivKeyByCert(cert);
 
         return new KeyPair(publicKey, privateKey);
@@ -492,7 +480,14 @@ public class Configurator {
             tokenName = preopConfig.getString("module.token", null);
         }
 
+        String fullName = certData.getNickname();
+        if (!CryptoUtil.isInternalToken(tokenName)) {
+            fullName = tokenName + ":" + fullName;
+        }
+
         logger.debug("Configurator: token: " + tokenName);
+
+        CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
         cs.commit(false);
@@ -501,7 +496,8 @@ public class Configurator {
 
         try {
             logger.debug("Configurator: loading existing key pair from NSS database");
-            pair = loadKeyPair(certData.getNickname(), tokenName);
+            X509Certificate cert = cm.findCertByNickname(fullName);
+            pair = loadKeyPair(cert);
             logger.info("Configurator: loaded existing key pair for " + tag + " certificate");
 
         } catch (ObjectNotFoundException e) {
