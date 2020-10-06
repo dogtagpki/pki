@@ -698,46 +698,23 @@ public class Configurator {
     }
 
     public Cert processCert(
+            String tag,
             CertificateSetupRequest request,
+            String tokenName,
             KeyPair keyPair,
-            SystemCertData certData) throws Exception {
+            X509Certificate x509Cert) throws Exception {
 
         String type = cs.getType();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
-        String tag = certData.getTag();
-        String tokenName = certData.getToken();
-        if (StringUtils.isEmpty(tokenName)) {
-            tokenName = preopConfig.getString("module.token", null);
-        }
-
         logger.info("Configurator: Processing " + tag + " certificate");
 
         String nickname = preopConfig.getString("cert." + tag + ".nickname");
-        String dn = preopConfig.getString("cert." + tag + ".dn");
 
         // cert type is selfsign, local, or remote
         String certType = preopConfig.getString("cert." + tag + ".type");
 
         Cert cert = new Cert(tokenName, nickname, tag);
-
-        String fullName;
-        if (!CryptoUtil.isInternalToken(tokenName)) {
-            fullName = tokenName + ":" + nickname;
-        } else {
-            fullName = nickname;
-        }
-
-        logger.info("Configurator: Loading " + tag + " cert from NSS: " + fullName);
-
-        CryptoManager cm = CryptoManager.getInstance();
-        X509Certificate x509Cert;
-        try {
-            x509Cert = cm.findCertByNickname(fullName);
-        } catch (ObjectNotFoundException e) {
-            logger.info("Configurator: " + tag + " cert not found: " + fullName);
-            x509Cert = null;
-        }
 
         // For external/existing CA case, some/all system certs may be provided.
         // The SSL server cert will always be generated for the current host.
@@ -848,7 +825,7 @@ public class Configurator {
             keyPair = createKeyPair(tag, token, keyType, keySize);
         }
 
-        Cert cert = processCert(request, keyPair, certData);
+        Cert cert = processCert(tag, request, tokenName, keyPair, x509Cert);
 
         // make sure to commit changes here for step 1
         cs.commit(false);
