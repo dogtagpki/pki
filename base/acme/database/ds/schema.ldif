@@ -57,6 +57,10 @@ attributeTypes: ( acmeCertificateId-oid NAME 'acmeCertificateId'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   EQUALITY caseExactMatch
   SINGLE-VALUE )
+attributeTypes: ( acmeEnabled-oid NAME 'acmeEnabled'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  EQUALITY booleanMatch
+  SINGLE-VALUE )
 -
 add: objectClasses
 objectClasses: ( acmeNonce-oid NAME 'acmeNonce'

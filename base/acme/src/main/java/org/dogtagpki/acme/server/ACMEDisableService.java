@@ -14,6 +14,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.dogtagpki.acme.database.ACMEDatabase;
+
 /**
  * @author Endi S. Dewata
  */
@@ -32,7 +34,8 @@ public class ACMEDisableService {
         logger.info("Disabling ACME services");
 
         ACMEEngine engine = ACMEEngine.getInstance();
-        engine.setEnabled(false);
+        ACMEDatabase database = engine.getDatabase();
+        database.setEnabled(false);
 
         ResponseBuilder builder = Response.ok();
         return builder.build();

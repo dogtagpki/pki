@@ -38,6 +38,13 @@ Enter the base DN for the ACME subtree.
 If the command is invoked with `--type` parameter, it will create a new configuration based on the specified type.
 If the command is invoked with other parameters, it will update the specified parameters.
 
+Some ACME configuration properties are stored in the database such that
+all ACME responders in the cluster can be configured consistently.
+By default the ACME responder will access the database directly
+when retrieving or updating the ACME configuration properties,
+which may increase the load on the database.
+Some databases might provide an ACME configuration monitor to reduce the load on the database.
+
 ## Configuring In-Memory Database
 
 The ACME responder can be configured with an in-memory database.
@@ -109,6 +116,13 @@ In a shared CA and ACME deployment, the database.conf should look like the follo
 class=org.dogtagpki.acme.database.DSDatabase
 configFile=conf/ca/CS.cfg
 baseDN=dc=acme,dc=pki,dc=example,dc=com
+```
+
+The DS database provides an ACME configuration monitor using search persistence.
+It can be enabled with the following parameter:
+
+```
+monitor.enabled=true
 ```
 
 ## Configuring OpenLDAP Database

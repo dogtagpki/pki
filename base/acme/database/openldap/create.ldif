@@ -4,6 +4,11 @@ objectclass: organization
 o: ACME
 dc: acme
 
+dn: ou=config,dc=acme,dc=pki,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: extensibleObject
+ou: config
+
 dn: ou=nonces,dc=acme,dc=pki,dc=example,dc=com
 objectClass: organizationalUnit
 ou: nonces
