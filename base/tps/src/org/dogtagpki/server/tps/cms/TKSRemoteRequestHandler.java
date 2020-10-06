@@ -123,15 +123,13 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                     tokenType + ".keyGen." +
                     keygenString + ".serverKeygen.enable", false);
 
-            logger.debug(method + " serverkegGen enabled for " + keygenString + " : " + enabled);
+            logger.debug(method + "config serverkegGen enabled for " + keygenString + " : " + enabled);
             if (enabled) {
                 serverKeygen = true;
                 break;
             }
         }
-
-
-
+        logger.debug(method + " final serverkegGen enabled? " + serverKeygen);
 
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
@@ -266,10 +264,23 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig conf = engine.getConfig();
 
-        boolean serverKeygen =
-                conf.getBoolean("op.enroll." +
-                        tokenType + ".keyGen.encryption.serverKeygen.enable",
-                        false);
+        boolean serverKeygen = false;
+
+        //Try out all the currently supported cert types to see if we are doing server side keygen here
+        String[] keygenStrings = { "identity", "signing", "encryption", "authentication", "auth"};
+        for (String keygenString : keygenStrings) {
+            boolean enabled = conf.getBoolean("op.enroll." +
+                    tokenType + ".keyGen." +
+                    keygenString + ".serverKeygen.enable", false);
+
+            logger.debug(method + " serverkegGen enabled for " + keygenString + " : " + enabled);
+            if (enabled) {
+                serverKeygen = true;
+                break;
+            }
+        }
+        logger.debug(method + " final serverkegGen enabled? " + serverKeygen);
+
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
@@ -428,7 +439,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             String tokenType)
             throws EBaseException {
 
-        logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): begins.");
+        String method = "TKSRemoteRequestHandler: computeSessionKeySCP02(): ";
+        logger.debug(method + " begins.");
         if (cuid == null || kdd == null || keyInfo == null ||
                 sequenceCounter == null
                 || derivationConstant == null) {
@@ -438,10 +450,22 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig conf = engine.getConfig();
 
-        boolean serverKeygen =
-                conf.getBoolean("op.enroll." +
-                        tokenType + ".keyGen.encryption.serverKeygen.enable",
-                        false);
+        boolean serverKeygen = false;
+
+        //Try out all the currently supported cert types to see if we are doing server side keygen here
+        String[] keygenStrings = { "identity", "signing", "encryption", "authentication", "auth"};
+        for (String keygenString : keygenStrings) {
+            boolean enabled = conf.getBoolean("op.enroll." +
+                    tokenType + ".keyGen." +
+                    keygenString + ".serverKeygen.enable", false);
+
+            logger.debug(method + " serverkegGen enabled for " + keygenString + " : " + enabled);
+            if (enabled) {
+                serverKeygen = true;
+                break;
+            }
+        }
+
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
