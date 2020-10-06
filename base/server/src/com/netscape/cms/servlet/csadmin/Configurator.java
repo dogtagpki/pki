@@ -486,42 +486,6 @@ public class Configurator {
         }
     }
 
-    public void generateRemoteCert(
-            String hostname,
-            int port,
-            String sessionID,
-            KeyPair keyPair,
-            Cert cert) throws Exception {
-
-        String tag = cert.getCertTag();
-        logger.info("Configurator: Creating remote " + tag + " certificate");
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String profileID = preopConfig.getString("cert." + tag + ".profile");
-        logger.debug("Configurator: profile: " + profileID);
-
-        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        logger.debug("Configurator: inject SAN: " + injectSAN);
-        String[] dnsNames = null;
-
-        if (tag.equals("sslserver") && injectSAN) {
-            String list = cs.getString("service.sslserver.san");
-            logger.debug("Configurator: DNS names: " + list);
-            dnsNames = StringUtils.split(list, ",");
-        }
-
-        X509CertImpl certImpl = createRemoteCert(
-                hostname,
-                port,
-                sessionID,
-                profileID,
-                cert.getRequest(),
-                dnsNames);
-
-        cert.setCert(certImpl.getEncoded());
-    }
-
     public void generateCert(CertificateSetupRequest request, KeyPair keyPair, Cert cert) throws Exception {
 
         String tag = cert.getCertTag();
@@ -541,7 +505,23 @@ public class Configurator {
 
         String sessionID = request.getInstallToken().getToken();
 
-        generateRemoteCert(hostname, port, sessionID, keyPair, cert);
+        String profileID = preopConfig.getString("cert." + tag + ".profile");
+        logger.debug("Configurator: profile ID: " + profileID);
+
+        byte[] certreq = cert.getRequest();
+
+        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+        logger.debug("Configurator: inject SAN: " + injectSAN);
+        String[] dnsNames = null;
+
+        if (tag.equals("sslserver") && injectSAN) {
+            String list = cs.getString("service.sslserver.san");
+            logger.debug("Configurator: DNS names: " + list);
+            dnsNames = StringUtils.split(list, ",");
+        }
+
+        X509CertImpl certImpl = createRemoteCert(hostname, port, sessionID, profileID, certreq, dnsNames);
+        cert.setCert(certImpl.getEncoded());
     }
 
     // Dynamically apply the SubjectAlternativeName extension to a

@@ -272,6 +272,7 @@ public class CAConfigurator extends Configurator {
     public void generateCert(CertificateSetupRequest request, KeyPair keyPair, Cert cert) throws Exception {
 
         String tag = cert.getCertTag();
+        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         if (request.isClone() && tag.equals("sslserver")) {
 
@@ -285,7 +286,23 @@ public class CAConfigurator extends Configurator {
 
             String sessionID = request.getInstallToken().getToken();
 
-            generateRemoteCert(hostname, port, sessionID, keyPair, cert);
+            String profileID = preopConfig.getString("cert." + tag + ".profile");
+            logger.debug("Configurator: profile ID: " + profileID);
+
+            byte[] certreq = cert.getRequest();
+
+            Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+            logger.debug("Configurator: inject SAN: " + injectSAN);
+            String[] dnsNames = null;
+
+            if (tag.equals("sslserver") && injectSAN) {
+                String list = cs.getString("service.sslserver.san");
+                logger.debug("Configurator: DNS names: " + list);
+                dnsNames = StringUtils.split(list, ",");
+            }
+
+            X509CertImpl certImpl = createRemoteCert(hostname, port, sessionID, profileID, certreq, dnsNames);
+            cert.setCert(certImpl.getEncoded());
 
         } else {
             generateLocalCert(keyPair, cert);
