@@ -198,13 +198,14 @@ public class CAConfigurator extends Configurator {
         CertUtils.createCertRecord(req, profile, certImpl);
     }
 
-    public void generateLocalCert(KeyPair keyPair, Cert cert) throws Exception {
+    public X509CertImpl createLocalCert(
+            String tag,
+            KeyPair keyPair,
+            String certType,
+            String profileID,
+            byte[] certreq) throws Exception {
 
-        String tag = cert.getCertTag();
-        logger.info("CAConfigurator: Generating local " + tag + " certificate");
-
-        String certType = cert.getType();
-        logger.debug("CAConfigurator: cert type: " + certType);
+        logger.info("CAConfigurator: Creating local " + tag + " certificate");
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -213,9 +214,6 @@ public class CAConfigurator extends Configurator {
 
         String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
         logger.debug("CAConfigurator: algorithm: " + algorithm);
-
-        String profileID = preopConfig.getString("cert." + tag + ".profile");
-        logger.debug("Configurator: profile ID: " + profileID);
 
         String issuerDN = preopConfig.getString("cert.signing.dn", "");
         logger.debug("CAConfigurator: issuer DN: " + issuerDN);
@@ -227,6 +225,8 @@ public class CAConfigurator extends Configurator {
 
         java.security.PrivateKey signingPrivateKey;
         String signingAlgorithm;
+
+        logger.debug("CAConfigurator: cert type: " + certType);
 
         if (certType.equals("selfsign")) {
             signingPrivateKey = keyPair.getPrivate();
@@ -254,25 +254,27 @@ public class CAConfigurator extends Configurator {
                 signingPrivateKey,
                 signingAlgorithm);
 
-        cert.setCert(certImpl.getEncoded());
-
         IRequestQueue queue = ca.getRequestQueue();
         queue.updateRequest(req);
 
         // update the locally created request for renewal
-        updateLocalRequest(reqId, cert.getRequest(), "pkcs10", null);
+        updateLocalRequest(reqId, certreq, "pkcs10", null);
 
-        if (tag.equals("subsystem")) {
-            logger.debug("CAConfigurator: creating subsystem user");
-            setupSubsystemUser(certImpl);
-        }
+        return certImpl;
     }
 
     @Override
     public void generateCert(CertificateSetupRequest request, KeyPair keyPair, Cert cert) throws Exception {
 
         String tag = cert.getCertTag();
+        byte[] certreq = cert.getRequest();
+
         PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String profileID = preopConfig.getString("cert." + tag + ".profile");
+        logger.debug("Configurator: profile ID: " + profileID);
+
+        X509CertImpl certImpl;
 
         if (request.isClone() && tag.equals("sslserver")) {
 
@@ -286,11 +288,6 @@ public class CAConfigurator extends Configurator {
 
             String sessionID = request.getInstallToken().getToken();
 
-            String profileID = preopConfig.getString("cert." + tag + ".profile");
-            logger.debug("Configurator: profile ID: " + profileID);
-
-            byte[] certreq = cert.getRequest();
-
             Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
             logger.debug("Configurator: inject SAN: " + injectSAN);
             String[] dnsNames = null;
@@ -301,12 +298,19 @@ public class CAConfigurator extends Configurator {
                 dnsNames = StringUtils.split(list, ",");
             }
 
-            X509CertImpl certImpl = createRemoteCert(hostname, port, sessionID, profileID, certreq, dnsNames);
-            cert.setCert(certImpl.getEncoded());
+            certImpl = createRemoteCert(hostname, port, sessionID, profileID, certreq, dnsNames);
 
         } else {
-            generateLocalCert(keyPair, cert);
+            String certType = cert.getType();
+            certImpl = createLocalCert(tag, keyPair, certType, profileID, certreq);
         }
+
+        if (tag.equals("subsystem")) {
+            logger.debug("CAConfigurator: creating subsystem user");
+            setupSubsystemUser(certImpl);
+        }
+
+        cert.setCert(certImpl.getEncoded());
     }
 
     public Cert setupCert(CertificateSetupRequest request) throws Exception {
