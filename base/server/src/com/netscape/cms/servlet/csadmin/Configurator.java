@@ -719,6 +719,7 @@ public class Configurator {
 
     public void loadCert(Cert cert, X509Certificate x509Cert) throws Exception {
 
+        String type = cs.getType();
         String tag = cert.getCertTag();
         logger.info("Configurator: Loading existing " + tag + " certificate");
 
@@ -731,8 +732,7 @@ public class Configurator {
 
         logger.info("Configurator: Loading existing " + tag + " cert request");
 
-        String subsystem = cert.getSubsystem();
-        String certreqStr = cs.getString(subsystem + "." + tag + ".certreq");
+        String certreqStr = cs.getString(type.toLowerCase() + "." + tag + ".certreq");
         logger.debug("Configurator: request: " + certreqStr);
 
         byte[] certreqBytes = CryptoUtil.base64Decode(certreqStr);
@@ -744,6 +744,7 @@ public class Configurator {
             KeyPair keyPair,
             SystemCertData certData) throws Exception {
 
+        String type = cs.getType();
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
         String tag = certData.getTag();
@@ -756,12 +757,10 @@ public class Configurator {
 
         String nickname = preopConfig.getString("cert." + tag + ".nickname");
         String dn = preopConfig.getString("cert." + tag + ".dn");
-        String subsystem = preopConfig.getString("cert." + tag + ".subsystem");
-        String type = preopConfig.getString("cert." + tag + ".type");
+        String certType = preopConfig.getString("cert." + tag + ".type");
 
         Cert cert = new Cert(tokenName, nickname, tag);
-        cert.setSubsystem(subsystem);
-        cert.setType(type);
+        cert.setType(certType);
 
         String fullName;
         if (!CryptoUtil.isInternalToken(tokenName)) {
@@ -787,9 +786,9 @@ public class Configurator {
         // For external/standalone KRA/OCSP case, all system certs will be provided.
         // No system certs will be generated including the SSL server cert.
 
-        if ("ca".equals(subsystem) && request.isExternal() && !tag.equals("sslserver") && x509Cert != null
-                || "kra".equals(subsystem) && (request.isExternal() || request.getStandAlone())
-                || "ocsp".equals(subsystem) && (request.isExternal()  || request.getStandAlone())) {
+        if (type.equals("CA") && request.isExternal() && !tag.equals("sslserver") && x509Cert != null
+                || type.equals("KRA") && (request.isExternal() || request.getStandAlone())
+                || type.equals("OCSP") && (request.isExternal() || request.getStandAlone())) {
 
             loadCert(cert, x509Cert);
 
@@ -799,14 +798,14 @@ public class Configurator {
 
             String certreq = CryptoUtil.base64Encode(cert.getRequest());
             logger.debug("Configurator: request: " + certreq);
-            cs.putString(subsystem + "." + tag + ".certreq", certreq);
+            cs.putString(type.toLowerCase() + "." + tag + ".certreq", certreq);
 
             logger.info("Configurator: Generating " + tag + " certificate");
             generateCert(request, keyPair, cert);
 
             String certStr = CryptoUtil.base64Encode(cert.getCert());
             logger.debug("Configurator: cert: " + certStr);
-            cs.putString(subsystem + "." + tag + ".cert", certStr);
+            cs.putString(type.toLowerCase() + "." + tag + ".cert", certStr);
         }
 
         logger.debug("Configurator.importCert(" + tag + ")");
@@ -824,7 +823,7 @@ public class Configurator {
         logger.debug("Configurator: importing " + tag + " cert");
         x509Cert = CryptoUtil.importUserCertificate(cert.getCert(), nickname);
 
-        if (tag.equals("signing") && subsystem.equals("ca")) { // set trust flags to CT,C,C
+        if (tag.equals("signing") && type.equals("CA")) { // set trust flags to CT,C,C
             CryptoUtil.trustCACert(x509Cert);
 
         } else if (tag.equals("audit_signing")) { // set trust flags to u,u,Pu

@@ -33,7 +33,6 @@ public class Cert {
     private String mCustomCurvename = "";
     private boolean mEnable = true;
     private boolean mSigningRequired = false;
-    private String mSubsystem = "";
 
     public Cert(String tokenName, String nickName, String certTag) {
         mTokenname = tokenName;
@@ -63,14 +62,6 @@ public class Cert {
 
     public String getNickname() {
         return mNickname;
-    }
-
-    public void setSubsystem(String s) {
-        mSubsystem = s;
-    }
-
-    public String getSubsystem() {
-        return mSubsystem;
     }
 
     public String getUserFriendlyName() {

@@ -295,10 +295,10 @@ public class CAConfigurator extends Configurator {
     public Cert setupCert(CertificateSetupRequest request) throws Exception {
         Cert cert = super.setupCert(request);
 
-        String subsystem = cert.getSubsystem();
+        String type = cs.getType();
         String tag = request.getTag();
 
-        if (subsystem.equals("ca") && tag.equals("signing")) {
+        if (type.equals("CA") && tag.equals("signing")) {
             logger.info("CAConfigurator: Initializing CA with signing cert");
 
             CAEngine engine = CAEngine.getInstance();
