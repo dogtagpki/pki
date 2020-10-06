@@ -57,6 +57,10 @@ olcAttributeTypes: ( 2.16.840.1.113730.5.2.1.16 NAME 'acmeCertificateId'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   EQUALITY caseExactMatch
   SINGLE-VALUE )
+olcAttributeTypes: ( 2.16.840.1.113730.5.2.1.17 NAME 'acmeEnabled'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  EQUALITY booleanMatch
+  SINGLE-VALUE )
 olcObjectClasses: ( 2.16.840.1.113730.5.2.2.1 NAME 'acmeNonce'
   STRUCTURAL
   MUST ( acmeNonceId $ acmeCreated $ acmeExpires ) )

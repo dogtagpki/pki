@@ -66,6 +66,7 @@ public class LDAPDatabase extends ACMEDatabase {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPDatabase.class);
 
+    static final String RDN_CONFIG = "ou=config";
     static final String RDN_NONCE = "ou=nonces";
     static final String RDN_ACCOUNT = "ou=accounts";
     static final String RDN_ORDER = "ou=orders";
@@ -91,6 +92,7 @@ public class LDAPDatabase extends ACMEDatabase {
     static final String ATTR_TOKEN = "acmeToken";
     static final String ATTR_USER_CERTIFICATE = "userCertificate;binary";
     static final String ATTR_VALIDATED_AT = "acmeValidatedAt";
+    static final String ATTR_ENABLED = "acmeEnabled";
 
     static final String OBJ_ACCOUNT = "acmeAccount";
     static final String OBJ_AUTHORIZATION = "acmeAuthorization";
@@ -116,6 +118,9 @@ public class LDAPDatabase extends ACMEDatabase {
     String baseDN;
 
     LdapBoundConnFactory connFactory = null;
+
+    Boolean enabled;
+    LDAPConfigMonitor monitor;
 
     public void init() throws Exception {
 
@@ -227,6 +232,57 @@ public class LDAPDatabase extends ACMEDatabase {
 
         connFactory = new LdapBoundConnFactory("acme");
         connFactory.init(socketConfig, ldapConfig, ps);
+
+        String monitorEnabled = config.getParameter("monitor.enabled");
+        logger.info("- monitor enabled: " + monitorEnabled);
+
+        if ("true".equals(monitorEnabled)) {
+            monitor = new LDAPConfigMonitor(this);
+            new Thread(monitor, "LDAPDatabaseMonitor").start();
+        }
+    }
+
+    public Boolean getEnabled() throws Exception {
+
+        // If monitor is not enabled, get config from database on each request.
+        // Otherwise, return the config stored in memory which is updated by
+        // LDAPConfigMonitor.
+
+        if (monitor == null) {
+
+            String dn = RDN_CONFIG + "," + baseDN;
+            LDAPEntry entry = ldapGet(dn);
+            LDAPAttribute acmeEnabled = entry.getAttribute(ATTR_ENABLED);
+
+            if (acmeEnabled == null) {
+                enabled = null;
+            } else {
+                String value = acmeEnabled.getStringValueArray()[0];
+                enabled = Boolean.parseBoolean(value);
+            }
+        }
+
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) throws Exception {
+
+        // always update config both in database and memory
+
+        String dn = RDN_CONFIG + "," + baseDN;
+
+        LDAPModificationSet mods = new LDAPModificationSet();
+        if (enabled == null) {
+            LDAPAttribute acmeEnabled = new LDAPAttribute(ATTR_ENABLED);
+            mods.add(LDAPModification.DELETE, acmeEnabled);
+        } else {
+            LDAPAttribute acmeEnabled = new LDAPAttribute(ATTR_ENABLED, enabled ? "TRUE" : "FALSE");
+            mods.add(LDAPModification.REPLACE, acmeEnabled);
+        }
+
+        ldapModify(dn, mods);
+
+        this.enabled = enabled;
     }
 
     public ACMENonce getNonce(String nonceID) throws Exception {
@@ -892,7 +948,6 @@ public class LDAPDatabase extends ACMEDatabase {
         }
     }
 
-
     /* LOW LEVEL LDAP METHODS */
 
     void ldapAdd(LDAPEntry entry) throws Exception {
@@ -1001,5 +1056,11 @@ public class LDAPDatabase extends ACMEDatabase {
         }
 
         return l;
+    }
+
+    public void close() throws Exception {
+        if (monitor != null) {
+            monitor.stop();
+        }
     }
 }

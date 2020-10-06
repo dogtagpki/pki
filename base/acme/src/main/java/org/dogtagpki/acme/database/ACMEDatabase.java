@@ -37,6 +37,14 @@ public abstract class ACMEDatabase {
     public void close() throws Exception {
     }
 
+    public Boolean getEnabled() throws Exception {
+        return null;
+    }
+
+    public void setEnabled(Boolean enabled) throws Exception {
+        // ignore
+    }
+
     public abstract void addNonce(ACMENonce nonce) throws Exception;
     public abstract ACMENonce removeNonce(String nonceID) throws Exception;
     public abstract void removeExpiredNonces(Date currentTime) throws Exception;
