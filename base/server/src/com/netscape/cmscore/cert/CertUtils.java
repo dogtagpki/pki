@@ -1095,34 +1095,6 @@ public class CertUtils {
         cr.addCertificateRecord(record);
     }
 
-    public static void createCertRecord(
-            IRequest request,
-            CertInfoProfile profile,
-            X509Certificate cert) throws Exception {
-
-        X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
-        createCertRecord(request, profile, certImpl);
-    }
-
-    public static X509CertImpl createLocalCert(
-            IRequest req,
-            CertInfoProfile profile,
-            X509CertInfo info,
-            java.security.PrivateKey signingPrivateKey,
-            String caSigningKeyAlgo) throws Exception {
-
-        profile.populate(req, info);
-
-        X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, caSigningKeyAlgo);
-
-        createCertRecord(req, profile, cert);
-
-        // update request with cert
-        req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
-
-        return cert;
-    }
-
     public static X509CertImpl createRemoteCert(
             PKIClient client,
             MultivaluedMap<String, String> content)
