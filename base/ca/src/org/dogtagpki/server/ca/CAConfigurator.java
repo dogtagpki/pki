@@ -64,41 +64,6 @@ public class CAConfigurator extends Configurator {
         super(engine);
     }
 
-    public IRequest createRequest(
-            String tag,
-            CertInfoProfile profile,
-            X509Key x509key,
-            X509CertInfo info) throws Exception {
-
-        logger.debug("CAConfigurator: Creating request for " + tag + " certificate");
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
-        IRequestQueue queue = ca.getRequestQueue();
-
-        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        String[] sanHostnames = null;
-
-        if (tag.equals("sslserver") && injectSAN) {
-            String value = cs.getString("service.sslserver.san");
-            sanHostnames = StringUtils.split(value, ",");
-        }
-
-        boolean installAdjustValidity = !tag.equals("signing");
-
-        IRequest req = queue.newRequest("enrollment");
-
-        CertUtils.initLocalRequest(
-                req,
-                profile,
-                info,
-                x509key,
-                sanHostnames,
-                installAdjustValidity);
-
-        return req;
-    }
-
     /**
      * Update local cert request with the actual request.
      */
@@ -172,7 +137,25 @@ public class CAConfigurator extends Configurator {
         X509CertImpl certImpl = new X509CertImpl(bytes);
         X509CertInfo info = certImpl.getInfo();
 
-        IRequest req = createRequest(tag, profile, x509key, info);
+        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+        String[] sanHostnames = null;
+
+        if (tag.equals("sslserver") && injectSAN) {
+            String value = cs.getString("service.sslserver.san");
+            sanHostnames = StringUtils.split(value, ",");
+        }
+
+        boolean installAdjustValidity = !tag.equals("signing");
+
+        IRequest req = queue.newRequest("enrollment");
+
+        CertUtils.initLocalRequest(
+                req,
+                profile,
+                info,
+                x509key,
+                sanHostnames,
+                installAdjustValidity);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, certImpl);
 
@@ -229,7 +212,26 @@ public class CAConfigurator extends Configurator {
         String configurationRoot = cs.getString("configurationRoot");
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileID);
 
-        IRequest req = createRequest(tag, profile, x509key, info);
+        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+        String[] sanHostnames = null;
+
+        if (tag.equals("sslserver") && injectSAN) {
+            String value = cs.getString("service.sslserver.san");
+            sanHostnames = StringUtils.split(value, ",");
+        }
+
+        boolean installAdjustValidity = !tag.equals("signing");
+
+        IRequest req = queue.newRequest("enrollment");
+
+        CertUtils.initLocalRequest(
+                req,
+                profile,
+                info,
+                x509key,
+                sanHostnames,
+                installAdjustValidity);
+
         profile.populate(req, info);
 
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
