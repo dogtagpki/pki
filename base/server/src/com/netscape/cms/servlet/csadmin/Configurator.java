@@ -625,10 +625,9 @@ public class Configurator {
         return nickname;
     }
 
-    public void generateCertRequest(KeyPair keyPair, Cert cert) throws Exception {
+    public byte[] createCertRequest(String tag, KeyPair keyPair) throws Exception {
 
-        String tag = cert.getCertTag();
-        logger.info("Configurator: Generating request for " + tag + " certificate");
+        logger.info("Configurator: Creating request for " + tag + " certificate");
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -664,8 +663,7 @@ public class Configurator {
                 algorithm,
                 exts);
 
-        byte[] certReqb = certReq.toByteArray();
-        cert.setRequest(certReqb);
+        return certReq.toByteArray();
     }
 
     /*
@@ -793,10 +791,10 @@ public class Configurator {
             loadCert(cert, x509Cert);
 
         } else {
-            logger.info("Configurator: Generating request for " + tag + " certificate");
-            generateCertRequest(keyPair, cert);
+            byte[] binCertRequest = createCertRequest(tag, keyPair);
+            cert.setRequest(binCertRequest);
 
-            String certreq = CryptoUtil.base64Encode(cert.getRequest());
+            String certreq = CryptoUtil.base64Encode(binCertRequest);
             logger.debug("Configurator: request: " + certreq);
             cs.putString(type.toLowerCase() + "." + tag + ".certreq", certreq);
 
