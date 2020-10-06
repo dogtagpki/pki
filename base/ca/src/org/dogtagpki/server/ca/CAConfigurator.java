@@ -107,10 +107,6 @@ public class CAConfigurator extends Configurator {
 
         logger.info("CAConfigurator: Updating request " + req.getRequestId());
 
-        CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
-        IRequestQueue queue = ca.getRequestQueue();
-
         if (subjectName != null) {
             logger.debug("CAConfigurator: - subject: " + subjectName);
             req.setExtData("subject", subjectName);
@@ -126,8 +122,6 @@ public class CAConfigurator extends Configurator {
             logger.debug("CAConfigurator: - request:\n" + pemCertreq);
             req.setExtData("cert_request", pemCertreq);
         }
-
-        queue.updateRequest(req);
     }
 
     @Override
@@ -160,6 +154,7 @@ public class CAConfigurator extends Configurator {
 
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
+        IRequestQueue queue = ca.getRequestQueue();
 
         String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
@@ -176,14 +171,10 @@ public class CAConfigurator extends Configurator {
         IRequest req = createRequest(tag, profile, x509key, info);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, certImpl);
-        req.setExtData("cert_request", certreq);
-        req.setExtData("cert_request_type", "pkcs10");
-
-        IRequestQueue queue = ca.getRequestQueue();
-        queue.updateRequest(req);
 
         // update the locally created request for renewal
         updateLocalRequest(req, certreq, "pkcs10", null);
+        queue.updateRequest(req);
 
         CertUtils.createCertRecord(req, profile, certImpl);
     }
@@ -241,10 +232,10 @@ public class CAConfigurator extends Configurator {
         CertUtils.createCertRecord(req, profile, cert);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
-        queue.updateRequest(req);
 
         // update the locally created request for renewal
         updateLocalRequest(req, certreq, "pkcs10", null);
+        queue.updateRequest(req);
 
         return cert;
     }
@@ -359,6 +350,7 @@ public class CAConfigurator extends Configurator {
 
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
+        IRequestQueue queue = ca.getRequestQueue();
 
         java.security.PrivateKey signingPrivateKey = ca.getSigningUnit().getPrivateKey();
         String signingAlgorithm;
@@ -376,9 +368,6 @@ public class CAConfigurator extends Configurator {
 
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
 
-        // cfu - create request to enable renewal
-        IRequestQueue queue = ca.getRequestQueue();
-
         IRequest req = CertUtils.createLocalRequest(
                 queue,
                 profile,
@@ -393,10 +382,10 @@ public class CAConfigurator extends Configurator {
         CertUtils.createCertRecord(req, profile, cert);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
-        queue.updateRequest(req);
 
         // update the locally created request for renewal
         updateLocalRequest(req, binRequest, certRequestType, subject);
+        queue.updateRequest(req);
 
         return cert;
     }
