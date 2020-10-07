@@ -1,4 +1,4 @@
-# pkispawn 8 "December 13, 2012" PKI "PKI Instance Creation Utility"
+# pkispawn 8 "September 30, 2020" PKI "PKI Instance Creation Utility"
 
 ## NAME
 
@@ -16,7 +16,7 @@ Sets up a PKI subsystem (CA, KRA, OCSP, TKS, or TPS) in a Tomcat instance.
 A 389 Directory Server instance must be configured and running before this script can be run.
 PKI server requires an internal directory database.
 The default configuration assumes a Directory Server instance running on the same machine on port 389.
-For more information on creating a Directory Server instance, see **setup-ds.pl(8)**.
+For more information on creating a Directory Server instance, see **dscreate(8)**.
 
 An instance can contain multiple subsystems, although it may contain at most one of each type of subsystem on a single machine.
 So, for example, an instance could contain CA and KRA subsystems, but not two CA subsystems.
@@ -46,7 +46,7 @@ The **pkispawn** run creates several different installation files that can be re
 
 * For Tomcat-based instances, a Tomcat instance is created at /var/lib/pki/*pki_instance_name*, where **pki_instance_name** is defined in the configuration file.
 * A log file of **pkispawn** operations is written to /var/log/pki/pki-*subsystem*-spawn.*timestamp*.log.
-* A .p12 (PKCS #12) file containing a certificate for a subsystem administrator is stored in **pki_client_dir**.
+* A .p12 (PKCS #12) file containing a certificate for a subsystem administrator is stored in **pki_client_dir** defined in the configuration file.
 
 When the utility is done running, the CA can be accessed by pointing a browser to https://*hostname*:*pki_https_port*/.
 The agent pages can be accessed by importing the CA certificate and administrator certificate into the browser.
@@ -1344,7 +1344,13 @@ self-signed certificate in the Directory Server which requires an Admin Server.
 Directory Server and Admin Server instances can be created with the following command:
 
 ```
-$ setup-ds.pl
+$ dscreate interactive
+```
+
+Stop the Directory Server instance:
+
+```
+$ systemctl stop dirsrv@pki.service
 ```
 
 Enable LDAPS in the Directory Server with the following command:
@@ -1441,13 +1447,13 @@ $ systemctl status pki-tomcatd@<pki_instance_name>.service
 To obtain a detailed status of a Tomcat PKI instance named &lt;pki_instance_name&gt;:
 
 ```
-$ pkidaemon status tomcat <pki_instance_name>
+$ pki-server status <pki_instance_name>
 ```
 
 To obtain a detailed status of all Tomcat PKI instances:
 
 ```
-$ pkidaemon status tomcat
+$ pki-server status
 ```
 
 ## SEE ALSO
@@ -1455,14 +1461,14 @@ $ pkidaemon status tomcat
 **pkidestroy(8)**  
 **pki_default.cfg(5)**  
 **pki(1)**  
-**setup-ds.pl(8)**  
+**dscreate(8)**  
 
 ## AUTHORS
 
-Ade Lee <alee@redhat.com>.
+Ade Lee &lt;alee@redhat.com&gt; and Dinesh Prasanth M K &lt;dmoluguw@redhat.com&gt;
 
 ## COPYRIGHT
 
-Copyright (c) 2012 Red Hat, Inc.
+Copyright (c) 2020 Red Hat, Inc.
 This is licensed under the GNU General Public License, version 2 (GPLv2).
 A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
