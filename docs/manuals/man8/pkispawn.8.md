@@ -172,7 +172,7 @@ If successful, the installer will not prompt for these ports.
 ### Administrative User Parameters
 
 **Username:**  
-    The username of the administrator of this subsystem. The default value is &lt;ca/kra/ocsp/tks/tps&gt;admin.
+    The username of the administrator of this subsystem. The default value is \<ca/kra/ocsp/tks/tps>admin.
 
 **Password:**  
     Password for the administrator user.
@@ -181,8 +181,8 @@ If successful, the installer will not prompt for these ports.
     An optional parameter that can be used to import an already available CA admin certificate into this instance.
 
 **Export certificate:**  
-    Setup the path where the admin certificate of this <subsystem> should be stored.
-    The default value is $HOME/.dogtag/pki-tomcat/&lt;ca/kra/ocsp/tks/tps&gt;_admin.cert.
+    Setup the path where the admin certificate of this \<subsystem> should be stored.
+    The default value is $HOME/.dogtag/pki-tomcat/\<ca/kra/ocsp/tks/tps>_admin.cert.
 
 ### Directory Server Parameters
 
@@ -207,7 +207,7 @@ If successful, the installer will not prompt for these ports.
 
 **Base DN:**  
     The Base DN to be used for the internal database for this subsystem.
-    The default value is o=pki-tomcat-<subsystem>.
+    The default value is o=pki-tomcat-\<subsystem>.
 
 **Bind DN:**  
     The bind DN required to connect for the directory server.
@@ -221,7 +221,7 @@ If successful, the installer will not prompt for these ports.
 
 **Name:**  
     The name of the security domain. Required only if installing a root CA.
-    Default value: <DNS domain name> Security Domain.
+    Default value: \<DNS domain name> Security Domain.
 
 **Hostname:**  
     The hostname for the security domain CA. Required only for non-CA subsystems.
@@ -992,13 +992,13 @@ and that their Directory Servers are on port 389.
 
 In addition, since this example does not utilize an HSM, the master's system
 certs and keys have been stored in a PKCS #12 file that is copied over to the
-clone subsystem in the location specified in &lt;path_to_pkcs12_file&gt;.
+clone subsystem in the location specified in \<path_to_pkcs12_file>.
 This file needs to be readable by the user the Certificate Server runs as
 (by default, pkiuser) and be given the SELinux context **pki_tomcat_cert_t**.
 
 The master's system certificates can be exported to a PKCS#12 file when the master is installed
 if the parameter **pki_backup_keys** is set to **True** and the **pki_backup_password** is set.
-The PKCS#12 file is then found under /var/lib/pki/<instance_name>/alias.
+The PKCS#12 file is then found under /var/lib/pki/\<instance_name>/alias.
 Alternatively, the PKCS#12 file can be generated at any time post-installation using **PKCS12Export**.
 
 The **pki_security_domain_post_login_sleep_seconds** config specifies sleep duration after logging into a security domain,
@@ -1339,50 +1339,7 @@ which then must be made available via a PEM file (e.g. $HOME/dscacert.pem) prior
 Once the CA has been created, swap things out to reconfigure the CA and directory server
 to utilize LDAPS through the desired certificates.
 
-The following example demonstrates the steps to generate a temporary
-self-signed certificate in the Directory Server which requires an Admin Server.
-Directory Server and Admin Server instances can be created with the following command:
-
-```
-$ dscreate interactive
-```
-
-Stop the Directory Server instance:
-
-```
-$ systemctl stop dirsrv@pki.service
-```
-
-Enable LDAPS in the Directory Server with the following command:
-
-```
-$ /usr/sbin/setupssl2.sh /etc/dirsrv/slapd-pki 389 636 Secret.123
-```
-
-**Note:**
-The **setupssl2.sh** script may be downloaded from **https://raw.githubusercontent.com/richm/scripts/master/setupssl2.sh**.
-
-Restart the Directory Server with the following command:
-
-```
-$ systemctl restart dirsrv.target
-```
-
-Verify that a client can connect securely over LDAPS with the following command:
-
-```
-$ /usr/lib64/mozldap/ldapsearch -Z -h pki.example.com -p 636 \
-     -D "cn=Directory Manager" -w Secret.123 -b "dc=example, dc=com" "objectclass=*"
-```
-
-**Note:**
-The **mozldap ldapsearch** utility is available from the **mozldap-tools** package.
-
-Export the self-signed CA certificate with the following command:
-
-```
-$ certutil -L -d /etc/dirsrv/slapd-pki -n "CA certificate" -a > $HOME/dscacert.pem
-```
+Set up a Directory Server instance with a self-signed CA certificate (see **dscreate(8)**), then export the certificate into a PEM file
 
 Once the self-signed CA certificate is obtained, add the following parameters
 into the [DEFAULT] section in **myconfig.txt**:
@@ -1396,64 +1353,40 @@ Then execute **pkispawn** to create the CA subsystem.
 
 ### Managing PKI instance
 
-To start all 389 instances (local PKI databases):
-
-```
-$ systemctl start dirsrv.target
-```
-
-To stop all 389 instances (local PKI databases):
-
-```
-$ systemctl stop dirsrv.target
-```
-
-To restart all 389 instances (local PKI databases):
-
-```
-$ systemctl restart dirsrv.target
-```
-
-To obtain the status of all 389 instances (local PKI databases):
-
-```
-$ systemctl status dirsrv.target
-```
-
-To start a PKI instance named &lt;pki_instance_name&gt;:
+To start a PKI instance named \<pki_instance_name>:
 
 ```
 $ systemctl start pki-tomcatd@<pki_instance_name>.service
 ```
 
-To stop a PKI instance named &lt;pki_instance_name&gt;:
+To stop a PKI instance named \<pki_instance_name>:
 
 ```
 $ systemctl stop pki-tomcatd@<pki_instance_name>.service
 ```
 
-To restart a PKI instance named &lt;pki_instance_name&gt;:
+To restart a PKI instance named \<pki_instance_name>:
 
 ```
 $ systemctl restart pki-tomcatd@<pki_instance_name>.service
 ```
 
-To obtain the status of a PKI instance named &lt;pki_instance_name&gt;:
+To obtain the status of a PKI instance named \<pki_instance_name>:
 
 ```
 $ systemctl status pki-tomcatd@<pki_instance_name>.service
 ```
 
-To obtain a detailed status of a Tomcat PKI instance named &lt;pki_instance_name&gt;:
+To obtain a detailed status of a Tomcat PKI instance named \<pki_instance_name>:
 
 ```
 $ pki-server status <pki_instance_name>
 ```
 
-To obtain a detailed status of all Tomcat PKI instances:
+To list all available PKI instances installed on a system:
 
 ```
-$ pki-server status
+$ pki-server instance-find
 ```
 
 ## SEE ALSO
@@ -1465,7 +1398,7 @@ $ pki-server status
 
 ## AUTHORS
 
-Ade Lee &lt;alee@redhat.com&gt; and Dinesh Prasanth M K &lt;dmoluguw@redhat.com&gt;
+Ade Lee \<alee@redhat.com> and Dinesh Prasanth M K \<dmoluguw@redhat.com>
 
 ## COPYRIGHT
 
