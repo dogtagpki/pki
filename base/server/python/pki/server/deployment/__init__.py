@@ -303,7 +303,7 @@ class PKIDeployer:
 
         # Sleep for a bit to allow the install token to replicate to other clones.
         # In the future this can be replaced with signed tokens.
-        # https://pagure.io/dogtagpki/issue/2831
+        # https://github.com/dogtagpki/pki/issues/2951
         #
         # The default sleep time is 5s.
 

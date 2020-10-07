@@ -411,7 +411,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             // other clone was issuing CRLs in the meantime.
             //
             // See also:
-            //   https://pagure.io/dogtagpki/issue/3085
+            //   https://github.com/dogtagpki/pki/issues/3202
             //   https://pagure.io/freeipa/issue/7815
             //
             mInitialized = CRLIssuingPointStatus.NotInitialized;
