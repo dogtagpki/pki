@@ -697,24 +697,17 @@ public class Configurator {
     public void loadCert(String tag, byte[] certreq, X509Certificate x509Cert) throws Exception {
     }
 
-    public Cert processCert(
-            String tag,
+    public void processCert(
             CertificateSetupRequest request,
-            String tokenName,
+            Cert cert,
+            String certType,
             KeyPair keyPair,
             X509Certificate x509Cert) throws Exception {
 
+        String tag = cert.getCertTag();
         String type = cs.getType();
-        PreOpConfig preopConfig = cs.getPreOpConfig();
 
         logger.info("Configurator: Processing " + tag + " certificate");
-
-        String nickname = preopConfig.getString("cert." + tag + ".nickname");
-
-        // cert type is selfsign, local, or remote
-        String certType = preopConfig.getString("cert." + tag + ".type");
-
-        Cert cert = new Cert(tokenName, nickname, tag);
 
         // For external/existing CA case, some/all system certs may be provided.
         // The SSL server cert will always be generated for the current host.
@@ -753,22 +746,24 @@ public class Configurator {
             String certStr = CryptoUtil.base64Encode(cert.getCert());
             logger.debug("Configurator: cert: " + certStr);
             cs.putString(type.toLowerCase() + "." + tag + ".cert", certStr);
+
+            cs.commit(false);
         }
 
         logger.debug("Configurator.importCert(" + tag + ")");
 
         if (tag.equals("sslserver")) {
             logger.info("Configurator: temporary SSL server cert will be replaced on restart");
-            return cert;
+            return;
         }
 
         if (x509Cert != null) {
             logger.debug("Configurator: deleting existing " + tag + " cert");
-            CertUtil.deleteCert(tokenName, x509Cert);
+            CertUtil.deleteCert(cert.getTokenname(), x509Cert);
         }
 
         logger.debug("Configurator: importing " + tag + " cert");
-        x509Cert = CryptoUtil.importUserCertificate(cert.getCert(), nickname);
+        x509Cert = CryptoUtil.importUserCertificate(cert.getCert(), cert.getNickname());
 
         if (tag.equals("signing") && type.equals("CA")) { // set trust flags to CT,C,C
             CryptoUtil.trustCACert(x509Cert);
@@ -777,8 +772,6 @@ public class Configurator {
             CryptoUtil.trustAuditSigningCert(x509Cert);
 
         } // user certs will have u,u,u by default
-
-        return cert;
     }
 
     public Cert setupCert(CertificateSetupRequest request) throws Exception {
@@ -798,12 +791,17 @@ public class Configurator {
 
         logger.debug("Configurator: token: " + tokenName);
 
+        // cert type is selfsign, local, or remote
+        String certType = preopConfig.getString("cert." + tag + ".type");
+        logger.debug("Configurator: cert type: " + certType);
+
         String fullName = nickname;
         if (!CryptoUtil.isInternalToken(tokenName)) {
             fullName = tokenName + ":" + nickname;
         }
 
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+        Cert cert = new Cert(tokenName, nickname, tag);
 
         X509Certificate x509Cert;
         KeyPair keyPair;
@@ -825,10 +823,7 @@ public class Configurator {
             keyPair = createKeyPair(tag, token, keyType, keySize);
         }
 
-        Cert cert = processCert(tag, request, tokenName, keyPair, x509Cert);
-
-        // make sure to commit changes here for step 1
-        cs.commit(false);
+        processCert(request, cert, certType, keyPair, x509Cert);
 
         return cert;
     }
