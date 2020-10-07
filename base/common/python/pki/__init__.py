@@ -85,7 +85,7 @@ ATTR_NAME_BY_OID = {
     cryptography.x509.ObjectIdentifier('0.9.2342.19200300.100.1.1'): 'UID',
 }
 
-# Retry-able connection errors, see https://pagure.io/dogtagpki/issue/2973
+# Retry-able connection errors, see https://github.com/dogtagpki/pki/issues/3091
 RETRYABLE_EXCEPTIONS = (
     requests.exceptions.ConnectionError,  # connection failed
     requests.exceptions.Timeout,  # connection or read time out

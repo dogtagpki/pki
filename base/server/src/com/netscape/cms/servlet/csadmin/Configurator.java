@@ -184,7 +184,7 @@ public class Configurator {
 
         /* Sleep for a bit to allow security domain session to replicate
          * to other clones.  In the future we can use signed tokens
-         * (ticket https://pagure.io/dogtagpki/issue/2831) but we need to
+         * (ticket https://github.com/dogtagpki/pki/issues/2951) but we need to
          * be mindful of working with older versions, too.
          *
          * The default sleep time is 5s.
