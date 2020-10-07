@@ -1030,9 +1030,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finalize_config_request.installToken = deployer.install_token
         client.finalizeConfiguration(finalize_config_request)
 
+        subsystem.load()
+
         if subsystem.type == 'TPS':
             logger.info('Setting up shared secret')
             deployer.setup_shared_secret(instance, subsystem)
+
+        deployer.finalize_subsystem(subsystem)
 
         logger.info('%s configuration complete', subsystem.type)
 

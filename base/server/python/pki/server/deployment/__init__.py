@@ -605,3 +605,22 @@ class PKIDeployer:
         if config.str2bool(self.mdict['pki_import_shared_secret']):
             logger.info('Importing shared secret')
             self.import_shared_secret(instance, subsystem, shared_secret)
+
+    def finalize_subsystem(self, subsystem):
+
+        if subsystem.type != 'CA':
+            ca_type = subsystem.config.get('preop.ca.type')
+            if ca_type:
+                subsystem.config['cloning.ca.type'] = ca_type
+
+        # save EC type for sslserver cert (if present)
+        ec_type = subsystem.config.get('preop.cert.sslserver.ec.type', 'ECDHE')
+        subsystem.config['jss.ssl.sslserver.ectype'] = ec_type
+
+        for key in list(subsystem.config.keys()):
+            if key.startswith('preop.'):
+                del subsystem.config[key]
+
+        subsystem.config['cs.state'] = '1'
+
+        subsystem.save()

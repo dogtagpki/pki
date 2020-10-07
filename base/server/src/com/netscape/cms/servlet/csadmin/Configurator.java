@@ -1591,28 +1591,6 @@ public class Configurator {
      * @throws EBaseException
      */
     public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String type = cs.getType();
-
-        // more cloning variables needed for non-ca clones
-
-        if (!type.equals("CA")) {
-
-            String val = preopConfig.getString("ca.type", "");
-            if (val.length() != 0) {
-                cs.putString("cloning.ca.type", val);
-            }
-        }
-
-        // save EC type for sslserver cert (if present)
-        String ecType = preopConfig.getString("cert.sslserver.ec.type", "ECDHE");
-        cs.putString("jss.ssl.sslserver.ectype", ecType);
-
-        cs.removeSubStore("preop");
-        cs.setState(1);
-
         cs.commit(false);
     }
 
