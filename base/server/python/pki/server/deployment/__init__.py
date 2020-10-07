@@ -536,12 +536,7 @@ class PKIDeployer:
         else:
             return None
 
-    def import_shared_secret(self, instance, subsystem, shared_secret):
-
-        hostname = self.mdict['pki_hostname']
-
-        server_config = instance.get_server_config()
-        securePort = server_config.get_secure_port()
+    def import_shared_secret(self, instance, subsystem, secret_nickname, shared_secret):
 
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
 
@@ -550,8 +545,6 @@ class PKIDeployer:
 
         if pki.nssdb.normalize_token(token):
             nickname = token + ':' + nickname
-
-        secret_nickname = 'TPS-%s-%s sharedSecret' % (hostname, securePort)
 
         cmd = [
             'pki',
@@ -577,6 +570,13 @@ class PKIDeployer:
 
         # TODO: Clean up the code and determine whether TKS and TPS are in the same
         # instance automatically.
+
+        hostname = self.mdict['pki_hostname']
+
+        server_config = instance.get_server_config()
+        securePort = server_config.get_secure_port()
+
+        secret_nickname = 'TPS-%s-%s sharedSecret' % (hostname, securePort)
 
         logger.info('Searching for TPS connector in TKS')
         tps_connector = self.get_tps_connector(instance, subsystem)
@@ -604,7 +604,10 @@ class PKIDeployer:
 
         if config.str2bool(self.mdict['pki_import_shared_secret']):
             logger.info('Importing shared secret')
-            self.import_shared_secret(instance, subsystem, shared_secret)
+            self.import_shared_secret(instance, subsystem, secret_nickname, shared_secret)
+
+        subsystem.config['conn.tks1.tksSharedSymKeyName'] = secret_nickname
+        subsystem.save()
 
     def finalize_subsystem(self, subsystem):
 

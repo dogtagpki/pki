@@ -170,16 +170,6 @@ public class TPSConfigurator extends Configurator {
             }
         }
 
-        try {
-            logger.info("TPSConfigurator: Generating shared secret in TKS");
-            getSharedSecret(tksURI.getHost(), tksURI.getPort());
-
-        } catch (Exception e) {
-            String message = "Unable to generate shared secret in TKS: " + e.getMessage();
-            logger.error(message, e);
-            throw new PKIException(message, e);
-        }
-
         super.finalizeConfiguration(request);
     }
 
@@ -263,15 +253,5 @@ public class TPSConfigurator extends Configurator {
         }
 
         logger.debug("TPSConfigurator: Successfully added transport cert to " + targetURI);
-    }
-
-    public void getSharedSecret(String tksHost, int tksPort) throws Exception {
-
-        String host = cs.getString("service.machineName");
-        String port = cs.getString("service.securePort");
-        String nick = "TPS-" + host + "-" + port + " sharedSecret";
-
-        cs.putString("conn.tks1.tksSharedSymKeyName", nick);
-        cs.commit(false);
     }
 }
