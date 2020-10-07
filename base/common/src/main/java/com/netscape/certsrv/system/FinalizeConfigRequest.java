@@ -71,9 +71,6 @@ public class FinalizeConfigRequest {
     @XmlElement(defaultValue="false")
     protected String enableServerSideKeyGen;
 
-    @XmlElement(defaultValue="false")
-    protected String importSharedSecret;
-
     @XmlElement
     protected String startingCRLNumber;
 
@@ -183,14 +180,6 @@ public class FinalizeConfigRequest {
         this.enableServerSideKeyGen = enableServerSideKeyGen;
     }
 
-    public String getImportSharedSecret() {
-        return importSharedSecret;
-    }
-
-    public void setImportSharedSecret(String importSharedSecret) {
-        this.importSharedSecret = importSharedSecret;
-    }
-
     public String getStartingCRLNumber() {
         return startingCRLNumber;
     }
@@ -226,7 +215,6 @@ public class FinalizeConfigRequest {
                ", kraUri=" + kraUri +
                ", tksUri=" + tksUri +
                ", enableServerSideKeyGen=" + enableServerSideKeyGen +
-               ", importSharedSecret=" + importSharedSecret +
                ", startingCrlNumber=" + startingCRLNumber +
                ", createSigningCertRecord=" + createSigningCertRecord +
                ", signingCertSerialNumber=" + signingCertSerialNumber +

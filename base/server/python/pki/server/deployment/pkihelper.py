@@ -3148,8 +3148,6 @@ class ConfigClient:
         if config.str2bool(self.mdict['pki_enable_server_side_keygen']):
             data.kraUri = self.mdict['pki_kra_uri']
 
-        data.importSharedSecret = self.mdict['pki_import_shared_secret']
-
     def create_system_cert(self, tag):
         cert = pki.system.SystemCertData()
         cert.tag = self.mdict["pki_%s_tag" % tag]

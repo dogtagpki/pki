@@ -171,19 +171,8 @@ public class TPSConfigurator extends Configurator {
         }
 
         try {
-            String doImportStr = request.getImportSharedSecret();
-            logger.debug("TPSConfigurator: importSharedSecret:" + doImportStr);
-
-            boolean doImport = false;
-            if ("true".equalsIgnoreCase(doImportStr)) {
-                doImport = true;
-            }
-
             logger.info("TPSConfigurator: Generating shared secret in TKS");
-            getSharedSecret(
-                    tksURI.getHost(),
-                    tksURI.getPort(),
-                    doImport);
+            getSharedSecret(tksURI.getHost(), tksURI.getPort());
 
         } catch (Exception e) {
             String message = "Unable to generate shared secret in TKS: " + e.getMessage();
@@ -276,7 +265,7 @@ public class TPSConfigurator extends Configurator {
         logger.debug("TPSConfigurator: Successfully added transport cert to " + targetURI);
     }
 
-    public void getSharedSecret(String tksHost, int tksPort, boolean importKey) throws Exception {
+    public void getSharedSecret(String tksHost, int tksPort) throws Exception {
 
         String host = cs.getString("service.machineName");
         String port = cs.getString("service.securePort");
