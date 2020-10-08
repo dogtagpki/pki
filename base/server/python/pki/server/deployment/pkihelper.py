@@ -2742,12 +2742,6 @@ class ConfigClient:
         # CA parameters
         if self.subsystem == 'CA':
             request.startingCRLNumber = self.mdict['pki_ca_starting_crl_number']
-            request.createSigningCertRecord = (
-                self.mdict['pki_ca_signing_record_create'].lower()
-            )
-            request.signingCertSerialNumber = (
-                self.mdict['pki_ca_signing_serial_number'].lower()
-            )
 
         # TPS parameters
         if self.subsystem == 'TPS':

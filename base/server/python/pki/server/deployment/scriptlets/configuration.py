@@ -1032,6 +1032,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem.load()
 
+        if subsystem.type == 'CA':
+
+            # Delete CA signing cert record to avoid migration conflict
+            if not config.str2bool(deployer.mdict['pki_ca_signing_record_create']):
+                logger.info('Deleting CA signing cert record')
+                serial_number = deployer.mdict['pki_ca_signing_serial_number']
+                subsystem.remove_cert(serial_number)
+
         if subsystem.type == 'TPS':
             logger.info('Setting up shared secret')
             deployer.setup_shared_secret(instance, subsystem)

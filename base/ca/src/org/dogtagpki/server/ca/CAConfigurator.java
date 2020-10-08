@@ -35,7 +35,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -50,13 +49,7 @@ import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmscore.ldapconn.LDAPConfig;
-import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
 
 public class CAConfigurator extends Configurator {
 
@@ -453,19 +446,6 @@ public class CAConfigurator extends Configurator {
             throw new PKIException("Unable to enable profile subsystem: " + e.getMessage(), e);
         }
 
-        if (! request.createSigningCertRecord()) {
-            // This is the migration case.  In this case, we will delete the
-            // record that was created during the install process.
-
-            try {
-                String serialNumber = request.getSigningCertSerialNumber();
-                deleteSigningRecord(serialNumber);
-            } catch (Exception e) {
-                logger.error("Unable to delete signing cert record: " + e.getMessage(), e);
-                throw new PKIException("Unable to delete signing cert record: " + e.getMessage(), e);
-            }
-        }
-
         super.finalizeConfiguration(request);
     }
 
@@ -507,34 +487,5 @@ public class CAConfigurator extends Configurator {
     public void configureStartingCRLNumber(String startingCrlNumber) {
         logger.debug("CAConfigurator: configuring starting CRL number");
         cs.putString("ca.crl.MasterCRL.startingCrlNumber", startingCrlNumber);
-    }
-
-    public void deleteSigningRecord(String serialNumber) throws EBaseException, LDAPException {
-
-        if (StringUtils.isEmpty(serialNumber)) {
-            throw new PKIException("Missing signing certificate serial number");
-        }
-
-        LDAPConnection conn = null;
-        try {
-            PKISocketConfig socketConfig = cs.getSocketConfig();
-            LDAPConfig dbCfg = cs.getInternalDBConfig();
-            LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAConfigurator");
-            dbFactory.init(socketConfig, dbCfg, engine.getPasswordStore());
-
-            conn = dbFactory.getConn();
-
-            String basedn = dbCfg.getBaseDN();
-            String dn = "cn=" + serialNumber + ",ou=certificateRepository,ou=ca," + basedn;
-
-            conn.delete(dn);
-
-        } finally {
-            try {
-                if (conn != null) conn.disconnect();
-            } catch (LDAPException e) {
-                logger.warn("Unable to release connection: " + e.getMessage(), e);
-            }
-        }
     }
 }
