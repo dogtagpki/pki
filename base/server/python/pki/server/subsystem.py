@@ -1273,6 +1273,40 @@ class CASubsystem(PKISubsystem):
 
         return request
 
+    def enable_subsystem(self, subsystem_id):
+
+        pattern = re.compile(r'subsystem\.(.*)\.id')
+
+        for key in list(self.config.keys()):
+
+            m = pattern.match(key)
+            if not m:
+                continue
+
+            value = self.config[key]
+            if value != subsystem_id:
+                continue
+
+            subsystem_number = m.group(1)
+            self.config['subsystem.%s.enabled' % subsystem_number] = 'true'
+
+    def disable_subsystem(self, subsystem_id):
+
+        pattern = re.compile(r'subsystem\.(.*)\.id')
+
+        for key in list(self.config.keys()):
+
+            m = pattern.match(key)
+            if not m:
+                continue
+
+            value = self.config[key]
+            if value != subsystem_id:
+                continue
+
+            subsystem_number = m.group(1)
+            self.config['subsystem.%s.enabled' % subsystem_number] = 'false'
+
 
 class KRASubsystem(PKISubsystem):
 

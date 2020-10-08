@@ -1034,6 +1034,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if subsystem.type == 'CA':
 
+            logger.info('Enabling profile subsystem')
+            subsystem.enable_subsystem('profile')
+
             # Delete CA signing cert record to avoid migration conflict
             if not config.str2bool(deployer.mdict['pki_ca_signing_record_create']):
                 logger.info('Deleting CA signing cert record')

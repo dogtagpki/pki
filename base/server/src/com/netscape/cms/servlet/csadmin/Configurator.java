@@ -84,8 +84,6 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.apps.ServerXml;
-import com.netscape.cmscore.apps.SubsystemConfig;
-import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -1592,25 +1590,5 @@ public class Configurator {
      */
     public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
         cs.commit(false);
-    }
-
-    /**
-     * Set whether the given subsystem is enabled.
-     *
-     * @param id The subsystem ID.
-     * @param enabled Whether the subsystem is enabled
-     */
-    public void setSubsystemEnabled(String id, boolean enabled) throws EBaseException {
-
-        SubsystemsConfig ssconfig = cs.getSubsystemsConfig();
-
-        for (String ssName : ssconfig.getSubsystemNames()) {
-            SubsystemConfig subsystemConfig = ssconfig.getSubsystemConfig(ssName);
-
-            if (id.equalsIgnoreCase(subsystemConfig.getID())) {
-                subsystemConfig.setEnabled(enabled);
-                break;
-            }
-        }
     }
 }

@@ -439,13 +439,6 @@ public class CAConfigurator extends Configurator {
             throw new PKIException("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
         }
 
-        try {
-            setSubsystemEnabled("profile", true);
-        } catch (Exception e) {
-            logger.error("Unable to enable profile subsystem: " + e.getMessage(), e);
-            throw new PKIException("Unable to enable profile subsystem: " + e.getMessage(), e);
-        }
-
         super.finalizeConfiguration(request);
     }
 
