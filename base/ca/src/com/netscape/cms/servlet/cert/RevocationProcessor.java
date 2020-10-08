@@ -45,7 +45,6 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
@@ -53,6 +52,7 @@ import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * @author Endi S. Dewata
@@ -70,7 +70,7 @@ public class RevocationProcessor extends CertProcessor {
     ICertificateAuthority authority;
     CertificateRepository repo;
     IRequestQueue requestQueue;
-    IPublisherProcessor publisherProcessor;
+    PublisherProcessor publisherProcessor;
 
     String initiative;
     CertId serialNumber;

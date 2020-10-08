@@ -42,7 +42,6 @@ import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.certsrv.publish.ILdapRule;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.publish.IXcertPublisherProcessor;
 import com.netscape.certsrv.publish.MapperPlugin;
 import com.netscape.certsrv.publish.MapperProxy;
@@ -57,10 +56,36 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 
 import netscape.ldap.LDAPConnection;
 
-public class PublisherProcessor implements
-        IPublisherProcessor, IXcertPublisherProcessor {
+/**
+ * Controls the publishing process from the top level. Maintains
+ * a collection of Publishers , Mappers, and Publish Rules.
+ */
+public class PublisherProcessor implements IXcertPublisherProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublisherProcessor.class);
+
+    public final static String PROP_PUBLISH_SUBSTORE = "publish";
+    public final static String PROP_LDAP_PUBLISH_SUBSTORE = "ldappublish";
+    public final static String PROP_QUEUE_PUBLISH_SUBSTORE = "queue";
+
+    public final static String PROP_LOCAL_CA = "cacert";
+    public final static String PROP_LOCAL_CRL = "crl";
+    public final static String PROP_CERTS = "certs";
+    public final static String PROP_XCERT = "xcert";
+
+    public final static String PROP_CLASS = "class";
+    public final static String PROP_IMPL = "impl";
+    public final static String PROP_PLUGIN = "pluginName";
+    public final static String PROP_INSTANCE = "instance";
+
+    public final static String PROP_PREDICATE = "predicate";
+    public final static String PROP_ENABLE = "enable";
+    public final static String PROP_CERT_ENABLE = "cert.enable";
+    public final static String PROP_CRL_ENABLE = "crl.enable";
+    public final static String PROP_LDAP = "ldap";
+    public final static String PROP_MAPPER = "mapper";
+    public final static String PROP_PUBLISHER = "publisher";
+    public final static String PROP_TYPE = "type";
 
     public Hashtable<String, PublisherPlugin> mPublisherPlugins = new Hashtable<String, PublisherPlugin>();
     public Hashtable<String, PublisherProxy> mPublisherInsts = new Hashtable<String, PublisherProxy>();
@@ -69,9 +94,8 @@ public class PublisherProcessor implements
     public Hashtable<String, RulePlugin> mRulePlugins = new Hashtable<String, RulePlugin>();
     public Hashtable<String, ILdapRule> mRuleInsts = new Hashtable<String, ILdapRule>();
 
-    /**
-     * protected PublishRuleSet mRuleSet = null;
-     **/
+    // protected PublishRuleSet mRuleSet;
+
     protected LdapConnModule mLdapConnModule = null;
 
     private IConfigStore mConfig = null;
@@ -347,15 +371,19 @@ public class PublisherProcessor implements
     }
 
     /**
-     * Retrieves LDAP connection module.
-     * <P>
+     * Returns LdapConnModule belonging to this Processor.
      *
-     * @return LDAP connection instance
+     * @return LdapConnModule.
      */
     public ILdapConnModule getLdapConnModule() {
         return mLdapConnModule;
     }
 
+    /**
+     * Sets the LdapConnModule belonging to this Processor.
+     *
+     * @param m ILdapConnModule.
+     */
     public void setLdapConnModule(ILdapConnModule m) {
         mLdapConnModule = (LdapConnModule) m;
     }
@@ -442,32 +470,55 @@ public class PublisherProcessor implements
         }
     }
 
+    /**
+     * Returns Hashtable of rule plugins.
+     */
     public Hashtable<String, RulePlugin> getRulePlugins() {
         return mRulePlugins;
     }
 
+    /**
+     * Returns Hashtable of rule instances.
+     */
     public Hashtable<String, ILdapRule> getRuleInsts() {
         return mRuleInsts;
     }
 
+    /**
+     * Returns Hashtable of mapper plugins.
+     */
     public Hashtable<String, MapperPlugin> getMapperPlugins() {
         return mMapperPlugins;
     }
 
+    /**
+     * Returns Hashtable of publisher plugins.
+     */
     public Hashtable<String, PublisherPlugin> getPublisherPlugins() {
         return mPublisherPlugins;
     }
 
+    /**
+     * Returns Hashtable of rule mapper instances.
+     */
     public Hashtable<String, MapperProxy> getMapperInsts() {
         return mMapperInsts;
     }
 
+    /**
+     * Returns Hashtable of rule publisher instances.
+     */
     public Hashtable<String, PublisherProxy> getPublisherInsts() {
         return mPublisherInsts;
     }
 
-    //certType can be client,server,ca,crl,smime
-    //XXXshould make it static to make it faster
+    /**
+     * Returns list of rules based on publishing type.
+     *
+     * certType can be client,server,ca,crl,smime
+     *
+     * @param publishingType Type for which to retrieve rule list.
+     */
     public Enumeration<ILdapRule> getRules(String publishingType) {
         Vector<ILdapRule> rules = new Vector<ILdapRule>();
         Enumeration<String> e = mRuleInsts.keys();
@@ -505,6 +556,12 @@ public class PublisherProcessor implements
         return rules.elements();
     }
 
+    /**
+     * Returns list of rules based on publishing type and publishing request.
+     *
+     * @param publishingType Type for which to retrieve rule list.
+     * @param req Corresponding publish request.
+     */
     public Enumeration<ILdapRule> getRules(String publishingType, IRequest req) {
         if (req == null) {
             return getRules(publishingType);
@@ -537,13 +594,15 @@ public class PublisherProcessor implements
         return rules.elements();
     }
 
-    /**
-     * public PublishRuleSet getPublishRuleSet()
-     * {
-     * return mRuleSet;
-     * }
-     **/
+    // public PublishRuleSet getPublishRuleSet() {
+    //     return mRuleSet;
+    // }
 
+    /**
+     * Returns mapper initial default parameters.
+     *
+     * @param implName name of MapperPlugin.
+     */
     public Vector<String> getMapperDefaultParams(String implName) throws
             ELdapException {
         // is this a registered implname?
@@ -579,6 +638,12 @@ public class PublisherProcessor implements
         }
     }
 
+    /**
+     * Returns mapper current instance parameters.
+     *
+     * @param insName name of MapperProxy.
+     * @exception ELdapException failed due to Ldap error.
+     */
     public Vector<String> getMapperInstanceParams(String insName) throws
             ELdapException {
         ILdapMapper mapperInst = null;
@@ -596,6 +661,12 @@ public class PublisherProcessor implements
         return v;
     }
 
+    /**
+     * Returns publisher initial default parameters.
+     *
+     * @param implName name of PublisherPlugin.
+     * @exception ELdapException failed due to Ldap error.
+     */
     public Vector<String> getPublisherDefaultParams(String implName) throws
             ELdapException {
         // is this a registered implname?
@@ -631,6 +702,12 @@ public class PublisherProcessor implements
         }
     }
 
+    /**
+     * Returns true if MapperInstance is enabled.
+     *
+     * @param insName name of MapperProxy.
+     * @return true if enabled. false if disabled.
+     */
     public boolean isMapperInstanceEnable(String insName) {
         MapperProxy proxy = mMapperInsts.get(insName);
 
@@ -640,6 +717,12 @@ public class PublisherProcessor implements
         return proxy.isEnable();
     }
 
+    /**
+     * Returns ILdapMapper instance that is currently active.
+     *
+     * @param insName name of MapperProxy.
+     * @return instance of ILdapMapper.
+     */
     public ILdapMapper getActiveMapperInstance(String insName) {
         MapperProxy proxy = mMapperInsts.get(insName);
 
@@ -651,6 +734,12 @@ public class PublisherProcessor implements
             return null;
     }
 
+    /**
+     * Returns ILdapMapper instance based on name of MapperProxy.
+     *
+     * @param insName name of MapperProxy.
+     * @return instance of ILdapMapper.
+     */
     public ILdapMapper getMapperInstance(String insName) {
         MapperProxy proxy = mMapperInsts.get(insName);
 
@@ -659,6 +748,12 @@ public class PublisherProcessor implements
         return proxy.getMapper();
     }
 
+    /**
+     * Returns true publisher instance is currently enabled.
+     *
+     * @param insName name of PublisherProxy.
+     * @return true if enabled.
+     */
     public boolean isPublisherInstanceEnable(String insName) {
         PublisherProxy proxy = mPublisherInsts.get(insName);
 
@@ -668,6 +763,12 @@ public class PublisherProcessor implements
         return proxy.isEnable();
     }
 
+    /**
+     * Returns ILdapPublisher instance that is currently active.
+     *
+     * @param insName name of PublisherProxy.
+     * @return instance of ILdapPublisher.
+     */
     public ILdapPublisher getActivePublisherInstance(String insName) {
         PublisherProxy proxy = mPublisherInsts.get(insName);
 
@@ -680,6 +781,12 @@ public class PublisherProcessor implements
             return null;
     }
 
+    /**
+     * Returns ILdapPublisher instance.
+     *
+     * @param insName name of PublisherProxy.
+     * @return instance of ILdapPublisher.
+     */
     public ILdapPublisher getPublisherInstance(String insName) {
         PublisherProxy proxy = mPublisherInsts.get(insName);
 
@@ -689,6 +796,12 @@ public class PublisherProcessor implements
         return proxy.getPublisher();
     }
 
+    /**
+     * Returns Vector of PublisherIntance's current instance parameters.
+     *
+     * @param insName name of PublisherProxy.
+     * @return Vector of current instance parameters.
+     */
     public Vector<String> getPublisherInstanceParams(String insName) throws
             ELdapException {
         ILdapPublisher publisherInst = getPublisherInstance(insName);
@@ -701,6 +814,13 @@ public class PublisherProcessor implements
         return v;
     }
 
+    /**
+     * Returns Vector of RulePlugin's initial default parameters.
+     *
+     * @param implName name of RulePlugin.
+     * @return Vector of initial default parameters.
+     * @exception ELdapException failed due to Ldap error.
+     */
     public Vector<String> getRuleDefaultParams(String implName) throws
             ELdapException {
         // is this a registered implname?
@@ -737,6 +857,13 @@ public class PublisherProcessor implements
         }
     }
 
+    /**
+     * Returns Vector of RulePlugin's current instance parameters.
+     *
+     * @param implName name of RulePlugin.
+     * @return Vector of current instance parameters.
+     * @exception ELdapException failed due to Ldap error.
+     */
     public Vector<String> getRuleInstanceParams(String implName) throws
             ELdapException {
         // is this a registered implname?
@@ -773,8 +900,11 @@ public class PublisherProcessor implements
     }
 
     /**
-     * set published flag - true when published, false when unpublished.
-     * not exist means not published.
+     * Set published flag - true when published, false when unpublished.
+     * Not exist means not published.
+     *
+     * @param serialNo serial number of publishable object.
+     * @param published true for published, false for not.
      */
     public void setPublishedFlag(BigInteger serialNo, boolean published) {
         if (!(mAuthority instanceof ICertificateAuthority))
@@ -809,6 +939,10 @@ public class PublisherProcessor implements
 
     /**
      * Publish ca cert, UpdateDir.java, jobs, request listeners
+     *
+     * @param cert X509 certificate to be published.
+     * @exception ELdapException publish failed due to Ldap error.
+     * @throws ELdapException
      */
     public void publishCACert(X509Certificate cert)
             throws ELdapException {
@@ -877,6 +1011,7 @@ public class PublisherProcessor implements
     /**
      * This function is never called. CMS does not unpublish
      * CA certificate.
+     * @throws ELdapException
      */
     public void unpublishCACert(X509Certificate cert)
             throws ELdapException {
@@ -1003,6 +1138,11 @@ public class PublisherProcessor implements
     /**
      * Publishs regular user certificate based on the criteria
      * set in the request.
+     *
+     * @param cert X509 certificate to be published.
+     * @param req request which provides the criteria
+     * @exception ELdapException publish failed due to Ldap error.
+     * @throws ELdapException
      */
     public void publishCert(X509Certificate cert, IRequest req)
             throws ELdapException {
@@ -1062,6 +1202,11 @@ public class PublisherProcessor implements
     /**
      * Unpublish user certificate. This is used by
      * UnpublishExpiredJob.
+     *
+     * @param cert X509 certificate to be unpublished.
+     * @param req request which provides the criteria
+     * @exception ELdapException unpublish failed due to Ldap error.
+     * @throws ELdapException
      */
     public void unpublishCert(X509Certificate cert, IRequest req)
             throws ELdapException {
@@ -1128,6 +1273,10 @@ public class PublisherProcessor implements
      * publishes a crl by mapping the issuer name in the crl to an entry
      * and publishing it there. entry must be a certificate authority.
      * Note that this is used by cmsgateway/cert/UpdateDir.java
+     *
+     * @param crl Certificate Revocation List
+     * @param crlIssuingPointId name of the issuing point.
+     * @exception ELdapException publish failed due to Ldap error.
      * @throws ELdapException
      */
     public void publishCRL(X509CRLImpl crl, String crlIssuingPointId)
@@ -1219,6 +1368,11 @@ public class PublisherProcessor implements
     /**
      * publishes a crl by mapping the issuer name in the crl to an entry
      * and publishing it there. entry must be a certificate authority.
+     *
+     * @param dn Distinguished name to publish.
+     * @param crl Certificate Revocation List
+     * @exception ELdapException publish failed due to Ldap error.
+     * @throws ELdapException
      */
     public void publishCRL(String dn, X509CRL crl)
             throws ELdapException {
@@ -1420,6 +1574,11 @@ public class PublisherProcessor implements
         }
     }
 
+    /**
+     * Return true if Ldap is enabled.
+     *
+     * @return true if Ldap is enabled,otherwise false.
+     */
     public boolean ldapEnabled() {
         try {
             if (mInited)
@@ -1431,7 +1590,10 @@ public class PublisherProcessor implements
         }
     }
 
-    @Override
+    /**
+     * Return true if Certificate Publishing is enabled.
+     * @return true if enabled, false otherwise
+     */
     public boolean isCertPublishingEnabled() {
         if (!mInited) return false;
         try {
@@ -1444,7 +1606,10 @@ public class PublisherProcessor implements
         }
     }
 
-    @Override
+    /**
+     * Return true if CRL publishing is enabled,
+     * @return true if enabled,  false otherwise.
+     */
     public boolean isCRLPublishingEnabled() {
         if (!mInited) return false;
         try {
@@ -1457,6 +1622,11 @@ public class PublisherProcessor implements
         }
     }
 
+    /**
+     * Return Authority for which this Processor operates.
+     *
+     * @return Authority.
+     */
     public ISubsystem getAuthority() {
         return mAuthority;
     }

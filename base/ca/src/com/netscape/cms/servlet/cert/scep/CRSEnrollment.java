@@ -106,7 +106,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -120,6 +119,7 @@ import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWCBsdr;
@@ -1058,7 +1058,7 @@ public class CRSEnrollment extends HttpServlet {
     private boolean createEntry(String dn) {
         boolean result = false;
 
-        IPublisherProcessor ldapPub = mAuthority.getPublisherProcessor();
+        PublisherProcessor ldapPub = mAuthority.getPublisherProcessor();
         if (ldapPub == null || !ldapPub.isCertPublishingEnabled()) {
             logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ERROR_CREATE_ENTRY_FROM_CEP"));
             return result;

@@ -53,7 +53,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.event.ScheduleCRLGenerationEvent;
 import com.netscape.certsrv.publish.ILdapRule;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -62,6 +61,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * Force the CRL to be updated now.
@@ -335,7 +335,7 @@ public class UpdateCRL extends CMSServlet {
         ICRLIssuingPoint crlIssuingPoint =
                 mCA.getCRLIssuingPoint(crlIssuingPointId);
         header.addStringValue("crlIssuingPoint", crlIssuingPointId);
-        IPublisherProcessor lpm = mCA.getPublisherProcessor();
+        PublisherProcessor lpm = mCA.getPublisherProcessor();
 
         if (crlIssuingPoint == null) {
             logger.debug("UpdateCRL: no CRL issuing point");
@@ -528,7 +528,7 @@ public class UpdateCRL extends CMSServlet {
             }
 
             if (lpm != null && lpm.isCRLPublishingEnabled()) {
-                Enumeration<ILdapRule> rules = lpm.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
+                Enumeration<ILdapRule> rules = lpm.getRules(PublisherProcessor.PROP_LOCAL_CRL);
                 if (rules != null && rules.hasMoreElements()) {
                     if (publishError != null) {
                         header.addStringValue("crlPublished", "Failure");

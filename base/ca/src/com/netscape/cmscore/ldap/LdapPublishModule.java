@@ -43,7 +43,6 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPlugin;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
@@ -118,9 +117,9 @@ public class LdapPublishModule implements IRequestListener {
         mInited = true;
     }
 
-    protected IPublisherProcessor mPubProcessor;
+    protected PublisherProcessor mPubProcessor;
 
-    public void init(ICertAuthority authority, IPublisherProcessor p,
+    public void init(ICertAuthority authority, PublisherProcessor p,
             IConfigStore config)
             throws EBaseException {
         if (mInited)

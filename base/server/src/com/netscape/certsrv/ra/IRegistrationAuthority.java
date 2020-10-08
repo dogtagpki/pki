@@ -20,14 +20,13 @@ package com.netscape.certsrv.ra;
 import java.util.Enumeration;
 
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
-
-import org.mozilla.jss.netscape.security.x509.X500Name;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * An interface represents a Registration Authority that is
@@ -66,7 +65,7 @@ public interface IRegistrationAuthority extends ISubsystem {
      *
      * @return RA's publishing processor
      */
-    public IPublisherProcessor getPublisherProcessor();
+    public PublisherProcessor getPublisherProcessor();
 
     /**
      * Retrieves the policy processor of this registration authority.

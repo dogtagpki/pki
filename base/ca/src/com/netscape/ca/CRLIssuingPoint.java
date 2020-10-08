@@ -71,7 +71,6 @@ import com.netscape.certsrv.logging.event.DeltaCRLPublishingEvent;
 import com.netscape.certsrv.logging.event.FullCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.FullCRLPublishingEvent;
 import com.netscape.certsrv.publish.ILdapRule;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -84,6 +83,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -122,7 +122,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     /* configuration file property names */
 
-    public IPublisherProcessor mPublisherProcessor = null;
+    public PublisherProcessor mPublisherProcessor;
 
     private CRLIssuingPointConfig mConfigStore;
 
@@ -3156,7 +3156,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
             if (x509crl != null &&
                     mPublisherProcessor != null && mPublisherProcessor.isCRLPublishingEnabled()) {
-                Enumeration<ILdapRule> rules = mPublisherProcessor.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
+                Enumeration<ILdapRule> rules = mPublisherProcessor.getRules(PublisherProcessor.PROP_LOCAL_CRL);
                 if (rules == null || !rules.hasMoreElements()) {
                     logger.debug("CRL publishing is not enabled.");
                 } else {

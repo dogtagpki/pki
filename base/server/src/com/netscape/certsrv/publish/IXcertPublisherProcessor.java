@@ -25,7 +25,7 @@ import com.netscape.certsrv.ldap.ELdapException;
  *
  * @version $Revision$, $Date$
  */
-public interface IXcertPublisherProcessor extends IPublisherProcessor {
+public interface IXcertPublisherProcessor {
 
     /**
      * Publish crossCertificatePair.

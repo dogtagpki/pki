@@ -52,7 +52,6 @@ import com.netscape.certsrv.publish.ERulePluginNotFound;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.certsrv.publish.ILdapRule;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.publish.MapperPlugin;
 import com.netscape.certsrv.publish.MapperProxy;
 import com.netscape.certsrv.publish.PublisherPlugin;
@@ -328,8 +327,8 @@ public class PublisherAdminServlet extends AdminServlet {
         return;
     }
 
-    private IExtendedPluginInfo getExtendedPluginInfo(IPublisherProcessor
-            p) {
+    private IExtendedPluginInfo getExtendedPluginInfo(PublisherProcessor p) {
+
         Enumeration<String> mappers = p.getMapperInsts().keys();
         Enumeration<String> publishers = p.getPublisherInsts().keys();
 
@@ -374,21 +373,21 @@ public class PublisherAdminServlet extends AdminServlet {
         Object impl = null;
 
         if (implType.equals(Constants.PR_EXT_PLUGIN_IMPLTYPE_PUBLISHRULE)) {
-            IPublisherProcessor p_processor = mProcessor;
+            PublisherProcessor p_processor = mProcessor;
 
             // Should get the registered rules from processor
             // instead of plugin
             // OLD: impl = getClassByNameAsExtendedPluginInfo(plugin.getClassPath());
             impl = getExtendedPluginInfo(p_processor);
         } else if (implType.equals(Constants.PR_EXT_PLUGIN_IMPLTYPE_MAPPER)) {
-            IPublisherProcessor p_processor = mProcessor;
+            PublisherProcessor p_processor = mProcessor;
             Plugin plugin = p_processor.getMapperPlugins().get(implName
                     );
 
             impl = getClassByNameAsExtendedPluginInfo(plugin.getClassPath());
 
         } else if (implType.equals(Constants.PR_EXT_PLUGIN_IMPLTYPE_PUBLISHER)) {
-            IPublisherProcessor p_processor = mProcessor;
+            PublisherProcessor p_processor = mProcessor;
             Plugin plugin = p_processor.getPublisherPlugins().get(implName);
 
             impl = getClassByNameAsExtendedPluginInfo(plugin.getClassPath());
@@ -438,9 +437,9 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
         CAEngine engine = CAEngine.getInstance();
         IConfigStore config = mAuth.getConfigStore();
-        IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
-        IConfigStore ldapcfg = publishcfg.getSubStore(IPublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
-        IConfigStore ldap = ldapcfg.getSubStore(IPublisherProcessor.PROP_LDAP);
+        IConfigStore publishcfg = config.getSubStore(PublisherProcessor.PROP_PUBLISH_SUBSTORE);
+        IConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
+        IConfigStore ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP);
 
         Enumeration<String> e = req.getParameterNames();
 
@@ -486,7 +485,7 @@ public class PublisherAdminServlet extends AdminServlet {
             }
         }
         params.put(Constants.PR_PUBLISHING_ENABLE,
-                publishcfg.getString(IPublisherProcessor.PROP_ENABLE, Constants.FALSE));
+                publishcfg.getString(PublisherProcessor.PROP_ENABLE, Constants.FALSE));
         params.put(Constants.PR_PUBLISHING_QUEUE_ENABLE,
                 publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_ENABLE, Constants.TRUE));
         params.put(Constants.PR_PUBLISHING_QUEUE_THREADS,
@@ -498,7 +497,7 @@ public class PublisherAdminServlet extends AdminServlet {
         params.put(Constants.PR_PUBLISHING_QUEUE_STATUS,
                 publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_STATUS, "200"));
         params.put(Constants.PR_ENABLE,
-                ldapcfg.getString(IPublisherProcessor.PROP_ENABLE, Constants.FALSE));
+                ldapcfg.getString(PublisherProcessor.PROP_ENABLE, Constants.FALSE));
         sendResponse(SUCCESS, null, params, resp);
     }
 
@@ -509,15 +508,15 @@ public class PublisherAdminServlet extends AdminServlet {
 
         //Save New Settings to the config file
         IConfigStore config = mAuth.getConfigStore();
-        IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
-        IConfigStore ldapcfg = publishcfg.getSubStore(IPublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
-        IConfigStore ldap = ldapcfg.getSubStore(IPublisherProcessor.PROP_LDAP);
+        IConfigStore publishcfg = config.getSubStore(PublisherProcessor.PROP_PUBLISH_SUBSTORE);
+        IConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
+        IConfigStore ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP);
 
         //set enable flag
-        publishcfg.putString(IPublisherProcessor.PROP_ENABLE, req.getParameter(Constants.PR_PUBLISHING_ENABLE));
+        publishcfg.putString(PublisherProcessor.PROP_ENABLE, req.getParameter(Constants.PR_PUBLISHING_ENABLE));
         String enable = req.getParameter(Constants.PR_ENABLE);
 
-        ldapcfg.putString(IPublisherProcessor.PROP_ENABLE, enable);
+        ldapcfg.putString(PublisherProcessor.PROP_ENABLE, enable);
         if (enable.equals("false")) {
             // need to disable the ldap module here
             mProcessor.setLdapConnModule(null);
@@ -634,17 +633,17 @@ public class PublisherAdminServlet extends AdminServlet {
 
         //Save New Settings to the config file
         IConfigStore config = mAuth.getConfigStore();
-        IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
-        IConfigStore ldapcfg = publishcfg.getSubStore(IPublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
-        LDAPConfig ldap = ldapcfg.getSubStore(IPublisherProcessor.PROP_LDAP, LDAPConfig.class);
+        IConfigStore publishcfg = config.getSubStore(PublisherProcessor.PROP_PUBLISH_SUBSTORE);
+        IConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
+        LDAPConfig ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP, LDAPConfig.class);
         LDAPAuthenticationConfig authConfig = ldap.getAuthenticationConfig();
 
         //set enable flag
-        publishcfg.putString(IPublisherProcessor.PROP_ENABLE,
+        publishcfg.putString(PublisherProcessor.PROP_ENABLE,
                 req.getParameter(Constants.PR_PUBLISHING_ENABLE));
         String ldapPublish = req.getParameter(Constants.PR_ENABLE);
 
-        ldapcfg.putString(IPublisherProcessor.PROP_ENABLE, ldapPublish);
+        ldapcfg.putString(PublisherProcessor.PROP_ENABLE, ldapPublish);
         if (ldapPublish.equals("false")) {
             // need to disable the ldap module here
             mProcessor.setLdapConnModule(null);
@@ -700,8 +699,8 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // test before commit
-        if (publishcfg.getBoolean(IPublisherProcessor.PROP_ENABLE) &&
-                ldapcfg.getBoolean(IPublisherProcessor.PROP_ENABLE)) {
+        if (publishcfg.getBoolean(PublisherProcessor.PROP_ENABLE) &&
+                ldapcfg.getBoolean(PublisherProcessor.PROP_ENABLE)) {
             params.put("title",
                     "You've attempted to configure CMS to connect" +
                             " to a LDAP directory. The connection status is" +
@@ -891,7 +890,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         //commit(true);
-        if (ldapcfg.getBoolean(IPublisherProcessor.PROP_ENABLE) &&
+        if (ldapcfg.getBoolean(PublisherProcessor.PROP_ENABLE) &&
                 pwd != null) {
 
             /* Do a "PUT" of the new pw to the watchdog"
@@ -931,11 +930,11 @@ public class PublisherAdminServlet extends AdminServlet {
 
         mProcessor.shutdown();
 
-        if (publishcfg.getBoolean(IPublisherProcessor.PROP_ENABLE)) {
+        if (publishcfg.getBoolean(PublisherProcessor.PROP_ENABLE)) {
             mProcessor.startup();
             //params.add("restarted", "Publishing is restarted.");
 
-            if (ldapcfg.getBoolean(IPublisherProcessor.PROP_ENABLE)) {
+            if (ldapcfg.getBoolean(PublisherProcessor.PROP_ENABLE)) {
                 ICertAuthority authority = (ICertAuthority) mProcessor.getAuthority();
 
                 if (!(authority instanceof ICertificateAuthority))

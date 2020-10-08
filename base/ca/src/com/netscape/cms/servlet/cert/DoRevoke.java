@@ -57,7 +57,6 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
@@ -71,6 +70,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * Revoke a Certificate
@@ -86,7 +86,7 @@ public class DoRevoke extends CMSServlet {
 
     private CertificateRepository mCertDB;
     private String mFormPath = null;
-    private IPublisherProcessor mPublisherProcessor = null;
+    private PublisherProcessor mPublisherProcessor;
     private int mTimeLimits = 30; /* in seconds */
 
     public DoRevoke() {

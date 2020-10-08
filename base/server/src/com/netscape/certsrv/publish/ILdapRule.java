@@ -21,6 +21,7 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * Interface for publishing rule which associates a Publisher with a Mapper.
@@ -37,7 +38,7 @@ public interface ILdapRule extends ILdapPlugin {
      *
      * @exception EBaseException Initialization failed.
      */
-    public void init(IPublisherProcessor processor, IConfigStore
+    public void init(PublisherProcessor processor, IConfigStore
             config) throws EBaseException;
 
     /**

@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
@@ -160,9 +159,9 @@ class LdapEnrollmentListener implements IRequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapEnrollmentListener.class);
 
-    IPublisherProcessor mProcessor = null;
+    PublisherProcessor mProcessor = null;
 
-    public LdapEnrollmentListener(IPublisherProcessor processor) {
+    public LdapEnrollmentListener(PublisherProcessor processor) {
         mProcessor = processor;
     }
 
@@ -244,9 +243,9 @@ class LdapRenewalListener implements IRequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapRenewalListener.class);
 
-    private IPublisherProcessor mProcessor = null;
+    private PublisherProcessor mProcessor = null;
 
-    public LdapRenewalListener(IPublisherProcessor processor) {
+    public LdapRenewalListener(PublisherProcessor processor) {
         mProcessor = processor;
     }
 
@@ -301,9 +300,9 @@ class LdapRevocationListener implements IRequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapRevocationListener.class);
 
-    private IPublisherProcessor mProcessor = null;
+    private PublisherProcessor mProcessor = null;
 
-    public LdapRevocationListener(IPublisherProcessor processor) {
+    public LdapRevocationListener(PublisherProcessor processor) {
         mProcessor = processor;
     }
 
@@ -406,9 +405,9 @@ class LdapUnrevocationListener implements IRequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapUnrevocationListener.class);
 
-    private IPublisherProcessor mProcessor = null;
+    private PublisherProcessor mProcessor = null;
 
-    public LdapUnrevocationListener(IPublisherProcessor processor) {
+    public LdapUnrevocationListener(PublisherProcessor processor) {
         mProcessor = processor;
     }
 

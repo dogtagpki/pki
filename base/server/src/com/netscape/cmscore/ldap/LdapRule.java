@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.publish.ILdapRule;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 
 /**
  * The publishing rule that links mapper and publisher together.
@@ -40,7 +39,7 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
     protected ILdapExpression mFilterExp = null;
     private String mInstanceName = null;
 
-    private IPublisherProcessor mProcessor = null;
+    private PublisherProcessor mProcessor;
 
     private static String[] epi_params = null; // extendedpluginInfo
 
@@ -60,7 +59,7 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
         return epi_params;
     }
 
-    public void init(IPublisherProcessor processor, IConfigStore config) throws EBaseException {
+    public void init(PublisherProcessor processor, IConfigStore config) throws EBaseException {
         mConfig = config;
 
         mProcessor = processor;
@@ -94,7 +93,7 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
 
         // Read the predicate expression if any associated
         // with the rule
-        String exp = config.getString(IPublisherProcessor.PROP_PREDICATE, null);
+        String exp = config.getString(PublisherProcessor.PROP_PREDICATE, null);
 
         if (exp != null)
             exp = exp.trim();
@@ -125,7 +124,7 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
 
         // Read the predicate expression if any associated
         // with the rule
-        String exp = config.getString(IPublisherProcessor.PROP_PREDICATE, null);
+        String exp = config.getString(PublisherProcessor.PROP_PREDICATE, null);
 
         if (exp != null)
             exp = exp.trim();
@@ -204,19 +203,19 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
         Vector<String> v = new Vector<String>();
 
         try {
-            v.addElement(IPublisherProcessor.PROP_TYPE + "=" +
-                    mConfig.getString(IPublisherProcessor.PROP_TYPE, ""));
-            v.addElement(IPublisherProcessor.PROP_PREDICATE + "=" +
-                    mConfig.getString(IPublisherProcessor.PROP_PREDICATE,
+            v.addElement(PublisherProcessor.PROP_TYPE + "=" +
+                    mConfig.getString(PublisherProcessor.PROP_TYPE, ""));
+            v.addElement(PublisherProcessor.PROP_PREDICATE + "=" +
+                    mConfig.getString(PublisherProcessor.PROP_PREDICATE,
                             ""));
-            v.addElement(IPublisherProcessor.PROP_ENABLE + "=" +
-                    mConfig.getString(IPublisherProcessor.PROP_ENABLE,
+            v.addElement(PublisherProcessor.PROP_ENABLE + "=" +
+                    mConfig.getString(PublisherProcessor.PROP_ENABLE,
                             ""));
-            v.addElement(IPublisherProcessor.PROP_MAPPER + "=" +
-                    mConfig.getString(IPublisherProcessor.PROP_MAPPER,
+            v.addElement(PublisherProcessor.PROP_MAPPER + "=" +
+                    mConfig.getString(PublisherProcessor.PROP_MAPPER,
                             ""));
-            v.addElement(IPublisherProcessor.PROP_PUBLISHER + "=" +
-                    mConfig.getString(IPublisherProcessor.PROP_PUBLISHER,
+            v.addElement(PublisherProcessor.PROP_PUBLISHER + "=" +
+                    mConfig.getString(PublisherProcessor.PROP_PUBLISHER,
                             ""));
         } catch (EBaseException e) {
         }
@@ -245,8 +244,7 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
 
     public String getMapper() {
         try {
-            String map =
-                    mConfig.getString(IPublisherProcessor.PROP_MAPPER, "");
+            String map = mConfig.getString(PublisherProcessor.PROP_MAPPER, "");
 
             if (map != null)
                 map = map.trim();
@@ -263,7 +261,7 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
 
     public String getPublisher() {
         try {
-            return mConfig.getString(IPublisherProcessor.PROP_PUBLISHER, "");
+            return mConfig.getString(PublisherProcessor.PROP_PUBLISHER, "");
         } catch (EBaseException e) {
         }
         return null;
@@ -271,7 +269,7 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
 
     public String getType() {
         try {
-            return mConfig.getString(IPublisherProcessor.PROP_TYPE, "");
+            return mConfig.getString(PublisherProcessor.PROP_TYPE, "");
         } catch (EBaseException e) {
         }
         return null;
@@ -279,8 +277,7 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
 
     public boolean enabled() {
         try {
-            boolean enable =
-                    mConfig.getBoolean(IPublisherProcessor.PROP_ENABLE, false);
+            boolean enable = mConfig.getBoolean(PublisherProcessor.PROP_ENABLE, false);
 
             //System.out.println(enable);
             return enable;
@@ -295,11 +292,11 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
-        v.addElement(IPublisherProcessor.PROP_TYPE + "=");
-        v.addElement(IPublisherProcessor.PROP_PREDICATE + "=");
-        v.addElement(IPublisherProcessor.PROP_ENABLE + "=true");
-        v.addElement(IPublisherProcessor.PROP_MAPPER + "=");
-        v.addElement(IPublisherProcessor.PROP_PUBLISHER + "=");
+        v.addElement(PublisherProcessor.PROP_TYPE + "=");
+        v.addElement(PublisherProcessor.PROP_PREDICATE + "=");
+        v.addElement(PublisherProcessor.PROP_ENABLE + "=true");
+        v.addElement(PublisherProcessor.PROP_MAPPER + "=");
+        v.addElement(PublisherProcessor.PROP_PUBLISHER + "=");
         return v;
     }
 }

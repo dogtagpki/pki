@@ -68,7 +68,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -84,6 +83,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -103,7 +103,7 @@ public class ProcessCertReq extends CMSServlet {
     private IRequestQueue mQueue = null;
     private String mFormPath = null;
     private IReqParser mParser = null;
-    private IPublisherProcessor mPublisherProcessor = null;
+    private PublisherProcessor mPublisherProcessor;
     private boolean mExtraAgentParams = false;
 
     // for RA only since it does not have a database.

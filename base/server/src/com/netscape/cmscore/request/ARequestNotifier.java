@@ -27,13 +27,13 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
-import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * The ARequestNotifier class implements the IRequestNotifier interface,
@@ -363,7 +363,7 @@ public class ARequestNotifier implements IRequestNotifier {
     private boolean checkAvailablePublishingConnections() {
         boolean availableConnections = false;
 
-        IPublisherProcessor pp = null;
+        PublisherProcessor pp = null;
         if (mCA != null)
             pp = mCA.getPublisherProcessor();
         if (pp != null && (pp.isCertPublishingEnabled() || pp.isCRLPublishingEnabled())) {
