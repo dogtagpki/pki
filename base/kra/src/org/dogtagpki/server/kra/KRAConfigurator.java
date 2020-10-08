@@ -63,16 +63,6 @@ public class KRAConfigurator extends Configurator {
             throw new PKIException("Unable to configure KRA connector in CA: " + e.getMessage(), e);
         }
 
-        try {
-             if (!request.isClone()) {
-                 updateNextRanges();
-             }
-
-        } catch (Exception e) {
-            logger.error("Unable to update next serial number ranges: " + e.getMessage(), e);
-            throw new PKIException("Unable to update next serial number ranges: " + e.getMessage(), e);
-        }
-
         super.finalizeConfiguration(request);
     }
 

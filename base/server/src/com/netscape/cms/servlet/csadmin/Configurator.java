@@ -80,7 +80,6 @@ import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.apps.ServerXml;
@@ -98,7 +97,6 @@ import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchResults;
 
 /**
@@ -1545,42 +1543,6 @@ public class Configurator {
         byte[] bytes = cert.getEncoded();
         String s = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(bytes));
         return s;
-    }
-
-    public void updateNextRanges() throws EBaseException, LDAPException {
-
-        DatabaseConfig dbConfig = cs.getDatabaseConfig();
-        String endRequestNumStr = dbConfig.getEndRequestNumber();
-        String endSerialNumStr = dbConfig.getEndSerialNumber();
-
-        PKISocketConfig socketConfig = cs.getSocketConfig();
-
-        LDAPConfig ldapCfg = cs.getInternalDBConfig();
-        String basedn = ldapCfg.getBaseDN();
-
-        BigInteger endRequestNum = new BigInteger(endRequestNumStr);
-        BigInteger endSerialNum = new BigInteger(endSerialNumStr);
-        BigInteger oneNum = new BigInteger("1");
-
-        // update global next range entries
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
-        dbFactory.init(socketConfig, ldapCfg, engine.getPasswordStore());
-
-        LDAPConnection conn = dbFactory.getConn();
-
-        String serialdn = dbConfig.getSerialDN() + "," + basedn;
-        LDAPAttribute attrSerialNextRange =
-                new LDAPAttribute("nextRange", endSerialNum.add(oneNum).toString());
-        LDAPModification serialmod = new LDAPModification(LDAPModification.REPLACE, attrSerialNextRange);
-        conn.modify(serialdn, serialmod);
-
-        String requestdn = dbConfig.getRequestDN() + "," + basedn;
-        LDAPAttribute attrRequestNextRange =
-                new LDAPAttribute("nextRange", endRequestNum.add(oneNum).toString());
-        LDAPModification requestmod = new LDAPModification(LDAPModification.REPLACE, attrRequestNextRange);
-        conn.modify(requestdn, requestmod);
-
-        conn.disconnect();
     }
 
     /**

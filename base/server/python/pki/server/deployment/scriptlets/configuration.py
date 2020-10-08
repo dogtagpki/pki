@@ -1034,6 +1034,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if subsystem.type == 'CA':
 
+            if not clone:
+                logger.info('Updating CA ranges')
+                subsystem.update_ranges()
+
             if clone:
                 sd_hostname = subsystem.config['securitydomain.host']
                 sd_port = subsystem.config['securitydomain.httpsadminport']
@@ -1075,6 +1079,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 logger.info('Deleting CA signing cert record')
                 serial_number = deployer.mdict['pki_ca_signing_serial_number']
                 subsystem.remove_cert(serial_number)
+
+        if subsystem.type == 'KRA':
+
+            if not clone:
+                logger.info('Updating KRA ranges')
+                subsystem.update_ranges()
 
         if subsystem.type == 'TPS':
             logger.info('Setting up shared secret')

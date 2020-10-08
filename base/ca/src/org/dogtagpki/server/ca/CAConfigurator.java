@@ -34,12 +34,10 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
-import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.CertInfoProfile;
@@ -403,21 +401,5 @@ public class CAConfigurator extends Configurator {
     public void getDatabaseGroups(Collection<String> groups) throws Exception {
         groups.add("Subsystem Group");
         groups.add("Certificate Manager Agents");
-    }
-
-    @Override
-    public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
-
-        try {
-            if (!request.isClone()) {
-                updateNextRanges();
-            }
-
-        } catch (Exception e) {
-            logger.error("Unable to update next serial number ranges: " + e.getMessage(), e);
-            throw new PKIException("Unable to update next serial number ranges: " + e.getMessage(), e);
-        }
-
-        super.finalizeConfiguration(request);
     }
 }
