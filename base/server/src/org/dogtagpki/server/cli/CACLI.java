@@ -30,5 +30,6 @@ public class CACLI extends CLI {
 
         addModule(new CADBCLI(this));
         addModule(new CAProfileCLI(this));
+        addModule(new SubsystemRangeCLI(this));
     }
 }
