@@ -1033,6 +1033,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.load()
 
         if subsystem.type == 'CA':
+
+            if clone:
+                logger.info('Disabling CRL caching and generation on clone')
+
+                subsystem.config['ca.certStatusUpdateInterval'] = '0'
+                subsystem.config['ca.listenToCloneModifications'] = 'false'
+                subsystem.config['ca.crl.MasterCRL.enableCRLCache'] = 'false'
+                subsystem.config['ca.crl.MasterCRL.enableCRLUpdates'] = 'false'
+
+                url = urllib.parse.urlparse(master_url)
+
+                subsystem.config['master.ca.agent.host'] = url.hostname
+                subsystem.config['master.ca.agent.port'] = str(url.port)
+
             crl_number = deployer.mdict['pki_ca_starting_crl_number']
             logger.info('Starting CRL number: %s', crl_number)
             subsystem.config['ca.crl.MasterCRL.startingCrlNumber'] = crl_number

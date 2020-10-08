@@ -18,7 +18,6 @@
 package org.dogtagpki.server.ca;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.Principal;
@@ -428,10 +427,6 @@ public class CAConfigurator extends Configurator {
                 enableSecurityDomainOnClone();
             }
 
-            if (request.isClone()) {
-                disableCRLCachingAndGenerationForClone(request.getCloneUri());
-            }
-
         } catch (Exception e) {
             logger.error("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
             throw new PKIException("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
@@ -450,28 +445,5 @@ public class CAConfigurator extends Configurator {
         cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
         cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
         cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
-    }
-
-    public void disableCRLCachingAndGenerationForClone(String cloneUri) throws MalformedURLException {
-
-        logger.debug("CAConfigurator: disabling CRL caching and generation for clone");
-
-        //Now add some well know entries that we need to disable CRL functionality.
-        //With well known values to disable and well known master CRL ID.
-
-        cs.putInteger("ca.certStatusUpdateInterval", 0);
-        cs.putBoolean("ca.listenToCloneModifications", false);
-        cs.putBoolean("ca.crl.MasterCRL.enableCRLCache", false);
-        cs.putBoolean("ca.crl.MasterCRL.enableCRLUpdates", false);
-
-        URL url = new URL(cloneUri);
-        String masterHost = url.getHost();
-        int masterPort = url.getPort();
-
-        logger.debug("CAConfigurator: master host: " + masterHost);
-        logger.debug("CAConfigurator: master port: " + masterPort);
-
-        cs.putString("master.ca.agent.host", masterHost);
-        cs.putInteger("master.ca.agent.port", masterPort);
     }
 }
