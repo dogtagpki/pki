@@ -1442,27 +1442,6 @@ public class CMSEngine implements ServletContextListener {
         return pid;
     }
 
-    public static void upgradeConfig(IConfigStore c)
-            throws EBaseException {
-        String version = c.getString("cms.version", "pre4.2");
-
-        if (version.equals("4.22")) {
-            Upgrade.perform422to45(c);
-        } else if (version.equals("4.2")) {
-            // SUPPORT UPGRADE FROM 4.2 to 4.2 (SP2)
-            Upgrade.perform42to422(c);
-            Upgrade.perform422to45(c);
-        } else {
-            // ONLY SUPPORT UPGRADE FROM 4.2 to 4.2 (SP2)
-            /**
-             * if (!version.equals("pre4.2"))
-             * return;
-             *
-             * Upgrade.perform(c);
-             **/
-        }
-    }
-
     private CertificateRepository getCertDB() {
         CertificateRepository certDB = null;
 
