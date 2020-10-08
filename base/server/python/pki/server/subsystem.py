@@ -960,7 +960,7 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
-    def request_range(self, master_url, range_type, install_token):
+    def request_range(self, master_url, install_token, range_type):
 
         cmd = [
             'pki',
@@ -984,23 +984,23 @@ class PKISubsystem(object):
 
         return json.loads(output.decode())
 
-    def update_ranges(self, master_url, install_token):
+    def request_ranges(self, master_url, install_token):
 
-        logger.info('Updating request ID range')
+        logger.info('Requesting request ID range')
 
-        request_range = self.request_range(master_url, 'request', install_token)
+        request_range = self.request_range(master_url, install_token, 'request')
         self.config['dbs.beginRequestNumber'] = request_range['begin']
         self.config['dbs.endRequestNumber'] = request_range['end']
 
-        logger.info('Updating serial number range')
+        logger.info('Requesting serial number range')
 
-        serial_range = self.request_range(master_url, 'serialNo', install_token)
+        serial_range = self.request_range(master_url, install_token, 'serialNo')
         self.config['dbs.beginSerialNumber'] = serial_range['begin']
         self.config['dbs.endSerialNumber'] = serial_range['end']
 
-        logger.info('Updating replica ID range')
+        logger.info('Requesting replica ID range')
 
-        replica_range = self.request_range(master_url, 'replicaId', install_token)
+        replica_range = self.request_range(master_url, install_token, 'replicaId')
         self.config['dbs.beginReplicaNumber'] = replica_range['begin']
         self.config['dbs.endReplicaNumber'] = replica_range['end']
 

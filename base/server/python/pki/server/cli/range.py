@@ -23,7 +23,7 @@ class RangeCLI(pki.cli.CLI):
 
         self.parent = parent
         self.add_module(RangeShowCLI(self))
-        self.add_module(RangeUpdateCLI(self))
+        self.add_module(RangeRequestCLI(self))
 
 
 class RangeShowCLI(pki.cli.CLI):
@@ -104,17 +104,17 @@ class RangeShowCLI(pki.cli.CLI):
               subsystem.config.get('dbs.enableSerialManagement'))
 
 
-class RangeUpdateCLI(pki.cli.CLI):
+class RangeRequestCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(RangeUpdateCLI, self).__init__(
-            'update',
-            'Update %s range configuration' % parent.parent.name.upper())
+        super(RangeRequestCLI, self).__init__(
+            'request',
+            'Request ranges from %s master' % parent.parent.name.upper())
 
         self.parent = parent
 
     def print_help(self):
-        print('Usage: pki-server %s-range-update [OPTIONS]' % self.parent.parent.name)
+        print('Usage: pki-server %s-range-request [OPTIONS]' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --master <URL>                 Master URL.')
@@ -186,4 +186,4 @@ class RangeUpdateCLI(pki.cli.CLI):
                          subsystem_name.upper(), instance_name)
             sys.exit(1)
 
-        subsystem.update_ranges(master_url, session_id)
+        subsystem.request_ranges(master_url, session_id)
