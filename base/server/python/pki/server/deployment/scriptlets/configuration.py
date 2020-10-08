@@ -1033,6 +1033,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.load()
 
         if subsystem.type == 'CA':
+            crl_number = deployer.mdict['pki_ca_starting_crl_number']
+            logger.info('Starting CRL number: %s', crl_number)
+            subsystem.config['ca.crl.MasterCRL.startingCrlNumber'] = crl_number
 
             logger.info('Enabling profile subsystem')
             subsystem.enable_subsystem('profile')

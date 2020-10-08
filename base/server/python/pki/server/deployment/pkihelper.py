@@ -2739,10 +2739,6 @@ class ConfigClient:
         # Security Domain
         request.securityDomainUri = self.mdict['pki_security_domain_uri']
 
-        # CA parameters
-        if self.subsystem == 'CA':
-            request.startingCRLNumber = self.mdict['pki_ca_starting_crl_number']
-
         # TPS parameters
         if self.subsystem == 'TPS':
             self.set_tps_parameters(request)

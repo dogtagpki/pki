@@ -432,8 +432,6 @@ public class CAConfigurator extends Configurator {
                 disableCRLCachingAndGenerationForClone(request.getCloneUri());
             }
 
-            configureStartingCRLNumber(request.getStartingCRLNumber());
-
         } catch (Exception e) {
             logger.error("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
             throw new PKIException("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
@@ -475,10 +473,5 @@ public class CAConfigurator extends Configurator {
 
         cs.putString("master.ca.agent.host", masterHost);
         cs.putInteger("master.ca.agent.port", masterPort);
-    }
-
-    public void configureStartingCRLNumber(String startingCrlNumber) {
-        logger.debug("CAConfigurator: configuring starting CRL number");
-        cs.putString("ca.crl.MasterCRL.startingCrlNumber", startingCrlNumber);
     }
 }
