@@ -39,7 +39,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
-import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.csadmin.Cert;
@@ -419,31 +418,6 @@ public class CAConfigurator extends Configurator {
             throw new PKIException("Unable to update next serial number ranges: " + e.getMessage(), e);
         }
 
-        try {
-            DomainInfo domainInfo = request.getDomainInfo();
-            logger.info("Domain: " + domainInfo);
-
-            if (request.isClone() && isSDHostDomainMaster(domainInfo)) {
-                enableSecurityDomainOnClone();
-            }
-
-        } catch (Exception e) {
-            logger.error("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
-            throw new PKIException("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
-        }
-
         super.finalizeConfiguration(request);
-    }
-
-    public void enableSecurityDomainOnClone() throws Exception {
-
-        // cloning a domain master CA, the clone is also master of its domain
-
-        cs.putString("securitydomain.select", "new");
-        cs.putString("securitydomain.host", cs.getHostname());
-        cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
-        cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
-        cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
-        cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
     }
 }

@@ -1035,6 +1035,22 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if subsystem.type == 'CA':
 
             if clone:
+                sd_hostname = subsystem.config['securitydomain.host']
+                sd_port = subsystem.config['securitydomain.httpsadminport']
+                sd_subsystem = deployer.domain_info.subsystems['CA']
+                sd_host = sd_subsystem.get_host(sd_hostname, sd_port)
+
+                if sd_host.DomainManager and sd_host.DomainManager.lower() == 'true':
+
+                    logger.info('Cloning security domain master')
+
+                    subsystem.config['securitydomain.select'] = 'new'
+                    subsystem.config['securitydomain.host'] = deployer.mdict['pki_hostname']
+                    subsystem.config['securitydomain.httpport'] = unsecurePort
+                    subsystem.config['securitydomain.httpsadminport'] = securePort
+                    subsystem.config['securitydomain.httpsagentport'] = securePort
+                    subsystem.config['securitydomain.httpseeport'] = securePort
+
                 logger.info('Disabling CRL caching and generation on clone')
 
                 subsystem.config['ca.certStatusUpdateInterval'] = '0'
