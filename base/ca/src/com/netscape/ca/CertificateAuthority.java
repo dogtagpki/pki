@@ -50,7 +50,6 @@ import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
@@ -718,18 +717,6 @@ public class CertificateAuthority
     public PublisherProcessor getPublisherProcessor() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getPublisherProcessor();
-    }
-
-    /**
-     * Retrieves the CRL issuing point by id.
-     * <P>
-     *
-     * @param id string id of the CRL issuing point
-     * @return CRL issuing point
-     */
-    public ICRLIssuingPoint getCRLIssuingPoint(String id) {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getCRLIssuingPoint(id);
     }
 
     /**
@@ -1702,6 +1689,8 @@ public class CertificateAuthority
 
     private SingleResponse processRequest(Request req) {
 
+        CAEngine engine = CAEngine.getInstance();
+
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
         logger.debug("CertificateAuthority: processing request for cert 0x" + serialNo.toString(16));
@@ -1742,8 +1731,8 @@ public class CertificateAuthority
 
             } catch (EBaseException e) {
             }
-            CRLIssuingPoint point = (CRLIssuingPoint)
-                    getCRLIssuingPoint(issuingPointId);
+
+            CRLIssuingPoint point = (CRLIssuingPoint) engine.getCRLIssuingPoint(issuingPointId);
 
             /* set nextUpdate to the nextUpdate time of the CRL */
             GeneralizedTime nextUpdate = null;
@@ -1777,7 +1766,6 @@ public class CertificateAuthority
             }
         }
 
-        CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
 
         try {

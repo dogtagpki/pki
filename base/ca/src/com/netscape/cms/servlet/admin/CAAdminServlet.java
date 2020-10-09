@@ -479,12 +479,14 @@ public class CAAdminServlet extends AdminServlet {
     private void getCRLIPsConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
         NameValuePairs params = new NameValuePairs();
 
         String id = req.getParameter(Constants.RS_ID);
 
         if (id != null && id.length() > 0) {
-            ICRLIssuingPoint ip = mCA.getCRLIssuingPoint(id);
+            ICRLIssuingPoint ip = engine.getCRLIssuingPoint(id);
 
             if (ip != null) {
 
@@ -689,6 +691,9 @@ public class CAAdminServlet extends AdminServlet {
     private void setCRLIPsConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -751,7 +756,7 @@ public class CAAdminServlet extends AdminServlet {
                 String name = crlNames.nextElement();
 
                 if (ipId.equals(name)) {
-                    ICRLIssuingPoint ip = mCA.getCRLIssuingPoint(ipId);
+                    ICRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
 
                     if (ip != null) {
                         ip.setDescription(desc);
@@ -943,6 +948,9 @@ public class CAAdminServlet extends AdminServlet {
     private void getCRLExtsConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+
         NameValuePairs params = new NameValuePairs();
 
         String ipId = null;
@@ -963,7 +971,7 @@ public class CAAdminServlet extends AdminServlet {
             ipId = ICertificateAuthority.PROP_MASTER_CRL;
         }
 
-        ICRLIssuingPoint ip = mCA.getCRLIssuingPoint(ipId);
+        ICRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
         ICMSCRLExtensions crlExts = ip.getCRLExtensions();
         String id = req.getParameter(Constants.RS_ID);
 
@@ -992,6 +1000,9 @@ public class CAAdminServlet extends AdminServlet {
     private void setCRLExtsConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1006,7 +1017,7 @@ public class CAAdminServlet extends AdminServlet {
                 ipId = ICertificateAuthority.PROP_MASTER_CRL;
             }
 
-            ICRLIssuingPoint ip = mCA.getCRLIssuingPoint(ipId);
+            ICRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
             ICMSCRLExtensions crlExts = ip.getCRLExtensions();
 
             IConfigStore config = mCA.getConfigStore();
@@ -1170,7 +1181,7 @@ public class CAAdminServlet extends AdminServlet {
             }
         }
         if (ipId != null) {
-            ICRLIssuingPoint ip = mCA.getCRLIssuingPoint(ipId);
+            ICRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
             ICMSCRLExtensions crlExts = ip.getCRLExtensions();
             name = crlExts.getClassPath(implName);
         }
@@ -1211,6 +1222,9 @@ public class CAAdminServlet extends AdminServlet {
      */
     private void setCRLConfig(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1225,7 +1239,7 @@ public class CAAdminServlet extends AdminServlet {
                     id.equals(Constants.RS_ID_CONFIG)) {
                 id = ICertificateAuthority.PROP_MASTER_CRL;
             }
-            ICRLIssuingPoint ip = mCA.getCRLIssuingPoint(id);
+            ICRLIssuingPoint ip = engine.getCRLIssuingPoint(id);
 
             //Save New Settings to the config file
             IConfigStore config = mCA.getConfigStore();

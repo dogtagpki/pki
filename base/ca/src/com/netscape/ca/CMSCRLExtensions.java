@@ -597,7 +597,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
         ICRLIssuingPoint ip = null;
         if (ipId != null && ca != null) {
-            ip = ca.getCRLIssuingPoint(ipId);
+            ip = engine.getCRLIssuingPoint(ipId);
         }
 
         for (Map.Entry<String,String> entry : nvp.entrySet()) {

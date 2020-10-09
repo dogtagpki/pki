@@ -377,8 +377,7 @@ public class UpdateDir extends CMSServlet {
                     }
                 }
             } else {
-                ICRLIssuingPoint crlIssuingPoint =
-                        mCA.getCRLIssuingPoint(crlIssuingPointId);
+                ICRLIssuingPoint crlIssuingPoint = engine.getCRLIssuingPoint(crlIssuingPointId);
 
                 updateCRLIssuingPoint(header, crlIssuingPointId,
                         crlIssuingPoint, locale);

@@ -339,7 +339,8 @@ public class GetInfo extends CMSServlet {
             header.addStringValue("master_port", masterPort);
 
             header.addStringValue("masterCRLIssuingPoint", ICertificateAuthority.PROP_MASTER_CRL);
-            ICRLIssuingPoint ip0 = mCA.getCRLIssuingPoint(ICertificateAuthority.PROP_MASTER_CRL);
+
+            ICRLIssuingPoint ip0 = engine.getCRLIssuingPoint(ICertificateAuthority.PROP_MASTER_CRL);
 
             if (ip0 != null) {
                 header.addStringValue("defaultAlgorithm", ip0.getSigningAlgorithm());

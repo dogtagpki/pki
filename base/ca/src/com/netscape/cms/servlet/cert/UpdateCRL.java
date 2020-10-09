@@ -334,8 +334,7 @@ public class UpdateCRL extends CMSServlet {
             crlIssuingPointId = ICertificateAuthority.PROP_MASTER_CRL;
         }
 
-        ICRLIssuingPoint crlIssuingPoint =
-                mCA.getCRLIssuingPoint(crlIssuingPointId);
+        ICRLIssuingPoint crlIssuingPoint = engine.getCRLIssuingPoint(crlIssuingPointId);
         header.addStringValue("crlIssuingPoint", crlIssuingPointId);
         PublisherProcessor lpm = mCA.getPublisherProcessor();
 

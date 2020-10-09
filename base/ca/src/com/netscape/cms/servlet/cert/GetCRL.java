@@ -169,7 +169,7 @@ public class GetCRL extends CMSServlet {
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
         ICRLIssuingPoint crlIP = null;
         if (ca != null)
-            crlIP = ca.getCRLIssuingPoint(crlId);
+            crlIP = engine.getCRLIssuingPoint(crlId);
 
         try {
             crlRecord = crlRepository.readCRLIssuingPointRecord(crlId);

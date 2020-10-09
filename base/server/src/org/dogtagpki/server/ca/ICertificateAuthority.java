@@ -204,14 +204,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public long getDefaultValidity();
 
     /**
-     * Retrieves CRL issuing point with the given identifier.
-     *
-     * @param id CRL issuing point id
-     * @return CRL issuing point with given id
-     */
-    public ICRLIssuingPoint getCRLIssuingPoint(String id);
-
-    /**
      * Adds CRL issuing point with the given identifier and description.
      *
      * @param crlSubStore sub-store with all CRL issuing points
