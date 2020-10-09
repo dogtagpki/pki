@@ -78,7 +78,7 @@ class Common(object):
             classId = key[0].get('classId')
             mydict[classId] = PolicyValues
 
-        if mydict.has_key(javaclass):
+        if javaclass in mydict:
             value_Id = mydict[javaclass]
             Policy_Value = policy_set_element.find(
                 './value[@id=' + "\"" + str(value_Id) + "\"" + "]")
@@ -1546,7 +1546,7 @@ class Setup(object):
                                         profile_input['Subject_Pattern'],
                                         profile_input['subjectNameDefault'])
 
-        if not (profile_input.has_key('PathLength') and profile_input.has_key('isCA')):
+        if not (('PathLength' in profile_input) and  ('isCA' in profile_input)):
             Policy.no_default(root_element,
                               policy_set_element,
                               profile_input['NotBefore'],
@@ -1558,7 +1558,7 @@ class Setup(object):
             Policy.extended_key_usage_extension_default(
                 root_element, policy_set_element)
 
-            if profile_input.has_key('ExtOID'):
+            if 'ExtOID' in profile_input:
                 if profile_input['ExtOID'] in '2.5.29.17':
                     Policy.user_supplied_extension_default(root_element, policy_set_element,
                                                            profile_input['ExtOID'], profile_input['Subject_Pattern'])
@@ -1575,15 +1575,15 @@ class Setup(object):
         Policy.key_usage_default(
             root_element, policy_set_element, profile_input['Key_List'])
         Policy.signing_alg(root_element, policy_set_element)
-        if profile_input.has_key('Generic_extensions'):
+        if 'Generic_extensions' in profile_input:
             Policy.generic_extension(root_element, policy_set_element)
-        if profile_input.has_key('NetscapeExtensions'):
+        if 'NetscapeExtensions' in profile_input:
             Policy.netscape_certificate_type_extension_default(root_element, policy_set_element,
                                                                profile_input['NetscapeExtensions'])
-        if profile_input.has_key('crlurl'):
+        if 'crlurl' in profile_input:
             Policy.crl_distribution_points_ext_default(root_element, policy_set_element,
                                                        profile_input['crlurl'])
-        if profile_input.has_key('PathLength') and profile_input.has_key('isCA'):
+        if 'PathLength' in profile_input and 'isCA' in profile_input:
             Policy.basic_constraints_extension_default(root_element, policy_set_element,
                                                        profile_input['PathLength'], profile_input['isCA'])
             Policy.ca_certificate_validity_default(
@@ -1613,7 +1613,7 @@ class Setup(object):
                                profile_input['Key_Generate_InputId'])
 
         # Add subject name input and submitter information
-        if profile_input.has_key('subject_Name_Input_Id'):
+        if 'subject_Name_Input_Id' in profile_input:
             self.add_subject_name_input(root_element, profile_input[
                                         'subject_Name_Input_Id'])
             self.add_submitter_info(root_element, profile_input[
