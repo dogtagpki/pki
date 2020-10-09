@@ -62,7 +62,7 @@ import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.publish.ICRLPublisher;
+import com.netscape.certsrv.publish.CRLPublisher;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.util.AsyncLoader;
@@ -125,7 +125,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected Hashtable<String, ListenerPlugin> listenerPlugins = new Hashtable<String, ListenerPlugin>();
 
     protected boolean ocspResponderByName = true;
-    protected ICRLPublisher crlPublisher;
+    protected CRLPublisher crlPublisher;
     protected PublisherProcessor publisherProcessor;
 
     protected Map<String, ICRLIssuingPoint> crlIssuingPoints = new HashMap<>();
@@ -277,7 +277,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return ocspResponderByName;
     }
 
-    public ICRLPublisher getCRLPublisher() {
+    public CRLPublisher getCRLPublisher() {
         return crlPublisher;
     }
 
@@ -439,7 +439,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         logger.info("CAEngine: - class: " + className);
 
-        Class<ICRLPublisher> publisherClass = (Class<ICRLPublisher>) Class.forName(className);
+        Class<CRLPublisher> publisherClass = (Class<CRLPublisher>) Class.forName(className);
         crlPublisher = publisherClass.newInstance();
         crlPublisher.init(hostCA, crlPublisherConfig);
     }

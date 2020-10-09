@@ -77,7 +77,7 @@ import com.netscape.certsrv.base.ISubsystem;
  *
  * @version $Revision$, $Date$
  */
-public interface ICRLPublisher {
+public class CRLPublisher {
 
     /**
      * Initializes this CRL publisher.
@@ -90,8 +90,8 @@ public interface ICRLPublisher {
      *            in CMS.cfg as ca.crlPublisher.<paramType>=<paramValue>
      * @exception EBaseException failed to initialize this publisher
      */
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException;
+    public void init(ISubsystem owner, IConfigStore config) throws EBaseException {
+    }
 
     /**
      * Publishes CRL. This method is invoked by CMS based
@@ -102,6 +102,6 @@ public interface ICRLPublisher {
      * @param crl CRL that is publishing
      * @exception EBaseException failed to publish
      */
-    public void publish(String issuingPointId, X509CRLImpl crl)
-            throws EBaseException;
+    public void publish(String issuingPointId, X509CRLImpl crl) throws EBaseException {
+    }
 }
