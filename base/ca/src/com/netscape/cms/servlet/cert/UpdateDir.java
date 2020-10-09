@@ -45,7 +45,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
@@ -59,6 +58,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 
@@ -96,7 +96,7 @@ public class UpdateDir extends CMSServlet {
     private String mFormPath = null;
     private ICertificateAuthority mCA = null;
     private PublisherProcessor mPublisherProcessor;
-    private ICRLRepository mCRLRepository = null;
+    private CRLRepository mCRLRepository;
     private boolean mClonedCA = false;
 
     /**

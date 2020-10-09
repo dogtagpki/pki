@@ -31,7 +31,6 @@ import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 
 /**
  * A class represents a CRL repository. It stores all the
@@ -41,7 +40,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLRepository;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class CRLRepository extends Repository implements ICRLRepository {
+public class CRLRepository extends Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRLRepository.class);
 
@@ -101,7 +100,10 @@ public class CRLRepository extends Repository implements ICRLRepository {
     }
 
     /**
-     * Adds CRL issuing points.
+     * Adds CRL issuing point record.
+     *
+     * @param rec issuing point record
+     * @exception EBaseException failed to add new issuing point record
      */
     public void addCRLIssuingPointRecord(ICRLIssuingPointRecord rec)
             throws EBaseException {
@@ -119,7 +121,10 @@ public class CRLRepository extends Repository implements ICRLRepository {
     }
 
     /**
-     * Retrieves all issuing points' names
+     * Retrieves all the issuing points' names.
+     *
+     * @return A list of issuing points' names.
+     * @exception EBaseException failed to retrieve all the issuing points' names.
      */
     public Vector<String> getIssuingPointsNames() throws EBaseException {
         IDBSSession s = dbSubsystem.createSession();
@@ -145,6 +150,9 @@ public class CRLRepository extends Repository implements ICRLRepository {
 
     /**
      * Reads issuing point record.
+     *
+     * @return issuing point record
+     * @exception EBaseException failed to read issuing point record
      */
     public ICRLIssuingPointRecord readCRLIssuingPointRecord(String id)
             throws EBaseException {
@@ -166,7 +174,10 @@ public class CRLRepository extends Repository implements ICRLRepository {
     }
 
     /**
-     * deletes issuing point record.
+     * Deletes issuing point record.
+     *
+     * @param id issuing point record id
+     * @exception EBaseException failed to delete issuing point record
      */
     public void deleteCRLIssuingPointRecord(String id)
             throws EBaseException {
@@ -185,6 +196,13 @@ public class CRLRepository extends Repository implements ICRLRepository {
         }
     }
 
+    /**
+     * Modifies issuing point record.
+     *
+     * @param id issuing point record id
+     * @param mods set of modifications
+     * @exception EBaseException failed to modify issuing point record
+     */
     public void modifyCRLIssuingPointRecord(String id,
             ModificationSet mods) throws EBaseException {
         IDBSSession s = dbSubsystem.createSession();
@@ -203,6 +221,14 @@ public class CRLRepository extends Repository implements ICRLRepository {
 
     /**
      * Updates CRL issuing point record.
+     *
+     * @param id issuing point record id
+     * @param newCRL encoded binary CRL
+     * @param thisUpdate time of this update
+     * @param nextUpdate time of next update
+     * @param crlNumber CRL number
+     * @param crlSize CRL size
+     * @exception EBaseException failed to update issuing point record
      */
     public void updateCRLIssuingPointRecord(String id, byte[] newCRL,
             Date thisUpdate, Date nextUpdate, BigInteger crlNumber, Long crlSize)
@@ -228,6 +254,17 @@ public class CRLRepository extends Repository implements ICRLRepository {
 
     /**
      * Updates CRL issuing point record.
+     *
+     * @param id issuing point record id
+     * @param newCRL encoded binary CRL
+     * @param thisUpdate time of this update
+     * @param nextUpdate time of next update
+     * @param crlNumber CRL number
+     * @param crlSize CRL size
+     * @param revokedCerts list of revoked certificates
+     * @param unrevokedCerts list of released from hold certificates
+     * @param expiredCerts list of expired certificates
+     * @exception EBaseException failed to update issuing point record
      */
     public void updateCRLIssuingPointRecord(String id, byte[] newCRL,
             Date thisUpdate, Date nextUpdate, BigInteger crlNumber, Long crlSize,
@@ -272,6 +309,11 @@ public class CRLRepository extends Repository implements ICRLRepository {
 
     /**
      * Updates CRL issuing point record with recently revoked certificates info.
+     *
+     * @param id issuing point record id
+     * @param revokedCerts list of revoked certificates
+     * @param unrevokedCerts list of released from hold certificates
+     * @exception EBaseException failed to update issuing point record
      */
     public void updateRevokedCerts(String id,
             Hashtable<BigInteger, RevokedCertificate> revokedCerts,
@@ -290,6 +332,10 @@ public class CRLRepository extends Repository implements ICRLRepository {
 
     /**
      * Updates CRL issuing point record with recently expired certificates info.
+     *
+     * @param id issuing point record id
+     * @param expiredCerts list of expired certificates
+     * @exception EBaseException failed to update issuing point record
      */
     public void updateExpiredCerts(String id, Hashtable<BigInteger, RevokedCertificate> expiredCerts)
             throws EBaseException {
@@ -302,6 +348,13 @@ public class CRLRepository extends Repository implements ICRLRepository {
 
     /**
      * Updates CRL issuing point record with CRL cache info.
+     *
+     * @param id issuing point record id
+     * @param crlSize CRL size
+     * @param revokedCerts list of revoked certificates
+     * @param unrevokedCerts list of released from hold certificates
+     * @param expiredCerts list of expired certificates
+     * @exception EBaseException failed to update issuing point record
      */
     public void updateCRLCache(String id, Long crlSize,
             Hashtable<BigInteger, RevokedCertificate> revokedCerts,
@@ -327,6 +380,13 @@ public class CRLRepository extends Repository implements ICRLRepository {
 
     /**
      * Updates CRL issuing point record with delta-CRL.
+     *
+     * @param id issuing point record id
+     * @param deltaCRLNumber delta CRL number
+     * @param deltaCRLSize delta CRL size
+     * @param nextUpdate time of next update
+     * @param deltaCRL delta CRL in binary form
+     * @exception EBaseException failed to update issuing point record
      */
     public void updateDeltaCRL(String id, BigInteger deltaCRLNumber,
                                Long deltaCRLSize, Date nextUpdate,
@@ -353,6 +413,14 @@ public class CRLRepository extends Repository implements ICRLRepository {
         modifyCRLIssuingPointRecord(id, mods);
     }
 
+    /**
+     * Updates CRL issuing point record with reference to the first
+     * unsaved data.
+     *
+     * @param id issuing point record id
+     * @param firstUnsaved reference to the first unsaved data
+     * @exception EBaseException failed to update issuing point record
+     */
     public void updateFirstUnsaved(String id, String firstUnsaved)
             throws EBaseException {
         ModificationSet mods = new ModificationSet();
