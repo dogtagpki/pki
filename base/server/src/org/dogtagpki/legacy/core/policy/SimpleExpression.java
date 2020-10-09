@@ -409,27 +409,3 @@ public class SimpleExpression implements IExpression {
         }
     }
 }
-
-class ExpressionComps {
-    String attr;
-    int op;
-    String val;
-
-    public ExpressionComps(String a, int o, String v) {
-        attr = a;
-        op = o;
-        val = v;
-    }
-
-    public String getAttr() {
-        return attr;
-    }
-
-    public int getOp() {
-        return op;
-    }
-
-    public String getVal() {
-        return val;
-    }
-}
