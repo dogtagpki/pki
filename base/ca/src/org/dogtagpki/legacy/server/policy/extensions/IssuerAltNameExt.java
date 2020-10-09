@@ -22,7 +22,7 @@ import java.security.cert.CertificateException;
 import java.util.Locale;
 import java.util.Vector;
 
-import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
+import org.dogtagpki.legacy.core.policy.GeneralNamesConfig;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
@@ -65,7 +65,7 @@ public class IssuerAltNameExt extends APolicyRule
 
     static {
         defaultParams.addElement(PROP_CRITICAL + "=" + DEFAULT_CRITICALITY);
-        GeneralNameUtil.GeneralNamesConfig.getDefaultParams(null, true, defaultParams);
+        GeneralNamesConfig.getDefaultParams(null, true, defaultParams);
 
         Vector<String> info = new Vector<String>();
 
@@ -76,7 +76,7 @@ public class IssuerAltNameExt extends APolicyRule
                 ";This policy inserts the Issuer Alternative Name " +
                 "Extension into the certificate. See RFC 2459 (4.2.1.8). ");
 
-        GeneralNameUtil.GeneralNamesConfig.getExtendedPluginInfo(null, true, info);
+        GeneralNamesConfig.getExtendedPluginInfo(null, true, info);
 
         mInfo = new String[info.size()];
         info.copyInto(mInfo);
@@ -114,7 +114,7 @@ public class IssuerAltNameExt extends APolicyRule
                     IPolicyProcessor.PROP_ENABLE, false);
 
         // form general names.
-        mGNs = new GeneralNameUtil.GeneralNamesConfig(null, config, true, mEnabled);
+        mGNs = new GeneralNamesConfig(null, config, true, mEnabled);
 
         // form extension
         try {

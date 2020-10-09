@@ -26,7 +26,6 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNameConfig;
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
-import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -35,7 +34,6 @@ import org.mozilla.jss.netscape.security.x509.DNSName;
 import org.mozilla.jss.netscape.security.x509.EDIPartyName;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
-import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.IPAddressName;
 import org.mozilla.jss.netscape.security.x509.InvalidIPAddressException;
 import org.mozilla.jss.netscape.security.x509.OIDName;
@@ -57,7 +55,7 @@ import com.netscape.cmscore.apps.CMS;
 public class GeneralNameUtil implements IGeneralNameUtil {
 
     public static Logger logger = LoggerFactory.getLogger(GeneralNameUtil.class);
-    private static final String DOT = ".";
+    static final String DOT = ".";
 
     /**
      * GeneralName can be used in the context of Constraints. Examples
@@ -242,146 +240,6 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                             ));
         }
         return theGeneralNameChoice;
-    }
-
-    static public class GeneralNamesConfig implements IGeneralNamesConfig {
-        public String mName = null; // substore name of config if any.
-        public GeneralNameConfig[] mGenNameConfigs = null;
-        public IConfigStore mConfig = null;
-        public boolean mIsValueConfigured = true;
-        public boolean mIsPolicyEnabled = true;
-        public int mDefNumGenNames = DEF_NUM_GENERALNAMES;
-        public GeneralNames mGeneralNames = null;
-
-        private String mNameDotGeneralName = mName + DOT + PROP_GENERALNAME;
-
-        public GeneralNamesConfig(
-                String name,
-                IConfigStore config,
-                boolean isValueConfigured,
-                boolean isPolicyEnabled)
-                throws EBaseException {
-            mIsValueConfigured = isValueConfigured;
-            mIsPolicyEnabled = isPolicyEnabled;
-            mName = name;
-            if (mName != null)
-                mNameDotGeneralName = mName + DOT + PROP_GENERALNAME;
-            else
-                mNameDotGeneralName = PROP_GENERALNAME;
-            mConfig = config;
-
-            int numGNs = mConfig.getInteger(PROP_NUM_GENERALNAMES);
-
-            if (numGNs < 0) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                                new String[] {
-                                        PROP_NUM_GENERALNAMES + "=" + numGNs,
-                                        "value must be greater than or equal to 0." }
-                                ));
-            }
-            mGenNameConfigs = new GeneralNameConfig[numGNs];
-            for (int i = 0; i < numGNs; i++) {
-                String storeName = mNameDotGeneralName + i;
-
-                mGenNameConfigs[i] =
-                        newGeneralNameConfig(
-                                storeName, mConfig.getSubStore(storeName),
-                                mIsValueConfigured, mIsPolicyEnabled);
-            }
-
-            if (mIsValueConfigured && mIsPolicyEnabled) {
-                mGeneralNames = new GeneralNames();
-                for (int j = 0; j < numGNs; j++) {
-                    mGeneralNames.addElement(mGenNameConfigs[j].mGeneralName);
-                }
-            }
-        }
-
-        public GeneralNames getGeneralNames() {
-            return mGeneralNames;
-        }
-
-        protected GeneralNameConfig newGeneralNameConfig(
-                String name, IConfigStore config,
-                boolean isValueConfigured, boolean isPolicyEnabled)
-                throws EBaseException {
-            return new GeneralNameConfig(
-                    name, config, isValueConfigured, isPolicyEnabled);
-        }
-
-        public GeneralNameConfig[] getGenNameConfig() {
-            return mGenNameConfigs.clone();
-        }
-
-        public int getNumGeneralNames() {
-            return mGenNameConfigs.length;
-        }
-
-        public IConfigStore getConfig() {
-            return mConfig;
-        }
-
-        public String getName() {
-            return mName;
-        }
-
-        public boolean isValueConfigured() {
-            return mIsValueConfigured;
-        }
-
-        public void setDefNumGenNames(int defNum) {
-            mDefNumGenNames = defNum;
-        }
-
-        public int getDefNumGenNames() {
-            return mDefNumGenNames;
-        }
-
-        /**
-         * adds params to default
-         */
-        public static void getDefaultParams(
-                String name, boolean isValueConfigured, Vector<String> params) {
-            String nameDot = "";
-
-            if (name != null)
-                nameDot = name + DOT;
-            params.addElement(
-                    nameDot + PROP_NUM_GENERALNAMES + '=' + DEF_NUM_GENERALNAMES);
-            for (int i = 0; i < DEF_NUM_GENERALNAMES; i++) {
-                GeneralNameConfig.getDefaultParams(
-                        nameDot + PROP_GENERALNAME + i, isValueConfigured, params);
-            }
-        }
-
-        /**
-         * Get instance params.
-         */
-        public void getInstanceParams(Vector<String> params) {
-            params.addElement(
-                    PROP_NUM_GENERALNAMES + '=' + mGenNameConfigs.length);
-            for (int i = 0; i < mGenNameConfigs.length; i++) {
-                mGenNameConfigs[i].getInstanceParams(params);
-            }
-        }
-
-        /**
-         * Get extended plugin info.
-         */
-        public static void getExtendedPluginInfo(
-                String name, boolean isValueConfigured, Vector<String> info) {
-            String nameDot = "";
-
-            if (name != null && name.length() > 0)
-                nameDot = name + ".";
-            info.addElement(PROP_NUM_GENERALNAMES + ";" + NUM_GENERALNAMES_INFO);
-            for (int i = 0; i < DEF_NUM_GENERALNAMES; i++) {
-                GeneralNameConfig.getExtendedPluginInfo(
-                        nameDot + PROP_GENERALNAME + i, isValueConfigured, info);
-            }
-        }
-
     }
 
     /**

@@ -19,7 +19,6 @@ package org.dogtagpki.legacy.core.policy;
 
 import org.dogtagpki.legacy.core.policy.GeneralNameUtil.GeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.core.policy.GeneralNameUtil.GeneralNameConfig;
-import org.dogtagpki.legacy.core.policy.GeneralNameUtil.GeneralNamesConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 
 import com.netscape.certsrv.base.EBaseException;
