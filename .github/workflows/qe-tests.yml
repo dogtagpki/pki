@@ -115,15 +115,6 @@ jobs:
             /vagrant/tests/dogtag/pytest-ansible/pytest/sanity/test_role_users.py \
             --junit-xml pki_cert_junit.xml -qsvvv'
 
-        - name: Run SKI related tests
-          run: |
-            vagrant ssh controller -c \
-            'pytest --ansible-host-pattern master \
-            --ansible-inventory /vagrant/inventory \
-            --ansible-module-path /vagrant/tests/dogtag/pytest-ansible/common-modules/ \
-            /vagrant/tests/dogtag/pytest-ansible/pytest/ca/bugzilla/test_bug_1787115_Copy_SKI_from_CSR_to_Certificate_Signed.py \
-            --junit-xml BZ_1787115_junit.xml -qsvvv'
-
         - name: Setup tmate session
           if: failure()
           uses: mxschmitt/action-tmate@v2

@@ -52,23 +52,23 @@ profop = ProfileOperations(nssdb=constants.NSSDB)
 
 def test_profile_update_SKI_parameters(ansible_module):
 	"""
-		:id: 8f761dd1-219e-404a-a1ea-333cf2a606b9
-		:Title: Bug 1787115 - SubjectAltNameExtInput does not display text fields to the enrollment page
-		:Description: Bug 1787115 - SubjectAltNameExtInput does not display text fields to the enrollment page
-		:Requirement:
-		:CaseComponent: \-
-		:Setup:
-			1. Use the subsystems setup in ansible to run subsystem commands
+	:id: 8f761dd1-219e-404a-a1ea-333cf2a606b9
+	:Title: Bug 1787115 - Update caCACert Profile with SKI parameter.
+	:Description: Bug 1787115 - Update caCACert Profile to include SKI parameter 'policyset.caCertSet.8.default.params.useSKIFromCertRequest'.
+	:Requirement:
+	:CaseComponent: \-
+	:Setup:
+		1. Use the subsystems setup in ansible to run subsystem commands
 
-		:Steps:
-			1. Disable profile caCACert.
-			2. Edit caCACert profile to add parameter 'policyset.caCertSet.8.default.params.useSKIFromCertRequest=true'
-			3. Enable profile.
+	:Steps:
+		1. Disable profile caCACert.
+		2. Edit caCACert profile to add parameter 'policyset.caCertSet.8.default.params.useSKIFromCertRequest=true'
+		3. Enable profile.
 
-		:ExpectedResults:
-			1. profile should be disabled.
-			2. caCACert profile must include parameter 'policyset.caCertSet.8.default.params.useSKIFromCertRequest=true'
-			3. profile should be enabled.
+	:ExpectedResults:
+		1. profile should be disabled.
+		2. caCACert profile must include parameter 'policyset.caCertSet.8.default.params.useSKIFromCertRequest=true'
+		3. profile should be enabled.
 
 	"""
 	tmp_file = tempfile.mktemp(suffix='tmp_', prefix='_profile')
@@ -127,32 +127,32 @@ def test_profile_update_SKI_parameters(ansible_module):
 		if res['rc'] == 0:
 			assert "policyset.caCertSet.8.default.params.useSKIFromCertRequest=true" in res['stdout']
 		else:
-			pytest.fail("Failed to run caServerCert profile.")
+			pytest.fail("Failed to modify caCACert profile.")
 
 
 def test_SKI_Validation_CSR_Signed_Certificate(ansible_module):
 	"""
-			:id: c57e8960-9545-4b1c-9728-be570766037c
-			:Title: Bug 1787115 - SubjectAltNameExtInput does not display text fields to the enrollment page
-			:Description: Bug 1787115 - SubjectAltNameExtInput does not display text fields to the enrollment page
-			:Requirement:
-			:CaseComponent: \-
-			:Setup:
-				1. Use the subsystems setup in ansible to run subsystem commands.
+	:id: c57e8960-9545-4b1c-9728-be570766037c
+	:Title: Bug 1787115 - Generate Certificate from CSR with external SKID.
+	:Description: Sign Certificate from CSR with external SKID extension.
+	:Requirement:
+	:CaseComponent: \-
+	:Setup:
+		1. Use the subsystems setup in ansible to run subsystem commands.
 
-			:Steps:
-				1. Genrate CSR with external SKID extension
-				2. Submit the certificate request with CSR file.
-				3. Approve the certificate request
-				4. Export signed certificate.
-				5. Check the certificate Subject Key Identifier matches with  Subject Key Identifier from CSR.
+	:Steps:
+		1. Genrate CSR with external SKID extension
+		2. Submit the certificate request with CSR file.
+		3. Approve the certificate request
+		4. Export signed certificate.
+		5. Check the certificate Subject Key Identifier matches with  Subject Key Identifier from CSR.
 
-			:ExpectedResults:
-				1. CSR should be generate with SKI extension.
-				2. CSR should be submitted succeesfully.
-				3. Request should be approved succeesfully.
-				4. Signed Certificate should be exported succeesfully.
-				5. CSR and Signed Certificate SKI extension should identical.
+	:ExpectedResults:
+		1. CSR should be generate with SKI extension.
+		2. CSR should be submitted succeesfully.
+		3. Request should be approved succeesfully.
+		4. Signed Certificate should be exported succeesfully.
+		5. CSR and Signed Certificate SKI extension should identical.
 	"""
 	request_id = None
 	submitted_req = False

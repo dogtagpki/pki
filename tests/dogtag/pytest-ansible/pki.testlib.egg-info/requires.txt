@@ -1,3 +1,0 @@
-lxml
-pytest
-pytest-ansible
