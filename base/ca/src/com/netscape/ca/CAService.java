@@ -94,6 +94,7 @@ import com.netscape.cmscore.connector.LocalConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
+import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
@@ -1574,8 +1575,7 @@ class getCertStatus implements IServant {
     public boolean service(IRequest request) throws EBaseException {
         BigInteger serialno = request.getExtDataInBigInteger("serialNumber");
         String issuerDN = request.getExtDataInString("issuerDN");
-        CertificateRepository certDB = (CertificateRepository)
-                mCA.getCertificateRepository();
+        CertificateRepository certDB = mCA.getCertificateRepository();
 
         String status = null;
 
@@ -1631,7 +1631,7 @@ class serviceCheckChallenge implements IServant {
         BigInteger serialno = request.getExtDataInBigInteger("serialNumber");
         String pwd = request.getExtDataInString(
                 CAService.CHALLENGE_PHRASE);
-        CertificateRepository certDB = (CertificateRepository) mCA.getCertificateRepository();
+        CertificateRepository certDB = mCA.getCertificateRepository();
         BigInteger[] bigIntArray = null;
 
         if (serialno != null) {
@@ -1948,9 +1948,10 @@ class serviceGetCRL implements IServant {
     public boolean service(IRequest request)
             throws EBaseException {
         try {
-            ICRLIssuingPointRecord crlRec =
-                    mCA.getCRLRepository().readCRLIssuingPointRecord(
-                            ICertificateAuthority.PROP_MASTER_CRL);
+            CAEngine engine = CAEngine.getInstance();
+            CRLRepository crlRepository = engine.getCRLRepository();
+
+            ICRLIssuingPointRecord crlRec = crlRepository.readCRLIssuingPointRecord(ICertificateAuthority.PROP_MASTER_CRL);
             X509CRLImpl crl = new X509CRLImpl(crlRec.getCRL());
 
             request.setExtData(IRequest.CRL, crl.getEncoded());
@@ -1995,7 +1996,7 @@ class serviceGetRevocationInfo implements IServant {
                 X509CertImpl certsToCheck[] =
                         request.getExtDataInCertArray(IRequest.ISSUED_CERTS);
                 if (certsToCheck != null) {
-                    CertificateRepository certDB = (CertificateRepository) mCA.getCertificateRepository();
+                    CertificateRepository certDB = mCA.getCertificateRepository();
                     info = certDB.isCertificateRevoked(certsToCheck[0]);
                 }
                 if (info != null) {
@@ -2033,7 +2034,7 @@ class serviceGetCertificates implements IServant {
             if (name.equals(IRequest.CERT_FILTER)) {
                 String filter = request.getExtDataInString(IRequest.CERT_FILTER);
 
-                CertificateRepository certDB = (CertificateRepository) mCA.getCertificateRepository();
+                CertificateRepository certDB = mCA.getCertificateRepository();
                 X509CertImpl[] certs = certDB.getX509Certificates(filter);
 
                 if (certs != null) {
@@ -2091,7 +2092,7 @@ class serviceCert4Crl implements IServant {
         for (int i = 0; i < revokedCertRecs.length; i++) {
             try {
                 // for CLA, record it into cert repost
-                ((CertificateRepository) mCA.getCertificateRepository()).addRevokedCertRecord(revokedCertRecs[i]);
+                mCA.getCertificateRepository().addRevokedCertRecord(revokedCertRecs[i]);
                 //				mService.revokeCert(crlentries[i]);
                 recordedCerts[i] = revokedCertRecs[i];
                 // inform all CRLIssuingPoints about revoked certificate

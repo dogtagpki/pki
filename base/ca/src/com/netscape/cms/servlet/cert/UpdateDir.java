@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
@@ -112,12 +113,14 @@ public class UpdateDir extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
+        CAEngine engine = CAEngine.getInstance();
+
         if (mAuthority != null) {
             mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
             if (mAuthority instanceof ICertificateAuthority) {
                 mCA = (ICertificateAuthority) mAuthority;
                 mPublisherProcessor = mCA.getPublisherProcessor();
-                mCRLRepository = mCA.getCRLRepository();
+                mCRLRepository = engine.getCRLRepository();
             }
 
             // override success to do output orw own template.

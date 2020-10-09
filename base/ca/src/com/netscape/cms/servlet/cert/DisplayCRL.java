@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -42,18 +43,17 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.CrlPrettyPrint;
+import com.netscape.cmscore.dbs.CRLRepository;
 
 /**
  * Decode the CRL and display it to the requester.
@@ -176,8 +176,9 @@ public class DisplayCRL extends CMSServlet {
                          HttpServletResponse resp,
                          String crlIssuingPointId,
                          Locale locale) {
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
+        CRLRepository crlRepository = engine.getCRLRepository();
 
         ICRLIssuingPoint crlIP = null;
         X509CRLImpl crl = null;
@@ -187,7 +188,6 @@ public class DisplayCRL extends CMSServlet {
         String masterPort = null;
         Vector<String> ipNames = null;
         String ipId = crlIssuingPointId;
-        ICRLRepository crlRepository = mCA.getCRLRepository();
 
         try {
             masterHost = cs.getString("master.ca.agent.host", "");
@@ -248,8 +248,7 @@ public class DisplayCRL extends CMSServlet {
         header.addStringValue("crlDisplayType", crlDisplayType);
 
         try {
-            crlRecord =
-                    mCA.getCRLRepository().readCRLIssuingPointRecord(crlIssuingPointId);
+            crlRecord = crlRepository.readCRLIssuingPointRecord(crlIssuingPointId);
         } catch (EBaseException e) {
             header.addStringValue("error", e.toString(locale));
             return;

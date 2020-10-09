@@ -524,7 +524,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         logger.debug("CRL Page Size: " + mPageSize);
 
         mCountMod = mConfigStore.getCountMod();
-        mCRLRepository = mCA.getCRLRepository();
+
+        CAEngine engine = CAEngine.getInstance();
+        mCRLRepository = engine.getCRLRepository();
+
         mCertRepository = mCA.getCertificateRepository();
         mCertRepository.addCRLIssuingPoint(mId, this);
         mPublisherProcessor = mCA.getPublisherProcessor();

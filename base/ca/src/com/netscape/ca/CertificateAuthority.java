@@ -111,7 +111,6 @@ import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
@@ -714,14 +713,6 @@ public class CertificateAuthority
     public IReplicaIDRepository getReplicaRepository() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getReplicaIDRepository();
-    }
-
-    /**
-     * Retrieves CRL repository.
-     */
-    public ICRLRepository getCRLRepository() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getCRLRepository();
     }
 
     public PublisherProcessor getPublisherProcessor() {

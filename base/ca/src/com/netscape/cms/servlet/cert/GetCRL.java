@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -50,6 +51,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.CrlPrettyPrint;
+import com.netscape.cmscore.dbs.CRLRepository;
 
 /**
  * Retrieve CRL for a Certificate Authority
@@ -160,6 +162,9 @@ public class GetCRL extends CMSServlet {
             return;
         }
 
+        CAEngine engine = CAEngine.getInstance();
+        CRLRepository crlRepository = engine.getCRLRepository();
+
         ICRLIssuingPointRecord crlRecord = null;
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
         ICRLIssuingPoint crlIP = null;
@@ -167,7 +172,7 @@ public class GetCRL extends CMSServlet {
             crlIP = ca.getCRLIssuingPoint(crlId);
 
         try {
-            crlRecord = ca.getCRLRepository().readCRLIssuingPointRecord(crlId);
+            crlRecord = crlRepository.readCRLIssuingPointRecord(crlId);
         } catch (EBaseException e) {
             logger.error(CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT_FOUND", crlId), e);
             cmsReq.setError(new ECMSGWException(

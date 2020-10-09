@@ -37,7 +37,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
@@ -237,13 +236,6 @@ public interface ICertificateAuthority extends ISubsystem {
      * @param id CRL issuing point id
      */
     public void deleteCRLIssuingPoint(IConfigStore crlSubStore, String id);
-
-    /**
-     * Retrieves the CRL repository.
-     *
-     * @return CA's CRL repository
-     */
-    public ICRLRepository getCRLRepository();
 
     /**
      * Retrieves the Replica ID repository.
