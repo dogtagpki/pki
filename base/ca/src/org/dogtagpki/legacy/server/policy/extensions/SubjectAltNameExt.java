@@ -23,7 +23,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
+import org.dogtagpki.legacy.core.policy.SubjAltNameGN;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
@@ -92,7 +92,7 @@ public class SubjectAltNameExt extends APolicyRule
                 IGeneralNameUtil.PROP_NUM_GENERALNAMES + "=" +
                         IGeneralNameUtil.DEF_NUM_GENERALNAMES);
         for (int i = 0; i < IGeneralNameUtil.DEF_NUM_GENERALNAMES; i++) {
-            GeneralNameUtil.SubjAltNameGN.getDefaultParams(
+            SubjAltNameGN.getDefaultParams(
                     IGeneralNameUtil.PROP_GENERALNAME + i, mDefParams);
         }
     }
@@ -137,7 +137,7 @@ public class SubjectAltNameExt extends APolicyRule
             String name = IGeneralNameUtil.PROP_GENERALNAME + i;
             IConfigStore substore = mConfig.getSubStore(name);
 
-            mGNs[i] = new GeneralNameUtil.SubjAltNameGN(name, substore, mEnabled);
+            mGNs[i] = new SubjAltNameGN(name, substore, mEnabled);
         }
 
         // init instance params.
@@ -310,7 +310,7 @@ public class SubjectAltNameExt extends APolicyRule
                 + ";boolean;RFC2459 recommendation: If the certificate subject field contains an empty sequence, the extension MUST be marked critical.");
         info.addElement(IGeneralNameUtil.PROP_NUM_GENERALNAMES_INFO);
         for (int i = 0; i < IGeneralNameUtil.DEF_NUM_GENERALNAMES; i++) {
-            GeneralNameUtil.SubjAltNameGN.getExtendedPluginInfo(
+            SubjAltNameGN.getExtendedPluginInfo(
                     IGeneralNameUtil.PROP_GENERALNAME + i, info);
         }
         info.addElement(IExtendedPluginInfo.HELP_TOKEN +

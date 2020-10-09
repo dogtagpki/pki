@@ -20,10 +20,8 @@ package org.dogtagpki.legacy.core.policy;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
-import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -41,8 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -237,73 +233,5 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                             ));
         }
         return theGeneralNameChoice;
-    }
-
-    public static class SubjAltNameGN extends GeneralNameConfig implements ISubjAltNameConfig {
-        static final String REQUEST_ATTR_INFO =
-                "string;Request attribute name. " +
-                        "The value of the request attribute will be used to form a " +
-                        "General Name in the Subject Alternative Name extension.";
-
-        static final String PROP_REQUEST_ATTR = "requestAttr";
-
-        String mRequestAttr = null;
-        String mPfx = null;
-        String mAttr = null;
-
-        public SubjAltNameGN(
-                String name, IConfigStore config, boolean isPolicyEnabled)
-                throws EBaseException {
-            super(name, config, false, isPolicyEnabled);
-
-            mRequestAttr = mConfig.getString(PROP_REQUEST_ATTR, null);
-            if (mRequestAttr == null) {
-                mConfig.putString(mNameDot + PROP_REQUEST_ATTR, "");
-                mRequestAttr = "";
-            }
-            if (isPolicyEnabled && mRequestAttr.length() == 0) {
-                throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
-                            mConfig.getName() + "." + PROP_REQUEST_ATTR));
-            }
-            int x = mRequestAttr.indexOf('.');
-
-            if (x == -1)
-                mAttr = mRequestAttr;
-            else {
-                mPfx = mRequestAttr.substring(0, x).trim();
-                mAttr = mRequestAttr.substring(x + 1).trim();
-            }
-        }
-
-        public String getPfx() {
-            return mPfx;
-        }
-
-        public String getAttr() {
-            return mAttr;
-        }
-
-        public void getInstanceParams(Vector<String> params) {
-            params.addElement(mNameDot + PROP_REQUEST_ATTR + "=" + mRequestAttr);
-            super.getInstanceParams(params);
-        }
-
-        public static void getDefaultParams(String name, Vector<String> params) {
-            String nameDot = "";
-
-            if (name != null && name.length() > 0)
-                nameDot = name + ".";
-            params.addElement(nameDot + PROP_REQUEST_ATTR + "=");
-            GeneralNameConfig.getDefaultParams(name, false, params);
-        }
-
-        public static void getExtendedPluginInfo(String name, Vector<String> params) {
-            String nameDot = "";
-
-            if (name != null && name.length() > 0)
-                nameDot = name + ".";
-            params.addElement(nameDot + PROP_REQUEST_ATTR + ";" + REQUEST_ATTR_INFO);
-            GeneralNameConfig.getExtendedPluginInfo(name, false, params);
-        }
     }
 }
