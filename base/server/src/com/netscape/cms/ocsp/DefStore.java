@@ -912,7 +912,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             // update cache
             mCacheCRLIssuingPoints.clear();
 
-            logger.info("AddCRLServlet: Finish Committing CRL." +
+            logger.info("DefStore: Finish Committing CRL." +
                     " thisUpdate=" + crl.getThisUpdate() +
                     " nextUpdate=" + crl.getNextUpdate());
 
