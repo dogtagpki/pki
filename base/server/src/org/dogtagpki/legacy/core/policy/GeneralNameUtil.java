@@ -26,7 +26,6 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNameConfig;
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
-import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.netscape.security.util.DerValue;
@@ -383,26 +382,6 @@ public class GeneralNameUtil implements IGeneralNameUtil {
             }
         }
 
-    }
-
-    static public class GeneralNamesAsConstraintsConfig extends GeneralNamesConfig implements
-            IGeneralNamesAsConstraintsConfig {
-        public GeneralNamesAsConstraintsConfig(
-                String name,
-                IConfigStore config,
-                boolean isValueConfigured,
-                boolean isPolicyEnabled)
-                throws EBaseException {
-            super(name, config, isValueConfigured, isPolicyEnabled);
-        }
-
-        protected GeneralNameConfig newGeneralNameConfig(
-                String name, IConfigStore config,
-                boolean isValueConfigured, boolean isPolicyEnabled)
-                throws EBaseException {
-            return new GeneralNameAsConstraintsConfig(name, config,
-                    isValueConfigured, isPolicyEnabled);
-        }
     }
 
     /**
