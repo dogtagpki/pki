@@ -45,7 +45,6 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.request.ARequestQueue;
-import com.netscape.cmscore.util.AssertionException;
 
 /**
  * This is a Generic policy processor. The three main functions of
@@ -1447,28 +1446,5 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 }
             }
         }
-    }
-}
-
-/**
- * Class to keep track of various configurable implementations.
- */
-class RegisteredPolicy {
-    String mId;
-    String mClPath;
-
-    public RegisteredPolicy(String id, String clPath) {
-        if (id == null || clPath == null)
-            throw new AssertionException("Policy id or classpath can't be null");
-        mId = id;
-        mClPath = clPath;
-    }
-
-    public String getClassPath() {
-        return mClPath;
-    }
-
-    public String getId() {
-        return mId;
     }
 }
