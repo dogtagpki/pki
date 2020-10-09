@@ -19,7 +19,6 @@ package org.dogtagpki.legacy.core.policy;
 
 import java.util.Vector;
 
-import org.dogtagpki.legacy.core.policy.GeneralNameUtil.GeneralNameConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
 
