@@ -17,14 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.core.policy;
 
-import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
+import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 
-public class GeneralNamesAsConstraintsConfig extends GeneralNamesConfig implements
-        IGeneralNamesAsConstraintsConfig {
-    public GeneralNamesAsConstraintsConfig(
+/**
+ * convenience class for policies use.
+ */
+public class GeneralNameAsConstraintsConfig extends GeneralNameConfig implements
+        IGeneralNameAsConstraintsConfig {
+
+    public GeneralNameAsConstraintsConfig(
             String name,
             IConfigStore config,
             boolean isValueConfigured,
@@ -33,11 +38,15 @@ public class GeneralNamesAsConstraintsConfig extends GeneralNamesConfig implemen
         super(name, config, isValueConfigured, isPolicyEnabled);
     }
 
-    protected GeneralNameConfig newGeneralNameConfig(
-            String name, IConfigStore config,
-            boolean isValueConfigured, boolean isPolicyEnabled)
+    public GeneralName getGeneralName() {
+        return mGeneralName;
+    }
+
+    /**
+     * Form a general name from the value string.
+     */
+    public GeneralName formGeneralName(String choice, String value)
             throws EBaseException {
-        return new GeneralNameAsConstraintsConfig(name, config,
-                isValueConfigured, isPolicyEnabled);
+        return GeneralNameUtil.form_GeneralNameAsConstraints(choice, value);
     }
 }

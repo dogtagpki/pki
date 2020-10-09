@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.netscape.security.util.DerValue;
@@ -238,34 +237,6 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                             ));
         }
         return theGeneralNameChoice;
-    }
-
-    /**
-     * convenience class for policies use.
-     */
-    static public class GeneralNameAsConstraintsConfig extends GeneralNameConfig implements
-            IGeneralNameAsConstraintsConfig {
-
-        public GeneralNameAsConstraintsConfig(
-                String name,
-                IConfigStore config,
-                boolean isValueConfigured,
-                boolean isPolicyEnabled)
-                throws EBaseException {
-            super(name, config, isValueConfigured, isPolicyEnabled);
-        }
-
-        public GeneralName getGeneralName() {
-            return mGeneralName;
-        }
-
-        /**
-         * Form a general name from the value string.
-         */
-        public GeneralName formGeneralName(String choice, String value)
-                throws EBaseException {
-            return form_GeneralNameAsConstraints(choice, value);
-        }
     }
 
     public static class SubjAltNameGN extends GeneralNameConfig implements ISubjAltNameConfig {

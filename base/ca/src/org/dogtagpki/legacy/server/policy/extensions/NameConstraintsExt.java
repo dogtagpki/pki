@@ -22,8 +22,8 @@ import java.security.cert.CertificateException;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.legacy.core.policy.GeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.core.policy.GeneralNameConfig;
-import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
@@ -435,7 +435,7 @@ class Subtree {
         mMax = mConfig.getInteger(PROP_MAX, DEF_MAX);
         if (mMax < -1)
             mMax = -1;
-        mBase = new GeneralNameUtil.GeneralNameAsConstraintsConfig(
+        mBase = new GeneralNameAsConstraintsConfig(
                     mNameDot + PROP_BASE, mConfig.getSubStore(PROP_BASE),
                     true, policyEnabled);
 
