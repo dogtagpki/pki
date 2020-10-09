@@ -185,7 +185,7 @@ public class CAProcessor extends Processor {
             throw new EBaseException("CAProcessor: Profile Subsystem not found");
         }
 
-        certdb = authority.getCertificateRepository();
+        certdb = engine.getCertificateRepository();
         if (certdb == null) {
             throw new EBaseException("CAProcessor: Certificate repository not found");
         }

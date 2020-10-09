@@ -331,6 +331,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         CAEngine engine = CAEngine.getInstance();
         EngineConfig configStore = engine.getConfig();
+        CertificateRepository cr = engine.getCertificateRepository();
 
         IAuthToken token = authenticate(cmsReq);
 
@@ -469,9 +470,7 @@ public class HashEnrollServlet extends CMSServlet {
                         "(&(x509cert.subject="
                                 + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum
                                 + "))(certStatus=VALID))";
-                ICertRecordList list =
-                        mCa.getCertificateRepository().findCertRecordsInList(filter,
-                                null, 10);
+                ICertRecordList list = cr.findCertRecordsInList(filter, null, 10);
                 int size = list.getSize();
                 Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
                 boolean gotEncCert = false;

@@ -152,6 +152,9 @@ public class RevocationServlet extends CMSServlet {
         // 	- coming from agent or trusted RA:
         //  	- serial no of cert to be revoked.
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
         BigInteger old_serial_no = null;
         X509CertImpl old_cert = null;
 
@@ -223,7 +226,7 @@ public class RevocationServlet extends CMSServlet {
                 header.addStringValue("nonce", old_serial_no+":"+n);
             }
 
-            certsToRevoke = ((ICertificateAuthority) mAuthority).getCertificateRepository().getX509Certificates(
+            certsToRevoke = cr.getX509Certificates(
                         old_cert.getSubjectDN().toString(),
                         CertificateRepository.ALL_UNREVOKED_CERTS);
 

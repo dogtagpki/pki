@@ -614,6 +614,8 @@ public class CAService implements ICAService, IService {
             ) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
         CertificateAuthority ca = engine.getCA(aid);
 
         if (ca == null)
@@ -797,8 +799,7 @@ public class CAService implements ICAService, IService {
 
         // set issuer, serial number
         try {
-            BigInteger serialNo =
-                    mCA.getCertificateRepository().getNextSerialNumber();
+            BigInteger serialNo = cr.getNextSerialNumber();
 
             certi.set(X509CertInfo.SERIAL_NUMBER,
                     new CertificateSerialNumber(serialNo));
@@ -881,6 +882,10 @@ public class CAService implements ICAService, IService {
     void storeX509Cert(String rid, X509CertImpl cert,
             boolean renewal, BigInteger oldSerialNo, String crmfReqId,
             String challengePassword, String profileId) throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
         // now store in repository.
         // if renewal, set the old serial number in the new cert,
         // set the new serial number in the old cert.
@@ -902,8 +907,7 @@ public class CAService implements ICAService, IService {
             }
             if (renewal)
                 metaInfo.set(CertRecord.META_OLD_CERT, oldSerialNo.toString());
-            mCA.getCertificateRepository().addCertificateRecord(
-                    new CertRecord(newSerialNo, cert, metaInfo));
+            cr.addCertificateRecord(new CertRecord(newSerialNo, cert, metaInfo));
 
             logger.info(CMS.getLogMessage("CMSCORE_CA_STORE_SERIAL", cert.getSerialNumber().toString(16)));
 
@@ -915,8 +919,7 @@ public class CAService implements ICAService, IService {
                  mCA.mCertRepot.markCertificateAsRenewed(oldSerialNo);
                  */
                 MetaInfo oldMeta = null;
-                CertRecord oldCertRec = (CertRecord)
-                        mCA.getCertificateRepository().readCertificateRecord(oldSerialNo);
+                CertRecord oldCertRec = (CertRecord) cr.readCertificateRecord(oldSerialNo);
 
                 if (oldCertRec == null) {
                     String message = CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
@@ -952,13 +955,12 @@ public class CAService implements ICAService, IService {
                         CertRecord.AUTO_RENEWAL_DONE);
                 modSet.add(ICertRecord.ATTR_META_INFO,
                         Modification.MOD_REPLACE, oldMeta);
-                mCA.getCertificateRepository().modifyCertificateRecord(oldSerialNo, modSet);
+                cr.modifyCertificateRecord(oldSerialNo, modSet);
 
                 logger.info(CMS.getLogMessage("CMSCORE_CA_MARK_SERIAL", oldSerialNo.toString(16), newSerialNo.toString(16)));
 
                 if (logger.isDebugEnabled()) {
-                    CertRecord check = (CertRecord)
-                            mCA.getCertificateRepository().readCertificateRecord(oldSerialNo);
+                    CertRecord check = (CertRecord) cr.readCertificateRecord(oldSerialNo);
                     MetaInfo meta = check.getMetaInfo();
 
                     Enumeration<String> n = oldMeta.getElements();
@@ -988,6 +990,9 @@ public class CAService implements ICAService, IService {
     public void revokeCert(RevokedCertImpl crlentry, String requestId)
             throws EBaseException {
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
         final String method = "CAService.revokeCert";
         BigInteger serialno = crlentry.getSerialNumber();
         Date revdate = crlentry.getRevocationDate();
@@ -1014,7 +1019,7 @@ public class CAService implements ICAService, IService {
         }
 
         logger.debug(method + ": revocaton request revocation reason: " + revReason.toString());
-        CertRecord certRec = (CertRecord) mCA.getCertificateRepository().readCertificateRecord(serialno);
+        CertRecord certRec = (CertRecord) cr.readCertificateRecord(serialno);
 
         if (certRec == null) {
             logger.error(method + ": " + CMS.getLogMessage("CMSCORE_CA_CERT_NOT_FOUND", serialno.toString(16)));
@@ -1058,7 +1063,7 @@ public class CAService implements ICAService, IService {
             // if cert has already revoked, update the revocation info only
             logger.debug(method + ": about to call markAsRevoked");
             if (certStatus.equals(ICertRecord.STATUS_REVOKED)) {
-                mCA.getCertificateRepository().markAsRevoked(serialno,
+                cr.markAsRevoked(serialno,
                         new RevocationInfo(revdate, crlentryexts),
                         true /*isAlreadyRevoked*/);
 
@@ -1069,7 +1074,7 @@ public class CAService implements ICAService, IService {
                                 revReason.toString(),
                                 serialno.toString(16)));
             } else {
-                mCA.getCertificateRepository().markAsRevoked(serialno,
+                cr.markAsRevoked(serialno,
                         new RevocationInfo(revdate, crlentryexts));
             }
 
@@ -1122,7 +1127,11 @@ public class CAService implements ICAService, IService {
 
     void unrevokeCert(BigInteger serialNo, String requestId)
             throws EBaseException {
-        CertRecord certRec = (CertRecord) mCA.getCertificateRepository().readCertificateRecord(serialNo);
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
+        CertRecord certRec = (CertRecord) cr.readCertificateRecord(serialNo);
 
         if (certRec == null) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_NOT_FOUND", serialNo.toString(16)));
@@ -1160,8 +1169,7 @@ public class CAService implements ICAService, IService {
                 reasonext != null &&
                 reasonext.getReason() == RevocationReason.CERTIFICATE_HOLD) {
             try {
-                mCA.getCertificateRepository().unmarkRevoked(serialNo, revInfo,
-                        certRec.getRevokedOn(), certRec.getRevokedBy());
+                cr.unmarkRevoked(serialNo, revInfo, certRec.getRevokedOn(), certRec.getRevokedBy());
 
                 logger.info(CMS.getLogMessage("CMSCORE_CA_CERT_UNREVOKED", serialNo.toString(16)));
 
@@ -1315,6 +1323,10 @@ class serviceIssue implements IServant {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_REQUEST_NOT_FOUND", request.getRequestId().toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_ISSUEREQ"));
         }
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
         String challengePassword =
                 request.getExtDataInString(CAService.CHALLENGE_PHRASE);
 
@@ -1351,7 +1363,7 @@ class serviceIssue implements IServant {
                         ((X509Certificate) certs[i]).getSerialNumber();
 
                 try {
-                    mCA.getCertificateRepository().deleteCertificateRecord(serialNo);
+                    cr.deleteCertificateRecord(serialNo);
                 } catch (EBaseException e) {
                     logger.warn(CMS.getLogMessage("CMSCORE_CA_DELETE_CERT_ERROR", serialNo.toString(), e.toString()), e);
                 }
@@ -1388,6 +1400,10 @@ class serviceRenewal implements IServant {
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
         }
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
         X509CertImpl issuedCerts[] = new X509CertImpl[certinfos.length];
 
         for (int j = 0; j < issuedCerts.length; j++)
@@ -1437,8 +1453,7 @@ class serviceRenewal implements IServant {
                 BigInteger oldSerialNo = serialnumBigInt.toBigInteger();
 
                 // get cert record
-                CertRecord certRecord = (CertRecord)
-                        mCA.getCertificateRepository().readCertificateRecord(oldSerialNo);
+                CertRecord certRecord = (CertRecord) cr.readCertificateRecord(oldSerialNo);
 
                 if (certRecord == null) {
                     logger.error(CMS.getLogMessage("CMSCORE_CA_NOT_FROM_CA", oldSerialNo.toString()));
@@ -1469,8 +1484,7 @@ class serviceRenewal implements IServant {
 
                     if (renewed != null) {
                         BigInteger serial = new BigInteger(renewed);
-                        X509CertImpl cert =
-                                mCA.getCertificateRepository().getX509Certificate(serial);
+                        X509CertImpl cert = cr.getX509Certificate(serial);
 
                         if (cert == null) {
                             // something wrong
@@ -1481,8 +1495,7 @@ class serviceRenewal implements IServant {
                             continue;
                         }
                         // get cert record
-                        CertRecord cRecord = (CertRecord)
-                                mCA.getCertificateRepository().readCertificateRecord(serial);
+                        CertRecord cRecord = (CertRecord) cr.readCertificateRecord(serial);
 
                         if (cRecord == null) {
                             logger.error(CMS.getLogMessage("CMSCORE_CA_NOT_FROM_CA", serial.toString()));
@@ -1545,6 +1558,10 @@ class getCertsForChallenge implements IServant {
 
     public boolean service(IRequest request)
             throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
         BigInteger[] serialNoArray =
                 request.getExtDataInBigIntegerArray(CAService.SERIALNO_ARRAY);
         if (serialNoArray == null) {
@@ -1553,7 +1570,7 @@ class getCertsForChallenge implements IServant {
         X509CertImpl[] certs = new X509CertImpl[serialNoArray.length];
 
         for (int i = 0; i < serialNoArray.length; i++) {
-            certs[i] = mCA.getCertificateRepository().getX509Certificate(serialNoArray[i]);
+            certs[i] = cr.getX509Certificate(serialNoArray[i]);
         }
         request.setExtData(IRequest.OLD_CERTS, certs);
         return true;
@@ -1575,7 +1592,9 @@ class getCertStatus implements IServant {
     public boolean service(IRequest request) throws EBaseException {
         BigInteger serialno = request.getExtDataInBigInteger("serialNumber");
         String issuerDN = request.getExtDataInString("issuerDN");
-        CertificateRepository certDB = mCA.getCertificateRepository();
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certDB = engine.getCertificateRepository();
 
         String status = null;
 
@@ -1631,7 +1650,10 @@ class serviceCheckChallenge implements IServant {
         BigInteger serialno = request.getExtDataInBigInteger("serialNumber");
         String pwd = request.getExtDataInString(
                 CAService.CHALLENGE_PHRASE);
-        CertificateRepository certDB = mCA.getCertificateRepository();
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certDB = engine.getCertificateRepository();
+
         BigInteger[] bigIntArray = null;
 
         if (serialno != null) {
@@ -1842,6 +1864,9 @@ class serviceUnrevoke implements IServant {
                     CMS.getUserMessage("CMS_CA_MISSING_SERIAL_NUMBER"));
         }
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
         String svcerrors[] = null;
         boolean needOldCerts = false;
         X509CertImpl oldCerts[] = request.getExtDataInCertArray(IRequest.OLD_CERTS);
@@ -1859,8 +1884,7 @@ class serviceUnrevoke implements IServant {
                             CMS.getUserMessage("CMS_CA_MISSING_SERIAL_NUMBER"));
                 }
                 if (needOldCerts) {
-                    CertRecord certRec = (CertRecord)
-                            mCA.getCertificateRepository().readCertificateRecord(oldSerialNo[i]);
+                    CertRecord certRec = (CertRecord) cr.readCertificateRecord(oldSerialNo[i]);
 
                     oldCerts[i] = certRec.getCertificate();
                 }
@@ -1987,6 +2011,10 @@ class serviceGetRevocationInfo implements IServant {
 
     public boolean service(IRequest request)
             throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certDB = engine.getCertificateRepository();
+
         Enumeration<String> enum1 = request.getExtDataKeys();
 
         while (enum1.hasMoreElements()) {
@@ -1996,7 +2024,6 @@ class serviceGetRevocationInfo implements IServant {
                 X509CertImpl certsToCheck[] =
                         request.getExtDataInCertArray(IRequest.ISSUED_CERTS);
                 if (certsToCheck != null) {
-                    CertificateRepository certDB = mCA.getCertificateRepository();
                     info = certDB.isCertificateRevoked(certsToCheck[0]);
                 }
                 if (info != null) {
@@ -2026,6 +2053,10 @@ class serviceGetCertificates implements IServant {
 
     public boolean service(IRequest request)
             throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certDB = engine.getCertificateRepository();
+
         Enumeration<String> enum1 = request.getExtDataKeys();
 
         while (enum1.hasMoreElements()) {
@@ -2033,8 +2064,6 @@ class serviceGetCertificates implements IServant {
 
             if (name.equals(IRequest.CERT_FILTER)) {
                 String filter = request.getExtDataInString(IRequest.CERT_FILTER);
-
-                CertificateRepository certDB = mCA.getCertificateRepository();
                 X509CertImpl[] certs = certDB.getX509Certificates(filter);
 
                 if (certs != null) {
@@ -2070,11 +2099,12 @@ class serviceCert4Crl implements IServant {
             throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_CLAREQ"));
         }
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
         CertRecord revokedCertRecs[] = new CertRecord[revokedCertIds.length];
         for (int i = 0; i < revokedCertIds.length; i++) {
-            revokedCertRecs[i] = (CertRecord)
-                    mCA.getCertificateRepository().readCertificateRecord(
-                            revokedCertIds[i]);
+            revokedCertRecs[i] = (CertRecord) cr.readCertificateRecord(revokedCertIds[i]);
         }
 
         if (revokedCertRecs == null ||
@@ -2092,7 +2122,7 @@ class serviceCert4Crl implements IServant {
         for (int i = 0; i < revokedCertRecs.length; i++) {
             try {
                 // for CLA, record it into cert repost
-                mCA.getCertificateRepository().addRevokedCertRecord(revokedCertRecs[i]);
+                cr.addRevokedCertRecord(revokedCertRecs[i]);
                 //				mService.revokeCert(crlentries[i]);
                 recordedCerts[i] = revokedCertRecs[i];
                 // inform all CRLIssuingPoints about revoked certificate
@@ -2155,11 +2185,14 @@ class serviceUnCert4Crl implements IServant {
                     CMS.getUserMessage("CMS_CA_MISSING_SERIAL_NUMBER"));
         }
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
         String svcerrors[] = null;
 
         for (int i = 0; i < oldSerialNo.length; i++) {
             try {
-                mCA.getCertificateRepository().deleteCertificateRecord(oldSerialNo[i]);
+                cr.deleteCertificateRecord(oldSerialNo[i]);
                 // inform all CRLIssuingPoints about unrevoked certificate
                 Hashtable<String, ICRLIssuingPoint> hips = mService.getCRLIssuingPoints();
                 Enumeration<ICRLIssuingPoint> eIPs = hips.elements();

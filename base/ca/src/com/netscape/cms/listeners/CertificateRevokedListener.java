@@ -27,7 +27,6 @@ import java.util.Hashtable;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -302,11 +301,10 @@ public class CertificateRevokedListener implements IRequestListener {
                 mHttpPort);
 
         CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certDB = engine.getCertificateRepository();
 
         try {
             RevokedCertImpl revCert = crlentries[0];
-            CertificateAuthority ca = engine.getCA();
-            CertificateRepository certDB = ca.getCertificateRepository();
             X509Certificate cert = certDB.getX509Certificate(revCert.getSerialNumber());
 
             mContentParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,

@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailResolver;
@@ -98,12 +97,10 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
         X509Certificate cert = null;
 
         CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certDB = engine.getCertificateRepository();
 
         if (request instanceof RevokedCertImpl) {
             RevokedCertImpl revCert = (RevokedCertImpl) request;
-            CertificateAuthority ca = engine.getCA();
-            CertificateRepository certDB = ca.getCertificateRepository();
-
             cert = certDB.getX509Certificate(revCert.getSerialNumber());
         } else
             cert = (X509Certificate) request;

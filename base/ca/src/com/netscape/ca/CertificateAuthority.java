@@ -1690,6 +1690,7 @@ public class CertificateAuthority
     private SingleResponse processRequest(Request req) {
 
         CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
 
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
@@ -1765,8 +1766,6 @@ public class CertificateAuthority
                 return new SingleResponse(cid, certStatus, thisUpdate, nextUpdate);
             }
         }
-
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
 
         try {
             ICertRecord rec = certificateRepository.readCertificateRecord(serialNo);
@@ -1993,6 +1992,7 @@ public class CertificateAuthority
 
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
+
         ICertRecord certRecord = certificateRepository.readCertificateRecord(authoritySerial);
         String curStatus = certRecord.getStatus();
         logger.debug("revokeAuthority: current cert status: " + curStatus);

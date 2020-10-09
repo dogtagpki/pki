@@ -427,6 +427,9 @@ public class EnrollServlet extends CMSServlet {
                     CMS.getUserMessage("CMS_GW_NOT_A_CA"));
         }
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
         // first, make sure the client cert is indeed a
         // signing only cert
 
@@ -459,8 +462,7 @@ public class EnrollServlet extends CMSServlet {
                 "(&(x509cert.subject="
                         + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum
                         + "))(certStatus=VALID))";
-        ICertRecordList list =
-                mCa.getCertificateRepository().findCertRecordsInList(filter, null, 10);
+        ICertRecordList list = cr.findCertRecordsInList(filter, null, 10);
         int size = list.getSize();
         Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
 

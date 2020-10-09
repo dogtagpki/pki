@@ -91,7 +91,7 @@ public class ReasonToRevoke extends CMSServlet {
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         if (mAuthority instanceof ICertificateAuthority) {
             mCA = (ICertificateAuthority) mAuthority;
-            mCertDB = ((ICertificateAuthority) mAuthority).getCertificateRepository();
+            mCertDB = engine.getCertificateRepository();
         }
 
         if (mCA != null && mCA.noncesEnabled()) {

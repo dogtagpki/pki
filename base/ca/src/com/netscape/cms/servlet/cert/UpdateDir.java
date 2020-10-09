@@ -338,6 +338,7 @@ public class UpdateDir extends CMSServlet {
             throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
 
         // all or crl
         if ((updateValue[UPDATE_ALL] != null &&
@@ -383,8 +384,6 @@ public class UpdateDir extends CMSServlet {
                         crlIssuingPoint, locale);
             }
         }
-
-        CertificateRepository certificateRepository = mCA.getCertificateRepository();
 
         // all or ca
         if ((updateValue[UPDATE_ALL] != null &&

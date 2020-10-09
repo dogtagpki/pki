@@ -341,10 +341,11 @@ public class LdapPublishModule implements IRequestListener {
     public void setPublishedFlag(BigInteger serialNo, boolean published) {
         if (!(mAuthority instanceof ICertificateAuthority))
             return;
-        ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certdb = engine.getCertificateRepository();
 
         try {
-            CertificateRepository certdb = ca.getCertificateRepository();
             ICertRecord certRec = certdb.readCertificateRecord(serialNo);
             MetaInfo metaInfo = certRec.getMetaInfo();
 

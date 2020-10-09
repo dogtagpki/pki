@@ -112,13 +112,14 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
+        CAEngine engine = CAEngine.getInstance();
         String authorityId = mAuthority.getId();
 
         mFormPath = "/" + authorityId + "/" + TPL_FILE;
 
         mTemplates.remove(ICMSRequest.SUCCESS);
         if (mAuthority instanceof ICertificateAuthority) {
-            mCertDB = ((ICertificateAuthority) mAuthority).getCertificateRepository();
+            mCertDB = engine.getCertificateRepository();
         }
 
         if (mAuthority instanceof ICertAuthority) {
@@ -141,6 +142,9 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
 
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
@@ -213,9 +217,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 certs = new X509CertImpl[serialNoArray.length];
 
                 for (int i = 0; i < serialNoArray.length; i++) {
-                    certs[i] =
-                            ((ICertificateAuthority) mAuthority).getCertificateRepository().getX509Certificate(
-                                    serialNoArray[i]);
+                    certs[i] = cr.getX509Certificate(serialNoArray[i]);
                 }
 
             } else if (mAuthority instanceof IRegistrationAuthority) {

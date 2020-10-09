@@ -32,7 +32,6 @@ import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
@@ -150,10 +149,9 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
         CertificateSubjectName sn = null;
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
+        CertificateRepository certdb = engine.getCertificateRepository();
 
         mKeyUsageExtensionChecking = getConfigBoolean(CONFIG_KEY_USAGE_EXTENSION_CHECKING);
-        CertificateRepository certdb = ca.getCertificateRepository();
 
         try {
             sn = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);

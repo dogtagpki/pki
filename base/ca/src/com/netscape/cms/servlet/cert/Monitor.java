@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
@@ -88,13 +89,16 @@ public class Monitor extends CMSServlet {
 
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
+        CAEngine engine = CAEngine.getInstance();
+
         // override success to render own template.
         mTemplates.remove(ICMSRequest.SUCCESS);
 
         if (mAuthority instanceof ICertificateAuthority) {
             ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
 
-            mCertDB = ca.getCertificateRepository();
+            mCertDB = engine.getCertificateRepository();
             mAuthName = ca.getX500Name();
         }
         mQueue = mAuthority.getRequestQueue();

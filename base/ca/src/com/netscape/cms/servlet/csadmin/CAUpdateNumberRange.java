@@ -34,7 +34,7 @@ public class CAUpdateNumberRange extends UpdateNumberRange {
             return ca.getRequestQueue().getRequestRepository();
 
         } else if (type.equals("serialNo")) {
-            return ca.getCertificateRepository();
+            return engine.getCertificateRepository();
 
         } else if (type.equals("replicaId")) {
             return ca.getReplicaRepository();

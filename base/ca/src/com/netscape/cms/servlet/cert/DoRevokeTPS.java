@@ -105,10 +105,13 @@ public class DoRevokeTPS extends CMSServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
+        CAEngine engine = CAEngine.getInstance();
+
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
         if (mAuthority instanceof ICertificateAuthority) {
-            mCertDB = ((ICertificateAuthority) mAuthority).getCertificateRepository();
+            mCertDB = engine.getCertificateRepository();
         }
         if (mAuthority instanceof ICertAuthority) {
             mPublisherProcessor = ((ICertAuthority) mAuthority).getPublisherProcessor();

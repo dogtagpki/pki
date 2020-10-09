@@ -42,6 +42,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
  * This constraint is to check for publickey uniqueness.
@@ -143,6 +144,9 @@ public class UniqueKeyConstraint extends EnrollConstraint {
         msg = msg + ": allowSameKeyRenewal=" + mAllowSameKeyRenewal + ";";
         logger.debug(method + msg);
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
         try {
             CertificateX509Key infokey = (CertificateX509Key)
                     info.get(X509CertInfo.KEY);
@@ -153,8 +157,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
             byte pub[] = key.getEncoded();
             String pub_s = escapeBinaryData(pub);
             String filter = "(" + ICertRecord.ATTR_X509CERT_PUBLIC_KEY_DATA + "=" + pub_s + ")";
-            list =
-                    mCA.getCertificateRepository().findCertRecordsInList(filter, null, 10);
+            list = cr.findCertRecordsInList(filter, null, 10);
             size = list.getSize();
 
         } catch (Exception e) {

@@ -109,7 +109,8 @@ public class CertService extends PKIService implements CertResource {
         if (authority.noncesEnabled()) {
             random = jssSubsystem.getRandomNumberGenerator();
         }
-        repo = authority.getCertificateRepository();
+
+        repo = engine.getCertificateRepository();
     }
 
     @Override

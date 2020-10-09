@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
@@ -103,8 +104,10 @@ public class DisplayBySerial extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
+        CAEngine engine = CAEngine.getInstance();
+
         if (mAuthority instanceof ICertificateAuthority) {
-            mCertDB = ((ICertificateAuthority) mAuthority).getCertificateRepository();
+            mCertDB = engine.getCertificateRepository();
         }
 
         try {

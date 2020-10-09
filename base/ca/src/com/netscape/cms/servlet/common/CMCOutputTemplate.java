@@ -743,6 +743,7 @@ public class CMCOutputTemplate {
             TaggedAttribute attr, SEQUENCE controlSeq, int bpid) {
 
         CAEngine engine = CAEngine.getInstance();
+        CertificateRepository repository = engine.getCertificateRepository();
 
         if (attr != null) {
             INTEGER bodyId = attr.getBodyPartID();
@@ -768,7 +769,6 @@ public class CMCOutputTemplate {
                     boolean confirmAccepted = false;
                     if (n.toString().equalsIgnoreCase(caName.toString())) {
                         logger.debug("CMCOutputTemplate: Issuer names are equal");
-                        CertificateRepository repository = ca.getCertificateRepository();
                         try {
                             repository.getX509Certificate(serialno);
                         } catch (EBaseException ee) {
@@ -806,6 +806,7 @@ public class CMCOutputTemplate {
             IOException, EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
+        CertificateRepository repository = engine.getCertificateRepository();
 
         if (attr != null) {
             SET vals = attr.getValues();
@@ -825,7 +826,6 @@ public class CMCOutputTemplate {
                     logger.error("CMCOutputTemplate: Issuer names are equal in the GetCert Control");
                     throw new EBaseException("Certificate is not found");
                 }
-                CertificateRepository repository = ca.getCertificateRepository();
                 X509CertImpl impl = repository.getX509Certificate(serialno);
                 byte[] bin = impl.getEncoded();
                 Certificate.Template certTemplate = new Certificate.Template();
@@ -976,6 +976,7 @@ public class CMCOutputTemplate {
 
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
+        CertificateRepository repository = engine.getCertificateRepository();
 
         boolean revoke = false;
         SessionContext context = SessionContext.getContext();
@@ -1198,7 +1199,6 @@ public class CMCOutputTemplate {
 
                 if (revoke) {
                     CertificateAuthority ca = engine.getCA();
-                    CertificateRepository repository = ca.getCertificateRepository();
                     ICertRecord record = null;
                     try {
                         record = repository.readCertificateRecord(revokeSerial);

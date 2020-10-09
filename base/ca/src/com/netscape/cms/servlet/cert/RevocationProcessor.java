@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
@@ -95,7 +96,10 @@ public class RevocationProcessor extends CertProcessor {
 
     public void setAuthority(ICertificateAuthority authority) {
         this.authority = authority;
-        repo = authority.getCertificateRepository();
+
+        CAEngine engine = CAEngine.getInstance();
+        repo = engine.getCertificateRepository();
+
         requestQueue = authority.getRequestQueue();
         publisherProcessor = authority.getPublisherProcessor();
     }
