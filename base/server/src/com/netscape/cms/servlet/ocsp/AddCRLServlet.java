@@ -169,7 +169,7 @@ public class AddCRLServlet extends CMSServlet {
                 if (authToken != null) {
                     String uid = authToken.getInString(IAuthToken.USER_ID);
                     if (uid != null) {
-                        logger.debug("AddCAServlet: auditSubjectID set to " + uid);
+                        logger.debug("AddCRLServlet: auditSubjectID set to " + uid);
                         auditSubjectID = uid;
                     }
                 }
