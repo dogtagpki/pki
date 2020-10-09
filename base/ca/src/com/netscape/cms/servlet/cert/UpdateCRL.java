@@ -20,6 +20,7 @@ package com.netscape.cms.servlet.cert;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -292,6 +293,8 @@ public class UpdateCRL extends CMSServlet {
             Locale locale)
             throws EBaseException {
 
+        CAEngine engine = CAEngine.getInstance();
+
         long startTime = new Date().getTime();
         String waitForUpdate =
                 req.getParameter("waitForUpdate");
@@ -315,8 +318,7 @@ public class UpdateCRL extends CMSServlet {
                     "UpdateCRL:process : customFutureThisUpdate value is either not present or an illegal value, treating as null. ");
         }
         if (crlIssuingPointId != null) {
-            Enumeration<ICRLIssuingPoint> ips = mCA.getCRLIssuingPoints();
-
+            Enumeration<ICRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
             while (ips.hasMoreElements()) {
                 ICRLIssuingPoint ip = ips.nextElement();
 

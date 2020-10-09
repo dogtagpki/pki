@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
@@ -335,6 +336,9 @@ public class UpdateDir extends CMSServlet {
             String[] updateValue,
             Locale locale)
             throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+
         // all or crl
         if ((updateValue[UPDATE_ALL] != null &&
                 updateValue[UPDATE_ALL].equalsIgnoreCase("yes")) ||
@@ -342,8 +346,7 @@ public class UpdateDir extends CMSServlet {
                 updateValue[UPDATE_CRL].equalsIgnoreCase("yes"))) {
             // check if received issuing point ID is known to the server
             if (crlIssuingPointId != null) {
-                Enumeration<ICRLIssuingPoint> ips = mCA.getCRLIssuingPoints();
-
+                Enumeration<ICRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
                 while (ips.hasMoreElements()) {
                     ICRLIssuingPoint ip = ips.nextElement();
 
@@ -366,8 +369,7 @@ public class UpdateDir extends CMSServlet {
                         }
                     }
                 } else {
-                    Enumeration<ICRLIssuingPoint> oips = mCA.getCRLIssuingPoints();
-
+                    Enumeration<ICRLIssuingPoint> oips = Collections.enumeration(engine.getCRLIssuingPoints());
                     while (oips.hasMoreElements()) {
                         ICRLIssuingPoint oip = oips.nextElement();
 

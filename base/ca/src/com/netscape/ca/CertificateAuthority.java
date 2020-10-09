@@ -733,17 +733,6 @@ public class CertificateAuthority
     }
 
     /**
-     * Enumerates CRL issuing points
-     * <P>
-     *
-     * @return security service
-     */
-    public Enumeration<ICRLIssuingPoint> getCRLIssuingPoints() {
-        CAEngine engine = CAEngine.getInstance();
-        return Collections.enumeration(engine.getCRLIssuingPoints());
-    }
-
-    /**
      * Adds CRL issuing point with the given identifier and description.
      */
     @SuppressWarnings("unchecked")

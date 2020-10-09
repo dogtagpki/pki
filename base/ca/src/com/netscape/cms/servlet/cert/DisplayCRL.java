@@ -20,6 +20,7 @@ package com.netscape.cms.servlet.cert;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CRLException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
@@ -218,8 +219,7 @@ public class DisplayCRL extends CMSServlet {
             }
         } else {
             if (crlIssuingPointId != null) {
-                Enumeration<ICRLIssuingPoint> ips = mCA.getCRLIssuingPoints();
-
+                Enumeration<ICRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
                 while (ips.hasMoreElements()) {
                     ICRLIssuingPoint ip = ips.nextElement();
 

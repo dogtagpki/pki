@@ -20,6 +20,7 @@ package com.netscape.cms.servlet.cert;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -32,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.dogtagpki.server.connector.IRemoteRequest;
@@ -233,6 +235,8 @@ public class DoUnrevokeTPS extends CMSServlet {
             Locale locale, String initiative)
             throws EBaseException {
 
+        CAEngine engine = CAEngine.getInstance();
+
         String auditSubjectID = auditSubjectID();
         String auditSerialNumber = auditSerialNumber(serialNumbers[0].toString());
         String auditRequestType = OFF_HOLD;
@@ -357,9 +361,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                 }
 
                 // let known update and publish status of all crls.
-                Enumeration<ICRLIssuingPoint> otherCRLs =
-                        ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
-
+                Enumeration<ICRLIssuingPoint> otherCRLs = Collections.enumeration(engine.getCRLIssuingPoints());
                 while (otherCRLs.hasMoreElements()) {
                     ICRLIssuingPoint crl = otherCRLs.nextElement();
                     String crlId = crl.getId();

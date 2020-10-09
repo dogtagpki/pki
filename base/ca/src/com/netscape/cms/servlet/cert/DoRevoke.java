@@ -23,6 +23,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -38,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -373,6 +375,8 @@ public class DoRevoke extends CMSServlet {
         logger.debug("DoRevoke: eeSerialNumber: " + eeSerialNumber);
         long startTime = new Date().getTime();
 
+        CAEngine engine = CAEngine.getInstance();
+
         RevocationProcessor processor =
                 new RevocationProcessor(servletConfig.getServletName(), getLocale(req));
 
@@ -635,9 +639,7 @@ public class DoRevoke extends CMSServlet {
 
                 if (mAuthority instanceof ICertificateAuthority) {
                     // let known update and publish status of all crls.
-                    Enumeration<ICRLIssuingPoint> otherCRLs =
-                            ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
-
+                    Enumeration<ICRLIssuingPoint> otherCRLs = Collections.enumeration(engine.getCRLIssuingPoints());
                     while (otherCRLs.hasMoreElements()) {
                         ICRLIssuingPoint crl = otherCRLs.nextElement();
                         String crlId = crl.getId();

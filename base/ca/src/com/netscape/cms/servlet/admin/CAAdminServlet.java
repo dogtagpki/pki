@@ -20,6 +20,7 @@ package com.netscape.cms.servlet.admin;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -456,7 +457,8 @@ public class CAAdminServlet extends AdminServlet {
             throws ServletException, IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
 
-        Enumeration<ICRLIssuingPoint> ips = mCA.getCRLIssuingPoints();
+        CAEngine engine = CAEngine.getInstance();
+        Enumeration<ICRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
 
         while (ips.hasMoreElements()) {
             ICRLIssuingPoint ip = ips.nextElement();
@@ -1158,7 +1160,9 @@ public class CAAdminServlet extends AdminServlet {
         String ipId = null;
         String name = null;
 
-        Enumeration<ICRLIssuingPoint> ips = mCA.getCRLIssuingPoints();
+        CAEngine engine = CAEngine.getInstance();
+        Enumeration<ICRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
+
         if (ips.hasMoreElements()) {
             ICRLIssuingPoint ip = ips.nextElement();
             if (ip != null) {
