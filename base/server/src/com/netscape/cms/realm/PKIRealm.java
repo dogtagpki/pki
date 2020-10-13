@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.catalina.realm.RealmBase;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.authentication.AuthManager;
-import org.dogtagpki.server.authentication.ICertUserDBAuthentication;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -28,6 +27,7 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.authentication.CertUserDBAuthentication;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -128,12 +128,12 @@ public class PKIRealm extends RealmBase {
             AuthManager authMgr = authSub.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
             AuthCredentials creds = new AuthCredentials();
-            creds.set(ICertUserDBAuthentication.CRED_CERT, certImpls);
+            creds.set(CertUserDBAuthentication.CRED_CERT, certImpls);
 
             IAuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
             authToken.set(SessionContext.AUTH_MANAGER_ID,AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
-            String username = authToken.getInString(ICertUserDBAuthentication.TOKEN_USERID);
+            String username = authToken.getInString(CertUserDBAuthentication.TOKEN_USERID);
             // reset it to the one authenticated with authManager
             auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
 

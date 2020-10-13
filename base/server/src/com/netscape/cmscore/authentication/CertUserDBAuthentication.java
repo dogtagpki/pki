@@ -19,11 +19,10 @@ package com.netscape.cmscore.authentication;
 
 import java.security.cert.X509Certificate;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.AuthManager;
-import org.dogtagpki.server.authentication.ICertUserDBAuthentication;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -32,9 +31,9 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
@@ -50,9 +49,18 @@ import com.netscape.cmscore.usrgrp.User;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class CertUserDBAuthentication implements AuthManager, ICertUserDBAuthentication {
+public class CertUserDBAuthentication implements AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertUserDBAuthentication.class);
+
+    /* result auth token attributes */
+    public final static String TOKEN_USERDN = "user";
+    public final static String TOKEN_USER_DN = "userdn";
+    public final static String TOKEN_USERID = "userid";
+    public final static String TOKEN_UID = "uid";
+
+    /* required credentials */
+    public final static String CRED_CERT = AuthManager.CRED_SSL_CLIENT_CERT;
 
     /* required credentials */
     protected String[] mRequiredCreds = { CRED_CERT };
