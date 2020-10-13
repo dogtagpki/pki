@@ -57,7 +57,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
@@ -71,6 +70,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 public class CAProcessor extends Processor {
@@ -980,7 +980,7 @@ public class CAProcessor extends Processor {
             return null;
         }
 
-        Enumeration<IGroup> groups = null;
+        Enumeration<Group> groups = null;
 
         try {
             groups = ug.findGroups("*");
@@ -991,7 +991,7 @@ public class CAProcessor extends Processor {
         StringBuffer membersString = new StringBuffer();
 
         while (groups.hasMoreElements()) {
-            IGroup group = groups.nextElement();
+            Group group = groups.nextElement();
 
             if (group.isMember(SubjectID) == true) {
                 if (membersString.length() != 0) {

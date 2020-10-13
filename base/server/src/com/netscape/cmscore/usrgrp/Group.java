@@ -21,7 +21,8 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.usrgrp.IGroup;
+import com.netscape.certsrv.base.IAttrSet;
+import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -30,7 +31,7 @@ import com.netscape.cmscore.apps.CMS;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class Group implements IGroup {
+public class Group implements IAttrSet, IGroupConstants {
     /**
      *
      */
@@ -58,27 +59,58 @@ public class Group implements IGroup {
         mName = name;
     }
 
+    /**
+     * Retrieves the group name.
+     *
+     * @return the group name
+     */
     public String getName() {
         return mName;
     }
 
+    /**
+     * Retrieves group identifier.
+     *
+     * @return the group id
+     */
     public String getGroupID() {
         return mName;
     }
 
+    /**
+     * Retrieves group description.
+     *
+     * @return description
+     */
     public String getDescription() {
         return mDescription;
     }
 
+    /**
+     * Adds new member.
+     *
+     * @param name the given name.
+     */
     public void addMemberName(String name) {
         if (isMember(name)) return;
         mMembers.addElement(name);
     }
 
+    /**
+     * Retrieves a list of member names.
+     *
+     * @return a list of member names for this group.
+     */
     public Enumeration<String> getMemberNames() {
         return mMembers.elements();
     }
 
+    /**
+     * Checks if the given name is member of this group.
+     *
+     * @param name the given name
+     * @return true if the given name is the member of this group; otherwise false.
+     */
     public boolean isMember(String name) {
         for (int i = 0; i < mMembers.size(); i++) {
             String id = mMembers.elementAt(i);

@@ -38,7 +38,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -47,6 +46,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -252,8 +252,8 @@ public class RegisterUser extends CMSServlet {
         auditParams = "Scope;;groups+Operation;;OP_MODIFY+source;;RegisterUser" +
                       "+Resource;;" + mGroupName;
         try {
-            Enumeration<IGroup> groups = ugsys.findGroups(mGroupName);
-            IGroup group = groups.nextElement();
+            Enumeration<Group> groups = ugsys.findGroups(mGroupName);
+            Group group = groups.nextElement();
 
             auditParams += "+user;;";
             Enumeration<String> members = group.getMemberNames();

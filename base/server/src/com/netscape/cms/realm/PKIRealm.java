@@ -19,7 +19,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -28,6 +27,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.CertUserDBAuthentication;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -212,11 +212,11 @@ public class PKIRealm extends RealmBase {
 
         CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem ugSub = engine.getUGSubsystem();
-        Enumeration<IGroup> groups = ugSub.findGroupsByUser(user.getUserDN(), null);
+        Enumeration<Group> groups = ugSub.findGroupsByUser(user.getUserDN(), null);
 
         logger.info("PKIRealm: Roles:");
         while (groups.hasMoreElements()) {
-            IGroup group = groups.nextElement();
+            Group group = groups.nextElement();
 
             String name = group.getName();
             logger.info("PKIRealm: - " + name);

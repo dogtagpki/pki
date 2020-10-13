@@ -41,12 +41,12 @@ import com.netscape.certsrv.group.GroupNotFoundException;
 import com.netscape.certsrv.group.GroupResource;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -59,7 +59,7 @@ public class GroupService extends SubsystemService implements GroupResource {
     CMSEngine engine = CMS.getCMSEngine();
     public UGSubsystem userGroupManager = engine.getUGSubsystem();
 
-    public GroupData createGroupData(IGroup group) throws Exception {
+    public GroupData createGroupData(Group group) throws Exception {
 
         GroupData groupData = new GroupData();
 
@@ -97,7 +97,7 @@ public class GroupService extends SubsystemService implements GroupResource {
         size = size == null ? DEFAULT_SIZE : size;
 
         try {
-            Enumeration<IGroup> groups = userGroupManager.listGroups(filter);
+            Enumeration<Group> groups = userGroupManager.listGroups(filter);
 
             GroupCollection response = new GroupCollection();
             int i = 0;
@@ -107,7 +107,7 @@ public class GroupService extends SubsystemService implements GroupResource {
 
             // return entries up to the page size
             for ( ; i<start+size && groups.hasMoreElements(); i++) {
-                IGroup group = groups.nextElement();
+                Group group = groups.nextElement();
                 response.addEntry(createGroupData(group));
             }
 
@@ -152,7 +152,7 @@ public class GroupService extends SubsystemService implements GroupResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            IGroup group = userGroupManager.getGroupFromName(groupID);
+            Group group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
                 throw new GroupNotFoundException(groupID);
@@ -196,7 +196,7 @@ public class GroupService extends SubsystemService implements GroupResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            IGroup group = userGroupManager.createGroup(groupID);
+            Group group = userGroupManager.createGroup(groupID);
 
             // add description if specified
             String description = groupData.getDescription();
@@ -252,7 +252,7 @@ public class GroupService extends SubsystemService implements GroupResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            IGroup group = userGroupManager.getGroupFromName(groupID);
+            Group group = userGroupManager.getGroupFromName(groupID);
 
             if (group == null) {
                 throw new ResourceNotFoundException("Group " + groupID + "  not found.");

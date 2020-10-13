@@ -80,7 +80,6 @@ import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
@@ -107,6 +106,7 @@ import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -2051,7 +2051,7 @@ public abstract class CMSServlet extends HttpServlet {
             return null;
         }
 
-        Enumeration<IGroup> groups = null;
+        Enumeration<Group> groups = null;
 
         try {
             groups = mUG.findGroups("*");
@@ -2062,7 +2062,7 @@ public abstract class CMSServlet extends HttpServlet {
         StringBuffer membersString = new StringBuffer();
 
         while (groups.hasMoreElements()) {
-            IGroup group = groups.nextElement();
+            Group group = groups.nextElement();
 
             if (group.isMember(SubjectID) == true) {
                 if (membersString.length() != 0) {

@@ -25,9 +25,9 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SignedAuditEvent;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -62,7 +62,7 @@ public class Auditor implements IAuditor {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        Enumeration<IGroup> groups;
+        Enumeration<Group> groups;
 
         try {
             UGSubsystem userGroupSubsystem = engine.getUGSubsystem();
@@ -75,7 +75,7 @@ public class Auditor implements IAuditor {
         StringBuilder sb = new StringBuilder();
 
         while (groups.hasMoreElements()) {
-            IGroup group = groups.nextElement();
+            Group group = groups.nextElement();
 
             if (group.isMember(subjectID) == true) {
                 if (sb.length() != 0) sb.append(", ");

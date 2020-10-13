@@ -73,7 +73,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.cert.ImportCertsTemplateFiller;
@@ -84,6 +83,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -1570,7 +1570,7 @@ public class ProcessCertReq extends CMSServlet {
         user.setPassword("");
         user.setUserType(userType);
         user.setState("1");
-        IGroup group = ug.findGroup(groupname), group1 = null;
+        Group group = ug.findGroup(groupname), group1 = null;
 
         if (group == null) {
             logger.error(CMS.getLogMessage("CMSGW_ERROR_FIND_GROUP_1", groupname));

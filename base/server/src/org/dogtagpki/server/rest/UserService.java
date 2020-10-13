@@ -64,7 +64,6 @@ import com.netscape.certsrv.user.UserMembershipCollection;
 import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
@@ -72,6 +71,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -621,10 +621,10 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             // get list of groups, and see if uid belongs to any
-            Enumeration<IGroup> groups = userGroupManager.findGroups("*");
+            Enumeration<Group> groups = userGroupManager.findGroups("*");
 
             while (groups.hasMoreElements()) {
-                IGroup group = groups.nextElement();
+                Group group = groups.nextElement();
                 if (!group.isMember(userID)) continue;
 
                 userGroupManager.removeUserFromGroup(group, userID);
@@ -1120,7 +1120,7 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new UserNotFoundException(userID);
             }
 
-            Enumeration<IGroup> groups = userGroupManager.findGroupsByUser(user.getUserDN(), filter);
+            Enumeration<Group> groups = userGroupManager.findGroupsByUser(user.getUserDN(), filter);
 
             UserMembershipCollection response = new UserMembershipCollection();
             int i = 0;
@@ -1130,7 +1130,7 @@ public class UserService extends SubsystemService implements UserResource {
 
             // return entries up to the page size
             for ( ; i<start+size && groups.hasMoreElements(); i++) {
-                IGroup group = groups.nextElement();
+                Group group = groups.nextElement();
                 response.addEntry(createUserMembershipData(userID, group.getName()));
             }
 

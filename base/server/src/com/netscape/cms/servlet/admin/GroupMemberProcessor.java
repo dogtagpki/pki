@@ -44,11 +44,11 @@ import com.netscape.certsrv.group.GroupResource;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -111,7 +111,7 @@ public class GroupMemberProcessor extends Processor {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
-            IGroup group = userGroupManager.getGroupFromName(groupID);
+            Group group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
                 throw new GroupNotFoundException(groupID);
@@ -165,7 +165,7 @@ public class GroupMemberProcessor extends Processor {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
-            IGroup group = userGroupManager.getGroupFromName(groupID);
+            Group group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
                 throw new GroupNotFoundException(groupID);
@@ -203,7 +203,7 @@ public class GroupMemberProcessor extends Processor {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
-            IGroup group = userGroupManager.getGroupFromName(groupID);
+            Group group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
                 throw new GroupNotFoundException(groupID);
@@ -316,13 +316,13 @@ public class GroupMemberProcessor extends Processor {
         }
 
         try {
-            Enumeration<IGroup> groups = userGroupManager.listGroups(null);
+            Enumeration<Group> groups = userGroupManager.listGroups(null);
             while (groups.hasMoreElements()) {
-                IGroup group = groups.nextElement();
+                Group group = groups.nextElement();
                 String name = group.getName();
 
-                Enumeration<IGroup> g = userGroupManager.findGroups(name);
-                IGroup g1 = g.nextElement();
+                Enumeration<Group> g = userGroupManager.findGroups(name);
+                Group g1 = g.nextElement();
 
                 if (!name.equals(groupID)) {
                     if (isGroupInMultiRoleEnforceList(name)) {
@@ -357,7 +357,7 @@ public class GroupMemberProcessor extends Processor {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
-            IGroup group = userGroupManager.getGroupFromName(groupID);
+            Group group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
                 throw new GroupNotFoundException(groupID);

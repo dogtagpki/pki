@@ -36,7 +36,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -128,7 +127,7 @@ public class UGSubsystem {
         return new User(id);
     }
 
-    public IGroup createGroup(String id) {
+    public Group createGroup(String id) {
         return new Group(id);
     }
 
@@ -998,7 +997,7 @@ public class UGSubsystem {
         }
     }
 
-    public void addUserToGroup(IGroup grp, String userid)
+    public void addUserToGroup(Group grp, String userid)
             throws EUsrGrpException {
 
         LDAPConnection ldapconn = null;
@@ -1026,7 +1025,7 @@ public class UGSubsystem {
         }
     }
 
-    public void removeUserFromGroup(IGroup grp, String userid)
+    public void removeUserFromGroup(Group grp, String userid)
             throws EUsrGrpException {
 
         LDAPConnection ldapconn = null;
@@ -1225,8 +1224,8 @@ public class UGSubsystem {
         }
     }
 
-    protected Enumeration<IGroup> buildGroups(LDAPSearchResults res) throws EUsrGrpException {
-        Vector<IGroup> v = new Vector<IGroup>();
+    protected Enumeration<Group> buildGroups(LDAPSearchResults res) throws EUsrGrpException {
+        Vector<Group> v = new Vector<Group>();
 
         while (res.hasMoreElements()) {
             LDAPEntry entry = (LDAPEntry) res.nextElement();
@@ -1240,7 +1239,7 @@ public class UGSubsystem {
      * Finds groups.
      * @throws EUsrGrpException
      */
-    public Enumeration<IGroup> findGroups(String filter) throws EUsrGrpException {
+    public Enumeration<Group> findGroups(String filter) throws EUsrGrpException {
 
         if (filter == null) {
             return null;
@@ -1276,8 +1275,8 @@ public class UGSubsystem {
         }
     }
 
-    public IGroup findGroup(String filter) throws EUsrGrpException {
-        Enumeration<IGroup> groups = findGroups(filter);
+    public Group findGroup(String filter) throws EUsrGrpException {
+        Enumeration<Group> groups = findGroups(filter);
 
         if (groups == null || !groups.hasMoreElements())
             return null;
@@ -1288,7 +1287,7 @@ public class UGSubsystem {
      * List groups. more efficient than find Groups. only retrieves
      * group names and description.
      */
-    public Enumeration<IGroup> listGroups(String filter) throws EUsrGrpException {
+    public Enumeration<Group> listGroups(String filter) throws EUsrGrpException {
 
         String ldapFilter;
 
@@ -1332,7 +1331,7 @@ public class UGSubsystem {
         return null;
     }
 
-    public Enumeration<IGroup> findGroupsByUser(String userDn, String filter) throws EUsrGrpException {
+    public Enumeration<Group> findGroupsByUser(String userDn, String filter) throws EUsrGrpException {
 
         if (userDn == null) {
             return null;
@@ -1385,13 +1384,13 @@ public class UGSubsystem {
      * builds an instance of a Group entry
      * @throws EUsrGrpException
      */
-    protected IGroup buildGroup(LDAPEntry entry) throws EUsrGrpException {
+    protected Group buildGroup(LDAPEntry entry) throws EUsrGrpException {
         LDAPAttribute cn = entry.getAttribute("cn");
         if (cn == null) {
             throw new EUsrGrpException("Cannot build group. No Attribute cn in LDAP Entry " + entry.getDN());
         }
         String groupName = cn.getStringValues().nextElement();
-        IGroup grp = createGroup(groupName);
+        Group grp = createGroup(groupName);
 
         LDAPAttribute grpDesc = entry.getAttribute("description");
 
@@ -1462,7 +1461,7 @@ public class UGSubsystem {
      * Retrieves a group from LDAP
      * NOTE - this takes just the group name.
      */
-    public IGroup getGroupFromName(String name) {
+    public Group getGroupFromName(String name) {
         return getGroup("cn=" + LDAPUtil.escapeRDNValue(name) + "," + getGroupBaseDN());
     }
 
@@ -1470,7 +1469,7 @@ public class UGSubsystem {
      * Retrieves a group from LDAP
      * NOTE - LH This takes a full LDAP DN.
      */
-    public IGroup getGroup(String groupDN) {
+    public Group getGroup(String groupDN) {
         if (groupDN == null) {
             return null;
         }
@@ -1482,7 +1481,7 @@ public class UGSubsystem {
             // read the group object
             LDAPSearchResults res = ldapconn.search(groupDN,
                     LDAPConnection.SCOPE_BASE, "(objectclass=*)", null, false);
-            Enumeration<IGroup> e = buildGroups(res);
+            Enumeration<Group> e = buildGroups(res);
 
             if (e == null || e.hasMoreElements() == false)
                 return null;
@@ -1624,8 +1623,8 @@ public class UGSubsystem {
     /**
      * Adds a group of identities.
      */
-    public void addGroup(IGroup group) throws EUsrGrpException {
-        Group grp = (Group) group;
+    public void addGroup(Group group) throws EUsrGrpException {
+        Group grp = group;
 
         if (grp == null) {
             return;
@@ -1718,8 +1717,8 @@ public class UGSubsystem {
      *
      * @param group   an existing group that has been modified in memory
      */
-    public void modifyGroup(IGroup group) throws EUsrGrpException {
-        Group grp = (Group) group;
+    public void modifyGroup(Group group) throws EUsrGrpException {
+        Group grp = group;
 
         if (grp == null) {
             return;

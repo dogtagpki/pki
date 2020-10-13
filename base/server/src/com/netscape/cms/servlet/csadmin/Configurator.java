@@ -77,7 +77,6 @@ import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.certsrv.system.SystemCertData;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -87,6 +86,7 @@ import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -906,7 +906,7 @@ public class Configurator {
             // ignore
         }
 
-        IGroup group = null;
+        Group group = null;
         for (String groupName : groupNames.split(",")) {
             groupName = groupName.trim();
             group = system.getGroupFromName(groupName);
@@ -1335,7 +1335,7 @@ public class Configurator {
             logger.warn("Configurator: User certificate already exists: " + cert.getSubjectDN());
         }
 
-        IGroup group = system.getGroupFromName(groupName);
+        Group group = system.getGroupFromName(groupName);
 
         if (!group.isMember(id)) {
             logger.info("Configurator: Adding user to group: " + groupName);
@@ -1423,7 +1423,7 @@ public class Configurator {
 
         for (String groupName : groupNames) {
 
-            IGroup group = system.getGroupFromName(groupName);
+            Group group = system.getGroupFromName(groupName);
 
             if (!group.isMember(DBUSER)) {
                 logger.debug("Configurator: adding " + DBUSER + " to the " + groupName + " group.");

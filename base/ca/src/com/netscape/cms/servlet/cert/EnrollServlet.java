@@ -64,7 +64,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSGateway;
@@ -81,6 +80,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -1492,8 +1492,7 @@ public class EnrollServlet extends CMSServlet {
         adminuser.setX509Certificates(issuedCerts);
         ug.addUserCert(adminuser);
 
-        IGroup agentGroup =
-                ug.getGroupFromName(CA_AGENT_GROUP);
+        Group agentGroup = ug.getGroupFromName(CA_AGENT_GROUP);
 
         if (agentGroup != null) {
             // add user to the group if necessary

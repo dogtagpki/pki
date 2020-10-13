@@ -57,12 +57,12 @@ import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -428,7 +428,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             // get list of groups, and get a list of those that this
             //			uid belongs to
-            Enumeration<IGroup> e = null;
+            Enumeration<Group> e = null;
 
             try {
                 e = mMgr.findGroups("*");
@@ -442,7 +442,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             StringBuffer grpString = new StringBuffer();
 
             while (e.hasMoreElements()) {
-                IGroup group = e.nextElement();
+                Group group = e.nextElement();
 
                 if (group.isMember(id) == true) {
                     if (grpString.length() != 0) {
@@ -556,7 +556,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
 
-        Enumeration<IGroup> e = null;
+        Enumeration<Group> e = null;
 
         try {
             e = mMgr.listGroups(null);
@@ -567,7 +567,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         }
 
         while (e.hasMoreElements()) {
-            IGroup group = e.nextElement();
+            Group group = e.nextElement();
             String desc = group.getDescription();
 
             if (desc != null) {
@@ -603,7 +603,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             return;
         }
 
-        Enumeration<IGroup> e = null;
+        Enumeration<Group> e = null;
 
         try {
             e = mMgr.findGroups(id);
@@ -614,7 +614,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         }
 
         if (e.hasMoreElements()) {
-            IGroup group = e.nextElement();
+            Group group = e.nextElement();
 
             params.put(Constants.PR_GROUP_GROUP, group.getGroupID());
             params.put(Constants.PR_GROUP_DESC,
@@ -798,7 +798,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         Constants.PR_USER_GROUP);
 
                 if (groupName != null) {
-                    Enumeration<IGroup> e = null;
+                    Enumeration<Group> e = null;
 
                     try {
                         e = mMgr.findGroups(groupName);
@@ -816,7 +816,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     }
 
                     if (e.hasMoreElements()) {
-                        IGroup group = e.nextElement();
+                        Group group = e.nextElement();
 
                         group.addMemberName(id);
                         try {
@@ -1399,7 +1399,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             }
             // get list of groups, and see if uid belongs to any
-            Enumeration<IGroup> e = null;
+            Enumeration<Group> e = null;
 
             try {
                 e = mMgr.findGroups("*");
@@ -1416,7 +1416,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
 
             while (e.hasMoreElements()) {
-                IGroup group = e.nextElement();
+                Group group = e.nextElement();
 
                 if (group.isMember(id) == true) {
                     if (mustDelete) {
@@ -1536,7 +1536,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             }
 
-            IGroup group = mMgr.createGroup(id);
+            Group group = mMgr.createGroup(id);
 
             // add description if specified
             String description = super.getParameter(req, Constants.PR_GROUP_DESC);
@@ -1746,7 +1746,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             }
 
-            IGroup group = mMgr.getGroupFromName(id);
+            Group group = mMgr.getGroupFromName(id);
 
             // update description if specified
             String description = super.getParameter(req, Constants.PR_GROUP_DESC);
@@ -1891,7 +1891,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * TODO: replace this with GroupMemberProcessor.isDuplicate()
      */
     private boolean isDuplicate(String groupName, String memberName) {
-        Enumeration<IGroup> groups = null;
+        Enumeration<Group> groups = null;
 
         // Let's not mess with users that are already a member of this group
         boolean isMember = false;
@@ -1906,10 +1906,10 @@ public class UsrGrpAdminServlet extends AdminServlet {
         try {
             groups = mMgr.listGroups(null);
             while (groups.hasMoreElements()) {
-                IGroup group = groups.nextElement();
+                Group group = groups.nextElement();
                 String name = group.getName();
-                Enumeration<IGroup> g = mMgr.findGroups(name);
-                IGroup g1 = g.nextElement();
+                Enumeration<Group> g = mMgr.findGroups(name);
+                Group g1 = g.nextElement();
                 if (!name.equals(groupName)) {
                     if (isGroupInMultiRoleEnforceList(name)) {
                         Enumeration<String> members = g1.getMemberNames();
