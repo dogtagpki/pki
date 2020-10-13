@@ -57,7 +57,6 @@ import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -1541,7 +1540,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             // add description if specified
             String description = super.getParameter(req, Constants.PR_GROUP_DESC);
             if (description != null && !description.equals("")) {
-                group.set(IGroupConstants.ATTR_DESCRIPTION, description);
+                group.set(Group.ATTR_DESCRIPTION, description);
             }
 
             // add members if specified
@@ -1752,9 +1751,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String description = super.getParameter(req, Constants.PR_GROUP_DESC);
             if (description != null) {
                 if (description.equals("")) {
-                    group.delete(IGroupConstants.ATTR_DESCRIPTION);
+                    group.delete(Group.ATTR_DESCRIPTION);
                 } else {
-                    group.set(IGroupConstants.ATTR_DESCRIPTION, description);
+                    group.set(Group.ATTR_DESCRIPTION, description);
                 }
             }
 
@@ -1762,7 +1761,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String members = super.getParameter(req, Constants.PR_GROUP_USER);
             if (members != null) {
                 // empty old member list
-                group.delete(IGroupConstants.ATTR_MEMBERS);
+                group.delete(Group.ATTR_MEMBERS);
 
                 // read new member list
                 StringTokenizer st = new StringTokenizer(members, ",");

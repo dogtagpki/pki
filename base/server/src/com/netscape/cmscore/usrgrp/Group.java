@@ -22,7 +22,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IAttrSet;
-import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -31,11 +30,27 @@ import com.netscape.cmscore.apps.CMS;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class Group implements IAttrSet, IGroupConstants {
+public class Group implements IAttrSet {
+
     /**
-     *
+     * Contant for groupName
      */
-    private static final long serialVersionUID = -1264387079578766750L;
+    public final static String ATTR_NAME = "groupName";
+
+    /**
+     * Constant for dn
+     */
+    public final static String ATTR_ID = "dn";
+
+    /**
+     * Constant for description
+     */
+    public final static String ATTR_DESCRIPTION = "description";
+
+    /**
+     * Constant for uniquemember
+     */
+    public final static String ATTR_MEMBERS = "uniquemember";
 
     private String mName = null;
 

@@ -41,7 +41,6 @@ import com.netscape.certsrv.group.GroupNotFoundException;
 import com.netscape.certsrv.group.GroupResource;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
-import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
@@ -201,7 +200,7 @@ public class GroupService extends SubsystemService implements GroupResource {
             // add description if specified
             String description = groupData.getDescription();
             if (description != null && !description.equals("")) {
-                group.set(IGroupConstants.ATTR_DESCRIPTION, description);
+                group.set(Group.ATTR_DESCRIPTION, description);
             }
 
             // allow adding a group with no members
@@ -262,9 +261,9 @@ public class GroupService extends SubsystemService implements GroupResource {
             String description = groupData.getDescription();
             if (description != null) {
                 if (description.equals("")) { // remove value if empty
-                    group.delete(IGroupConstants.ATTR_DESCRIPTION);
+                    group.delete(Group.ATTR_DESCRIPTION);
                 } else { // otherwise replace value
-                    group.set(IGroupConstants.ATTR_DESCRIPTION, description);
+                    group.set(Group.ATTR_DESCRIPTION, description);
                 }
             }
 
