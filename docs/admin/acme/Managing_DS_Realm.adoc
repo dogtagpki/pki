@@ -1,0 +1,74 @@
+= Managing DS Realm =
+
+== Adding a User ==
+
+To add a user, execute the following command:
+
+----
+$ ldapadd -h $HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: uid=admin,ou=people,dc=acme,dc=pki,dc=example,dc=com
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: admin
+cn: Administrator
+sn: Administrator
+userPassword: Secret.123
+EOF
+----
+
+== Adding a User Certificate ==
+
+To add a user certificate, get the certificate info with the following command:
+
+----
+$ certutil -L -d ~/.dogtag/nssdb -n admin | grep "Serial Number:\|Issuer:\|Subject:"
+----
+
+Then get the certificate data with the following command:
+
+----
+$ certutil -L -d ~/.dogtag/nssdb -n admin -r | base64 -w 0
+----
+
+Then add the certificate with the following command:
+
+----
+$ ldapmodify -h $HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: uid=admin,ou=people,dc=acme,dc=pki,dc=example,dc=com
+changetype: modify
+add: description
+description: 2;<serial number>;<issuer>;<subject>
+-
+add: userCertificate
+userCertificate:: <base64-encoded cert>
+-
+EOF
+----
+
+== Adding a Group ==
+
+To add a group, execute the following command:
+
+----
+$ ldapadd -h $HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=Administrators,ou=groups,dc=acme,dc=pki,dc=example,dc=com
+objectClass: groupOfUniqueNames
+cn: Administrators
+description: Administrators
+EOF
+----
+
+== Adding a Group Member ==
+
+To add a group member, execute the following command:
+
+----
+$ ldapmodify -h $HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=Administrators,ou=groups,dc=acme,dc=pki,dc=example,dc=com
+changetype: modify
+add: uniqueMember
+uniqueMember: uid=admin,ou=users,dc=acme,dc=pki,dc=example,dc=com
+-
+EOF
+----
