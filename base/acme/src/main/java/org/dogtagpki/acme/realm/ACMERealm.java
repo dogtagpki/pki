@@ -13,8 +13,6 @@ import java.security.cert.X509Certificate;
  */
 public class ACMERealm {
 
-    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMERealm.class);
-
     protected ACMERealmConfig config;
 
     public ACMERealmConfig getConfig() {
