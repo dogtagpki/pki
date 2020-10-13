@@ -1,0 +1,67 @@
+= Managing PostgreSQL Realm =
+
+== Adding a User ==
+
+To add a user, execute the following command:
+
+----
+psql> INSERT INTO "users" VALUES ('admin', 'Administrator');
+----
+
+== Setting User Password ==
+
+To set the user password, generate the password digest with the following command:
+
+----
+$ tomcat-digest Secret.123 | sed 's/.*://'
+----
+
+Then execute the following command:
+
+----
+psql> UPDATE "users" SET "password" = '<password digest>' where "id" = 'admin';
+----
+
+== Adding a User Certificate ==
+
+To add a user certificate, get the certificate info with the following command:
+
+----
+$ certutil -L -d ~/.dogtag/nssdb -n admin | grep "Serial Number:\|Issuer:\|Subject:"
+----
+
+Then get the certificate data with the following command:
+
+----
+$ certutil -L -d ~/.dogtag/nssdb -n admin -r | base64 -w 0
+----
+
+Then add the certificate with the following command:
+
+----
+psql> INSERT INTO "user_certs" VALUES (
+    'admin',
+    '2;<serial number>;<issuer>;<subject>',
+    decode('<base64-encoded cert>', 'base64')
+);
+----
+
+== Adding a Group ==
+
+To add a group, execute the following command:
+
+----
+psql> INSERT INTO "groups" VALUES ('Administrators', 'Administrators');
+----
+
+== Adding a Group Member ==
+
+To add a group member, execute the following command:
+
+----
+psql> INSERT INTO "group_members" VALUES ('Administrators', 'admin');
+----
+
+== See Also ==
+
+* https://tomcat.apache.org/tomcat-9.0-doc/realm-howto.html[Apache Tomcat 9 Realm Configuration How-To]

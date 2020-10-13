@@ -87,7 +87,40 @@ usersDN=ou=people,dc=ca,dc=pki,dc=example,dc=com
 groupsDN=ou=groups,dc=ca,dc=pki,dc=example,dc=com
 ```
 
+## Configuring PosgreSQL Realm
+
+The ACME responder can be configured with a PostgreSQL realm.
+
+First, prepare a database (e.g. acme) and a user (e.g. acme) to access the database.
+Verify the database connection with the following command:
+
+```
+$ psql -h $HOSTNAME -d acme -U acme
+```
+
+A sample PostgreSQL realm configuration is available at
+[/usr/share/pki/acme/realm/postgresql/realm.conf](../../../base/acme/realm/postgresql/realm.conf).
+
+To use the PostgreSQL realm, copy the sample realm.conf into the /etc/pki/pki-tomcat/acme folder,
+or execute the following command to customize some of the parameters:
+
+```
+$ pki-server acme-realm-mod --type postgresql \
+    -Dpassword=Secret.123
+```
+
+The realm.conf should look like the following:
+
+```
+class=org.dogtagpki.acme.realm.PostgreSQLRealm
+url=jdbc:postgresql://<hostname>:5432/acme
+user=acme
+password=Secret.123
+```
+
 ## See Also
 
 * [Configuring PKI ACME Responder](https://www.dogtagpki.org/wiki/Configuring_PKI_ACME_Responder)
 * [Installing PKI ACME Responder](Installing_PKI_ACME_Responder.md)
+* [Managing DS Realm](../../admin/acme/Managing_DS_Realm.adoc)
+* [Managing PostgreSQL Realm](../../admin/acme/Managing_PostgreSQL_Realm.adoc)
