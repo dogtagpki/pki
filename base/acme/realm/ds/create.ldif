@@ -2,20 +2,6 @@ dn: ou=people,dc=acme,dc=pki,dc=example,dc=com
 objectClass: organizationalUnit
 ou: users
 
-dn: uid=admin,ou=people,dc=acme,dc=pki,dc=example,dc=com
-objectClass: person
-objectClass: organizationalPerson
-objectClass: inetOrgPerson
-uid: admin
-cn: Administrator
-sn: Administrator
-userPassword: Secret.123
-
 dn: ou=groups,dc=acme,dc=pki,dc=example,dc=com
 objectClass: organizationalUnit
 ou: groups
-
-dn: cn=Administrators,ou=groups,dc=acme,dc=pki,dc=example,dc=com
-objectClass: groupOfUniqueNames
-cn: Administrators
-uniqueMember: uid=admin,ou=users,dc=acme,dc=pki,dc=example,dc=com
