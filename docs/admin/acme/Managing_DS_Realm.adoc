@@ -13,13 +13,25 @@ objectClass: inetOrgPerson
 uid: admin
 cn: Administrator
 sn: Administrator
+EOF
+----
+
+== Configuring User Password ==
+
+To enable authentication using a password, execute the following command:
+
+----
+$ ldapmodify -h $HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: uid=admin,ou=people,dc=acme,dc=pki,dc=example,dc=com
+changetype: modify
+replace: userPassword
 userPassword: Secret.123
 EOF
 ----
 
-== Adding a User Certificate ==
+== Configuring User Certificate ==
 
-To add a user certificate, get the certificate info with the following command:
+To enable authentication using a certificate, get the certificate info with the following command:
 
 ----
 $ certutil -L -d ~/.dogtag/nssdb -n admin | grep "Serial Number:\|Issuer:\|Subject:"

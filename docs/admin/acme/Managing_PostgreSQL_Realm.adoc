@@ -8,9 +8,9 @@ To add a user, execute the following command:
 psql> INSERT INTO "users" VALUES ('admin', 'Administrator');
 ----
 
-== Setting User Password ==
+== Configuring User Password ==
 
-To set the user password, generate the password digest with the following command:
+To enable authentication using a password, generate the password digest with the following command:
 
 ----
 $ tomcat-digest Secret.123 | sed 's/.*://'
@@ -22,9 +22,9 @@ Then execute the following command:
 psql> UPDATE "users" SET "password" = '<password digest>' where "id" = 'admin';
 ----
 
-== Adding a User Certificate ==
+== Configuring User Certificate ==
 
-To add a user certificate, get the certificate info with the following command:
+To enable authentication using a certificate, get the certificate info with the following command:
 
 ----
 $ certutil -L -d ~/.dogtag/nssdb -n admin | grep "Serial Number:\|Issuer:\|Subject:"
