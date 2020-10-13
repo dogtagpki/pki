@@ -38,7 +38,8 @@ ISSUER_TYPES = {value: key for key, value in ISSUER_CLASSES.items()}
 
 # TODO: auto-populate this map from /usr/share/pki/acme/realm
 REALM_CLASSES = {
-    'ds': 'org.dogtagpki.acme.database.DSDatabase'
+    'ds': 'org.dogtagpki.acme.database.DSDatabase',
+    'postgresql': 'org.dogtagpki.acme.realm.PostgreSQLRealm'
 }
 
 REALM_TYPES = {value: key for key, value in REALM_CLASSES.items()}
@@ -1301,6 +1302,20 @@ class ACMERealmShowCLI(pki.cli.CLI):
             if groups_dn:
                 print('  Groups DN: %s' % groups_dn)
 
+        elif realm_type == 'postgresql':
+
+            url = config.get('url')
+            if url:
+                print('  Server URL: %s' % url)
+
+            username = config.get('user')
+            if username:
+                print('  Username: %s' % username)
+
+            password = config.get('password')
+            if password:
+                print('  Password: ********')
+
 
 class ACMERealmModifyCLI(pki.cli.CLI):
 
@@ -1487,5 +1502,27 @@ class ACMERealmModifyCLI(pki.cli.CLI):
             groups_dn = config.get('groupsDN')
             groups_dn = pki.util.read_text('  Groups DN', default=groups_dn, required=True)
             pki.util.set_property(config, 'groupsDN', groups_dn)
+
+        elif realm_type == 'postgresql':
+
+            print()
+            print('Enter the location of the PostgreSQL realm '
+                  '(e.g. jdbc:postgresql://localhost.localdomain:5432/acme).')
+            url = config.get('url')
+            url = pki.util.read_text('  Server URL', default=url, required=True)
+            pki.util.set_property(config, 'url', url)
+
+            print()
+            print('Enter the username for basic authentication.')
+            username = config.get('user')
+            username = pki.util.read_text('  Username', default=username, required=True)
+            pki.util.set_property(config, 'user', username)
+
+            print()
+            print('Enter the password for basic authentication.')
+            password = config.get('password')
+            password = pki.util.read_text(
+                '  Password', default=password, password=True, required=True)
+            pki.util.set_property(config, 'password', password)
 
         instance.store_properties(realm_conf, config)
