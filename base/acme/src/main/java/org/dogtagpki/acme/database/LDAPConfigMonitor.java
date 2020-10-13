@@ -23,14 +23,20 @@ public class LDAPConfigMonitor implements Runnable {
     LDAPPersistSearchControl searchControl;
     boolean running;
 
-    public LDAPConfigMonitor(LDAPDatabase database) {
-        this.database = database;
-
+    public LDAPConfigMonitor() {
         searchControl = new LDAPPersistSearchControl(
                 LDAPPersistSearchControl.MODIFY,
                 false, // return initial entry and subsequent changes
                 true,  // return controls
                 true); // persistent search control is critical
+    }
+
+    public LDAPDatabase getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(LDAPDatabase database) {
+        this.database = database;
     }
 
     public void run() {

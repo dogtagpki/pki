@@ -237,8 +237,11 @@ public class LDAPDatabase extends ACMEDatabase {
         logger.info("- monitor enabled: " + monitorEnabled);
 
         if ("true".equals(monitorEnabled)) {
-            monitor = new LDAPConfigMonitor(this);
-            new Thread(monitor, "LDAPDatabaseMonitor").start();
+
+            monitor = new LDAPConfigMonitor();
+            monitor.setDatabase(this);
+
+            new Thread(monitor, "LDAPConfigMonitor").start();
         }
     }
 
