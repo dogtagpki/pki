@@ -252,14 +252,21 @@ public class LDAPDatabase extends ACMEDatabase {
 
             String dn = RDN_CONFIG + "," + baseDN;
             LDAPEntry entry = ldapGet(dn);
+
+            if (entry == null) {
+                enabled = null;
+                return null;
+            }
+
             LDAPAttribute acmeEnabled = entry.getAttribute(ATTR_ENABLED);
 
             if (acmeEnabled == null) {
                 enabled = null;
-            } else {
-                String value = acmeEnabled.getStringValueArray()[0];
-                enabled = Boolean.parseBoolean(value);
+                return enabled;
             }
+
+            String value = acmeEnabled.getStringValueArray()[0];
+            enabled = Boolean.parseBoolean(value);
         }
 
         return enabled;
