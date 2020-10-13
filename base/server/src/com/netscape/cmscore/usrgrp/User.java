@@ -26,7 +26,6 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IAttrSet;
 import com.netscape.certsrv.user.UserResource;
-import com.netscape.certsrv.usrgrp.IUserConstants;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -35,13 +34,54 @@ import com.netscape.cmscore.apps.CMS;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class User implements IAttrSet, IUserConstants {
+public class User implements IAttrSet {
 
     /**
-     *
+     * Constant for userScope
      */
-    private static final long serialVersionUID = -7407288327775546979L;
-    public static final String ATTR_X509_CERTIFICATES = "userCertificates";
+    public final static String ATTR_SCOPE = "userScope";
+
+    /**
+     * Constant for userName
+     */
+    public final static String ATTR_NAME = "userName";
+
+    /**
+     * Constant for userId
+     */
+    public final static String ATTR_ID = "userId";
+
+    /**
+     * Constant for userFullName
+     */
+    public final static String ATTR_FULLNAME = "userFullName";
+
+    /**
+     * Constant for userPassword
+     */
+    public final static String ATTR_PASSWORD = "userPassword";
+
+    /**
+     * Constant for userState
+     */
+    public final static String ATTR_STATE = "userstate";
+
+    /**
+     * Constant for userEmail
+     */
+    public final static String ATTR_EMAIL = "userEmail";
+
+    /**
+     * Constant for usertype
+     */
+    public final static String ATTR_USERTYPE = "usertype";
+
+    /**
+     * Constant for usertype
+     */
+    public final static String ATTR_TPS_PROFILES = "tpsProfiles";
+
+    public final static String ATTR_X509_CERTIFICATES = "userCertificates";
 
     private String mUserid = null;
     private String mUserDN = null;
