@@ -25,10 +25,10 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * A class represents a group acls evaluator.
@@ -126,7 +126,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
                     return !matched;
             } else {
                 logger.debug("GroupAccessEvaluator: evaluate: no groups in authToken");
-                IUser id = null;
+                User id = null;
                 try {
                     id = mUG.getUser(uid);
                 } catch (EBaseException e) {
@@ -160,7 +160,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
         SessionContext mSC = SessionContext.getContext();
 
         if (type.equals(mType)) {
-            IUser id = (IUser) mSC.get(SessionContext.USER);
+            User id = (User) mSC.get(SessionContext.USER);
 
             if (id == null) {
                 logger.warn("GroupAccessEvaluator: " + CMS.getLogMessage("EVALUTOR_UID_NULL"));

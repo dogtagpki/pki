@@ -38,7 +38,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -48,6 +47,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -156,7 +156,7 @@ public class RegisterUser extends CMSServlet {
 
         UGSubsystem ugsys = engine.getUGSubsystem();
 
-        IUser user = null;
+        User user = null;
         boolean foundByCert = false;
         X509Certificate certs[] = new X509Certificate[1];
 

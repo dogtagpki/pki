@@ -35,7 +35,6 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.EnrollProfile;
@@ -44,6 +43,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * This updater class will create the new user to the subsystem group and
@@ -138,7 +138,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                              "+state;;1" +
                              "+userType;;agentType+email;;<null>+password;;<null>+phone;;<null>";
 
-        IUser user = null;
+        User user = null;
         logger.debug("SubsystemGroupUpdater adduser");
         try {
             user = system.createUser(id);

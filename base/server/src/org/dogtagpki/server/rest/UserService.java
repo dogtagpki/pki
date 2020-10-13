@@ -64,7 +64,6 @@ import com.netscape.certsrv.user.UserMembershipCollection;
 import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
@@ -73,6 +72,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * @author Endi S. Dewata
@@ -87,7 +87,7 @@ public class UserService extends SubsystemService implements UserResource {
     CMSEngine engine = CMS.getCMSEngine();
     public UGSubsystem userGroupManager = engine.getUGSubsystem();
 
-    public UserData createUserData(IUser user) throws Exception {
+    public UserData createUserData(User user) throws Exception {
 
         UserData userData = new UserData();
 
@@ -127,7 +127,7 @@ public class UserService extends SubsystemService implements UserResource {
         UserCollection response = new UserCollection();
 
         try {
-            Enumeration<IUser> users = userGroupManager.findUsers(filter);
+            Enumeration<User> users = userGroupManager.findUsers(filter);
 
             int i = 0;
 
@@ -136,7 +136,7 @@ public class UserService extends SubsystemService implements UserResource {
 
             // return entries up to the page size
             for ( ; i<start+size && users.hasMoreElements(); i++) {
-                IUser user = users.nextElement();
+                User user = users.nextElement();
                 response.addEntry(createUserData(user));
             }
 
@@ -196,7 +196,7 @@ public class UserService extends SubsystemService implements UserResource {
 
             CMSEngine engine = CMS.getCMSEngine();
             EngineConfig cs = engine.getConfig();
-            IUser user;
+            User user;
 
             try {
                 user = userGroupManager.getUser(userID);
@@ -298,7 +298,7 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new ForbiddenException(getUserMessage("CMS_ADMIN_SRVLT_SPECIAL_ID", headers, userID));
             }
 
-            IUser user = userGroupManager.createUser(userID);
+            User user = userGroupManager.createUser(userID);
 
             String fname = userData.getFullName();
             logger.debug("Full name: " + fname);
@@ -427,7 +427,7 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            IUser user = userGroupManager.createUser(userID);
+            User user = userGroupManager.createUser(userID);
 
             String fullName = userData.getFullName();
             user.setFullName(fullName);
@@ -518,7 +518,7 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            IUser user = userGroupManager.createUser(userID);
+            User user = userGroupManager.createUser(userID);
 
             String fullName = userData.getFullName();
             logger.debug("Full name: " + fullName);
@@ -685,7 +685,7 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            IUser user = null;
+            User user = null;
 
             try {
                 user = userGroupManager.getUser(userID);
@@ -752,7 +752,7 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            IUser user = null;
+            User user = null;
 
             try {
                 user = userGroupManager.getUser(userID);
@@ -829,7 +829,7 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            IUser user = userGroupManager.createUser(userID);
+            User user = userGroupManager.createUser(userID);
 
             String encoded = userCertData.getEncoded();
 
@@ -1050,7 +1050,7 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            IUser user = userGroupManager.createUser(userID);
+            User user = userGroupManager.createUser(userID);
             String certID = userCertData.getID();
 
             // no certDN is a success
@@ -1113,7 +1113,7 @@ public class UserService extends SubsystemService implements UserResource {
         size = size == null ? DEFAULT_SIZE : size;
 
         try {
-            IUser user = userGroupManager.getUser(userID);
+            User user = userGroupManager.getUser(userID);
 
             if (user == null) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));

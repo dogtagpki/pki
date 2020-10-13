@@ -24,8 +24,9 @@ import java.util.List;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IAttrSet;
 import com.netscape.certsrv.user.UserResource;
-import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.certsrv.usrgrp.IUserConstants;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -34,7 +35,7 @@ import com.netscape.cmscore.apps.CMS;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class User implements IUser {
+public class User implements IAttrSet, IUserConstants {
 
     /**
      *
@@ -68,10 +69,17 @@ public class User implements IUser {
         mNames.addElement(ATTR_TPS_PROFILES);
     }
 
+    /**
+     * Get TPS profiles
+     */
     public List<String> getTpsProfiles() {
         return tpsProfiles;
     }
 
+    /**
+     * Set TPS profiles
+     * @param tpsProfiles
+     */
     public void setTpsProfiles(List<String> tpsProfiles) {
         boolean setAll = false;
         for (String profile: tpsProfiles) {
@@ -98,6 +106,8 @@ public class User implements IUser {
 
     /**
      * Retrieves the name of this identity.
+     *
+     * @return user name
      */
     public String getName() {
         //		return mScope.getId() + "://" + mUserid;
@@ -106,6 +116,8 @@ public class User implements IUser {
 
     /**
      * Retrieves user identifier.
+     *
+     * @return user id
      */
     public String getUserID() {
         return mUserid;
@@ -113,81 +125,162 @@ public class User implements IUser {
 
     /**
      * Retrieves user full name.
+     *
+     * @return user fullname
      */
     public String getFullName() {
         return mFullName;
     }
 
+    /**
+     * Sets user full name.
+     *
+     * @param name the given full name
+     */
     public void setFullName(String name) {
         mFullName = name;
     }
 
     /**
-     * Retrieves user ldap dn
+     * Retrieves user LDAP DN
+     *
+     * @return user DN
      */
     public String getUserDN() {
         return mUserDN;
     }
 
+    /**
+     * Sets user LDAP DN.
+     *
+     * @param userdn the given user DN
+     */
     public void setUserDN(String userdn) {
         mUserDN = userdn;
     }
 
+    /**
+     * Get user type
+     *
+     * @return user type.
+     */
     public String getUserType() {
         return mUserType;
     }
 
+    /**
+     * Sets user type
+     *
+     * @param userType the given user type
+     */
     public void setUserType(String userType) {
         mUserType = userType;
     }
 
     /**
      * Retrieves user password.
+     *
+     * @return user password
      */
     public String getPassword() {
         return mPassword;
     }
 
+    /**
+     * Sets user password.
+     *
+     * @param p the given password
+     */
     public void setPassword(String password) {
         mPassword = password;
     }
 
+    /**
+     * Gets user email address.
+     *
+     * @return email address
+     */
     public String getEmail() {
         return mEmail;
     }
 
+    /**
+     * Sets user email address.
+     *
+     * @param email the given email address
+     */
     public void setEmail(String email) {
         mEmail = email;
     }
 
+    /**
+     * Retrieves user phonenumber.
+     *
+     * @return user phonenumber
+     */
     public String getPhone() {
         return mPhone;
     }
 
+    /**
+     * Retrieves user state
+     *
+     * @return user state
+     */
     public String getState() {
         return mState;
     }
 
+    /**
+     * Sets user phonenumber
+     *
+     * @param p user phonenumber
+     */
     public void setPhone(String phone) {
         mPhone = phone;
     }
 
+    /**
+     * Sets user state
+     *
+     * @param p the given user state
+     */
     public void setState(String state) {
         mState = state;
     }
 
+    /**
+     * Gets list of certificates from this user
+     *
+     * @return list of certificates
+     */
     public X509Certificate[] getX509Certificates() {
         return mx509Certs;
     }
 
+    /**
+     * Sets list of certificates in this user
+     *
+     * @param certs list of certificates
+     */
     public void setX509Certificates(X509Certificate certs[]) {
         mx509Certs = certs;
     }
 
+    /**
+     * Get certificate DN
+     *
+     * @return certificate DN
+     */
     public String getCertDN() {
         return mCertDN;
     }
 
+    /**
+     * Set certificate DN
+     *
+     * @param userdn the given DN
+     */
     public void setCertDN(String dn) {
         mCertDN = dn;
     }

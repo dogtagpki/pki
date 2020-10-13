@@ -19,7 +19,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
@@ -29,6 +28,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.CertUserDBAuthentication;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  *  PKI Realm
@@ -189,24 +189,24 @@ public class PKIRealm extends RealmBase {
     }
 
     protected Principal getPrincipal(String username, IAuthToken authToken) throws Exception {
-        IUser user = getUser(username);
+        User user = getUser(username);
         return getPrincipal(user, authToken);
     }
 
-    protected Principal getPrincipal(IUser user, IAuthToken authToken) throws EUsrGrpException {
+    protected Principal getPrincipal(User user, IAuthToken authToken) throws EUsrGrpException {
         List<String> roles = getRoles(user);
         return new PKIPrincipal(user, null, roles, authToken);
     }
 
-    protected IUser getUser(String username) throws EUsrGrpException {
+    protected User getUser(String username) throws EUsrGrpException {
         CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem ugSub = engine.getUGSubsystem();
-        IUser user = ugSub.getUser(username);
+        User user = ugSub.getUser(username);
         logger.info("PKIRealm: User DN: " + user.getUserDN());
         return user;
     }
 
-    protected List<String> getRoles(IUser user) throws EUsrGrpException {
+    protected List<String> getRoles(User user) throws EUsrGrpException {
 
         List<String> roles = new ArrayList<String>();
 

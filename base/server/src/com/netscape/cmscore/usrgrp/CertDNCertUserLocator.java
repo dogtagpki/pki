@@ -20,10 +20,9 @@ package com.netscape.cmscore.usrgrp;
 import java.security.cert.X509Certificate;
 
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.CertUserLocator;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -60,7 +59,7 @@ public class CertDNCertUserLocator implements CertUserLocator {
     /**
      * Do the cert-user mapping
      */
-    public IUser locateUser(Certificates certs) throws
+    public User locateUser(Certificates certs) throws
             EUsrGrpException, LDAPException, ELdapException {
 
         CMSEngine engine = CMS.getCMSEngine();

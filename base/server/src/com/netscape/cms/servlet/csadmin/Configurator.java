@@ -77,7 +77,6 @@ import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.certsrv.system.SystemCertData;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
@@ -88,6 +87,7 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -867,7 +867,7 @@ public class Configurator {
         X509CertImpl[] adminCerts = new X509CertImpl[] { adminCert };
 
         UGSubsystem ug = engine.getUGSubsystem();
-        IUser user = ug.getUser(request.getAdminUID());
+        User user = ug.getUser(request.getAdminUID());
         user.setX509Certificates(adminCerts);
         ug.addUserCert(user);
     }
@@ -889,7 +889,7 @@ public class Configurator {
 
         String groupNames = preopConfig.getString("admin.group", "Certificate Manager Agents,Administrators");
 
-        IUser user = null;
+        User user = null;
 
         try {
             user = system.createUser(uid);
@@ -1307,7 +1307,7 @@ public class Configurator {
 
         UGSubsystem system = engine.getUGSubsystem();
 
-        IUser user = system.createUser(id);
+        User user = system.createUser(id);
         user.setFullName(id);
         user.setEmail("");
         user.setPassword("");
@@ -1375,7 +1375,7 @@ public class Configurator {
         UGSubsystem system = engine.getUGSubsystem();
 
         // checking existing user
-        IUser user = system.getUser(DBUSER);
+        User user = system.getUser(DBUSER);
 
         if (user != null) {
             // user found
@@ -1511,7 +1511,7 @@ public class Configurator {
         if (res != null) {
             while (res.hasMoreElements()) {
                 String uid = res.next().getAttribute("uid").getStringValues().nextElement();
-                IUser user = system.getUser(uid);
+                User user = system.getUser(uid);
                 logger.debug("removeOldDUsers: Removing seeAlso from " + uid);
                 system.removeCertSubjectDN(user);
             }

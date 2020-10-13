@@ -64,7 +64,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -82,6 +81,7 @@ import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * Submit a Certificate Enrollment request
@@ -1487,7 +1487,7 @@ public class EnrollServlet extends CMSServlet {
         CAEngine engine = CAEngine.getInstance();
         UGSubsystem ug = engine.getUGSubsystem();
 
-        IUser adminuser = ug.createUser(userid);
+        User adminuser = ug.createUser(userid);
 
         adminuser.setX509Certificates(issuedCerts);
         ug.addUserCert(adminuser);

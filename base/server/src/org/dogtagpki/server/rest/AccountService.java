@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * @author Endi S. Dewata
@@ -58,7 +58,7 @@ public class AccountService extends PKIService {
 
         if (principal instanceof PKIPrincipal) {
             PKIPrincipal pkiPrincipal = (PKIPrincipal)principal;
-            IUser user = pkiPrincipal.getUser();
+            User user = pkiPrincipal.getUser();
 
             String fullName = user.getFullName();
             logger.info("- Full Name: " + fullName);

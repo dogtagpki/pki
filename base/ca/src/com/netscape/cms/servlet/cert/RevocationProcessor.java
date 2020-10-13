@@ -50,10 +50,10 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.Certificates;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * @author Endi S. Dewata
@@ -190,7 +190,7 @@ public class RevocationProcessor extends CertProcessor {
             X509Certificate certChain[] = new X509Certificate[1];
             certChain[0] = clientCert;
 
-            IUser user = ul.locateUser(new Certificates(certChain));
+            User user = ul.locateUser(new Certificates(certChain));
             return ug.isMemberOf(user, "Subsystem Group");
 
         } catch (Exception e) {

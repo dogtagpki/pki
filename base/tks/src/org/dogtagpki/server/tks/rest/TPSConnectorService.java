@@ -31,9 +31,9 @@ import com.netscape.certsrv.system.TPSConnectorCollection;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.certsrv.system.TPSConnectorResource;
 import com.netscape.certsrv.tps.cert.TPSCertResource;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class TPSConnectorService extends PKIService implements TPSConnectorResource {
@@ -304,7 +304,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             String userid = validateUser(id);
 
             // get user cert
-            IUser user = userGroupManager.getUser(userid);
+            User user = userGroupManager.getUser(userid);
 
             logger.debug("TPSConnectorService.createSharedSecret.userid: " + userid);
             X509Certificate[] certs = user.getX509Certificates();
@@ -387,7 +387,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             }
 
             // get user cert
-            IUser user = userGroupManager.getUser(userid);
+            User user = userGroupManager.getUser(userid);
             X509Certificate[] certs = user.getX509Certificates();
 
             CryptoUtil.deleteSharedSecret(nickname);
@@ -478,7 +478,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             }
 
             // get user cert
-            IUser user = userGroupManager.getUser(userid);
+            User user = userGroupManager.getUser(userid);
             X509Certificate[] certs = user.getX509Certificates();
 
             //Create des3 session sym key to wrap the shared secrt.

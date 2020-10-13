@@ -57,12 +57,12 @@ import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * A class representing an administration servlet for
@@ -324,7 +324,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         String id = super.getParameter(req, Constants.RS_ID);
-        IUser user = mMgr.getUser(id);
+        User user = mMgr.getUser(id);
         String val = user.getUserType();
 
         if (val == null || val.equals(""))
@@ -348,7 +348,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        Enumeration<IUser> e = null;
+        Enumeration<User> e = null;
 
         try {
             e = mMgr.listUsers("*");
@@ -362,7 +362,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         int i = 0;
 
         while (e.hasMoreElements()) {
-            IUser user = e.nextElement();
+            User user = e.nextElement();
 
             if (i > 0) {
                 sb.append(";");
@@ -408,7 +408,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        IUser user = null;
+        User user = null;
 
         try {
             user = mMgr.getUser(id);
@@ -489,7 +489,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        IUser user = null;
+        User user = null;
 
         try {
             user = mMgr.getUser(id);
@@ -723,7 +723,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             }
 
-            IUser user = mMgr.createUser(id);
+            User user = mMgr.createUser(id);
             String fname = super.getParameter(req, Constants.PR_USER_FULLNAME);
 
             if ((fname == null) || (fname.length() == 0)) {
@@ -960,7 +960,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             }
 
-            IUser user = mMgr.createUser(id);
+            User user = mMgr.createUser(id);
             String certS = super.getParameter(req, Constants.PR_USER_CERT);
             String certsString = Cert.stripBrackets(certS);
 
@@ -1267,7 +1267,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             }
 
-            IUser user = mMgr.createUser(id);
+            User user = mMgr.createUser(id);
             String certDN = super.getParameter(req, Constants.PR_USER_CERT);
 
             // no certDN is a success
@@ -1972,7 +1972,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             }
 
-            IUser user = mMgr.createUser(id);
+            User user = mMgr.createUser(id);
             String fname = super.getParameter(req, Constants.PR_USER_FULLNAME);
 
             if ((fname == null) || (fname.length() == 0)) {

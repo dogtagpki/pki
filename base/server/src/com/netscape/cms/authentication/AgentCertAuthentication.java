@@ -43,7 +43,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
@@ -51,6 +50,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * Certificate server agent authentication.
@@ -197,7 +197,7 @@ public class AgentCertAuthentication implements AuthManager,
         }
 
         // map cert to user
-        IUser user = null;
+        User user = null;
         Certificates certs = new Certificates(ci);
 
         try {

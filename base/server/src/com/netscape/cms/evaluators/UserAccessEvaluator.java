@@ -22,8 +22,8 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * A class represents a user acls evaluator.
@@ -137,7 +137,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
             if (s.equals(ANYBODY) && op.equals("="))
                 return true;
 
-            IUser id = (IUser) mSC.get(SessionContext.USER);
+            User id = (User) mSC.get(SessionContext.USER);
 
             if (op.equals("="))
                 return s.equalsIgnoreCase(id.getName());

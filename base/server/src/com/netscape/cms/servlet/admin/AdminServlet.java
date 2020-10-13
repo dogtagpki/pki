@@ -56,7 +56,6 @@ import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -67,6 +66,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * A class represents an administration servlet that
@@ -419,7 +419,7 @@ public class AdminServlet extends HttpServlet {
                 // get user.
                 // this either returns null or
                 // throws exception when user not found
-                IUser user = mUG.getUser(tuserid);
+                User user = mUG.getUser(tuserid);
 
                 if (user == null) {
                     logger.error(CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_FOUND",
@@ -823,7 +823,7 @@ public class AdminServlet extends HttpServlet {
 
             // get user.
             // this either returns null or throws exception when user not found
-            IUser user = mUG.getUser(userid);
+            User user = mUG.getUser(userid);
 
             if (user == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_IN_DB", userid));

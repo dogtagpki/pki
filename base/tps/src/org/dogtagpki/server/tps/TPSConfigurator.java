@@ -35,10 +35,10 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.user.UserResource;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -79,7 +79,7 @@ public class TPSConfigurator extends Configurator {
         UGSubsystem system = engine.getUGSubsystem();
 
         String adminID = request.getAdminUID();
-        IUser user = system.getUser(adminID);
+        User user = system.getUser(adminID);
 
         List<String> profiles = new ArrayList<String>();
         profiles.add(UserResource.ALL_PROFILES);

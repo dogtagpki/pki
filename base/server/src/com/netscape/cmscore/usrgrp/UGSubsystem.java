@@ -36,7 +36,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -123,7 +122,7 @@ public class UGSubsystem {
         }
     }
 
-    public IUser createUser(String id) {
+    public User createUser(String id) {
         return new User(id);
     }
 
@@ -134,7 +133,7 @@ public class UGSubsystem {
     /**
      * Retrieves a user from LDAP
      */
-    public IUser getUser(String userID) throws EUsrGrpException {
+    public User getUser(String userID) throws EUsrGrpException {
 
         if (userID == null) {
             return null;
@@ -165,7 +164,7 @@ public class UGSubsystem {
                     false);
 
             // throw EUsrGrpException if result is empty
-            Enumeration<IUser> e = buildUsers(res);
+            Enumeration<User> e = buildUsers(res);
 
             // user found
             return e.nextElement();
@@ -203,9 +202,9 @@ public class UGSubsystem {
             LDAPSearchResults res =
                     ldapconn.search(getUserBaseDN(),
                             LDAPConnection.SCOPE_SUB, filter, null, false);
-            Enumeration<IUser> e = buildUsers(res);
+            Enumeration<User> e = buildUsers(res);
 
-            return (User) e.nextElement();
+            return e.nextElement();
 
         } catch (LDAPException e) {
             logger.warn("Unable to find user: " + e.getMessage(), e);
@@ -224,7 +223,7 @@ public class UGSubsystem {
      * Searchs for identities that matches the certificate locater
      * generated filter.
      */
-    public IUser findUsersByCert(String filter) throws EUsrGrpException {
+    public User findUsersByCert(String filter) throws EUsrGrpException {
         if (filter == null) {
             return null;
         }
@@ -255,7 +254,7 @@ public class UGSubsystem {
                     LDAPv2.SCOPE_SUB, "(" + filter + ")",
                     null, false);
 
-            Enumeration<IUser> e = buildUsers(res);
+            Enumeration<User> e = buildUsers(res);
 
             return e.nextElement();
 
@@ -276,7 +275,7 @@ public class UGSubsystem {
     /**
      * Searchs for identities that matches the filter.
      */
-    public Enumeration<IUser> findUsers(String filter) throws EUsrGrpException {
+    public Enumeration<User> findUsers(String filter) throws EUsrGrpException {
 
         String ldapFilter;
         if (StringUtils.isEmpty(filter)) {
@@ -301,7 +300,7 @@ public class UGSubsystem {
                     false);
 
             // throw EUsrGrpException if result is empty
-            Enumeration<IUser> e = buildUsers(res);
+            Enumeration<User> e = buildUsers(res);
 
             return e;
 
@@ -323,7 +322,7 @@ public class UGSubsystem {
      * Searchs for identities that matches the filter.
      * retrieves uid only, for efficiency of user listing
      */
-    public Enumeration<IUser> listUsers(String filter) throws EUsrGrpException {
+    public Enumeration<User> listUsers(String filter) throws EUsrGrpException {
         if (filter == null) {
             return null;
         }
@@ -342,7 +341,7 @@ public class UGSubsystem {
             cons.setMaxResults(0);
             LDAPSearchResults res = ldapconn.search(getUserBaseDN(),
                     LDAPv2.SCOPE_SUB, "(uid=" + filter + ")", attrs, false, cons);
-            Enumeration<IUser> e = lbuildUsers(res);
+            Enumeration<User> e = lbuildUsers(res);
 
             return e;
 
@@ -360,27 +359,27 @@ public class UGSubsystem {
         return null;
     }
 
-    protected Enumeration<IUser> lbuildUsers(LDAPSearchResults res) throws
+    protected Enumeration<User> lbuildUsers(LDAPSearchResults res) throws
             EUsrGrpException {
-        Vector<IUser> v = new Vector<IUser>();
+        Vector<User> v = new Vector<User>();
 
         while (res.hasMoreElements()) {
             LDAPEntry entry = (LDAPEntry) res.nextElement();
-            IUser user = lbuildUser(entry);
+            User user = lbuildUser(entry);
 
             v.addElement(user);
         }
         return v.elements();
     }
 
-    protected Enumeration<IUser> buildUsers(LDAPSearchResults res) throws
+    protected Enumeration<User> buildUsers(LDAPSearchResults res) throws
             EUsrGrpException {
-        Vector<IUser> v = new Vector<IUser>();
+        Vector<User> v = new Vector<User>();
 
         if (res != null) {
             while (res.hasMoreElements()) {
                 LDAPEntry entry = (LDAPEntry) res.nextElement();
-                IUser user = buildUser(entry);
+                User user = buildUser(entry);
 
                 v.addElement(user);
             }
@@ -400,12 +399,12 @@ public class UGSubsystem {
      *
      * @return the User entity.
      */
-    protected IUser lbuildUser(LDAPEntry entry) throws EUsrGrpException {
+    protected User lbuildUser(LDAPEntry entry) throws EUsrGrpException {
         LDAPAttribute uid = entry.getAttribute("uid");
         if (uid == null) {
             throw new EUsrGrpException("No Attribute UID in LDAP Entry " + entry.getDN());
         }
-        IUser id = createUser(uid.getStringValues().nextElement());
+        User id = createUser(uid.getStringValues().nextElement());
         LDAPAttribute cnAttr = entry.getAttribute("cn");
 
         if (cnAttr != null) {
@@ -459,12 +458,12 @@ public class UGSubsystem {
      *
      * @return the User entity.
      */
-    protected IUser buildUser(LDAPEntry entry) throws EUsrGrpException {
+    protected User buildUser(LDAPEntry entry) throws EUsrGrpException {
         LDAPAttribute uid = entry.getAttribute("uid");
         if (uid == null) {
             throw new EUsrGrpException("No Attribute UID in LDAP Entry " + entry.getDN());
         }
-        IUser id = createUser(uid.getStringValues().nextElement());
+        User id = createUser(uid.getStringValues().nextElement());
         LDAPAttribute cnAttr = entry.getAttribute("cn");
 
         if (cnAttr != null) {
@@ -615,8 +614,8 @@ public class UGSubsystem {
      * Adds identity. Certificates handled by a separate call to
      * addUserCert()
      */
-    public void addUser(IUser identity) throws EUsrGrpException {
-        User id = (User) identity;
+    public void addUser(User identity) throws EUsrGrpException {
+        User id = identity;
 
         if (id == null) {
             throw new EUsrGrpException("Unable to add user: Missing user");
@@ -730,8 +729,8 @@ public class UGSubsystem {
     /**
      * adds a user certificate to user
      */
-    public void addUserCert(IUser identity) throws EUsrGrpException {
-        User user = (User) identity;
+    public void addUserCert(User identity) throws EUsrGrpException {
+        User user = identity;
 
         if (user == null) {
             return;
@@ -787,8 +786,8 @@ public class UGSubsystem {
         return;
     }
 
-    public void addCertSubjectDN(IUser identity) throws EUsrGrpException {
-        User user = (User) identity;
+    public void addCertSubjectDN(User identity) throws EUsrGrpException {
+        User user = identity;
 
         if (user == null) {
             return;
@@ -834,8 +833,8 @@ public class UGSubsystem {
         return;
     }
 
-    public void removeCertSubjectDN(IUser identity) throws EUsrGrpException {
-        User user = (User) identity;
+    public void removeCertSubjectDN(User identity) throws EUsrGrpException {
+        User user = identity;
 
         if (user == null) {
             logger.warn("removeCertSubjectDN: null user passed in");
@@ -886,8 +885,8 @@ public class UGSubsystem {
      * given a user certificate DN (actually, a combination of version,
      * serialNumber, issuerDN, and SubjectDN), and it gets removed
      */
-    public void removeUserCert(IUser identity) throws EUsrGrpException {
-        User user = (User) identity;
+    public void removeUserCert(User identity) throws EUsrGrpException {
+        User user = identity;
         User ldapUser = null;
 
         if (user == null) {
@@ -896,7 +895,7 @@ public class UGSubsystem {
 
         // retrieve all certs of the user, then match the cert String for
         // removal
-        ldapUser = (User) getUser(user.getUserID());
+        ldapUser = getUser(user.getUserID());
 
         if (ldapUser == null) {
             throw new ResourceNotFoundException("User not found: " + user.getUserID());
@@ -1092,8 +1091,8 @@ public class UGSubsystem {
     /**
      * modifies user attributes. Certs are handled separately
      */
-    public void modifyUser(IUser identity) throws EUsrGrpException {
-        User user = (User) identity;
+    public void modifyUser(User identity) throws EUsrGrpException {
+        User user = identity;
         String st = null;
 
         /**
@@ -1537,7 +1536,7 @@ public class UGSubsystem {
 
     public boolean isMemberOf(String userid, String groupname) {
         try {
-            IUser user = getUser(userid);
+            User user = getUser(userid);
             if (user != null) {
                 return isMemberOfLdapGroup(user.getUserDN(), groupname);
             }
@@ -1552,7 +1551,7 @@ public class UGSubsystem {
      * (now runs an ldap search to find the user, instead of
      * fetching the entire group entry)
      */
-    public boolean isMemberOf(IUser id, String name) {
+    public boolean isMemberOf(User id, String name) {
         if (id == null) {
             logger.warn("UGSubsystem: isMemberOf(): id is null");
             return false;
@@ -1776,7 +1775,7 @@ public class UGSubsystem {
      * Evalutes the given context with the attribute
      * critieria.
      */
-    public boolean evaluate(String type, IUser id,
+    public boolean evaluate(String type, User id,
             String op, String value) {
         if (op.equals("=")) {
             if (type.equalsIgnoreCase("user")) {

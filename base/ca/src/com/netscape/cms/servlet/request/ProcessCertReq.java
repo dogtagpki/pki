@@ -73,7 +73,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.cert.ImportCertsTemplateFiller;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -85,6 +84,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * Agent operations on Certificate requests. This servlet is used
@@ -1562,7 +1562,7 @@ public class ProcessCertReq extends CMSServlet {
 
         CAEngine engine = CAEngine.getInstance();
         UGSubsystem ug = engine.getUGSubsystem();
-        IUser user = ug.createUser(uid);
+        User user = ug.createUser(uid);
 
         user.setFullName(uid);
         user.setEmail("");

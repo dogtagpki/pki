@@ -22,7 +22,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
-import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * A class represents a user-origreq user mapping acls evaluator.
@@ -150,7 +150,7 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
             if (s.equals(ANYBODY) && op.equals("="))
                 return true;
 
-            IUser id = (IUser) mSC.get(SessionContext.USER);
+            User id = (User) mSC.get(SessionContext.USER);
             // "orig_req.auth_token.uid"
             String orig_id = (String) mSC.get("orig_req" + s);
 
