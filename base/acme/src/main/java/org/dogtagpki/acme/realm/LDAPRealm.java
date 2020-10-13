@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.catalina.realm.GenericPrincipal;
+import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.FileConfigStore;
@@ -21,7 +22,6 @@ import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PlainPasswordFile;
 
@@ -225,15 +225,9 @@ public class LDAPRealm extends ACMERealm {
                 + cert.getSubjectDN();
     }
 
-    public LDAPEntry findUserByCert(LDAPConnection conn, X509Certificate[] certs) throws Exception {
+    public LDAPEntry findUserByCertID(LDAPConnection conn, String certID) throws Exception {
 
-        // sort certs from leaf to root
-        certs = CryptoUtil.sortCertificateChain(certs, true);
-
-        // get user cert
-        X509Certificate cert = certs[0];
-
-        String filter = "description=" + getCertID(cert);
+        String filter = "description=" + certID;
 
         logger.info("LDAPRealm: Finding user by cert:");
         logger.info("LDAPRealm: - base DN: " + usersDN);
@@ -295,18 +289,27 @@ public class LDAPRealm extends ACMERealm {
         }
     }
 
-    public Principal authenticate(X509Certificate[] certs) throws Exception {
+    public Principal authenticate(X509Certificate[] certChain) throws Exception {
+
+        // sort cert chain from leaf to root
+        certChain = Cert.sortCertificateChain(certChain, true);
+
+        // get leaf cert
+        X509Certificate cert = certChain[0];
+
+        // cert already validated during SSL handshake
 
         LDAPConnection conn = connFactory.getConn();
         try {
-            LDAPEntry entry = findUserByCert(conn, certs);
+            // find user by cert ID
+            String certID = getCertID(cert);
+            LDAPEntry entry = findUserByCertID(conn, certID);
 
             if (entry == null) {
                 return null;
             }
 
-            // cert already validated during SSL handshake
-
+            // create user principal
             LDAPAttribute uid = entry.getAttribute("uid");
             String username = uid.getStringValues().nextElement();
 

@@ -26,11 +26,11 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.Cert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.cmstools.cli.MainCLI;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class PKCS7CertFindCLI extends CommandCLI {
 
@@ -75,7 +75,7 @@ public class PKCS7CertFindCLI extends CommandCLI {
         }
 
         // sort certs from root to leaf
-        certs = CryptoUtil.sortCertificateChain(certs);
+        certs = Cert.sortCertificateChain(certs);
 
         boolean first = true;
 

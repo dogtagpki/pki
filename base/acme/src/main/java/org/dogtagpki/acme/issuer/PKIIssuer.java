@@ -40,7 +40,6 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author Endi S. Dewata
@@ -195,7 +194,7 @@ public class PKIIssuer extends ACMEIssuer {
         }
 
         // sort certs from leaf to root
-        certs = CryptoUtil.sortCertificateChain(certs, true);
+        certs = Cert.sortCertificateChain(certs, true);
 
         StringWriter sw = new StringWriter();
 

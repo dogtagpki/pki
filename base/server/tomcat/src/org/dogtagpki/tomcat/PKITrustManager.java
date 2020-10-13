@@ -11,12 +11,10 @@ import javax.net.ssl.X509TrustManager;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 public class PKITrustManager implements X509TrustManager {
 
@@ -30,7 +28,7 @@ public class PKITrustManager implements X509TrustManager {
         logger.debug("PKITrustManager: checkCertChain(" + keyUsage + ")");
 
         // sort cert chain from root to leaf
-        certChain = CryptoUtil.sortCertificateChain(certChain);
+        certChain = Cert.sortCertificateChain(certChain);
 
         for (X509Certificate cert : certChain) {
             logger.debug("PKITrustManager:  - " + cert.getSubjectDN());

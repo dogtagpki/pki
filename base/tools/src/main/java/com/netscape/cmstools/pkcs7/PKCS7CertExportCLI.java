@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.cmstools.cli.MainCLI;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class PKCS7CertExportCLI extends CommandCLI {
 
@@ -87,7 +86,7 @@ public class PKCS7CertExportCLI extends CommandCLI {
         }
 
         // sort certs from root to leaf
-        certs = CryptoUtil.sortCertificateChain(certs);
+        certs = Cert.sortCertificateChain(certs);
 
         String prefix = cmd.getOptionValue("output-prefix", filename + "-");
         String suffix = cmd.getOptionValue("output-suffix", "");
