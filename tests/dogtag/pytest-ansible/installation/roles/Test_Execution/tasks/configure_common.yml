@@ -128,3 +128,18 @@
     - debug:
         var: command_output
   when: fips_enable == "true" or fips_enable == "True"
+
+- name: Install podman packages for Redhat
+  dnf: pkg={{item}} state=latest
+  with_items:
+     - podman
+  when: topology == "podman_acme" and deploy == "true"
+  tags: platform-ci
+
+- name: Install certbot for acme
+  command: pip-3 install {{item}}
+  with_items:
+    - cryptography --upgrade
+    - certbot
+  tags: platform-ci
+  when: (topology == "acme") or (topology == "podman_acme" and deploy == "true")

@@ -108,8 +108,7 @@ installation-acme-dp:
   <<: *job_definition
   stage: tier1
   script:
-    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=acme" -vv | sed 's/\\n/\n/g'
-
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=acme acme_nss_issuer=true" -vv | sed 's/\\n/\n/g'
 
 Installation_sanity_SHA256withRSA/PSS_topo_01_ps:
   <<: *job_definition
@@ -185,6 +184,38 @@ Installation_sanity_topo_02_clone_fips_ps:
     - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-02 clone=true fips_enable=true" -vv  | sed 's/\\n/\n/g'
     - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main_clone.yml --extra-vars "topology=topology-02 fips_enable=true" -vv  | sed 's/\\n/\n/g'
 
+installation_podman_acme-dp:
+  <<: *job_definition
+  stage: tier1
+  script:
+    - bash $CI_PROJECT_DIR/provision/setup_ci.sh
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=podman_acme deploy=true" -vv | sed 's/\\n/\n/g'
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=podman_acme deploy=false" -vv | sed 's/\\n/\n/g'
+
+podman_acme_test-dp:
+  <<: *job_definition
+  stage: tier2-shared
+  script:
+    - bash $CI_PROJECT_DIR/provision/setup_ci.sh
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=podman_acme deploy=true" -vv | sed 's/\\n/\n/g'
+    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/acme/test_acme.py -q -s --junitxml ${CI_JOB_NAME}_junit.xml |  sed 's/\\n/\n/g'
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=podman_acme deploy=false" -vv | sed 's/\\n/\n/g'
+
+acme_test-dp:
+  <<: *job_definition
+  stage: tier2-shared
+  script:
+    - bash $CI_PROJECT_DIR/provision/setup_ci.sh
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=acme" -vv | sed 's/\\n/\n/g'
+    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/acme/test_acme.py -q -s --junitxml ${CI_JOB_NAME}_junit.xml |  sed 's/\\n/\n/g'
+
+installation_oc_acme-dp:
+  <<: *job_definition
+  stage: tier1
+  script:
+    - bash $CI_PROJECT_DIR/provision/setup_ci.sh
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=oc_acme deploy=true" -vv | sed 's/\\n/\n/g'
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=oc_acme deploy=false" -vv | sed 's/\\n/\n/g'
 
 
 

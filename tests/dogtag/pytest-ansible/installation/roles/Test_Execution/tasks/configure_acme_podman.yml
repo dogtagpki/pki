@@ -1,0 +1,56 @@
+- name: Deploy acme container on podman
+  block:
+    - name: Import constants
+      shell: echo 0
+      notify:
+        - INC_CONSTANTS
+
+    - meta: flush_handlers
+
+    - name: Create a pod to encapsulate PKI ACME containers
+      command: podman pod create --name {{topology}} -p {{variable.CA_HTTP_PORT}}:{{variable.CA_HTTP_PORT}} -p {{variable.CA_HTTPS_PORT}}:{{variable.CA_HTTPS_PORT}}
+
+    - name: Deploy PostgreSQL persistent database containers
+      command: podman run --name postgresql --rm --pod {{topology}} -e POSTGRES_USER={{variable.POSTGRES_USER}} -e POSTGRES_PASSWORD={{variable.POSTGRES_PASSWORD}} -e POSTGRES_DB={{variable.POSTGRES_DB}} -d postgres
+
+    - name: Create a directory to store database file
+      file:
+        path: /root/database
+        state: directory
+        mode: '0755'
+
+    - name: create file database class file
+      copy:
+        content: |
+          org.dogtagpki.acme.database.PostgreSQLDatabase
+        dest: /root/database/class
+
+    - name: create file database url file
+      copy:
+        content: |
+          jdbc:postgresql://localhost.localdomain:{{variable.POSTGRES_PORT}}/acme
+        dest: /root/database/url
+
+    - name: create file database user file
+      copy:
+        content: |
+          {{variable.POSTGRES_USER}}
+        dest: /root/database/user
+
+    - name: create file database password file
+      copy:
+        content: |
+          {{variable.POSTGRES_PASSWORD}}
+        dest: /root/database/password
+
+    - name: Deploy the PKI ACME responder
+      command: podman run --name pki-{{topology}} --pod {{topology}} --rm --privileged -v /root/database:/var/lib/tomcats/pki/conf/acme/database -d quay.io/dogtagpki/pki-acme
+  when: deploy == "true"
+
+- name: Stop a created pod
+  command: podman pod stop {{topology}}
+  when: deploy == "false"
+
+- name: Remove a created pod
+  command: podman pod rm {{topology}}
+  when: deploy == "false"
