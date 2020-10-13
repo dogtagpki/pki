@@ -9,9 +9,11 @@ import java.net.URI;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -165,7 +167,7 @@ public class LDAPRealm extends ACMERealm {
         connFactory.init(socketConfig, ldapConfig, ps);
     }
 
-    public User createUser(LDAPEntry entry) {
+    public User createUser(LDAPEntry entry) throws Exception {
         User user = new User();
 
         user.setUserDN(entry.getDN());
@@ -187,6 +189,16 @@ public class LDAPRealm extends ACMERealm {
         LDAPAttribute phoneAttr = entry.getAttribute("telephoneNumber");
         if (phoneAttr != null) {
             user.setPhone(phoneAttr.getStringValues().nextElement());
+        }
+
+        LDAPAttribute userCertificate = entry.getAttribute("userCertificate");
+        if (userCertificate != null) {
+            byte[][] binCerts = userCertificate.getByteValueArray();
+            X509Certificate[] certs = new X509Certificate[binCerts.length];
+            for (int i = 0; i < binCerts.length; i++) {
+                certs[i] = new X509CertImpl(binCerts[i]);
+            }
+            user.setX509Certificates(certs);
         }
 
         return user;
@@ -342,6 +354,24 @@ public class LDAPRealm extends ACMERealm {
             User user = findUserByCertID(conn, certID);
 
             if (user == null) {
+                return null;
+            }
+
+            // validate cert data
+            boolean found = false;
+            byte[] data = cert.getEncoded();
+
+            X509Certificate[] certs = user.getX509Certificates();
+            if (certs != null) {
+                for (X509Certificate c : certs) {
+                    if (Arrays.equals(data, c.getEncoded())) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!found) {
                 return null;
             }
 
