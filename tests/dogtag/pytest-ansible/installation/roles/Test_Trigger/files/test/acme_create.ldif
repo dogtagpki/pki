@@ -23,3 +23,8 @@ ou: challenges
 dn: ou=certificates,ldap_base_dn
 objectClass: organizationalUnit
 ou: certificates
+
+dn: cn=Administrators,ou=groups,ldap_base_dn
+objectClass: groupOfUniqueNames
+cn: Administrators
+uniqueMember: uid=admin,ou=users,ldap_base_dn

@@ -3,7 +3,7 @@
   with_items:
   - "{{ playbook_dir }}/vars/ldap_shared.yml"
   - "{{ playbook_dir }}/vars/ca_shared.yml"
-  when: topology == "topology-01" or topology == "acme"
+  when: topology == "topology-01" or topology == "acme" or topology == "podman_acme" or topology == "oc_acme"
 
 - name: Pick constants based on {{topology}}
   include_vars: "{{ item }}"

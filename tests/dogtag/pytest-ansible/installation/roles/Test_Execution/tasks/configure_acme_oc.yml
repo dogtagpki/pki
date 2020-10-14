@@ -1,0 +1,73 @@
+- name: Deploy acme app on Openshift
+  block:
+    - name: Import constants
+      shell: echo 0
+      notify:
+        - INC_CONSTANTS
+
+    - meta: flush_handlers
+
+    - name: Download oc cli binary to access openshift
+      unarchive:
+        src: "{{ lookup('env', 'OC_CLI_TOOL') }}"
+        dest: /usr/bin/
+        remote_src: yes
+
+    - name: OC login
+      shell: "oc login {{ lookup('env', 'OC_URL') }} --token={{ lookup('env', 'OC_TOKEN') }}"
+      no_log: true
+
+    - name: Install acme on openshift
+      shell: oc apply -f/usr/share/pki/acme/openshift/pki-acme-{certs,metadata,database,issuer,is,deployment,svc,route}.yaml
+
+    - name: Deploying Persistent Database
+      shell: oc new-app postgresql-persistent -p POSTGRESQL_USER={{variable.POSTGRES_USER}} -p POSTGRESQL_PASSWORD={{variable.POSTGRES_PASSWORD}} -p POSTGRESQL_DATABASE={{variable.POSTGRES_DB}}
+
+    - name: Wait for deploy acme
+      pause:
+        minutes: 1
+
+    - name: Uncomment database lines from file
+      replace:
+        path: /usr/share/pki/acme/openshift/pki-acme-database.yaml
+        regexp: '# '
+        replace: ''
+
+    - name: Removing InMemoryDatabase entry
+      replace:
+        path: /usr/share/pki/acme/openshift/pki-acme-database.yaml
+        regexp: 'class: org.dogtagpki.acme.database.InMemoryDatabase'
+        replace: '#class: org.dogtagpki.acme.database.InMemoryDatabase'
+
+    - name: Deploy Database acme configuration
+      command: oc apply -f /usr/share/pki/acme/openshift/pki-acme-database.yaml
+
+    - name: restart acme pod
+      command: oc delete pods -l app=pki-acme
+
+    - name: Wait for restart acme pod
+      pause:
+        minutes: 1
+
+    - name: oc get acme route
+      command: oc get routes pki-acme
+  when: deploy == "true"
+
+- name: Teardown acme app on Openshift
+  block:
+    - name: Removing pki-acme app
+      command: oc delete all -l app=pki-acme
+
+    - name: Removing postgressql database app
+      command: oc delete all -l app=postgresql-persistent
+
+
+    - name: removing postgressql secret
+      command: oc delete secret postgresql
+
+    - name: removing postgressql persistent volume
+      command: oc delete persistentvolumeclaims postgresql
+
+    - name: logging out from openshift
+      shell: oc logout
+  when: deploy == "false"

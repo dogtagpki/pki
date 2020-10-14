@@ -9,58 +9,21 @@
   shell: ldapmodify -h {{variable.MASTER_HOSTNAME}} -p {{variable.LDAP_PORT}} -x -D "cn=Directory Manager" -w {{variable.LDAP_PASSWD}} -f "{{variable.ACME_CONFIG_PATH}}/database/ldap/schema.ldif"
 
 - name: Updating acme base DN
-  replace:
-   dest: '{{variable.ACME_CONFIG_PATH}}/database/ldap/{{item}}'
-   regexp: "dc=acme,dc=pki,dc=example,dc=com"
-   replace: "{{variable.LDAP_BASE_DN}}"
-  with_items:
-    - create.ldif
-    - database.conf
+  shell: ldapadd -h {{variable.MASTER_HOSTNAME}} -p {{variable.LDAP_PORT}} -x -D "cn=Directory Manager" -w {{variable.LDAP_PASSWD}} -f /tmp/test_dir/acme_create.ldif
 
-- name: Updating acme ldap port
-  replace:
-   dest: "{{variable.ACME_CONFIG_PATH}}/database/ldap/database.conf"
-   regexp: '389'
-   replace: "{{variable.LDAP_PORT}}"
+- name: Updating acme database detail
+  shell: pki-server acme-database-mod --type ldap -DbaseDN={{variable.LDAP_BASE_DN}} -DbindPassword={{variable.LDAP_PASSWD}} -Durl=ldap://{{variable.MASTER_HOSTNAME}}:{{variable.LDAP_PORT}} -Dmonitor.enabled=true --instance {{topology}}-CA
 
-- name: Updating acme ldap password
-  replace:
-   path: "{{variable.ACME_CONFIG_PATH}}/database/ldap/database.conf"
-   regexp: 'bindPassword=.*'
-   replace: 'bindPassword={{variable.LDAP_PASSWD}}'
+- name: Configuring ACME Responder PKI Issuer
+  shell: pki-server acme-issuer-mod --type pki -Dusername={{variable.CA_ADMIN_USERNAME}} -Dpassword={{variable.CA_PASSWORD}} --instance {{topology}}-CA
+  when: acme_nss_issuer == "false"
 
-- name: Removing existing ldap entry
-  command: sed -i 1,3d "{{variable.ACME_CONFIG_PATH}}/database/ldap/create.ldif"
+- name: Configuring ACME Responder NSS Issuer
+  shell: pki-server acme-issuer-mod --type nss -Dnickname="caSigningCert cert-{{topology}}-CA CA" --instance {{topology}}-CA
+  when: acme_nss_issuer == "true"
 
-- name: Adding the ACME LDAP schema
-  command: ldapadd -h {{variable.MASTER_HOSTNAME}} -p {{variable.LDAP_PORT}} -x -D "cn=Directory Manager" -w {{variable.LDAP_PASSWD}} -f "{{variable.ACME_CONFIG_PATH}}/database/ldap/create.ldif"
-
-- name: Configuring ACME Responder Database
-  copy:
-    src: "{{variable.ACME_CONFIG_PATH}}/database/ldap/database.conf"
-    dest: /etc/pki/{{topology}}-CA/acme/database.conf
-    remote_src: yes
-    force: yes
-
-- name: Configuring ACME Responder Issuer
-  copy:
-    src: "{{variable.ACME_CONFIG_PATH}}/issuer/pki/issuer.conf"
-    dest: /etc/pki/{{topology}}-CA/acme/issuer.conf
-    remote_src: yes
-    force: yes
-
-- name: Configuring ACME Responder Issuer
-  replace:
-    path: /etc/pki/{{topology}}-CA/acme/issuer.conf
-    regexp: 'password=.*'
-    replace: 'password={{variable.CA_PASSWORD}}'
+- name: Configuring ACME Realm
+  shell: pki-server acme-realm-mod --type ds -DbindPassword={{variable.CA_PASSWORD}} -Durl=ldap://{{variable.MASTER_HOSTNAME}}:{{variable.LDAP_PORT}} -DusersDN=ou=people,{{variable.LDAP_BASE_DN}} -DgroupsDN=ou=groups,{{variable.LDAP_BASE_DN}} --instance acme-CA
 
 - name: Deploying ACME Responder
   shell: pki-server acme-deploy --instance {{topology}}-CA
-
-- name: Install certbot for acme
-  command: pip-3 install {{item}}
-  with_items:
-    - certbot
-  tags: platform-ci
-  when: topology == "acme"
