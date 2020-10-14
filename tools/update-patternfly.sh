@@ -4,6 +4,8 @@ VERSION=`jq -r '.dependencies."@patternfly/patternfly"' package.json | sed "s/\^
 
 cp node_modules/@patternfly/patternfly/patternfly.min.css \
     base/acme/webapps/acme/css/patternfly-$VERSION.css
+cp node_modules/@patternfly/patternfly/patternfly.min.css.map \
+    base/acme/webapps/acme/css/patternfly.min.css.map
 
 cp node_modules/@patternfly/patternfly/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff \
     base/acme/webapps/acme/css/assets/fonts/RedHatDisplay
