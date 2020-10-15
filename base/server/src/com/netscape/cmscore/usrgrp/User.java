@@ -19,12 +19,18 @@ package com.netscape.cmscore.usrgrp;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IAttrSet;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.cmscore.apps.CMS;
 
@@ -34,7 +40,9 @@ import com.netscape.cmscore.apps.CMS;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class User implements IAttrSet {
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
+public class User {
 
     /**
      * Constant for userScope
@@ -121,6 +129,12 @@ public class User implements IAttrSet {
      * @param tpsProfiles
      */
     public void setTpsProfiles(List<String> tpsProfiles) {
+
+        if (tpsProfiles == null) {
+            this.tpsProfiles = null;
+            return;
+        }
+
         boolean setAll = false;
         for (String profile: tpsProfiles) {
             if (profile.equals(UserResource.ALL_PROFILES)) {
@@ -140,6 +154,10 @@ public class User implements IAttrSet {
     /**
      * Constructs a user.
      */
+    public User() {
+    }
+
+    @Deprecated
     public User(String userid) {
         mUserid = userid;
     }
@@ -148,7 +166,10 @@ public class User implements IAttrSet {
      * Retrieves the name of this identity.
      *
      * @return user name
+     * @deprecated
      */
+    @JsonIgnore
+    @Deprecated
     public String getName() {
         //		return mScope.getId() + "://" + mUserid;
         return mUserid;
@@ -159,8 +180,13 @@ public class User implements IAttrSet {
      *
      * @return user id
      */
+    @JsonProperty("id")
     public String getUserID() {
         return mUserid;
+    }
+
+    public void setUserID(String userID) {
+        mUserid = userID;
     }
 
     /**
@@ -350,7 +376,7 @@ public class User implements IAttrSet {
 
     public Object get(String name) throws EBaseException {
         if (name.equals(ATTR_NAME)) {
-            return getName();
+            return getUserID();
         } else if (name.equals(ATTR_ID)) {
             return getUserID();
         } else if (name.equals(ATTR_STATE)) {
@@ -374,7 +400,116 @@ public class User implements IAttrSet {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
+    @JsonIgnore
     public Enumeration<String> getElements() {
         return mNames.elements();
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static User fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, User.class);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((mCertDN == null) ? 0 : mCertDN.hashCode());
+        result = prime * result + ((mEmail == null) ? 0 : mEmail.hashCode());
+        result = prime * result + ((mFullName == null) ? 0 : mFullName.hashCode());
+        result = prime * result + ((mPassword == null) ? 0 : mPassword.hashCode());
+        result = prime * result + ((mPhone == null) ? 0 : mPhone.hashCode());
+        result = prime * result + ((mState == null) ? 0 : mState.hashCode());
+        result = prime * result + ((mUserDN == null) ? 0 : mUserDN.hashCode());
+        result = prime * result + ((mUserType == null) ? 0 : mUserType.hashCode());
+        result = prime * result + ((mUserid == null) ? 0 : mUserid.hashCode());
+        result = prime * result + Arrays.hashCode(mx509Certs);
+        result = prime * result + ((tpsProfiles == null) ? 0 : tpsProfiles.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        User other = (User) obj;
+        if (mCertDN == null) {
+            if (other.mCertDN != null)
+                return false;
+        } else if (!mCertDN.equals(other.mCertDN))
+            return false;
+        if (mEmail == null) {
+            if (other.mEmail != null)
+                return false;
+        } else if (!mEmail.equals(other.mEmail))
+            return false;
+        if (mFullName == null) {
+            if (other.mFullName != null)
+                return false;
+        } else if (!mFullName.equals(other.mFullName))
+            return false;
+        if (mPassword == null) {
+            if (other.mPassword != null)
+                return false;
+        } else if (!mPassword.equals(other.mPassword))
+            return false;
+        if (mPhone == null) {
+            if (other.mPhone != null)
+                return false;
+        } else if (!mPhone.equals(other.mPhone))
+            return false;
+        if (mState == null) {
+            if (other.mState != null)
+                return false;
+        } else if (!mState.equals(other.mState))
+            return false;
+        if (mUserDN == null) {
+            if (other.mUserDN != null)
+                return false;
+        } else if (!mUserDN.equals(other.mUserDN))
+            return false;
+        if (mUserType == null) {
+            if (other.mUserType != null)
+                return false;
+        } else if (!mUserType.equals(other.mUserType))
+            return false;
+        if (mUserid == null) {
+            if (other.mUserid != null)
+                return false;
+        } else if (!mUserid.equals(other.mUserid))
+            return false;
+        if (!Arrays.equals(mx509Certs, other.mx509Certs))
+            return false;
+        if (tpsProfiles == null) {
+            if (other.tpsProfiles != null)
+                return false;
+        } else if (!tpsProfiles.equals(other.tpsProfiles))
+            return false;
+        return true;
+    }
+
+    public static void main(String args[]) throws Exception {
+
+        User before = new User();
+        before.setUserID("testuser");
+        before.setFullName("Test User");
+        before.setEmail("testuser@example.com");
+
+        String json = before.toJSON();
+        System.out.println("Before: " + json);
+
+        User after = User.fromJSON(json);
+        System.out.println("After: " + after.toJSON());
+
+        System.out.println(before.equals(after));
     }
 }

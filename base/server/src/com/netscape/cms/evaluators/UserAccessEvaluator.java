@@ -140,9 +140,9 @@ public class UserAccessEvaluator implements IAccessEvaluator {
             User id = (User) mSC.get(SessionContext.USER);
 
             if (op.equals("="))
-                return s.equalsIgnoreCase(id.getName());
+                return s.equalsIgnoreCase(id.getUserID());
             else if (op.equals("!="))
-                return !(s.equalsIgnoreCase(id.getName()));
+                return !(s.equalsIgnoreCase(id.getUserID()));
         }
 
         return false;

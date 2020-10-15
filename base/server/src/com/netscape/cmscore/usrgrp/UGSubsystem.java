@@ -123,7 +123,9 @@ public class UGSubsystem {
     }
 
     public User createUser(String id) {
-        return new User(id);
+        User user = new User();
+        user.setUserID(id);
+        return user;
     }
 
     public Group createGroup(String id) {
@@ -1779,7 +1781,7 @@ public class UGSubsystem {
             String op, String value) {
         if (op.equals("=")) {
             if (type.equalsIgnoreCase("user")) {
-                if (isMatched(value, id.getName()))
+                if (isMatched(value, id.getUserID()))
                     return true;
             }
             if (type.equalsIgnoreCase("group")) {

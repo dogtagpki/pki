@@ -155,9 +155,9 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
             String orig_id = (String) mSC.get("orig_req" + s);
 
             if (op.equals("="))
-                return id.getName().equalsIgnoreCase(orig_id);
+                return id.getUserID().equalsIgnoreCase(orig_id);
             else if (op.equals("!="))
-                return !(id.getName().equalsIgnoreCase(orig_id));
+                return !(id.getUserID().equalsIgnoreCase(orig_id));
         }
 
         return false;
