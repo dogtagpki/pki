@@ -16,6 +16,10 @@ public class PKIPrincipal extends GenericPrincipal {
     User user;
     IAuthToken authToken;
 
+    public PKIPrincipal(User user, String password, List<String> roles) {
+        this(user, password, roles, null);
+    }
+
     public PKIPrincipal(User user, String password, List<String> roles, IAuthToken authToken) {
         super(user.getUserID(), password, roles);
         this.user = user;

@@ -18,11 +18,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import org.apache.catalina.realm.GenericPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.account.Account;
+import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * @author Endi S. Dewata
@@ -44,8 +45,14 @@ public class ACMELoginService {
         Account account = new Account();
         account.setID(username);
 
-        if (principal instanceof GenericPrincipal) {
-            String[] roles = ((GenericPrincipal) principal).getRoles();
+        if (principal instanceof PKIPrincipal) {
+            PKIPrincipal pkiPrincipal = (PKIPrincipal) principal;
+
+            User user = pkiPrincipal.getUser();
+            account.setFullName(user.getFullName());
+            account.setEmail(user.getEmail());
+
+            String[] roles = pkiPrincipal.getRoles();
             logger.info("ACMELoginService: Roles:");
             for (String role : roles) {
                 logger.info("ACMELoginService: - " + role);

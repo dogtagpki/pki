@@ -11,9 +11,9 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.catalina.realm.GenericPrincipal;
 import org.mozilla.jss.netscape.security.util.Cert;
 
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
@@ -22,6 +22,7 @@ import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
+import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PlainPasswordFile;
 
@@ -164,10 +165,37 @@ public class LDAPRealm extends ACMERealm {
         connFactory.init(socketConfig, ldapConfig, ps);
     }
 
-    public List<String> getUserRoles(LDAPConnection conn, LDAPEntry userEntry) throws Exception {
+    public User createUser(LDAPEntry entry) {
+        User user = new User();
+
+        user.setUserDN(entry.getDN());
+
+        LDAPAttribute uidAttr = entry.getAttribute("uid");
+        String uid = uidAttr.getStringValueArray()[0];
+        user.setUserID(uid);
+
+        LDAPAttribute cnAttr = entry.getAttribute("cn");
+        if (cnAttr != null) {
+            user.setFullName(cnAttr.getStringValues().nextElement());
+        }
+
+        LDAPAttribute mailAttr = entry.getAttribute("mail");
+        if (mailAttr != null) {
+            user.setEmail(mailAttr.getStringValues().nextElement());
+        }
+
+        LDAPAttribute phoneAttr = entry.getAttribute("telephoneNumber");
+        if (phoneAttr != null) {
+            user.setPhone(phoneAttr.getStringValues().nextElement());
+        }
+
+        return user;
+    }
+
+    public List<String> getUserRoles(LDAPConnection conn, String userDN) throws Exception {
 
         List<String> roles = new ArrayList<>();
-        String filter = "uniqueMember=" + userEntry.getDN();
+        String filter = "uniqueMember=" + userDN;
 
         logger.info("Getting user roles:");
         logger.info("- base DN: " + groupsDN);
@@ -194,7 +222,7 @@ public class LDAPRealm extends ACMERealm {
         return roles;
     }
 
-    public LDAPEntry findUserByUsername(LDAPConnection conn, String username) throws Exception {
+    public User findUserByUsername(LDAPConnection conn, String username) throws Exception {
 
         String filter = "uid=" + username;
 
@@ -218,7 +246,7 @@ public class LDAPRealm extends ACMERealm {
         LDAPEntry entry = results.next();
         logger.info("User: " + entry.getDN());
 
-        return entry;
+        return createUser(entry);
     }
 
     public String getCertID(X509Certificate cert) {
@@ -228,7 +256,7 @@ public class LDAPRealm extends ACMERealm {
                 + cert.getSubjectDN();
     }
 
-    public LDAPEntry findUserByCertID(LDAPConnection conn, String certID) throws Exception {
+    public User findUserByCertID(LDAPConnection conn, String certID) throws Exception {
 
         String filter = "description=" + certID;
 
@@ -252,7 +280,7 @@ public class LDAPRealm extends ACMERealm {
         LDAPEntry entry = results.next();
         logger.info("User: " + entry.getDN());
 
-        return entry;
+        return createUser(entry);
     }
 
     @Override
@@ -262,9 +290,9 @@ public class LDAPRealm extends ACMERealm {
 
         LDAPConnection conn = connFactory.getConn();
         try {
-            LDAPEntry entry = findUserByUsername(conn, username);
+            User user = findUserByUsername(conn, username);
 
-            if (entry == null) {
+            if (user == null) {
                 return null;
             }
 
@@ -274,7 +302,7 @@ public class LDAPRealm extends ACMERealm {
             LDAPConnection authConn = new LDAPConnection(socketFactory);
             try {
                 authConn.connect(connConfig.getHostname(), connConfig.getPort());
-                authConn.authenticate(entry.getDN(), password);
+                authConn.authenticate(user.getUserDN(), password);
 
             } catch (LDAPException e) {
                 if (e.getLDAPResultCode() == LDAPException.INVALID_CREDENTIALS) {
@@ -286,8 +314,8 @@ public class LDAPRealm extends ACMERealm {
                 authConn.close();
             }
 
-            List<String> roles = getUserRoles(conn, entry);
-            return new GenericPrincipal(username, null, roles);
+            List<String> roles = getUserRoles(conn, user.getUserDN());
+            return new PKIPrincipal(user, null, roles);
 
         } finally {
             connFactory.returnConn(conn);
@@ -311,18 +339,15 @@ public class LDAPRealm extends ACMERealm {
         try {
             // find user by cert ID
             String certID = getCertID(cert);
-            LDAPEntry entry = findUserByCertID(conn, certID);
+            User user = findUserByCertID(conn, certID);
 
-            if (entry == null) {
+            if (user == null) {
                 return null;
             }
 
             // create user principal
-            LDAPAttribute uid = entry.getAttribute("uid");
-            String username = uid.getStringValues().nextElement();
-
-            List<String> roles = getUserRoles(conn, entry);
-            return new GenericPrincipal(username, null, roles);
+            List<String> roles = getUserRoles(conn, user.getUserDN());
+            return new PKIPrincipal(user, null, roles);
 
         } finally {
             connFactory.returnConn(conn);
