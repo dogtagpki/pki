@@ -25,13 +25,14 @@ import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWS;
+import org.dogtagpki.acme.ValidationResult;
 
 /**
  * @author Endi S. Dewata
  */
 @Path("new-order")
 @ACMEManagedService
-public class ACMENewOrderService {
+public class ACMENewOrderService extends ACMEService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMENewOrderService.class);
 
@@ -72,6 +73,10 @@ public class ACMENewOrderService {
             String type = identifier.getType();
             String value = identifier.getValue();
             logger.info("Identifier " + type + ": " + value);
+
+            ValidationResult r = ACMEIdentifierValidator.validateSyntax(identifier);
+            if (!r.isOK())
+                throwError(Response.Status.BAD_REQUEST, r.getError());
 
             engine.getPolicy().validateIdentifier(identifier);
 
