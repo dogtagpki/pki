@@ -27,6 +27,8 @@ spec:
               name: pki-acme-database
             - mountPath: /var/lib/tomcats/pki/conf/acme/issuer
               name: pki-acme-issuer
+            - mountPath: /var/lib/tomcats/pki/conf/acme/realm
+              name: pki-acme-realm
       volumes:
         - name: pki-acme-certs
           secret:
@@ -40,6 +42,9 @@ spec:
         - name: pki-acme-issuer
           secret:
             secretName: pki-acme-issuer
+        - name: pki-acme-realm
+          secret:
+            secretName: pki-acme-realm
   triggers:
     - imageChangeParams:
         automatic: true
