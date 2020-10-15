@@ -3,9 +3,7 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-package org.dogtagpki.acme.validator;
-
-import org.dogtagpki.acme.ACMEError;
+package org.dogtagpki.acme;
 
 public class ValidationResult {
     private boolean ok;
