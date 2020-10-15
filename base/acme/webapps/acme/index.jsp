@@ -10,33 +10,40 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <script src="js/jquery-3.5.1.js"></script>
 
     <script>
-$(function() {
+function updateBaseURL() {
 
-    // replace ACME_URL with actual ACME URL
+    // replace BASE_URL with actual base URL
     var i = window.location.href.lastIndexOf('/');
-    var acme_url = window.location.href.substring(0, i);
+    var base_url = window.location.href.substring(0, i);
 
     $("pre").each(function() {
         var content = this.innerText;
-        this.innerText = content.replace("ACME_URL", acme_url);
+        this.innerText = content.replace("BASE_URL", base_url);
     });
+}
 
-    // display actual ACME metadata
+function updateMetadata() {
+
     $.get({
         url: "directory",
         dataType: "json"
 
     }).done(function(data, textStatus, jqXHR) {
-        $("a[name='termsOfService']").text(data.meta.termsOfService);
-        $("a[name='termsOfService']").attr("href", data.meta.termsOfService);
-        $("a[name='website']").text(data.meta.website);
-        $("a[name='website']").attr("href", data.meta.website);
-        $("span[name='caaIdentities']").text(data.meta.caaIdentities.join(", "));
-        $("span[name='externalAccountRequired']").text(data.meta.externalAccountRequired);
+        $("#metadata-termsOfService").text(data.meta.termsOfService);
+        $("#metadata-termsOfService").attr("href", data.meta.termsOfService);
+        $("#metadata-website").text(data.meta.website);
+        $("#metadata-website").attr("href", data.meta.website);
+        $("#metadata-caaIdentities").text(data.meta.caaIdentities.join(", "));
+        $("#metadata-externalAccountRequired").text(data.meta.externalAccountRequired);
 
     }).fail(function(jqXHR, textStatus, errorThrown) {
-        alert('ERROR: ' + response);
+        alert('ERROR: ' + errorThrown);
     });
+}
+
+$(function() {
+    updateBaseURL();
+    updateMetadata();
 });
     </script>
 
@@ -59,10 +66,10 @@ $(function() {
 <h2>Metadata</h2>
 
 <ul>
-<li><b>Terms of service:</b> <a href="" name="termsOfService"></a></li>
-<li><b>Website:</b> <a name="website"></a></li>
-<li><b>CAA identities:</b> <span name="caaIdentities"></span></li>
-<li><b>External account required:</b> <span name="externalAccountRequired"></span></li>
+<li><b>Terms of service:</b> <a id="metadata-termsOfService"></a></li>
+<li><b>Website:</b> <a id="metadata-website"></a></li>
+<li><b>CAA identities:</b> <span id="metadata-caaIdentities"></span></li>
+<li><b>External account required:</b> <span id="metadata-externalAccountRequired"></span></li>
 </ul>
 
 <h2>Account Management</h2>
@@ -71,7 +78,7 @@ To create an ACME account:
 
 <pre>
 $ certbot register \
-    --server ACME_URL/directory \
+    --server BASE_URL/directory \
     -m &lt;email address&gt; \
     --agree-tos
 </pre>
@@ -80,7 +87,7 @@ To update an ACME account:
 
 <pre>
 $ certbot update_account \
-    --server ACME_URL/directory \
+    --server BASE_URL/directory \
     -m &lt;new email address&gt;
 </pre>
 
@@ -88,7 +95,7 @@ To deactivate an ACME account:
 
 <pre>
 $ certbot unregister \
-    --server ACME_URL/directory
+    --server BASE_URL/directory
 </pre>
 
 <h2>Certificate Enrollment</h2>
@@ -97,7 +104,7 @@ To request a certificate with automatic http-01 validation:
 
 <pre>
 $ certbot certonly --standalone \
-    --server ACME_URL/directory \
+    --server BASE_URL/directory \
     --preferred-challenges http \
     -d server.example.com
 </pre>
@@ -106,7 +113,7 @@ To request a certificate with manual dns-01 validation:
 
 <pre>
 $ certbot certonly --manual \
-    --server ACME_URL/directory \
+    --server BASE_URL/directory \
     --preferred-challenges dns \
     -d server.example.com
 </pre>
@@ -117,7 +124,7 @@ To revoke a certificate owned by the ACME account:
 
 <pre>
 $ certbot revoke \
-    --server ACME_URL/directory \
+    --server BASE_URL/directory \
     --cert-path /etc/letsencrypt/live/server.example.com/fullchain.pem
 </pre>
 
@@ -125,7 +132,7 @@ To revoke a certificate associated with a private key:
 
 <pre>
 $ certbot revoke \
-    --server ACME_URL/directory \
+    --server BASE_URL/directory \
     --cert-path /etc/letsencrypt/live/server.example.com/fullchain.pem \
     --key-path /etc/letsencrypt/live/server.example.com/privkey.pem
 </pre>
