@@ -64,7 +64,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
     private void resetPin() throws TPSException, IOException {
 
-        String method = "TPSPinResetProcessor.resetPin()";
+        String method = "TPSPinResetProcessor.resetPin(): ";
         //ToDo: Implement full pin reset processor, the pin reset portion
         // of an enrollment works fine. We just need to finish this to perform
         // a completely stand alone pin reset of an already enrolled token.
@@ -188,6 +188,32 @@ public class TPSPinResetProcessor extends TPSProcessor {
                 }
             } else {
                 logger.debug(method + " --> registrationtype attribute disabled or not found, continuing.");
+            }
+
+            /*
+             * If cuid is provided on the user registration record, then
+             * we have to compare that with the current token cuid;
+             *
+             * If, the cuid is not provided on the user registration record,
+             * then any token can be used.
+             */
+            if (erAttrs.getTokenCUID() != null) {
+                logger.debug(method + " checking if token cuid matches record cuid");
+                logger.debug(method + " erAttrs.getTokenCUID()=" + erAttrs.getTokenCUID());
+                logger.debug(method + " tokenRecord.getId()=" + tokenRecord.getId());
+                if (!tokenRecord.getId().equalsIgnoreCase(erAttrs.getTokenCUID())) {
+                    logMsg = "isExternalReg: token CUID not matching record:" + tokenRecord.getId() + " : " +
+                            erAttrs.getTokenCUID();
+                    logger.error(method + logMsg);
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                            "failure");
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_NOT_TOKEN_OWNER);
+                } else {
+                    logMsg = "isExternalReg: token CUID matches record";
+                    logger.debug(method + logMsg);
+                }
+            } else {
+                logger.debug(method + " no need to check if token cuid matches record");
             }
 
             session.setExternalRegAttrs(erAttrs);
