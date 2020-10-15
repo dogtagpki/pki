@@ -182,6 +182,27 @@ else
 fi
 
 echo "################################################################################"
+
+# import realm configuration if available
+if [ -d /var/lib/tomcats/pki/conf/acme/realm ] && \
+   [ "$(ls /var/lib/tomcats/pki/conf/acme/realm)" ]
+then
+    echo "INFO: Importing realm configuration"
+
+    # empty current realm configuration
+    > /var/lib/tomcats/pki/conf/acme/realm.conf
+
+    # import realm configuration parameters
+    for filename in $(ls /var/lib/tomcats/pki/conf/acme/realm)
+    do
+        value=$(cat /var/lib/tomcats/pki/conf/acme/realm/$filename)
+        echo "$filename=$value" >> /var/lib/tomcats/pki/conf/acme/realm.conf
+    done
+else
+    echo "INFO: Using default realm configuration"
+fi
+
+echo "################################################################################"
 echo "INFO: Starting PKI ACME responder"
 
 ${PYTHON_EXECUTABLE} -I -m pki.server.pkiserver run tomcat@pki --as-current-user
