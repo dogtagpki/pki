@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: pki-acme-realm
+stringData:
+  class: org.dogtagpki.acme.realm.InMemoryRealm
+  # class: org.dogtagpki.acme.realm.PostgreSQLRealm
+  # password: Secret.123
+  # url: jdbc:postgresql://postgresql:5432/acme
+  # user: acme

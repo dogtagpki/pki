@@ -7,12 +7,16 @@ This document describes the process to deploy PKI ACME responder as a container 
 The container image is available at [quay.io/dogtagpki/pki-acme](https://quay.io/repository/dogtagpki/pki-acme).
 
 By default the responder will use a temporary CA signing certificate.
-The temporary certificate is self-signed and if the responder is restarted the certificate will be recreated .
+A new self-signed CA certificate will be created every time the responder is restarted.
 It is possible to replace it with a permanent CA signing certificate.
 
-Also, by default the responder will use a temporary database.
-This temporary database is non-persistent, so if the responder is restarted the database will disappear.
-It is possible to replace it with a persistent database.
+By default the responder will use a temporary database.
+A new empty in-memory database will be created every time the responder is restarted.
+It is possible to replace it with a permanent database.
+
+By default the responder will use a temporary realm.
+A new empty in-memory realm will be created every time the responder is restarted.
+It is possible to replace it with a permanent realm.
 
 **Note:** The PKI ACME responder is currently a tech preview which means:
 * It is not intended for production.
@@ -30,6 +34,7 @@ A sample configuration for PKI ACME responder is available at:
 - [/usr/share/pki/acme/openshift/pki-acme-metadata.yaml](../../../base/acme/openshift/pki-acme-metadata.yaml)
 - [/usr/share/pki/acme/openshift/pki-acme-database.yaml](../../../base/acme/openshift/pki-acme-database.yaml)
 - [/usr/share/pki/acme/openshift/pki-acme-issuer.yaml](../../../base/acme/openshift/pki-acme-issuer.yaml)
+- [/usr/share/pki/acme/openshift/pki-acme-realm.yaml](../../../base/acme/openshift/pki-acme-realm.yaml)
 - [/usr/share/pki/acme/openshift/pki-acme-is.yaml](../../../base/acme/openshift/pki-acme-is.yaml)
 - [/usr/share/pki/acme/openshift/pki-acme-deployment.yaml](../../../base/acme/openshift/pki-acme-deployment.yaml)
 - [/usr/share/pki/acme/openshift/pki-acme-svc.yaml](../../../base/acme/openshift/pki-acme-svc.yaml)
@@ -38,7 +43,7 @@ A sample configuration for PKI ACME responder is available at:
 Customize the configuration as needed. Deploy the responder with the following command:
 
 ```
-$ oc apply -f/usr/share/pki/acme/openshift/pki-acme-{certs,metadata,database,issuer,is,deployment,svc,route}.yaml
+$ oc apply -f/usr/share/pki/acme/openshift/pki-acme-{certs,metadata,database,issuer,realm,is,deployment,svc,route}.yaml
 ```
 
 Once it's deployed, get the route's hostname with the following command:
@@ -97,9 +102,9 @@ Once it's deployed, restart the responder by deleting the current pods with the 
 $ oc delete pods -l app=pki-acme
 ```
 
-## Deploying Persistent Database
+## Deploying Permanent Database
 
-To deploy a persistent database, use OpenShift console or **oc new-app** command.
+To deploy a permanent database, use OpenShift console or **oc new-app** command.
 For example, deploy a PostgreSQL database with the following command:
 
 ```
@@ -109,7 +114,7 @@ $ oc new-app postgresql-persistent \
     -p POSTGRESQL_DATABASE=acme
 ```
 
-Next, configure the PKI ACME responder to use the persistent database.
+Next, configure the PKI ACME responder to use the permanent database.
 A sample database configuration for PKI ACME responder is available at
 [/usr/share/pki/acme/openshift/pki-acme-database.yaml](../../../base/acme/openshift/pki-acme-database.yaml).
 
@@ -136,6 +141,23 @@ Select one of the pods, then execute the following command:
 ```
 $ oc rsh <pod name> \
     psql postgres://acme:Secret.123@postgresql/acme
+```
+
+## Deploying Permanent Realm
+
+A sample realm configuration for PKI ACME responder is available at
+[/usr/share/pki/acme/openshift/pki-acme-realm.yaml](../../../base/acme/openshift/pki-acme-realm.yaml).
+
+Customize the configuration as needed. Deploy the configuration with the following command:
+
+```
+$ oc apply -f /usr/share/pki/acme/openshift/pki-acme-realm.yaml
+```
+
+Restart the responder by deleting the current pods with the following command:
+
+```
+$ oc delete pods -l app=pki-acme
 ```
 
 ## Deploying Secure Route
