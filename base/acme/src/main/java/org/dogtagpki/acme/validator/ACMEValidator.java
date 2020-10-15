@@ -8,6 +8,7 @@ package org.dogtagpki.acme.validator;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMEError;
+import org.dogtagpki.acme.ValidationResult;
 import org.dogtagpki.acme.server.ACMEEngine;
 
 /**

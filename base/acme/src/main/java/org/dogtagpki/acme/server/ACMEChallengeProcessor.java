@@ -14,8 +14,8 @@ import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMEError;
 import org.dogtagpki.acme.ACMEOrder;
+import org.dogtagpki.acme.ValidationResult;
 import org.dogtagpki.acme.validator.ACMEValidator;
-import org.dogtagpki.acme.validator.ValidationResult;
 
 /**
  * @author Endi S. Dewata
