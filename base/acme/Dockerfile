@@ -77,6 +77,9 @@ RUN cp /usr/share/pki/acme/database/in-memory/database.conf /var/lib/tomcats/pki
 # Use NSS issuer by default
 RUN cp /usr/share/pki/acme/issuer/nss/issuer.conf /var/lib/tomcats/pki/conf/acme
 
+# Use in-memory realm by default
+RUN cp /usr/share/pki/acme/realm/in-memory/realm.conf /var/lib/tomcats/pki/conf/acme
+
 # Remove PKI ACME web application logging.properties so the logs will appear on the console
 RUN rm -f /usr/share/pki/acme/webapps/acme/WEB-INF/classes/logging.properties
 
