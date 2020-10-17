@@ -39,6 +39,7 @@ import pki.server.cli.config
 import pki.server.cli.db
 import pki.server.cli.group
 import pki.server.cli.range
+import pki.server.cli.user
 import pki.server.instance
 
 logger = logging.getLogger(__name__)
@@ -64,6 +65,7 @@ class KRACLI(pki.cli.CLI):
         self.add_module(KRADBCLI(self))
         self.add_module(pki.server.cli.group.GroupCLI(self))
         self.add_module(pki.server.cli.range.RangeCLI(self))
+        self.add_module(pki.server.cli.user.UserCLI(self))
 
 
 class KRACloneCLI(pki.cli.CLI):

@@ -1148,7 +1148,31 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
-    def run(self, args, as_current_user=False):
+    def find_users(self, see_also=None, as_current_user=False):
+
+        cmd = [self.name + '-user-find']
+
+        if see_also:
+            cmd.append('--see-also')
+            cmd.append(see_also)
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append('--output-format')
+        cmd.append('json')
+
+        result = self.run(
+            cmd,
+            as_current_user=as_current_user,
+            capture_output=True)
+
+        return json.loads(result.stdout.decode())
+
+    def run(self, args, as_current_user=False, capture_output=False):
 
         java_path = os.getenv('PKI_JAVA_PATH')
         java_home = self.instance.config['JAVA_HOME']
@@ -1205,7 +1229,10 @@ class PKISubsystem(object):
         logger.debug('Command: %s', ' '.join(cmd))
 
         try:
-            subprocess.run(cmd, check=True)
+            return subprocess.run(
+                cmd,
+                capture_output=capture_output,
+                check=True)
 
         except KeyboardInterrupt:
             logger.debug('Server stopped')

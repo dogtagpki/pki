@@ -34,6 +34,7 @@ import pki.server.cli.audit
 import pki.server.cli.config
 import pki.server.cli.db
 import pki.server.cli.group
+import pki.server.cli.user
 import pki.server.instance
 
 logger = logging.getLogger(__name__)
@@ -50,6 +51,7 @@ class OCSPCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
         self.add_module(pki.server.cli.group.GroupCLI(self))
+        self.add_module(pki.server.cli.user.UserCLI(self))
 
 
 class OCSPCloneCLI(pki.cli.CLI):

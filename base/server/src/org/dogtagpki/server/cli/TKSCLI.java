@@ -30,5 +30,6 @@ public class TKSCLI extends CLI {
 
         addModule(new SubsystemDBCLI(this));
         addModule(new SubsystemGroupCLI(this));
+        addModule(new SubsystemUserCLI(this));
     }
 }
