@@ -16,5 +16,7 @@ public class SubsystemGroupCLI extends CLI {
         super("group", parent.name.toUpperCase() + " group management commands", parent);
 
         addModule(new SubsystemGroupFindCLI(this));
+
+        addModule(new SubsystemGroupMemberCLI(this));
     }
 }
