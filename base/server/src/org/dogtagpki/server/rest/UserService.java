@@ -127,7 +127,7 @@ public class UserService extends SubsystemService implements UserResource {
         UserCollection response = new UserCollection();
 
         try {
-            Enumeration<User> users = userGroupManager.findUsers(filter);
+            Enumeration<User> users = userGroupManager.findUsersByKeyword(filter);
 
             int i = 0;
 

@@ -269,16 +269,21 @@ public class UGSubsystem {
     /**
      * Searchs for identities that matches the filter.
      */
+    public Enumeration<User> findUsersByKeyword(String keyword) throws EUsrGrpException {
+        keyword = LDAPUtil.escapeFilter(keyword);
+        String filter = "(|(uid=*" + keyword + "*)(cn=*" + keyword + "*)(mail=*" + keyword + "*))";
+
+        return findUsers(filter);
+    }
+
     public Enumeration<User> findUsers(String filter) throws EUsrGrpException {
 
-        String ldapFilter;
+        String baseDN = getUserBaseDN();
         if (StringUtils.isEmpty(filter)) {
-            ldapFilter = "(uid=*)";
-
-        } else {
-            filter = LDAPUtil.escapeFilter(filter);
-            ldapFilter = "(|(uid=*" + filter + "*)(cn=*" + filter + "*)(mail=*" + filter + "*))";
+            filter = "(uid=*)";
         }
+
+        logger.info("LDAP: search " + baseDN + " with " + filter);
 
         LDAPConnection ldapconn = null;
 
@@ -287,9 +292,9 @@ public class UGSubsystem {
 
             // use one-level search to search users in flat tree
             LDAPSearchResults res = ldapconn.search(
-                    getUserBaseDN(),
+                    baseDN,
                     LDAPv2.SCOPE_ONE,
-                    ldapFilter,
+                    filter,
                     null,
                     false);
 
