@@ -182,7 +182,8 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
             if (cs.length < 1 || cs.length > 63)
                 return false;
 
-            if (!isLetter(cs[0]))
+            // RFC 1123 allows label to start with letter or digit
+            if (!isLetDig(cs[0]))
                 return false;
 
             if (!isLetDig(cs[cs.length - 1]))
