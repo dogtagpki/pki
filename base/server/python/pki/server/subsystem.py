@@ -1105,6 +1105,18 @@ class PKISubsystem(object):
                 master_port == replica_port:
             raise Exception('Master and replica must not share LDAP database')
 
+    def find_groups(self, as_current_user=False):
+
+        cmd = [self.name + '-group-find']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def run(self, args, as_current_user=False):
 
         java_path = os.getenv('PKI_JAVA_PATH')

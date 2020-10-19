@@ -29,5 +29,6 @@ public class OCSPCLI extends CLI {
         super("ocsp", "OCSP subsystem management commands", parent);
 
         addModule(new SubsystemDBCLI(this));
+        addModule(new SubsystemGroupCLI(this));
     }
 }

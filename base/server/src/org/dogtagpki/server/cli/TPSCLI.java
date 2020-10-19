@@ -29,5 +29,6 @@ public class TPSCLI extends CLI {
         super("tps", "TPS subsystem management commands", parent);
 
         addModule(new SubsystemDBCLI(this));
+        addModule(new SubsystemGroupCLI(this));
     }
 }

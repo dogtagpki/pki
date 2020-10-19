@@ -29,6 +29,7 @@ public class KRACLI extends CLI {
         super("kra", "KRA subsystem management commands", parent);
 
         addModule(new SubsystemDBCLI(this));
+        addModule(new SubsystemGroupCLI(this));
         addModule(new SubsystemRangeCLI(this));
     }
 }

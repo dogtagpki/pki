@@ -33,6 +33,7 @@ import pki.server
 import pki.server.cli.audit
 import pki.server.cli.config
 import pki.server.cli.db
+import pki.server.cli.group
 import pki.server.cli.range
 import pki.server.instance
 
@@ -48,9 +49,10 @@ class CACLI(pki.cli.CLI):
         self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(CACertCLI())
         self.add_module(CACloneCLI())
-        self.add_module(CAProfileCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
+        self.add_module(pki.server.cli.group.GroupCLI(self))
+        self.add_module(CAProfileCLI())
         self.add_module(pki.server.cli.range.RangeCLI(self))
 
 

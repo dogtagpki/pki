@@ -29,5 +29,6 @@ public class TKSCLI extends CLI {
         super("tks", "TKS subsystem management commands", parent);
 
         addModule(new SubsystemDBCLI(this));
+        addModule(new SubsystemGroupCLI(this));
     }
 }

@@ -30,6 +30,7 @@ public class CACLI extends CLI {
 
         addModule(new CACertCLI(this));
         addModule(new CADBCLI(this));
+        addModule(new SubsystemGroupCLI(this));
         addModule(new CAProfileCLI(this));
         addModule(new SubsystemRangeCLI(this));
     }
