@@ -19,7 +19,6 @@ package org.dogtagpki.server.kra;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Collection;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -37,12 +36,6 @@ public class KRAConfigurator extends Configurator {
 
     public KRAConfigurator(CMSEngine engine) {
         super(engine);
-    }
-
-    @Override
-    public void getDatabaseGroups(Collection<String> groups) throws Exception {
-        groups.add("Data Recovery Manager Agents");
-        groups.add("Trusted Managers");
     }
 
     @Override

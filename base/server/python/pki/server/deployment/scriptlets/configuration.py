@@ -1024,6 +1024,22 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             db_user_setup_request = deployer.config_client.create_database_user_setup_request()
             client.setupDatabaseUser(db_user_setup_request)
 
+            # workaround for https://github.com/dogtagpki/pki/issues/2154
+
+            if subsystem.type == 'CA':
+                subsystem.add_group_member('Subsystem Group', 'pkidbuser')
+                subsystem.add_group_member('Certificate Manager Agents', 'pkidbuser')
+
+            elif subsystem.type == 'KRA':
+                subsystem.add_group_member('Data Recovery Manager Agents', 'pkidbuser')
+                subsystem.add_group_member('Trusted Managers', 'pkidbuser')
+
+            elif subsystem.type == 'OCSP':
+                subsystem.add_group_member('Trusted Managers', 'pkidbuser')
+
+            elif subsystem.type == 'TKS':
+                subsystem.add_group_member('Token Key Service Manager Agents', 'pkidbuser')
+
         logger.info('Finalizing %s configuration', subsystem.type)
         finalize_config_request = deployer.config_client.create_finalize_config_request()
         finalize_config_request.domainInfo = deployer.domain_info

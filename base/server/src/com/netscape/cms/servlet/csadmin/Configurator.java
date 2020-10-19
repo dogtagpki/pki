@@ -26,8 +26,6 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 
@@ -1416,24 +1414,6 @@ public class Configurator {
         // remove old db users
         logger.debug("Configurator: removing seeAlso from old dbusers");
         removeOldDBUsers(certs[0].getSubjectDN().toString());
-
-        // workaround for ticket #1595
-        Collection<String> groupNames = new ArrayList<String>();
-        getDatabaseGroups(groupNames);
-
-        for (String groupName : groupNames) {
-
-            Group group = system.getGroupFromName(groupName);
-
-            if (!group.isMember(DBUSER)) {
-                logger.debug("Configurator: adding " + DBUSER + " to the " + groupName + " group.");
-                group.addMemberName(DBUSER);
-                system.modifyGroup(group);
-            }
-        }
-    }
-
-    public void getDatabaseGroups(Collection<String> groups) throws Exception {
     }
 
     public void registerUser(

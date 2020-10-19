@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.Principal;
-import java.util.Collection;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.CryptoManager;
@@ -395,11 +394,5 @@ public class CAConfigurator extends Configurator {
                 request.getAdminCertRequest(),
                 request.getAdminCertRequestType(),
                 request.getAdminSubjectDN());
-    }
-
-    @Override
-    public void getDatabaseGroups(Collection<String> groups) throws Exception {
-        groups.add("Subsystem Group");
-        groups.add("Certificate Manager Agents");
     }
 }

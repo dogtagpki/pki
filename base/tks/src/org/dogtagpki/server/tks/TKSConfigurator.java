@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tks;
 
-import java.util.Collection;
-
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -26,10 +24,5 @@ public class TKSConfigurator extends Configurator {
 
     public TKSConfigurator(CMSEngine engine) {
         super(engine);
-    }
-
-    @Override
-    public void getDatabaseGroups(Collection<String> groups) throws Exception {
-        groups.add("Token Key Service Manager Agents");
     }
 }
