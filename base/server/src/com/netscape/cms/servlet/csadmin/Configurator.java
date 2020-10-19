@@ -1491,9 +1491,8 @@ public class Configurator {
         if (res != null) {
             while (res.hasMoreElements()) {
                 String uid = res.next().getAttribute("uid").getStringValues().nextElement();
-                User user = system.getUser(uid);
-                logger.debug("removeOldDUsers: Removing seeAlso from " + uid);
-                system.removeCertSubjectDN(user);
+                logger.info("Configurator: Removing seeAlso from " + uid);
+                system.removeSeeAlso(uid, subjectDN);
             }
         }
     }
