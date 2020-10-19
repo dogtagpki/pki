@@ -78,4 +78,38 @@ public class DataCollection<E> {
     public void removeLink(Link link) {
         links.remove(link);
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((entries == null) ? 0 : entries.hashCode());
+        result = prime * result + ((links == null) ? 0 : links.hashCode());
+        result = prime * result + total;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DataCollection<E> other = (DataCollection<E>) obj;
+        if (entries == null) {
+            if (other.entries != null)
+                return false;
+        } else if (!entries.equals(other.entries))
+            return false;
+        if (links == null) {
+            if (other.links != null)
+                return false;
+        } else if (!links.equals(other.links))
+            return false;
+        if (total != other.total)
+            return false;
+        return true;
+    }
 }
