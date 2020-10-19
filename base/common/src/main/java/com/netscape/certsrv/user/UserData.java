@@ -38,26 +38,19 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.common.Constants;
 
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="User")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class UserData {
-
-    public static Marshaller marshaller;
-    public static Unmarshaller unmarshaller;
-
-    static {
-        try {
-            marshaller = JAXBContext.newInstance(UserData.class).createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(UserData.class).createUnmarshaller();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     String id;
     String userID;
@@ -248,22 +241,38 @@ public class UserData {
         return true;
     }
 
-    public String toString() {
-        try {
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(this, sw);
-            return sw.toString();
-
-        } catch (Exception e) {
-            return super.toString();
-        }
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(UserData.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static UserData valueOf(String string) throws Exception {
+    public static UserData fromXML(String string) throws Exception {
         try {
+            Unmarshaller unmarshaller = JAXBContext.newInstance(UserData.class).createUnmarshaller();
             return (UserData)unmarshaller.unmarshal(new StringReader(string));
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static UserData fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, UserData.class);
+    }
+
+    public String toString() {
+        try {
+            return toXML();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -314,10 +323,20 @@ public class UserData {
         before.setPhone("1234567890");
         before.setState("1");
 
-        String string = before.toString();
-        System.out.println(string);
+        String xml = before.toXML();
+        System.out.println("Before (XML): " + xml);
 
-        UserData after = UserData.valueOf(string);
-        System.out.println(before.equals(after));
+        UserData afterXML = UserData.fromXML(xml);
+        System.out.println("After (XML): " + afterXML);
+
+        System.out.println(before.equals(afterXML));
+
+        String json = before.toJSON();
+        System.out.println("Before (JSON): " + json);
+
+        UserData afterJSON = UserData.fromJSON(json);
+        System.out.println("After (JSON): " + afterJSON.toJSON());
+
+        System.out.println(before.equals(afterJSON));
     }
 }
