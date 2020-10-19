@@ -21,13 +21,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.realm.MessageDigestCredentialHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.user.UserData;
+import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * @author Endi S. Dewata
@@ -186,7 +186,22 @@ public class PostgreSQLRealm extends ACMERealm {
         }
     }
 
-    public UserData getUserByID(String userID) throws Exception {
+    public User createUser(ResultSet rs) throws Exception {
+        User user = new User();
+
+        String userID = rs.getString("id");
+        user.setUserID(userID);
+
+        String fullName = rs.getString("full_name");
+        user.setFullName(fullName);
+
+        String password = rs.getString("password");
+        user.setPassword(password);
+
+        return user;
+    }
+
+    public User getUserByID(String userID) throws Exception {
 
         logger.info("Getting user " + userID);
 
@@ -202,16 +217,7 @@ public class PostgreSQLRealm extends ACMERealm {
                     return null;
                 }
 
-                UserData user = new UserData();
-                user.setID(userID);
-
-                String fullName = rs.getString("full_name");
-                user.setFullName(fullName);
-
-                String password = rs.getString("password");
-                user.setPassword(password);
-
-                return user;
+                return createUser(rs);
             }
         }
     }
@@ -223,7 +229,7 @@ public class PostgreSQLRealm extends ACMERealm {
                 + cert.getSubjectDN();
     }
 
-    public UserData getUserByCertID(String certID) throws Exception {
+    public User getUserByCertID(String certID) throws Exception {
 
         logger.info("Getting user for cert " + certID);
 
@@ -239,18 +245,7 @@ public class PostgreSQLRealm extends ACMERealm {
                     return null;
                 }
 
-                UserData user = new UserData();
-
-                String userID = rs.getString("id");
-                user.setID(userID);
-
-                String fullName = rs.getString("full_name");
-                user.setFullName(fullName);
-
-                String password = rs.getString("password");
-                user.setPassword(password);
-
-                return user;
+                return createUser(rs);
             }
         }
     }
@@ -308,7 +303,7 @@ public class PostgreSQLRealm extends ACMERealm {
 
         connect();
 
-        UserData user = getUserByID(username);
+        User user = getUserByID(username);
         if (user == null) {
             return null;
         }
@@ -319,7 +314,7 @@ public class PostgreSQLRealm extends ACMERealm {
         }
 
         List<String> roles = getUserRoles(username);
-        return new GenericPrincipal(username, null, roles);
+        return new PKIPrincipal(user, null, roles);
     }
 
     public Principal authenticate(X509Certificate[] certChain) throws Exception {
@@ -338,7 +333,7 @@ public class PostgreSQLRealm extends ACMERealm {
 
         // find user by cert ID
         String certID = getCertID(cert);
-        UserData user = getUserByCertID(certID);
+        User user = getUserByCertID(certID);
 
         if (user == null) {
             return null;
@@ -348,7 +343,7 @@ public class PostgreSQLRealm extends ACMERealm {
         boolean found = false;
         byte[] data = cert.getEncoded();
 
-        List<X509Certificate> certs = getUserCerts(user.getID());
+        List<X509Certificate> certs = getUserCerts(user.getUserID());
         for (X509Certificate c : certs) {
             if (Arrays.equals(data, c.getEncoded())) {
                 found = true;
@@ -361,9 +356,8 @@ public class PostgreSQLRealm extends ACMERealm {
         }
 
         // create user principal
-        String username = user.getID();
-        List<String> roles = getUserRoles(username);
-        return new GenericPrincipal(username, null, roles);
+        List<String> roles = getUserRoles(user.getUserID());
+        return new PKIPrincipal(user, null, roles);
     }
 
     public void close() throws Exception {
