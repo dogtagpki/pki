@@ -1409,7 +1409,7 @@ public class Configurator {
         logger.debug("Configurator: successfully add the user certificate");
 
         // set subject dn
-        system.addCertSubjectDN(user);
+        system.addSeeAlso(user.getUserID(), certs[0].getSubjectDN().toString());
 
         // remove old db users
         logger.debug("Configurator: removing seeAlso from old dbusers");

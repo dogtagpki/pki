@@ -780,51 +780,46 @@ public class UGSubsystem {
         return;
     }
 
-    public void addCertSubjectDN(User identity) throws EUsrGrpException {
-        User user = identity;
+    public void addSeeAlso(String userID, String value) throws EUsrGrpException {
 
-        if (user == null) {
-            return;
+        if (userID == null) {
+            throw new EUsrGrpException("Missing user ID");
         }
 
-        X509Certificate cert[] = null;
-        LDAPModificationSet addCert = new LDAPModificationSet();
+        String dn = "uid=" + LDAPUtil.escapeRDNValue(userID) + "," + getUserBaseDN();
 
-        if ((cert = user.getX509Certificates()) != null) {
-            LDAPAttribute attrCertDNStr = new LDAPAttribute(LDAP_ATTR_CERTDN);
-            attrCertDNStr.addValue(cert[0].getSubjectDN().toString());
-            addCert.add(LDAPModification.ADD, attrCertDNStr);
+        LDAPModificationSet mods = new LDAPModificationSet();
+        LDAPAttribute attr = new LDAPAttribute(LDAP_ATTR_CERTDN);
+        attr.addValue(value);
+        mods.add(LDAPModification.ADD, attr);
 
-            LDAPConnection ldapconn = null;
+        LDAPConnection ldapconn = null;
 
-            try {
-                ldapconn = getConn();
-                ldapconn.modify("uid=" + LDAPUtil.escapeRDNValue(user.getUserID()) +
-                        "," + getUserBaseDN(), addCert);
-                // for audit log
-                SessionContext sessionContext = SessionContext.getContext();
-                String adminId = (String) sessionContext.get(SessionContext.USER_ID);
+        try {
+            ldapconn = getConn();
+            ldapconn.modify(dn, mods);
 
-                logger.info(
-                        AuditFormat.ADDCERTSUBJECTDNFORMAT,
-                        adminId,
-                        user.getUserID(),
-                        cert[0].getSubjectDN()
-                );
+            SessionContext sessionContext = SessionContext.getContext();
+            String adminId = (String) sessionContext.get(SessionContext.USER_ID);
 
-            } catch (LDAPException e) {
-                throw LDAPExceptionConverter.toPKIException(e);
+            logger.info(
+                    AuditFormat.ADDCERTSUBJECTDNFORMAT,
+                    adminId,
+                    userID,
+                    value
+            );
 
-            } catch (ELdapException e) {
-                throw new EUsrGrpException("Unable to modify user: " + e.getMessage(), e);
+        } catch (LDAPException e) {
+            throw LDAPExceptionConverter.toPKIException(e);
 
-            } finally {
-                if (ldapconn != null)
-                    returnConn(ldapconn);
+        } catch (ELdapException e) {
+            throw new EUsrGrpException("Unable to add seeAlso: " + e.getMessage(), e);
+
+        } finally {
+            if (ldapconn != null) {
+                returnConn(ldapconn);
             }
         }
-
-        return;
     }
 
     public void removeCertSubjectDN(User identity) throws EUsrGrpException {
