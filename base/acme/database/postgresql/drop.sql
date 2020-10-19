@@ -7,3 +7,4 @@ DROP TABLE "orders";
 DROP TABLE "account_contacts";
 DROP TABLE "accounts";
 DROP TABLE "nonces";
+DROP TABLE "config";

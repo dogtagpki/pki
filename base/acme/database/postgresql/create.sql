@@ -1,3 +1,8 @@
+CREATE TABLE "config" (
+    "id"               VARCHAR PRIMARY KEY,
+    "value"            VARCHAR
+);
+
 CREATE TABLE "nonces" (
     "id"               VARCHAR PRIMARY KEY,
     "created"          TIMESTAMPTZ NOT NULL,

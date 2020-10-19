@@ -47,6 +47,9 @@ public class PostgreSQLDatabase extends ACMEDatabase {
     protected Properties statements;
     protected Connection connection;
 
+    Boolean enabled;
+    PostgreSQLConfigMonitor monitor;
+
     public void init() throws Exception {
 
         logger.info("Initializing PostgreSQL database");
@@ -78,6 +81,27 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         for (String name : statements.stringPropertyNames()) {
             String value = statements.getProperty(name);
             logger.info("- " + name + ": " + value);
+        }
+
+        String monitorEnabled = config.getParameter("monitor.enabled");
+        logger.info("- monitor enabled: " + monitorEnabled);
+
+        if ("true".equals(monitorEnabled)) {
+
+            monitor = new PostgreSQLConfigMonitor();
+            monitor.setDatabase(this);
+
+            String monitorInterval = config.getParameter("monitor.interval");
+            if (monitorInterval == null) {
+                monitorInterval = PostgreSQLConfigMonitor.DEFAULT_INTERVAL + "";
+            }
+            logger.info("- monitor interval (minutes): " + monitorInterval);
+
+            if (monitorInterval != null) {
+                monitor.setInterval(Integer.parseInt(monitorInterval));
+            }
+
+            new Thread(monitor, "PostgreSQLConfigMonitor").start();
         }
     }
 
@@ -156,10 +180,106 @@ public class PostgreSQLDatabase extends ACMEDatabase {
         }
     }
 
-    public void close() throws Exception {
-        if (connection != null) {
-            connection.close();
+    String getConfig(String id) throws Exception {
+
+        logger.info("Getting config " + id);
+
+        String sql = statements.getProperty("getConfig");
+        logger.info("SQL: " + sql);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (!rs.next()) {
+                    return null;
+                }
+
+                return rs.getString("value");
+            }
         }
+    }
+
+    void addConfig(String id, String value) throws Exception {
+
+        logger.info("Setting config " + id + ": " + value);
+
+        String sql = statements.getProperty("addConfig");
+        logger.info("SQL: " + sql);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, id);
+            ps.setString(2, value);
+            ps.executeUpdate();
+        }
+    }
+
+    int updateConfig(String id, String value) throws Exception {
+
+        logger.info("Updating config " + id + ": " + value);
+
+        String sql = statements.getProperty("updateConfig");
+        logger.info("SQL: " + sql);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, value);
+            ps.setString(2, id);
+            return ps.executeUpdate();
+        }
+    }
+
+    void removeConfig(String id) throws Exception {
+
+        logger.info("Removing config " + id);
+
+        String sql = statements.getProperty("removeConfig");
+        logger.info("SQL: " + sql);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, id);
+            ps.executeUpdate();
+        }
+    }
+
+    void setConfig(String id, String value) throws Exception {
+
+        if (value == null) {
+            removeConfig(id);
+            return;
+        }
+
+        int updatedRows = updateConfig(id, value);
+        if (updatedRows > 0) return;
+
+        addConfig(id, value);
+    }
+
+    public Boolean getEnabled() throws Exception {
+
+        // If monitor is not enabled, get config from database on each request.
+        // Otherwise, return the config stored in memory which is updated by
+        // PostgreSQLConfigMonitor.
+
+        if (monitor == null) {
+
+            connect();
+
+            String value = getConfig("enabled");
+            enabled = value == null ? null : Boolean.valueOf(value);
+        }
+
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) throws Exception {
+
+        connect();
+
+        String value = enabled == null ? null : enabled.toString();
+        setConfig("enabled", value);
+
+        this.enabled = enabled;
     }
 
     private ACMENonce getNonce(String nonceID) throws Exception {
@@ -1307,6 +1427,17 @@ public class PostgreSQLDatabase extends ACMEDatabase {
 
         for (String certID : certIDs) {
             removeCertificate(certID);
+        }
+    }
+
+    public void close() throws Exception {
+
+        if (monitor != null) {
+            monitor.stop();
+        }
+
+        if (connection != null) {
+            connection.close();
         }
     }
 }
