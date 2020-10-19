@@ -1131,6 +1131,21 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
+    def add_group_member(self, group_id, member_id, as_current_user=False):
+
+        cmd = [self.name + '-group-member-add']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(group_id)
+        cmd.append(member_id)
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def run(self, args, as_current_user=False):
 
         java_path = os.getenv('PKI_JAVA_PATH')
