@@ -102,14 +102,6 @@ public class UGSubsystem {
     }
 
     /**
-     * Starts up this service.
-     */
-    public void startup() throws EBaseException {
-        // register admin servlet
-
-    }
-
-    /**
      * Disconnects usr/grp manager from the LDAP
      */
     public void shutdown() {

@@ -508,7 +508,6 @@ public class CMSEngine implements ServletContextListener {
         IPasswordStore passwordStore = getPasswordStore();
 
         ugSubsystem.init(socketConfig, ugConfig, passwordStore);
-        ugSubsystem.startup();
     }
 
     public void initOIDLoaderSubsystem() throws Exception {
