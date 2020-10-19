@@ -94,8 +94,6 @@ import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSearchResults;
 
 /**
  * Utility class for functions to be used by the RESTful installer.
@@ -1407,13 +1405,6 @@ public class Configurator {
 
         system.addUserCert(user);
         logger.debug("Configurator: successfully add the user certificate");
-
-        // set subject dn
-        system.addSeeAlso(user.getUserID(), certs[0].getSubjectDN().toString());
-
-        // remove old db users
-        logger.debug("Configurator: removing seeAlso from old dbusers");
-        removeOldDBUsers(certs[0].getSubjectDN().toString());
     }
 
     public void registerUser(
@@ -1468,32 +1459,6 @@ public class Configurator {
         } else {
             String error = parser.getValue("Error");
             throw new IOException(error);
-        }
-    }
-
-    public void removeOldDBUsers(String subjectDN) throws EBaseException, LDAPException {
-
-        UGSubsystem system = engine.getUGSubsystem();
-
-        PKISocketConfig socketConfig = cs.getSocketConfig();
-        LDAPConfig dbCfg = cs.getInternalDBConfig();
-        String userbasedn = "ou=people, " + dbCfg.getBaseDN();
-
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
-        dbFactory.init(socketConfig, dbCfg, engine.getPasswordStore());
-
-        LDAPConnection conn = dbFactory.getConn();
-
-        String filter = "(&(seeAlso=" + LDAPUtil.escapeFilter(subjectDN) + ")(!(uid=" + DBUSER + ")))";
-        String[] attrs = null;
-        LDAPSearchResults res = conn.search(userbasedn, LDAPConnection.SCOPE_SUB, filter,
-                attrs, false);
-        if (res != null) {
-            while (res.hasMoreElements()) {
-                String uid = res.next().getAttribute("uid").getStringValues().nextElement();
-                logger.info("Configurator: Removing seeAlso from " + uid);
-                system.removeSeeAlso(uid, subjectDN);
-            }
         }
     }
 

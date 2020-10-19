@@ -1024,6 +1024,24 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             db_user_setup_request = deployer.config_client.create_database_user_setup_request()
             client.setupDatabaseUser(db_user_setup_request)
 
+            subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+            subject = subsystem_cert['subject']
+
+            logger.info('Linking pkidbuser to subsystem cert')
+            subsystem.modify_user('pkidbuser', add_see_also=subject)
+
+            logger.info('Finding other users linked to subsystem cert')
+            users = subsystem.find_users(see_also=subject)
+
+            for user in users['entries']:
+                uid = user['id']
+
+                if uid == 'pkidbuser':
+                    continue
+
+                logger.info('Unlinking %s from subsystem cert ', uid)
+                subsystem.modify_user(uid, del_see_also=subject)
+
             # workaround for https://github.com/dogtagpki/pki/issues/2154
 
             if subsystem.type == 'CA':
