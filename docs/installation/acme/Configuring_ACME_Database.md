@@ -199,6 +199,14 @@ user=acme
 password=Secret.123
 ```
 
+The PostgreSQL database provides a mechanism to monitor ACME configuration periodically.
+It can be enabled with the following parameters:
+
+```
+monitor.enabled=true
+monitor.interval=5  # minutes
+```
+
 ## See Also
 
 * [Configuring PKI ACME Responder](https://www.dogtagpki.org/wiki/Configuring_PKI_ACME_Responder)
