@@ -38,7 +38,7 @@ ISSUER_TYPES = {value: key for key, value in ISSUER_CLASSES.items()}
 
 # TODO: auto-populate this map from /usr/share/pki/acme/realm
 REALM_CLASSES = {
-    'ds': 'org.dogtagpki.acme.database.DSDatabase',
+    'ds': 'org.dogtagpki.acme.realm.DSRealm',
     'postgresql': 'org.dogtagpki.acme.realm.PostgreSQLRealm'
 }
 
