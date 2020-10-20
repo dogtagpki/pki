@@ -41,6 +41,28 @@ Enter the base DN for the ACME groups subtree.
 If the command is invoked with `--type` parameter, it will create a new configuration based on the specified type.
 If the command is invoked with other parameters, it will update the specified parameters.
 
+## Configuring In-Memory Realm
+
+The ACME responder can be configured with an in-memory realm.
+
+A sample in-memory realm configuration is available at
+[/usr/share/pki/acme/realm/in-memory/realm.conf](../../../base/acme/realm/in-memory/realm.conf).
+
+To use an in-memory realm, copy the sample realm.conf into the /etc/pki/pki-tomcat/acme folder,
+or execute the following command:
+
+```
+$ pki-server acme-realm-mod --type in-memory
+```
+
+The realm.conf should look like the following:
+
+```
+class=org.dogtagpki.acme.realm.InMemoryRealm
+username=admin
+password=Secret.123
+```
+
 ## Configuring DS Realm
 
 The ACME responder can be configured with a DS realm.
