@@ -39,6 +39,7 @@ ISSUER_TYPES = {value: key for key, value in ISSUER_CLASSES.items()}
 # TODO: auto-populate this map from /usr/share/pki/acme/realm
 REALM_CLASSES = {
     'ds': 'org.dogtagpki.acme.realm.DSRealm',
+    'in-memory': 'org.dogtagpki.acme.realm.InMemoryRealm',
     'postgresql': 'org.dogtagpki.acme.realm.PostgreSQLRealm'
 }
 
@@ -1266,7 +1267,16 @@ class ACMERealmShowCLI(pki.cli.CLI):
         realm_type = REALM_TYPES.get(realm_class)
         print('  Realm Type: %s' % realm_type)
 
-        if realm_type == 'ds':
+        if realm_type == 'in-memory':
+            username = config.get('username')
+            if username:
+                print('  Admin Username: %s' % username)
+
+            password = config.get('password')
+            if password:
+                print('  Admin Password: ********')
+
+        elif realm_type == 'ds':
 
             url = config.get('url')
             if url:
@@ -1441,7 +1451,25 @@ class ACMERealmModifyCLI(pki.cli.CLI):
             logger.info('Loading %s', source)
             pki.util.load_properties(source, config)
 
-        if realm_type == 'ds':
+        if realm_type == 'in-memory':
+
+            print()
+            print('Enter the admin username.')
+            username = config.get('username')
+            username = pki.util.read_text('  Admin Username', default=username, required=True)
+            pki.util.set_property(config, 'username', username)
+
+            print()
+            print('Enter the admin password.')
+            password = config.get('password')
+            password = pki.util.read_text(
+                '  Admin Password',
+                default=password,
+                password=True,
+                required=True)
+            pki.util.set_property(config, 'password', password)
+
+        elif realm_type == 'ds':
 
             print()
             print('Enter the location of the LDAP server '
