@@ -222,7 +222,7 @@ BuildRequires:    python3-pytest-runner
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.7.3
+BuildRequires:    jss >= 4.8.0
 BuildRequires:    tomcatjss >= 7.5.0
 BuildRequires:    systemd-units
 
@@ -342,7 +342,7 @@ Summary:          PKI Symmetric Key Package
 
 Requires:         %java_headless >= %{min_java_version}
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.7.3
+Requires:         jss >= 4.8.0
 Requires:         nss >= 3.38.0
 
 # Ensure we end up with a useful installation
