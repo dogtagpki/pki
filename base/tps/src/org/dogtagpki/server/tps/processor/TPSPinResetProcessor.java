@@ -50,7 +50,19 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
     @Override
     public void process(BeginOpMsg beginMsg) throws TPSException, IOException {
-        if (beginMsg == null) {
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        EngineConfig configStore = engine.getConfig();
+
+        // Use this only for testing, not for normal operation.
+        String configName = "op.pinReset.testNoBeginMsg";
+        boolean testPinResetNoBeginMsg = false;
+        try {
+            testPinResetNoBeginMsg = configStore.getBoolean(configName,false);
+        } catch (EBaseException e) {
+            testPinResetNoBeginMsg = false;          
+        }
+
+        if (beginMsg == null || testPinResetNoBeginMsg == true) {
 	    throw new TPSException("TPSPinResetProcessor.process: invalid input data, no beginMsg provided.",
                      TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
@@ -326,7 +338,22 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         statusUpdate(100, "PROGRESS_PIN_RESET_COMPLETE");
         logMsg = "update token during pin reset";
+
+        EngineConfig configStore = engine.getConfig();
+      
+        // Use this only for testing, not for normal operation.
+        String configName = "op.pinReset.testUpdateDBFailure";
+        boolean testUpdateDBFailure = false;
         try {
+            testUpdateDBFailure = configStore.getBoolean(configName,false);
+        } catch (EBaseException e) {
+            testUpdateDBFailure = false;
+        }
+
+        try {
+            if(testUpdateDBFailure == true) {
+                throw new Exception("Test failure to update DB for Pin Reset!");
+            }
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
             tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg, "success");
             logger.debug(method + ": token record updated!");
