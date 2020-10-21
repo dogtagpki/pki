@@ -8,45 +8,13 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <title>ACME Responder</title>
     <link rel="stylesheet" href="css/patternfly-4.35.2.css">
     <script src="js/jquery-3.5.1.js"></script>
-
+    <script src="js/pki-acme.js"></script>
     <script>
-function updateBaseURL() {
-
-    // replace BASE_URL with actual base URL
-    var i = window.location.href.lastIndexOf('/');
-    var base_url = window.location.href.substring(0, i);
-
-    $("pre").each(function() {
-        var content = this.innerText;
-        this.innerText = content.replace("BASE_URL", base_url);
-    });
-}
-
-function updateMetadata() {
-
-    $.get({
-        url: "directory",
-        dataType: "json"
-
-    }).done(function(data, textStatus, jqXHR) {
-        $("#metadata-termsOfService").text(data.meta.termsOfService);
-        $("#metadata-termsOfService").attr("href", data.meta.termsOfService);
-        $("#metadata-website").text(data.meta.website);
-        $("#metadata-website").attr("href", data.meta.website);
-        $("#metadata-caaIdentities").text(data.meta.caaIdentities.join(", "));
-        $("#metadata-externalAccountRequired").text(data.meta.externalAccountRequired);
-
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-        alert('ERROR: ' + errorThrown);
-    });
-}
-
 $(function() {
+    updateHomePage();
     updateBaseURL();
-    updateMetadata();
 });
     </script>
-
 </head>
 <body>
 
