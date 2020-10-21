@@ -10,6 +10,7 @@ import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -36,9 +37,8 @@ public class ACMELoginService {
     @Context
     protected HttpServletRequest servletRequest;
 
-    protected Account createAccount() {
+    protected Account createAccount(Principal principal) {
 
-        Principal principal = servletRequest.getUserPrincipal();
         String username = principal.getName();
         logger.info("ACMELoginService: Principal: " + username);
 
@@ -63,14 +63,43 @@ public class ACMELoginService {
         return account;
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response handleGET() {
+
+        HttpSession session = servletRequest.getSession(false); // don't create new session
+        logger.info("ACMELoginService: Session: " + (session == null ? null : session.getId()));
+
+        if (session == null) {
+            ResponseBuilder builder = Response.noContent();
+            return builder.build();
+        }
+
+        Principal principal = servletRequest.getUserPrincipal();
+        logger.info("ACMELoginService: Principal: " + principal);
+
+        if (principal == null) {
+            ResponseBuilder builder = Response.noContent();
+            return builder.build();
+        }
+
+        ResponseBuilder builder = Response.ok();
+        Account account = createAccount(principal);
+        builder.entity(account);
+        return builder.build();
+    }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response handlePOST() {
 
-        HttpSession session = servletRequest.getSession();
-        logger.info("ACMELoginService: Creating session " + session.getId());
+        HttpSession session = servletRequest.getSession(); // create new session if necessary
+        logger.info("ACMELoginService: Session: " + session.getId());
 
-        Account account = createAccount();
+        Principal principal = servletRequest.getUserPrincipal();
+        logger.info("ACMELoginService: Principal: " + principal);
+
+        Account account = createAccount(principal);
 
         ResponseBuilder builder = Response.ok();
         builder.entity(account);
