@@ -48,6 +48,26 @@ function logout(options) {
     });
 }
 
+function enable(options) {
+    $.post({
+        url: "enable"
+    }).done(function(data, textStatus, jqXHR) {
+        if (options.success) options.success.call(self, data, textStatus, jqXHR);
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
+    });
+}
+
+function disable(options) {
+    $.post({
+        url: "disable"
+    }).done(function(data, textStatus, jqXHR) {
+        if (options.success) options.success.call(self, data, textStatus, jqXHR);
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
+    });
+}
+
 function updateHomePage() {
     getDirectory({
         success: function(data, textStatus, jqXHR) {
@@ -59,7 +79,35 @@ function updateHomePage() {
             $("#metadata-externalAccountRequired").text(data.meta.externalAccountRequired);
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            alert('ERROR: ' + errorThrown);
+            if (jqXHR.status == 503) {
+                $("#metadata-termsOfService").text("");
+                $("#metadata-termsOfService").attr("href", "#");
+                $("#metadata-website").text("");
+                $("#metadata-website").attr("href", "#");
+                $("#metadata-caaIdentities").text("");
+                $("#metadata-externalAccountRequired").text("");
+            } else {
+                alert('ERROR: ' + errorThrown);
+            }
+        }
+    });
+}
+
+function updateConfigPage() {
+    getDirectory({
+        success: function(data, textStatus, jqXHR) {
+            $("#service-status").text("Available");
+            $("#service-enable").hide();
+            $("#service-disable").show();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            if (jqXHR.status == 503) {
+                $("#service-status").text("Unavailable");
+                $("#service-disable").hide();
+                $("#service-enable").show();
+            } else {
+                alert('ERROR: ' + errorThrown);
+            }
         }
     });
 }
@@ -80,12 +128,24 @@ function setUserProfile(data) {
     $("#profile-fullName").text(data.FullName);
     $(".login-menu").hide();
     $(".logout-menu").show();
+
+    if (data.Roles.Role.includes("Administrators")) {
+        $(".config-menu").show();
+    }
 }
 
 function clearUserProfile() {
     $("#profile-fullName").text("");
     $(".login-menu").show();
     $(".logout-menu").hide();
+    $(".config-menu").hide();
+
+    $("#sidebar a").removeClass("pf-m-current");
+    $(".home-menu a").addClass("pf-m-current");
+
+    loadPage("home.jsp", function() {
+        updateHomePage();
+    });
 }
 
 function updateLoginInfo() {
@@ -192,6 +252,35 @@ function activateProfileMenu() {
     });
 }
 
+function activateConfigMenu() {
+
+    $("#service-enable a").on({
+        click: function() {
+            enable({
+                success: function(data, textStatus, jqXHR) {
+                    updateConfigPage();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert('ERROR: ' + errorThrown);
+                }
+            });
+        }
+    });
+
+    $("#service-disable a").on({
+        click: function() {
+            disable({
+                success: function(data, textStatus, jqXHR) {
+                    updateConfigPage();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert('ERROR: ' + errorThrown);
+                }
+            });
+        }
+    });
+}
+
 function loadPage(url, callback) {
     $(".pf-c-content").load(url, callback);
 }
@@ -214,6 +303,17 @@ function activateSidebarMenu() {
             $(this).addClass("pf-m-current");
             loadPage("services.jsp", function() {
                 updateBaseURL();
+            });
+        }
+    });
+
+    $(".config-menu a").on({
+        click: function() {
+            $("#sidebar a").removeClass("pf-m-current");
+            $(this).addClass("pf-m-current");
+            loadPage("config.jsp", function() {
+                updateConfigPage();
+                activateConfigMenu();
             });
         }
     });

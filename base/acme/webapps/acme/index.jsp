@@ -70,6 +70,9 @@ $(function() {
           <li class="services-menu pf-c-nav__item">
             <a href="#" class="pf-c-nav__link">Services</a>
           </li>
+          <li class="config-menu pf-c-nav__item" hidden="hidden">
+            <a href="#" class="pf-c-nav__link">Configuration</a>
+          </li>
         </ul>
       </nav>
     </div>
