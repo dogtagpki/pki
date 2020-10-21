@@ -13,6 +13,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 $(function() {
     updateHomePage();
     updateBaseURL();
+    updateLoginInfo();
 });
     </script>
 </head>
@@ -23,6 +24,16 @@ $(function() {
   <header class="pf-c-page__header">
     <div class="pf-c-page__header-brand">
       <a class="pf-c-page__header-brand-link">ACME Responder</a>
+    </div>
+    <div class="pf-c-page__header-tools">
+      <div class="pf-c-dropdown" style="--pf-global--BorderWidth--sm: 0px;">
+        <button id="profile-menu" class="pf-c-dropdown__toggle" type="button" aria-expanded="false">
+          <span class="pf-c-dropdown__toggle-image">
+            <img class="pf-c-avatar" alt="Avatar image" src="css/assets/images/img_avatar.svg">
+          </span>
+          <span id="profile-fullName" class="pf-c-dropdown__toggle-text"></span>
+        </button>
+      </div>
     </div>
   </header>
 
