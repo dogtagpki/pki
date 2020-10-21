@@ -16,6 +16,7 @@ $(function() {
 
     activateProfileMenu();
     activateSidebarMenu();
+    activateSidebarToggle();
 
     loadPage("home.jsp", function() {
         updateHomePage();
@@ -29,6 +30,11 @@ $(function() {
 
   <header class="pf-c-page__header">
     <div class="pf-c-page__header-brand">
+      <div class="pf-c-page__header-brand-toggle">
+        <button id="sidebar-toggle" class="pf-c-button pf-m-plain" type="button" aria-label="Global navigation" aria-controls="sidebar">
+          <i class="fas fa-bars" aria-hidden="true"></i>
+        </button>
+      </div>
       <a class="pf-c-page__header-brand-link">ACME Responder</a>
     </div>
     <div class="pf-c-page__header-tools">

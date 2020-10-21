@@ -218,3 +218,35 @@ function activateSidebarMenu() {
         }
     });
 }
+
+function activateSidebarToggle() {
+
+    $("#sidebar-toggle").click(function() {
+        var sidebar = $(".pf-c-page__sidebar");
+        var width = $(window).width();
+
+        if (width >= 1200) {
+            sidebar.removeClass("pf-m-expanded");
+            var collapsed = sidebar.hasClass("pf-m-collapsed");
+            if (collapsed) {
+                sidebar.removeClass("pf-m-collapsed");
+            } else {
+                sidebar.addClass("pf-m-collapsed");
+            }
+
+        } else {
+            sidebar.removeClass("pf-m-collapsed");
+            var expanded = sidebar.hasClass("pf-m-expanded");
+            if (expanded) {
+                sidebar.removeClass("pf-m-expanded");
+            } else {
+                sidebar.addClass("pf-m-expanded");
+            }
+        }
+    });
+
+    $(".pf-c-page__main").click(function() {
+        var sidebar = $(".pf-c-page__sidebar");
+        sidebar.removeClass("pf-m-expanded");
+    });
+}
