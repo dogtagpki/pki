@@ -14,6 +14,8 @@ $(function() {
     updateHomePage();
     updateBaseURL();
     updateLoginInfo();
+
+    activateProfileMenu();
 });
     </script>
 </head>
@@ -32,7 +34,18 @@ $(function() {
             <img class="pf-c-avatar" alt="Avatar image" src="css/assets/images/img_avatar.svg">
           </span>
           <span id="profile-fullName" class="pf-c-dropdown__toggle-text"></span>
+          <span class="pf-c-dropdown__toggle-icon">
+            <i class="fas fa-caret-down" aria-hidden="true"></i>
+          </span>
         </button>
+        <ul aria-labelledby="profile-menu" class="pf-c-dropdown__menu pf-m-align-right" hidden="hidden">
+          <li class="login-menu" hidden="hidden">
+            <a class="pf-c-dropdown__menu-item" href="#">Log In</a>
+          </li>
+          <li class="logout-menu" hidden="hidden">
+            <a class="pf-c-dropdown__menu-item" href="#">Log Out</a>
+          </li>
+        </ul>
       </div>
     </div>
   </header>
