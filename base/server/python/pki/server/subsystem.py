@@ -1172,6 +1172,32 @@ class PKISubsystem(object):
 
         return json.loads(result.stdout.decode())
 
+    def modify_user(self, user_id, add_see_also=None, del_see_also=None,
+                    as_current_user=False):
+
+        cmd = [self.name + '-user-mod']
+
+        if add_see_also:
+            cmd.append('--add-see-also')
+            cmd.append(add_see_also)
+
+        if del_see_also:
+            cmd.append('--del-see-also')
+            cmd.append(del_see_also)
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(user_id)
+
+        self.run(
+            cmd,
+            as_current_user=as_current_user,
+            capture_output=True)
+
     def run(self, args, as_current_user=False, capture_output=False):
 
         java_path = os.getenv('PKI_JAVA_PATH')

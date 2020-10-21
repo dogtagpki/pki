@@ -16,5 +16,6 @@ public class SubsystemUserCLI extends CLI {
         super("user", parent.name.toUpperCase() + " user management commands", parent);
 
         addModule(new SubsystemUserFindCLI(this));
+        addModule(new SubsystemUserModifyCLI(this));
     }
 }
