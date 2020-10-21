@@ -8,11 +8,9 @@ package org.dogtagpki.acme.server;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.acme.database.ACMEDatabase;
 
@@ -23,9 +21,6 @@ import org.dogtagpki.acme.database.ACMEDatabase;
 public class ACMEDisableService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEDisableService.class);
-
-    @Context
-    UriInfo uriInfo;
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)

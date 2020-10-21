@@ -97,9 +97,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
     </servlet-mapping>
 
     <security-constraint>
+        <display-name>Allow somebody with credentials to log in</display-name>
         <web-resource-collection>
-            <web-resource-name>Login Service</web-resource-name>
             <url-pattern>/login</url-pattern>
+            <http-method>POST</http-method>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -110,21 +111,30 @@ SPDX-License-Identifier: GPL-2.0-or-later
     </security-constraint>
 
     <security-constraint>
+        <display-name>Allow anybody to get login information</display-name>
+        <web-resource-collection>
+            <url-pattern>/login</url-pattern>
+            <http-method-omission>POST</http-method-omission>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Allow anybody to log out</display-name>
         <web-resource-collection>
             <web-resource-name>Logout Service</web-resource-name>
             <url-pattern>/logout</url-pattern>
         </web-resource-collection>
-        <auth-constraint>
-            <role-name>*</role-name>
-        </auth-constraint>
         <user-data-constraint>
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
 
     <security-constraint>
+        <display-name>Allow administrators to enable ACME services</display-name>
         <web-resource-collection>
-            <web-resource-name>Enable ACME Service</web-resource-name>
             <url-pattern>/enable</url-pattern>
         </web-resource-collection>
         <auth-constraint>
@@ -137,8 +147,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
     </security-constraint>
 
     <security-constraint>
+        <display-name>Allow administrators to disable ACME services</display-name>
         <web-resource-collection>
-            <web-resource-name>Disable ACME Service</web-resource-name>
             <url-pattern>/disable</url-pattern>
         </web-resource-collection>
         <auth-constraint>
