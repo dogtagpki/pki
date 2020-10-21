@@ -191,3 +191,30 @@ function activateProfileMenu() {
         }
     });
 }
+
+function loadPage(url, callback) {
+    $(".pf-c-content").load(url, callback);
+}
+
+function activateSidebarMenu() {
+
+    $(".home-menu a").on({
+        click: function() {
+            $("#sidebar a").removeClass("pf-m-current");
+            $(this).addClass("pf-m-current");
+            loadPage("home.jsp", function() {
+                updateHomePage();
+            });
+        }
+    });
+
+    $(".services-menu a").on({
+        click: function() {
+            $("#sidebar a").removeClass("pf-m-current");
+            $(this).addClass("pf-m-current");
+            loadPage("services.jsp", function() {
+                updateBaseURL();
+            });
+        }
+    });
+}
