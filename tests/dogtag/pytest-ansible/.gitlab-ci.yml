@@ -424,7 +424,7 @@ topo-00-BZ-1664435-ca-scep-gs:
     - ansible-playbook  -u fedora --become  -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-01" -vv  | sed 's/\\n/\n/g'
     - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE  --ansible-host-pattern master $PYTEST_DIR/pytest/ca/auth_plugins/ -q -s --junitxml $CI_PROJECT_DIR/ca-auth-plugins_junit.xml -vv
 
-PASS
+#PASS
 .topo-01-ca-bugzillas-dp:
   <<: *job_definition
   stage: tier2-shared
