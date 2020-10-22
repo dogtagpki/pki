@@ -24,6 +24,7 @@ from __future__ import print_function
 import logging
 import subprocess
 import sys
+import traceback
 
 import pki.server.cli
 
@@ -49,11 +50,9 @@ if __name__ == '__main__':
     except subprocess.CalledProcessError as e:
 
         if logger.isEnabledFor(logging.DEBUG):
-            logger.exception('Command: %s', ' '.join(e.cmd))
+            traceback.print_exc()
 
-        else:
-            logger.error('Command: %s', ' '.join(e.cmd))
-
+        print(e.stderr.decode().strip(), file=sys.stderr)
         sys.exit(e.returncode)
 
     except Exception as e:  # pylint: disable=broad-except

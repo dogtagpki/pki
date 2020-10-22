@@ -18,9 +18,13 @@
 
 package org.dogtagpki.server.cli;
 
+import javax.ws.rs.ProcessingException;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.UnrecognizedOptionException;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.Level;
 import org.slf4j.Logger;
@@ -86,9 +90,45 @@ public class PKIServerCLI extends CLI {
         super.execute(cmdArgs);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void handleException(Throwable t) {
 
-        PKIServerCLI cli = new PKIServerCLI();
-        cli.execute(args);
+        if (logger.isInfoEnabled()) {
+            t.printStackTrace(System.err);
+
+        } else if (t.getClass() == Exception.class) {
+            // display a generic error
+            System.err.println("ERROR: " + t.getMessage());
+
+        } else if (t instanceof UnrecognizedOptionException) {
+            // display only the error message
+            System.err.println(t.getMessage());
+
+        } else if (t instanceof ProcessingException) {
+            // display the cause of the exception
+            t = t.getCause();
+            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+
+        } else {
+            // display the actual Exception
+            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        try {
+            PKIServerCLI cli = new PKIServerCLI();
+            cli.execute(args);
+
+        } catch (CLIException e) {
+            String message = e.getMessage();
+            if (message != null) {
+                System.err.println("ERROR: " + message);
+            }
+            System.exit(e.getCode());
+
+        } catch (Throwable t) {
+            handleException(t);
+            System.exit(-1);
+        }
     }
 }
