@@ -1198,7 +1198,41 @@ class PKISubsystem(object):
             as_current_user=as_current_user,
             capture_output=True)
 
-    def run(self, args, as_current_user=False, capture_output=False):
+    def add_user_cert(self, user_id,
+                      cert_data=None,
+                      cert_path=None,
+                      cert_format='PEM',
+                      as_current_user=False):
+
+        cmd = [self.name + '-user-cert-add']
+
+        if cert_path:
+            cmd.append('--cert')
+            cmd.append(cert_path)
+
+        if cert_format:
+            cmd.append('--format')
+            cmd.append(cert_format)
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(user_id)
+
+        self.run(
+            cmd,
+            input=cert_data,
+            as_current_user=as_current_user,
+            capture_output=True)
+
+    def run(self,
+            args,
+            input=None,  # pylint: disable=W0622
+            as_current_user=False,
+            capture_output=False):
 
         java_path = os.getenv('PKI_JAVA_PATH')
         java_home = self.instance.config['JAVA_HOME']
@@ -1257,6 +1291,7 @@ class PKISubsystem(object):
         try:
             return subprocess.run(
                 cmd,
+                input=input,
                 capture_output=capture_output,
                 check=True)
 
