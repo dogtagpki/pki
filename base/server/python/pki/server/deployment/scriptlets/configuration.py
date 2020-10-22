@@ -1027,6 +1027,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem_cert = subsystem.get_subsystem_cert('subsystem')
             subject = subsystem_cert['subject']
 
+            nssdb = instance.open_nssdb()
+            try:
+                cert_data = nssdb.get_cert(
+                    nickname=subsystem_cert['nickname'],
+                    token=subsystem_cert['token'])
+            finally:
+                nssdb.close()
+
+            logger.info('Adding subsystem cert into pkidbuser')
+            subsystem.add_user_cert('pkidbuser', cert_data=cert_data, cert_format='PEM')
+
             logger.info('Linking pkidbuser to subsystem cert')
             subsystem.modify_user('pkidbuser', add_see_also=subject)
 

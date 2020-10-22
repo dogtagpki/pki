@@ -1382,12 +1382,6 @@ public class Configurator {
         // user not found
         logger.debug("Configurator: creating user: " + DBUSER);
 
-        String b64 = getSubsystemCert();
-        if (b64 == null) {
-            logger.error("Configurator: failed to fetch subsystem cert");
-            throw new EBaseException("Failed to fetch subsystem cert");
-        }
-
         user = system.createUser(DBUSER);
         user.setFullName(DBUSER);
         user.setEmail("");
@@ -1396,15 +1390,8 @@ public class Configurator {
         user.setState("1");
         user.setPhone("");
 
-        X509CertImpl[] certs = new X509CertImpl[1];
-        certs[0] = new X509CertImpl(Utils.base64decode(b64));
-        user.setX509Certificates(certs);
-
         system.addUser(user);
         logger.debug("Configurator: successfully added " + DBUSER);
-
-        system.addUserCert(DBUSER, certs[0]);
-        logger.debug("Configurator: successfully add the user certificate");
     }
 
     public void registerUser(
