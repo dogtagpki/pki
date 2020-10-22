@@ -65,11 +65,11 @@ def test_setup_kra_role_users(ansible_module):
     cert_setup.setup_role_users(ansible_module, 'kra', duration='minute')
 
 
-@pytest.mark.parametrize("certnick,expected", [("KRA_AdminV", ['Status: Enabled', 'Signed: true',
-                                                               'Interval (seconds): 5',
-                                                               'Buffer size (bytes): 512']),
-                                               # ("KRA_AdminE", ['FATAL: SSL alert received: CERTIFICATE_EXPIRED']),
-                                               # ("KRA_AdminR", ['FATAL: SSL alert received: CERTIFICATE_REVOKED']),
+@pytest.mark.parametrize("certnick,expected", [(constants.KRA_ADMIN_NICK, ['Status: Enabled', 'Signed: true',
+                                                                           'Interval (seconds): 5',
+                                                                           'Buffer size (bytes): 512']),
+                                               ("KRA_AdminE", ['FATAL: SSL alert received: CERTIFICATE_EXPIRED']),
+                                               ("KRA_AdminR", ['FATAL: SSL alert received: CERTIFICATE_REVOKED']),
                                                ])
 def test_kra_audit_with_role_users(ansible_module, certnick, expected):
     """
@@ -89,7 +89,7 @@ def test_kra_audit_with_role_users(ansible_module, certnick, expected):
                                    certnick='"{}"'.format(certnick))
     for result in contacted.values():
         for iter in expected:
-            if certnick == "KRA_AdminV":
+            if certnick == constants.KRA_ADMIN_NICK:
                 assert iter in result['stdout']
                 log.info("Certificate: {}, Expected Output: {} , Actual Output : {}".format(certnick, iter,
                                                                                             result['stdout']))

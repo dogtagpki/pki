@@ -58,7 +58,7 @@ kra.allowEncDecrypt.recovery=true
 kra.legacyPKCS12=false'''
 
 kra_cfg = "/var/lib/pki/{}/kra/conf/CS.cfg".format(constants.KRA_INSTANCE_NAME)
-srcpyclient = "pytest/kra/AES_DES/pki_python_client_rest_api.py"
+srcpyclient = "{}/pytest/kra/AES_DES/pki_python_client_rest_api.py".format(os.environ["PYTEST_DIR"])
 destpyclient = "/tmp/pki_python_client_rest_api.py"
 
 pkiconf = "/usr/share/pki/etc/pki.conf"
@@ -416,7 +416,7 @@ def test_aes_algorithm_using_pki_python_client(ansible_module):
 
     ansible_module.copy(src=srcpyclient, dest=destpyclient)
     # running python client py script and destination server
-    pycli_aes_test = ansible_module.shell("python3.6 {}".format(destpyclient))
+    pycli_aes_test = ansible_module.shell("python {}".format(destpyclient))
     for result in pycli_aes_test.values():
         if result['rc'] == 0:
             assert "Key_id=" in result['stdout']
@@ -469,7 +469,7 @@ def test_des3_algorithm_using_pki_python_client(ansible_module):
         log.info("Restarted {} instance.".format(i))
         time.sleep(10)
 
-    pycli_aes_test = ansible_module.shell("python3.6 {}".format(destpyclient))
+    pycli_aes_test = ansible_module.shell("python {}".format(destpyclient))
     for result in pycli_aes_test.values():
         if result['rc'] == 0:
             assert "keyset=0" in result['stdout']
@@ -519,7 +519,7 @@ def test_pki_python_client_supports_aes_key_wrap_algorithm(ansible_module):
 
     ansible_module.copy(src=srcpyclient, dest=destpyclient)
 
-    pycli_aes_test = ansible_module.shell("python3.6 {}".format(destpyclient))
+    pycli_aes_test = ansible_module.shell("python {}".format(destpyclient))
     for result in pycli_aes_test.values():
         if result['rc'] == 0:
             assert "Key_id=" in result['stdout']
@@ -569,7 +569,7 @@ def test_pki_python_client_uses_key_wrap_usage(ansible_module):
         log.info("Restarted {} instance.".format(i))
         time.sleep(10)
 
-    pycli_aes_test = ansible_module.shell("python3.6 {}".format(destpyclient))
+    pycli_aes_test = ansible_module.shell("python {}".format(destpyclient))
     for result in pycli_aes_test.values():
         if result['rc'] == 0:
             assert "keyset=1" in result['stdout']
@@ -623,7 +623,7 @@ def test_pki_python_client_keyset_check(ansible_module):
         log.info("Restarted {} instance.".format(i))
         time.sleep(10)
 
-    pycli_aes_test = ansible_module.shell("python3.6 {}".format(destpyclient))
+    pycli_aes_test = ansible_module.shell("python {}".format(destpyclient))
     for result in pycli_aes_test.values():
         if result['rc'] == 0:
             assert "keyset=1" in result['stdout']
@@ -641,7 +641,7 @@ def test_pki_python_client_keyset_check(ansible_module):
         log.info("Restarted {} instance.".format(i))
         time.sleep(10)
 
-    pycli_aes_test = ansible_module.shell("python3.6 {}".format(destpyclient))
+    pycli_aes_test = ansible_module.shell("python {}".format(destpyclient))
     for result in pycli_aes_test.values():
         if result['rc'] == 0:
             assert "keyset=0" in result['stdout']
@@ -668,7 +668,7 @@ def test_key_retrieval_for_encryption_using_pki_python_client(ansible_module):
                    "trans_wrapped_session_key=wrapped_session_key)"
     ansible_module.copy(src=srcpyclient, dest=destpyclient)
     ansible_module.lineinfile(dest=destpyclient, line=retrieve_key)
-    pycli_aes_test = ansible_module.shell("python3.6 {}".format(destpyclient))
+    pycli_aes_test = ansible_module.shell("python {}".format(destpyclient))
     for result in pycli_aes_test.values():
         if result['rc'] == 0:
             assert "Key_id=" in result['stdout']

@@ -43,12 +43,6 @@ except Exception:
         sys.path.append('/tmp/test_dir')
         import constants
 
-@pytest.mark.ansible_playbook_setup('testSetup.yml')
-@pytest.mark.setup
-def test_setup(ansible_playbook):
-    pass
-
-
 def test_bug_1534761_SignerInfo_inserts_wrong_version(ansible_module):
     """
     :id: 0651ca4b-7465-4e58-a0d2-f68fce00e2bf

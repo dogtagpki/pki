@@ -82,6 +82,7 @@ LDAP_USER1 = 'jdoe'
 TOKEN_FORMAT = 'ra_format'
 TOKEN_RESET_PIN = 'ra_reset_pin'
 TOKEN_CUID = '40000000000000000002'
+PKI_CS_FILE = '/etc/pki/' + 'instance' + '/' + 'subsystem' +'/CS.cfg'
 
 
 # SubCA details

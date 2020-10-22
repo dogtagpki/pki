@@ -148,7 +148,7 @@ def test_bug_1663600_cmc_revoke_failure(ansible_module):
             pytest.fail()
 
     # Converting Binary to ASCII
-    path1 = '/root/CMCRevoke.out'
+    path1 = '/home/fedora/CMCRevoke.out'
     path2 = '/root/CMCRevoke.txt'
     cmd = ansible_module.command("BtoA {} {}".format(path1,path2))
     cmd2 = ansible_module.fetch(src=path2,dest='/tmp/test.txt',flat=True)

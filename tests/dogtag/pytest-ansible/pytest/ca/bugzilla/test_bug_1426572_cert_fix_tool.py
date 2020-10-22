@@ -131,7 +131,7 @@ def setup_fixture(ansible_module):
         else:
             pytest.fail("Failed to run: {}".format("".join(result['cmd'])))
 
-
+@pytest.mark.skipif("instance_name != 'topology-00'")
 @pytest.mark.ansible_playbook_setup('ldap_ca.yml')
 def test_bug_1426572(ansible_playbook, ansible_module):
     """

@@ -114,4 +114,3 @@ def test_bug_1523443_HAProxy_rejection(ansible_module):
         assert "Response verify OK" in result['stderr_lines']
         assert "1: good" in result['stdout']
         assert "This Update:" in result['stdout']
-        assert "Next Update:" in result['stdout']

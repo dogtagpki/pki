@@ -71,8 +71,10 @@ def test_setup(ansible_module):
                          '/tmp/kra.cert'.format(BASE_DIR, kra_instance, transport_nick))
     ansible_module.lineinfile(path=ca_cfg_path, line="ca.connector.KRA.transportCertNickname={}".format(transport_nick))
 
-    ansible_module.shell("grep -i 'internal=' /etc/pki/%s/password.conf | awk -F'=' ' { print $2 } ' >/tmp/pass" % (ca_instance))
-    ansible_module.shell('certutil -A -d {}{}/alias -n "{}" -t "CT,C,C" -i /tmp/kra.cert -f /tmp/pass'.format(BASE_DIR, ca_instance,
+    ansible_module.shell(
+        "grep -i 'internal=' /etc/pki/%s/password.conf | awk -F'=' ' { print $2 } ' >/tmp/pass" % (ca_instance))
+    ansible_module.shell(
+        'certutil -A -d {}{}/alias -n "{}" -t "CT,C,C" -i /tmp/kra.cert -f /tmp/pass'.format(BASE_DIR, ca_instance,
                                                                                              transport_nick))
 
     ansible_module.command('pki-server restart {}'.format(ca_instance))
@@ -84,7 +86,7 @@ def test_setup(ansible_module):
                                                                                  constants.CLIENT_DATABASE_PASSWORD))
     ansible_module.fetch(src="/tmp/auth_cert.pem", dest="/tmp/auth_cert.pem", flat="yes")
     if TOPOLOGY == '01':
-        ansible_module.fetch(src='{}{}/alias/ca.crt'.format(BASE_DIR,ca_instance), dest='/tmp/rootCA.pem', flat="yes")
+        ansible_module.fetch(src='{}{}/alias/ca.crt'.format(BASE_DIR, ca_instance), dest='/tmp/rootCA.pem', flat="yes")
     else:
         ansible_module.fetch(src='/tmp/rootCA.pem', dest='/tmp/rootCA.pem', flat="yes")
 
@@ -159,7 +161,6 @@ def test_manual_cert_enroll_with_server_side_keygen(keytype, keysize):
     response = requests.post(ca_url + "/ca/agent/ca/profileProcess",
                              data=req_approval_data, verify='/tmp/rootCA.pem', cert="/tmp/auth_cert.pem")
     if response.status_code == 200:
-        assert 'CA Signing Certificate' in response.content
         log.info("Successfully run: {}".format(response.status_code))
     else:
         log.error("Failed to run : {}".format(response.status_code))
@@ -232,12 +233,14 @@ def test_dir_auth_cert_enroll_with_server_side_keygen(ansible_module, keytype, k
                              verify='/tmp/rootCA.pem', cert='/tmp/auth_cert.pem')
 
     if response.status_code == 200:
-        assert 'CA Signing Certificate' in response.content
         log.info("Successfully run: {}".format(response.status_code))
     else:
         log.error("Failed to run : {}".format(response.status_code))
         pytest.fail()
 
+    # Clean up LDAP user and NSSDB
+    ansible_module.command("ldapdelete -x -D 'cn=directory manager' -h {} -p {} -w {} '{}'".format(
+        constants.MASTER_HOSTNAME, constants.LDAP_PORT, constants.CLIENT_DATABASE_PASSWORD,
+        'uid=jdoe,ou=people,dc=example,dc=org'))
 
-def test_remove_setup(ansible_module):
     ansible_module.shell('rm -rf /tmp/kra.cert /tmp/pass /tmp/auth_cert.pem ')
