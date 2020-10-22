@@ -728,61 +728,52 @@ public class UGSubsystem {
     /**
      * adds a user certificate to user
      */
-    public void addUserCert(User identity) throws EUsrGrpException {
-        User user = identity;
+    public void addUserCert(String userID, X509Certificate cert) throws EUsrGrpException {
 
-        if (user == null) {
-            return;
+        if (userID == null) {
+            throw new EUsrGrpException("Missing user ID");
         }
 
-        X509Certificate cert[] = null;
-        LDAPModificationSet addCert = new LDAPModificationSet();
+        String dn = "uid=" + LDAPUtil.escapeRDNValue(userID) + "," + getUserBaseDN();
 
-        if ((cert = user.getX509Certificates()) != null) {
-            LDAPAttribute attrCertStr = new LDAPAttribute(LDAP_ATTR_USER_CERT_STRING);
-            LDAPAttribute attrCertBin = new LDAPAttribute(LDAP_ATTR_USER_CERT);
+        LDAPConnection ldapconn = null;
 
-            try {
-                attrCertBin.addValue(cert[0].getEncoded());
-                attrCertStr.addValue(getCertificateString(cert[0]));
-            } catch (CertificateEncodingException e) {
-                throw new EUsrGrpException("Unable to add user certificate: " + e.getMessage(), e);
-            }
+        try {
+            LDAPModificationSet mods = new LDAPModificationSet();
 
-            addCert.add(LDAPModification.ADD, attrCertStr);
-            addCert.add(LDAPModification.ADD, attrCertBin);
+            LDAPAttribute descAttr = new LDAPAttribute(LDAP_ATTR_USER_CERT_STRING);
+            descAttr.addValue(getCertificateString(cert));
+            mods.add(LDAPModification.ADD, descAttr);
 
-            LDAPConnection ldapconn = null;
+            LDAPAttribute userCertAttr = new LDAPAttribute(LDAP_ATTR_USER_CERT);
+            userCertAttr.addValue(cert.getEncoded());
+            mods.add(LDAPModification.ADD, userCertAttr);
 
-            try {
-                ldapconn = getConn();
-                ldapconn.modify("uid=" + LDAPUtil.escapeRDNValue(user.getUserID()) +
-                        "," + getUserBaseDN(), addCert);
-                // for audit log
-                SessionContext sessionContext = SessionContext.getContext();
-                String adminId = (String) sessionContext.get(SessionContext.USER_ID);
+            ldapconn = getConn();
+            ldapconn.modify(dn, mods);
 
-                logger.info(
-                        AuditFormat.ADDUSERCERTFORMAT,
-                        adminId,
-                        user.getUserID(),
-                        cert[0].getSubjectDN(),
-                        cert[0].getSerialNumber().toString(16)
-                );
+            SessionContext sessionContext = SessionContext.getContext();
+            String adminId = (String) sessionContext.get(SessionContext.USER_ID);
 
-            } catch (LDAPException e) {
-                throw LDAPExceptionConverter.toPKIException(e);
+            logger.info(
+                    AuditFormat.ADDUSERCERTFORMAT,
+                    adminId,
+                    userID,
+                    cert.getSubjectDN(),
+                    cert.getSerialNumber().toString(16)
+            );
 
-            } catch (ELdapException e) {
-                throw new EUsrGrpException("Unable to add user: " + e.getMessage(), e);
+        } catch (LDAPException e) {
+            throw LDAPExceptionConverter.toPKIException(e);
 
-            } finally {
-                if (ldapconn != null)
-                    returnConn(ldapconn);
+        } catch (Exception e) {
+            throw new EUsrGrpException("Unable to add user certificate: " + e.getMessage(), e);
+
+        } finally {
+            if (ldapconn != null) {
+                returnConn(ldapconn);
             }
         }
-
-        return;
     }
 
     public void addSeeAlso(String userID, String value) throws EUsrGrpException {

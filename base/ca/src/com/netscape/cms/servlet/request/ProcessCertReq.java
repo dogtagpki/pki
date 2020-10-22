@@ -22,6 +22,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -1480,7 +1481,7 @@ public class ProcessCertReq extends CMSServlet {
     public static final String GRANT_PRIVILEGE = "grantPrivilege";
 
     protected int grant_privileges(
-            CMSRequest cmsReq, IRequest req, Certificate[] certs, IArgBlock header)
+            CMSRequest cmsReq, IRequest req, X509Certificate[] certs, IArgBlock header)
             throws EBaseException {
         // get privileges to grant
         IArgBlock httpParams = cmsReq.getHttpParams();
@@ -1590,13 +1591,9 @@ public class ProcessCertReq extends CMSServlet {
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_USER_ERROR", uid), e);
         }
         try {
-            if (certs[0] instanceof X509CertImpl) {
-                X509CertImpl tmp[] = (X509CertImpl[]) certs;
+            user.setX509Certificates(certs);
+            ug.addUserCert(uid, certs[0]);
 
-                user.setX509Certificates(tmp);
-            }
-
-            ug.addUserCert(user);
         } catch (Exception e) {
             logger.error(CMS.getLogMessage("CMSGW_ERROR_ADDING_CERT_1", uid), e);
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_CERT_ERROR", uid), e);

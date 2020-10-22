@@ -1488,9 +1488,8 @@ public class EnrollServlet extends CMSServlet {
         UGSubsystem ug = engine.getUGSubsystem();
 
         User adminuser = ug.createUser(userid);
-
         adminuser.setX509Certificates(issuedCerts);
-        ug.addUserCert(adminuser);
+        ug.addUserCert(userid, issuedCerts[0]);
 
         Group agentGroup = ug.getGroupFromName(CA_AGENT_GROUP);
 

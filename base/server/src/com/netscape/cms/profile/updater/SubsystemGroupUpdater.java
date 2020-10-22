@@ -176,7 +176,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                              "+Resource;;" + id +
                              "+cert;;" + b64;
 
-            system.addUserCert(user);
+            system.addUserCert(id, cert);
             logger.debug("SubsystemGroupUpdater update: successfully add the user certificate");
 
             signedAuditLogger.log(new ConfigRoleEvent(

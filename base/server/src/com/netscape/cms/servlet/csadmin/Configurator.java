@@ -865,7 +865,7 @@ public class Configurator {
         UGSubsystem ug = engine.getUGSubsystem();
         User user = ug.getUser(request.getAdminUID());
         user.setX509Certificates(adminCerts);
-        ug.addUserCert(user);
+        ug.addUserCert(request.getAdminUID(), adminCert);
     }
 
     public void setupAdminUser(AdminSetupRequest request, X509CertImpl cert) throws Exception {
@@ -1325,7 +1325,7 @@ public class Configurator {
 
         try {
             logger.info("Configurator: Adding user certificate: " + cert.getSubjectDN());
-            system.addUserCert(user);
+            system.addUserCert(id, cert);
         } catch (ConflictingOperationException e) {
             // ignore exception
             logger.warn("Configurator: User certificate already exists: " + cert.getSubjectDN());
@@ -1403,7 +1403,7 @@ public class Configurator {
         system.addUser(user);
         logger.debug("Configurator: successfully added " + DBUSER);
 
-        system.addUserCert(user);
+        system.addUserCert(DBUSER, certs[0]);
         logger.debug("Configurator: successfully add the user certificate");
     }
 

@@ -1125,7 +1125,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 certs[0].checkValidity(); // throw exception if fails
 
                 user.setX509Certificates(certs);
-                mMgr.addUserCert(user);
+                mMgr.addUserCert(id, certs[0]);
                 NameValuePairs params = new NameValuePairs();
 
                 audit(new ConfigRoleEvent(

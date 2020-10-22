@@ -964,7 +964,7 @@ public class UserService extends SubsystemService implements UserResource {
                 cert.checkValidity(); // throw exception if fails
 
                 user.setX509Certificates(new X509Certificate[] { cert });
-                userGroupManager.addUserCert(user);
+                userGroupManager.addUserCert(userID, cert);
 
                 auditAddUserCert(userID, userCertData, ILogger.SUCCESS);
 

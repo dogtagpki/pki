@@ -158,13 +158,14 @@ public class RegisterUser extends CMSServlet {
 
         User user = null;
         boolean foundByCert = false;
+        X509CertImpl cert = null;
         X509Certificate certs[] = new X509Certificate[1];
 
         try {
             logger.info("RegisterUser: Searching user by cert");
 
             byte[] bCert = Utils.base64decode(certsString);
-            X509CertImpl cert = new X509CertImpl(bCert);
+            cert = new X509CertImpl(bCert);
             certs[0] = cert;
 
             // test to see if the cert already belongs to a user
@@ -224,7 +225,7 @@ public class RegisterUser extends CMSServlet {
 
             if (!foundByCert) {
                 logger.info("RegisterUser: Adding user certificate");
-                ugsys.addUserCert(user);
+                ugsys.addUserCert(user.getUserID(), cert);
 
                 audit(new ConfigRoleEvent(
                               auditSubjectID,
