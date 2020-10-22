@@ -53,6 +53,7 @@ log = logging.getLogger()
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
+@pytest.mark.bugzilla('1854959')
 @pytest.mark.setup
 def test_setup(ansible_module):
     """
@@ -111,6 +112,7 @@ def test_setup(ansible_module):
         log.info('Imported KRA Admin Cert')
 
 
+@pytest.mark.bugzilla('1854959')
 def test_pki_subca_sanity(ansible_module):
     """
     :id: 0869bbc7-471f-4096-bd9a-80c47e3c49bc

@@ -57,6 +57,7 @@ ciphers = ['+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA', '+TLS_ECDHE_RSA_WITH_AES_256_C
 
 
 @pytest.mark.skipif('topology != 02')
+@pytest.mark.skip(reason="In RHEL 8.4, we shouldn't be using sslRangeCiphers. Relying on crypto-policies")
 @pytest.mark.parametrize('inst', [constants.CA_INSTANCE_NAME,
                                   constants.KRA_INSTANCE_NAME,
                                   # constants.OCSP_INSTANCE_NAME,
