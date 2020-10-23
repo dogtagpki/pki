@@ -613,59 +613,67 @@ public class UGSubsystem {
      * Adds identity. Certificates handled by a separate call to
      * addUserCert()
      */
-    public void addUser(User identity) throws EUsrGrpException {
-        User id = identity;
+    public void addUser(User user) throws EUsrGrpException {
 
-        if (id == null) {
-            throw new EUsrGrpException("Unable to add user: Missing user");
+        if (user == null) {
+            throw new EUsrGrpException("Missing user");
         }
 
-        if (id.getUserID() == null) {
-            throw new EUsrGrpException("Unable to add user: Missing UID");
+        String userID = user.getUserID();
+
+        if (userID == null) {
+            throw new EUsrGrpException("Missing user ID");
         }
 
-        String dn = "uid=" + LDAPUtil.escapeRDNValue(id.getUserID()) + "," + getUserBaseDN();
-        logger.info("UGSubsystem: adding " + dn);
+        String dn = "uid=" + LDAPUtil.escapeRDNValue(userID) + "," + getUserBaseDN();
+        logger.info("UGSubsystem: Adding " + dn);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
-        List<String> oclist = new ArrayList<String>();
-        oclist.add("top");
-        oclist.add("person");
-        oclist.add("organizationalPerson");
-        oclist.add("inetOrgPerson");
-        oclist.add("cmsuser");
+        List<String> ocList = new ArrayList<String>();
+        ocList.add("top");
+        ocList.add("person");
+        ocList.add("organizationalPerson");
+        ocList.add("inetOrgPerson");
+        ocList.add("cmsuser");
 
-        if (id.getTpsProfiles() != null) {
-            oclist.add("tpsProfileID");
+        if (user.getTpsProfiles() != null) {
+            ocList.add("tpsProfileID");
         }
 
-        logger.info("UGSubsystem: - " + OBJECTCLASS_ATTR + ": " + oclist);
-        String[] oc = oclist.toArray(new String[oclist.size()]);
+        logger.info("UGSubsystem: - " + OBJECTCLASS_ATTR + ": " + ocList);
+        String[] oc = ocList.toArray(new String[ocList.size()]);
         attrs.add(new LDAPAttribute(OBJECTCLASS_ATTR, oc));
 
-        logger.info("UGSubsystem: - uid: " + id.getUserID());
-        attrs.add(new LDAPAttribute("uid", id.getUserID()));
+        logger.info("UGSubsystem: - uid: " + userID);
+        attrs.add(new LDAPAttribute("uid", userID));
 
-        logger.info("UGSubsystem: - sn: " + id.getFullName());
-        attrs.add(new LDAPAttribute("sn", id.getFullName()));
+        String fullName = user.getFullName();
+        logger.info("UGSubsystem: - sn: " + fullName);
+        attrs.add(new LDAPAttribute("sn", fullName));
 
-        logger.info("UGSubsystem: - cn: " + id.getFullName());
-        attrs.add(new LDAPAttribute("cn", id.getFullName()));
+        logger.info("UGSubsystem: - cn: " + fullName);
+        attrs.add(new LDAPAttribute("cn", fullName));
 
-        logger.info("UGSubsystem: - mail: " + id.getEmail());
-        attrs.add(new LDAPAttribute("mail", id.getEmail()));
+        String email = user.getEmail();
+        if (!StringUtils.isEmpty(email)) {
+            logger.info("UGSubsystem: - mail: " + email);
+            attrs.add(new LDAPAttribute("mail", email));
+        }
 
         // DS syntax checking requires a value for PrintableString syntax
-        String phone = id.getPhone();
-        if (phone != null && !phone.equals("")) {
-            logger.info("UGSubsystem: - telephonenumber: " + phone);
+        String phone = user.getPhone();
+        if (!StringUtils.isEmpty(phone)) {
+            logger.info("UGSubsystem: - telephoneNumber: " + phone);
             attrs.add(new LDAPAttribute("telephonenumber", phone));
         }
 
-        logger.info("UGSubsystem: - userpassword: ********");
-        attrs.add(new LDAPAttribute("userpassword", id.getPassword()));
+        String password = user.getPassword();
+        if (!StringUtils.isEmpty(password)) {
+            logger.info("UGSubsystem: - userPassword: ********");
+            attrs.add(new LDAPAttribute("userpassword", password));
+        }
 
-        String userType = id.getUserType();
+        String userType = user.getUserType();
         if (userType != null) {
             // DS syntax checking requires a value for Directory String syntax
             // but usertype is a MUST attribute, so we need to add something here
@@ -679,14 +687,14 @@ public class UGSubsystem {
         }
 
         // DS syntax checking requires a value for Directory String syntax
-        String state = id.getState();
-        if (state != null && !state.equals("")) {
+        String state = user.getState();
+        if (!StringUtils.isEmpty(state)) {
             logger.info("UGSubsystem: - userstate: " + state);
             attrs.add(new LDAPAttribute("userstate", state));
         }
 
         // TODO add audit logging for profile
-        List<String> profiles = id.getTpsProfiles();
+        List<String> profiles = user.getTpsProfiles();
         if (profiles != null && profiles.size() > 0) {
             LDAPAttribute attr = new LDAPAttribute(LDAP_ATTR_PROFILE_ID);
             for (String profile : profiles) {
@@ -697,14 +705,14 @@ public class UGSubsystem {
         }
 
         LDAPEntry entry = new LDAPEntry(dn, attrs);
-        // for audit log
+
         SessionContext sessionContext = SessionContext.getContext();
         String adminId = (String) sessionContext.get(SessionContext.USER_ID);
 
         logger.info(
                 AuditFormat.ADDUSERFORMAT,
                 adminId,
-                id.getUserID()
+                userID
         );
 
         LDAPConnection ldapconn = null;
@@ -720,8 +728,9 @@ public class UGSubsystem {
             throw new EUsrGrpException("Unable to add user: " + e.getMessage(), e);
 
         } finally {
-            if (ldapconn != null)
+            if (ldapconn != null) {
                 returnConn(ldapconn);
+            }
         }
     }
 
