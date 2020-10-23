@@ -185,6 +185,7 @@ def test_bug_1706521(ansible_module):
             for i in add_params:
                 ansible_module.lineinfile(path=profile_param, line=i)
             restart_instance(ansible_module)
+            time.sleep(20)
         else:
             log.error("Failed to create {} profile param file".format(profile_param))
             log.error(result['stderr'])
