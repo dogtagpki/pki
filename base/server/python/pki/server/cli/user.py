@@ -25,6 +25,7 @@ class UserCLI(pki.cli.CLI):
 
         self.add_module(UserFindCLI(self))
         self.add_module(UserModifyCLI(self))
+        self.add_module(UserShowCLI(self))
 
         self.add_module(UserCertCLI(self))
 
@@ -218,6 +219,103 @@ class UserModifyCLI(pki.cli.CLI):
             user_id,
             add_see_also=add_see_also,
             del_see_also=del_see_also)
+
+
+class UserShowCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super(UserShowCLI, self).__init__(
+            'show',
+            'Display %s user' % parent.parent.name.upper())
+
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-user-show [OPTIONS] <user ID>' % self.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.name
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing user ID')
+            self.print_help()
+            sys.exit(1)
+
+        user_id = args[0]
+
+        instance = pki.server.instance.PKIInstance(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        user = subsystem.get_user(user_id)
+
+        print('  User ID: {}'.format(user['id']))
+
+        full_name = user.get('fullName')
+        if full_name:
+            print('  Full Name: {}'.format(full_name))
+
+        email = user.get('email')
+        if email:
+            print('  Email: {} '.format(email))
+
+        phone = user.get('phone')
+        if phone:
+            print('  Phone: {} '.format(phone))
+
+        user_type = user.get('type')
+        if user_type:
+            print('  Type: {} '.format(user_type))
+
+        state = user.get('state')
+        if state:
+            print('  State: {} '.format(state))
 
 
 class UserCertCLI(pki.cli.CLI):

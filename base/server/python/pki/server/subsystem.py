@@ -1172,6 +1172,28 @@ class PKISubsystem(object):
 
         return json.loads(result.stdout.decode())
 
+    def get_user(self, user_id, as_current_user=False):
+
+        cmd = [self.name + '-user-show']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append('--output-format')
+        cmd.append('json')
+
+        cmd.append(user_id)
+
+        result = self.run(
+            cmd,
+            as_current_user=as_current_user,
+            capture_output=True)
+
+        return json.loads(result.stdout.decode())
+
     def modify_user(self, user_id, add_see_also=None, del_see_also=None,
                     as_current_user=False):
 
