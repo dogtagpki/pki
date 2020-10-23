@@ -1020,60 +1020,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         client.setupSecurityDomain(sd_setup_request)
 
         if not config.str2bool(deployer.mdict['pki_share_db']):
-
             logger.info('Setting up database user')
-
-            logger.info('Adding pkidbuser')
-            subsystem.add_user(
-                'pkidbuser',
-                full_name='pkidbuser',
-                user_type='agentType',
-                state='1')
-
-            subsystem_cert = subsystem.get_subsystem_cert('subsystem')
-            subject = subsystem_cert['subject']
-
-            nssdb = instance.open_nssdb()
-            try:
-                cert_data = nssdb.get_cert(
-                    nickname=subsystem_cert['nickname'],
-                    token=subsystem_cert['token'])
-            finally:
-                nssdb.close()
-
-            logger.info('Adding subsystem cert into pkidbuser')
-            subsystem.add_user_cert('pkidbuser', cert_data=cert_data, cert_format='PEM')
-
-            logger.info('Linking pkidbuser to subsystem cert')
-            subsystem.modify_user('pkidbuser', add_see_also=subject)
-
-            logger.info('Finding other users linked to subsystem cert')
-            users = subsystem.find_users(see_also=subject)
-
-            for user in users['entries']:
-                uid = user['id']
-
-                if uid == 'pkidbuser':
-                    continue
-
-                logger.info('Unlinking %s from subsystem cert ', uid)
-                subsystem.modify_user(uid, del_see_also=subject)
-
-            # workaround for https://github.com/dogtagpki/pki/issues/2154
-
-            if subsystem.type == 'CA':
-                subsystem.add_group_member('Subsystem Group', 'pkidbuser')
-                subsystem.add_group_member('Certificate Manager Agents', 'pkidbuser')
-
-            elif subsystem.type == 'KRA':
-                subsystem.add_group_member('Data Recovery Manager Agents', 'pkidbuser')
-                subsystem.add_group_member('Trusted Managers', 'pkidbuser')
-
-            elif subsystem.type == 'OCSP':
-                subsystem.add_group_member('Trusted Managers', 'pkidbuser')
-
-            elif subsystem.type == 'TKS':
-                subsystem.add_group_member('Token Key Service Manager Agents', 'pkidbuser')
+            deployer.setup_database_user(instance, subsystem)
 
         logger.info('Finalizing %s configuration', subsystem.type)
         finalize_config_request = deployer.config_client.create_finalize_config_request()
