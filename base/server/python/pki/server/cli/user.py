@@ -23,11 +23,130 @@ class UserCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.add_module(UserAddCLI(self))
         self.add_module(UserFindCLI(self))
         self.add_module(UserModifyCLI(self))
         self.add_module(UserShowCLI(self))
 
         self.add_module(UserCertCLI(self))
+
+
+class UserAddCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super(UserAddCLI, self).__init__(
+            'add',
+            'Add %s user' % parent.parent.name.upper())
+
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-user-add [OPTIONS] <user ID>' % self.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --full-name <full name>        Full name')
+        print('      --email <email>                Email')
+        print('      --password <password>          Password')
+        print('      --phone <phone>                Phone')
+        print('      --type <type>                  Type')
+        print('      --state <state>                State')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=', 'full-name=', 'email=', 'password=',
+                'phone=', 'type=', 'state=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.name
+        full_name = None
+        email = None
+        password = None
+        phone = None
+        user_type = None
+        state = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--full-name':
+                full_name = a
+
+            elif o == '--email':
+                email = a
+
+            elif o == '--password':
+                password = a
+
+            elif o == '--phone':
+                phone = a
+
+            elif o == '--type':
+                user_type = a
+
+            elif o == '--state':
+                state = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing user ID')
+            self.print_help()
+            sys.exit(1)
+
+        user_id = args[0]
+
+        if not full_name:
+            logger.error('Missing full name')
+            self.print_help()
+            sys.exit(1)
+
+        instance = pki.server.instance.PKIInstance(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        subsystem.add_user(
+            user_id,
+            full_name=full_name,
+            email=email,
+            password=password,
+            phone=phone,
+            user_type=user_type,
+            state=state)
 
 
 class UserFindCLI(pki.cli.CLI):

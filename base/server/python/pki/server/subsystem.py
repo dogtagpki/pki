@@ -1194,6 +1194,55 @@ class PKISubsystem(object):
 
         return json.loads(result.stdout.decode())
 
+    def add_user(self,
+                 user_id,
+                 full_name=None,
+                 email=None,
+                 password=None,
+                 phone=None,
+                 user_type=None,
+                 state=None,
+                 as_current_user=False):
+
+        cmd = [self.name + '-user-add']
+
+        if full_name:
+            cmd.append('--full-name')
+            cmd.append(full_name)
+
+        if email:
+            cmd.append('--email')
+            cmd.append(email)
+
+        if password:
+            cmd.append('--password')
+            cmd.append(password)
+
+        if phone:
+            cmd.append('--phone')
+            cmd.append(phone)
+
+        if user_type:
+            cmd.append('--type')
+            cmd.append(user_type)
+
+        if state:
+            cmd.append('--state')
+            cmd.append(state)
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(user_id)
+
+        self.run(
+            cmd,
+            as_current_user=as_current_user,
+            capture_output=True)
+
     def modify_user(self, user_id, add_see_also=None, del_see_also=None,
                     as_current_user=False):
 
