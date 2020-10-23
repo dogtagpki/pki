@@ -28,7 +28,6 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
-import com.netscape.certsrv.system.DatabaseUserSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
@@ -207,28 +206,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             configurator.setupSecurityDomain(request);
-
-        } catch (PKIException e) { // normal response
-            logger.error("Configuration failed: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Configuration failed: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void setupDatabaseUser(DatabaseUserSetupRequest request) throws Exception {
-
-        logger.info("SystemConfigService: setting up database user");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());

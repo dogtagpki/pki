@@ -326,11 +326,6 @@ class SecurityDomainSetupRequest(object):
         self.clone = 'false'
 
 
-class DatabaseUserSetupRequest(object):
-    def __init__(self):
-        pass
-
-
 class FinalizeConfigRequest(object):
     def __init__(self):
         self.installToken = None
@@ -367,7 +362,6 @@ class SystemConfigClient(object):
         self.setup_admin_url = '/rest/installer/setupAdmin'
         self.backup_keys_url = '/rest/installer/backupKeys'
         self.setup_security_domain_url = '/rest/installer/setupSecurityDomain'
-        self.setup_db_user_url = '/rest/installer/setupDatabaseUser'
         self.finalize_config_url = '/rest/installer/finalizeConfiguration'
 
         if connection.subsystem is None:
@@ -379,7 +373,6 @@ class SystemConfigClient(object):
             self.setup_admin_url = '/' + subsystem + self.setup_admin_url
             self.backup_keys_url = '/' + subsystem + self.backup_keys_url
             self.setup_security_domain_url = '/' + subsystem + self.setup_security_domain_url
-            self.setup_db_user_url = '/' + subsystem + self.setup_db_user_url
             self.finalize_config_url = '/' + subsystem + self.finalize_config_url
 
     def setupCert(self, request):
@@ -433,21 +426,6 @@ class SystemConfigClient(object):
                    'Accept': 'application/json'}
         self.connection.post(
             self.setup_security_domain_url,
-            data,
-            headers)
-
-    def setupDatabaseUser(self, request):
-        """
-        Set up database user.
-
-        :param request: Database user setup request
-        :type request: DatabaseUserSetupRequest
-        """
-        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
-        headers = {'Content-type': 'application/json',
-                   'Accept': 'application/json'}
-        self.connection.post(
-            self.setup_db_user_url,
             data,
             headers)
 
@@ -509,6 +487,5 @@ pki.encoder.NOTYPES['CertificateSetupResponse'] = CertificateSetupResponse
 pki.encoder.NOTYPES['AdminSetupRequest'] = AdminSetupRequest
 pki.encoder.NOTYPES['AdminSetupResponse'] = AdminSetupResponse
 pki.encoder.NOTYPES['SecurityDomainSetupRequest'] = SecurityDomainSetupRequest
-pki.encoder.NOTYPES['DatabaseUserSetupRequest'] = DatabaseUserSetupRequest
 pki.encoder.NOTYPES['FinalizeConfigRequest'] = FinalizeConfigRequest
 pki.encoder.NOTYPES['SystemCertData'] = SystemCertData

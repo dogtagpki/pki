@@ -40,10 +40,6 @@ public interface SystemConfigResource {
     public void setupSecurityDomain(SecurityDomainSetupRequest request) throws Exception;
 
     @POST
-    @Path("setupDatabaseUser")
-    public void setupDatabaseUser(DatabaseUserSetupRequest request) throws Exception;
-
-    @POST
     @Path("finalizeConfiguration")
     public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception;
 }
