@@ -1020,9 +1020,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         client.setupSecurityDomain(sd_setup_request)
 
         if not config.str2bool(deployer.mdict['pki_share_db']):
+
             logger.info('Setting up database user')
-            db_user_setup_request = deployer.config_client.create_database_user_setup_request()
-            client.setupDatabaseUser(db_user_setup_request)
+
+            logger.info('Adding pkidbuser')
+            subsystem.add_user(
+                'pkidbuser',
+                full_name='pkidbuser',
+                user_type='agentType',
+                state='1')
 
             subsystem_cert = subsystem.get_subsystem_cert('subsystem')
             subject = subsystem_cert['subject']

@@ -114,7 +114,6 @@ public class Configurator {
     public static String AUTH_FAILURE = "2";
     public static final BigInteger BIG_ZERO = new BigInteger("0");
     public static final Long MINUS_ONE = Long.valueOf(-1);
-    public static final String DBUSER = "pkidbuser";
 
     public static ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
 
@@ -1364,34 +1363,6 @@ public class Configurator {
 
         String b64 = parser.getValue("Cert");
         return new X509CertImpl(Utils.base64decode(b64));
-    }
-
-    public void setupDatabaseUser() throws Exception {
-
-        UGSubsystem system = engine.getUGSubsystem();
-
-        // checking existing user
-        User user = system.getUser(DBUSER);
-
-        if (user != null) {
-            // user found
-            logger.warn("Configurator: user already exists: " + DBUSER);
-            return;
-        }
-
-        // user not found
-        logger.debug("Configurator: creating user: " + DBUSER);
-
-        user = system.createUser(DBUSER);
-        user.setFullName(DBUSER);
-        user.setEmail("");
-        user.setPassword("");
-        user.setUserType("agentType");
-        user.setState("1");
-        user.setPhone("");
-
-        system.addUser(user);
-        logger.debug("Configurator: successfully added " + DBUSER);
     }
 
     public void registerUser(

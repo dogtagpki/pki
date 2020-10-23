@@ -18,7 +18,6 @@
 package org.dogtagpki.server.rest;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
@@ -230,8 +229,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
             }
-
-            configurator.setupDatabaseUser();
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
