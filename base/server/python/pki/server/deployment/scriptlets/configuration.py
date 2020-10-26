@@ -713,6 +713,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         unsecurePort = server_config.get_unsecure_port()
         securePort = server_config.get_secure_port()
 
+        proxyUnsecurePort = subsystem.config.get('proxy.unsecurePort')
+        if not proxyUnsecurePort:
+            proxyUnsecurePort = unsecurePort
+
+        proxySecurePort = subsystem.config.get('proxy.securePort')
+        if not proxySecurePort:
+            proxySecurePort = securePort
+
         if deployer.mdict['pki_security_domain_type'] == 'existing':
 
             logger.info('Joining existing domain')
@@ -1036,6 +1044,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Joining security domain')
             subsystem.join_security_domain(
                 deployer.install_token,
+                deployer.mdict['pki_subsystem_name'],
+                deployer.mdict['pki_hostname'],
+                unsecure_port=proxyUnsecurePort,
+                secure_port=proxySecurePort,
+                domain_manager=domain_manager,
+                clone=clone)
+
+        else:
+            logger.info('Adding security domain manager')
+            subsystem.add_security_domain_host(
                 deployer.mdict['pki_subsystem_name'],
                 deployer.mdict['pki_hostname'],
                 unsecure_port=proxyUnsecurePort,

@@ -1113,45 +1113,6 @@ public class Configurator {
             entry = new LDAPEntry(dn, attrs);
             conn.add(entry);
         }
-
-        // Add this host
-        String cn = cs.getHostname() + ":" + engine.getAdminPort();
-        dn = "cn=" + LDAPUtil.escapeRDNValue(cn) + ",cn=CAList,ou=Security Domain," + basedn;
-        logger.info("Configurator: adding " + dn);
-
-        String subsystemName = preopConfig.getString("subsystem.name");
-
-        attrs = new LDAPAttributeSet();
-        attrs.add(new LDAPAttribute("objectclass", new String[] { "top", "pkiSubsystem" }));
-        attrs.add(new LDAPAttribute("Host", cs.getHostname()));
-        attrs.add(new LDAPAttribute("SecurePort", engine.getEESSLPort()));
-        attrs.add(new LDAPAttribute("SecureAgentPort", engine.getAgentPort()));
-        attrs.add(new LDAPAttribute("SecureAdminPort", engine.getAdminPort()));
-        if (engine.getEEClientAuthSSLPort() != null) {
-            attrs.add(new LDAPAttribute("SecureEEClientAuthPort", engine.getEEClientAuthSSLPort()));
-        }
-        attrs.add(new LDAPAttribute("UnSecurePort", engine.getEENonSSLPort()));
-        attrs.add(new LDAPAttribute("Clone", "FALSE"));
-        attrs.add(new LDAPAttribute("SubsystemName", subsystemName));
-        attrs.add(new LDAPAttribute("cn", cn));
-        attrs.add(new LDAPAttribute("DomainManager", "TRUE"));
-
-        for (Enumeration<LDAPAttribute> e = attrs.getAttributes(); e.hasMoreElements(); ) {
-            LDAPAttribute attr = e.nextElement();
-            String[] values = attr.getStringValueArray();
-            if (values == null) continue;
-            logger.info("Configurator: - " + attr.getName());
-        }
-
-        entry = new LDAPEntry(dn, attrs);
-        conn.add(entry);
-
-        logger.debug("createSecurityDomain(): finish updating domain info");
-        conn.disconnect();
-
-        // Fetch the "new" security domain and display it
-        // logger.debug("createSecurityDomain(): Dump contents of new Security Domain . . .");
-        // getDomainInfo(engine.getEESSLHost(), Integer.parseInt(engine.getAdminPort()));
     }
 
     public void setupSubsystemUser(X509CertImpl cert) throws Exception {

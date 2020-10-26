@@ -1105,6 +1105,45 @@ class PKISubsystem(object):
                 master_port == replica_port:
             raise Exception('Master and replica must not share LDAP database')
 
+    def add_security_domain_host(
+            self,
+            host_id,
+            hostname,
+            unsecure_port='8080',
+            secure_port='8443',
+            domain_manager=False,
+            clone=False,
+            as_current_user=False):
+
+        cmd = [
+            'sd-host-add',
+            '--hostname', hostname
+        ]
+
+        if unsecure_port:
+            cmd.append('--unsecure-port')
+            cmd.append(unsecure_port)
+
+        if secure_port:
+            cmd.append('--secure-port')
+            cmd.append(secure_port)
+
+        if domain_manager:
+            cmd.append('--domain-manager')
+
+        if clone:
+            cmd.append('--clone')
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(host_id)
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def join_security_domain(
             self,
             install_token,
