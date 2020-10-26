@@ -1051,10 +1051,6 @@ public class Configurator {
         } else if (type.equals("newsubdomain")) {
             logger.info("Configuring new security subdomain");
             createSecurityDomain();
-
-        } else {
-            logger.info("Updating existing security domain");
-            updateSecurityDomain(request);
         }
 
         cs.commit(false);
@@ -1156,113 +1152,6 @@ public class Configurator {
         // Fetch the "new" security domain and display it
         // logger.debug("createSecurityDomain(): Dump contents of new Security Domain . . .");
         // getDomainInfo(engine.getEESSLHost(), Integer.parseInt(engine.getAdminPort()));
-    }
-
-    public void updateSecurityDomain(SecurityDomainSetupRequest request) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        int sd_admin_port = cs.getInteger("securitydomain.httpsadminport");
-        String type = cs.getType();
-        String sd_host = cs.getString("securitydomain.host");
-        String subsystemName = preopConfig.getString("subsystem.name");
-
-        boolean cloneMaster = false;
-
-        DomainInfo domainInfo = request.getDomainInfo();
-        logger.info("Domain: " + domainInfo);
-
-        if (request.isClone() && type.equalsIgnoreCase("CA") && isSDHostDomainMaster(domainInfo)) {
-            cloneMaster = true;
-            logger.debug("Cloning a domain master");
-        }
-
-        String url = "/ca/admin/ca/updateDomainXML";
-
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("list", type + "List");
-        content.putSingle("type", type);
-        content.putSingle("host", cs.getHostname());
-        content.putSingle("name", subsystemName);
-        content.putSingle("sport", engine.getEESSLPort());
-        content.putSingle("dm", cloneMaster ? "true" : "false");
-        content.putSingle("clone", request.isClone() ? "true" : "false");
-        content.putSingle("agentsport", engine.getAgentPort());
-        content.putSingle("adminsport", engine.getAdminPort());
-
-        if (engine.getEEClientAuthSSLPort() != null) {
-            content.putSingle("eeclientauthsport", engine.getEEClientAuthSSLPort());
-        }
-
-        content.putSingle("httpport", engine.getEENonSSLPort());
-
-        logger.debug("Update security domain using admin interface");
-        String session_id = request.getInstallToken().getToken();
-        content.putSingle("sessionID", session_id);
-
-        updateDomainXML(sd_host, sd_admin_port, true, url, content, false);
-    }
-
-    public boolean isSDHostDomainMaster(DomainInfo domainInfo) throws Exception {
-
-        logger.info("Checking whether security domain host is master");
-
-        String hostname = cs.getString("securitydomain.host");
-        int httpsadminport = cs.getInteger("securitydomain.httpsadminport");
-
-        SecurityDomainHost host = getHostInfo(domainInfo, "CA", hostname, httpsadminport);
-
-        String dm = host.getDomainManager();
-        return dm.equalsIgnoreCase("true");
-    }
-
-    public void updateDomainXML(String hostname, int port, boolean https,
-            String servlet, MultivaluedMap<String, String> content, boolean useClientAuth)
-            throws Exception {
-
-        logger.debug("Configurator: updateDomainXML start hostname=" + hostname + " port=" + port);
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String serverURL = "https://" + hostname + ":" + port;
-        PKIClient client;
-
-        if (useClientAuth) {
-            String subsystem = cs.getType().toLowerCase();
-            String fullname = cs.getString(subsystem + ".cert.subsystem.nickname");
-
-            logger.debug("Configurator: Updating security domain with " + fullname);
-            client = Configurator.createClient(serverURL, fullname, null);
-
-        } else {
-            client = Configurator.createClient(serverURL, null, null);
-        }
-
-        String response = client.post(servlet, content, String.class);
-        logger.debug("Configurator: Response: " + response);
-
-        if (response == null || response.equals("")) {
-            logger.error("Unable to update security domain: empty response");
-            throw new IOException("Unable to update security domain: empty response");
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-        XMLObject obj = new XMLObject(bis);
-        String status = obj.getValue("Status");
-        logger.debug("Configurator: Status: " + status);
-
-        if (status.equals(SUCCESS)) {
-            return;
-
-        } else if (status.equals(AUTH_FAILURE)) {
-            logger.error("Unable to update security domain: authentication failure");
-            throw new IOException("Unable to update security domain: authentication failure");
-
-        } else {
-            String error = obj.getValue("Error");
-            logger.error("Unable to update security domain: " + error);
-            throw new IOException("Unable to update security domain: " + error);
-        }
     }
 
     public void setupSubsystemUser(X509CertImpl cert) throws Exception {

@@ -1105,6 +1105,56 @@ class PKISubsystem(object):
                 master_port == replica_port:
             raise Exception('Master and replica must not share LDAP database')
 
+    def join_security_domain(
+            self,
+            domain_info,
+            install_token,
+            host_id,
+            clone):
+
+        sd_hostname = self.config['securitydomain.host']
+        sd_port = self.config['securitydomain.httpsadminport']
+        sd_url = 'https://%s:%s' % (sd_hostname, sd_port)
+
+        server_config = self.instance.get_server_config()
+
+        if clone and self.type == 'CA':
+            sd_subsystem = domain_info.subsystems['CA']
+            sd_host = sd_subsystem.get_host(sd_hostname, sd_port)
+            domain_manager = sd_host.DomainManager.lower() == 'true'
+        else:
+            domain_manager = False
+
+        cmd = [
+            'pki',
+            '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
+            '-U', sd_url,
+            'securitydomain-join',
+            '--session', install_token.token,
+            '--type', self.type,
+            '--hostname', self.config['machineName'],
+            '--unsecure-port', server_config.get_unsecure_port(),
+            '--secure-port', server_config.get_secure_port()
+        ]
+
+        if domain_manager:
+            cmd.append('--domain-manager')
+
+        if clone:
+            cmd.append('--clone')
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(host_id)
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
     def find_groups(self, as_current_user=False):
 
         cmd = [self.name + '-group-find']

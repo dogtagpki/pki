@@ -40,7 +40,9 @@ public class SecurityDomainCLI extends CLI {
         super("securitydomain", "Security domain commands", mainCLI);
         this.mainCLI = mainCLI;
 
+        addModule(new SecurityDomainJoinCLI(this));
         addModule(new SecurityDomainShowCLI(this));
+
         addModule(new SecurityDomainHostCLI(this));
     }
 

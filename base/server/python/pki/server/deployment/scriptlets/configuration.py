@@ -1019,6 +1019,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         sd_setup_request.installToken = deployer.install_token
         client.setupSecurityDomain(sd_setup_request)
 
+        if deployer.mdict['pki_security_domain_type'] == 'existing':
+            logger.info('Joining security domain')
+            subsystem.join_security_domain(
+                deployer.domain_info,
+                deployer.install_token,
+                deployer.mdict['pki_subsystem_name'],
+                clone)
+
         if not config.str2bool(deployer.mdict['pki_share_db']) and not clone:
             logger.info('Setting up database user')
             deployer.setup_database_user(instance, subsystem)
