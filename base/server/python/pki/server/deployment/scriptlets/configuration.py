@@ -1021,12 +1021,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Backing up keys into %s', deployer.mdict['pki_backup_file'])
             deployer.backup_keys(instance, subsystem)
 
-        logger.info('Setting up security domain')
-        sd_setup_request = deployer.config_client.create_security_domain_setup_request()
-        sd_setup_request.domainInfo = deployer.domain_info
-        sd_setup_request.installToken = deployer.install_token
-        client.setupSecurityDomain(sd_setup_request)
-
         domain_manager = False
 
         if subsystem.type == 'CA':

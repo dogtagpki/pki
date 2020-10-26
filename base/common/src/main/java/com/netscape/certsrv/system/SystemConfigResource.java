@@ -36,10 +36,6 @@ public interface SystemConfigResource {
     public AdminSetupResponse setupAdmin(AdminSetupRequest request) throws Exception;
 
     @POST
-    @Path("setupSecurityDomain")
-    public void setupSecurityDomain(SecurityDomainSetupRequest request) throws Exception;
-
-    @POST
     @Path("finalizeConfiguration")
     public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception;
 }

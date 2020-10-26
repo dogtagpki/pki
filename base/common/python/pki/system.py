@@ -419,21 +419,6 @@ class SystemConfigClient(object):
             headers)
         return response.json()
 
-    def setupSecurityDomain(self, request):
-        """
-        Setup security domain.
-
-        :param request: Security domain setup request
-        :type request: SecurityDomainSetupRequest
-        """
-        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
-        headers = {'Content-type': 'application/json',
-                   'Accept': 'application/json'}
-        self.connection.post(
-            self.setup_security_domain_url,
-            data,
-            headers)
-
     def finalizeConfiguration(self, request):
         """
         Finalize server configuration.

@@ -2697,31 +2697,6 @@ class ConfigClient:
             self.mdict['pki_client_admin_cert_p12'],
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
-    def create_security_domain_setup_request(self):
-
-        logger.info('Creating security domain setup request')
-
-        request = pki.system.SecurityDomainSetupRequest()
-        request.pin = self.mdict['pki_one_time_pin']
-
-        if self.subordinate and \
-                config.str2bool(self.mdict['pki_subordinate_create_new_security_domain']):
-            request.securityDomainType = 'newsubdomain'
-
-        elif self.security_domain_type != 'new':
-            request.securityDomainType = 'existingdomain'
-
-        else:
-            # PKI CA, External CA, or Stand-alone PKI
-            request.securityDomainType = 'newdomain'
-
-        if self.clone:
-            request.clone = 'true'
-        else:
-            request.clone = 'false'
-
-        return request
-
     def create_finalize_config_request(self):
 
         logger.info('Creating finalize config request')

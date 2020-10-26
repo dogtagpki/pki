@@ -29,7 +29,6 @@ import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
-import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
 import com.netscape.cms.servlet.base.PKIService;
@@ -182,30 +181,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             adminCert.setCert(b64cert);
 
             return response;
-
-        } catch (PKIException e) { // normal response
-            logger.error("Configuration failed: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Configuration failed: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void setupSecurityDomain(SecurityDomainSetupRequest request) throws Exception {
-
-        logger.info("SystemConfigService: setting up security domain");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            configurator.setupSecurityDomain(request);
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());

@@ -71,7 +71,6 @@ import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
-import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -1028,10 +1027,6 @@ public class Configurator {
         b64 = CryptoUtil.stripCertBrackets(b64.trim());
         byte[] bytes = CryptoUtil.base64Decode(b64);
         return new X509CertImpl(bytes);
-    }
-
-    public void setupSecurityDomain(SecurityDomainSetupRequest request) throws Exception {
-        cs.commit(false);
     }
 
     public void setupSubsystemUser(X509CertImpl cert) throws Exception {
