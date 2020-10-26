@@ -26,7 +26,6 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
-import java.util.Enumeration;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -80,20 +79,11 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmscore.ldapconn.LDAPConfig;
-import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.xml.XMLObject;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
 
 /**
  * Utility class for functions to be used by the RESTful installer.
@@ -1041,78 +1031,7 @@ public class Configurator {
     }
 
     public void setupSecurityDomain(SecurityDomainSetupRequest request) throws Exception {
-
-        String type = request.getSecurityDomainType();
-
-        if (type.equals("newdomain")) {
-            logger.info("Creating new security domain");
-            createSecurityDomain();
-
-        } else if (type.equals("newsubdomain")) {
-            logger.info("Configuring new security subdomain");
-            createSecurityDomain();
-        }
-
         cs.commit(false);
-    }
-
-    public void createSecurityDomain() throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        PKISocketConfig socketConfig = cs.getSocketConfig();
-        LDAPConfig dbCfg = cs.getInternalDBConfig();
-
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
-        dbFactory.init(socketConfig, dbCfg, engine.getPasswordStore());
-
-        LDAPConnection conn = dbFactory.getConn();
-        LDAPEntry entry = null;
-        LDAPAttributeSet attrs = null;
-
-        // Create security domain ldap entry
-        String basedn = dbCfg.getBaseDN();
-        String secdomain = cs.getString("securitydomain.name");
-
-        String dn = "ou=Security Domain," + basedn;
-        logger.info("Configurator: adding " + dn);
-
-        attrs = new LDAPAttributeSet();
-        attrs.add(new LDAPAttribute("objectclass", new String[] { "top", "pkiSecurityDomain" }));
-        attrs.add(new LDAPAttribute("name", secdomain));
-        attrs.add(new LDAPAttribute("ou", "Security Domain"));
-
-        for (Enumeration<LDAPAttribute> e = attrs.getAttributes(); e.hasMoreElements(); ) {
-            LDAPAttribute attr = e.nextElement();
-            String[] values = attr.getStringValueArray();
-            if (values == null) continue;
-            logger.info("Configurator: - " + attr.getName());
-        }
-
-        entry = new LDAPEntry(dn, attrs);
-        conn.add(entry);
-
-        // create list containers
-        String clist[] = { "CAList", "OCSPList", "KRAList", "RAList", "TKSList", "TPSList" };
-        for (int i = 0; i < clist.length; i++) {
-
-            dn = "cn=" + LDAPUtil.escapeRDNValue(clist[i]) + ",ou=Security Domain," + basedn;
-            logger.info("Configurator: adding " + dn);
-
-            attrs = new LDAPAttributeSet();
-            attrs.add(new LDAPAttribute("objectclass", new String[] { "top", "pkiSecurityGroup" }));
-            attrs.add(new LDAPAttribute("cn", clist[i]));
-
-            for (Enumeration<LDAPAttribute> e = attrs.getAttributes(); e.hasMoreElements(); ) {
-                LDAPAttribute attr = e.nextElement();
-                String[] values = attr.getStringValueArray();
-                if (values == null) continue;
-                logger.info("Configurator: - " + attr.getName());
-            }
-
-            entry = new LDAPEntry(dn, attrs);
-            conn.add(entry);
-        }
     }
 
     public void setupSubsystemUser(X509CertImpl cert) throws Exception {

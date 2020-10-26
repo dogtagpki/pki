@@ -1052,14 +1052,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 clone=clone)
 
         else:
+            logger.info('Creating security domain')
+            subsystem.create_security_domain()
+
             logger.info('Adding security domain manager')
             subsystem.add_security_domain_host(
                 deployer.mdict['pki_subsystem_name'],
                 deployer.mdict['pki_hostname'],
                 unsecure_port=proxyUnsecurePort,
                 secure_port=proxySecurePort,
-                domain_manager=domain_manager,
-                clone=clone)
+                domain_manager=True)
 
         if not config.str2bool(deployer.mdict['pki_share_db']) and not clone:
             logger.info('Setting up database user')

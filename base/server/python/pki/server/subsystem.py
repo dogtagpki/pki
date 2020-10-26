@@ -1105,6 +1105,18 @@ class PKISubsystem(object):
                 master_port == replica_port:
             raise Exception('Master and replica must not share LDAP database')
 
+    def create_security_domain(self, as_current_user=False):
+
+        cmd = ['sd-create']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def add_security_domain_host(
             self,
             host_id,
