@@ -1679,21 +1679,23 @@ class Password:
         token_pwd = None
         if os.path.exists(path) and os.path.isfile(path):
 
-            logger.info('Loading passwords from %s:', path)
+            passwords = {}
 
-            tokens = PKIConfigParser.read_simple_configuration_file(path)
-            for key, value in tokens.items():
+            logger.info('Loading passwords from %s:', path)
+            pki.util.load_properties(path, passwords)
+
+            for key, value in passwords.items():
                 if value:
                     value = '********'
                 logger.info('- %s: %s', key, value)
 
             hardware_token = "hardware-" + token_name
-            if hardware_token in tokens:
+            if hardware_token in passwords:
                 token_name = hardware_token
-                token_pwd = tokens[hardware_token]
+                token_pwd = passwords[hardware_token]
 
-            elif token_name in tokens:
-                token_pwd = tokens[token_name]
+            elif token_name in passwords:
+                token_pwd = passwords[token_name]
 
         if token_pwd is None or token_pwd == '':
             token_pwd = getpass.getpass('Password for token {}'.format(token_name))
