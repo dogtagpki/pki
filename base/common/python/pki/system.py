@@ -325,12 +325,6 @@ class AdminSetupResponse(object):
         pass
 
 
-class SecurityDomainSetupRequest(object):
-    def __init__(self):
-        self.installToken = None
-        self.clone = 'false'
-
-
 class FinalizeConfigRequest(object):
     def __init__(self):
         self.installToken = None
@@ -476,6 +470,5 @@ pki.encoder.NOTYPES['CertificateSetupRequest'] = CertificateSetupRequest
 pki.encoder.NOTYPES['CertificateSetupResponse'] = CertificateSetupResponse
 pki.encoder.NOTYPES['AdminSetupRequest'] = AdminSetupRequest
 pki.encoder.NOTYPES['AdminSetupResponse'] = AdminSetupResponse
-pki.encoder.NOTYPES['SecurityDomainSetupRequest'] = SecurityDomainSetupRequest
 pki.encoder.NOTYPES['FinalizeConfigRequest'] = FinalizeConfigRequest
 pki.encoder.NOTYPES['SystemCertData'] = SystemCertData
