@@ -52,7 +52,9 @@ if __name__ == '__main__':
         if logger.isEnabledFor(logging.DEBUG):
             traceback.print_exc()
 
-        print(e.stderr.decode().strip(), file=sys.stderr)
+        if e.stderr:
+            print(e.stderr.decode().strip(), file=sys.stderr)
+
         sys.exit(e.returncode)
 
     except Exception as e:  # pylint: disable=broad-except
