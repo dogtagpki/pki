@@ -50,6 +50,7 @@ class UserAddCLI(pki.cli.CLI):
         print('      --phone <phone>                Phone')
         print('      --type <type>                  Type')
         print('      --state <state>                State')
+        print('      --tps-profiles <profiles>      Comma-separated TPS profiles')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -59,7 +60,7 @@ class UserAddCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'full-name=', 'email=', 'password=',
-                'phone=', 'type=', 'state=',
+                'phone=', 'type=', 'state=', 'tps-profiles=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -75,6 +76,7 @@ class UserAddCLI(pki.cli.CLI):
         phone = None
         user_type = None
         state = None
+        tps_profiles = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -97,6 +99,9 @@ class UserAddCLI(pki.cli.CLI):
 
             elif o == '--state':
                 state = a
+
+            elif o == '--tps-profiles':
+                tps_profiles = [x.strip() for x in a.split(',')]
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -146,6 +151,7 @@ class UserAddCLI(pki.cli.CLI):
             password=password,
             phone=phone,
             user_type=user_type,
+            tps_profiles=tps_profiles,
             state=state)
 
 

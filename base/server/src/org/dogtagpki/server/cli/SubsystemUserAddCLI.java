@@ -6,6 +6,8 @@
 package org.dogtagpki.server.cli;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -69,6 +71,10 @@ public class SubsystemUserAddCLI extends CommandCLI {
         option = new Option(null, "state", true, "State");
         option.setArgName("state");
         options.addOption(option);
+
+        option = new Option(null, "tps-profiles", true, "Comma-separated TPS profiles");
+        option.setArgName("profiles");
+        options.addOption(option);
     }
 
     public void execute(CommandLine cmd) throws Exception {
@@ -92,6 +98,7 @@ public class SubsystemUserAddCLI extends CommandCLI {
         String phone = cmd.getOptionValue("phone");
         String type = cmd.getOptionValue("type");
         String state = cmd.getOptionValue("state");
+        String tpsProfiles = cmd.getOptionValue("tps-profiles");
 
         String catalinaBase = System.getProperty("catalina.base");
         String serverXml = catalinaBase + "/conf/server.xml";
@@ -152,6 +159,11 @@ public class SubsystemUserAddCLI extends CommandCLI {
             user.setPhone(phone);
             user.setUserType(type);
             user.setState(state);
+
+            if (tpsProfiles != null) {
+                List<String> list = Arrays.asList(tpsProfiles.split(","));
+                user.setTpsProfiles(list);
+            }
 
             ugSubsystem.addUser(user);
 

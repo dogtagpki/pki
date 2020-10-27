@@ -1305,6 +1305,7 @@ class PKISubsystem(object):
                  phone=None,
                  user_type=None,
                  state=None,
+                 tps_profiles=None,
                  as_current_user=False):
 
         cmd = [self.name + '-user-add']
@@ -1332,6 +1333,10 @@ class PKISubsystem(object):
         if state:
             cmd.append('--state')
             cmd.append(state)
+
+        if tps_profiles:
+            cmd.append('--tps-profiles')
+            cmd.append(','.join(tps_profiles))
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
