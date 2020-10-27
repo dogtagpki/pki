@@ -73,6 +73,12 @@ $(function() {
           <li class="config-menu pf-c-nav__item" hidden="hidden">
             <a href="#" class="pf-c-nav__link">Configuration</a>
           </li>
+          <li class="login-menu pf-c-nav__item" hidden="hidden">
+            <a href="#" class="pf-c-nav__link">Log In</a>
+          </li>
+          <li class="logout-menu pf-c-nav__item" hidden="hidden">
+            <a href="#" class="pf-c-nav__link">Log Out</a>
+          </li>
         </ul>
       </nav>
     </div>
