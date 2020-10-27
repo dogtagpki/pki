@@ -9,12 +9,15 @@ import java.io.File;
 import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.group.GroupMemberCollection;
+import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.group.GroupNotFoundException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -44,6 +47,12 @@ public class SubsystemGroupMemberFindCLI extends CommandCLI {
         super("find", "Find " + parent.getParent().getParent().getName().toUpperCase() + " group members", parent);
     }
 
+    public void createOptions() {
+        Option option = new Option(null, "output-format", true, "Output format: text (default), json.");
+        option.setArgName("format");
+        options.addOption(option);
+    }
+
     public void execute(CommandLine cmd) throws Exception {
 
         String[] cmdArgs = cmd.getArgs();
@@ -53,6 +62,8 @@ public class SubsystemGroupMemberFindCLI extends CommandCLI {
         }
 
         String groupID = cmdArgs[0];
+
+        String outputFormat = cmd.getOptionValue("output-format", "text");
 
         String catalinaBase = System.getProperty("catalina.base");
         String serverXml = catalinaBase + "/conf/server.xml";
@@ -100,6 +111,8 @@ public class SubsystemGroupMemberFindCLI extends CommandCLI {
         UGSubsystemConfig ugConfig = cs.getUGSubsystemConfig();
         UGSubsystem ugSubsystem = new UGSubsystem();
 
+        GroupMemberCollection response = new GroupMemberCollection();
+
         try {
             ugSubsystem.init(socketConfig, ugConfig, passwordStore);
 
@@ -110,10 +123,33 @@ public class SubsystemGroupMemberFindCLI extends CommandCLI {
             }
 
             Enumeration<String> members = group.getMemberNames();
-            boolean first = true;
+            int total = 0;
 
             while (members.hasMoreElements()) {
                 String memberID = members.nextElement();
+
+                GroupMemberData member = new GroupMemberData();
+                member.setID(memberID);
+                member.setGroupID(groupID);
+
+                response.addEntry(member);
+                total++;
+            }
+
+            response.setTotal(total);
+
+        } finally {
+            ugSubsystem.shutdown();
+        }
+
+        if (outputFormat.equalsIgnoreCase("json")) {
+            System.out.println(response.toJSON());
+
+        } else if (outputFormat.equalsIgnoreCase("text")) {
+
+            boolean first = true;
+
+            for (GroupMemberData member : response.getEntries()) {
 
                 if (first) {
                     first = false;
@@ -121,11 +157,11 @@ public class SubsystemGroupMemberFindCLI extends CommandCLI {
                     System.out.println();
                 }
 
-                System.out.println("  User ID: " + memberID);
+                System.out.println("  User ID: " + member.getID());
             }
 
-        } finally {
-            ugSubsystem.shutdown();
+        } else {
+            throw new Exception("Unsupported output format: " + outputFormat);
         }
     }
 }

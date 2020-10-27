@@ -1222,9 +1222,17 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
+        cmd.append('--output-format')
+        cmd.append('json')
+
         cmd.append(group_id)
 
-        self.run(cmd, as_current_user=as_current_user)
+        result = self.run(
+            cmd,
+            as_current_user=as_current_user,
+            capture_output=True)
+
+        return json.loads(result.stdout.decode())
 
     def add_group_member(self, group_id, member_id, as_current_user=False):
 

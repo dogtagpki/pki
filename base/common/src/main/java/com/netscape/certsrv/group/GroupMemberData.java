@@ -25,12 +25,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.common.Constants;
 
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="GroupMember")
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class GroupMemberData {
 
     String id;
@@ -95,5 +101,38 @@ public class GroupMemberData {
         } else if (!id.equals(other.id))
             return false;
         return true;
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+    }
+
+    public static GroupMemberData fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(json, GroupMemberData.class);
+    }
+
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void main(String args[]) throws Exception {
+
+        GroupMemberData before = new GroupMemberData();
+        before.setID("testuser");
+        before.setGroupID("Test Group");
+
+        String json = before.toJSON();
+        System.out.println("Before: " + json);
+
+        GroupMemberData afterJSON = GroupMemberData.fromJSON(json);
+        System.out.println("After: " + afterJSON.toJSON());
+
+        System.out.println(before.equals(afterJSON));
     }
 }

@@ -178,7 +178,17 @@ class GroupMemberFindCLI(pki.cli.CLI):
                          subsystem_name.upper(), instance_name)
             sys.exit(1)
 
-        subsystem.find_group_members(group_id)
+        members = subsystem.find_group_members(group_id)
+
+        first = True
+
+        for member in members['entries']:
+            if first:
+                first = False
+            else:
+                print()
+
+            print('  User ID: {}'.format(member['id']))
 
 
 class GroupMemberAddCLI(pki.cli.CLI):
