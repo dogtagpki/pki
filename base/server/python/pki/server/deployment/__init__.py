@@ -423,18 +423,23 @@ class PKIDeployer:
         # workaround for https://github.com/dogtagpki/pki/issues/2154
 
         if subsystem.type == 'CA':
-            subsystem.add_group_member('Subsystem Group', 'pkidbuser')
-            subsystem.add_group_member('Certificate Manager Agents', 'pkidbuser')
+            groups = ['Subsystem Group', 'Certificate Manager Agents']
 
         elif subsystem.type == 'KRA':
-            subsystem.add_group_member('Data Recovery Manager Agents', 'pkidbuser')
-            subsystem.add_group_member('Trusted Managers', 'pkidbuser')
+            groups = ['Data Recovery Manager Agents', 'Trusted Managers']
 
         elif subsystem.type == 'OCSP':
-            subsystem.add_group_member('Trusted Managers', 'pkidbuser')
+            groups = ['Trusted Managers']
 
         elif subsystem.type == 'TKS':
-            subsystem.add_group_member('Token Key Service Manager Agents', 'pkidbuser')
+            groups = ['Token Key Service Manager Agents']
+
+        else:
+            groups = []
+
+        for group in groups:
+            logger.info('Adding pkidbuser into %s', group)
+            subsystem.add_group_member(group, 'pkidbuser')
 
     def get_tps_connector(self, instance, subsystem):
 
