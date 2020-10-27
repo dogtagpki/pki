@@ -174,7 +174,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
             logger.debug("SystemConfigService: admin cert: " + b64cert);
 
-            configurator.setupAdminUser(request, cert);
+            configurator.createAdminUser(request);
 
             AdminSetupResponse response = new AdminSetupResponse();
             SystemCertData adminCert = response.getAdminCert();

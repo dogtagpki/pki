@@ -846,21 +846,6 @@ public class Configurator {
                 adminSubjectDN);
     }
 
-    public void updateAdminUserCert(AdminSetupRequest request, X509CertImpl adminCert) throws Exception {
-
-        X509CertImpl[] adminCerts = new X509CertImpl[] { adminCert };
-
-        UGSubsystem ug = engine.getUGSubsystem();
-        User user = ug.getUser(request.getAdminUID());
-        user.setX509Certificates(adminCerts);
-        ug.addUserCert(request.getAdminUID(), adminCert);
-    }
-
-    public void setupAdminUser(AdminSetupRequest request, X509CertImpl cert) throws Exception {
-        createAdminUser(request);
-        updateAdminUserCert(request, cert);
-    }
-
     public void createAdminUser(AdminSetupRequest request) throws Exception {
 
         String uid = request.getAdminUID();

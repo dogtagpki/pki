@@ -1006,9 +1006,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 sslserver['token'] = cert['token']
 
         if not clone:
-
             logger.info('Setting up admin user')
-            deployer.setup_admin(client)
+            deployer.setup_admin(subsystem, client)
 
         if config.str2bool(deployer.mdict['pki_backup_keys']):
 

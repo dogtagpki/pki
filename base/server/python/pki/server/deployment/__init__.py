@@ -19,6 +19,7 @@
 #
 
 from __future__ import absolute_import
+import base64
 import json
 import ldap
 import logging
@@ -342,21 +343,29 @@ class PKIDeployer:
 
         return client.setupCert(request)
 
-    def setup_admin(self, client):
+    def setup_admin(self, subsystem, client):
+
+        uid = self.mdict['pki_admin_uid']
 
         request = pki.system.AdminSetupRequest()
         request.pin = self.mdict['pki_one_time_pin']
         request.installToken = self.install_token
+        request.adminUID = uid
 
         self.config_client.set_admin_parameters(request)
 
         response = client.setupAdmin(request)
 
+        admin_cert = response['adminCert']['cert']
+        cert_data = base64.b64decode(admin_cert)
+
+        logger.info('Adding certificate for %s', uid)
+        subsystem.add_user_cert(uid, cert_data=cert_data, cert_format='DER')
+
         if config.str2bool(self.mdict['pki_external']) \
                 or config.str2bool(self.mdict['pki_standalone']) \
                 or not config.str2bool(self.mdict['pki_import_admin_cert']):
 
-            admin_cert = response['adminCert']['cert']
             self.config_client.process_admin_cert(admin_cert)
 
     def backup_keys(self, instance, subsystem):
