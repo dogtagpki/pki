@@ -116,22 +116,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            if (StringUtils.isEmpty(request.getAdminUID())) {
-                throw new BadRequestException("Missing admin UID");
-            }
-
-            if (StringUtils.isEmpty(request.getAdminPassword())) {
-                throw new BadRequestException("Missing admin password");
-            }
-
-            if (StringUtils.isEmpty(request.getAdminEmail())) {
-                throw new BadRequestException("Missing admin email");
-            }
-
-            if (StringUtils.isEmpty(request.getAdminName())) {
-                throw new BadRequestException("Missing admin name");
-            }
-
             boolean importAdminCert = Boolean.parseBoolean(request.getImportAdminCert());
 
             if (importAdminCert) {
@@ -173,8 +157,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
             logger.debug("SystemConfigService: admin cert: " + b64cert);
-
-            configurator.createAdminUser(request);
 
             AdminSetupResponse response = new AdminSetupResponse();
             SystemCertData adminCert = response.getAdminCert();

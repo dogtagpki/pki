@@ -346,15 +346,30 @@ class PKIDeployer:
     def setup_admin(self, subsystem, client):
 
         uid = self.mdict['pki_admin_uid']
+        full_name = self.mdict['pki_admin_name']
+        email = self.mdict['pki_admin_email']
+        password = self.mdict['pki_admin_password']
+
+        tps_profiles = None
+        if subsystem.type == 'TPS':
+            tps_profiles = ['All Profiles']
 
         request = pki.system.AdminSetupRequest()
         request.pin = self.mdict['pki_one_time_pin']
         request.installToken = self.install_token
-        request.adminUID = uid
 
         self.config_client.set_admin_parameters(request)
 
         response = client.setupAdmin(request)
+
+        subsystem.add_user(
+            uid,
+            full_name=full_name,
+            email=email,
+            password=password,
+            user_type='adminType',
+            state='1',
+            tps_profiles=tps_profiles)
 
         admin_groups = subsystem.config['preop.admin.group']
         groups = [x.strip() for x in admin_groups.split(',')]

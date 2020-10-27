@@ -846,33 +846,6 @@ public class Configurator {
                 adminSubjectDN);
     }
 
-    public void createAdminUser(AdminSetupRequest request) throws Exception {
-
-        String uid = request.getAdminUID();
-        String email = request.getAdminEmail();
-        String name = request.getAdminName();
-        String pwd = request.getAdminPassword();
-
-        UGSubsystem system = engine.getUGSubsystem();
-
-        User user = null;
-
-        try {
-            user = system.createUser(uid);
-            user.setEmail(email);
-            user.setPassword(pwd);
-            user.setFullName(name);
-            user.setUserType("adminType");
-            user.setState("1");
-            user.setPhone("");
-            system.addUser(user);
-
-        } catch (ConflictingOperationException e) {
-            logger.warn("Configurator: createAdmin: addUser " + e);
-            // ignore
-        }
-    }
-
     public X509CertImpl createRemoteAdminCert(
             AdminSetupRequest request,
             String ca_hostname,

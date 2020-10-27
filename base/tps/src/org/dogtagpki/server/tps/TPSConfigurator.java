@@ -20,8 +20,6 @@ package org.dogtagpki.server.tps;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -31,13 +29,9 @@ import org.dogtagpki.server.tps.installer.TPSInstaller;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
-import com.netscape.certsrv.user.UserResource;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.usrgrp.UGSubsystem;
-import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -66,25 +60,6 @@ public class TPSConfigurator extends Configurator {
         // TODO: get installer from session
         TPSInstaller installer = new TPSInstaller();
         installer.configureKRAConnector(keygen, kraURI, nickname);
-    }
-
-    @Override
-    public void createAdminUser(AdminSetupRequest request) throws Exception {
-
-        super.createAdminUser(request);
-
-        logger.debug("Adding all profiles to TPS admin user");
-
-        UGSubsystem system = engine.getUGSubsystem();
-
-        String adminID = request.getAdminUID();
-        User user = system.getUser(adminID);
-
-        List<String> profiles = new ArrayList<String>();
-        profiles.add(UserResource.ALL_PROFILES);
-
-        user.setTpsProfiles(profiles);
-        system.modifyUser(user);
     }
 
     @Override

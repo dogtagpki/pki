@@ -2962,9 +2962,6 @@ class ConfigClient:
                 data.systemCert = cert7
 
     def set_admin_parameters(self, data):
-        data.adminEmail = self.mdict['pki_admin_email']
-        data.adminName = self.mdict['pki_admin_name']
-        data.adminPassword = self.mdict['pki_admin_password']
         data.adminKeyType = self.mdict['pki_admin_key_type']
         data.adminProfileID = self.mdict['pki_admin_profile_id']
         data.adminSubjectDN = self.mdict['pki_admin_subject_dn']
