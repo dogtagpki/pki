@@ -99,7 +99,11 @@ class SecurityDomainSubsystem(object):
 
     def get_host(self, hostname, secure_port):
 
+        logger.info('Searching for %s:%s', hostname, secure_port)
+
         for host in self.hosts.values():
+
+            logger.info('- %s:%s', host.Hostname, host.SecurePort)
 
             if host.Hostname != hostname:
                 continue
@@ -109,7 +113,8 @@ class SecurityDomainSubsystem(object):
 
             return host
 
-        return None
+        raise Exception('Unable to find security domain host: %s:%s' %
+                        (hostname, secure_port))
 
     @classmethod
     def from_json(cls, json_value):

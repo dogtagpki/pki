@@ -1107,23 +1107,17 @@ class PKISubsystem(object):
 
     def join_security_domain(
             self,
-            domain_info,
             install_token,
             host_id,
-            clone):
+            hostname,
+            unsecure_port='8080',
+            secure_port='8443',
+            domain_manager=False,
+            clone=False):
 
         sd_hostname = self.config['securitydomain.host']
         sd_port = self.config['securitydomain.httpsadminport']
         sd_url = 'https://%s:%s' % (sd_hostname, sd_port)
-
-        server_config = self.instance.get_server_config()
-
-        if clone and self.type == 'CA':
-            sd_subsystem = domain_info.subsystems['CA']
-            sd_host = sd_subsystem.get_host(sd_hostname, sd_port)
-            domain_manager = sd_host.DomainManager.lower() == 'true'
-        else:
-            domain_manager = False
 
         cmd = [
             'pki',
@@ -1133,9 +1127,9 @@ class PKISubsystem(object):
             'securitydomain-join',
             '--session', install_token.token,
             '--type', self.type,
-            '--hostname', self.config['machineName'],
-            '--unsecure-port', server_config.get_unsecure_port(),
-            '--secure-port', server_config.get_secure_port()
+            '--hostname', hostname,
+            '--unsecure-port', unsecure_port,
+            '--secure-port', secure_port
         ]
 
         if domain_manager:
