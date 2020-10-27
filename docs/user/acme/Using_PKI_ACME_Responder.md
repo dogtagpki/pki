@@ -5,14 +5,6 @@ Using PKI ACME Responder
 
 This document describes how to use PKI ACME responder.
 
-**Note:** The PKI ACME responder is currently a tech preview which means:
-* It is not intended for production.
-* It may corrupt your data.
-* There is no guarantee for correctness, security, or performance.
-* There is no guarantee for documentation or support.
-* The API, configuration, or the database may change in the future.
-* There may be no easy upgrade path to the future version.
-
 ## Checking PKI ACME Responder Status
 
 To check the status of PKI ACME responder, execute the following command:

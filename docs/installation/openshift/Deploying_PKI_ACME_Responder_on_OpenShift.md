@@ -18,14 +18,6 @@ By default the responder will use a temporary realm.
 A new empty in-memory realm will be created every time the responder is restarted.
 It is possible to replace it with a permanent realm.
 
-**Note:** The PKI ACME responder is currently a tech preview which means:
-* It is not intended for production.
-* It may corrupt your data.
-* There is no guarantee for correctness, security, or performance.
-* There is no guarantee for documentation or support.
-* The API, configuration, or the database may change in the future.
-* There may be no easy upgrade path to the future version.
-
 ## Deploying PKI ACME Responder
 
 A sample configuration for PKI ACME responder is available at:
