@@ -356,6 +356,24 @@ class PKIDeployer:
 
         response = client.setupAdmin(request)
 
+        admin_groups = subsystem.config['preop.admin.group']
+        groups = [x.strip() for x in admin_groups.split(',')]
+
+        if subsystem.config['securitydomain.select'] == 'new':
+            groups.extend([
+                'Security Domain Administrators',
+                'Enterprise CA Administrators',
+                'Enterprise KRA Administrators',
+                'Enterprise RA Administrators',
+                'Enterprise TKS Administrators',
+                'Enterprise OCSP Administrators',
+                'Enterprise TPS Administrators'
+            ])
+
+        for group in groups:
+            logger.info('Adding %s into %s', uid, group)
+            subsystem.add_group_member(group, uid)
+
         admin_cert = response['adminCert']['cert']
         cert_data = base64.b64decode(admin_cert)
 

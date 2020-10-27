@@ -1236,8 +1236,6 @@ class PKISubsystem(object):
 
     def add_group_member(self, group_id, member_id, as_current_user=False):
 
-        logger.info('Adding %s into %s', member_id, group_id)
-
         cmd = [self.name + '-group-member-add']
 
         if logger.isEnabledFor(logging.DEBUG):

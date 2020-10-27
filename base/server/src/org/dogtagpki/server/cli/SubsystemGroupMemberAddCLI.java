@@ -69,7 +69,6 @@ public class SubsystemGroupMemberAddCLI extends CommandCLI {
         String configDir = catalinaBase + File.separator + subsystem;
         String configFile = configDir+ File.separator + "conf" + File.separator + CMS.CONFIG_FILE;
 
-        logger.info("Loading " + configFile);
         ConfigStorage storage = new FileConfigStore(configFile);
         EngineConfig cs = new EngineConfig(storage);
         cs.load();

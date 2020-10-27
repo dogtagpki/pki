@@ -853,10 +853,7 @@ public class Configurator {
         String name = request.getAdminName();
         String pwd = request.getAdminPassword();
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
         UGSubsystem system = engine.getUGSubsystem();
-
-        String groupNames = preopConfig.getString("admin.group", "Certificate Manager Agents,Administrators");
 
         User user = null;
 
@@ -873,75 +870,6 @@ public class Configurator {
         } catch (ConflictingOperationException e) {
             logger.warn("Configurator: createAdmin: addUser " + e);
             // ignore
-        }
-
-        Group group = null;
-        for (String groupName : groupNames.split(",")) {
-            groupName = groupName.trim();
-            group = system.getGroupFromName(groupName);
-            if (!group.isMember(uid)) {
-                group.addMemberName(uid);
-                system.modifyGroup(group);
-            }
-        }
-
-        String select = cs.getString("securitydomain.select", "");
-        if (select.equals("new")) {
-            group = system.getGroupFromName("Security Domain Administrators");
-            if (group != null && !group.isMember(uid)) {
-                logger.debug("Configurator: createAdmin:  add user '" + uid
-                        + "' to group 'Security Domain Administrators'");
-                group.addMemberName(uid);
-                system.modifyGroup(group);
-            }
-
-            group = system.getGroupFromName("Enterprise CA Administrators");
-            if (group != null && !group.isMember(uid)) {
-                logger.debug("Configurator: createAdmin:  add user '" + uid
-                        + "' to group 'Enterprise CA Administrators'");
-                group.addMemberName(uid);
-                system.modifyGroup(group);
-            }
-
-            group = system.getGroupFromName("Enterprise KRA Administrators");
-            if (group != null && !group.isMember(uid)) {
-                logger.debug("Configurator: createAdmin:  add user '" + uid
-                        + "' to group 'Enterprise KRA Administrators'");
-                group.addMemberName(uid);
-                system.modifyGroup(group);
-            }
-
-            group = system.getGroupFromName("Enterprise RA Administrators");
-            if (group != null && !group.isMember(uid)) {
-                logger.debug("Configurator: createAdmin:  add user '" + uid
-                        + "' to group 'Enterprise RA Administrators'");
-                group.addMemberName(uid);
-                system.modifyGroup(group);
-            }
-
-            group = system.getGroupFromName("Enterprise TKS Administrators");
-            if (group != null && !group.isMember(uid)) {
-                logger.debug("Configurator: createAdmin:  add user '" + uid
-                        + "' to group 'Enterprise TKS Administrators'");
-                group.addMemberName(uid);
-                system.modifyGroup(group);
-            }
-
-            group = system.getGroupFromName("Enterprise OCSP Administrators");
-            if (group != null && !group.isMember(uid)) {
-                logger.debug("Configurator: createAdmin:  add user '" + uid
-                        + "' to group 'Enterprise OCSP Administrators'");
-                group.addMemberName(uid);
-                system.modifyGroup(group);
-            }
-
-            group = system.getGroupFromName("Enterprise TPS Administrators");
-            if (group != null && !group.isMember(uid)) {
-                logger.debug("Configurator: createAdmin:  add user '" + uid
-                        + "' to group 'Enterprise TPS Administrators'");
-                group.addMemberName(uid);
-                system.modifyGroup(group);
-            }
         }
     }
 

@@ -270,4 +270,5 @@ class GroupMemberAddCLI(pki.cli.CLI):
                          subsystem_name.upper(), instance_name)
             sys.exit(1)
 
+        logger.info('Adding %s into %s', member_id, group_id)
         subsystem.add_group_member(group_id, member_id)

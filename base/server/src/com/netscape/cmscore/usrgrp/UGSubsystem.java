@@ -92,8 +92,6 @@ public class UGSubsystem {
             UGSubsystemConfig config,
             IPasswordStore passwordStore) throws Exception {
 
-        logger.info("UGSubsystem: Initializing user/group subsystem");
-
         LDAPConfig ldapConfig = config.getLDAPConfig();
         mBaseDN = ldapConfig.getBaseDN();
 
