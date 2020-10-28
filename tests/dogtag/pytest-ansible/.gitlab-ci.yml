@@ -6,9 +6,9 @@ variables:
   PYTEST_DIR: $CI_PROJECT_DIR/tests/dogtag/pytest-ansible
 
 stages:
-#  - tier1
-#  - tier2-discrete
-#  - tier2-shared
+  - tier1
+  - tier2-discrete
+  - tier2-shared
   - tier2-other
 
 .job_template: &job_definition
@@ -19,6 +19,7 @@ stages:
   - triggers
   - web
   - schedules
+  allow_failure: true
   artifacts:
     paths:
     - $CI_PROJECT_DIR/*_junit.xml
