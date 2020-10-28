@@ -224,6 +224,11 @@ BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.8.0
 BuildRequires:    tomcatjss >= 7.6.0
+
+# JNA is used to bind to libsystemd
+%if %{with sdnotify}
+BuildRequires:    jna
+%endif
 BuildRequires:    systemd-units
 
 %if 0%{?rhel}
@@ -515,7 +520,6 @@ Requires:         tomcatjss >= 7.6.0
 
 # JNA is used to bind to libsystemd
 %if %{with sdnotify}
-BuildRequires:    jna
 Requires:         jna
 %endif
 
