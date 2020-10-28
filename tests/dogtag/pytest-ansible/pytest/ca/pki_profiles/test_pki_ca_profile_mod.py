@@ -376,7 +376,7 @@ def test_pki_ca_profile_mod_with_key_enc_and_dec_ext(ansible_module):
     os.remove(cert_file)
 
 
-@pytest.mark.bugzilla('1854959')
+@pytest.mark.bugzilla('1891710')
 def test_pki_ca_profile_mod_with_netscape_extensions(ansible_module):
     """
     :Title: Test pki ca-profile-mod which adds Netscape Extensions
@@ -1489,6 +1489,7 @@ def test_pki_ca_profile_mod_server_profile_with_dns_in_subjectaltname(ansible_mo
     os.remove(cert_file)
 
 
+@pytest.mark.bugzilla('1891710')
 def test_ca_profile_mod_netscape_extensions_to_ca_cert(ansible_module):
     """
     :Title: Test pki ca-profile-mod with netscape extensions
@@ -1632,6 +1633,9 @@ def test_pki_ca_profile_mod_crl_extension_to_ca_cert(ansible_module):
     output_list = p_obj.create_profile(profile_params)
     log.info("Successfully modified profile '{}'".format(output_list))
     ansible_module.copy(src=output_list[0], dest=profile_xml_output, force=True)
+
+    # Disable new profile
+    profop.disable_profile(ansible_module, pro_id)
 
     # Add modified profile
     cmd_out = ansible_module.pki(cli="ca-profile-mod",

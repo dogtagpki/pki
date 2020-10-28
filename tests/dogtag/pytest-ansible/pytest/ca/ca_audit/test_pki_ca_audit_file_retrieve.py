@@ -35,6 +35,7 @@ import logging
 from pki.testlib.common.certlib import sys, os
 from pki.testlib.common.utils import UserOperations
 import pytest
+import time
 import re
 
 try:
@@ -178,8 +179,9 @@ def test_pki_ca_audit_file_retrieve_with_audit_file_name(ansible_module):
     for result in cmd_out.values():
         if result['rc'] == 0:
             assert result['rc'] == 0
+            time.sleep(5)
             log.info("Successfully ran : {}".format(result['cmd']))
-            is_file = ansible_module.stat(path='/root/ca_audit')
+            is_file = ansible_module.stat(path='/home/fedora/ca_audit')
             for r1 in is_file.values():
                 assert r1['stat']['exists']
         else:

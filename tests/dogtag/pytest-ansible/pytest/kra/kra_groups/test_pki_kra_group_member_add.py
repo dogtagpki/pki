@@ -663,13 +663,11 @@ def test_pki_kra_group_member_add_with_normal_user_cert(ansible_module):
                                                  algo='rsa',
                                                  keysize='2048',
                                                  profile='caUserCert')
-    ansible_module.pki(cli='kra-user-cert-add',
-                       nssdb=constants.NSSDB,
-                       dbpassword=constants.CLIENT_DATABASE_PASSWORD,
-                       port=constants.KRA_HTTP_PORT,
-                       hostname=constants.MASTER_HOSTNAME,
-                       certnick='"{}"'.format(constants.KRA_ADMIN_NICK),
-                       extra_args='{} --serial {}'.format(user, cert_id))
+    ansible_module.expect(
+        command='pki -d {} -c {} -h {} -p {} -P "https" -n "{}" kra-user-cert-add {} --serial {}'.format(
+            constants.NSSDB, constants.CA_PASSWORD, constants.MASTER_HOSTNAME, constants.KRA_HTTPS_PORT,
+            constants.KRA_ADMIN_NICK, user, cert_id),
+        responses={"CA server URL .*": "https://{}:{}".format(constants.MASTER_HOSTNAME, constants.CA_HTTPS_PORT)})
 
     cert_import = 'pki -d {} -c {} -P http -p {} -h {} client-cert-import "{}" ' \
                   '--serial {}'.format(constants.NSSDB,
@@ -701,7 +699,7 @@ def test_pki_kra_group_member_add_with_normal_user_cert(ansible_module):
                                  extra_args='{} {}'.format('Administrators', 'userall7'))
     for result in cmd_out.values():
         if result['rc'] >= 1:
-            assert "PKIException: Unauthorized" in result['stderr']
+            assert "ForbiddenException: Authorization Error" in result['stderr']
             log.info("Successfully ran : '{}'".format(result['cmd']))
         else:
             log.error(result['stdout'])

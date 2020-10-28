@@ -497,6 +497,7 @@ topo-01-pki-pkcs12-cli-ps:
   stage: tier2-shared
   script:
     - ansible-playbook  -u fedora --become  -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-01"
+    - ansible-playbook  -u fedora --become  -i $HOSTFILE $PYTEST_DIR/pytest/ca/pki_pkcs12/init_dir.yaml
     - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE  --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/test_role_users.py -q -s --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
     - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE  --ansible-host-pattern all  --ansible-playbook-inventory $HOSTFILE --ansible-playbook-directory $PYTEST_DIR/pytest/ca/pki_pkcs12/ $PYTEST_DIR/pytest/ca/pki_pkcs12/test* -qsvv --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_junit.xml
 
@@ -650,6 +651,7 @@ pki_pkcs12_cli_topo_02_ps:
   stage: tier2-discrete
   script:
     - ansible-playbook  -u fedora --become  -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-02"
+    - ansible-playbook  -u fedora --become  -i $HOSTFILE $PYTEST_DIR/pytest/ca/pki_pkcs12/init_dir.yaml
     - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE  --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/test_role_users.py -q -s --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
     - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE  --ansible-host-pattern all  --ansible-playbook-inventory $HOSTFILE --ansible-playbook-directory $PYTEST_DIR/pytest/ca/pki_pkcs12/ $PYTEST_DIR/pytest/ca/pki_pkcs12/test* -qsvv --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_junit.xml
 

@@ -166,7 +166,7 @@ def test_pki_ca_profile_create_and_add_profile(ansible_module):
                                  port=constants.CA_HTTP_PORT,
                                  hostname=constants.MASTER_HOSTNAME,
                                  certnick='"{}"'.format(constants.CA_ADMIN_NICK),
-                                 extra_args='--size {}'.format('90'))
+                                 extra_args='--size {}'.format('1000'))
     for result in cmd_out.values():
         if result['rc'] == 0:
             assert "Profile ID: {}".format(profile_name) in result['stdout']
@@ -365,7 +365,7 @@ def test_pki_ca_profile_add_with_key_enc_and_dec_ext(ansible_module):
     os.remove(cert_file)
 
 
-@pytest.mark.bugzilla('1854959')
+@pytest.mark.bugzilla('1891710')
 def test_pki_ca_profile_add_with_netscape_extensions(ansible_module):
     """
     :Title: Test pki ca-profile-add which adds Netscape Extensions
@@ -1437,6 +1437,7 @@ def test_pki_ca_profile_add_server_profile_with_dns_in_subjectaltname(ansible_mo
     os.remove(cert_file)
 
 
+@pytest.mark.bugzilla('1891710')
 def test_ca_profile_add_netscape_extensions_to_ca_cert(ansible_module):
     """
     :Title: Test pki ca-profile-add with netscape extensions

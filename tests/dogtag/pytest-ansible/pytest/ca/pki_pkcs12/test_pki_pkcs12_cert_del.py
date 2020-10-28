@@ -57,10 +57,10 @@ db1 = '/tmp/db1_test'
 db2 = '/tmp/db2_test'
 
 
-@pytest.mark.ansible_playbook_setup('init_dir.yaml')
-@pytest.mark.setup
-def test_setup(ansible_playbook):
-    pass
+# @pytest.mark.ansible_playbook_setup('init_dir.yaml')
+# @pytest.mark.setup
+# def test_setup(ansible_playbook):
+#     pass
 
 
 @pytest.fixture(autouse=True)
