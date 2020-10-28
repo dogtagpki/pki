@@ -1465,11 +1465,17 @@ class PKISubsystem(object):
 
         logger.debug('Command: %s', ' '.join(cmd))
 
+        # https://stackoverflow.com/questions/53209127/subprocess-unexpected-keyword-argument-capture-output/53209196
+        if capture_output:
+            stdout = subprocess.PIPE
+        else:
+            stdout = None
+
         try:
             return subprocess.run(
                 cmd,
                 input=input,
-                capture_output=capture_output,
+                stdout=stdout,
                 check=True)
 
         except KeyboardInterrupt:
