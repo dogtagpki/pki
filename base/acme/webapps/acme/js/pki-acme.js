@@ -38,9 +38,12 @@ function login(options) {
 }
 
 function logout(options) {
+    // https://stackoverflow.com/questions/4163122/http-basic-authentication-log-out
+    // Use invalid username to remove browser credential cache.
     $.post({
         url: "logout",
-        dataType: "json"
+        dataType: "json",
+        username: "invalid"
     }).done(function(data, textStatus, jqXHR) {
         if (options.success) options.success.call(self, data, textStatus, jqXHR);
     }).fail(function(jqXHR, textStatus, errorThrown) {
