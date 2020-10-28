@@ -1,7 +1,7 @@
 # Debugging QE Pipeline Failures
 
-When QE pipeline fails, the console output will display a ssh address
-such as:
+When QE pipeline fails, the console output for the `Setup tmate session` task
+will display a ssh address such as:
 
     ssh <REDACTED>@nyc1.tmate.io
 
@@ -15,9 +15,9 @@ here, switch to the `runner` user:
 In `$HOME/work/pki/pki/` is the cloned GitHub repo, plus Vagrant home. There
 are two VMs currently provisioned in this pipeline:
 
-    - `controller` at IP address `192.168.33.10`, which runs Ansible
-    - `master` at IP address `192.168.33.20`, which runs PKI (and is
-      the target of Anisble playbooks.
+ - `controller` at IP address `192.168.33.10`, which runs Ansible
+ - `master` at IP address `192.168.33.20`, which runs PKI (and is
+   the target of Anisble playbooks.
 
 You can SSH into each using Vagrant's ssh keys
 
