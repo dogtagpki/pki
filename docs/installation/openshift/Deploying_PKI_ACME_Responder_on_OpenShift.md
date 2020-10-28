@@ -173,7 +173,7 @@ $ oc apply -f /usr/share/pki/acme/openshift/pki-acme-route.yaml
 
 The responder should now be accessible at https://&lt;hostname&gt;/acme/directory.
 
-## See also
+## See Also
 
 * [Configuring ACME Database](../acme/Configuring_ACME_Database.md)
 * [Configuring ACME Issuer](../acme/Configuring_ACME_Issuer.md)
