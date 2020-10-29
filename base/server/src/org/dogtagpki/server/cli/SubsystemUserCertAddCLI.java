@@ -70,6 +70,13 @@ public class SubsystemUserCertAddCLI extends CommandCLI {
         String filename = cmd.getOptionValue("cert");
         String format = cmd.getOptionValue("format");
 
+        String catalinaBase = System.getProperty("catalina.base");
+        String serverXml = catalinaBase + "/conf/server.xml";
+
+        TomcatJSS tomcatjss = TomcatJSS.getInstance();
+        tomcatjss.loadTomcatConfig(serverXml);
+        tomcatjss.init();
+
         byte[] bytes;
         if (filename == null) {
             // read from standard input
@@ -91,13 +98,6 @@ public class SubsystemUserCertAddCLI extends CommandCLI {
         }
 
         X509CertImpl cert = new X509CertImpl(bytes);
-
-        String catalinaBase = System.getProperty("catalina.base");
-        String serverXml = catalinaBase + "/conf/server.xml";
-
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadTomcatConfig(serverXml);
-        tomcatjss.init();
 
         String subsystem = parent.getParent().getParent().getName();
         String configDir = catalinaBase + File.separator + subsystem;
