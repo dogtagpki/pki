@@ -80,7 +80,7 @@ $ ldapmodify -h $HOSTNAME -D "cn=Directory Manager" -w Secret.123 << EOF
 dn: cn=Administrators,ou=groups,dc=acme,dc=pki,dc=example,dc=com
 changetype: modify
 add: uniqueMember
-uniqueMember: uid=admin,ou=users,dc=acme,dc=pki,dc=example,dc=com
+uniqueMember: uid=admin,ou=people,dc=acme,dc=pki,dc=example,dc=com
 -
 EOF
 ----
