@@ -55,8 +55,10 @@ CERT_FOOTER = "-----END CERTIFICATE-----"
 PUNCTUATIONS = '!#*+,-./:;^_|~'
 GEN_PASS_CHARSET = string.digits + string.ascii_lowercase + string.ascii_uppercase + PUNCTUATIONS
 
-# Map from X.509 attribute OID to short name.
-# Source: https://github.com/freeipa/freeipa/blob/master/ipapython/dn.py
+# Map X.509 attribute OID to its short name.
+# See also:
+# - https://github.com/pyca/cryptography/blob/master/src/cryptography/x509/name.py
+# - https://github.com/freeipa/freeipa/blob/master/ipapython/dn.py
 ATTR_NAME_BY_OID = {
     cryptography.x509.oid.NameOID.COMMON_NAME: 'CN',
     cryptography.x509.oid.NameOID.COUNTRY_NAME: 'C',
@@ -99,20 +101,32 @@ def convert_x509_name_to_dn(name):
     Convert X.509 Name into NSS-style DN string.
 
     See also:
-    - https://cryptography.io/en/latest/x509/reference/#cryptography.x509.Name
-    - https://cryptography.io/en/latest/x509/reference/#cryptography.x509.NameAttribute
-    - https://cryptography.io/en/latest/x509/reference/#cryptography.x509.ObjectIdentifier
+    - https://cryptography.io/en/latest/x509/reference.html#cryptography.x509.Name
+    - https://cryptography.io/en/latest/x509/reference.html#cryptography.x509.RelativeDistinguishedName
+    - https://cryptography.io/en/latest/x509/reference.html#cryptography.x509.NameAttribute
+    - https://cryptography.io/en/latest/x509/reference.html#cryptography.x509.ObjectIdentifier
 
     :param name: X.509 Name
     :type name: cryptography.x509.Name
     :returns: str -- DN string.
-    """
+    """  # noqa: E501
+
+    # Do not use cryptography.x509.Name.rfc4514_string() since
+    # it generates a DN with reversed RDN order:
+    #   dn = name.rfc4514_string()
+
     dn = None
 
     for attr in name:
+
+        # Do not use cryptography.x509.RelativeDistinguishedName.rfc4514_string()
+        # since it may generate an RDN with incorrect attribute names:
+        #   rdn = attr.rfc4514_string()
+
         oid = attr.oid
         attr_name = ATTR_NAME_BY_OID.get(oid, oid.dotted_string)
-        rdn = '%s=%s' % (attr_name, attr.value)
+        attr_value = cryptography.x509.name._escape_dn_value(attr.value)  # pylint: disable=W0212
+        rdn = '%s=%s' % (attr_name, attr_value)
 
         if dn:
             dn = rdn + ',' + dn
