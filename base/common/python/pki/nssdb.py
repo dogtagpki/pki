@@ -1339,8 +1339,9 @@ class NSSDatabase(object):
 
         cert['serial_number'] = cert_obj.serial_number
 
-        cert['issuer'] = pki.convert_x509_name_to_dn(cert_obj.issuer)
-        cert['subject'] = pki.convert_x509_name_to_dn(cert_obj.subject)
+        # https://cryptography.io/en/latest/x509/reference.html#cryptography.x509.Name.rfc4514_string
+        cert['issuer'] = cert_obj.issuer.rfc4514_string()
+        cert['subject'] = cert_obj.subject.rfc4514_string()
 
         cert['not_before'] = self.convert_time_to_millis(cert_obj.not_valid_before)
         cert['not_after'] = self.convert_time_to_millis(cert_obj.not_valid_after)
