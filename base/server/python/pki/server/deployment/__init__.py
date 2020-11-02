@@ -447,7 +447,7 @@ class PKIDeployer:
         logger.info('Adding subsystem cert into pkidbuser')
         subsystem.add_user_cert('pkidbuser', cert_data=cert_data, cert_format='PEM')
 
-        logger.info('Linking pkidbuser to subsystem cert')
+        logger.info('Linking pkidbuser to subsystem cert: %s', subject)
         subsystem.modify_user('pkidbuser', add_see_also=subject)
 
         logger.info('Finding other users linked to subsystem cert')
