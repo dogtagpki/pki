@@ -111,9 +111,6 @@ public class SubsystemUserShowCLI extends CommandCLI {
         UGSubsystemConfig ugConfig = cs.getUGSubsystemConfig();
         UGSubsystem ugSubsystem = new UGSubsystem();
 
-        String addSeeAlso = cmd.getOptionValue("add-see-also");
-        String delSeeAlso = cmd.getOptionValue("del-see-also");
-
         UserData userData = new UserData();
 
         try {
