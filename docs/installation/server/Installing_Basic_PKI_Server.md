@@ -21,7 +21,7 @@ $ pki-server create
 
 This will create a PKI server in /var/lib/pki/pki-tomcat.
 
-See also [PKI Server CLI](https://www.dogtagpki.org/wiki/PKI_Server_CLI).
+See also [PKI Server CLI](https://github.com/dogtagpki/pki/wiki/PKI-Server-CLI).
 
 ## Starting PKI Server
 
@@ -49,7 +49,7 @@ $ pki-server http-connector-add \
 
 This will create the Connector and SSLHost elements in /var/lib/pki/pki-tomcat/conf/server.xml.
 
-See also [PKI Server HTTP Connector CLI](https://www.dogtagpki.org/wiki/PKI_Server_HTTP_Connector_CLI).
+See also [PKI Server HTTP Connector CLI](https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-CLI).
 
 ## Configuring SSL Certificate
 
@@ -81,7 +81,7 @@ $ chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.key
 $ chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.key
 ```
 
-See also [Creating Self-Signed SSL Server Certificate with OpenSSL](https://www.dogtagpki.org/wiki/Creating_Self-Signed_SSL_Server_Certificate_with_OpenSSL).
+See also [Creating Self-Signed SSL Server Certificate with OpenSSL](https://github.com/dogtagpki/pki/wiki/Creating-Self-Signed-SSL-Server-Certificate-with-OpenSSL).
 
 To configure SSL certificate with PKCS \#8 files:
 
@@ -91,7 +91,7 @@ $ pki-server http-connector-cert-add \
   --keyFile /var/lib/pki/pki-tomcat/conf/sslserver.key
 ```
 
-See also [PKI Server HTTP Connector Cert CLI](https://www.dogtagpki.org/wiki/PKI_Server_HTTP_Connector_Cert_CLI).
+See also [PKI Server HTTP Connector Cert CLI](https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-Cert-CLI).
 
 ### Configuring SSL Certificate with JKS Keystore
 
@@ -109,7 +109,7 @@ $ chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/keystore.jks
 $ chmod 660 /var/lib/pki/pki-tomcat/conf/keystore.jks
 ```
 
-See also [Creating Self-Signed SSL Server Certificate with Keytool](https://www.dogtagpki.org/wiki/Creating_Self-Signed_SSL_Server_Certificate_with_Keytool).
+See also [Creating Self-Signed SSL Server Certificate with Keytool](https://github.com/dogtagpki/pki/wiki/Creating-Self-Signed-SSL-Server-Certificate-with-Keytool).
 
 To configure SSL certificate with JKS keystore:
 
@@ -120,7 +120,7 @@ $ pki-server http-connector-cert-add \
   --keystorePassword Secret.123
 ```
 
-See also [PKI Server HTTP Connector Cert CLI](https://www.dogtagpki.org/wiki/PKI_Server_HTTP_Connector_Cert_CLI).
+See also [PKI Server HTTP Connector Cert CLI](https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-Cert-CLI).
 
 ### Configuring SSL Certificate with PKCS \#12 Keystore
 
@@ -139,7 +139,7 @@ $ chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/keystore.p12
 $ chmod 660 /var/lib/pki/pki-tomcat/conf/keystore.p12
 ```
 
-See also [Creating Self-Signed SSL Server Certificate with Keytool](https://www.dogtagpki.org/wiki/Creating_Self-Signed_SSL_Server_Certificate_with_Keytool).
+See also [Creating Self-Signed SSL Server Certificate with Keytool](https://github.com/dogtagpki/pki/wiki/Creating-Self-Signed-SSL-Server-Certificate-with-Keytool).
 
 To configure SSL certificate with PKCS \#12 keystore:
 
@@ -151,7 +151,7 @@ $ pki-server http-connector-cert-add \
   --keystorePassword Secret.123
 ```
 
-See also [PKI Server HTTP Connector Cert CLI](https://www.dogtagpki.org/wiki/PKI_Server_HTTP_Connector_Cert_CLI).
+See also [PKI Server HTTP Connector Cert CLI](https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-Cert-CLI).
 
 ### Configuring SSL Certificate with NSS Database via PKCS \#11
 
@@ -161,7 +161,7 @@ First, create an NSS database:
 $ pki-server nss-create --no-password
 ```
 
-See also [NSS Database](https://www.dogtagpki.org/wiki/NSS_Database).
+See also [NSS Database](https://github.com/dogtagpki/pki/wiki/NSS-Database).
 
 Specify the SSL certificate extensions in a file (e.g. /var/lib/pki/pki-tomcat/conf/sslserver.conf):
 
@@ -206,7 +206,7 @@ $ pki -d /var/lib/pki/pki-tomcat/conf/alias \
     sslserver
 ```
 
-See also [PKI NSS CLI](https://www.dogtagpki.org/wiki/PKI_NSS_CLI).
+See also [PKI NSS CLI](https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI).
 
 Enable JSS with the following command:
 
@@ -234,7 +234,7 @@ $ pki-server http-connector-cert-add \
   --keystoreProvider Mozilla-JSS
 ```
 
-See also [PKI Server HTTP Connector Cert CLI](https://www.dogtagpki.org/wiki/PKI_Server_HTTP_Connector_Cert_CLI).
+See also [PKI Server HTTP Connector Cert CLI](https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-Cert-CLI).
 
 ## Verifying SSL Configuration
 

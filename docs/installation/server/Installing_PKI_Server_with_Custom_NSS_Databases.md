@@ -25,7 +25,7 @@ $ pki-server create
 
 This will create a server in /var/lib/pki/pki-tomcat with configuration files in /etc/pki/pki-tomcat.
 
-See also [PKI Server CLI](https://www.dogtagpki.org/wiki/PKI_Server_CLI).
+See also [PKI Server CLI](https://github.com/dogtagpki/pki/wiki/PKI-Server-CLI).
 
 ## Creating Custom NSS Database for PKI Server
 
@@ -44,7 +44,7 @@ $ modutil \
     -libfile /usr/share/pki/lib/p11-kit-trust.so
 ```
 
-See also [PKI Server NSS CLI](https://www.dogtagpki.org/wiki/PKI_Server_NSS_CLI).
+See also [PKI Server NSS CLI](https://github.com/dogtagpki/pki/wiki/PKI-Server-NSS-CLI).
 
 ## Creating Custom NSS Database for PKI Administrator
 
@@ -63,7 +63,7 @@ $ modutil \
     -libfile /usr/share/pki/lib/p11-kit-trust.so
 ```
 
-See also [PKI NSS CLI](https://www.dogtagpki.org/wiki/PKI_NSS_CLI).
+See also [PKI NSS CLI](https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI).
 
 ## Installling PKI Subsystem
 

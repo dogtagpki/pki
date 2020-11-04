@@ -68,7 +68,7 @@ Store the CA signing certificate in a file (e.g. ca_signing.crt). The CA signing
 If the CA signing certificate was issued by an external CA, store the external CA certificate chain in a file (e.g. external.crt). The certificate chain can be specified as a single certificate or a PKCS #7 certificate chain in PEM format. The certificate chain should include all CA certificates from the root CA to the external CA that issued the CA signing certificate, but it should not include the CA signing certificate itself.
 
 See also:
-* [Generating CA Signing Certificate](https://www.dogtagpki.org/wiki/Generating_CA_Signing_Certificate)
+* [Generating CA Signing Certificate](https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-Certificate)
 
 Finishing CA Subsystem Installation
 -----------------------------------

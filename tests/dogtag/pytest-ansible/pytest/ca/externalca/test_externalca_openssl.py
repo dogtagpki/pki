@@ -51,13 +51,13 @@ def test_externalca_openssl_noskid(ansible_module):
 
       :Type: Functional
       :setup:
-      Refer: https://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_openssl
+      Refer: https://github.com/dogtagpki/pki/wiki/Issuing-CA-Signing-Certificate-with-OpenSSL
       1. Install RootCA which has rootca generated using certutil utility.
       2. Make sure skid is enabled
       3. Test if the externalCA installation went through.
 
       :steps:
-      Refer: https://www.dogtagpki.org/wiki/Issuing_CA_Signing_Certificate_with_openssl
+      Refer: https://github.com/dogtagpki/pki/wiki/Issuing-CA-Signing-Certificate-with-OpenSSL
       1. Install RootCA which has rootca generated using openssl utility.
       2. Make sure skid is enabled
       3. Test if the externalCA installation went through.

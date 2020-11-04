@@ -12,7 +12,7 @@ root user.
 = Running KRA test as a regular user =
 
 1. Install a CA and KRA as described in the following page:
-   https://www.dogtagpki.org/wiki/Quick_Start
+   https://github.com/dogtagpki/pki/wiki/Quick-Start
 
 2. Setup CA admin as described in the following page:
    https://www.dogtagpki.org/wiki/CA_Admin_Setup
@@ -39,7 +39,7 @@ root user.
 
 1. Install a CA and KRA with the deployment configuration
    as described in the following page:
-   https://www.dogtagpki.org/wiki/Quick_Start
+   https://github.com/dogtagpki/pki/wiki/Quick-Start
 
    Make sure it contains pki_client_database_purge=False
    so root can authenticate as CA admin certificate directly
