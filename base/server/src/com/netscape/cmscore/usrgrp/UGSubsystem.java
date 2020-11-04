@@ -268,8 +268,12 @@ public class UGSubsystem {
      * Searchs for identities that matches the filter.
      */
     public Enumeration<User> findUsersByKeyword(String keyword) throws EUsrGrpException {
-        keyword = LDAPUtil.escapeFilter(keyword);
-        String filter = "(|(uid=*" + keyword + "*)(cn=*" + keyword + "*)(mail=*" + keyword + "*))";
+        String filter = null;
+
+        if (keyword != null) {
+            keyword = LDAPUtil.escapeFilter(keyword);
+            filter = "(|(uid=*" + keyword + "*)(cn=*" + keyword + "*)(mail=*" + keyword + "*))";
+        }
 
         return findUsers(filter);
     }
