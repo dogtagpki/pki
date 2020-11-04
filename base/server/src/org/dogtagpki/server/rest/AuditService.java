@@ -159,13 +159,13 @@ public class AuditService extends SubsystemService implements AuditResource {
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (auditConfig == null) {
-            BadRequestException e = new BadRequestException("Audit config is null.");
+            BadRequestException e = new BadRequestException("Missing audit configuration");
             auditModParams.put("Info", e.toString());
             auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
             throw e;
         }
 
-        logger.debug("AuditService.updateAuditConfig()");
+        logger.info("AuditService: Updating audit configuration:");
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
@@ -175,27 +175,30 @@ public class AuditService extends SubsystemService implements AuditResource {
             Map<String, String> currentEventConfigs = currentAuditConfig.getEventConfigs();
 
             if (auditConfig.getSigned() != null) {
+                logger.info("AuditService: - log signing: " + auditConfig.getSigned());
                 cs.putBoolean("log.instance.SignedAudit.logSigning", auditConfig.getSigned());
             }
 
             if (auditConfig.getInterval() != null) {
+                logger.info("AuditService: - flush interval: " + auditConfig.getInterval());
                 cs.putInteger("log.instance.SignedAudit.flushInterval", auditConfig.getInterval());
             }
 
             if (auditConfig.getBufferSize() != null) {
+                logger.info("AuditService: - buffer size: " + auditConfig.getBufferSize());
                 cs.putInteger("log.instance.SignedAudit.bufferSize", auditConfig.getBufferSize());
             }
 
             Map<String, String> eventConfigs = auditConfig.getEventConfigs();
 
             if (eventConfigs != null) {
-                // update events if specified
-
+                logger.info("AuditService: Updating audit events:");
                 Collection<String> selected = new TreeSet<String>();
 
                 for (Map.Entry<String, String> entry : eventConfigs.entrySet()) {
                     String name = entry.getKey();
                     String value = entry.getValue();
+                    logger.info("AuditService: - " + name + ": " + value);
                     String currentValue = currentEventConfigs.get(name);
 
                     // make sure no event is added
@@ -257,14 +260,15 @@ public class AuditService extends SubsystemService implements AuditResource {
             return createOKResponse(auditConfig);
 
         } catch (PKIException e) {
+            logger.error("Unable to update audit configuration: " + e.getMessage(), e);
             auditModParams.put("Info", e.toString());
             auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
             throw e;
 
         } catch (Exception e) {
+            logger.error("Unable to update audit configuration: " + e.getMessage(), e);
             auditModParams.put("Info", e.toString());
             auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
-            e.printStackTrace();
             throw new PKIException(e.getMessage());
         }
     }
