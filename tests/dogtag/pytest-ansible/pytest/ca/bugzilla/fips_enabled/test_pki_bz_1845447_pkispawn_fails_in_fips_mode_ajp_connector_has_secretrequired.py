@@ -84,13 +84,14 @@ def test_pki_bz_1845447_pkispawn_fails_in_fips_mode_ajp_connector_has_secretrequ
         log.info("CA Installed successfully")
 
     # Check the requiredSecret in AJP Connector server.xml
+    # If tomcat(v) > 9.0.31 it will check for secret, else requiredSecret
     time.sleep(5)
-    log.info('Asserting requiredSecret in AJP Connector server.xml')
-    cmd = ansible_module.command('grep -ir requiredSecret /etc/pki/{}/server.xml'.format(constants.CA_INSTANCE_NAME))
+    log.info('Asserting secret in AJP Connector server.xml')
+    cmd = ansible_module.command('grep -ir secret /etc/pki/{}/server.xml'.format(constants.CA_INSTANCE_NAME))
     for result in cmd.values():
         if result['rc'] == 0:
-            assert 'requiredSecret="TestingPass"' in result['stdout']
-            log.info('Successfully found requiredSecret="TestingPass" in AJP Connector server.xml')
+            assert 'secret="TestingPass"' in result['stdout']
+            log.info('Successfully found secret="TestingPass" in AJP Connector server.xml')
         else:
             log.error(result['stdout'])
             log.error(result['stderr'])
