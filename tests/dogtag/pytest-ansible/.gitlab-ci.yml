@@ -220,6 +220,12 @@ tps-bugzilla-dp:
     - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-02" -vv | sed 's/\\n/\n/g'
     - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/tps/bugzilla/test_bug_1874595_tps_server_side_key_generation_not_working.py -q -s --junitxml ${CI_JOB_NAME}_junit.xml |  sed 's/\\n/\n/g'
 
+ca-topo-00-bugzilla-cp:
+  <<: *job_definition
+  stage: tier2-other
+  script:
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-00" -vv | sed 's/\\n/\n/g'
+    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/bugzilla/test_bug_1656772_man_pkispawn_having_reference_to_setup-ds.py -q -s --junitxml ${CI_JOB_NAME}_junit.xml |  sed 's/\\n/\n/g'
 
 
 
