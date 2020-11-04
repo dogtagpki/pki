@@ -800,10 +800,9 @@ public class CAService implements ICAService, IService {
         // set issuer, serial number
         try {
             BigInteger serialNo = cr.getNextSerialNumber();
+            logger.info("CAService: Signing cert 0x" + serialNo.toString(16));
 
-            certi.set(X509CertInfo.SERIAL_NUMBER,
-                    new CertificateSerialNumber(serialNo));
-            logger.info(CMS.getLogMessage("CMSCORE_CA_SIGN_SERIAL", serialNo.toString(16)));
+            certi.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(serialNo));
 
         } catch (EBaseException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_NO_NEXT_SERIAL", e.toString()), e);
@@ -883,6 +882,8 @@ public class CAService implements ICAService, IService {
             boolean renewal, BigInteger oldSerialNo, String crmfReqId,
             String challengePassword, String profileId) throws EBaseException {
 
+        logger.info("CAService: Storing cert 0x" + cert.getSerialNumber().toString(16));
+
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository cr = engine.getCertificateRepository();
 
@@ -890,28 +891,36 @@ public class CAService implements ICAService, IService {
         // if renewal, set the old serial number in the new cert,
         // set the new serial number in the old cert.
 
-        logger.debug("In storeX509Cert");
         try {
             BigInteger newSerialNo = cert.getSerialNumber();
             MetaInfo metaInfo = new MetaInfo();
 
-            if (profileId != null)
+            if (profileId != null) {
                 metaInfo.set("profileId", profileId);
-            if (rid != null)
+            }
+
+            if (rid != null) {
                 metaInfo.set(CertRecord.META_REQUEST_ID, rid);
-            if (challengePassword != null && !challengePassword.equals(""))
+            }
+
+            if (challengePassword != null && !challengePassword.equals("")) {
                 metaInfo.set("challengePhrase", challengePassword);
+            }
+
             if (crmfReqId != null) {
                 //System.out.println("Adding crmf reqid "+crmfReqId);
                 metaInfo.set(CertRecord.META_CRMF_REQID, crmfReqId);
             }
-            if (renewal)
-                metaInfo.set(CertRecord.META_OLD_CERT, oldSerialNo.toString());
-            cr.addCertificateRecord(new CertRecord(newSerialNo, cert, metaInfo));
-
-            logger.info(CMS.getLogMessage("CMSCORE_CA_STORE_SERIAL", cert.getSerialNumber().toString(16)));
 
             if (renewal) {
+                metaInfo.set(CertRecord.META_OLD_CERT, oldSerialNo.toString());
+            }
+
+            cr.addCertificateRecord(new CertRecord(newSerialNo, cert, metaInfo));
+
+            if (renewal) {
+
+                logger.info("CAService: Updating old cert 0x" + oldSerialNo.toString(16));
 
                 /*
                  mCA.getCertificateRepository().markCertificateAsRenewed(
@@ -928,11 +937,14 @@ public class CAService implements ICAService, IService {
                     logger.warn(message, e);
                 }
 
-                if (oldCertRec != null)
+                if (oldCertRec != null) {
                     oldMeta = oldCertRec.getMetaInfo();
+                }
+
                 if (oldMeta == null) {
                     logger.debug("No meta info! for " + oldSerialNo);
                     oldMeta = new MetaInfo();
+
                 } else {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Old meta info");
@@ -946,15 +958,17 @@ public class CAService implements ICAService, IService {
                         }
                     }
                 }
-                oldMeta.set(CertRecord.META_RENEWED_CERT,
-                        newSerialNo.toString());
+
+                oldMeta.set(CertRecord.META_RENEWED_CERT, newSerialNo.toString());
+
                 ModificationSet modSet = new ModificationSet();
 
                 modSet.add(CertRecord.ATTR_AUTO_RENEW,
                         Modification.MOD_REPLACE,
                         CertRecord.AUTO_RENEWAL_DONE);
-                modSet.add(ICertRecord.ATTR_META_INFO,
-                        Modification.MOD_REPLACE, oldMeta);
+
+                modSet.add(ICertRecord.ATTR_META_INFO, Modification.MOD_REPLACE, oldMeta);
+
                 cr.modifyCertificateRecord(oldSerialNo, modSet);
 
                 logger.info(CMS.getLogMessage("CMSCORE_CA_MARK_SERIAL", oldSerialNo.toString(16), newSerialNo.toString(16)));
@@ -967,7 +981,6 @@ public class CAService implements ICAService, IService {
 
                     while (n.hasMoreElements()) {
                         String name = n.nextElement();
-
                     }
                 }
             }

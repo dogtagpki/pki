@@ -117,7 +117,7 @@ public class DBSSession implements IDBSSession {
                 LDAPAttribute attr = e.nextElement();
                 String[] values = attr.getStringValueArray();
                 if (values == null) continue;
-                logger.info("DBSSession: - " + attr.getName());
+                logger.debug("DBSSession: - " + attr.getName());
             }
 
             LDAPEntry e = new LDAPEntry(name, attrs);
@@ -181,7 +181,7 @@ public class DBSSession implements IDBSSession {
                 LDAPAttribute attr = e.nextElement();
                 String[] values = attr.getStringValueArray();
                 if (values == null) continue;
-                logger.info("DBSSession: - " + attr.getName());
+                logger.debug("DBSSession: - " + attr.getName());
             }
 
             return dbSubsystem.getRegistry().createObject(attrSet);
