@@ -227,6 +227,13 @@ ca-topo-00-bugzilla-cp:
     - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-00" -vv | sed 's/\\n/\n/g'
     - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/bugzilla/test_bug_1656772_man_pkispawn_having_reference_to_setup-ds.py -q -s --junitxml ${CI_JOB_NAME}_junit.xml |  sed 's/\\n/\n/g'
 
+topo-02-ca-bugzillas-gs:
+  <<: *job_definition
+  stage: tier2-discrete
+  script:
+    - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-02 tls_ldap=true" -vv  | sed 's/\\n/\n/g'
+    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/test_role_users.py -q -s --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -qsvv
+    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/bugzilla/test_bug_1787115_Copy_SKI_from_CSR_to_Certificate_Signed.py -q -s --junitxml $CI_PROJECT_DIR/bz_1787115.xml -qsvv
 
 
 

@@ -50,7 +50,7 @@ if os.path.isfile('/tmp/test_dir/constants.py'):
     import constants
 
 log = logging.getLogger()
-logging.basicConfig(stream=sys.stdout)
+logging.basicConfig(stream=sys.stdout,level=logging.INFO)
 
 basic_pki_cmd = 'pki -d {} -c {} -p {} -P https -n "{}" '.format(constants.NSSDB,
                                                                 constants.CLIENT_DIR_PASSWORD,
