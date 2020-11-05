@@ -10,7 +10,7 @@ The purpose of the healthcheck tool is to find and report error conditions that 
 
 ### Dependencies
 
-The pki-healthcheck tool depends on `freeipa-healthcheck-core` package for the base framework, which is built along with `freeipa-healthcheck`. This is done to ensure that `pki-healthcheck` can integrate smoothly with the `freeipa-healthcheck` since FreeIPA project depends on PKI for CA/KRA backened.
+The pki-healthcheck tool depends on `freeipa-healthcheck-core` package for the base framework, which is built along with `freeipa-healthcheck`. This is done to ensure that `pki-healthcheck` can integrate smoothly with the `freeipa-healthcheck` since FreeIPA project depends on PKI for CA/KRA backend.
 
 You can read more on the base framework [here](https://www.freeipa.org/page/V4/Healthcheck)
 
@@ -72,7 +72,7 @@ To run it manually, execute:
 
     # pki-healthcheck
 
-A specific check can be execuated as well:
+A specific check can be executed as well:
 
     #  pki-healthcheck --source pki.server.healthcheck.meta.csconfig --check DogtagCertsConfigCheck
 
