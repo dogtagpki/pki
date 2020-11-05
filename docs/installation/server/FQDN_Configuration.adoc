@@ -1,0 +1,27 @@
+= FQDN Configuration =
+
+== Overview ==
+
+In order to have a properly functioning PKI system,
+each machine in the system must have a correct fully qualified domain name.
+
+This page describes the process to verify and configure
+the fully qualified domain name on each machine.
+
+== Verifying FQDN ==
+
+To verify the current FQDN, execute the following command:
+
+----
+$ python -c 'import socket; print(socket.getfqdn())'
+server.example.com
+----
+
+== Configuring FQDN ==
+
+To configure the FQDN, specify the FQDN in `/etc/hosts`, for example:
+
+----
+127.0.0.1 server.example.com
+::1 server.example.com
+----

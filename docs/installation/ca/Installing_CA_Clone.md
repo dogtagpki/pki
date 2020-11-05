@@ -10,14 +10,7 @@ Before beginning with the installation, please ensure that you have configured t
 server and added base entries.
 The step is described [here](https://github.com/dogtagpki/pki/wiki/DS-Installation).
 
-Additionally, please verify that your FQDN is correctly reported by the following command:
-
-    python -c 'import socket; print(socket.getfqdn())'
-
-If it isn't, please add an entry at the beginning of the `/etc/hosts` file:
-
-    127.0.0.1 clone.example.com
-    ::1 clone.example.com
+Additionally, make sure the FQDN has been [configured](../server/FQDN_Configuration.adoc) correctly.
 
 Some useful tips:
 
