@@ -42,6 +42,7 @@ log = logging.getLogger()
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
+@pytest.mark.skip(reason='working with RHEL8')
 def test_pki_bz_1715950_check_package_streams(ansible_module):
     """
     :Title: Test bug 1715950 check package streams
@@ -67,6 +68,7 @@ def test_pki_bz_1715950_check_package_streams(ansible_module):
             pytest.fail("Failed to verify the packages.")
 
 
+@pytest.mark.skip(reason='working with RHEL8')
 def test_pki_bz_1719163_rebase_pki_core(ansible_module):
     """
     :Title: Test pki bz 1719163 rebase pki-core

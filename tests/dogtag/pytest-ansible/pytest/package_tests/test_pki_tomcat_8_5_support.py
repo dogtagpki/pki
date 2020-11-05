@@ -41,6 +41,7 @@ log = logging.getLogger()
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
+@pytest.mark.skip(reason='working with RHEL8')
 def test_pki_tomcat_packages_should_be_installed(ansible_module):
     """
     :Title: Test pki Tomcat 8.5 package should be installed.

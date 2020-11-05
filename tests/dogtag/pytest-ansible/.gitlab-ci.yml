@@ -811,8 +811,8 @@ kra_key_cli_topo_02_dp:
     - ansible-playbook  -u fedora --become  -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-SubCA fips_enable=true" -vv  | sed 's/\\n/\n/g'
     - py.test --bugzilla --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE  --ansible-host-pattern master $PYTEST_DIR/pytest/subca/test* --junitxml $CI_PROJECT_DIR/subca_sanity_junit.xml -qsvv
 
-#PASS
-pki_healthcheck_topo_01_ps:
+# Skipping the job and waiting for Jack's update on its missing argument fix in code.
+.pki_healthcheck_topo_01_ps:
   <<: *job_definition
   stage: tier2-shared
   script:
