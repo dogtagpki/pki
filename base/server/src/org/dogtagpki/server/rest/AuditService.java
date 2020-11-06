@@ -231,6 +231,9 @@ public class AuditService extends SubsystemService implements AuditResource {
                     if ("enabled".equals(value)) {
                         selected.add(name);
 
+                    } else if ("disabled".equals(value)) {
+                        // do not add disabled event into list of enabled events
+
                     } else {
                         PKIException e = new PKIException("Invalid event configuration: " + name + "=" + value);
                         auditModParams.put("Info", e.toString());
