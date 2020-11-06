@@ -21,10 +21,8 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.cert.CertData;
@@ -50,8 +48,6 @@ public class PKIIssuer extends ACMEIssuer {
 
     private ClientConfig clientConfig = new ClientConfig();
     private String profile;
-    private PKIClient pkiClient;
-    private CAClient caClient;
 
     public String getProfile() {
         return profile;
@@ -111,19 +107,14 @@ public class PKIIssuer extends ACMEIssuer {
 
         profile = config.getParameter("profile");
         logger.info("- profile: " + profile);
-
-        pkiClient = new PKIClient(clientConfig);
-        caClient = new CAClient(pkiClient);
     }
 
     public String issueCertificate(PKCS10 pkcs10) throws Exception {
 
         logger.info("Issuing certificate");
 
-        AuthorityID aid = null;
-        X500Name adn = null;
-
-        caClient.login();
+        PKIClient pkiClient = new PKIClient(clientConfig);
+        CAClient caClient = new CAClient(pkiClient);
         CACertClient certClient = new CACertClient(caClient);
         CertEnrollmentRequest certEnrollmentRequest = certClient.getEnrollmentTemplate(profile);
 
@@ -142,7 +133,7 @@ public class PKIIssuer extends ACMEIssuer {
 
         logger.info("Request:\n" + certEnrollmentRequest);
 
-        CertRequestInfos infos = certClient.enrollRequest(certEnrollmentRequest, aid, adn);
+        CertRequestInfos infos = certClient.enrollRequest(certEnrollmentRequest, null, null);
 
         logger.info("Responses:");
         CertRequestInfo info = infos.getEntries().iterator().next();
@@ -180,6 +171,8 @@ public class PKIIssuer extends ACMEIssuer {
         CertId id = new CertId(new BigInteger(1, Base64.decodeBase64(certID)));
         logger.info("Serial number: " + id.toHexString());
 
+        PKIClient pkiClient = new PKIClient(clientConfig);
+        CAClient caClient = new CAClient(pkiClient);
         CACertClient certClient = new CACertClient(caClient);
         CertData certData = certClient.getCert(id);
 
@@ -233,6 +226,8 @@ public class PKIIssuer extends ACMEIssuer {
         logger.info("Serial number: " + certID.toHexString());
 
         logger.info("Reviewing certificate");
+        PKIClient pkiClient = new PKIClient(clientConfig);
+        CAClient caClient = new CAClient(pkiClient);
         CACertClient certClient = new CACertClient(caClient);
         CertData certData = certClient.reviewCert(certID);
 
