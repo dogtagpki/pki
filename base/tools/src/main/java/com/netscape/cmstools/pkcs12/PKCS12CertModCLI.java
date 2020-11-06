@@ -75,6 +75,10 @@ public class PKCS12CertModCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
+        option = new Option(null, "friendly-name", true, "Certificate nickname");
+        option.setArgName("nickname");
+        options.addOption(option);
+
         option = new Option(null, "trust-flags", true, "Certificate trust flags");
         option.setArgName("flags");
         options.addOption(option);
@@ -122,11 +126,8 @@ public class PKCS12CertModCLI extends CommandCLI {
             throw new Exception("Missing PKCS #12 password.");
         }
 
+        String friendlyName = cmd.getOptionValue("friendly-name");
         String trustFlags = cmd.getOptionValue("trust-flags");
-
-        if (trustFlags == null) {
-            throw new Exception("Missing trust flags.");
-        }
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
@@ -160,6 +161,10 @@ public class PKCS12CertModCLI extends CommandCLI {
 
             if (certInfo == null) {
                 throw new Exception("Certificate " + nickname + " not found");
+            }
+
+            if (friendlyName != null) {
+                certInfo.setFriendlyName(friendlyName);
             }
 
             if (trustFlags != null) {
