@@ -24,6 +24,8 @@ import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12CertInfo;
@@ -45,7 +47,7 @@ public class PKCS12CertModCLI extends CommandCLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <nickname> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <cert ID or nickname> [OPTIONS...]", options);
     }
 
     public void createOptions() {
@@ -83,7 +85,7 @@ public class PKCS12CertModCLI extends CommandCLI {
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length == 0) {
-            throw new Exception("Missing certificate nickname.");
+            throw new Exception("Missing certificate ID or nickname");
         }
 
         String nickname = cmdArgs[0];
@@ -131,18 +133,40 @@ public class PKCS12CertModCLI extends CommandCLI {
 
         Password password = new Password(passwordString.toCharArray());
 
+        byte[] certID;
+        try {
+            certID = Hex.decodeHex(nickname.toCharArray());
+        } catch (DecoderException e) {
+            // nickname is not an ID
+            certID = null;
+        }
+
         try {
             PKCS12Util util = new PKCS12Util();
             PKCS12 pkcs12 = util.loadFromFile(filename, password);
-            Collection<PKCS12CertInfo> certInfos = pkcs12.getCertInfosByFriendlyName(nickname);
 
-            if (trustFlags.equals("")) { // remove trust flags
-                for (PKCS12CertInfo certInfo : certInfos) {
-                    certInfo.setTrustFlags(null);
+            PKCS12CertInfo certInfo = null;
+
+            if (certID != null) { // search cert by ID (if provided)
+                certInfo = pkcs12.getCertInfoByID(certID);
+            }
+
+            if (certInfo == null) { // if not found, search cert by nickname
+                Collection<PKCS12CertInfo> certInfos = pkcs12.getCertInfosByFriendlyName(nickname);
+                if (!certInfos.isEmpty()) {
+                    certInfo = certInfos.iterator().next();
                 }
+            }
 
-            } else { // set trust flags
-                for (PKCS12CertInfo certInfo : certInfos) {
+            if (certInfo == null) {
+                throw new Exception("Certificate " + nickname + " not found");
+            }
+
+            if (trustFlags != null) {
+                if (trustFlags.equals("")) { // remove trust flags
+                    certInfo.setTrustFlags(null);
+
+                } else { // set trust flags
                     certInfo.setTrustFlags(trustFlags);
                 }
             }
