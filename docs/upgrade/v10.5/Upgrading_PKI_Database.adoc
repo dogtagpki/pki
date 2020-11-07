@@ -1,0 +1,96 @@
+= Overview =
+
+This page describes the process to upgrade a PKI 10.5 database into a PKI 10.6 database.
+
+= Upgrading from PKI 10.5.x to PKI 10.5.19 =
+
+== Upgrading CA Database ==
+
+=== Adding VLV for CRL generation ===
+
+This procedure fixes the following issue:
+
+* link:https://bugzilla.redhat.com/show_bug.cgi?id=1809273[Bug #1809273: CRL generation performs an unindexed search]
+
+Create an upgrade script as follows (customize the parameters as needed):
+
+----
+#!/bin/sh
+
+# reset variables
+# if non default behavior desired
+
+userdn="cn=Directory Manager"
+
+# Sets the instance to modify
+instanceId="pki-tomcat"
+
+# Database dn of instance to modify
+database="pki-tomcat-CA"
+rootSuffix="o=pki-tomcat-CA"
+
+# Important value of the CA's issuer dn.
+# Can be found in the pretty print of the CA's signing cert, easily found in the EE interface GUI.
+
+caIssuerDN="cn=CA Signing Certificate,ou=pki-tomcat,o=host.com Security Domain"
+
+# Port and host name values where the LDAP in question is running.
+port=389
+hostname="localhost.localdomain"
+
+ldapmodify -a -D "$userdn" -W -p  $port -h $hostname -x << EOF
+dn: cn=allRevokedCertsByIssuer-$instanceId, cn=$database, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvSearch
+cn: allRevokedCertsByIssuer-$instanceId
+vlvBase: ou=certificateRepository,ou=ca,$rootSuffix
+vlvScope: 1
+vlvFilter: (&(certStatus=REVOKED)(|(!(issuerName=*))(issuerName=$caIssuerDN)))
+
+dn: cn=allRevokedCertsByIssuer-${instanceId}Index, cn=allRevokedCerts-$instanceId, cn=$database, cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: vlvIndex
+cn: allRevokedCertsByIssuer-${instanceId}Index
+vlvSort: serialno
+vlvEnabled: 0
+vlvUses: 0
+
+dn: cn=index1160589779, cn=index, cn=tasks, cn=config
+objectclass: top
+objectclass: extensibleObject
+cn: index1160589779
+ttl: 10
+nsinstance: $database
+nsindexVLVAttribute: allRevokedCertsByIssuer-$instanceId
+EOF
+----
+
+Execute the upgrade script. After being prompted for the userdn's password, the script will attempt to create the new VLV index and
+to create a "task" on the server to install the index.
+
+Note, if the index already exists, the call to ldapmodify will simply report that the object already exists and exit.
+
+=== Adding Auditors Group for TPS ===
+
+This procedure fixes the following issue:
+
+* link:https://bugzilla.redhat.com/show_bug.cgi?id=1549307[Bug #1549307 - No default TPS Auditor group]
+
+To add the missing Auditors group to TPS:
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=Auditors,ou=Groups,{rootSuffix}
+changeType: add
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Auditors
+description: People who can read the signed audit logs for TPS
+EOF
+----
+
+Replace `{rootSuffix}` with the base DN of from the TPS configuration file (`pki_ds_base_dn`). Usually this is something like `dc=tks,dc=pki,dc={DOMAIN...},dc={TLD}`.
+
+= Upgrading from PKI 10.5.19 to PKI 10.6.0 =
+
+There are no required changes.

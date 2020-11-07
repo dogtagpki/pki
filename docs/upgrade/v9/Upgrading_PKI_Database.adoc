@@ -1,0 +1,537 @@
+= Overview =
+
+This page describes the process to upgrade a PKI 9 database into a PKI 10.0 database.
+
+= Upgrading from PKI 9.x to PKI 10.0.0 =
+
+== Upgrading CA Database ==
+
+=== Updating configuration ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/ca/shared/conf/database.ldif DOGTAG_10_0_BRANCH:base/ca/shared/conf/database.ldif
+$ git diff DOGTAG_9_0_BRANCH:base/ca/shared/conf/manager.ldif DOGTAG_10_0_BRANCH:base/ca/shared/conf/manager.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: dc=ca,dc=example,dc=com
+changetype: modify
+delete: aci
+aci: (targetattr=*)(version 3.0; acl "cert manager access"; allow (all) userdn = "ldap:///{dbuser}";)
+-
+add: aci
+aci: (targetattr=*)(version 3.0; acl "cert manager access v2"; allow (all) userdn = "ldap:///{dbuser}";)
+EOF
+----
+
+=== Updating schema ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/ca/shared/conf/schema.ldif DOGTAG_10_0_BRANCH:base/ca/shared/conf/schema.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( clientId-oid NAME 'clientId' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dataType-oid NAME 'dataType' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( status-oid NAME 'status' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+delete: objectClasses
+objectClasses: ( keyRecord-oid NAME 'keyRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( serialno $ dateOfCreate $ dateOfModify $ keyState $ privateKeyData $ ownerName $ keySize $ metaInfo $ dateOfArchival $ dateOfRecovery $ algorithm $ publicKeyFormat $ publicKeyData $ archivedBy ) X-ORIGIN 'user defined' )
+-
+add: objectClasses
+objectClasses: ( keyRecord-oid NAME 'keyRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( serialno $ dateOfCreate $ dateOfModify $ keyState $ privateKeyData $ ownerName $ keySize $ metaInfo $ dateOfArchival $ dateOfRecovery $ algorithm $ publicKeyFormat $ publicKeyData $ archivedBy $ clientId $ dataType $ status ) X-ORIGIN 'user defined' )
+EOF
+----
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/ca/shared/conf/db.ldif DOGTAG_10_0_BRANCH:base/ca/shared/conf/db.ldif
+----
+
+No changes required.
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/ca/shared/conf/acl.ldif DOGTAG_10_0_BRANCH:base/ca/shared/conf/acl.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=aclResources,dc=ca,dc=example,dc=com
+changetype: modify
+delete: resourceACLS
+resourceACLS: certServer.securitydomain.domainxml:read,modify:allow (read) user="anybody";allow (modify) group="Subsystem Group":Anybody is allowed to read domain.xml but only Subsystem group is allowed to modify the domain.xml
+-
+add: resourceACLS
+resourceACLS: certServer.securitydomain.domainxml:read,modify:allow (read) user="anybody";allow (modify) group="Subsystem Group" || group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise RA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators":Anybody is allowed to read domain.xml but only Subsystem group and Enterprise Administrators are allowed to modify the domain.xml
+-
+
+dn: cn=aclResources,dc=ca,dc=example,dc=com
+changetype: modify
+delete: resourceACLS
+resourceACLS: certServer.ca.connectorInfo:read,modify:allow (modify,read) group="Enterprise KRA Administrators":Only Enterprise Administrators are allowed to update the connector information
+-
+add: resourceACLS
+resourceACLS: certServer.ca.connectorInfo:read,modify:allow (read) group="Enterprise KRA Administrators";allow (modify) group="Enterprise KRA Administrators" || group="Subsystem Group":Only Enterprise Administrators and Subsystem Group are allowed to update the connector information
+-
+
+dn: cn=aclResources,dc=ca,dc=example,dc=com
+changetype: modify
+add: resourceACLS
+resourceACLS: certServer.ca.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
+resourceACLS: certServer.ca.certrequests:execute:allow (execute) group="Certificate Manager Agents":Agents may execute cert request operations
+resourceACLS: certServer.ca.certs:execute:allow (execute) group="Certificate Manager Agents":Agents may execute cert operations
+resourceACLS: certServer.ca.groups:execute:allow (execute) group="Administrators":Admins may execute group operations
+resourceACLS: certServer.ca.users:execute:allow (execute) group="Administrators":Admins may execute user operations
+EOF
+----
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/ca/shared/conf/index.ldif DOGTAG_10_0_BRANCH:base/ca/shared/conf/index.ldif
+$ git diff DOGTAG_9_0_BRANCH:base/ca/shared/conf/vlv.ldif DOGTAG_10_0_BRANCH:base/ca/shared/conf/vlv.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=clientId,cn=index,cn=ca,cn=ldbm database, cn=plugins, cn=config
+changetype: add
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: clientId
+
+dn: cn=dataType,cn=index,cn=ca,cn=ldbm database, cn=plugins, cn=config
+changetype: add
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: dataType
+
+dn: cn=status,cn=index,cn=ca,cn=ldbm database, cn=plugins, cn=config
+changetype: add
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: status
+EOF
+----
+
+== Upgrading KRA Database ==
+
+=== Updating configuration ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/kra/shared/conf/database.ldif DOGTAG_10_0_BRANCH:base/kra/shared/conf/database.ldif
+$ git diff DOGTAG_9_0_BRANCH:base/kra/shared/conf/manager.ldif DOGTAG_10_0_BRANCH:base/kra/shared/conf/manager.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: dc=kra,dc=example,dc=com
+changetype: modify
+delete: aci
+aci: (targetattr=*)(version 3.0; acl "cert manager access"; allow (all) userdn = "ldap:///{dbuser}";)
+-
+add: aci
+aci: (targetattr=*)(version 3.0; acl "cert manager access v2"; allow (all) userdn = "ldap:///{dbuser}";)
+-
+EOF
+----
+
+=== Updating schema ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/kra/shared/conf/schema.ldif DOGTAG_10_0_BRANCH:base/kra/shared/conf/schema.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( clientId-oid NAME 'clientId' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dataType-oid NAME 'dataType' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( status-oid NAME 'status' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+delete: objectClasses
+objectClasses: ( keyRecord-oid NAME 'keyRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( serialno $ dateOfCreate $ dateOfModify $ keyState $ privateKeyData $ ownerName $ keySize $ metaInfo $ dateOfArchival $ dateOfRecovery $ algorithm $ publicKeyFormat $ publicKeyData $ archivedBy ) X-ORIGIN 'user defined' )
+-
+add: objectClasses
+objectClasses: ( keyRecord-oid NAME 'keyRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( serialno $ dateOfCreate $ dateOfModify $ keyState $ privateKeyData $ ownerName $ keySize $ metaInfo $ dateOfArchival $ dateOfRecovery $ algorithm $ publicKeyFormat $ publicKeyData $ archivedBy $ clientId $ dataType $ status ) X-ORIGIN 'user defined' )
+-
+EOF
+----
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/kra/shared/conf/db.ldif DOGTAG_10_0_BRANCH:base/kra/shared/conf/db.ldif
+----
+
+No changes required.
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/kra/shared/conf/acl.ldif DOGTAG_10_0_BRANCH:base/kra/shared/conf/acl.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=aclResources,dc=kra,dc=example,dc=com
+changetype: modify
+delete: resourceACLS
+resourceACLS: certServer.kra.keys:list:allow (list) group="Data Recovery Manager Agents":Only data recovery manager agents list keys
+-
+add: resourceACLS
+resourceACLS: certServer.kra.keys:list,execute:allow (list,execute) group="Data Recovery Manager Agents":Only data recovery manager agents list keys and execute key operations
+-
+
+dn: cn=aclResources,dc=kra,dc=example,dc=com
+changetype: modify
+add: resourceACLS
+resourceACLS: certServer.kra.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
+resourceACLS: certServer.kra.groups:execute:allow (execute) group="Administrators":Admins may execute group operations
+resourceACLS: certServer.kra.keyrequests:execute:allow (execute) group="Data Recovery Manager Agents":Agents may execute key request operations
+resourceACLS: certServer.kra.users:execute:allow (execute) group="Administrators":Admins may execute user operations
+EOF
+----
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/kra/shared/conf/vlv.ldif DOGTAG_10_0_BRANCH:base/kra/shared/conf/vlv.ldif
+$ git diff DOGTAG_9_0_BRANCH:base/kra/shared/conf/index.ldif DOGTAG_10_0_BRANCH:base/kra/shared/conf/index.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=clientId,cn=index,cn=kra,cn=ldbm database, cn=plugins, cn=config
+changetype: add
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: clientId
+
+dn: cn=dataType,cn=index,cn=kra,cn=ldbm database, cn=plugins, cn=config
+changetype: add
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: dataType
+
+dn: cn=status,cn=index,cn=kra,cn=ldbm database, cn=plugins, cn=config
+changetype: add
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: status
+EOF
+----
+
+== Upgrading OCSP Database ==
+
+=== Updating configuration ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/ocsp/shared/conf/database.ldif DOGTAG_10_0_BRANCH:base/ocsp/shared/conf/database.ldif
+$ git diff DOGTAG_9_0_BRANCH:base/ocsp/shared/conf/manager.ldif DOGTAG_10_0_BRANCH:base/ocsp/shared/conf/manager.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: dc=ocsp,dc=example,dc=com
+changetype: modify
+delete: aci
+aci: (targetattr=*)(version 3.0; acl "cert manager access"; allow (all) userdn = "ldap:///{dbuser}";)
+-
+add: aci
+aci: (targetattr=*)(version 3.0; acl "cert manager access v2"; allow (all) userdn = "ldap:///{dbuser}";)
+-
+EOF
+----
+
+=== Updating schema ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/ocsp/shared/conf/schema.ldif DOGTAG_10_0_BRANCH:base/ocsp/shared/conf/schema.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( clientId-oid NAME 'clientId' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dataType-oid NAME 'dataType' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( status-oid NAME 'status' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+delete: objectClasses
+objectClasses: ( keyRecord-oid NAME 'keyRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( serialno $ dateOfCreate $ dateOfModify $ keyState $ privateKeyData $ ownerName $ keySize $ metaInfo $ dateOfArchival $ dateOfRecovery $ algorithm $ publicKeyFormat $ publicKeyData $ archivedBy ) X-ORIGIN 'user defined' )
+-
+add: objectClasses
+objectClasses: ( keyRecord-oid NAME 'keyRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( serialno $ dateOfCreate $ dateOfModify $ keyState $ privateKeyData $ ownerName $ keySize $ metaInfo $ dateOfArchival $ dateOfRecovery $ algorithm $ publicKeyFormat $ publicKeyData $ archivedBy $ clientId $ dataType $ status ) X-ORIGIN 'user defined' )
+-
+EOF
+----
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/ocsp/shared/conf/db.ldif DOGTAG_10_0_BRANCH:base/ocsp/shared/conf/db.ldif
+----
+
+No changes required.
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/ocsp/shared/conf/acl.ldif DOGTAG_10_0_BRANCH:base/ocsp/shared/conf/acl.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=aclResources,dc=ocsp,dc=example,dc=com
+changetype: modify
+add: resourceACLS
+resourceACLS: certServer.ocsp.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
+resourceACLS: certServer.ocsp.groups:execute:allow (execute) group="Administrators":Admins may execute group operations
+resourceACLS: certServer.ocsp.users:execute:allow (execute) group="Administrators":Admins may execute user operations
+EOF
+----
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/ocsp/shared/conf/index.ldif DOGTAG_10_0_BRANCH:base/ocsp/shared/conf/index.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=clientId,cn=index,cn=ocsp,cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: clientId
+
+dn: cn=dataType,cn=index,cn=ocsp,cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: dataType
+
+dn: cn=status,cn=index,cn=ocsp,cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: status
+EOF
+----
+
+== Upgrading TKS Database ==
+
+=== Updating configuration ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/tks/shared/conf/database.ldif DOGTAG_10_0_BRANCH:base/tks/shared/conf/database.ldif
+$ git diff DOGTAG_9_0_BRANCH:base/tks/shared/conf/manager.ldif DOGTAG_10_0_BRANCH:base/tks/shared/conf/manager.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: dc=tks,dc=example,dc=com
+changetype: modify
+delete: aci
+aci: (targetattr=*)(version 3.0; acl "cert manager access"; allow (all) userdn = "ldap:///{dbuser}";)
+-
+add: aci
+aci: (targetattr=*)(version 3.0; acl "cert manager access v2"; allow (all) userdn = "ldap:///{dbuser}";)
+-
+EOF
+----
+
+=== Updating schema ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/tks/shared/conf/schema.ldif DOGTAG_10_0_BRANCH:base/tks/shared/conf/schema.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( clientId-oid NAME 'clientId' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dataType-oid NAME 'dataType' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( status-oid NAME 'status' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+delete: objectClasses
+objectClasses: ( keyRecord-oid NAME 'keyRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( serialno $ dateOfCreate $ dateOfModify $ keyState $ privateKeyData $ ownerName $ keySize $ metaInfo $ dateOfArchival $ dateOfRecovery $ algorithm $ publicKeyFormat $ publicKeyData $ archivedBy ) X-ORIGIN 'user defined' )
+-
+add: objectClasses
+objectClasses: ( keyRecord-oid NAME 'keyRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( serialno $ dateOfCreate $ dateOfModify $ keyState $ privateKeyData $ ownerName $ keySize $ metaInfo $ dateOfArchival $ dateOfRecovery $ algorithm $ publicKeyFormat $ publicKeyData $ archivedBy $ clientId $ dataType $ status ) X-ORIGIN 'user defined' )
+-
+EOF
+----
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/tks/shared/conf/db.ldif DOGTAG_10_0_BRANCH:base/tks/shared/conf/db.ldif
+----
+
+No changes required.
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/tks/shared/conf/acl.ldif DOGTAG_10_0_BRANCH:base/tks/shared/conf/acl.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=aclResources,dc=tks,dc=example,dc=com
+changetype: modify
+add: resourceACLS
+resourceACLS: certServer.tks.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
+resourceACLS: certServer.tks.groups:execute:allow (execute) group="Administrators":Admins may execute group operations
+resourceACLS: certServer.tks.users:execute:allow (execute) group="Administrators":Admins may execute user operations
+EOF
+----
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_9_0_BRANCH:base/tks/shared/conf/index.ldif DOGTAG_10_0_BRANCH:base/tks/shared/conf/index.ldif
+$ git diff DOGTAG_9_0_BRANCH:base/tks/shared/conf/vlv.ldif DOGTAG_10_0_BRANCH:base/tks/shared/conf/vlv.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=clientId,cn=index,cn=tks,cn=ldbm database, cn=plugins, cn=config
+changetype: add
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: clientId
+
+dn: cn=dataType,cn=index,cn=tks,cn=ldbm database, cn=plugins, cn=config
+changetype: add
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: dataType
+
+dn: cn=status,cn=index,cn=tks,cn=ldbm database, cn=plugins, cn=config
+changetype: add
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: status
+EOF
+----
+
+== Upgrading TPS Database ==
+
+Upgrade not supported.

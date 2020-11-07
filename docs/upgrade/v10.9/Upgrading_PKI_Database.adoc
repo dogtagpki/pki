@@ -1,0 +1,7 @@
+= Overview =
+
+This page describes the process to upgrade a PKI 10.9 database into a PKI 10.10 database.
+
+= Upgrading from PKI 10.9.x to PKI 10.10.0 =
+
+There are no required changes.

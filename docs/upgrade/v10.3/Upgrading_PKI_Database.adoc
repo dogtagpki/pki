@@ -1,0 +1,316 @@
+= Overview =
+
+This page describes the process to upgrade a PKI 10.3 database into a PKI 10.4 database.
+
+= Upgrading from PKI 10.3.x to PKI 10.3.2 =
+
+== Upgrading CA Database ==
+
+=== Fixing authorityKeyNickname syntax ===
+
+This procedure fixes the following issue:
+
+* link:https://github.com/dogtagpki/pki/issues/2463[Ticket #2463: Underscore in instance name causes LDAP syntax error]
+
+Update the schema via LDAP:
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123
+dn: cn=schema
+changetype: modify
+delete: objectClasses
+objectClasses: ( authority-oid NAME 'authority' DESC 'Certificate Authority' SUP top STRUCTURAL MUST ( cn $ authorityID $ authorityKeyNickname $ authorityEnabled $ authorityDN ) MAY ( authoritySerial $ authorityParentID $ authorityParentDN $ authorityKeyHost $ description ) X-ORIGIN 'user defined' )
+-
+delete: attributeTypes
+attributeTypes: ( authorityKeyNickname-oid NAME 'authorityKeyNickname' DESC 'Authority key nickname' SYNTAX 1.3.6.1.4.1.1466.115.121.1.44 SINGLE-VALUE X-ORIGIN 'user-defined' )
+-
+add: attributeTypes
+attributeTypes: ( authorityKeyNickname-oid NAME 'authorityKeyNickname' DESC 'Authority key nickname' SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE X-ORIGIN 'user-defined' )
+-
+add: objectClasses
+objectClasses: ( authority-oid NAME 'authority' DESC 'Certificate Authority' SUP top STRUCTURAL MUST ( cn $ authorityID $ authorityKeyNickname $ authorityEnabled $ authorityDN ) MAY ( authoritySerial $ authorityParentID $ authorityParentDN $ authorityKeyHost $ description ) X-ORIGIN 'user defined' )
+----
+
+No restart is required.
+
+Alternatively, schema can also be changed locally on the DS. Edit /etc/dirsrv/slapd-pki-tomcat/schema/99user.ldif, replace the following attribute
+
+----
+attributeTypes: ( authorityKeyNickname-oid NAME 'authorityKeyNickname' DESC 'A
+ uthority key nickname' SYNTAX 1.3.6.1.4.1.1466.115.121.1.44 SINGLE-VALUE X-OR
+ IGIN ( 'user-defined' 'user defined' ) )
+----
+
+with
+
+----
+attributeTypes: ( authorityKeyNickname-oid NAME 'authorityKeyNickname' DESC 'A
+ uthority key nickname' SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE X-OR
+ IGIN ( 'user-defined' 'user defined' ) )
+----
+
+and restart the server.
+
+== Upgrading KRA Database ==
+
+===  Fixing VLV indexes ===
+
+This procedure fixes the following issue:
+
+* link:https://github.com/dogtagpki/pki/issues/2329[Ticket #2329: RFE: fine grained authz per application]
+* link:https://github.com/dogtagpki/pki/issues/2439[Ticket #2439: Add / revise vlv indexes for KRA due to realm changes]
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-KRA-CLI[PKI Server KRA CLI].
+
+Because of changes in KRA searches for fine-grained authorization, it is necessary to modify and re-index VLV indexes.
+Some code has been added to pki-server to make this task easier.
+
+The changes that are needed will need to be performed by a user that has authorization to change VLV indexes.  If the
+bind DN and password for such a user (eg. Directory Manager) are available, then pki-server can be used to perform the
+needed changes.  Otherwise, if connecting for example through GSSAPI, you can ue pki-server to generate the relevant
+LDIF files to perform the changes to be invoked.
+
+First, delete the old VLV files:
+
+* With bindDN: `pki-server kra-db-vlv-del -i <instance-name> -D <bindDN> -w <bind_password>`
+* Just print LDIF: `pki-server kra-db-vlv-del -i <instance_name> -g <out_file>`
+
+Second, add the new VLV files:
+
+* With bindDN, `pki-server kra-db-vlv-add -i <instance_name> -D <bind DN> -w <bind_password>`
+* Just print LDIF: `pki-server kra-db-vlv-add -i <instance_name> -g <out_file>`
+
+We next need to re-index the database.  I have found that it is necessary to restart the database to get the reindex to succeed.  Therefore, first restart the DB:
+
+* `systemctl restart dirsrv.target`
+
+Re-index the DB:
+
+* With bindDN, `pki-server kra-db-vlv-reindex -i <instance_name> -D <bindDN> -w <bind_password>`
+* Just print LDIF: `pki-server kra-db-vlv-reindex -i <instance_name> -g <out_file>`
+
+== Upgrading TPS Database ==
+
+=== Relocating VLV indexes ===
+
+This procedure fixes the following issue:
+
+* link:https://github.com/dogtagpki/pki/issues/2462[Ticket #2462: Hardcoded database name in vlv.ldif for TPS]
+
+See also link:https://www.dogtagpki.org/wiki/DS_Database_Indexes[DS Database Indexes].
+
+Find the old VLV indexes in userRoot database:
+
+----
+$ ldapsearch -x -D "cn=Directory Manager" -w Secret.123 \
+    -b "cn=tus-listTokens-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config" dn
+dn: cn=tus-listTokens-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+
+dn: cn=listTokensIndex,cn=tus-listTokens-vlv,cn=userRoot,cn=ldbm database,cn=p
+lugins,cn=config
+
+$ ldapsearch -x -D "cn=Directory Manager" -w Secret.123 \
+    -b "cn=tus-listActivities-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config" dn
+dn: cn=tus-listActivities-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+
+dn: cn=listActivitiesIndex,cn=tus-listActivities-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+----
+
+Delete the above VLV indexes:
+
+----
+$ ldapdelete -x -D "cn=Directory Manager" -w Secret.123
+cn=listTokensIndex,cn=tus-listTokens-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+cn=tus-listTokens-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+cn=listActivitiesIndex,cn=tus-listActivities-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+cn=tus-listActivities-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+----
+
+Add the new VLV indexes in TPS database:
+
+----
+$ /bin/cp /usr/share/pki/tps/conf/vlv.ldif .
+$ sed -i "s/{database}/tps/g" vlv.ldif
+$ sed -i "s/{rootSuffix}/dc=tps,dc=example,dc=com/" vlv.ldif
+$ ldapadd -x -D "cn=Directory Manager" -w Secret.123 -f vlv.ldif
+----
+
+Reindex the database:
+
+----
+$ /bin/cp /usr/share/pki/tps/conf/vlvtasks.ldif .
+$ sed -i "s/{database}/tps/g" vlvtasks.ldif
+$ ldapadd -x -D "cn=Directory Manager" -w Secret.123 -f vlvtasks.ldif
+----
+
+and wait until the reindex task has disappeared:
+
+----
+$ ldapsearch -x -D "cn=Directory Manager" -w Secret.123 -b "cn=index1160528734, cn=index, cn=tasks, cn=config" -s base
+----
+
+= Upgrading from PKI 10.3.2 to PKI 10.3.3 =
+
+== Upgrading TPS Database ==
+
+=== Fixing VLV filters and sort orders ===
+
+This procedure fixes the following issues:
+
+* link:https://github.com/dogtagpki/pki/issues/2474[Ticket #2474: Missing activity log entries]
+* link:https://github.com/dogtagpki/pki/issues/2383[Ticket #2383: Displaying most recent TPS activities first]
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-TPS-CLI[PKI Server TPS CLI].
+
+If basic authentication with Directory Manager's password is available, the upgrade can be done with the following commands.
+
+Find the old VLV indexes:
+
+----
+$ pki-server tps-db-vlv-find -D "cn=Directory Manager" -w Secret.123
+----
+
+Delete the above VLV indexes:
+
+----
+$ pki-server tps-db-vlv-del -D "cn=Directory Manager" -w Secret.123
+----
+
+Add the new VLV indexes:
+
+----
+$ pki-server tps-db-vlv-add -D "cn=Directory Manager" -w Secret.123
+----
+
+Reindex the database:
+
+----
+$ pki-server tps-db-vlv-reindex -D "cn=Directory Manager" -w Secret.123
+----
+
+If basic authentication with Directory Manager's password is not available, use the following commands to perform the upgrade.
+
+Find the old VLV indexes:
+
+----
+$ ldapsearch -D "cn=Directory Manager" -w Secret.123 \
+    -b "cn=tps,cn=ldbm database,cn=plugins,cn=config" "(|(objectClass=vlvSearch)(objectClass=vlvIndex))" dn
+dn: cn=listActivities,cn=tps,cn=ldbm database,cn=plugins,cn=config
+
+dn: cn=listTokens,cn=tps,cn=ldbm database,cn=plugins,cn=config
+
+dn: cn=listActivitiesIndex,cn=listActivities,cn=tps,cn=ldbm database,cn=plugins,cn=config
+
+dn: cn=listTokensIndex,cn=listTokens,cn=tps,cn=ldbm database,cn=plugins,cn=config
+----
+
+Delete the above VLV indexes:
+
+----
+$ pki-server tps-db-vlv-del --generate-ldif vlv-del.ldif
+$ ldapmodify -D "cn=Directory Manager" -w Secret.123 -f vlv-del.ldif
+----
+
+Add the new VLV indexes:
+
+----
+$ pki-server tps-db-vlv-add --generate-ldif vlv-add.ldif
+$ ldapadd -D "cn=Directory Manager" -w Secret.123 -f vlv-add.ldif
+----
+
+Reindex the database:
+
+----
+$ pki-server tps-db-vlv-reindex --generate-ldif vlv-reindex.ldif
+$ ldapadd -D "cn=Directory Manager" -w Secret.123 -w Secret.123 -f vlv-reindex.ldif
+----
+
+and wait until the reindex task has disappeared:
+
+----
+$ ldapsearch -D "cn=Directory Manager" -w Secret.123 \
+    -b "cn=index1160528734, cn=index, cn=tasks, cn=config" -s base
+----
+
+= Upgrading from PKI 10.3.3 to PKI 10.4.0 =
+
+== Upgrading Configuration ==
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_3_BRANCH:base/server/share/conf/database.ldif DOGTAG_10_4_BRANCH:base/server/share/conf/database.ldif
+$ git diff DOGTAG_10_3_BRANCH:base/server/share/conf/manager.ldif DOGTAG_10_4_BRANCH:base/server/share/conf/manager.ldif
+----
+
+There are no required changes.
+
+== Upgrading Schema ==
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_3_BRANCH:base/server/share/conf/schema.ldif DOGTAG_10_4_BRANCH:base/server/share/conf/schema.ldif
+----
+
+There are no required changes.
+
+== Upgrading CA Database ==
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_3_BRANCH:base/ca/shared/conf/db.ldif DOGTAG_10_4_BRANCH:base/ca/shared/conf/db.ldif
+$ git diff DOGTAG_10_3_BRANCH:base/ca/shared/conf/acl.ldif DOGTAG_10_4_BRANCH:base/ca/shared/conf/acl.ldif
+$ git diff DOGTAG_10_3_BRANCH:base/ca/shared/conf/index.ldif DOGTAG_10_4_BRANCH:base/ca/shared/conf/index.ldif
+----
+
+There are no required changes.
+
+== Upgrading KRA Database ==
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_3_BRANCH:base/kra/shared/conf/db.ldif DOGTAG_10_4_BRANCH:base/kra/shared/conf/db.ldif
+$ git diff DOGTAG_10_3_BRANCH:base/kra/shared/conf/acl.ldif DOGTAG_10_4_BRANCH:base/kra/shared/conf/acl.ldif
+$ git diff DOGTAG_10_3_BRANCH:base/kra/shared/conf/index.ldif DOGTAG_10_4_BRANCH:base/kra/shared/conf/index.ldif
+----
+
+There are no required changes.
+
+== Upgrading OCSP Database ==
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_3_BRANCH:base/ocsp/shared/conf/db.ldif DOGTAG_10_4_BRANCH:base/ocsp/shared/conf/db.ldif
+$ git diff DOGTAG_10_3_BRANCH:base/ocsp/shared/conf/acl.ldif DOGTAG_10_4_BRANCH:base/ocsp/shared/conf/acl.ldif
+$ git diff DOGTAG_10_3_BRANCH:base/ocsp/shared/conf/index.ldif DOGTAG_10_4_BRANCH:base/ocsp/shared/conf/index.ldif
+----
+
+There are no required changes.
+
+== Upgrading TKS Database ==
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_3_BRANCH:base/tks/shared/conf/db.ldif DOGTAG_10_4_BRANCH:base/tks/shared/conf/db.ldif
+$ git diff DOGTAG_10_3_BRANCH:base/tks/shared/conf/acl.ldif DOGTAG_10_4_BRANCH:base/tks/shared/conf/acl.ldif
+$ git diff DOGTAG_10_3_BRANCH:base/tks/shared/conf/index.ldif DOGTAG_10_4_BRANCH:base/tks/shared/conf/index.ldif
+----
+
+There are no required changes.
+
+== Upgrading TPS Database ==
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_3_BRANCH:base/tps/shared/conf/db.ldif DOGTAG_10_4_BRANCH:base/tps/shared/conf/db.ldif
+$ git diff DOGTAG_10_3_BRANCH:base/tps/shared/conf/acl.ldif DOGTAG_10_4_BRANCH:base/tps/shared/conf/acl.ldif
+$ git diff DOGTAG_10_3_BRANCH:base/tps/shared/conf/index.ldif DOGTAG_10_4_BRANCH:base/tps/shared/conf/index.ldif
+----
+
+There are no required changes.

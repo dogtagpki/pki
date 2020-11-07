@@ -1,0 +1,263 @@
+= Overview =
+
+This page describes the process to upgrade a PKI 10.0 database into a PKI 10.1 database.
+
+= Upgrading from PKI 10.0.x to PKI 10.1.0 =
+
+== Upgrading CA Database ==
+
+=== Updating configuration ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/ca/shared/conf/database.ldif DOGTAG_10_1_BRANCH:base/ca/shared/conf/database.ldif
+$ git diff DOGTAG_10_0_BRANCH:base/ca/shared/conf/manager.ldif DOGTAG_10_1_BRANCH:base/ca/shared/conf/manager.ldif
+----
+
+No changes required.
+
+=== Updating schema ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/ca/shared/conf/schema.ldif DOGTAG_10_1_BRANCH:base/ca/shared/conf/schema.ldif
+----
+
+No changes required.
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/ca/shared/conf/db.ldif DOGTAG_10_1_BRANCH:base/ca/shared/conf/db.ldif
+----
+
+No changes required.
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/ca/shared/conf/acl.ldif DOGTAG_10_1_BRANCH:base/ca/shared/conf/acl.ldif
+----
+
+No changes required.
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/ca/shared/conf/index.ldif DOGTAG_10_1_BRANCH:base/ca/shared/conf/index.ldif
+$ git diff DOGTAG_10_0_BRANCH:base/ca/shared/conf/vlv.ldif DOGTAG_10_1_BRANCH:base/ca/shared/conf/vlv.ldif
+----
+
+== Upgrading KRA Database ==
+
+=== Updating configuration ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/kra/shared/conf/database.ldif DOGTAG_10_1_BRANCH:base/kra/shared/conf/database.ldif
+$ git diff DOGTAG_10_0_BRANCH:base/kra/shared/conf/manager.ldif DOGTAG_10_1_BRANCH:base/kra/shared/conf/manager.ldif
+----
+
+No changes required.
+
+=== Updating schema ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/kra/shared/conf/schema.ldif DOGTAG_10_1_BRANCH:base/kra/shared/conf/schema.ldif
+----
+
+No changes required.
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/kra/shared/conf/db.ldif DOGTAG_10_1_BRANCH:base/kra/shared/conf/db.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=Security Domain Administrators,ou=groups,dc=kra,dc=example,dc=com
+changetype: add
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Security Domain Administrators
+description: People who are the Security Domain administrators
+
+dn: cn=Enterprise KRA Administrators,ou=groups,dc=kra,dc=example,dc=com
+changetype: add
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Enterprise KRA Administrators
+description: People who are the administrators for the security domain for KRA
+EOF
+----
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/kra/shared/conf/acl.ldif DOGTAG_10_1_BRANCH:base/kra/shared/conf/acl.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=aclResources,dc=kra,dc=example,dc=com
+changetype: modify
+add: resourceACLS
+resourceACLS: certServer.securitydomain.domainxml:read,modify:allow (read) user="anybody";allow (modify) group="Subsystem Group" || group="Enterprise KRA Administrators":Anybody is allowed to read domain.xml but only Subsystem group and Enterprise Administrators are allowed to modify the domain.xml
+EOF
+----
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/kra/shared/conf/index.ldif DOGTAG_10_1_BRANCH:base/kra/shared/conf/index.ldif
+$ git diff DOGTAG_10_0_BRANCH:base/kra/shared/conf/vlv.ldif DOGTAG_10_1_BRANCH:base/kra/shared/conf/vlv.ldif
+----
+
+No changes required.
+
+== Upgrading OCSP Database ==
+
+=== Updating configuration ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/ocsp/shared/conf/database.ldif DOGTAG_10_1_BRANCH:base/ocsp/shared/conf/database.ldif
+$ git diff DOGTAG_10_0_BRANCH:base/ocsp/shared/conf/manager.ldif DOGTAG_10_1_BRANCH:base/ocsp/shared/conf/manager.ldif
+----
+
+No changes required.
+
+=== Updating schema ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/ocsp/shared/conf/schema.ldif DOGTAG_10_1_BRANCH:base/ocsp/shared/conf/schema.ldif
+----
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/ocsp/shared/conf/db.ldif DOGTAG_10_1_BRANCH:base/ocsp/shared/conf/db.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=Security Domain Administrators,ou=groups,dc=ocsp,dc=example,dc=com
+changetype: add
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Security Domain Administrators
+description: People who are the Security Domain administrators
+
+dn: cn=Enterprise OCSP Administrators,ou=groups,dc=ocsp,dc=example,dc=com
+changetype: add
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Enterprise OCSP Administrators
+description: People who are the administrators for the security domain for OCSP
+EOF
+----
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/ocsp/shared/conf/acl.ldif DOGTAG_10_1_BRANCH:base/ocsp/shared/conf/acl.ldif
+----
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=aclResources,dc=ocsp,dc=example,dc=com
+changetype: modify
+add: resourceACLS
+resourceACLS: certServer.securitydomain.domainxml:read,modify:allow (read) user="anybody";allow (modify) group="Subsystem Group" || group="Enterprise OCSP Administrators":Anybody is allowed to read domain.xml but only Subsystem group and Enterprise Administrators are allowed to modify the domain.xml
+EOF
+----
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/ocsp/shared/conf/index.ldif DOGTAG_10_1_BRANCH:base/ocsp/shared/conf/index.ldif
+----
+
+No changes required.
+
+== Upgrading TKS Database ==
+
+=== Updating configuration ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/tks/shared/conf/database.ldif DOGTAG_10_1_BRANCH:base/tks/shared/conf/database.ldif
+$ git diff DOGTAG_10_0_BRANCH:base/tks/shared/conf/manager.ldif DOGTAG_10_1_BRANCH:base/tks/shared/conf/manager.ldif
+----
+
+No changes required.
+
+=== Updating schema ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/tks/shared/conf/schema.ldif DOGTAG_10_1_BRANCH:base/tks/shared/conf/schema.ldif
+----
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/tks/shared/conf/db.ldif DOGTAG_10_1_BRANCH:base/tks/shared/conf/db.ldif
+----
+
+No changes required.
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/tks/shared/conf/acl.ldif DOGTAG_10_1_BRANCH:base/tks/shared/conf/acl.ldif
+----
+
+No changes required.
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_0_BRANCH:base/tks/shared/conf/index.ldif DOGTAG_10_1_BRANCH:base/tks/shared/conf/index.ldif
+----
+
+No changes required.
+
+== Upgrading TPS Database ==
+
+Upgrade not supported.

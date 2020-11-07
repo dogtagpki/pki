@@ -1,0 +1,497 @@
+= Overview =
+
+This page describes the process to upgrade a PKI 10.1 database into a PKI 10.2 database.
+
+= Upgrading from PKI 10.1.x to PKI 10.2.0 =
+
+== Upgrading Configuration ==
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/ca/shared/conf/database.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/database.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/kra/shared/conf/database.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/database.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/ocsp/shared/conf/database.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/database.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/tks/shared/conf/database.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/database.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/tps-tomcat/shared/conf/database.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/database.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/ca/shared/conf/manager.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/manager.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/kra/shared/conf/manager.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/manager.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/ocsp/shared/conf/manager.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/manager.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/tks/shared/conf/manager.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/manager.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/tps-tomcat/shared/conf/manager.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/manager.ldif
+----
+
+No changes required.
+
+== Upgrading Schema ==
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/ca/shared/conf/schema.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/schema.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/kra/shared/conf/schema.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/schema.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/ocsp/shared/conf/schema.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/schema.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/tks/shared/conf/schema.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/schema.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/tps-tomcat/shared/conf/schema.ldif DOGTAG_10_2_BRANCH:base/server/share/conf/schema.ldif
+----
+
+The schema files were merged into a common schema.
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dateOfCreate-oid NAME 'dateOfCreate' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dateOfModify-oid NAME 'dateOfModify' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( modified-oid NAME 'modified' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenUserID-oid NAME 'tokenUserID' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenStatus-oid NAME 'tokenStatus' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenAppletID-oid NAME 'tokenAppletID' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( keyInfo-oid NAME 'keyInfo' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( numberOfResets-oid NAME 'numberOfResets' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( numberOfEnrollments-oid NAME 'numberOfEnrollments' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( numberOfRenewals-oid NAME 'numberOfRenewals' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( numberOfRecoveries-oid NAME 'numberOfRecoveries' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( allowPinReset-oid NAME 'allowPinReset' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( extensions-oid NAME 'extensions' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenOp-oid NAME 'tokenOp' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenID-oid NAME 'tokenID' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenMsg-oid NAME 'tokenMsg' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenResult-oid NAME 'tokenResult' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenIP-oid NAME 'tokenIP' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenPolicy-oid NAME 'tokenPolicy' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenIssuer-oid NAME 'tokenIssuer' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenSubject-oid NAME 'tokenSubject' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenSerial-oid NAME 'tokenSerial' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenOrigin-oid NAME 'tokenOrigin' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenType-oid NAME 'tokenType' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenKeyType-oid NAME 'tokenKeyType' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenReason-oid NAME 'tokenReason' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenNotBefore-oid NAME 'tokenNotBefore' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenNotAfter-oid NAME 'tokenNotAfter' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( profileID-oid NAME 'profileID' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( tokenRecord-oid NAME 'tokenRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ modified $ tokenReason $ tokenUserID $ tokenStatus $ tokenAppletID $ keyInfo $ tokenPolicy $ extensions $ numberOfResets $ numberOfEnrollments $ numberOfRenewals $ numberOfRecoveries $ userCertificate $ tokenType ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( tokenActivity-oid NAME 'tokenActivity' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ tokenOp $ tokenIP $ tokenResult $ tokenID $ tokenUserID $ tokenMsg $ extensions $ tokenType ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( tokenCert-oid NAME 'tokenCert' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ userCertificate $ tokenUserID $ tokenID $ tokenIssuer $ tokenOrigin $ tokenSubject $ tokenSerial $ tokenStatus $ tokenType $ tokenKeyType $ tokenNotBefore $ tokenNotAfter $ extensions ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( tpsProfileID-oid NAME 'tpsProfileID' DESC 'CMS defined class' SUP top AUXILIARY MAY ( profileID ) X-ORIGIN 'user-defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( classId-oid NAME 'classId' DESC 'Certificate profile class ID' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( certProfileConfig-oid NAME 'certProfileConfig' DESC 'Certificate profile configuration' SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( certProfile-oid NAME 'certProfile' DESC 'Certificate profile' SUP top STRUCTURAL MUST cn MAY ( classId $ certProfileConfig ) X-ORIGIN 'user defined' )
+EOF
+----
+
+== Upgrading CA Database ==
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/ca/shared/conf/db.ldif DOGTAG_10_2_BRANCH:base/ca/shared/conf/db.ldif
+----
+
+A new container entry needs to be added to existing instances:
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: ou=certificateProfiles,ou=ca,dc=ca,dc=example,dc=com
+changetype: add
+objectClass: top
+objectClass: organizationalUnit
+ou: certificateProfiles
+EOF
+----
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/ca/shared/conf/acl.ldif DOGTAG_10_2_BRANCH:base/ca/shared/conf/acl.ldif
+----
+
+The ACL resources need to be updated in existing instances:
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=aclResources,dc=ca,dc=example,dc=com
+changetype: modify
+add: resourceACLS
+resourceACLS: certServer.ca.selftests:read,execute:allow (read,execute) group="Administrators":Only admins can access selftests.
+EOF
+----
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/ca/shared/conf/index.ldif DOGTAG_10_2_BRANCH:base/ca/shared/conf/index.ldif
+$ git diff DOGTAG_10_1_BRANCH:base/ca/shared/conf/vlv.ldif DOGTAG_10_2_BRANCH:base/ca/shared/conf/vlv.ldif
+----
+
+The nsSystemIndex was renamed to nsSystemindex.
+
+== Upgrading KRA Database ==
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/kra/shared/conf/db.ldif DOGTAG_10_2_BRANCH:base/kra/shared/conf/db.ldif
+----
+
+No changes required.
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/kra/shared/conf/acl.ldif DOGTAG_10_2_BRANCH:base/kra/shared/conf/acl.ldif
+----
+
+The ACL resources need to be updated in existing instances:
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=aclResources,dc=kra,dc=example,dc=com
+changetype: modify
+add: resourceACLS
+resourceACLS: certServer.kra.selftests:read,execute:allow (read,execute) group="Administrators":Only admins can access selftests.
+EOF
+----
+
+=== Fixing database user permission ===
+
+If the database is shared with CA, replace the {dbuser} in the following ACL with CA's database user:
+
+----
+dn: {rootSuffix}
+aci: (targetattr=*)(version 3.0; acl "cert manager access v2"; allow (all) userdn = "ldap:///{dbuser}";)
+
+dn: cn=ldbm database,cn=plugins,cn=config
+aci: (targetattr=*)(version 3.0; acl "Cert Manager access for VLV searches"; allow (read) userdn="ldap:///{dbuser}";)
+
+dn: cn=config
+aci: (targetattr != aci)(version 3.0; aci "cert manager read access"; allow (read, search, compare) userdn = "ldap:///{dbuser}";)
+
+dn: ou=csusers,cn=config
+aci: (targetattr != aci)(version 3.0; aci "cert manager manage replication users"; allow (all) userdn = "ldap:///{dbuser}";)
+
+dn: cn="{rootSuffix}",cn=mapping tree,cn=config
+aci: (targetattr=*)(version 3.0;acl "cert manager: Add Replication Agreements";allow (add) userdn = "ldap:///{dbuser}";)
+
+dn: cn="{rootSuffix}",cn=mapping tree,cn=config
+aci: (targetattr=*)(targetfilter="(|(objectclass=nsds5Replica)(objectclass=nsds5replicationagreement)(objectclass=nsDSWindowsReplicationAgreement)(objectClass=nsMappingTree))")(version 3.0; acl "cert manager: Modify Replication Agreements"; allow (read, write, search) userdn = "ldap:///{dbuser}";)
+
+dn: cn="{rootSuffix}",cn=mapping tree,cn=config
+aci: (targetattr=*)(targetfilter="(|(objectclass=nsds5replicationagreement)(objectclass=nsDSWindowsReplicationAgreement))")(version 3.0;acl "cert manager: Remove Replication Agreements";allow (delete) userdn = "ldap:///{dbuser}";)
+
+dn: cn=tasks,cn=config
+aci: (targetattr=*)(version 3.0; acl "cert manager: Run tasks after replica re-initialization"; allow (add) userdn = "ldap:///{dbuser}";)
+----
+
+Then remove KRA's database user.
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/kra/shared/conf/index.ldif DOGTAG_10_2_BRANCH:base/kra/shared/conf/index.ldif
+----
+
+The nsIndexType was renamed to nsindexType, the nsSystemIndex was renamed to nsSystemindex.
+
+== Upgrading OCSP Database ==
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/ocsp/shared/conf/db.ldif DOGTAG_10_2_BRANCH:base/ocsp/shared/conf/db.ldif
+----
+
+No changes required.
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/ocsp/shared/conf/acl.ldif DOGTAG_10_2_BRANCH:base/ocsp/shared/conf/acl.ldif
+----
+
+The ACL resources need to be updated in existing instances:
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=aclResources,dc=ocsp,dc=example,dc=com
+changetype: modify
+add: resourceACLS
+resourceACLS: certServer.ocsp.selftests:read,execute:allow (read,execute) group="Administrators":Only admins can access selftests.
+EOF
+----
+
+=== Fixing database user permission ===
+
+If the database is shared with CA, replace the {dbuser} in the following ACL with CA's database user.
+
+----
+dn: {rootSuffix}
+aci: (targetattr=*)(version 3.0; acl "cert manager access v2"; allow (all) userdn = "ldap:///{dbuser}";)
+
+dn: cn=ldbm database,cn=plugins,cn=config
+aci: (targetattr=*)(version 3.0; acl "Cert Manager access for VLV searches"; allow (read) userdn="ldap:///{dbuser}";)
+
+dn: cn=config
+aci: (targetattr != aci)(version 3.0; aci "cert manager read access"; allow (read, search, compare) userdn = "ldap:///{dbuser}";)
+
+dn: ou=csusers,cn=config
+aci: (targetattr != aci)(version 3.0; aci "cert manager manage replication users"; allow (all) userdn = "ldap:///{dbuser}";)
+
+dn: cn="{rootSuffix}",cn=mapping tree,cn=config
+aci: (targetattr=*)(version 3.0;acl "cert manager: Add Replication Agreements";allow (add) userdn = "ldap:///{dbuser}";)
+
+dn: cn="{rootSuffix}",cn=mapping tree,cn=config
+aci: (targetattr=*)(targetfilter="(|(objectclass=nsds5Replica)(objectclass=nsds5replicationagreement)(objectclass=nsDSWindowsReplicationAgreement)(objectClass=nsMappingTree))")(version 3.0; acl "cert manager: Modify Replication Agreements"; allow (read, write, search) userdn = "ldap:///{dbuser}";)
+
+dn: cn="{rootSuffix}",cn=mapping tree,cn=config
+aci: (targetattr=*)(targetfilter="(|(objectclass=nsds5replicationagreement)(objectclass=nsDSWindowsReplicationAgreement))")(version 3.0;acl "cert manager: Remove Replication Agreements";allow (delete) userdn = "ldap:///{dbuser}";)
+
+dn: cn=tasks,cn=config
+aci: (targetattr=*)(version 3.0; acl "cert manager: Run tasks after replica re-initialization"; allow (add) userdn = "ldap:///{dbuser}";)
+----
+
+Then remove OCSP's database user.
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/ocsp/shared/conf/index.ldif DOGTAG_10_2_BRANCH:base/ocsp/shared/conf/index.ldif
+----
+
+The nsIndexType and nsSystemIndex were renamed to nsindexType and nsSystemindex, respectively.
+
+== Upgrading TKS database ==
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/tks/shared/conf/db.ldif DOGTAG_10_2_BRANCH:base/tks/shared/conf/db.ldif
+----
+
+No changes required.
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/tks/shared/conf/acl.ldif DOGTAG_10_2_BRANCH:base/tks/shared/conf/acl.ldif
+----
+
+The ACL resources need to be updated in existing instances:
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=aclResources,dc=tks,dc=example,dc=com
+modify
+add: resourceACLS
+resourceACLS: certServer.tks.selftests:read,execute:allow (read,execute) group="Administrators":Only admins can access selftests.
+EOF
+----
+
+=== Fixing database user permission ===
+
+If the database is shared with CA, replace the {dbuser} in the following ACL with CA's database user:
+
+----
+dn: {rootSuffix}
+aci: (targetattr=*)(version 3.0; acl "cert manager access v2"; allow (all) userdn = "ldap:///{dbuser}";)
+
+dn: cn=ldbm database,cn=plugins,cn=config
+aci: (targetattr=*)(version 3.0; acl "Cert Manager access for VLV searches"; allow (read) userdn="ldap:///{dbuser}";)
+
+dn: cn=config
+aci: (targetattr != aci)(version 3.0; aci "cert manager read access"; allow (read, search, compare) userdn = "ldap:///{dbuser}";)
+
+dn: ou=csusers,cn=config
+aci: (targetattr != aci)(version 3.0; aci "cert manager manage replication users"; allow (all) userdn = "ldap:///{dbuser}";)
+
+dn: cn="{rootSuffix}",cn=mapping tree,cn=config
+aci: (targetattr=*)(version 3.0;acl "cert manager: Add Replication Agreements";allow (add) userdn = "ldap:///{dbuser}";)
+
+dn: cn="{rootSuffix}",cn=mapping tree,cn=config
+aci: (targetattr=*)(targetfilter="(|(objectclass=nsds5Replica)(objectclass=nsds5replicationagreement)(objectclass=nsDSWindowsReplicationAgreement)(objectClass=nsMappingTree))")(version 3.0; acl "cert manager: Modify Replication Agreements"; allow (read, write, search) userdn = "ldap:///{dbuser}";)
+
+dn: cn="{rootSuffix}",cn=mapping tree,cn=config
+aci: (targetattr=*)(targetfilter="(|(objectclass=nsds5replicationagreement)(objectclass=nsDSWindowsReplicationAgreement))")(version 3.0;acl "cert manager: Remove Replication Agreements";allow (delete) userdn = "ldap:///{dbuser}";)
+
+dn: cn=tasks,cn=config
+aci: (targetattr=*)(version 3.0; acl "cert manager: Run tasks after replica re-initialization"; allow (add) userdn = "ldap:///{dbuser}";)
+----
+
+Then remove TKS's database user.
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_1_BRANCH:base/tks/shared/conf/index.ldif DOGTAG_10_2_BRANCH:base/tks/shared/conf/index.ldif
+----
+
+The nsIndexType and nsSystemIndex were replaced with nsindexType and nsSystemindex, respectively.
+
+== Upgrading TPS Database ==
+
+Upgrade not supported.

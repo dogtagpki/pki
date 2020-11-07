@@ -1,0 +1,49 @@
+= Overview =
+
+This page describes the process to upgrade PKI server.
+
+= Stopping PKI Server =
+
+First, stop PKI server with the following command:
+
+----
+$ systemctl stop pki-tomcatd@<instance>.service
+----
+
+= Upgrading PKI Packages =
+
+Then, upgrade PKI packages with the following command:
+
+----
+$ dnf upgrade dogtag-pki
+----
+
+= Upgrading PKI Database =
+
+Sometimes it is necessary to upgrade PKI database to enable new features or to fix certain issues.
+Currently the upgrade process has to be done manually:
+
+* link:v9/Upgrading_PKI_Database.adoc[Upgrading PKI 9 Database]
+* link:v10.0/Upgrading_PKI_Database.adoc[Upgrading PKI 10.0 Database]
+* link:v10.1/Upgrading_PKI_Database.adoc[Upgrading PKI 10.1 Database]
+* link:v10.2/Upgrading_PKI_Database.adoc[Upgrading PKI 10.2 Database]
+* link:v10.3/Upgrading_PKI_Database.adoc[Upgrading PKI 10.3 Database]
+* link:v10.4/Upgrading_PKI_Database.adoc[Upgrading PKI 10.4 Database]
+* link:v10.5/Upgrading_PKI_Database.adoc[Upgrading PKI 10.5 Database]
+* link:v10.6/Upgrading_PKI_Database.adoc[Upgrading PKI 10.6 Database]
+* link:v10.7/Upgrading_PKI_Database.adoc[Upgrading PKI 10.7 Database]
+* link:v10.8/Upgrading_PKI_Database.adoc[Upgrading PKI 10.8 Database]
+* link:v10.9/Upgrading_PKI_Database.adoc[Upgrading PKI 10.9 Database]
+
+= Restarting PKI Server =
+
+Finally, the server can be restarted with the following command:
+
+----
+$ systemctl start pki-tomcatd@<instance>.service
+----
+
+= See Also =
+
+* link:https://www.dogtagpki.org/wiki/Upgrade[Upgrade]
+* link:https://www.dogtagpki.org/wiki/Database_Upgrade_Framework[Database Upgrade Framework]

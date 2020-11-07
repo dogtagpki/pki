@@ -1,0 +1,7 @@
+= Overview =
+
+This page describes the process to upgrade a PKI 10.7 database into a PKI 10.8 database.
+
+= Upgrading from PKI 10.7.x to PKI 10.8.0 =
+
+There are no required changes.

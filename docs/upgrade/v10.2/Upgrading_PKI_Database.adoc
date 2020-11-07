@@ -1,0 +1,282 @@
+= Overview =
+
+This page describes the process to upgrade a PKI 10.2 database into a PKI 10.3 database.
+
+= Upgrading from PKI 10.2.x to PKI 10.3.0 =
+
+== Upgrading Configuration ==
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/server/share/conf/database.ldif DOGTAG_10_3_BRANCH:base/server/share/conf/database.ldif
+$ git diff DOGTAG_10_2_BRANCH:base/server/share/conf/manager.ldif DOGTAG_10_3_BRANCH:base/server/share/conf/manager.ldif
+----
+
+There are no required changes.
+
+== Upgrading Schema ==
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/server/share/conf/schema.ldif DOGTAG_10_3_BRANCH:base/server/share/conf/schema.ldif
+----
+
+The schema needs to be updated existing instances.
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( realm-oid NAME 'realm' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+delete: objectClasses
+objectClasses: ( request-oid NAME 'request' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( requestId $ dateOfCreate $ dateOfModify $ requestState $ requestResult $ requestOwner $ requestAgentGroup $ requestSourceId $ requestType $ requestFlag $ requestError $ userMessages $ adminMessages ) X-ORIGIN 'user defined' )
+-
+add: objectClasses
+objectClasses: ( request-oid NAME 'request' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( requestId $ dateOfCreate $ dateOfModify $ requestState $ requestResult $ requestOwner $ requestAgentGroup $ requestSourceId $ requestType $ requestFlag $ requestError $ userMessages $ adminMessages $ realm ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( authorityID-oid NAME 'authorityID' DESC 'Authority ID' SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 SINGLE-VALUE X-ORIGIN 'user defined' )
+attributeTypes: ( authorityKeyNickname-oid NAME 'authorityKeyNickname' DESC 'Authority key nickname' SYNTAX 1.3.6.1.4.1.1466.115.121.1.44 SINGLE-VALUE X-ORIGIN 'user-defined' )
+attributeTypes: ( authorityParentID-oid NAME 'authorityParentID' DESC 'Authority Parent ID' SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 SINGLE-VALUE X-ORIGIN 'user defined' )
+attributeTypes: ( authorityEnabled-oid NAME 'authorityEnabled' DESC 'Authority Enabled' SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE X-ORIGIN 'user defined' )
+attributeTypes: ( authorityDN-oid NAME 'authorityDN' DESC 'Authority DN' SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE X-ORIGIN 'user defined' )
+attributeTypes: ( authoritySerial-oid NAME 'authoritySerial' DESC 'Authority certificate serial number' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE X-ORIGIN 'user defined' )
+attributeTypes: ( authorityParentDN-oid NAME 'authorityParentDN' DESC 'Authority Parent DN' SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE X-ORIGIN 'user defined' )
+attributeTypes: ( authorityKeyHost-oid NAME 'authorityKeyHost' DESC 'Authority Key Hosts' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( authority-oid NAME 'authority' DESC 'Certificate Authority' SUP top STRUCTURAL MUST ( cn $ authorityID $ authorityKeyNickname $ authorityEnabled $ authorityDN ) MAY ( authoritySerial $ authorityParentID $ authorityParentDN $ authorityKeyHost $ description ) X-ORIGIN 'user defined' )
+EOF
+----
+
+== Upgrading CA Database ==
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/ca/shared/conf/db.ldif DOGTAG_10_3_BRANCH:base/ca/shared/conf/db.ldif
+----
+
+A new container entry needs to be added into existing instances:
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: ou=authorities,ou=ca,dc=ca,dc=example,dc=com
+changetype: add
+objectClass: top
+objectClass: organizationalUnit
+ou: authorities
+EOF
+----
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/ca/shared/conf/acl.ldif DOGTAG_10_3_BRANCH:base/ca/shared/conf/acl.ldif
+----
+
+The ACL resources need to be updated in existing instances:
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=aclResources,dc=ca,dc=example,dc=com
+changetype: modify
+add: resourceACLS
+resourceACLS: certServer.ca.authorities:list,read:allow (list,read) user="anybody":Anybody may list and read lightweight authorities
+resourceACLS: certServer.ca.authorities:create,modify:allow (create,modify) group="Administrators":Administrators may create and modify lightweight authorities
+resourceACLS: certServer.ca.authorities:delete:allow (delete) group="Administrators":Administrators may delete lightweight authorities
+EOF
+----
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/ca/shared/conf/index.ldif DOGTAG_10_3_BRANCH:base/ca/shared/conf/index.ldif
+----
+
+The index needs to be updated in existing instances:
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=issuername,cn=index,cn=ca,cn=ldbm database, cn=plugins, cn=config
+changetype: add
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsindexType: sub
+nsSystemindex: false
+cn: issuername
+EOF
+----
+
+=== Removing certificate validity delay ===
+
+Some certificate profiles were modified in link:https://github.com/dogtagpki/pki/issues/2424[Ticket #2424: Certificate validity delay]. If the profiles are stored in LDAP (e.g. in IPA) the LDAP profile might need to be updated as well.
+
+=== Adding issuerName attribute ===
+
+The certificate records have been modified to store issuer DN in the issuerName attribute. See link:https://github.com/dogtagpki/pki/issues/2226[Ticket #2226: Database upgrade script to add issuerName attribute to all cert entries].
+
+To perform the upgrade automatically:
+
+----
+$ pki-server db-upgrade
+----
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-Database-CLI[PKI Server Database CLI].
+
+To perform the upgrade manually, find the certificate records that do not have an issuerName attribute:
+
+----
+$ ldapsearch -x -D "cn=Directory Manager" -w Secret.123 \
+ -b "ou=certificateRepository,ou=ca,dc=ca,dc=example,dc=com" \
+ -s one \
+ "(&(objectclass=certificateRecord)(!(issuerName=*)))" dn
+----
+
+For each certificate record returned, execute the following command:
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=<serial>,ou=certificateRepository,ou=ca,dc=ca,dc=example,dc=com
+changetype: modify
+add: issuerName
+issuerName: <issuer>
+EOF
+----
+
+where `<serial>` is the certificate's serial number in decimal, and `<issuer>` is the certificate's issuer DN.
+
+== Upgrading KRA Database ==
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/kra/shared/conf/db.ldif DOGTAG_10_3_BRANCH:base/kra/shared/conf/db.ldif
+----
+
+There are no required changes.
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/kra/shared/conf/acl.ldif DOGTAG_10_3_BRANCH:base/kra/shared/conf/acl.ldif
+----
+
+There are no required changes.
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/kra/shared/conf/index.ldif DOGTAG_10_3_BRANCH:base/kra/shared/conf/index.ldif
+----
+
+The index needs to be updated in existing instances:
+
+----
+$ ldapmodify -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: cn=realm,cn=index,cn=kra,cn=ldbm database, cn=plugins, cn=config
+changetype: add
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: realm
+EOF
+----
+
+=== Adding realm attribute ===
+
+See link:https://github.com/dogtagpki/pki/issues/2329[Ticket #2329: fine grained authz per application].
+
+== Upgrading OCSP Database ==
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/ocsp/shared/conf/db.ldif DOGTAG_10_3_BRANCH:base/ocsp/shared/conf/db.ldif
+----
+
+There are no required changes.
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/ocsp/shared/conf/acl.ldif DOGTAG_10_3_BRANCH:base/ocsp/shared/conf/acl.ldif
+----
+
+There are no required changes.
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/ocsp/shared/conf/index.ldif DOGTAG_10_3_BRANCH:base/ocsp/shared/conf/index.ldif
+----
+
+There are no required changes.
+
+== Upgrading TKS Database ==
+
+=== Updating container entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/tks/shared/conf/db.ldif DOGTAG_10_3_BRANCH:base/tks/shared/conf/db.ldif
+----
+
+There are no required changes.
+
+=== Updating ACL entries ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/tks/shared/conf/acl.ldif DOGTAG_10_3_BRANCH:base/tks/shared/conf/acl.ldif
+----
+
+There are no required changes.
+
+=== Updating indexes ===
+
+To check for changes in the source code:
+
+----
+$ git diff DOGTAG_10_2_BRANCH:base/tks/shared/conf/index.ldif DOGTAG_10_3_BRANCH:base/tks/shared/conf/index.ldif
+----
+
+There are no required changes.
+
+== Upgrading TPS Database ==
+
+Upgrade not supported.
