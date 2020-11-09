@@ -17,7 +17,7 @@ are two VMs currently provisioned in this pipeline:
 
  - `controller` at IP address `192.168.33.10`, which runs Ansible
  - `master` at IP address `192.168.33.20`, which runs PKI (and is
-   the target of Anisble playbooks.
+   the target of Ansible playbooks.
 
 You can SSH into each using Vagrant's ssh keys
 
