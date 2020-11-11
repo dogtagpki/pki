@@ -1,3 +1,3 @@
 #!/bin/bash -ex
 
-pkidestroy -i pkitest -s CA
+pkidestroy -i pki-tomcat -s CA -v

@@ -150,9 +150,7 @@ jobs:
           run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/tps-create.sh
 
         - name: Run PKI Healthcheck
-          run: |
-                docker exec -i ${CONTAINER} bash -c "echo 'instance_name=pkitest' >> /etc/pki/healthcheck.conf"
-                docker exec -i ${CONTAINER} bash -c "/usr/sbin/pki-healthcheck --debug"
+          run: docker exec -i ${CONTAINER} bash -c "/usr/sbin/pki-healthcheck --debug"
 
         - name: Gather instance config
           if: always()
@@ -178,7 +176,7 @@ jobs:
 
         - name: Gather journalctl logs
           if: always()
-          run: docker exec -i ${CONTAINER} bash -c "journalctl -u pki-tomcatd@pkitest > /var/log/pki/pki-journalctl.log"
+          run: docker exec -i ${CONTAINER} bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
 
         - name: Compress logs
           if: always()

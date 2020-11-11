@@ -1,3 +1,3 @@
 #!/bin/bash -ex
 
-pkidestroy -v -i pkitest -s TPS
+pkidestroy -i pki-tomcat -s TPS -v
