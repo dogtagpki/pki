@@ -14,7 +14,7 @@ docker images
 docker run \
     --detach \
     --name=${CONTAINER} \
-    --hostname='master.pki.test' \
+    --hostname='pki.example.com' \
     --privileged \
     --tmpfs /tmp \
     --tmpfs /run \
