@@ -32,8 +32,8 @@ jobs:
                   dnf copr enable -y @pki/master
                   dnf builddep -y --allowerasing --spec ./pki.spec
 
-          - name: Build PKI packages
-            run: ./build.sh --with-timestamp --with-commit-id --work-dir=../packages rpm
+          - name: Build PKI packages required by IPA
+            run: ./build.sh --with-pkgs=base,server,acme,ca,kra --with-timestamp --with-commit-id --work-dir=../packages rpm
 
           - name: Compress RPMS
             run: tar -czf pki-rpms.tar.gz ../packages/RPMS/*
