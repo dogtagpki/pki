@@ -13,8 +13,8 @@ docker images
 
 docker run \
     --detach \
-    --name=${CONTAINER} \
-    --hostname='pki.example.com' \
+    --name=${NAME} \
+    --hostname=${HOSTNAME} \
     --privileged \
     --tmpfs /tmp \
     --tmpfs /run \
@@ -46,4 +46,4 @@ docker ps -a
 # [Errno 2] No such file or directory: '/var/cache/dnf/metadata_lock.pid'
 sleep 5
 
-docker exec -i ${CONTAINER} dnf update -y
+docker exec -i ${NAME} dnf update -y

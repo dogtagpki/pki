@@ -54,7 +54,6 @@ jobs:
       needs: build
       runs-on: macos-latest
       env:
-        CONTAINER: pkitest
         BUILDDIR: /tmp/workdir
         PKIDIR: /tmp/workdir/pki
         LOGS: ${GITHUB_WORKSPACE}/logs.txt
