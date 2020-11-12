@@ -138,19 +138,19 @@ jobs:
           run: docker exec -i pki.example.com ${PKIDIR}/ci/ds-create.sh
 
         - name: Install CA
-          run: docker exec -i pki.example.com ${PKIDIR}/ci/ca-create.sh
+          run: docker exec -i pki.example.com pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
 
         - name: Install KRA
-          run: docker exec -i pki.example.com ${PKIDIR}/ci/kra-create.sh
+          run: docker exec -i pki.example.com pkispawn -f /usr/share/pki/server/examples/installation/kra.cfg -s KRA -v
 
         - name: Install OCSP
-          run: docker exec -i pki.example.com ${PKIDIR}/ci/ocsp-create.sh
+          run: docker exec -i pki.example.com pkispawn -f /usr/share/pki/server/examples/installation/ocsp.cfg -s OCSP -v
 
         - name: Install TKS
-          run: docker exec -i pki.example.com ${PKIDIR}/ci/tks-create.sh
+          run: docker exec -i pki.example.com pkispawn -f /usr/share/pki/server/examples/installation/tks.cfg -s TKS -v
 
         - name: Install TPS
-          run: docker exec -i pki.example.com ${PKIDIR}/ci/tps-create.sh
+          run: docker exec -i pki.example.com pkispawn -f /usr/share/pki/server/examples/installation/tps.cfg -s TPS -v
 
         - name: Run PKI Healthcheck
           run: docker exec -i pki.example.com bash -c "/usr/sbin/pki-healthcheck --debug"
@@ -160,32 +160,30 @@ jobs:
           run: docker exec -i pki.example.com bash -c "cp -rf /etc/pki /var/log/pki/etc-pki"
 
         - name: Remove TPS
-          run: docker exec -i pki.example.com ${PKIDIR}/ci/tps-remove.sh
+          run: docker exec -i pki.example.com pkidestroy -i pki-tomcat -s TPS -v
 
         - name: Remove TKS
-          run: docker exec -i pki.example.com ${PKIDIR}/ci/tks-remove.sh
+          run: docker exec -i pki.example.com pkidestroy -i pki-tomcat -s TKS -v
 
         - name: Remove OCSP
-          run: docker exec -i pki.example.com ${PKIDIR}/ci/ocsp-remove.sh
+          run: docker exec -i pki.example.com pkidestroy -i pki-tomcat -s OCSP -v
 
         - name: Remove KRA
-          run: docker exec -i pki.example.com ${PKIDIR}/ci/kra-remove.sh
+          run: docker exec -i pki.example.com pkidestroy -i pki-tomcat -s KRA -v
 
         - name: Remove CA
-          run: docker exec -i pki.example.com ${PKIDIR}/ci/ca-remove.sh
+          run: docker exec -i pki.example.com pkidestroy -i pki-tomcat -s CA -v
 
         - name: Remove DS
           run: docker exec -i pki.example.com ${PKIDIR}/ci/ds-remove.sh
 
-        - name: Gather journalctl logs
+        - name: Gather logs
           if: always()
-          run: docker exec -i pki.example.com bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
+          run: |
+            docker exec -i pki.example.com bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
+            docker exec -i pki.example.com bash -c "tar -czf ${PKIDIR}/pki-logs.tar.gz /var/log/pki"
 
-        - name: Compress logs
-          if: always()
-          run: docker exec -i pki.example.com bash -c "tar -czf ${PKIDIR}/pki-logs.tar.gz /var/log/pki"
-
-        - name: Upload Logs
+        - name: Upload logs
           if: always()
           uses: actions/upload-artifact@v1
           with:
