@@ -159,7 +159,8 @@ public class CAConfigurator extends Configurator {
             KeyPair keyPair,
             String certType,
             String profileID,
-            byte[] certreq) throws Exception {
+            byte[] certreq,
+            String[] dnsNames) throws Exception {
 
         logger.info("CAConfigurator: Creating local " + tag + " certificate");
 
@@ -200,14 +201,6 @@ public class CAConfigurator extends Configurator {
         String configurationRoot = cs.getString("configurationRoot");
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileID);
 
-        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        String[] sanHostnames = null;
-
-        if (tag.equals("sslserver") && injectSAN) {
-            String value = cs.getString("service.sslserver.san");
-            sanHostnames = StringUtils.split(value, ",");
-        }
-
         boolean installAdjustValidity = !tag.equals("signing");
 
         IRequest req = queue.newRequest("enrollment");
@@ -217,7 +210,7 @@ public class CAConfigurator extends Configurator {
                 profile,
                 info,
                 x509key,
-                sanHostnames,
+                dnsNames,
                 installAdjustValidity);
 
         profile.populate(req, info);
@@ -247,6 +240,16 @@ public class CAConfigurator extends Configurator {
         String profileID = preopConfig.getString("cert." + tag + ".profile");
         logger.debug("Configurator: profile ID: " + profileID);
 
+        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+        logger.debug("Configurator: inject SAN: " + injectSAN);
+        String[] dnsNames = null;
+
+        if (tag.equals("sslserver") && injectSAN) {
+            String list = cs.getString("service.sslserver.san");
+            logger.debug("Configurator: DNS names: " + list);
+            dnsNames = StringUtils.split(list, ",");
+        }
+
         X509CertImpl certImpl;
 
         if (request.isClone() && tag.equals("sslserver")) {
@@ -261,20 +264,10 @@ public class CAConfigurator extends Configurator {
 
             String sessionID = request.getInstallToken().getToken();
 
-            Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-            logger.debug("Configurator: inject SAN: " + injectSAN);
-            String[] dnsNames = null;
-
-            if (tag.equals("sslserver") && injectSAN) {
-                String list = cs.getString("service.sslserver.san");
-                logger.debug("Configurator: DNS names: " + list);
-                dnsNames = StringUtils.split(list, ",");
-            }
-
             certImpl = createRemoteCert(hostname, port, sessionID, profileID, certreq, dnsNames);
 
         } else {
-            certImpl = createLocalCert(tag, keyPair, certType, profileID, certreq);
+            certImpl = createLocalCert(tag, keyPair, certType, profileID, certreq, dnsNames);
         }
 
         if (tag.equals("subsystem")) {
