@@ -72,7 +72,7 @@ jobs:
         - name: Run IPA container
           run: |
             IMAGE=ipa-fedora-${{ matrix.os }} \
-            NAME=ipa \
+            NAME=ipa.example.com \
             HOSTNAME=ipa.example.com \
             ci/runner-init.sh
 
@@ -85,30 +85,30 @@ jobs:
           run: tar -xzf pki-build-${{ matrix.os }}/pki-rpms.tar.gz
 
         - name: Install required packages
-          run: docker exec -i ipa dnf install -y  findutils dnf-plugins-core
+          run: docker exec -i ipa.example.com dnf install -y  findutils dnf-plugins-core
 
         - name: Enable freeipa nightly COPR
-          run: docker exec -i ipa dnf copr enable -y @freeipa/freeipa-master-nightly
+          run: docker exec -i ipa.example.com dnf copr enable -y @freeipa/freeipa-master-nightly
 
         - name: Enable PKI COPR repo
-          run: docker exec -i ipa dnf copr enable -y ${COPR_REPO}
+          run: docker exec -i ipa.example.com dnf copr enable -y ${COPR_REPO}
 
         - name: Install FreeIPA packages
-          run: docker exec -i ipa dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests freeipa-healthcheck
+          run: docker exec -i ipa.example.com dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests freeipa-healthcheck
 
         - name: Install newly built PKI packages
-          run: docker exec -i ipa bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
+          run: docker exec -i ipa.example.com bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
 
         - name: Run IPA tests
-          run: docker exec -i ipa ${PKIDIR}/ci/ipa-test.sh
+          run: docker exec -i ipa.example.com ${PKIDIR}/ci/ipa-test.sh
 
         - name: Extract PKI related journalctl logs
           if: always()
-          run: docker exec -i ipa bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
+          run: docker exec -i ipa.example.com bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
 
         - name: Compress PKI and IPA related logs
           if: always()
-          run: docker exec -i ipa bash -c "tar -czf ${PKIDIR}/ipa-logs.tar.gz /var/log/ipa* /var/log/pki*"
+          run: docker exec -i ipa.example.com bash -c "tar -czf ${PKIDIR}/ipa-logs.tar.gz /var/log/ipa* /var/log/pki*"
 
         - name: Upload compressed log
           if: always()

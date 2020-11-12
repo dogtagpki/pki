@@ -113,7 +113,7 @@ jobs:
         - name: Run PKI container
           run: |
             IMAGE=pki-fedora-${{ matrix.os }} \
-            NAME=pki \
+            NAME=pki.example.com \
             HOSTNAME=pki.example.com \
             ci/runner-init.sh
 
@@ -126,64 +126,64 @@ jobs:
           run: tar -xzf pki-build-${{ matrix.os }}/pki-rpms.tar.gz
 
         - name: Install required packages
-          run: docker exec -i pki dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          run: docker exec -i pki.example.com dnf install -y findutils dnf-plugins-core wget 389-ds-base
 
         - name: Enable PKI COPR repo
-          run: docker exec -i pki dnf copr enable -y ${COPR_REPO}
+          run: docker exec -i pki.example.com dnf copr enable -y ${COPR_REPO}
 
         - name: Install PKI packages
-          run: docker exec -i pki bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
+          run: docker exec -i pki.example.com bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
 
         - name: Install DS
-          run: docker exec -i pki ${PKIDIR}/ci/ds-create.sh
+          run: docker exec -i pki.example.com ${PKIDIR}/ci/ds-create.sh
 
         - name: Install CA
-          run: docker exec -i pki ${PKIDIR}/ci/ca-create.sh
+          run: docker exec -i pki.example.com ${PKIDIR}/ci/ca-create.sh
 
         - name: Install KRA
-          run: docker exec -i pki ${PKIDIR}/ci/kra-create.sh
+          run: docker exec -i pki.example.com ${PKIDIR}/ci/kra-create.sh
 
         - name: Install OCSP
-          run: docker exec -i pki ${PKIDIR}/ci/ocsp-create.sh
+          run: docker exec -i pki.example.com ${PKIDIR}/ci/ocsp-create.sh
 
         - name: Install TKS
-          run: docker exec -i pki ${PKIDIR}/ci/tks-create.sh
+          run: docker exec -i pki.example.com ${PKIDIR}/ci/tks-create.sh
 
         - name: Install TPS
-          run: docker exec -i pki ${PKIDIR}/ci/tps-create.sh
+          run: docker exec -i pki.example.com ${PKIDIR}/ci/tps-create.sh
 
         - name: Run PKI Healthcheck
-          run: docker exec -i pki bash -c "/usr/sbin/pki-healthcheck --debug"
+          run: docker exec -i pki.example.com bash -c "/usr/sbin/pki-healthcheck --debug"
 
         - name: Gather instance config
           if: always()
-          run: docker exec -i pki bash -c "cp -rf /etc/pki /var/log/pki/etc-pki"
+          run: docker exec -i pki.example.com bash -c "cp -rf /etc/pki /var/log/pki/etc-pki"
 
         - name: Remove TPS
-          run: docker exec -i pki ${PKIDIR}/ci/tps-remove.sh
+          run: docker exec -i pki.example.com ${PKIDIR}/ci/tps-remove.sh
 
         - name: Remove TKS
-          run: docker exec -i pki ${PKIDIR}/ci/tks-remove.sh
+          run: docker exec -i pki.example.com ${PKIDIR}/ci/tks-remove.sh
 
         - name: Remove OCSP
-          run: docker exec -i pki ${PKIDIR}/ci/ocsp-remove.sh
+          run: docker exec -i pki.example.com ${PKIDIR}/ci/ocsp-remove.sh
 
         - name: Remove KRA
-          run: docker exec -i pki ${PKIDIR}/ci/kra-remove.sh
+          run: docker exec -i pki.example.com ${PKIDIR}/ci/kra-remove.sh
 
         - name: Remove CA
-          run: docker exec -i pki ${PKIDIR}/ci/ca-remove.sh
+          run: docker exec -i pki.example.com ${PKIDIR}/ci/ca-remove.sh
 
         - name: Remove DS
-          run: docker exec -i pki ${PKIDIR}/ci/ds-remove.sh
+          run: docker exec -i pki.example.com ${PKIDIR}/ci/ds-remove.sh
 
         - name: Gather journalctl logs
           if: always()
-          run: docker exec -i pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
+          run: docker exec -i pki.example.com bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
 
         - name: Compress logs
           if: always()
-          run: docker exec -i pki bash -c "tar -czf ${PKIDIR}/pki-logs.tar.gz /var/log/pki"
+          run: docker exec -i pki.example.com bash -c "tar -czf ${PKIDIR}/pki-logs.tar.gz /var/log/pki"
 
         - name: Upload Logs
           if: always()
