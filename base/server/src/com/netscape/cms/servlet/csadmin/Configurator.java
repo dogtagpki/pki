@@ -531,6 +531,9 @@ public class Configurator {
             String[] dnsNames)
             throws Exception {
 
+        String serverURL = "https://" + hostname + ":" + port;
+        logger.info("Configurator: Submitting cert request to " + serverURL);
+
         String sysType = cs.getType();
         String machineName = cs.getHostname();
         String securePort = cs.getString("service.securePort", "");
@@ -547,9 +550,7 @@ public class Configurator {
             injectSANExtension(dnsNames, content);
         }
 
-        String serverURL = "https://" + hostname + ":" + port;
         PKIClient client = Configurator.createClient(serverURL, null, null);
-
         X509CertImpl cert = CertUtils.createRemoteCert(client, content);
 
         if (cert == null) {
