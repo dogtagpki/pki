@@ -194,6 +194,13 @@ configure_file(
 )
 
 install(
+    DIRECTORY
+        examples/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/server/examples
+)
+
+install(
     FILES
          ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
     DESTINATION

@@ -9,36 +9,8 @@ This page describes the process to install a TKS subsystem.
 TKS Subsystem Installation
 --------------------------
 
-Prepare a file (e.g. tks.cfg) that contains the deployment configuration, for example:
-
-```
-[DEFAULT]
-pki_server_database_password=Secret.123
-
-[TKS]
-pki_admin_cert_file=ca_admin.cert
-pki_admin_email=tksadmin@example.com
-pki_admin_name=tksadmin
-pki_admin_nickname=tksadmin
-pki_admin_password=Secret.123
-pki_admin_uid=tksadmin
-
-pki_client_database_password=Secret.123
-pki_client_database_purge=False
-pki_client_pkcs12_password=Secret.123
-
-pki_ds_base_dn=dc=tks,dc=pki,dc=example,dc=com
-pki_ds_database=tks
-pki_ds_password=Secret.123
-
-pki_security_domain_name=EXAMPLE
-pki_security_domain_user=caadmin
-pki_security_domain_password=Secret.123
-
-pki_audit_signing_nickname=tks_audit_signing
-pki_sslserver_nickname=sslserver
-pki_subsystem_nickname=subsystem
-```
+Prepare a file (e.g. tks.cfg) that contains the deployment configuration.
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/tks.cfg](../../../base/server/examples/installation/tks.cfg).
 
 Then execute the following command:
 

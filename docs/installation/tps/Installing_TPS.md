@@ -9,36 +9,8 @@ This page describes the process to install a TPS subsystem.
 TPS Subsystem Installation
 --------------------------
 
-Prepare a file (e.g. tps.cfg) that contains the deployment configuration, for example:
-
-```
-[DEFAULT]
-pki_server_database_password=Secret.123
-
-[TPS]
-pki_admin_cert_file=ca_admin.cert
-pki_admin_email=tpsadmin@example.com
-pki_admin_name=tpsadmin
-pki_admin_nickname=tpsadmin
-pki_admin_password=Secret.123
-pki_admin_uid=tpsadmin
-
-pki_client_database_password=Secret.123
-pki_client_database_purge=False
-pki_client_pkcs12_password=Secret.123
-
-pki_ds_base_dn=dc=tps,dc=pki,dc=example,dc=com
-pki_ds_database=tps
-pki_ds_password=Secret.123
-
-pki_security_domain_name=EXAMPLE
-pki_security_domain_user=caadmin
-pki_security_domain_password=Secret.123
-
-pki_audit_signing_nickname=tps_audit_signing
-pki_sslserver_nickname=sslserver
-pki_subsystem_nickname=subsystem
-```
+Prepare a file (e.g. tps.cfg) that contains the deployment configuration.
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/tps.cfg](../../../base/server/examples/installation/tps.cfg).
 
 Then execute the following command:
 

@@ -9,37 +9,8 @@ This page describes the process to install an OCSP subsystem.
 OCSP Subsystem Installation
 ---------------------------
 
-Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration, for example:
-
-```
-[DEFAULT]
-pki_server_database_password=Secret.123
-
-[OCSP]
-pki_admin_cert_file=ca_admin.cert
-pki_admin_email=ocspadmin@example.com
-pki_admin_name=ocspadmin
-pki_admin_nickname=ocspadmin
-pki_admin_password=Secret.123
-pki_admin_uid=ocspadmin
-
-pki_client_database_password=Secret.123
-pki_client_database_purge=False
-pki_client_pkcs12_password=Secret.123
-
-pki_ds_base_dn=dc=ocsp,dc=pki,dc=example,dc=com
-pki_ds_database=ocsp
-pki_ds_password=Secret.123
-
-pki_security_domain_name=EXAMPLE
-pki_security_domain_user=caadmin
-pki_security_domain_password=Secret.123
-
-pki_ocsp_signing_nickname=ocsp_signing
-pki_audit_signing_nickname=ocsp_audit_signing
-pki_sslserver_nickname=sslserver
-pki_subsystem_nickname=subsystem
-```
+Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration.
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ocsp.cfg](../../../base/server/examples/installation/ocsp.cfg).
 
 Then execute the following command:
 
