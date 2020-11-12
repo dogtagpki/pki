@@ -233,22 +233,9 @@ public class CAConfigurator extends Configurator {
             CertificateSetupRequest request,
             KeyPair keyPair,
             byte[] certreq,
-            String certType) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String profileID = preopConfig.getString("cert." + tag + ".profile");
-        logger.debug("Configurator: profile ID: " + profileID);
-
-        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        logger.debug("Configurator: inject SAN: " + injectSAN);
-        String[] dnsNames = null;
-
-        if (tag.equals("sslserver") && injectSAN) {
-            String list = cs.getString("service.sslserver.san");
-            logger.debug("Configurator: DNS names: " + list);
-            dnsNames = StringUtils.split(list, ",");
-        }
+            String certType,
+            String profileID,
+            String[] dnsNames) throws Exception {
 
         X509CertImpl certImpl;
 

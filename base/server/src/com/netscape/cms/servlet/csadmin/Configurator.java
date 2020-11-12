@@ -471,7 +471,9 @@ public class Configurator {
             CertificateSetupRequest request,
             KeyPair keyPair,
             byte[] certreq,
-            String certType) throws Exception {
+            String certType,
+            String profileID,
+            String[] dnsNames) throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -488,19 +490,6 @@ public class Configurator {
         }
 
         String sessionID = request.getInstallToken().getToken();
-
-        String profileID = preopConfig.getString("cert." + tag + ".profile");
-        logger.debug("Configurator: profile ID: " + profileID);
-
-        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        logger.debug("Configurator: inject SAN: " + injectSAN);
-        String[] dnsNames = null;
-
-        if (tag.equals("sslserver") && injectSAN) {
-            String list = cs.getString("service.sslserver.san");
-            logger.debug("Configurator: DNS names: " + list);
-            dnsNames = StringUtils.split(list, ",");
-        }
 
         return createRemoteCert(hostname, port, sessionID, profileID, certreq, dnsNames);
     }
@@ -684,10 +673,25 @@ public class Configurator {
             KeyPair keyPair,
             X509Certificate x509Cert) throws Exception {
 
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
         String tag = cert.getCertTag();
         String type = cs.getType();
 
         logger.info("Configurator: Processing " + tag + " certificate");
+
+        String profileID = preopConfig.getString("cert." + tag + ".profile");
+        logger.info("Configurator: - profile ID: " + profileID);
+
+        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+        logger.info("Configurator: - inject SAN: " + injectSAN);
+        String[] dnsNames = null;
+
+        if (tag.equals("sslserver") && injectSAN) {
+            String list = cs.getString("service.sslserver.san");
+            logger.info("Configurator: - DNS names: " + list);
+            dnsNames = StringUtils.split(list, ",");
+        }
 
         // For external/existing CA case, some/all system certs may be provided.
         // The SSL server cert will always be generated for the current host.
@@ -720,7 +724,14 @@ public class Configurator {
             logger.debug("Configurator: request: " + certreq);
             cs.putString(type.toLowerCase() + "." + tag + ".certreq", certreq);
 
-            X509CertImpl certImpl = createCert(tag, request, keyPair, binCertRequest, certType);
+            X509CertImpl certImpl = createCert(
+                    tag,
+                    request,
+                    keyPair,
+                    binCertRequest,
+                    certType,
+                    profileID,
+                    dnsNames);
             cert.setCert(certImpl.getEncoded());
 
             String certStr = CryptoUtil.base64Encode(cert.getCert());
