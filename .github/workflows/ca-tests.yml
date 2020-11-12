@@ -113,3 +113,164 @@ jobs:
         with:
           name: pki-logs-${{ matrix.os }}
           path: pki-logs.tar
+
+  # docs/installation/ca/Installing_Subordinate_CA.md
+  subca-test:
+    name: Installing Subordinate CA
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      LOGS: ${GITHUB_WORKSPACE}/logs.txt
+      COPR_REPO: "@pki/master"
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Build container with systemd
+        run: docker build ci -t pki --build-arg OS_VERSION=${{ matrix.os }}
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Run root container
+        run: |
+          IMAGE=pki \
+          NAME=root \
+          HOSTNAME=root.example.com \
+          ci/runner-init.sh
+
+      - name: Connect root container to network
+        run: docker network connect example root --alias root.example.com
+
+      - name: Install dependencies in root container
+        run: |
+          docker exec root dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec root dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages in root container
+        run: docker exec root bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS in root container
+        run: docker exec root ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install root CA in root container
+        run: docker exec root pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+
+      - name: Gather config files from root container
+        if: always()
+        run: docker exec root tar cvf ${PKIDIR}/root-conf.tar -C / etc/pki
+
+      - name: Upload config files from root container
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: root-conf-${{ matrix.os }}
+          path: root-conf.tar
+
+      - name: Setup subordinate container
+        run: |
+          IMAGE=pki \
+          NAME=subordinate \
+          HOSTNAME=sub.example.com \
+          ci/runner-init.sh
+
+      - name: Connect subordinate container to network
+        run: docker network connect example subordinate --alias sub.example.com
+
+      - name: Install dependencies in subordinate container
+        run: |
+          docker exec subordinate dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec subordinate dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages in subordinate container
+        run: docker exec subordinate bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS in subordinate container
+        run: docker exec subordinate ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install subordinate CA in subordinate container
+        run: |
+          docker exec root pki-server cert-export ca_signing --cert-file ${PKIDIR}/root-ca_signing.crt
+          docker exec subordinate cp ${PKIDIR}/root-ca_signing.crt .
+          docker exec subordinate pkispawn -f /usr/share/pki/server/examples/installation/subca.cfg -s CA -v
+
+      - name: Gather config files from subordinate container
+        if: always()
+        run: docker exec subordinate tar cvf ${PKIDIR}/subordinate-conf.tar -C / etc/pki
+
+      - name: Upload config files from subordinate container
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: subordinate-conf-${{ matrix.os }}
+          path: subordinate-conf.tar
+
+      - name: Run PKI healthcheck
+        run: docker exec subordinate pki-healthcheck --debug
+
+      - name: Verify subordinate CA admin access
+        run: |
+          docker exec subordinate pki client-init
+          docker exec subordinate pki client-cert-import ca_signing --ca-cert root-ca_signing.crt
+          docker exec subordinate pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+          docker exec subordinate pki -n caadmin ca-user-show caadmin
+
+      - name: Remove subordinate CA from subordinate container
+        run: docker exec subordinate pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS from subordinate container
+        run: docker exec subordinate ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Disconnect subordinate container from network
+        run: docker network disconnect example subordinate
+
+      - name: Gather logs from subordinate container
+        if: always()
+        run: |
+          docker exec subordinate bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec subordinate tar cvf ${PKIDIR}/subordinate-logs.tar -C / var/log/pki
+
+      - name: Upload log files from subordinate container
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: subordinate-logs-${{ matrix.os }}
+          path: subordinate-logs.tar
+
+      - name: Remove root CA from root container
+        run: docker exec root pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS from root container
+        run: docker exec root ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Disconnect root container from network
+        run: docker network disconnect example root
+
+      - name: Remove network
+        run: docker network rm example
+
+      - name: Gather logs from root container
+        if: always()
+        run: |
+          docker exec root bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec root tar cvf ${PKIDIR}/root-logs.tar -C / var/log/pki
+
+      - name: Upload logs from root container
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: root-logs-${{ matrix.os }}
+          path: root-logs.tar
