@@ -663,7 +663,12 @@ public class Configurator {
         }
     }
 
-    public void loadCert(String tag, byte[] certreq, X509Certificate x509Cert) throws Exception {
+    public void loadCert(
+            String tag,
+            byte[] certreq,
+            X509Certificate x509Cert,
+            String profileID,
+            String[] dnsNames) throws Exception {
     }
 
     public void processCert(
@@ -714,7 +719,7 @@ public class Configurator {
             logger.info("Configurator: Loading existing " + tag + " certificate");
             cert.setCert(x509Cert.getEncoded());
 
-            loadCert(tag, binCertRequest, x509Cert);
+            loadCert(tag, binCertRequest, x509Cert, profileID, dnsNames);
 
         } else {
             byte[] binCertRequest = createCertRequest(tag, keyPair);

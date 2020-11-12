@@ -22,7 +22,6 @@ import java.net.URL;
 import java.security.KeyPair;
 import java.security.Principal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -82,7 +81,12 @@ public class CAConfigurator extends Configurator {
     }
 
     @Override
-    public void loadCert(String tag, byte[] certreq, org.mozilla.jss.crypto.X509Certificate x509Cert) throws Exception {
+    public void loadCert(
+            String tag,
+            byte[] certreq,
+            org.mozilla.jss.crypto.X509Certificate x509Cert,
+            String profileID,
+            String[] dnsNames) throws Exception {
 
         // checking whether the cert was issued by existing CA
         logger.debug("CAConfigurator: issuer DN: " + x509Cert.getIssuerDN());
@@ -107,15 +111,12 @@ public class CAConfigurator extends Configurator {
 
         logger.debug("CAConfigurator: cert issued by existing CA, create record");
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
         IRequestQueue queue = ca.getRequestQueue();
 
         String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
-        String profileID = preopConfig.getString("cert." + tag + ".profile");
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileID);
 
         PKCS10 pkcs10 = new PKCS10(certreq);
@@ -124,14 +125,6 @@ public class CAConfigurator extends Configurator {
         byte[] bytes = x509Cert.getEncoded();
         X509CertImpl certImpl = new X509CertImpl(bytes);
         X509CertInfo info = certImpl.getInfo();
-
-        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        String[] sanHostnames = null;
-
-        if (tag.equals("sslserver") && injectSAN) {
-            String value = cs.getString("service.sslserver.san");
-            sanHostnames = StringUtils.split(value, ",");
-        }
 
         boolean installAdjustValidity = !tag.equals("signing");
 
@@ -142,7 +135,7 @@ public class CAConfigurator extends Configurator {
                 profile,
                 info,
                 x509key,
-                sanHostnames,
+                dnsNames,
                 installAdjustValidity);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, certImpl);
