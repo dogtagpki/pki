@@ -248,9 +248,20 @@ class PKIDeployer:
 
         ca_cert = os.path.join(self.mdict['pki_server_database_path'],
                                "ca.crt")
+
         if not os.path.exists(ca_cert):
-            if os.path.exists(self.mdict['pki_cert_chain_path']):
-                ca_cert = self.mdict['pki_cert_chain_path']
+
+            # if ca.crt doesn't exist, use provided cert chain
+            cert_chain_path = self.mdict['pki_cert_chain_path']
+            logger.info('Certificate chain: %s', cert_chain_path)
+
+            if cert_chain_path:
+
+                if not os.path.exists(cert_chain_path):
+                    # if cert chain is specified but doesn't exist, throw exception
+                    raise Exception('Certificate chain not found: %s' % cert_chain_path)
+
+                ca_cert = cert_chain_path
 
         self.sd_connection = pki.client.PKIConnection(
             protocol='https',
