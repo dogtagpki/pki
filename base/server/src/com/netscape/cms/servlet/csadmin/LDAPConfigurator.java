@@ -584,7 +584,7 @@ public class LDAPConfigurator {
     public void createSystemContainer() throws Exception {
 
         // for older subsystems, the container ou=csusers, cn=config may not yet exist
-        String dn = "ou=csusers, cn=config";
+        String dn = "ou=csusers,cn=config";
         logger.info("Adding " + dn);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
@@ -598,11 +598,12 @@ public class LDAPConfigurator {
             connection.add(entry);
 
         } catch (LDAPException e) {
+            String message = "Unable to add " + dn + ": " + e.getMessage();
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                logger.warn("Entry already exists: " + dn);
+                logger.info(message);
 
             } else {
-                logger.error("Unable to add " + dn + ": " + e.getMessage(), e);
+                logger.error(message, e);
                 throw e;
             }
         }
