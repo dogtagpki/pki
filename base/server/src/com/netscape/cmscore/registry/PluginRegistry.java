@@ -91,7 +91,7 @@ public class PluginRegistry {
 
         while (st.hasMoreTokens()) {
             String type = st.nextToken();
-            logger.info("PluginRegistry: " + type + ":");
+            logger.debug("PluginRegistry: " + type + ":");
 
             loadPlugins(config, type);
         }
@@ -113,7 +113,7 @@ public class PluginRegistry {
 
         while (st.hasMoreTokens()) {
             String id = st.nextToken();
-            logger.info("PluginRegistry: - " + id);
+            logger.debug("PluginRegistry: - " + id);
 
             loadPlugin(config, type, id);
         }
