@@ -389,3 +389,167 @@ jobs:
         with:
           name: external-ca-logs-${{ matrix.os }}
           path: external-ca-logs.tar
+
+  # docs/installation/ca/Installing_CA_Clone.md
+  ca-clone-test:
+    name: Installing CA Clone
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      LOGS: ${GITHUB_WORKSPACE}/logs.txt
+      COPR_REPO: "@pki/master"
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Build container with systemd
+        run: docker build ci -t pki --build-arg OS_VERSION=${{ matrix.os }}
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Run master container
+        run: |
+          IMAGE=pki \
+          NAME=master \
+          HOSTNAME=master.example.com \
+          ci/runner-init.sh
+
+      - name: Connect master container to network
+        run: docker network connect example master --alias master.example.com
+
+      - name: Install dependencies in master container
+        run: |
+          docker exec master dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec master dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages in master container
+        run: docker exec master bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS in master container
+        run: docker exec master ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install master CA in master container
+        run: docker exec master pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+
+      - name: Gather config files from replica container
+        if: always()
+        run: docker exec master tar cvf ${PKIDIR}/master-conf.tar -C / etc/pki
+
+      - name: Upload config files from replica container
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: master-conf-${{ matrix.os }}
+          path: master-conf.tar
+
+      - name: Setup replica container
+        run: |
+          IMAGE=pki \
+          NAME=replica \
+          HOSTNAME=replica.example.com \
+          ci/runner-init.sh
+
+      - name: Connect replica container to network
+        run: docker network connect example replica --alias replica.example.com
+
+      - name: Install dependencies in replica container
+        run: |
+          docker exec replica dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec replica dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages on replica container
+        run: docker exec replica bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS in replica container
+        run: docker exec replica ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install CA clone in replica container
+        run: |
+          docker exec master pki-server cert-export ca_signing --cert-file ${PKIDIR}/master-ca_signing.crt
+          docker exec master pki-server ca-clone-prepare --pkcs12-file ${PKIDIR}/master-ca-certs.p12 --pkcs12-password Secret.123
+          docker exec replica cp ${PKIDIR}/master-ca_signing.crt .
+          docker exec replica cp ${PKIDIR}/master-ca-certs.p12 .
+          docker exec replica pkispawn -f /usr/share/pki/server/examples/installation/ca-clone.cfg -s CA -v
+
+      - name: Gather config files from replica container
+        if: always()
+        run: docker exec replica tar cvf ${PKIDIR}/replica-conf.tar -C / etc/pki
+
+      - name: Upload config files from replica container
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: replica-conf-${{ matrix.os }}
+          path: replica-conf.tar
+
+      - name: Verify master CA admin access
+        run: |
+          docker exec master cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/master-ca_admin_cert.p12
+          docker exec master cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/master-pkcs12_password.conf
+          docker exec replica cp ${PKIDIR}/master-ca_admin_cert.p12 .
+          docker exec replica cp ${PKIDIR}/master-pkcs12_password.conf .
+          docker exec replica pki client-init
+          docker exec replica pki client-cert-import ca_signing --ca-cert master-ca_signing.crt
+          docker exec replica pki client-cert-import \
+              --pkcs12 master-ca_admin_cert.p12 \
+              --pkcs12-password-file master-pkcs12_password.conf
+          docker exec replica pki -n caadmin ca-user-show caadmin
+
+      - name: Remove CA clone from replica container
+        run: docker exec replica pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS from replica container
+        run: docker exec replica ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Disconnect replica container from network
+        run: docker network disconnect example replica
+
+      - name: Gather log files from replica container
+        if: always()
+        run: |
+          docker exec replica bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec replica tar cvf ${PKIDIR}/replica-logs.tar -C / var/log/pki
+
+      - name: Upload log files from replica container
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: replica-logs-${{ matrix.os }}
+          path: replica-logs.tar
+
+      - name: Remove master CA from master container
+        run: docker exec master pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS from master container
+        run: docker exec master ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Disconnect master container from network
+        run: docker network disconnect example master
+
+      - name: Remove network
+        run: docker network rm example
+
+      - name: Gather log files from master container
+        if: always()
+        run: |
+          docker exec master bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec master tar cvf ${PKIDIR}/master-logs.tar -C / var/log/pki
+
+      - name: Upload log files from master container
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: master-logs-${{ matrix.os }}
+          path: master-logs.tar
