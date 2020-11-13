@@ -628,7 +628,7 @@ public class UGSubsystem {
         }
 
         String dn = "uid=" + LDAPUtil.escapeRDNValue(userID) + "," + getUserBaseDN();
-        logger.info("UGSubsystem: Adding " + dn);
+        logger.info("Adding " + dn);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         List<String> ocList = new ArrayList<String>();
@@ -642,36 +642,36 @@ public class UGSubsystem {
             ocList.add("tpsProfileID");
         }
 
-        logger.info("UGSubsystem: - " + OBJECTCLASS_ATTR + ": " + ocList);
+        logger.debug("UGSubsystem: - " + OBJECTCLASS_ATTR + ": " + ocList);
         String[] oc = ocList.toArray(new String[ocList.size()]);
         attrs.add(new LDAPAttribute(OBJECTCLASS_ATTR, oc));
 
-        logger.info("UGSubsystem: - uid: " + userID);
+        logger.debug("UGSubsystem: - uid: " + userID);
         attrs.add(new LDAPAttribute("uid", userID));
 
         String fullName = user.getFullName();
-        logger.info("UGSubsystem: - sn: " + fullName);
+        logger.debug("UGSubsystem: - sn: " + fullName);
         attrs.add(new LDAPAttribute("sn", fullName));
 
-        logger.info("UGSubsystem: - cn: " + fullName);
+        logger.debug("UGSubsystem: - cn: " + fullName);
         attrs.add(new LDAPAttribute("cn", fullName));
 
         String email = user.getEmail();
         if (!StringUtils.isEmpty(email)) {
-            logger.info("UGSubsystem: - mail: " + email);
+            logger.debug("UGSubsystem: - mail: " + email);
             attrs.add(new LDAPAttribute("mail", email));
         }
 
         // DS syntax checking requires a value for PrintableString syntax
         String phone = user.getPhone();
         if (!StringUtils.isEmpty(phone)) {
-            logger.info("UGSubsystem: - telephoneNumber: " + phone);
+            logger.debug("UGSubsystem: - telephoneNumber: " + phone);
             attrs.add(new LDAPAttribute("telephonenumber", phone));
         }
 
         String password = user.getPassword();
         if (!StringUtils.isEmpty(password)) {
-            logger.info("UGSubsystem: - userPassword: ********");
+            logger.debug("UGSubsystem: - userPassword: ********");
             attrs.add(new LDAPAttribute("userpassword", password));
         }
 
@@ -684,14 +684,14 @@ public class UGSubsystem {
                 userType = "undefined";
             }
 
-            logger.info("UGSubsystem: - usertype: " + userType);
+            logger.debug("UGSubsystem: - usertype: " + userType);
             attrs.add(new LDAPAttribute("usertype", userType));
         }
 
         // DS syntax checking requires a value for Directory String syntax
         String state = user.getState();
         if (!StringUtils.isEmpty(state)) {
-            logger.info("UGSubsystem: - userstate: " + state);
+            logger.debug("UGSubsystem: - userstate: " + state);
             attrs.add(new LDAPAttribute("userstate", state));
         }
 
@@ -700,7 +700,7 @@ public class UGSubsystem {
         if (profiles != null && profiles.size() > 0) {
             LDAPAttribute attr = new LDAPAttribute(LDAP_ATTR_PROFILE_ID);
             for (String profile : profiles) {
-                logger.info("UGSubsystem: - " + LDAP_ATTR_PROFILE_ID + ": " + profile);
+                logger.debug("UGSubsystem: - " + LDAP_ATTR_PROFILE_ID + ": " + profile);
                 attr.addValue(profile);
             }
             attrs.add(attr);
