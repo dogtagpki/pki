@@ -449,8 +449,8 @@ public class LDAPConfigurator {
 
                 String message = "Unable to add " + dn + ": " + e;
 
-                if (ignoreErrors) {
-                    logger.warn(message);
+                if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS && ignoreErrors) {
+                    logger.info(message);
 
                 } else {
                     logger.error(message);
@@ -459,8 +459,6 @@ public class LDAPConfigurator {
             }
 
         } else if (type == LDIFContent.MODIFICATION_CONTENT) {
-
-            logger.info("Modifying " + dn);
 
             LDIFModifyContent c = (LDIFModifyContent) content;
             LDAPModification[] mods = c.getModifications();
@@ -473,23 +471,13 @@ public class LDAPConfigurator {
 
                 switch (operation) {
                     case LDAPModification.ADD:
-                        for (String value : values) {
-                            logger.info("- adding " + name + ": " + value);
-                        }
+                        logger.info("Adding " + name + " into " + dn);
                         break;
                     case LDAPModification.REPLACE:
-                        for (String value : values) {
-                            logger.info("- replacing " + name + ": " + value);
-                        }
+                        logger.info("Replacing " + name + " in " + dn);
                         break;
                     case LDAPModification.DELETE:
-                        if (values == null) {
-                            logger.info("- deleting " + name);
-                        } else {
-                            for (String value : values) {
-                                logger.info("- deleting " + name + ": " + value);
-                            }
-                        }
+                        logger.info("Deleting " + name + " from " + dn);
                         break;
                 }
             }
@@ -501,8 +489,8 @@ public class LDAPConfigurator {
 
                 String message = "Unable to modify " + dn + ": " + e;
 
-                if (ignoreErrors) {
-                    logger.warn(message);
+                if (e.getLDAPResultCode() == LDAPException.ATTRIBUTE_OR_VALUE_EXISTS && ignoreErrors) {
+                    logger.info(message);
 
                 } else {
                     logger.error(message);
