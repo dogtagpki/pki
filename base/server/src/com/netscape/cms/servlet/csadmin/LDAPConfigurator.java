@@ -716,6 +716,17 @@ public class LDAPConfigurator {
                 logger.warn("Changelog already exists: " + dn);
                 // leave it, don't delete it because it will cause an operation error
 
+            } else if (e.getLDAPResultCode() == LDAPException.UNWILLING_TO_PERFORM) {
+                // Since Fedora 33 the DS changelog has moved and will be created
+                // automatically when the replication is enabled. Also, the operation
+                // to add the old changelog will fail with LDAP error 53. However, in
+                // older DS versions the old changelog still needs to be added manually.
+                // To support all DS versions the code will now ignore LDAP error 53.
+                //
+                // https://github.com/dogtagpki/pki/issues/3379
+                dn = "cn=changelog,cn=" + config.getDatabase() + ",cn=ldbm database,cn=plugins,cn=config";
+                logger.warn("Changelog has moved to " + dn);
+
             } else {
                 logger.error("Unable to add " + dn + ": " + e.getMessage(), e);
                 throw e;
