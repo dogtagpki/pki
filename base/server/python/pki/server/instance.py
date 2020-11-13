@@ -357,12 +357,12 @@ class PKIInstance(pki.server.PKIServer):
                 m = re.search('^PKI_USER=(.*)$', line)
                 if m:
                     self.user = m.group(1)
-                    logger.info('- user: %s', self.user)
+                    logger.debug('- user: %s', self.user)
 
                 m = re.search('^PKI_GROUP=(.*)$', line)
                 if m:
                     self.group = m.group(1)
-                    logger.info('- group: %s', self.group)
+                    logger.debug('- group: %s', self.group)
 
         self.load_external_certs(self.external_certs_conf)
 
