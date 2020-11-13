@@ -67,9 +67,8 @@ RUN pki-server http-connector-cert-add -i tomcat@pki \
   --keystoreType pkcs11 \
   --keystoreProvider Mozilla-JSS
 
-# Deploy PKI ACME web application
+# Create PKI ACME application
 RUN pki-server acme-create -i tomcat@pki
-RUN pki-server acme-deploy -i tomcat@pki
 
 # Use in-memory database by default
 RUN cp /usr/share/pki/acme/database/in-memory/database.conf /var/lib/tomcats/pki/conf/acme
@@ -83,6 +82,9 @@ RUN cp /usr/share/pki/acme/realm/in-memory/realm.conf /var/lib/tomcats/pki/conf/
 # Remove PKI ACME web application logging.properties so the logs will appear on the console
 RUN rm -f /usr/share/pki/acme/webapps/acme/WEB-INF/classes/logging.properties
 
+# Deploy PKI ACME application
+RUN pki-server acme-deploy -i tomcat@pki
+
 # Grant the root group the full access to PKI ACME files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
 RUN chgrp -Rf root /var/lib/tomcats/pki && chmod -Rf g+rw /var/lib/tomcats/pki
@@ -91,6 +93,7 @@ VOLUME [ \
     "/var/lib/tomcats/pki/conf/certs", \
     "/var/lib/tomcats/pki/conf/acme/metadata", \
     "/var/lib/tomcats/pki/conf/acme/database", \
-    "/var/lib/tomcats/pki/conf/acme/issuer" ]
+    "/var/lib/tomcats/pki/conf/acme/issuer", \
+    "/var/lib/tomcats/pki/conf/acme/realm" ]
 
 CMD [ "/usr/share/pki/acme/bin/pki-acme-run" ]
