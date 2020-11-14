@@ -489,7 +489,10 @@ public class LDAPConfigurator {
 
                 String message = "Unable to modify " + dn + ": " + e;
 
-                if (e.getLDAPResultCode() == LDAPException.ATTRIBUTE_OR_VALUE_EXISTS && ignoreErrors) {
+                if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT && ignoreErrors) {
+                    logger.info(message);
+
+                } else if (e.getLDAPResultCode() == LDAPException.ATTRIBUTE_OR_VALUE_EXISTS && ignoreErrors) {
                     logger.info(message);
 
                 } else {
