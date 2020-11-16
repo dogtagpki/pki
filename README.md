@@ -1,7 +1,8 @@
 # Dogtag PKI
 
-![Required Tests](https://github.com/dogtagpki/pki/workflows/Required%20Tests/badge.svg)
+![Installation Tests](https://github.com/dogtagpki/pki/workflows/Installation%20Tests/badge.svg)
 ![QE Tests](https://github.com/dogtagpki/pki/workflows/QE%20Tests/badge.svg)
+![IPA Tests](https://github.com/dogtagpki/pki/workflows/IPA%20Tests/badge.svg)
 
 The Dogtag Certificate System is an enterprise-class open source Certificate Authority (CA). It is a full-featured system, and has been hardened by real-world deployments. It supports all aspects of certificate lifecycle management, including key archival, OCSP and smartcard management, and much more.
 
