@@ -25,81 +25,46 @@ Exporting Existing System Certificates
 Export the existing system certificates (including the certificate chain) into a PKCS #12 file, for example:
 
 ```
-$ pki-server ca-clone-prepare --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123
+$ pki-server ca-clone-prepare --pkcs12-file master-ca-certs.p12 --pkcs12-password Secret.123
 ```
 
 If necessary, third-party certificates (e.g. trust anchors) can be added into the same PKCS #12 file with the following command:
 
 ```
 $ pki -d /etc/pki/pki-tomcat/alias -f /etc/pki/pki-tomcat/password.conf \
-    pkcs12-cert-import <nickname> --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 --append
+    pkcs12-cert-import <nickname> --pkcs12-file master-ca-certs.p12 --pkcs12-password Secret.123 --append
 ```
 
 Set SELinux permissions
 -----------------------
-After copying the ca-certs.p12 to the clone machine, ensure that appropriate SELinux rules are added:
+After copying the `master-ca-certs.p12` to the clone machine, ensure that appropriate SELinux rules are added:
 
 ````
-$ semanage fcontext -a -t pki_tomcat_cert_t ca-certs.p12
-$ restorecon -R -v ca-certs.p12
+$ semanage fcontext -a -t pki_tomcat_cert_t master-ca-certs.p12
+$ restorecon -R -v master-ca-certs.p12
 ````
 
-Also, make sure the `ca-certs.p12` file is owned by the `pkiuser`
+Also, make sure the `master-ca-certs.p12` file is owned by the `pkiuser`
 
 ````
-$ chown pkiuser:pkiuser ca-certs.p12
+$ chown pkiuser:pkiuser master-ca-certs.p12
 ````
 
 CA Subsystem Installation
 -------------------------
 
-Prepare a file (e.g. ca.cfg) that contains the deployment configuration, for example:
+Prepare a file (e.g. ca-clone.cfg) that contains the deployment configuration.
 
-```
-[DEFAULT]
-pki_server_database_password=Secret.123
-
-[CA]
-pki_admin_email=caadmin@example.com
-pki_admin_name=caadmin
-pki_admin_nickname=caadmin
-pki_admin_password=Secret.123
-pki_admin_uid=caadmin
-
-pki_client_database_password=Secret.123
-pki_client_database_purge=False
-pki_client_pkcs12_password=Secret.123
-
-pki_ds_base_dn=dc=ca,dc=pki,dc=example,dc=com
-pki_ds_database=ca
-pki_ds_password=Secret.123
-
-pki_security_domain_hostname=server.example.com
-pki_security_domain_https_port=8443
-pki_security_domain_user=caadmin
-pki_security_domain_password=Secret.123
-
-pki_ca_signing_nickname=ca_signing
-pki_ocsp_signing_nickname=ca_ocsp_signing
-pki_audit_signing_nickname=ca_audit_signing
-pki_sslserver_nickname=sslserver
-pki_subsystem_nickname=subsystem
-
-pki_clone=True
-pki_clone_replicate_schema=True
-pki_clone_uri=https://server.example.com:8443
-pki_clone_pkcs12_path=ca-certs.p12
-pki_clone_pkcs12_password=Secret.123
-```
-
-In the above, replace `server.example.com` with the hostname of the
-master instance. Note that an alternate replica can be specified for
-the value of `pki_clone_uri`.
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ca-clone.cfg](../../../base/server/examples/installation/ca-clone.cfg).
+It assumes that the master CA is running at https://master.example.com:8443,
+the master CA signing certificate has been exported into `master-ca_signing.crt`,
+the master admin certificate and key have been exported into `master-ca_admin_cert.p12`,
+and the master admin PKCS #12 password file has been exported into `master-pkcs12_password.conf`.
 
 Then execute the following command:
 
 ```
-$ pkispawn -f ca.cfg -s CA
+$ pkispawn -f ca-clone.cfg -s CA
 ```
 
 It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
@@ -130,27 +95,27 @@ Verifying Admin Certificate
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
 ```
-$ pki -c Secret.123 client-init
+$ pki client-init
 ```
 
-Import the CA signing certificate:
+Import the master CA signing certificate:
 
 ```
-$ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
+$ pki client-cert-import ca_signing --ca-cert master-ca_signing.crt
 ```
 
-Import the master's admin key and certificate:
+Import the master CA's admin key and certificate:
 
 ```
-$ pki -c Secret.123 client-cert-import \
- --pkcs12 ca_admin_cert.p12 \
- --pkcs12-password-file pkcs12_password.conf
+$ pki client-cert-import \
+    --pkcs12 master-ca_admin_cert.p12 \
+    --pkcs12-password-file master-pkcs12_password.conf
 ```
 
 Verify that the admin certificate can be used to access the CA clone by executing the following command:
 
 ```
-$ pki -c Secret.123 -n caadmin ca-user-show caadmin
+$ pki -n caadmin ca-user-show caadmin
 --------------
 User "caadmin"
 --------------
