@@ -274,3 +274,118 @@ jobs:
         with:
           name: root-logs-${{ matrix.os }}
           path: root-logs.tar
+
+  # docs/installation/ca/Installing_CA_with_External_CA_Signing_Certificate.md
+  external-ca-test:
+    name: Installing CA with External CA Signing Certificate
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      LOGS: ${GITHUB_WORKSPACE}/logs.txt
+      COPR_REPO: "@pki/master"
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Build container with systemd
+        run: docker build ci -t pki --build-arg OS_VERSION=${{ matrix.os }}
+
+      - name: Setup PKI container
+        run: |
+          IMAGE=pki \
+          NAME=pki \
+          HOSTNAME=pki.example.com \
+          ci/runner-init.sh
+
+      - name: Install dependencies
+        run: |
+          docker exec pki dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec pki dnf copr enable -y ${COPR_REPO}
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Install PKI packages
+        run: docker exec pki bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS
+        run: docker exec pki ${PKIDIR}/ci/ds-create.sh
+
+      - name: Create root CA
+        run: |
+          docker exec pki bash -c "echo Secret.123 > password.txt"
+          docker exec pki openssl rand -out noise.bin 2048
+          docker exec pki mkdir nssdb
+          docker exec pki certutil -N -d nssdb -f password.txt
+          docker exec pki pki -d nssdb nss-cert-request \
+              --subject "CN=Root CA Signing Certificate" \
+              --ext /usr/share/pki/acme/issuer/nss/ca_signing.conf \
+              --csr root-ca_signing.csr
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --csr root-ca_signing.csr \
+              --ext /usr/share/pki/acme/issuer/nss/ca_signing.conf \
+              --cert root-ca_signing.crt
+          docker exec pki pki -d nssdb nss-cert-import \
+              --cert root-ca_signing.crt \
+              --trust CT,C,C \
+              root-ca_signing
+
+      - name: Install subordinate CA
+        run: |
+          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/subca-step1.cfg -s CA -v
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer root-ca_signing
+              --csr ca_signing.csr \
+              --ext /usr/share/pki/acme/issuer/nss/ca_signing.conf \
+              --cert ca_signing.crt
+          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/subca-step2.cfg -s CA -v
+
+      - name: Gather config files
+        if: always()
+        run: docker exec pki tar cvf ${PKIDIR}/external-ca-conf.tar -C / etc/pki
+
+      - name: Upload config files
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: external-ca-conf-${{ matrix.os }}
+          path: external-ca-conf.tar
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --debug
+
+      - name: Verify CA admin access
+        run: |
+          docker exec pki pki client-init
+          docker exec pki pki client-cert-import ca_signing --ca-cert root-ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Remove subordinate CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS
+        run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Gather log files
+        if: always()
+        run: |
+          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec pki tar cvf ${PKIDIR}/external-ca-logs.tar -C / var/log/pki
+
+      - name: Upload log files
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: external-ca-logs-${{ matrix.os }}
+          path: external-ca-logs.tar
