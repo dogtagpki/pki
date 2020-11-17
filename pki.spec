@@ -223,7 +223,7 @@ BuildRequires:    python3-pytest-runner
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.8.0
-BuildRequires:    tomcatjss >= 7.6.0
+BuildRequires:    tomcatjss >= 7.6.1
 
 # JNA is used to bind to libsystemd
 %if %{with sdnotify}
@@ -516,7 +516,7 @@ Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
-Requires:         tomcatjss >= 7.6.0
+Requires:         tomcatjss >= 7.6.1
 
 # JNA is used to bind to libsystemd
 %if %{with sdnotify}

@@ -71,10 +71,9 @@ public class SubsystemUserCertAddCLI extends CommandCLI {
         String format = cmd.getOptionValue("format");
 
         String catalinaBase = System.getProperty("catalina.base");
-        String serverXml = catalinaBase + "/conf/server.xml";
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadTomcatConfig(serverXml);
+        tomcatjss.loadConfig();
         tomcatjss.init();
 
         byte[] bytes;

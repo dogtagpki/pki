@@ -68,10 +68,9 @@ public class CAProfileImportCLI extends CommandCLI {
         String inputFolder = cmd.getOptionValue("input-folder", "/usr/share/pki/ca/profiles/ca");
 
         String catalinaBase = System.getProperty("catalina.base");
-        String serverXml = catalinaBase + "/conf/server.xml";
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadTomcatConfig(serverXml);
+        tomcatjss.loadConfig();
         tomcatjss.init();
 
         String subsystemName = parent.getParent().getName();

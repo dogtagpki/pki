@@ -80,10 +80,9 @@ public class SubsystemDBInitCLI extends CommandCLI {
     public void execute(CommandLine cmd) throws Exception {
 
         String catalinaBase = System.getProperty("catalina.base");
-        String serverXml = catalinaBase + "/conf/server.xml";
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadTomcatConfig(serverXml);
+        tomcatjss.loadConfig();
         tomcatjss.init();
 
         String subsystem = parent.getParent().getName();

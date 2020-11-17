@@ -59,10 +59,9 @@ public class SubsystemGroupMemberAddCLI extends CommandCLI {
         String memberID = cmdArgs[1];
 
         String catalinaBase = System.getProperty("catalina.base");
-        String serverXml = catalinaBase + "/conf/server.xml";
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadTomcatConfig(serverXml);
+        tomcatjss.loadConfig();
         tomcatjss.init();
 
         String subsystem = parent.getParent().getParent().getName();

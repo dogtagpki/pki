@@ -66,10 +66,9 @@ public class SubsystemGroupMemberFindCLI extends CommandCLI {
         String outputFormat = cmd.getOptionValue("output-format", "text");
 
         String catalinaBase = System.getProperty("catalina.base");
-        String serverXml = catalinaBase + "/conf/server.xml";
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadTomcatConfig(serverXml);
+        tomcatjss.loadConfig();
         tomcatjss.init();
 
         String subsystem = parent.getParent().getParent().getName();

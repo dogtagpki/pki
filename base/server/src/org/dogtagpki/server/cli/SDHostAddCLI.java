@@ -82,10 +82,9 @@ public class SDHostAddCLI extends CommandCLI {
         boolean clone = cmd.hasOption("clone");
 
         String catalinaBase = System.getProperty("catalina.base");
-        String serverXml = catalinaBase + "/conf/server.xml";
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadTomcatConfig(serverXml);
+        tomcatjss.loadConfig();
         tomcatjss.init();
 
         String subsystemDir = catalinaBase + File.separator + "ca";
