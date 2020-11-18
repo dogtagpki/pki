@@ -26,6 +26,7 @@ from __future__ import print_function
 
 from functools import wraps
 import cryptography.x509
+import ldap.dn
 import logging
 import os
 import random
@@ -125,7 +126,7 @@ def convert_x509_name_to_dn(name):
 
         oid = attr.oid
         attr_name = ATTR_NAME_BY_OID.get(oid, oid.dotted_string)
-        attr_value = cryptography.x509.name._escape_dn_value(attr.value)  # pylint: disable=W0212
+        attr_value = ldap.dn.escape_dn_chars(attr.value)
         rdn = '%s=%s' % (attr_name, attr_value)
 
         if dn:
