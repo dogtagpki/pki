@@ -1,9 +1,5 @@
 # Dogtag PKI
 
-![Installation Tests](https://github.com/dogtagpki/pki/workflows/Installation%20Tests/badge.svg)
-![QE Tests](https://github.com/dogtagpki/pki/workflows/QE%20Tests/badge.svg)
-![IPA Tests](https://github.com/dogtagpki/pki/workflows/IPA%20Tests/badge.svg)
-
 The Dogtag Certificate System is an enterprise-class open source Certificate Authority (CA). It is a full-featured system, and has been hardened by real-world deployments. It supports all aspects of certificate lifecycle management, including key archival, OCSP and smartcard management, and much more.
 
 There are 6 different subsystems included in the Dogtag PKI suite:
@@ -80,6 +76,19 @@ After successfully installing the prerequisites, the project can be built with a
 The built RPMS will be placed in `~/build/pki/` directory.
 
 See also [Building PKI](docs/development/Building_PKI.md)
+
+## Testing
+
+| Test      | Status                                                                               |
+| --------- | ------------------------------------------------------------------------------------ |
+| CA        | ![CA Tests](https://github.com/dogtagpki/pki/workflows/CA%20Tests/badge.svg)         |
+| KRA       | ![KRA Tests](https://github.com/dogtagpki/pki/workflows/KRA%20Tests/badge.svg)       |
+| OCSP      | ![OCSP Tests](https://github.com/dogtagpki/pki/workflows/OCSP%20Tests/badge.svg)     |
+| TKS       | ![TKS Tests](https://github.com/dogtagpki/pki/workflows/TKS%20Tests/badge.svg)       |
+| TPS       | ![TPS Tests](https://github.com/dogtagpki/pki/workflows/TPS%20Tests/badge.svg)       |
+| Python    | ![Python Tests](https://github.com/dogtagpki/pki/workflows/Python%20Tests/badge.svg) |
+| QE        | ![QE Tests](https://github.com/dogtagpki/pki/workflows/QE%20Tests/badge.svg)         |
+| IPA       | ![IPA Tests](https://github.com/dogtagpki/pki/workflows/IPA%20Tests/badge.svg)       |
 
 ## Contributing
 
