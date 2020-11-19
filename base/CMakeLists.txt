@@ -408,7 +408,6 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
         add_subdirectory(ca)
         add_subdirectory(kra)
         add_subdirectory(ocsp)
-        add_subdirectory(tks)
 
         list(APPEND PKI_JAVADOC_SOURCEPATH
             ${CMAKE_SOURCE_DIR}/base/server/src)
@@ -425,10 +424,14 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
             pki-cms-jar
             pki-ca-jar
             pki-kra-jar
-            pki-ocsp-jar
-            pki-tks-jar)
+            pki-ocsp-jar)
 
     endif(WITH_SERVER)
+
+    if(WITH_TKS)
+        add_subdirectory(tks)
+        list(APPEND PKI_JAVADOC_DEPENDS pki-tks-jar)
+    endif(WITH_TKS)
 
     if(WITH_TPS)
         add_subdirectory(tps)

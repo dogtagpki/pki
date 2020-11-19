@@ -881,6 +881,7 @@ cd build
 %if ! %{with server} && ! %{with acme} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
     -DWITH_SERVER:BOOL=OFF \
 %endif
+    -DWITH_TKS:BOOL=%{?with_tks:ON}%{!?with_tks:OFF} \
     -DWITH_TPS:BOOL=%{?with_tps:ON}%{!?with_tps:OFF} \
     -DWITH_SYSTEMD_NOTIFICATION:BOOL=%{?with_sdnotify:ON}%{!?with_sdnotify:OFF} \
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
