@@ -409,10 +409,6 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
         add_subdirectory(kra)
         add_subdirectory(ocsp)
         add_subdirectory(tks)
-        add_subdirectory(tps)
-
-        # required for native 'tpsclient' utility
-        add_subdirectory(tps-client)
 
         list(APPEND PKI_JAVADOC_SOURCEPATH
             ${CMAKE_SOURCE_DIR}/base/server/src)
@@ -430,10 +426,15 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
             pki-ca-jar
             pki-kra-jar
             pki-ocsp-jar
-            pki-tks-jar
-            pki-tps-jar)
+            pki-tks-jar)
 
     endif(WITH_SERVER)
+
+    if(WITH_TPS)
+        add_subdirectory(tps)
+        add_subdirectory(tps-client)
+        list(APPEND PKI_JAVADOC_DEPENDS pki-tps-jar)
+    endif(WITH_TPS)
 
     if(WITH_JAVADOC)
         add_subdirectory(javadoc)

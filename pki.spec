@@ -878,12 +878,13 @@ cd build
     -DNSS_DEFAULT_DB_TYPE=%{nss_default_db_type} \
     -DBUILD_PKI_CORE:BOOL=ON \
     -DPYTHON_EXECUTABLE=%{python_executable} \
-    -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
 %if ! %{with server} && ! %{with acme} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
     -DWITH_SERVER:BOOL=OFF \
 %endif
+    -DWITH_TPS:BOOL=%{?with_tps:ON}%{!?with_tps:OFF} \
     -DWITH_SYSTEMD_NOTIFICATION:BOOL=%{?with_sdnotify:ON}%{!?with_sdnotify:OFF} \
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
+    -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
     -DTHEME=%{?with_theme:%{vendor_id}} \
 %if 0%{?rhel}

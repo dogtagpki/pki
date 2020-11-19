@@ -42,6 +42,7 @@ string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_P
 set(APP_SERVER "tomcat-8.0" CACHE STRING "Application server")
 
 option(WITH_SERVER "Build server package" ON)
+option(WITH_TPS "Build TPS package" ON)
 option(WITH_JAVADOC "Build Javadoc package" ON)
 option(WITH_TEST "Run unit tests" ON)
 
