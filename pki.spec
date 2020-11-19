@@ -881,6 +881,7 @@ cd build
 %if ! %{with server} && ! %{with acme} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
     -DWITH_SERVER:BOOL=OFF \
 %endif
+    -DWITH_CA:BOOL=%{?with_ca:ON}%{!?with_ca:OFF} \
     -DWITH_KRA:BOOL=%{?with_kra:ON}%{!?with_kra:OFF} \
     -DWITH_OCSP:BOOL=%{?with_ocsp:ON}%{!?with_ocsp:OFF} \
     -DWITH_TKS:BOOL=%{?with_tks:ON}%{!?with_tks:OFF} \
