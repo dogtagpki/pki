@@ -47,6 +47,7 @@ option(WITH_KRA "Build KRA package" ON)
 option(WITH_OCSP "Build OCSP package" ON)
 option(WITH_TKS "Build TKS package" ON)
 option(WITH_TPS "Build TPS package" ON)
+option(WITH_ACME "Build ACME package" ON)
 option(WITH_JAVADOC "Build Javadoc package" ON)
 option(WITH_TEST "Run unit tests" ON)
 

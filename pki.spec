@@ -886,6 +886,7 @@ cd build
     -DWITH_OCSP:BOOL=%{?with_ocsp:ON}%{!?with_ocsp:OFF} \
     -DWITH_TKS:BOOL=%{?with_tks:ON}%{!?with_tks:OFF} \
     -DWITH_TPS:BOOL=%{?with_tps:ON}%{!?with_tps:OFF} \
+    -DWITH_ACME:BOOL=%{?with_acme:ON}%{!?with_acme:OFF} \
     -DWITH_SYSTEMD_NOTIFICATION:BOOL=%{?with_sdnotify:ON}%{!?with_sdnotify:OFF} \
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
     -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \

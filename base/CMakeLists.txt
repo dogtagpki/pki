@@ -404,8 +404,6 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
 
         add_subdirectory(server)
 
-        add_subdirectory(acme)
-
         list(APPEND PKI_JAVADOC_SOURCEPATH
             ${CMAKE_SOURCE_DIR}/base/server/src)
 
@@ -447,6 +445,10 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
         add_subdirectory(tps-client)
         list(APPEND PKI_JAVADOC_DEPENDS pki-tps-jar)
     endif(WITH_TPS)
+
+    if(WITH_ACME)
+        add_subdirectory(acme)
+    endif(WITH_ACME)
 
     if(WITH_JAVADOC)
         add_subdirectory(javadoc)
