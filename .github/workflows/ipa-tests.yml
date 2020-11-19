@@ -16,7 +16,7 @@ jobs:
       container: registry.fedoraproject.org/fedora:${{ matrix.os }}
       strategy:
           matrix:
-            os: ['32', '33']
+            os: ['31', '32', '33']
       steps:
           - name: Update base image
             run: |
@@ -61,7 +61,7 @@ jobs:
         test_set: "test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_ca_plugin.py test_vault_plugin.py"
       strategy:
         matrix:
-          os: ['32', '33']
+          os: ['31', '32', '33']
       steps:
         - name: Clone the repository
           uses: actions/checkout@v2
