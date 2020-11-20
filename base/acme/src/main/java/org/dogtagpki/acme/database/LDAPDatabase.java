@@ -7,7 +7,6 @@ package org.dogtagpki.acme.database;
 
 import java.net.URI;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +16,7 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMECertificate;
@@ -105,12 +105,9 @@ public class LDAPDatabase extends ACMEDatabase {
 
     static final String IDENTIFIER_TYPE_DNS = "dns";
 
-    // The LDAP Generalized Time syntax
-    static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssZ");
-
-    static {
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
+    // The LDAP Generalized Time syntax (e.g. 20200101000000+0000)
+    static final FastDateFormat dateFormat = FastDateFormat.getInstance(
+            "yyyyMMddHHmmssZ", TimeZone.getTimeZone("UTC"));
 
     enum LoadChallenges { DoLoad , DontLoad };
     enum OnNoSuchObject { Ignore , Throw };
