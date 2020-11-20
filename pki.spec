@@ -12,9 +12,9 @@ License:          GPLv2 and LGPLv2
 
 # For development (i.e. unsupported) releases, use x.y.z-0.n.<phase>.
 # For official (i.e. supported) releases, use x.y.z-r where r >=1.
-Version:          10.10.1
-Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
-#global           _phase -beta1
+Version:          10.11.0
+Release:          0.1.alpha1%{?_timestamp}%{?_commit_id}%{?dist}
+%global           _phase -alpha1
 
 # To create a tarball from a version tag:
 # $ git archive \
