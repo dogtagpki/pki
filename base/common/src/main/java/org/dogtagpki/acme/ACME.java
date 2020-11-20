@@ -5,13 +5,13 @@
 //
 package org.dogtagpki.acme;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * @author Endi S. Dewata
  * @author Alexander M. Scheel
  */
 public class ACME {
-    public final static DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+    // e.g. 2020-01-01T00:00:00.00-00:00
+    public final static FastDateFormat DATE_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ssXXX");
 }
