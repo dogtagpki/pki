@@ -27,7 +27,7 @@
   shell: certutil -L -d /var/lib/pki/{{ topology }}-CA/alias -n "{{ nickname_ocsp.stdout }}" -a > /tmp/test_dir/ocsp_signing.crt
 
 - name: Set debug log level to 5
-  shell: pki-server -i {{ topology }}-CA ca-config-set debug.level 5
+  shell: pki-server ca-config-set debug.level 5 -i {{ topology }}-CA
   when: debug == "true" or ca_debug == "true"
 
 - name: Starting CA Subsystem

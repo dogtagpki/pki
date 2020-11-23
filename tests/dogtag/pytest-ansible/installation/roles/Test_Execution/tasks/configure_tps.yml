@@ -13,7 +13,7 @@
 - meta: flush_handlers
 
 - name: Set debug log level to 5
-  shell: pki-server -i {{ topology }}-TPS tps-config-set debug.level 5
+  shell: pki-server tps-config-set debug.level 5 -i {{ topology }}-TPS
   when: debug == "true" or tps_debug == "true"
 - name: Enable SignedAudit
   replace: dest=/etc/pki/{{ topology }}-TPS/tps/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"

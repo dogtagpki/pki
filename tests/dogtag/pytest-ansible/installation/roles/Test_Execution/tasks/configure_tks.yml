@@ -13,7 +13,7 @@
 - meta: flush_handlers
 
 - name: Set debug log level to 5
-  shell: pki-server -i {{ topology }}-TKS tks-config-set debug.level 5
+  shell: pki-server tks-config-set debug.level 5 -i {{ topology }}-TKS
   when: debug == "true" or tks_debug == "true"
 
 - name: Enable SignedAudit

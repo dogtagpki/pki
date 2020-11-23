@@ -10,7 +10,7 @@
     - STOPOCSP
 
 - name: Set debug log level to 5
-  shell: pki-server -i {{ topology }}-OCSP ocsp-config-set debug.level 5
+  shell: pki-server ocsp-config-set debug.level 5 -i {{ topology }}-OCSP
   when: debug == "true" or ocsp_debug == "true"
 
 - name: Enable SignedAudit

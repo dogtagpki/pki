@@ -22,7 +22,7 @@
   replace: dest=/etc/pki/{{ topology }}-KRA/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.CA_HTTP_PORT }}/ca/ocsp
 
 - name: Set debug log level to 5
-  shell: pki-server -i {{ topology }}-KRA kra-config-set debug.level 5
+  shell: pki-server  kra-config-set debug.level 5 -i {{ topology }}-KRA
   when: debug == "true" or kra_debug == "true"
 
 - name: Enable OCSP Policy to Native for tls as true
