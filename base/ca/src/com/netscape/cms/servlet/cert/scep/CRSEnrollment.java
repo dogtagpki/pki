@@ -17,8 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert.scep;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -1154,6 +1153,11 @@ public class CRSEnrollment extends HttpServlet {
             logger.debug(Debug.dump(decryptedP10bytes));
 
             req.setP10(new PKCS10(decryptedP10bytes));
+
+            // debug the pkcs10 request
+            OutputStream output = new ByteArrayOutputStream();
+            req.getP10().print(new PrintStream(output));
+            logger.debug(output.toString());
         } catch (Exception e) {
             logger.error("failed to unwrap PKCS10 " + e.getMessage(), e);
             throw new CRSFailureException("Could not unwrap PKCS10 blob: " + e.getMessage());
