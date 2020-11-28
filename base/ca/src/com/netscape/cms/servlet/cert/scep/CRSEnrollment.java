@@ -922,6 +922,19 @@ public class CRSEnrollment extends HttpServlet {
                 } catch (CRSFailureException e) {
                     throw new ServletException("Couldn't handle CEP request (PKCSReq) - " + e.getMessage());
                 }
+            } else if (mt.equals(CRSPKIMessage.mType_RenewalReq)) {
+                logger.debug("Processing RenewalReq");
+                try {
+                    // The same checks as for PKCSReq above.
+                    IRequest cmsRequest = findRequestByTransactionID(req.getTransactionID(), true);
+
+                    // If there was no request (with a cert) with this transaction ID,
+                    // process it as a new request
+                    cert = handleRenewalReq(httpReq, cmsRequest, req, crsResp, cx);
+
+                } catch (CRSFailureException e) {
+                    throw new ServletException("Couldn't handle CEP request (PKCSReq) - " + e.getMessage());
+                }
             } else if (mt.equals(CRSPKIMessage.mType_GetCertInitial)) {
                 logger.debug("Processing GetCertInitial");
                 cert = handleGetCertInitial(req, crsResp);
@@ -1465,6 +1478,66 @@ public class CRSEnrollment extends HttpServlet {
     public X509CertImpl handlePKCSReq(HttpServletRequest httpReq,
                                  IRequest cmsRequest, CRSPKIMessage req,
                                     CRSPKIMessage crsResp, CryptoContext cx)
+            throws Exception {
+
+        try {
+            unwrapPKCS10(req, cx);
+            Hashtable<String, byte[]> fingerprints = makeFingerPrints(req);
+
+            if (cmsRequest != null) {
+                if (areFingerprintsEqual(cmsRequest, fingerprints)) {
+                    logger.debug("created response from request");
+                    return makeResponseFromRequest(req, crsResp, cmsRequest);
+                } else {
+                    logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_DUP_TRANS_ID"));
+                    crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badRequest);
+                    crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
+                    return null;
+                }
+            }
+
+            getDetailFromRequest(req, crsResp);
+            boolean authFailed = authenticateUser(req);
+
+            if (authFailed) {
+                logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_AUTH"));
+                crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badIdentity);
+                crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
+
+                // perform audit log
+                String auditMessage = CMS.getLogMessage(
+                            AuditEvent.NON_PROFILE_CERT_REQUEST,
+                            httpReq.getRemoteAddr(),
+                            ILogger.FAILURE,
+                            req.getTransactionID(),
+                            "CRSEnrollment",
+                            ILogger.SIGNED_AUDIT_EMPTY_VALUE);
+                signedAuditLogger.log(auditMessage);
+
+                return null;
+            } else {
+                IRequest ireq = postRequest(httpReq, req, crsResp);
+
+                logger.debug("created response");
+                return makeResponseFromRequest(req, crsResp, ireq);
+            }
+        } catch (CryptoContext.CryptoContextException e) {
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_DECRYPT_PKCS10",
+                    e.getMessage()), e);
+            crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badMessageCheck);
+            crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
+        } catch (EBaseException e) {
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ERNOLL_FAIL_NO_NEW_REQUEST_POSTED",
+                    e.getMessage()), e);
+            crsResp.setFailInfo(CRSPKIMessage.mFailInfo_internalCAError);
+            crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
+        }
+        return null;
+    }
+
+    public X509CertImpl handleRenewalReq(HttpServletRequest httpReq,
+                                         IRequest cmsRequest, CRSPKIMessage req,
+                                         CRSPKIMessage crsResp, CryptoContext cx)
             throws Exception {
 
         try {
