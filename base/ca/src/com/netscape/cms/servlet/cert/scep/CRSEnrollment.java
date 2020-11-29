@@ -18,16 +18,13 @@
 package com.netscape.cms.servlet.cert.scep;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Vector;
+import java.security.cert.CertificateException;
+import java.util.*;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -35,6 +32,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.cmscore.dbs.CertRecord;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.IAuthSubsystem;
 import org.dogtagpki.server.ca.CAEngine;
@@ -65,28 +64,7 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.AVA;
-import org.mozilla.jss.netscape.security.x509.CertAttrSet;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
-import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
-import org.mozilla.jss.netscape.security.x509.DNSName;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.GeneralName;
-import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
-import org.mozilla.jss.netscape.security.x509.GeneralNames;
-import org.mozilla.jss.netscape.security.x509.IPAddressName;
-import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
-import org.mozilla.jss.netscape.security.x509.OIDMap;
-import org.mozilla.jss.netscape.security.x509.RDN;
-import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.x509.*;
 import org.mozilla.jss.pkcs7.IssuerAndSerialNumber;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.util.IncorrectPasswordException;
@@ -1413,6 +1391,7 @@ public class CRSEnrollment extends HttpServlet {
     private boolean authenticateUser(CRSPKIMessage req) {
         boolean authenticationFailed = true;
 
+        logger.debug("mAuthManagerName: " + mAuthManagerName);
         if (mAuthManagerName == null) {
             return false;
         }
@@ -1580,7 +1559,9 @@ public class CRSEnrollment extends HttpServlet {
 
                 return null;
             } else {
-                IRequest ireq = postRequest(httpReq, req, crsResp);
+                // bypass SCEP handling via profile
+                mProfileId = null;
+                IRequest ireq = postRenewalRequest(httpReq, req, crsResp);
 
                 logger.debug("created response");
                 return makeResponseFromRequest(req, crsResp, ireq);
@@ -1762,6 +1743,88 @@ public class CRSEnrollment extends HttpServlet {
                 mAuthManagerName == null ? AuditFormat.NOAUTH : mAuthManagerName,
                 "pending",
                 subject,
+                ""
+        );
+
+        return pkiReq;
+    }
+
+    private IRequest postRenewalRequest(HttpServletRequest httpReq, CRSPKIMessage req, CRSPKIMessage crsResp)
+            throws Exception {
+
+        // retrieve old cert
+        IssuerAndSerialNumber oldIssuerAndSerialNumber = req.getSgnIssuerAndSerialNumber();
+        INTEGER oldSerialNumber = oldIssuerAndSerialNumber.getSerialNumber();
+        X509CertImpl oldCert = mAuthority.getCertificateRepository().getX509Certificate(oldSerialNumber);
+        if (oldCert == null) {
+            logger.error("CSREnrollment::postRenewalRequest() - cannot retrieve signers cert!");
+            return null;
+        }
+        // get old cert status
+        CertRecord cRecord = (CertRecord)
+                mAuthority.getCertificateRepository().readCertificateRecord(oldSerialNumber);
+        if (cRecord == null) {
+            logger.error("CSREnrollment::postRenewalRequest() - cannot retrieve signers cert record!");
+            return null;
+        }
+        String status = cRecord.getStatus();
+        if (status.equals(ICertRecord.STATUS_REVOKED) ||
+                status.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
+            logger.error("CSREnrollment::postRenewalRequest() - signers cert expired or revoked!");
+            return null;
+        }
+
+        // request new cert based on old cert info
+        IRequestQueue rq = ca.getRequestQueue();
+        IRequest pkiReq = rq.newRequest(IRequest.RENEWAL_REQUEST);
+        pkiReq.setExtData(IRequest.OLD_SERIALS, new BigInteger[] { oldSerialNumber });
+        pkiReq.setExtData(IRequest.OLD_CERTS, new X509CertImpl[] { oldCert });
+
+        X509CertInfo oldCertInfo = (X509CertInfo) oldCert.get(X509CertImpl.NAME + "." + X509CertImpl.INFO);
+        X509CertInfo newCertInfo = new X509CertInfo(oldCertInfo.getEncodedInfo());
+        try {
+            newCertInfo.set(X509CertInfo.ISSUER, oldCertInfo.get(X509CertInfo.ISSUER));
+            newCertInfo.set(X509CertInfo.VALIDITY, new CertificateValidity(new Date(0), new Date(0)));
+            // set the public key from the cert request, not the old certificate
+            CertificateX509Key csrKey = new CertificateX509Key(new ByteArrayInputStream(req.getP10().getSubjectPublicKeyInfo().getEncoded()));
+            newCertInfo.set(X509CertInfo.KEY, csrKey);
+        } catch (CertificateException e) {
+            logger.error("CSREnrollment::postRenewalRequest() - cannot set certificate issuer, validity or public key", e);
+            return null;
+        } catch (IOException e) {
+            logger.error("CSREnrollment::postRenewalRequest() - cannot set certificate issuer, validity or public key", e);
+            return null;
+        }
+        pkiReq.setExtData(IRequest.CERT_INFO, new X509CertInfo[] { newCertInfo });
+        pkiReq.setExtData(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE, IRequest.CEP_CERT);
+        pkiReq.setExtData("cepsubstore", mSubstoreName);
+
+        Hashtable<?, ?> fingerprints = (Hashtable<?, ?>) req.get(IRequest.FINGERPRINTS);
+        if (fingerprints.size() > 0) {
+            Hashtable<String, String> encodedPrints = new Hashtable<String, String>(fingerprints.size());
+            Enumeration<?> e = fingerprints.keys();
+            while (e.hasMoreElements()) {
+                String key = (String) e.nextElement();
+                byte[] value = (byte[]) fingerprints.get(key);
+                encodedPrints.put(key, Utils.base64encode(value, true));
+            }
+            pkiReq.setExtData(IRequest.FINGERPRINTS, encodedPrints);
+        }
+
+        pkiReq.setSourceId(req.getTransactionID());
+
+        rq.processRequest(pkiReq);
+
+        crsResp.setPKIStatus(CRSPKIMessage.mStatus_SUCCESS);
+
+        logger.info(
+                AuditFormat.RENEWALFORMAT,
+                pkiReq.getRequestId(),
+                AuditFormat.FROMROUTER,
+                mAuthManagerName == null ? AuditFormat.NOAUTH : mAuthManagerName,
+                "pending",
+                oldCert.getSubjectDN(),
+                oldSerialNumber.toString(16),
                 ""
         );
 
