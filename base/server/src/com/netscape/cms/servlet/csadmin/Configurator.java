@@ -327,7 +327,7 @@ public class Configurator {
 
         while (tokenizer.hasMoreTokens()) {
             String filename = tokenizer.nextToken().trim();
-            ldapConfigurator.importFile(filename, ignoreErrors);
+            ldapConfigurator.importLDIF(filename, ignoreErrors);
         }
     }
 

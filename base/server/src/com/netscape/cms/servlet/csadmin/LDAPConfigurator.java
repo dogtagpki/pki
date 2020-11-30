@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,12 +76,12 @@ public class LDAPConfigurator {
 
     public void configureDirectory() throws Exception {
         logger.info("Configuring directory");
-        importFile("/usr/share/pki/server/conf/database.ldif", true);
+        importLDIF("/usr/share/pki/server/conf/database.ldif", true);
     }
 
     public void enableUSN() throws Exception {
         logger.info("Enabling USN");
-        importFile("/usr/share/pki/server/conf/usn.ldif", true);
+        importLDIF("/usr/share/pki/server/conf/usn.ldif", true);
     }
 
     public void setupSchema() throws Exception {
@@ -89,17 +91,17 @@ public class LDAPConfigurator {
 
     public void createContainers(String subsystem) throws Exception {
         logger.info("Creating container entries");
-        importFile("/usr/share/pki/" + subsystem + "/conf/db.ldif", true);
+        importLDIF("/usr/share/pki/" + subsystem + "/conf/db.ldif", true);
     }
 
     public void setupACL(String subsystem) throws Exception {
         logger.info("Setting up ACL");
-        importFile("/usr/share/pki/" + subsystem + "/conf/acl.ldif", true);
+        importLDIF("/usr/share/pki/" + subsystem + "/conf/acl.ldif", true);
     }
 
     public void createIndexes(String subsystem) throws Exception {
         logger.info("Creating indexes");
-        importFile("/usr/share/pki/" + subsystem + "/conf/index.ldif", true);
+        importLDIF("/usr/share/pki/" + subsystem + "/conf/index.ldif", true);
     }
 
     public void rebuildIndexes(String subsystem) throws Exception {
@@ -128,12 +130,12 @@ public class LDAPConfigurator {
 
     public void setupDatabaseManager() throws Exception {
         logger.info("Setting up database manager");
-        importFile("/usr/share/pki/server/conf/manager.ldif", true);
+        importLDIF("/usr/share/pki/server/conf/manager.ldif", true);
     }
 
     public void createVLVIndexes(String subsystem) throws Exception {
         logger.info("Creating VLV indexes");
-        importFile("/usr/share/pki/" + subsystem + "/conf/vlv.ldif", true);
+        importLDIF("/usr/share/pki/" + subsystem + "/conf/vlv.ldif", true);
     }
 
     public void rebuildVLVIndexes(String subsystem) throws Exception {
@@ -398,12 +400,14 @@ public class LDAPConfigurator {
         }
     }
 
-    public void importFile(String filename, boolean ignoreErrors) throws Exception {
+    public Collection<LDIFRecord> importLDIF(String filename, boolean ignoreErrors) throws Exception {
 
         logger.info("Importing " + filename);
 
         File file = new File(filename);
         File tmpFile = File.createTempFile("pki-import-", ".ldif");
+
+        Collection<LDIFRecord> records = new ArrayList<>();
 
         try {
             customizeFile(file, tmpFile);
@@ -411,16 +415,18 @@ public class LDAPConfigurator {
             LDIF ldif = new LDIF(tmpFile.getAbsolutePath());
 
             while (true) {
-
                 LDIFRecord record = ldif.nextRecord();
                 if (record == null) break;
 
+                records.add(record);
                 importLDIFRecord(record, ignoreErrors);
             }
 
         } finally {
             tmpFile.delete();
         }
+
+        return records;
     }
 
     public void importLDIFRecord(LDIFRecord record, boolean ignoreErrors) throws Exception {
