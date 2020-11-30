@@ -55,10 +55,10 @@ class PKISubsystem(object):
         self.instance = instance
         self.name = subsystem_name  # e.g. ca, kra
 
-        if instance.version >= 10:
-            self.base_dir = os.path.join(self.instance.base_dir, self.name)
-        else:
+        if hasattr(instance, 'version') and instance.version < 10:
             self.base_dir = instance.base_dir
+        else:
+            self.base_dir = os.path.join(self.instance.base_dir, self.name)
 
         self.conf_dir = os.path.join(self.base_dir, 'conf')
         self.cs_conf = os.path.join(self.conf_dir, 'CS.cfg')
