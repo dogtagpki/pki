@@ -180,7 +180,7 @@ public class SubsystemDBInitCLI extends CommandCLI {
             }
 
             if (cmd.hasOption("setup-vlv-indexes")) {
-                ldapConfigurator.createVLVIndexes(subsystem);
+                ldapConfigurator.addVLVs(subsystem);
                 ldapConfigurator.rebuildVLVIndexes(subsystem);
             }
 
@@ -297,7 +297,7 @@ public class SubsystemDBInitCLI extends CommandCLI {
 
             ldapConfigurator.setupDatabaseManager();
 
-            ldapConfigurator.createVLVIndexes(subsystem);
+            ldapConfigurator.addVLVs(subsystem);
             ldapConfigurator.rebuildVLVIndexes(subsystem);
 
         } finally {

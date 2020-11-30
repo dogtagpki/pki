@@ -133,8 +133,8 @@ public class LDAPConfigurator {
         importLDIF("/usr/share/pki/server/conf/manager.ldif", true);
     }
 
-    public void createVLVIndexes(String subsystem) throws Exception {
-        logger.info("Creating VLV indexes");
+    public void addVLVs(String subsystem) throws Exception {
+        logger.info("Add VLVs");
         importLDIF("/usr/share/pki/" + subsystem + "/conf/vlv.ldif", true);
     }
 
