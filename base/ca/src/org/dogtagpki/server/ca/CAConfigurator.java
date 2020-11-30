@@ -172,7 +172,6 @@ public class CAConfigurator extends Configurator {
 
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
-        IRequestQueue queue = ca.getRequestQueue();
 
         java.security.PrivateKey signingPrivateKey;
         String signingAlgorithm;
@@ -188,7 +187,8 @@ public class CAConfigurator extends Configurator {
             signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
         }
 
-        X509CertInfo info = CertUtils.createCertInfo(dn, issuerDN, algorithm, x509key, certType);
+        X509CertInfo info = ca.createCertInfo(dn, issuerDN, algorithm, x509key, certType);
+        logger.info("CAConfigurator: Cert info:\n" + info);
 
         String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
@@ -196,6 +196,7 @@ public class CAConfigurator extends Configurator {
 
         boolean installAdjustValidity = !tag.equals("signing");
 
+        IRequestQueue queue = ca.getRequestQueue();
         IRequest req = queue.newRequest("enrollment");
 
         CertUtils.initLocalRequest(
@@ -306,6 +307,9 @@ public class CAConfigurator extends Configurator {
             throw new IOException("Missing admin key");
         }
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
         PreOpConfig preopConfig = cs.getPreOpConfig();
         String caType = preopConfig.getString("cert.admin.type", "local");
         String dn = preopConfig.getString("cert.admin.dn");
@@ -318,10 +322,9 @@ public class CAConfigurator extends Configurator {
         String keyAlgorithm = CertUtils.getAdminProfileAlgorithm(
                 caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
 
-        X509CertInfo info = CertUtils.createCertInfo(dn, issuerDN, keyAlgorithm, x509key, caType);
+        X509CertInfo info = ca.createCertInfo(dn, issuerDN, keyAlgorithm, x509key, caType);
+        logger.info("CAConfigurator: Cert info:\n" + info);
 
-        CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
         IRequestQueue queue = ca.getRequestQueue();
 
         java.security.PrivateKey signingPrivateKey = ca.getSigningUnit().getPrivateKey();

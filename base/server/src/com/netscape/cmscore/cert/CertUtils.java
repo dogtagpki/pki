@@ -1023,52 +1023,6 @@ public class CertUtils {
         req.setRequestStatus(RequestStatus.COMPLETE);
     }
 
-    public static X509CertInfo createCertInfo(
-            String dn,
-            String issuerdn,
-            String keyAlgorithm,
-            X509Key x509key,
-            String type) throws Exception {
-
-        logger.info("CertUtils: Creating certificate info for " + dn);
-
-        Date date = new Date();
-
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        CertificateRepository cr = ca.getCertificateRepository();
-        BigInteger serialNo = cr.getNextSerialNumber();
-
-        X509CertInfo info;
-
-        if (type.equals("selfsign")) {
-
-            logger.debug("CertUtils: Creating self-signed certificate");
-            CertificateIssuerName issuerdnObj = new CertificateIssuerName(new X500Name(dn));
-            info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
-
-        } else {
-
-            logger.debug("CertUtils: Creating CA-signed certificate");
-            CertificateIssuerName issuerdnObj = ca.getIssuerObj();
-
-            if (issuerdnObj != null) {
-
-                logger.debug("CertUtils: Reusing CA's CertificateIssuerName to preserve the DN encoding");
-                info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
-
-            } else {
-
-                logger.debug("CertUtils: Creating new CertificateIssuerName");
-                issuerdnObj = new CertificateIssuerName(new X500Name(issuerdn));
-                info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
-            }
-        }
-
-        logger.info("CertUtils: Cert info:\n" + info);
-        return info;
-    }
-
     public static void createCertRecord(
             IRequest request,
             CertInfoProfile profile,

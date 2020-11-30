@@ -967,6 +967,39 @@ public class CertificateAuthority
         mConfig.putString("Policy.rule.BasicConstraintsExt.maxPathLen", "" + num);
     }
 
+    public X509CertInfo createCertInfo(
+            String subjectDN,
+            String issuerDN,
+            String keyAlgorithm,
+            X509Key x509key,
+            String certType) throws Exception {
+
+        logger.info("CertificateAuthority: Creating certificate info for " + subjectDN);
+
+        Date date = new Date();
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+        BigInteger serialNo = cr.getNextSerialNumber();
+        logger.info("CertificateAuthority: serial number: " + serialNo);
+        logger.info("CertificateAuthority: serial number: 0x" + serialNo.toString(16));
+
+        if (certType.equals("selfsign")) {
+            logger.debug("CertificateAuthority: Creating new CertificateIssuerName for self-signed cert");
+            CertificateIssuerName issuerName = new CertificateIssuerName(new X500Name(subjectDN));
+            return CryptoUtil.createX509CertInfo(x509key, serialNo, issuerName, subjectDN, date, date, keyAlgorithm);
+        }
+
+        if (mIssuerObj != null) {
+            logger.debug("CertificateAuthority: Reusing CA's CertificateIssuerName to preserve the DN encoding for CA-signed cert");
+            return CryptoUtil.createX509CertInfo(x509key, serialNo, mIssuerObj, subjectDN, date, date, keyAlgorithm);
+        }
+
+        logger.debug("CertificateAuthority: Creating new CertificateIssuerName for CA-signed cert");
+        CertificateIssuerName issuerName = new CertificateIssuerName(new X500Name(issuerDN));
+        return CryptoUtil.createX509CertInfo(x509key, serialNo, issuerName, subjectDN, date, date, keyAlgorithm);
+    }
+
     /**
      * Signs CRL using the specified signature algorithm.
      * If no algorithm is specified the CA's default signing algorithm
