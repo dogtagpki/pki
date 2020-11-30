@@ -138,27 +138,16 @@ public class LDAPConfigurator {
         importLDIF("/usr/share/pki/" + subsystem + "/conf/vlv.ldif", true);
     }
 
-    public void rebuildVLVIndexes(String subsystem) throws Exception {
+    public void reindexVLVs(String subsystem) throws Exception {
 
-        logger.info("Rebuilding VLV indexes");
+        logger.info("Reindex VLVs");
 
-        File file = new File("/usr/share/pki/" + subsystem + "/conf/vlvtasks.ldif");
-        File tmpFile = File.createTempFile("pki-" + subsystem + "-reindex-", ".ldif");
+        Collection<LDIFRecord> records = importLDIF(
+                "/usr/share/pki/" + subsystem + "/conf/vlvtasks.ldif", false);
 
-        try {
-            customizeFile(file, tmpFile);
-
-            LDIF ldif = new LDIF(tmpFile.getAbsolutePath());
-            LDIFRecord record = ldif.nextRecord();
-            if (record == null) return;
-
-            importLDIFRecord(record, false);
-
+        for (LDIFRecord record : records) {
             String dn = record.getDN();
             waitForTask(dn);
-
-        } finally {
-            tmpFile.delete();
         }
     }
 
