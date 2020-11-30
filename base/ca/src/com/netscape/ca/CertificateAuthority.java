@@ -405,13 +405,14 @@ public class CertificateAuthority
         mConfig = cs.getCAConfig();
 
         // init signing unit & CA cert.
-        boolean initSigUnitSucceeded = false;
 
         try {
             initCertSigningUnit();
             initCRLSigningUnit();
             initOCSPSigningUnit();
-            initSigUnitSucceeded = true;
+
+            // try to update the cert once we have the cert and key
+            checkForNewerCert();
 
         } catch (CAMissingCertException | CAMissingKeyException e) {
             logger.warn("CertificateAuthority: CA signing key and cert not (yet) present in NSS database");
@@ -420,13 +421,6 @@ public class CertificateAuthority
 
         } catch (Exception e) {
             throw new EBaseException(e);
-        }
-
-        /* Don't try to update the cert unless we already have
-         * the cert and key. */
-        if (initSigUnitSucceeded) {
-            logger.info("CertificateAuthority: Checking for newer cert");
-            checkForNewerCert();
         }
     }
 
@@ -446,10 +440,17 @@ public class CertificateAuthority
     }
 
     private void checkForNewerCert() throws EBaseException {
-        if (authoritySerial == null)
+
+        logger.info("CertificateAuthority: Checking for newer CA cert");
+        logger.info("CertificateAuthority: serial number: " + authoritySerial);
+
+        if (authoritySerial == null) {
             return;
-        if (authoritySerial.equals(mCaCert.getSerialNumber()))
+        }
+
+        if (authoritySerial.equals(mCaCert.getSerialNumber())) {
             return;
+        }
 
         // The authoritySerial recorded in LDAP differs from the
         // certificate in NSSDB.  Import the newer cert.
@@ -457,9 +458,8 @@ public class CertificateAuthority
         // Note that the new serial number need not be greater,
         // e.g. if random serial numbers are enabled.
         //
-        logger.debug(
-            "CertificateAuthority: Updating certificate in NSSDB; new serial number: "
-            + authoritySerial);
+        logger.info("CertificateAuthority: Updating CA cert");
+        logger.info("CertificateAuthority: serial number: " + authoritySerial);
 
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
