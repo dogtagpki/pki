@@ -12,4 +12,7 @@ endif()
 set(CERTIFICATE_SYSTEM_NAME "${CERTIFICATE_SYSTEM_THEME} Certificate System ${CERTIFICATE_SYSTEM_VERSION}")
 
 add_subdirectory(common-ui)
-add_subdirectory(console-ui)
+
+if (BUILD_PKI_CONSOLE)
+    add_subdirectory(console-ui)
+endif (BUILD_PKI_CONSOLE)
