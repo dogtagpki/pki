@@ -1350,7 +1350,6 @@ def ldap_password_authn(
     is ``None``.
 
     """
-    logger.info('Configuring LDAP password authentication')
     orig = {}
     try:
         password = instance.passwords['internaldb']
@@ -1367,6 +1366,9 @@ def ldap_password_authn(
     ldappasswd_performed = False
 
     for subsystem in subsystems:
+
+        logger.info('Configuring LDAP connection for %s', subsystem.type)
+
         cfg = subsystem.get_db_config()
         orig[subsystem] = cfg.copy()  # copy because dict is mutable
 
@@ -1397,9 +1399,10 @@ def ldap_password_authn(
         yield
 
     finally:
-        logger.info('Restoring previous LDAP configuration')
-
         for subsystem, cfg in orig.items():
+
+            logger.info('Restoring LDAP connection for %s', subsystem.type)
+
             subsystem.set_db_config(cfg)
             subsystem.save()
 

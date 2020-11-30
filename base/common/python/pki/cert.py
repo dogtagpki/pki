@@ -23,6 +23,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import copy
 import json
+import logging
 
 from six import iteritems
 
@@ -30,6 +31,8 @@ import pki
 import pki.client as client
 import pki.encoder as encoder
 import pki.profile as profile
+
+logger = logging.getLogger(__name__)
 
 
 class CertData(object):
@@ -508,23 +511,25 @@ class CertEnrollmentRequest(object):
                 else:
                     setattr(enroll_request, k, v)
 
-        inputs = attr_list['Input']
-        if not isinstance(inputs, list):
-            enroll_request.inputs.append(
-                profile.ProfileInput.from_json(inputs))
-        else:
-            for profile_input in inputs:
+        inputs = attr_list.get('Input')
+        if inputs:
+            if not isinstance(inputs, list):
                 enroll_request.inputs.append(
-                    profile.ProfileInput.from_json(profile_input))
+                    profile.ProfileInput.from_json(inputs))
+            else:
+                for profile_input in inputs:
+                    enroll_request.inputs.append(
+                        profile.ProfileInput.from_json(profile_input))
 
-        outputs = attr_list['Output']
-        if not isinstance(outputs, list):
-            enroll_request.outputs.append(
-                profile.ProfileOutput.from_json(outputs))
-        else:
-            for profile_output in outputs:
+        outputs = attr_list.get('Output')
+        if outputs:
+            if not isinstance(outputs, list):
                 enroll_request.outputs.append(
-                    profile.ProfileOutput.from_json(profile_output))
+                    profile.ProfileOutput.from_json(outputs))
+            else:
+                for profile_output in outputs:
+                    enroll_request.outputs.append(
+                        profile.ProfileOutput.from_json(profile_output))
 
         return enroll_request
 
@@ -950,9 +955,10 @@ class CertClient(object):
             return copy.deepcopy(self.enrollment_templates[profile_id])
         url = self.cert_requests_url + '/profiles/' + str(profile_id)
         r = self.connection.get(url, self.headers)
-        # print r.json()
+        enrollment_request = r.json()
+        logger.info('Enrollment request: %s', enrollment_request)
         # Caching the enrollment template object in-memory for future use.
-        enrollment_template = CertEnrollmentRequest.from_json(r.json())
+        enrollment_template = CertEnrollmentRequest.from_json(enrollment_request)
         self.enrollment_templates[profile_id] = enrollment_template
 
         return copy.deepcopy(enrollment_template)
