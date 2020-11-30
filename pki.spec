@@ -107,7 +107,9 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 %package_option tks
 %package_option tps
 %package_option javadoc
+%if 0%{?fedora} && 0%{?fedora} <= 33 || 0%{?rhel} <= 8
 %package_option console
+%endif
 %package_option theme
 %package_option meta
 %package_option tests
@@ -309,7 +311,9 @@ Requires:         pki-tps = %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of PKI console
+%if %{with console}
 Requires:         pki-console = %{version}
+%endif
 Requires:         pki-javadoc = %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
@@ -354,7 +358,9 @@ Requires:         nss >= 3.38.0
 Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-javadoc < %{version}
 Conflicts:        pki-server-theme < %{version}
+%if %{with console}
 Conflicts:        pki-console-theme < %{version}
+%endif
 
 %description -n   pki-symkey
 The PKI Symmetric Key Java Package supplies various native
@@ -376,7 +382,9 @@ Requires(post):   python3-pki = %{version}-%{release}
 Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-javadoc < %{version}
 Conflicts:        pki-server-theme < %{version}
+%if %{with console}
 Conflicts:        pki-console-theme < %{version}
+%endif
 
 %description -n   pki-base
 The PKI Base Package contains the common and client libraries and utilities
