@@ -92,7 +92,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     private Hashtable<String, IOCSPStore> mStores = new Hashtable<String, IOCSPStore>();
     private String mId = "ocsp";
     private OCSPConfig mConfig;
-    private SigningUnit mSigningUnit;
+    private OCSPSigningUnit mSigningUnit;
     private CertificateChain mCertChain = null;
     private X509CertImpl mCert = null;
     private X500Name mName = null;
@@ -290,7 +290,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     private void initSigUnit() throws EBaseException {
         try {
             // init signing unit
-            mSigningUnit = new SigningUnit();
+            mSigningUnit = new OCSPSigningUnit();
             mSigningUnit.init(this, mConfig.getSubStore(PROP_SIGNING_SUBSTORE));
             logger.debug("OCSP signing unit inited");
 

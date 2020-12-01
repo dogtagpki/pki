@@ -51,9 +51,9 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * $Revision$ $Date$
  */
 
-public final class SigningUnit implements ISigningUnit {
+public final class OCSPSigningUnit implements ISigningUnit {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SigningUnit.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPSigningUnit.class);
 
     private CryptoManager mManager = null;
     private CryptoToken mToken = null;
@@ -73,7 +73,7 @@ public final class SigningUnit implements ISigningUnit {
     private String mDefSigningAlgname = null;
     private SignatureAlgorithm mDefSigningAlgorithm = null;
 
-    public SigningUnit() {
+    public OCSPSigningUnit() {
     }
 
     public X509Certificate getCert() {
@@ -120,7 +120,7 @@ public final class SigningUnit implements ISigningUnit {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 
-        logger.debug("OCSP SigningUnit.init(" + owner.getId() + ", " + config.getName() + ")");
+        logger.debug("OCSPSigningUnit.init(" + owner.getId() + ", " + config.getName() + ")");
 
         mOwner = owner;
         mConfig = config;
