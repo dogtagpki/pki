@@ -19,24 +19,17 @@ package com.netscape.ca;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.SignatureException;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
-import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
-import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -56,65 +49,17 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * $Revision$ $Date$
  */
 
-public final class CASigningUnit implements SigningUnit {
+public final class CASigningUnit extends SigningUnit {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CASigningUnit.class);
 
-    private CryptoManager mManager = null;
-    private CryptoToken mToken = null;
-    private PublicKey mPubk = null;
-    private PrivateKey mPrivk = null;
-
-    protected X509Certificate mCert = null;
-    protected X509CertImpl mCertImpl = null;
-    protected String mNickname = null;
-
-    private boolean mInited = false;
-    private IConfigStore mConfig;
-
-    private String mDefSigningAlgname = null;
-    private SignatureAlgorithm mDefSigningAlgorithm = null;
-
     public CASigningUnit() {
-    }
-
-    public X509Certificate getCert() {
-        return mCert;
-    }
-
-    public X509CertImpl getCertImpl() {
-        return mCertImpl;
-    }
-
-    public String getNickname() {
-        return mNickname;
-    }
-
-    public String getNewNickName() throws EBaseException {
-        return mConfig.getString(PROP_NEW_NICKNAME, "");
-    }
-
-    public void setNewNickName(String name) {
-        mConfig.putString(PROP_NEW_NICKNAME, name);
-    }
-
-    public PublicKey getPublicKey() {
-        return mPubk;
-    }
-
-    public PrivateKey getPrivateKey() {
-        return mPrivk;
     }
 
     public void updateConfig(String nickname, String tokenname) {
         mConfig.putString(PROP_CA_CERT_NICKNAME, nickname);
         mConfig.putString(PROP_TOKEN_NAME, tokenname);
     }
-
-    public String getTokenName() throws EBaseException {
-        return mConfig.getString(PROP_TOKEN_NAME);
-    }
-
 
     public void init(IConfigStore config, String nickname) throws EBaseException {
 
@@ -193,49 +138,6 @@ public final class CASigningUnit implements SigningUnit {
         } catch (TokenException e) {
             logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
             throw new ECAException(CMS.getUserMessage("CMS_CA_TOKEN_ERROR"), e);
-        }
-    }
-
-    /**
-     * Check if the signing algorithm name is supported and valid for this
-     * signing unit's token and key.
-     *
-     * @param algname a signing algorithm name from JCA.
-     * @return the mapped JSS signature algorithm object.
-     *
-     * @exception EBaseException if signing algorithm is not supported.
-     */
-    public SignatureAlgorithm checkSigningAlgorithmFromName(String algname)
-            throws EBaseException {
-        try {
-            SignatureAlgorithm sigalg = null;
-
-            sigalg = mapAlgorithmToJss(algname);
-            if (sigalg == null) {
-                logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, ""));
-                throw new ECAException(
-                        CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname));
-            }
-            Signature signer = mToken.getSignatureContext(sigalg);
-
-            signer.initSign(mPrivk);
-            return sigalg;
-
-        } catch (NoSuchAlgorithmException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, e.toString()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
-
-        } catch (TokenException e) {
-            // from get signature context or from initSign
-            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, e.toString()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
-
-        } catch (InvalidKeyException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, e.toString()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED_FOR_KEY", algname), e);
         }
     }
 
@@ -358,52 +260,5 @@ public final class CASigningUnit implements SigningUnit {
             // XXX fix this exception later.
             throw new EBaseException(e);
         }
-    }
-
-    /**
-     * returns default signature algorithm
-     */
-    public SignatureAlgorithm getDefaultSignatureAlgorithm() {
-        return mDefSigningAlgorithm;
-    }
-
-    /**
-     * returns default signing algorithm name.
-     */
-    public String getDefaultAlgorithm() {
-        return mDefSigningAlgname;
-    }
-
-    public void setDefaultAlgorithm(String algorithm) throws EBaseException {
-        mConfig.putString(PROP_DEFAULT_SIGNALG, algorithm);
-        mDefSigningAlgname = algorithm;
-        logger.info("Default signing algorithm is set to " + algorithm);
-    }
-
-    /**
-     * get all possible algorithms for the CA signing key type.
-     */
-    public String[] getAllAlgorithms() throws EBaseException {
-        byte[] keybytes = mPubk.getEncoded();
-        X509Key key = new X509Key();
-
-        try {
-            key.decode(keybytes);
-        } catch (java.security.InvalidKeyException e) {
-            String msg = "Invalid encoding in CA signing key.";
-
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", msg), e);
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg), e);
-        }
-
-        if (key.getAlgorithmId().getOID().equals(AlgorithmId.DSA_oid)) {
-            return AlgorithmId.DSA_SIGNING_ALGORITHMS;
-        } else {
-            return AlgorithmId.ALL_SIGNING_ALGORITHMS;
-        }
-    }
-
-    public static SignatureAlgorithm mapAlgorithmToJss(String algname) {
-        return Cert.mapAlgorithmToJss(algname);
     }
 }

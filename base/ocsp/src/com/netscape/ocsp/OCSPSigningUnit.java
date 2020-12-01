@@ -19,24 +19,17 @@ package com.netscape.ocsp;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.SignatureException;
 
 import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
-import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
-import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -51,57 +44,11 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * $Revision$ $Date$
  */
 
-public final class OCSPSigningUnit implements SigningUnit {
+public final class OCSPSigningUnit extends SigningUnit {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPSigningUnit.class);
 
-    private CryptoManager mManager = null;
-    private CryptoToken mToken = null;
-    private PublicKey mPubk = null;
-    private PrivateKey mPrivk = null;
-
-    protected X509Certificate mCert = null;
-    protected X509CertImpl mCertImpl = null;
-    protected String mNickname = null;
-
-    private boolean mInited = false;
-    private IConfigStore mConfig;
-
-    @SuppressWarnings("unused")
-    private ISubsystem mOwner;
-
-    private String mDefSigningAlgname = null;
-    private SignatureAlgorithm mDefSigningAlgorithm = null;
-
     public OCSPSigningUnit() {
-    }
-
-    public X509Certificate getCert() {
-        return mCert;
-    }
-
-    public X509CertImpl getCertImpl() {
-        return mCertImpl;
-    }
-
-    public String getNickname() {
-        return mNickname;
-    }
-
-    public String getNewNickName() throws EBaseException {
-        return mConfig.getString(PROP_NEW_NICKNAME, "");
-    }
-
-    public void setNewNickName(String name) {
-        mConfig.putString(PROP_NEW_NICKNAME, name);
-    }
-
-    public PublicKey getPublicKey() {
-        return mPubk;
-    }
-
-    public PrivateKey getPrivateKey() {
-        return mPrivk;
     }
 
     public void updateConfig(String nickname, String tokenname) {
@@ -109,20 +56,11 @@ public final class OCSPSigningUnit implements SigningUnit {
         mConfig.putString(PROP_TOKEN_NAME, tokenname);
     }
 
-    public String getTokenName() throws EBaseException {
-        return mConfig.getString(PROP_TOKEN_NAME);
-    }
-
-    public String getNickName() throws EBaseException {
-        return mConfig.getString(PROP_CERT_NICKNAME);
-    }
-
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 
         logger.debug("OCSPSigningUnit.init(" + owner.getId() + ", " + config.getName() + ")");
 
-        mOwner = owner;
         mConfig = config;
 
         String tokenname = null;
@@ -178,45 +116,6 @@ public final class OCSPSigningUnit implements SigningUnit {
 
         } catch (TokenException e) {
             logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
-        }
-    }
-
-    /**
-     * Check if the signing algorithm name is supported and valid for this
-     * signing unit's token and key.
-     *
-     * @param algname a signing algorithm name from JCA.
-     * @return the mapped JSS signature algorithm object.
-     *
-     * @exception EBaseException if signing algorithm is not supported.
-     */
-    public SignatureAlgorithm checkSigningAlgorithmFromName(String algname)
-            throws EBaseException {
-        try {
-            SignatureAlgorithm sigalg = null;
-
-            sigalg = mapAlgorithmToJss(algname);
-            if (sigalg == null) {
-                logger.error(CMS.getLogMessage("CMSCORE_OCSP_SIGN_ALG_NOT_SUPPORTED", algname));
-                throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", ""));
-            }
-            Signature signer = mToken.getSignatureContext(sigalg);
-
-            signer.initSign(mPrivk);
-            return sigalg;
-
-        } catch (NoSuchAlgorithmException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_OCSP_SIGN_ALG_NOT_SUPPORTED", algname), e);
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
-
-        } catch (TokenException e) {
-            // from get signature context or from initSign
-            logger.error(CMS.getLogMessage("CMSCORE_OCSP_SIGN_ALG_NOT_SUPPORTED", algname), e);
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
-
-        } catch (InvalidKeyException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_OCSP_SIGN_ALG_NOT_SUPPORTED", algname), e);
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         }
     }
@@ -308,51 +207,5 @@ public final class OCSPSigningUnit implements SigningUnit {
             engine.checkForAndAutoShutdown();
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         }
-    }
-
-    /**
-     * returns default signature algorithm
-     */
-    public SignatureAlgorithm getDefaultSignatureAlgorithm() {
-        return mDefSigningAlgorithm;
-    }
-
-    /**
-     * returns default signing algorithm name.
-     */
-    public String getDefaultAlgorithm() {
-        return mDefSigningAlgname;
-    }
-
-    public void setDefaultAlgorithm(String algorithm) throws EBaseException {
-        mConfig.putString(PROP_DEFAULT_SIGNALG, algorithm);
-        mDefSigningAlgname = algorithm;
-        logger.info("Default signing algorithm is set to " + algorithm);
-    }
-
-    /**
-     * get all possible algorithms for the OCSP signing key type.
-     */
-    public String[] getAllAlgorithms() throws EBaseException {
-        byte[] keybytes = mPubk.getEncoded();
-        X509Key key = new X509Key();
-
-        try {
-            key.decode(keybytes);
-        } catch (java.security.InvalidKeyException e) {
-            String msg = "Invalid encoding in OCSP signing key.";
-            logger.error(CMS.getLogMessage("CMSCORE_OCSP_INVALID_ENCODING"), e);
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg), e);
-        }
-
-        if (key.getAlgorithmId().getOID().equals(AlgorithmId.DSA_oid)) {
-            return AlgorithmId.DSA_SIGNING_ALGORITHMS;
-        } else {
-            return AlgorithmId.ALL_SIGNING_ALGORITHMS;
-        }
-    }
-
-    public static SignatureAlgorithm mapAlgorithmToJss(String algname) {
-        return Cert.mapAlgorithmToJss(algname);
     }
 }
