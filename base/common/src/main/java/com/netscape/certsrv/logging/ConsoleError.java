@@ -23,7 +23,6 @@ package com.netscape.certsrv.logging;
  * @version $Revision$, $Date$
  */
 public class ConsoleError {
-    private static final ConsoleLog console = new ConsoleLog();
 
     /**
      * Send the given event to the Console.
@@ -31,8 +30,6 @@ public class ConsoleError {
      * @param ev log event to be sent to the console
      */
     public static void send(ILogEvent ev) {
-        console.log(ev);
-        console.flush();
+        System.err.println(Thread.currentThread().getName() + ": " + ev);
     }
-
 }
