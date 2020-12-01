@@ -42,7 +42,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
-import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 
@@ -277,7 +277,7 @@ public interface ICertificateAuthority extends ISubsystem {
      *
      * @return the CA signing unit for certificates
      */
-    public ISigningUnit getSigningUnit();
+    public SigningUnit getSigningUnit();
 
     /**
      * Retrieves the signing unit that manages the CA signing key for
@@ -285,7 +285,7 @@ public interface ICertificateAuthority extends ISubsystem {
      *
      * @return the CA signing unit for CRLs
      */
-    public ISigningUnit getCRLSigningUnit();
+    public SigningUnit getCRLSigningUnit();
 
     /**
      * Retrieves the signing unit that manages the CA signing key for
@@ -293,7 +293,7 @@ public interface ICertificateAuthority extends ISubsystem {
      *
      * @return the CA signing unit for OCSP responses
      */
-    public ISigningUnit getOCSPSigningUnit();
+    public SigningUnit getOCSPSigningUnit();
 
     /**
      * Sets the maximium path length in the basic constraint extension.

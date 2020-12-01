@@ -46,7 +46,7 @@ import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.SystemEvent;
-import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -56,7 +56,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * $Revision$ $Date$
  */
 
-public final class CASigningUnit implements ISigningUnit {
+public final class CASigningUnit implements SigningUnit {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CASigningUnit.class);
 

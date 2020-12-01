@@ -34,7 +34,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
@@ -209,7 +209,7 @@ public class OCSPPresence
         }
 
         // Retrieve the OCSP signing unit
-        ISigningUnit ocspSigningUnit = ocsp.getSigningUnit();
+        SigningUnit ocspSigningUnit = ocsp.getSigningUnit();
         if (ocspSigningUnit == null) {
             // log that the OCSP is not yet initialized
             String logMessage = CMS.getLogMessage(

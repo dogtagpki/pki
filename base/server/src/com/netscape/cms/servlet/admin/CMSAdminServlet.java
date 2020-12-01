@@ -71,7 +71,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigTrustedPublicKeyEvent;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
-import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
@@ -419,7 +419,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         if (isCAInstalled) {
             ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            ISigningUnit signingUnit = ca.getSigningUnit();
+            SigningUnit signingUnit = ca.getSigningUnit();
 
             caTokenName = signingUnit.getTokenName();
 
@@ -551,7 +551,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 if (name.equals(Constants.PR_CIPHER_PREF)) {
                     jssSubsystem.setCipherPreferences(val);
                 } else if (name.equals(Constants.PR_CERT_CA)) {
-                    ISigningUnit signingUnit = ca.getSigningUnit();
+                    SigningUnit signingUnit = ca.getSigningUnit();
 
                     if ((val != null) && (!val.equals(""))) {
                         StringTokenizer tokenizer = new StringTokenizer(val, ",");
@@ -1260,7 +1260,7 @@ public final class CMSAdminServlet extends AdminServlet {
             throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        ISigningUnit signingUnit = ca.getSigningUnit();
+        SigningUnit signingUnit = ca.getSigningUnit();
 
         if (CryptoUtil.isInternalToken(tokenName))
             signingUnit.setNewNickName(nickname);
@@ -1275,7 +1275,7 @@ public final class CMSAdminServlet extends AdminServlet {
     private String getCANewnickname() throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        ISigningUnit signingUnit = ca.getSigningUnit();
+        SigningUnit signingUnit = ca.getSigningUnit();
 
         return signingUnit.getNewNickName();
     }
@@ -1309,7 +1309,7 @@ public final class CMSAdminServlet extends AdminServlet {
         IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
 
         if (ocsp != null) {
-            ISigningUnit signingUnit = ocsp.getSigningUnit();
+            SigningUnit signingUnit = ocsp.getSigningUnit();
 
             if (CryptoUtil.isInternalToken(tokenName))
                 signingUnit.setNewNickName(nickname);
@@ -1321,7 +1321,7 @@ public final class CMSAdminServlet extends AdminServlet {
             }
         } else {
             ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            ISigningUnit signingUnit = ca.getOCSPSigningUnit();
+            SigningUnit signingUnit = ca.getOCSPSigningUnit();
 
             if (CryptoUtil.isInternalToken(tokenName))
                 signingUnit.setNewNickName(nickname);
@@ -1339,12 +1339,12 @@ public final class CMSAdminServlet extends AdminServlet {
         IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
 
         if (ocsp != null) {
-            ISigningUnit signingUnit = ocsp.getSigningUnit();
+            SigningUnit signingUnit = ocsp.getSigningUnit();
 
             return signingUnit.getNewNickName();
         } else {
             ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            ISigningUnit signingUnit = ca.getOCSPSigningUnit();
+            SigningUnit signingUnit = ca.getOCSPSigningUnit();
 
             return signingUnit.getNewNickName();
         }
@@ -1482,7 +1482,7 @@ public final class CMSAdminServlet extends AdminServlet {
             JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             CertificateRepository repository = ca.getCertificateRepository();
-            ISigningUnit signingUnit = ca.getSigningUnit();
+            SigningUnit signingUnit = ca.getSigningUnit();
             String oldtokenname = null;
             //this is the old nick name
             String nickname = getNickname(certType);
@@ -1750,7 +1750,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     modifyRADMCert(nickname);
                 } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
                     if (ca != null) {
-                        ISigningUnit ocspSigningUnit = ca.getOCSPSigningUnit();
+                        SigningUnit ocspSigningUnit = ca.getOCSPSigningUnit();
 
                         if (newtokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                             ocspSigningUnit.updateConfig(
@@ -1769,7 +1769,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 signingUnit.setDefaultAlgorithm(defaultSigningAlg);
 
             if (defaultOCSPSigningAlg != null) {
-                ISigningUnit ocspSigningUnit = ca.getOCSPSigningUnit();
+                SigningUnit ocspSigningUnit = ca.getOCSPSigningUnit();
                 ocspSigningUnit.setDefaultAlgorithm(defaultOCSPSigningAlg);
             }
 
@@ -2051,7 +2051,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
                 ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-                ISigningUnit signingUnit = ca.getSigningUnit();
+                SigningUnit signingUnit = ca.getSigningUnit();
                 String signatureAlg =
                         jssSubsystem.getSignatureAlgorithm(nickname);
 
@@ -2107,7 +2107,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
 
                 if (ocsp != null) {
-                    ISigningUnit signingUnit = ocsp.getSigningUnit();
+                    SigningUnit signingUnit = ocsp.getSigningUnit();
 
                     if (nickname.equals(nicknameWithoutTokenName)) {
                         signingUnit.updateConfig(nickname,
@@ -2119,7 +2119,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     }
                 } else {
                     ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-                    ISigningUnit signingUnit = ca.getOCSPSigningUnit();
+                    SigningUnit signingUnit = ca.getOCSPSigningUnit();
 
                     if (nickname.equals(nicknameWithoutTokenName)) {
                         signingUnit.updateConfig(nickname,
@@ -2414,7 +2414,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
             ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            ISigningUnit signingUnit = ca.getSigningUnit();
+            SigningUnit signingUnit = ca.getSigningUnit();
 
             nickname = signingUnit.getNickname();
         } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
@@ -2423,11 +2423,11 @@ public final class CMSAdminServlet extends AdminServlet {
             if (ocsp == null) {
                 // this is a local CA service
                 ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-                ISigningUnit signingUnit = ca.getOCSPSigningUnit();
+                SigningUnit signingUnit = ca.getOCSPSigningUnit();
 
                 nickname = signingUnit.getNickname();
             } else {
-                ISigningUnit signingUnit = ocsp.getSigningUnit();
+                SigningUnit signingUnit = ocsp.getSigningUnit();
 
                 nickname = signingUnit.getNickname();
             }

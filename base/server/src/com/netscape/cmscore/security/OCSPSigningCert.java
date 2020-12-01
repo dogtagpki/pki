@@ -28,7 +28,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -112,7 +112,7 @@ public class OCSPSigningCert extends CertificateInfo {
         if (!CryptoUtil.isInternalToken(tokenname)) {
             nickname = tokenname + ":" + nickname;
         }
-        cmsFileTmp.putString("ca.signing." + ISigningUnit.PROP_CA_CERT_NICKNAME, nickname);
+        cmsFileTmp.putString("ca.signing." + SigningUnit.PROP_CA_CERT_NICKNAME, nickname);
 
         cmsFileTmp.commit(false);
     }

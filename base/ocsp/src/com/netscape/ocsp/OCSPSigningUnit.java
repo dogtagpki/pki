@@ -41,7 +41,7 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -51,7 +51,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * $Revision$ $Date$
  */
 
-public final class OCSPSigningUnit implements ISigningUnit {
+public final class OCSPSigningUnit implements SigningUnit {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPSigningUnit.class);
 

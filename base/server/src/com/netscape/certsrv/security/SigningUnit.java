@@ -33,7 +33,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
  *
  * @version $Revision$, $Date$
  */
-public interface ISigningUnit {
+public interface SigningUnit {
 
     public static final String PROP_DEFAULT_SIGNALG = "defaultSigningAlgorithm";
 

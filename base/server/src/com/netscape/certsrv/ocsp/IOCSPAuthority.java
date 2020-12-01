@@ -22,7 +22,7 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.ResponderID;
 import com.netscape.cmsutil.ocsp.ResponseData;
@@ -60,7 +60,7 @@ public interface IOCSPAuthority extends ISubsystem {
      *
      * @return ISigningUnit an instance of a signing unit object
      */
-    public ISigningUnit getSigningUnit();
+    public SigningUnit getSigningUnit();
 
     /**
      * This method retrieves the responder ID by its name.
