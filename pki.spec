@@ -18,7 +18,7 @@ Summary:          Certificate System
 URL:              https://www.dogtagpki.org/
 License:          GPLv2
 
-Version:          10.5.17
+Version:          10.5.18
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 
 %if 0%{?rhel}
@@ -54,7 +54,7 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %global package_rhel_packages 1
 # Package RHCS-specific RPMS Only
 %global package_rhcs_packages 1
-%define pki_core_rhel_version 10.5.17
+%define pki_core_rhel_version 10.5.18
 %else
 # Fedora always packages all RPMS
 %global package_fedora_packages 1
