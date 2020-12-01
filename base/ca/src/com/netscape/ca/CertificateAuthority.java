@@ -122,7 +122,6 @@ import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -190,9 +189,9 @@ public class CertificateAuthority
 
     protected CAConfig mConfig;
 
-    protected SigningUnit mSigningUnit;
-    protected SigningUnit mOCSPSigningUnit;
-    protected SigningUnit mCRLSigningUnit;
+    protected CASigningUnit mSigningUnit;
+    protected CASigningUnit mOCSPSigningUnit;
+    protected CASigningUnit mCRLSigningUnit;
 
     protected CertificateIssuerName mIssuerObj = null;
     protected CertificateSubjectName mSubjectObj = null;
@@ -951,15 +950,15 @@ public class CertificateAuthority
      *
      * @return request identifier
      */
-    public ISigningUnit getSigningUnit() {
+    public CASigningUnit getSigningUnit() {
         return mSigningUnit;
     }
 
-    public ISigningUnit getCRLSigningUnit() {
+    public CASigningUnit getCRLSigningUnit() {
         return mCRLSigningUnit;
     }
 
-    public ISigningUnit getOCSPSigningUnit() {
+    public CASigningUnit getOCSPSigningUnit() {
         return mOCSPSigningUnit;
     }
 
@@ -1313,7 +1312,7 @@ public class CertificateAuthority
             logger.debug("CertificateAuthority: - issuer DN: " + mIssuerObj);
         }
 
-        mSigningUnit = new SigningUnit();
+        mSigningUnit = new CASigningUnit();
         mSigningUnit.init(caSigningCfg, mNickname);
 
         hasKeys = true;
@@ -1363,7 +1362,7 @@ public class CertificateAuthority
         IConfigStore crlSigningConfig = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE);
 
         if (hostCA && crlSigningConfig != null && crlSigningConfig.size() > 0) {
-            mCRLSigningUnit = new SigningUnit();
+            mCRLSigningUnit = new CASigningUnit();
             mCRLSigningUnit.init(crlSigningConfig, null);
         } else {
             mCRLSigningUnit = mSigningUnit;
@@ -1393,7 +1392,7 @@ public class CertificateAuthority
         IConfigStore ocspSigningConfig = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
 
         if (hostCA && ocspSigningConfig != null && ocspSigningConfig.size() > 0) {
-            mOCSPSigningUnit = new SigningUnit();
+            mOCSPSigningUnit = new CASigningUnit();
             mOCSPSigningUnit.init(ocspSigningConfig, null);
         } else {
             mOCSPSigningUnit = mSigningUnit;

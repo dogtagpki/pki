@@ -56,9 +56,9 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * $Revision$ $Date$
  */
 
-public final class SigningUnit implements ISigningUnit {
+public final class CASigningUnit implements ISigningUnit {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SigningUnit.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CASigningUnit.class);
 
     private CryptoManager mManager = null;
     private CryptoToken mToken = null;
@@ -75,7 +75,7 @@ public final class SigningUnit implements ISigningUnit {
     private String mDefSigningAlgname = null;
     private SignatureAlgorithm mDefSigningAlgorithm = null;
 
-    public SigningUnit() {
+    public CASigningUnit() {
     }
 
     public X509Certificate getCert() {
@@ -118,7 +118,7 @@ public final class SigningUnit implements ISigningUnit {
 
     public void init(IConfigStore config, String nickname) throws EBaseException {
 
-        logger.debug("CA SigningUnit.init(" + config.getName() + ", " + nickname + ")");
+        logger.debug("CASigningUnit.init(" + config.getName() + ", " + nickname + ")");
 
         mConfig = config;
 

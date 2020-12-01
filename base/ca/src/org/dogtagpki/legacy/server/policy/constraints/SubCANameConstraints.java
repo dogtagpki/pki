@@ -29,13 +29,13 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.ca.CASigningUnit;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -100,7 +100,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "Cannot find the Certificate Manager"));
         }
         mCA = (ICertificateAuthority) certAuthority;
-        ISigningUnit su = mCA.getSigningUnit();
+        CASigningUnit su = (CASigningUnit) mCA.getSigningUnit();
         CMSEngine engine = CMS.getCMSEngine();
         if (su == null || engine.isPreOpMode()) {
             logger.warn("SubCANameConstraints.init(): Abort due to missing signing unit or in pre-op mode");
