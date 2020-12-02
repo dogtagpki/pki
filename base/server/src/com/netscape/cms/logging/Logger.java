@@ -43,7 +43,6 @@ public class Logger implements ILogger {
 
     static {
         register(EV_AUDIT, new AuditEventFactory());
-        register(EV_SYSTEM, new SystemEventFactory());
     }
 
     LogFactory factory;
