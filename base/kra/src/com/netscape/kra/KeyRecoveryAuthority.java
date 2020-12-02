@@ -1388,15 +1388,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Logs an event.
-     *
-     * @param level log level
-     * @param msg message to log
-     */
-    public void log(int level, String msg) {
-    }
-
-    /**
      * Registers a request listener.
      *
      * @param l request listener

@@ -242,14 +242,6 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
     public void setNewNickName(String name);
 
     /**
-     * Logs event into key recovery authority logging.
-     *
-     * @param level log level
-     * @param msg log message
-     */
-    public void log(int level, String msg);
-
-    /**
      * Creates a request object to store attributes that
      * will not be serialized. Currently, request queue
      * framework will try to serialize all the attribute into

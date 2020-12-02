@@ -48,12 +48,9 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-// cfu??
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.tps.token.TokenStatus;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -70,9 +67,6 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
 
     public final static String ID = "tps";
-
-    // cfu??
-    public Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_TPS);
 
     public String id;
     public String nickname;
@@ -336,12 +330,6 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     @Override
     public void registerPendingListener(IRequestListener listener) {
-    }
-
-    @Override
-    public void log(int level, String msg) {
-        // cfu: do we need this?
-        systemLogger.log(level, msg);
     }
 
     @Override

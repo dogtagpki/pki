@@ -47,11 +47,6 @@ public interface IAuthority extends ISubsystem {
     public void registerPendingListener(IRequestListener listener);
 
     /**
-     * log interface
-     */
-    public void log(int level, String msg);
-
-    /**
      * nickname of signing (id) cert
      */
     public String getNickname();
