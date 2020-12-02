@@ -147,7 +147,7 @@ public class CAConfigurator extends Configurator {
         updateLocalRequest(req, certreq, "pkcs10", null);
         queue.updateRequest(req);
 
-        CertUtils.createCertRecord(req, profile, certImpl);
+        ca.createCertRecord(req, profile, certImpl);
     }
 
     public X509CertImpl createLocalCert(
@@ -215,7 +215,7 @@ public class CAConfigurator extends Configurator {
         profile.populate(req, info);
 
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
-        CertUtils.createCertRecord(req, profile, cert);
+        ca.createCertRecord(req, profile, cert);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
 
@@ -362,7 +362,7 @@ public class CAConfigurator extends Configurator {
         profile.populate(req, info);
 
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
-        CertUtils.createCertRecord(req, profile, cert);
+        ca.createCertRecord(req, profile, cert);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
 

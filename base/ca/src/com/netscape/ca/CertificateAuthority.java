@@ -95,6 +95,7 @@ import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -131,6 +132,7 @@ import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
+import com.netscape.cms.servlet.csadmin.CertInfoProfile;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
@@ -2084,5 +2086,25 @@ public class CertificateAuthority
             logger.error("deleteAuthority: TokenExcepetion while deleting cert: " + e.getMessage(), e);
             throw new ECAException("TokenException while deleting cert: " + e);
         }
+    }
+
+    public void createCertRecord(
+            IRequest request,
+            CertInfoProfile profile,
+            X509CertImpl cert)
+            throws Exception {
+
+        logger.info("CertificateAuthority: Creating cert record " +
+                cert.getSerialNumber() + ": " + cert.getSubjectDN());
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
+        MetaInfo meta = new MetaInfo();
+        meta.set(ICertRecord.META_REQUEST_ID, request.getRequestId().toString());
+        meta.set(ICertRecord.META_PROFILE_ID, profile.getProfileIDMapping());
+
+        ICertRecord record = cr.createCertRecord(cert.getSerialNumber(), cert, meta);
+        cr.addCertificateRecord(record);
     }
 }

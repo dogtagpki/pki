@@ -47,7 +47,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
@@ -77,9 +76,7 @@ import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.xml.sax.SAXException;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -93,7 +90,6 @@ import com.netscape.cms.servlet.csadmin.CertInfoProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -1021,27 +1017,6 @@ public class CertUtils {
         // mark request as complete
         logger.debug("CertUtils: calling setRequestStatus");
         req.setRequestStatus(RequestStatus.COMPLETE);
-    }
-
-    public static void createCertRecord(
-            IRequest request,
-            CertInfoProfile profile,
-            X509CertImpl cert) throws Exception {
-
-        logger.debug("CertUtils: createCertRecord(" +
-                cert.getSerialNumber() + ", " +
-                cert.getSubjectDN() + ")");
-
-        CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        CertificateRepository cr = ca.getCertificateRepository();
-
-        MetaInfo meta = new MetaInfo();
-        meta.set(ICertRecord.META_REQUEST_ID, request.getRequestId().toString());
-        meta.set(ICertRecord.META_PROFILE_ID, profile.getProfileIDMapping());
-
-        ICertRecord record = cr.createCertRecord(cert.getSerialNumber(), cert, meta);
-        cr.addCertificateRecord(record);
     }
 
     public static X509CertImpl createRemoteCert(
