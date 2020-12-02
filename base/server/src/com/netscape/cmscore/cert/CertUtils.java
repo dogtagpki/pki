@@ -82,11 +82,8 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.servlet.csadmin.CertInfoProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -931,92 +928,6 @@ public class CertUtils {
         }
 
         return tmp.toString();
-    }
-
-    /**
-     * Initialize request for future renewal.
-     */
-    public static void initLocalRequest(
-            IRequest req,
-            CertInfoProfile profile,
-            X509CertInfo info,
-            X509Key x509key,
-            String[] sanHostnames,
-            boolean installAdjustValidity)
-            throws Exception {
-
-        //        RequestId rid = new RequestId(serialNum);
-        // just need a request, no need to get into a queue
-        //        IRequest r = new EnrollmentRequest(rid);
-
-        logger.info("CertUtils: Creating local request");
-
-        req.setExtData("profile", "true");
-        req.setExtData("requestversion", "1.0.0");
-        req.setExtData("req_seq_num", "0");
-
-        req.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
-        req.setExtData(EnrollProfile.REQUEST_EXTENSIONS, new CertificateExtensions());
-
-        req.setExtData("requesttype", "enrollment");
-        req.setExtData("requestor_name", "");
-        req.setExtData("requestor_email", "");
-        req.setExtData("requestor_phone", "");
-        req.setExtData("profileRemoteHost", "");
-        req.setExtData("profileRemoteAddr", "");
-        req.setExtData("requestnotes", "");
-        req.setExtData("isencryptioncert", "false");
-        req.setExtData("profileapprovedby", "system");
-
-        if (sanHostnames != null) {
-
-            logger.info("CertUtils: Injecting SAN extension:");
-
-            // Dynamically inject the SubjectAlternativeName extension to a
-            // local/self-signed master CA's request for its SSL Server Certificate.
-            //
-            // Since this information may vary from instance to
-            // instance, obtain the necessary information from the
-            // 'service.sslserver.san' value(s) in the instance's
-            // CS.cfg, process these values converting each item into
-            // its individual SubjectAlternativeName components, and
-            // inject these values into the local request.
-
-            int i = 0;
-            for (String sanHostname : sanHostnames) {
-                logger.info("CertUtils: - " + sanHostname);
-                req.setExtData("req_san_pattern_" + i, sanHostname);
-                i++;
-            }
-        }
-
-        req.setExtData("req_key", x509key.toString());
-
-        String origProfileID = profile.getID();
-        int idx = origProfileID.lastIndexOf('.');
-        if (idx > 0) {
-            origProfileID = origProfileID.substring(0, idx);
-        }
-
-        // store original profile id in cert request
-        req.setExtData("origprofileid", origProfileID);
-
-        // store mapped profile ID for use in renewal
-        req.setExtData("profileid", profile.getProfileIDMapping());
-        req.setExtData("profilesetid", profile.getProfileSetIDMapping());
-
-        if (installAdjustValidity) {
-            /*
-             * (applies to non-CA-signing cert only)
-             * installAdjustValidity tells ValidityDefault to adjust the
-             * notAfter value to that of the CA's signing cert if needed
-             */
-            req.setExtData("installAdjustValidity", "true");
-        }
-
-        // mark request as complete
-        logger.debug("CertUtils: calling setRequestStatus");
-        req.setRequestStatus(RequestStatus.COMPLETE);
     }
 
     public static X509CertImpl createRemoteCert(

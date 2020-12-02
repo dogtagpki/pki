@@ -133,7 +133,7 @@ public class CAConfigurator extends Configurator {
 
         IRequest req = queue.newRequest("enrollment");
 
-        CertUtils.initLocalRequest(
+        ca.initCertRequest(
                 req,
                 profile,
                 info,
@@ -204,7 +204,7 @@ public class CAConfigurator extends Configurator {
         IRequestQueue queue = ca.getRequestQueue();
         IRequest req = queue.newRequest("enrollment");
 
-        CertUtils.initLocalRequest(
+        ca.initCertRequest(
                 req,
                 profile,
                 info,
@@ -351,7 +351,7 @@ public class CAConfigurator extends Configurator {
 
         IRequest req = queue.newRequest("enrollment");
 
-        CertUtils.initLocalRequest(
+        ca.initCertRequest(
                 req,
                 profile,
                 info,

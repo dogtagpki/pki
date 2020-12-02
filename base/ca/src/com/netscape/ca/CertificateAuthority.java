@@ -76,6 +76,7 @@ import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
@@ -2086,6 +2087,90 @@ public class CertificateAuthority
             logger.error("deleteAuthority: TokenExcepetion while deleting cert: " + e.getMessage(), e);
             throw new ECAException("TokenException while deleting cert: " + e);
         }
+    }
+
+    /**
+     * Initialize request for future renewal.
+     */
+    public void initCertRequest(
+            IRequest request,
+            CertInfoProfile profile,
+            X509CertInfo info,
+            X509Key x509key,
+            String[] sanHostnames,
+            boolean installAdjustValidity)
+            throws Exception {
+
+        // just need a request, no need to get into a queue
+        // RequestId rid = new RequestId(serialNum);
+        // IRequest r = new EnrollmentRequest(rid);
+
+        logger.info("CertificateAuthority: Initialize cert request");
+
+        request.setExtData("profile", "true");
+        request.setExtData("requestversion", "1.0.0");
+        request.setExtData("req_seq_num", "0");
+
+        request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
+        request.setExtData(EnrollProfile.REQUEST_EXTENSIONS, new CertificateExtensions());
+
+        request.setExtData("requesttype", "enrollment");
+        request.setExtData("requestor_name", "");
+        request.setExtData("requestor_email", "");
+        request.setExtData("requestor_phone", "");
+        request.setExtData("profileRemoteHost", "");
+        request.setExtData("profileRemoteAddr", "");
+        request.setExtData("requestnotes", "");
+        request.setExtData("isencryptioncert", "false");
+        request.setExtData("profileapprovedby", "system");
+
+        if (sanHostnames != null) {
+
+            logger.info("CertificateAuthority: Injecting SAN extension:");
+
+            // Dynamically inject the SubjectAlternativeName extension to a
+            // local/self-signed master CA's request for its SSL Server Certificate.
+            //
+            // Since this information may vary from instance to
+            // instance, obtain the necessary information from the
+            // 'service.sslserver.san' value(s) in the instance's
+            // CS.cfg, process these values converting each item into
+            // its individual SubjectAlternativeName components, and
+            // inject these values into the local request.
+
+            int i = 0;
+            for (String sanHostname : sanHostnames) {
+                logger.info("CertificateAuthority: - " + sanHostname);
+                request.setExtData("req_san_pattern_" + i, sanHostname);
+                i++;
+            }
+        }
+
+        request.setExtData("req_key", x509key.toString());
+
+        String origProfileID = profile.getID();
+        int idx = origProfileID.lastIndexOf('.');
+        if (idx > 0) {
+            origProfileID = origProfileID.substring(0, idx);
+        }
+
+        // store original profile id in cert request
+        request.setExtData("origprofileid", origProfileID);
+
+        // store mapped profile ID for use in renewal
+        request.setExtData("profileid", profile.getProfileIDMapping());
+        request.setExtData("profilesetid", profile.getProfileSetIDMapping());
+
+        if (installAdjustValidity) {
+            /*
+             * (applies to non-CA-signing cert only)
+             * installAdjustValidity tells ValidityDefault to adjust the
+             * notAfter value to that of the CA's signing cert if needed
+             */
+            request.setExtData("installAdjustValidity", "true");
+        }
+
+        request.setRequestStatus(RequestStatus.COMPLETE);
     }
 
     public void createCertRecord(
