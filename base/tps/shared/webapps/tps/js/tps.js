@@ -19,7 +19,34 @@
  * @author Endi S. Dewata
  */
 
-var tps = {};
+var TPS = {
+    PROFILE_ID_PATTERN: /^[a-zA-Z0-9_]+$/,
+    PROPERTY_NAME_PATTERN: /^[a-zA-Z0-9_\.]+$/,
+    getElementName: function (component) {
+
+        if (component == "Generals") {
+            return "config";
+
+        } else if (component == "Authentication_Sources") {
+            return "authenticators";
+
+        } else if (component == "Subsystem_Connections") {
+            return "connectors";
+
+        } else if (component == "Profiles") {
+            return "profiles";
+
+        } else if (component == "Profile_Mappings") {
+            return "profile-mappings";
+
+        } else if (component == "Audit_Logging") {
+            return "audit";
+
+        } else {
+            return null;
+        }
+    }
+};
 
 var PropertiesTableItem = TableItem.extend({
     initialize: function(options) {
@@ -102,6 +129,15 @@ var PropertiesTable = Table.extend({
         self.filteredEntries = _.sortBy(self.filteredEntries, function(entry) {
             return entry.name;
         });
+    },
+    addEntry: function(entry) {
+        var self = this;
+
+        if (!entry.name.match(TPS.PROPERTY_NAME_PATTERN)) {
+            throw "Invalid property name: " + entry.name;
+        }
+
+        PropertiesTable.__super__.addEntry.call(self, entry);
     },
     remove: function(items) {
         var self = this;
@@ -392,6 +428,15 @@ var ConfigEntryPage = EntryPage.extend({
         ConfigEntryPage.__super__.saveFields.call(self);
 
         self.entry.properties = self.getProperties();
+    },
+    save: function() {
+        var self = this;
+
+        if (!self.entry.profileID.match(TPS.PROFILE_ID_PATTERN)) {
+            throw "Invalid profile ID: " + self.entry.profileID;
+        }
+
+        ConfigEntryPage.__super__.save.call(self);
     },
     setProperties: function(properties) {
         var self = this;
