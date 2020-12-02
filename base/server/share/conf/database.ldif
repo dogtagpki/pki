@@ -12,3 +12,8 @@ dn: cn=USN,cn=plugins,cn=config
 changetype: modify
 replace: nsslapd-pluginEnabled
 nsslapd-pluginEnabled: on
+
+dn: ou=csusers,cn=config
+objectClass: top
+objectClass: organizationalUnit
+ou: csusers

@@ -1,10 +1,5 @@
 # acis for cert manager
 
-dn: ou=csusers,cn=config
-objectClass: top
-objectClass: organizationalUnit
-ou: csusers
-
 dn: {rootSuffix}
 changetype: modify
 add: aci
