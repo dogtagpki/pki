@@ -28,6 +28,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -115,7 +117,7 @@ public class GetCookie extends CMSServlet {
             u = new URL(url_e);
         } catch (Exception eee) {
             throw new ECMSGWException(
-                    "Unable to parse URL: " + url);
+                    "Unable to parse URL: " + StringEscapeUtils.escapeHtml(url));
         }
 
         int index2 = url_e.indexOf("subsystem=");
@@ -139,7 +141,7 @@ public class GetCookie extends CMSServlet {
             header.addStringValue("host", u.getHost());
             header.addStringValue("sdhost", CMS.getEESSLHost());
             header.addStringValue("subsystem", subsystem);
-            header.addStringValue("url", url_e);
+            header.addStringValue("url", StringEscapeUtils.escapeHtml(url_e));
             header.addStringValue("errorString", "Failed Authentication");
             String sdname = cs.getString("securitydomain.name", "");
             header.addStringValue("sdname", sdname);
@@ -208,7 +210,7 @@ public class GetCookie extends CMSServlet {
                         */
                     }
 
-                    header.addStringValue("url", url);
+                    header.addStringValue("url", StringEscapeUtils.escapeHtml(url));
                     header.addStringValue("session_id", cookie);
 
                     try {
