@@ -156,7 +156,7 @@ class KRAClonePrepareCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)

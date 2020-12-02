@@ -99,7 +99,7 @@ class MigrateCLI(pki.cli.CLI):
 
         if instance_name:
 
-            instance = pki.server.instance.PKIInstance(instance_name)
+            instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
             if not instance.exists():
                 logger.error('Invalid instance %s.', instance_name)

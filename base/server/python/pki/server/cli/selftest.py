@@ -87,7 +87,7 @@ class EnableSelfTestCLI(pki.cli.CLI):
                 sys.exit(1)
 
         # Load instance
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             print('ERROR: Invalid instance %s.' % instance_name)
@@ -167,7 +167,7 @@ class DisableSelftestCLI(pki.cli.CLI):
                 sys.exit(1)
 
         # Load instance
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             print('ERROR: Invalid instance %s.' % instance_name)

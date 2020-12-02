@@ -99,7 +99,7 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -184,7 +184,7 @@ class DBUpgradeCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
@@ -325,7 +325,7 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -471,7 +471,7 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -596,7 +596,7 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -675,7 +675,7 @@ class SubsystemDBEmptyCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -756,7 +756,7 @@ class SubsystemDBRemoveCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -836,7 +836,7 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)

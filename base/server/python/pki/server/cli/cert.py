@@ -152,7 +152,7 @@ class CertFindCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -252,7 +252,7 @@ class CertShowCLI(pki.cli.CLI):
 
         cert_id = args[0]
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -344,7 +344,7 @@ class CertUpdateCLI(pki.cli.CLI):
 
         cert_id = args[0]
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -573,7 +573,7 @@ class CertCreateCLI(pki.cli.CLI):
 
         cert_id = args[0]
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -658,7 +658,7 @@ class CertImportCLI(pki.cli.CLI):
 
         cert_id = args[0]
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -815,7 +815,7 @@ class CertExportCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -980,7 +980,7 @@ class CertRemoveCLI(pki.cli.CLI):
 
         cert_id = args[0]
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -1104,7 +1104,7 @@ class CertFixCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIInstance(instance_name)
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
