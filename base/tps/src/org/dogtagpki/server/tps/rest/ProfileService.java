@@ -25,6 +25,7 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.core.Response;
 
@@ -50,6 +51,9 @@ import com.netscape.cms.servlet.base.SubsystemService;
  * @author Endi S. Dewata
  */
 public class ProfileService extends SubsystemService implements ProfileResource {
+
+    public static Pattern PROFILE_ID_PATTERN = Pattern.compile("^[a-zA-Z0-9_]+$");
+    public static Pattern PROPERTY_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\.]+$");
 
     public ProfileService() {
         CMS.debug("ProfileService.<init>()");
@@ -174,6 +178,17 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
         CMS.debug("ProfileService.addProfile(\"" + profileData.getID() + "\")");
 
+        if (!PROFILE_ID_PATTERN.matcher(profileData.getID()).matches()) {
+            throw new BadRequestException("Invalid profile ID: " + profileData.getID());
+        }
+
+        Map<String, String> properties = profileData.getProperties();
+        for (String name : properties.keySet()) {
+            if (!PROPERTY_NAME_PATTERN.matcher(name).matches()) {
+                throw new BadRequestException("Invalid profile property: " + name);
+            }
+        }
+
         try {
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
@@ -194,7 +209,6 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             profileData = createProfileData(database.getRecord(profileData.getID()));
 
             //Map<String, String> properties = database.getRecord(profileData.getID()).getProperties();
-            Map<String, String> properties = profileData.getProperties();
             if (statusChanged) {
                 properties.put("Status", status);
             }
@@ -231,6 +245,13 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
 
         CMS.debug("ProfileService.updateProfile(\"" + profileID + "\")");
+
+        Map<String, String> properties = profileData.getProperties();
+        for (String name : properties.keySet()) {
+            if (!PROPERTY_NAME_PATTERN.matcher(name).matches()) {
+                throw new BadRequestException("Invalid profile property: " + name);
+            }
+        }
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -269,7 +290,6 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
 
             // update properties if specified
-            Map<String, String> properties = profileData.getProperties();
             if (properties != null) {
                 record.setProperties(properties);
                 if (statusChanged) {

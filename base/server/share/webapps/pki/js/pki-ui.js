@@ -351,7 +351,7 @@ var TableItem = Backbone.View.extend({
             if (value instanceof Date) value = value.toUTCString();
 
             // replace pattern occurance with attribute value
-            newContent += content.substring(0, index) + value;
+            newContent += content.substring(0, index) + _.escape(value);
 
             // process the remaining content
             content = content.substring(index + fullName.length + 3);
@@ -622,17 +622,34 @@ var Table = Backbone.View.extend({
 
             // save new entry
             dialog.save();
-            self.addEntry(dialog.entry);
-
-            // redraw table
-            self.render();
             dialog.close();
+
+            try {
+                self.addEntry(dialog.entry);
+
+                // redraw table
+                self.render();
+
+            } catch (exception) {
+                // display the error in an error dialog,
+                // then reopen the original dialog
+
+                var errorDialog = new ErrorDialog({
+                    el: $("#error-dialog"),
+                    content: exception
+                });
+                errorDialog.on("close", function() {
+                    dialog.open();
+                });
+                errorDialog.open();
+            }
         });
 
         dialog.open();
     },
     addEntry: function(entry) {
         var self = this;
+
         self.entries.push(entry);
     },
     remove: function(items) {
@@ -884,8 +901,16 @@ var EntryPage = Page.extend({
         });
 
         self.saveAction.click(function(e) {
-            self.save();
             e.preventDefault();
+            try {
+                self.save();
+            } catch (exception) {
+                new ErrorDialog({
+                    el: $("#error-dialog"),
+                    title: "ERROR",
+                    content: exception
+                }).open();
+            }
         });
 
     },
