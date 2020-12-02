@@ -56,11 +56,11 @@ $ curl -s -k https://$HOSTNAME:8443/acme/directory | python -m json.tool
 {
     "meta": {
         "caaIdentities": [
-            "dogtagpki.org"
+            "example.com"
         ],
         "externalAccountRequired": false,
-        "termsOfService": "https://www.dogtagpki.org/wiki/PKI_ACME_Responder",
-        "website": "https://www.dogtagpki.org"
+        "termsOfService": "https://www.example.com/acme/tos.pdf",
+        "website": "https://www.example.com"
     },
     "newAccount": "https://<hostname>:8443/acme/new-account",
     "newNonce": "https://<hostname>:8443/acme/new-nonce",

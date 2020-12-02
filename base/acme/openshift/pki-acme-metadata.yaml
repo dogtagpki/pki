@@ -4,7 +4,7 @@ type: Opaque
 metadata:
   name: pki-acme-metadata
 stringData:
-  caaIdentities: dogtagpki.org
+  caaIdentities: example.com
   externalAccountRequired: 'false'
-  termsOfService: https://www.dogtagpki.org/wiki/PKI_ACME_Responder
-  website: https://www.dogtagpki.org
+  termsOfService: https://www.example.com/acme/tos.pdf
+  website: https://www.example.com
