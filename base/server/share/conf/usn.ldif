@@ -1,4 +1,0 @@
-dn: cn=USN,cn=plugins,cn=config
-changetype: modify
-replace: nsslapd-pluginEnabled
-nsslapd-pluginEnabled: on

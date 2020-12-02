@@ -74,14 +74,9 @@ public class LDAPConfigurator {
         return connection;
     }
 
-    public void configureDirectory() throws Exception {
-        logger.info("Configuring directory");
+    public void initDatabase() throws Exception {
+        logger.info("Initialize database");
         importLDIF("/usr/share/pki/server/conf/database.ldif", true);
-    }
-
-    public void enableUSN() throws Exception {
-        logger.info("Enabling USN");
-        importLDIF("/usr/share/pki/server/conf/usn.ldif", true);
     }
 
     public void setupSchema() throws Exception {

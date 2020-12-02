@@ -132,8 +132,7 @@ public class SubsystemDBInitCLI extends CommandCLI {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig, instanceId);
 
         try {
-            ldapConfigurator.configureDirectory();
-            ldapConfigurator.enableUSN();
+            ldapConfigurator.initDatabase();
 
             if (cmd.hasOption("setup-schema")) {
                 ldapConfigurator.setupSchema();
