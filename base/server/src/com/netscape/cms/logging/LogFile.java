@@ -72,7 +72,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventListener;
@@ -1002,24 +1001,24 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             } catch (IllegalStateException e) {
                 String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, e.getMessage());
                 logger.error("LogFile: " + message, e);
-                ConsoleError.send(new SignedAuditEvent(message));
+                System.err.println(Thread.currentThread().getName() + ": " + message);
 
             } catch (GeneralSecurityException gse) {
                 // DJN: handle error
                 String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, gse.getMessage());
                 logger.error("LogFile: " + message, gse);
-                ConsoleError.send(new SignedAuditEvent(message));
+                System.err.println(Thread.currentThread().getName() + ": " + message);
 
             } catch (Exception ee) { // Make darn sure we got everything
                 String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, ee.getMessage());
                 logger.error("LogFile: " + message, ee);
-                ConsoleError.send(new SignedAuditEvent(message));
+                System.err.println(Thread.currentThread().getName() + ": " + message);
+
                 if (mLogSigning) {
                     // Failed to write to audit log, shut down CMS
                     ee.printStackTrace();
                     shutdownCMS();
                 }
-
             }
 
             // XXX
