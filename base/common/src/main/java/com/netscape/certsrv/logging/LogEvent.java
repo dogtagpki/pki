@@ -25,8 +25,6 @@ public class LogEvent implements ILogEvent {
 
     private static final long serialVersionUID = 1L;
 
-    static final String INVALID_LOG_LEVEL = "log level: {0} is invalid, should be 0-6";
-
     Object mParams[];
 
     String mEventType;
@@ -227,8 +225,7 @@ public class LogEvent implements ILogEvent {
             break;
 
         default:
-            ConsoleError.send(new SystemEvent(INVALID_LOG_LEVEL,
-                    Integer.toString(level)));
+            System.err.println("Invalid log level: " + level);
             break;
         }
     }

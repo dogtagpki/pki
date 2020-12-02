@@ -58,8 +58,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ConsoleError;
-import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
@@ -948,7 +946,7 @@ public class CMSEngine implements ServletContextListener {
 
             //Let's write to the error console in case we are in a bad memory situation
             //This will be the most likely to work, giving us a record of the signing failure
-            ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString())));
+            System.err.println(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()));
 
             logger.warn(method + "autoShutdown for " + e.getMessage(), e);
 

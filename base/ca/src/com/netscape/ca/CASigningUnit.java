@@ -37,8 +37,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.logging.ConsoleError;
-import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -209,7 +207,7 @@ public final class CASigningUnit extends SigningUnit {
             //For this one case, show the eventual erorr message that will be written to the system error
             //log in case of a Signature failure.
             if (testSignatureFailure == true) {
-                ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString())));
+                System.err.println(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()));
             }
             engine.checkForAndAutoShutdown();
             // XXX fix this exception later.

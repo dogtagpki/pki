@@ -36,11 +36,9 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -416,9 +414,7 @@ public class RollingLogFile extends LogFile {
                     try {
                         rotate();
                     } catch (IOException e) {
-                        ConsoleError.send(new
-                                SystemEvent(CMS.getUserMessage("CMS_LOG_ROTATE_LOG_FAILED", mFile.getName(),
-                                        e.toString())));
+                        System.err.println(CMS.getUserMessage("CMS_LOG_ROTATE_LOG_FAILED", mFile.getName(), e.toString()));
                         break;
                     }
                 }
@@ -456,12 +452,10 @@ public class RollingLogFile extends LogFile {
                     try {
                         wakeupTime = expire(mExpirationTime / 1000);
                     } catch (SecurityException e) {
-                        ConsoleError.send(new
-                                SystemEvent(CMS.getUserMessage("CMS_LOG_EXPIRE_LOG_FAILED", e.toString())));
+                        System.err.println(CMS.getUserMessage("CMS_LOG_EXPIRE_LOG_FAILED", e.toString()));
                         break;
                     } catch (ELogException e) {
-                        ConsoleError.send(new
-                                SystemEvent(CMS.getUserMessage("CMS_LOG_EXPIRE_LOG_FAILED", e.toString())));
+                        System.err.println(CMS.getUserMessage("CMS_LOG_EXPIRE_LOG_FAILED", e.toString()));
                         break;
                     }
 

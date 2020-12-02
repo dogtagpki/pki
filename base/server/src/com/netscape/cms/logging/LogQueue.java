@@ -19,12 +19,10 @@ package com.netscape.cms.logging;
 
 import java.util.Vector;
 
-import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.SignedAuditEvent;
-import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -109,8 +107,7 @@ public class LogQueue implements ILogQueue {
             } catch (Exception e) {//Try to catch ELogException or possible RuntimeExceptions if thrown
                 //Last resort log to the system for failed audit log attempt
                 if(isAudit == true) {
-                    ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_WRITE_FAILED", event.getEventType(), e.toString(),
-                            "Audit Event Failure!")));
+                    System.err.println(CMS.getUserMessage("CMS_LOG_WRITE_FAILED", event.getEventType(), e.toString(), "Audit Event Failure!"));
                 }
             }
         }

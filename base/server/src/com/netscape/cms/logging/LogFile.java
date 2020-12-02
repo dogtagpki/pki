@@ -79,7 +79,6 @@ import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
-import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -607,8 +606,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     private static void setupSigningFailure(String logMessageCode, Exception e)
             throws EBaseException {
         try {
-            ConsoleError.send(new SystemEvent(
-                    CMS.getLogMessage(logMessageCode)));
+            System.err.println(CMS.getLogMessage(logMessageCode));
         } catch (Exception e2) {
             // don't allow an exception while printing to the console
             // prevent us from running the rest of this function.
@@ -753,18 +751,18 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         } catch (ELogException e) {
             String message = CMS.getUserMessage("CMS_LOG_ILLEGALARGUMENT", mFileName);
             logger.warn("LogFile: " + message + ": " + e.getMessage(), e);
-            ConsoleError.send(new SystemEvent(message));
+            System.err.println(message);
 
         } catch (IllegalArgumentException iae) {
             String message = CMS.getUserMessage("CMS_LOG_ILLEGALARGUMENT", mFileName);
             logger.warn("LogFile: " + message + ": " + iae.getMessage(), iae);
-            ConsoleError.send(new SystemEvent(message));
+            System.err.println(message);
 
         } catch (GeneralSecurityException gse) {
             // error with signed audit log, shutdown CMS
             String message = CMS.getUserMessage("CMS_LOG_OPEN_FAILED", mFileName, gse.getMessage());
             logger.error("LogFile: " + message, gse);
-            ConsoleError.send(new SystemEvent(message));
+            System.err.println(message);
             gse.printStackTrace();
             shutdownCMS();
         }
@@ -789,7 +787,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         } catch (Exception e) {
             String message = CMS.getUserMessage("CMS_LOG_FLUSH_LOG_FAILED", mFileName, e.getMessage());
             logger.error("LogFile: " + message, e);
-            ConsoleError.send(new SystemEvent(message));
+            System.err.println(message);
             if (mLogSigning) {
                 e.printStackTrace();
                 shutdownCMS();
@@ -810,7 +808,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 mLogWriter.close();
             }
         } catch (IOException e) {
-            ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_CLOSE_FAILED", mFileName, e.toString())));
+            System.err.println(CMS.getUserMessage("CMS_LOG_CLOSE_FAILED", mFileName, e.toString()));
         }
         mLogWriter = null;
     }
@@ -931,7 +929,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
             String message = CMS.getUserMessage("CMS_LOG_LOGFILE_CLOSED", params);
             logger.error("LogFile: " + message);
-            ConsoleError.send(new SystemEvent(message));
+            System.err.println(message);
             if (mLogSigning) {
                 // Failed to write to audit log, shut down CMS
                 shutdownCMS();
@@ -994,7 +992,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             } catch (IOException e) {
                 String message = CMS.getUserMessage("CMS_LOG_WRITE_FAILED", mFileName, entry, e.getMessage());
                 logger.error("LogFile: " + message);
-                ConsoleError.send(new SystemEvent(message));
+                System.err.println(message);
                 if (mLogSigning) {
                     // Failed to write to audit log, shut down CMS
                     e.printStackTrace();
@@ -1052,9 +1050,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         }
 
         if (ev instanceof AuditEvent && !mType.equals("transaction")) {
-            return;
-
-        } else if (ev instanceof SystemEvent && !mType.equals("system")) {
             return;
 
         } else if (ev instanceof SignedAuditEvent && !mType.equals("signedAudit")) {

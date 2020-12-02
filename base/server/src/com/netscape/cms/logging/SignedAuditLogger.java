@@ -17,13 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.logging;
 
-import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
-import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -94,10 +92,7 @@ public class SignedAuditLogger extends Logger {
             }
 
         } catch (Exception e) { //Catch any of our RunTime exceptions just so we can log it to the console
-            ConsoleError
-                    .send(new SystemEvent(CMS.getUserMessage("CMS_LOG_WRITE_FAILED", event.getEventType(), e.toString(),
-                            "Audit Event Failure!")));
-
+            System.err.println(CMS.getUserMessage("CMS_LOG_WRITE_FAILED", event.getEventType(), e.toString(), "Audit Event Failure!"));
             throw e;
         }
 
