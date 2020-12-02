@@ -26,8 +26,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.EnrollDefault;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 public class CertInfoProfile {
 
@@ -40,9 +38,7 @@ public class CertInfoProfile {
     private String mProfileIDMapping = null;
     private String mProfileSetIDMapping = null;
 
-    public CertInfoProfile(String cfg) throws Exception {
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.createFileConfigStore(cfg);
+    public CertInfoProfile(IConfigStore config) throws Exception {
         mID = config.getString("id");
         mName = config.getString("name");
         mDescription = config.getString("description");

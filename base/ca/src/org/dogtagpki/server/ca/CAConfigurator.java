@@ -32,6 +32,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.CertificateAuthority;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.system.AdminSetupRequest;
@@ -117,7 +118,9 @@ public class CAConfigurator extends Configurator {
 
         String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
-        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileID);
+
+        IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
+        CertInfoProfile profile = new CertInfoProfile(profileConfig);
 
         PKCS10 pkcs10 = new PKCS10(certreq);
         X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
@@ -192,7 +195,9 @@ public class CAConfigurator extends Configurator {
 
         String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
-        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileID);
+
+        IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
+        CertInfoProfile profile = new CertInfoProfile(profileConfig);
 
         boolean installAdjustValidity = !tag.equals("signing");
 
@@ -341,7 +346,8 @@ public class CAConfigurator extends Configurator {
         String profileName = preopConfig.getString("cert.admin.profile");
         logger.debug("CertUtil: profile: " + profileName);
 
-        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
+        IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileName);
+        CertInfoProfile profile = new CertInfoProfile(profileConfig);
 
         IRequest req = queue.newRequest("enrollment");
 
