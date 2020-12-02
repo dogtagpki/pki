@@ -12,9 +12,9 @@ To check the status of PKI ACME responder, execute the following command:
 ```
 $ pki acme-info
   Status: Available
-  Terms of Service: https://www.dogtagpki.org/wiki/PKI_ACME_Responder
-  Website: https://www.dogtagpki.org
-  CAA Identities: dogtagpki.org
+  Terms of Service: https://www.example.com/acme/tos.pdf
+  Website: https://www.example.com
+  CAA Identities: example.com
   External Account Required: false
 ```
 
