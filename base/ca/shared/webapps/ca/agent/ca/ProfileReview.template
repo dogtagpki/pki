@@ -345,7 +345,7 @@ document.writeln('</FONT>');
         } else if (recordSet[i].defListSet[j].defSyntax == 'string_list') {
           document.writeln('<textarea cols=40 rows=5 name="' + recordSet[i].defListSet[j].defId + '">' + recordSet[i].defListSet[j].defVal + '</textarea>');
         } else if (recordSet[i].defListSet[j].defSyntax == 'integer') {
-          document.writeln('<input size=6 type=text name="' + recordSet[i].defListSet[j].defId + '" value="' + recordSet[i].defListSet[j].defVal + '">');
+          document.writeln('<input size=6 type=number name="' + recordSet[i].defListSet[j].defId + '" value="' + recordSet[i].defListSet[j].defVal + '">');
         } else if (recordSet[i].defListSet[j].defSyntax == 'image_url') {
           document.writeln('<img border=0 src="' + recordSet[i].defListSet[j].defVal + '">');
           document.writeln('<input type=hidden name="' + recordSet[i].defListSet[j].defId + '" value="' + recordSet[i].defListSet[j].defVal + '">');

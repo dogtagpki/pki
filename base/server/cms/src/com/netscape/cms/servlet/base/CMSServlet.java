@@ -46,6 +46,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.w3c.dom.Node;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.apps.ICommandQueue;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -762,7 +764,7 @@ public abstract class CMSServlet extends HttpServlet {
         if (tokenIdx != -1) {
             finalErrMsg =
                     mFinalErrorMsg.substring(0, tokenIdx) +
-                            ex.toString() +
+                            StringEscapeUtils.escapeHtml(ex.toString()) +
                             mFinalErrorMsg.substring(
                                     tokenIdx + ERROR_MSG_TOKEN.length());
         }
