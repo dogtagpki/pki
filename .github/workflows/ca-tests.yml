@@ -95,6 +95,15 @@ jobs:
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
 
+      - name: Verify CA admin
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
@@ -219,9 +228,8 @@ jobs:
       - name: Run PKI healthcheck
         run: docker exec subordinate pki-healthcheck --debug
 
-      - name: Verify subordinate CA admin access
+      - name: Verify CA admin
         run: |
-          docker exec subordinate pki client-init
           docker exec subordinate pki client-cert-import ca_signing --ca-cert root-ca_signing.crt
           docker exec subordinate pki client-cert-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
@@ -379,13 +387,12 @@ jobs:
           name: replica-conf-${{ matrix.os }}
           path: replica-conf.tar
 
-      - name: Verify master CA admin access
+      - name: Verify CA admin
         run: |
           docker exec master cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/master-ca_admin_cert.p12
           docker exec master cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/master-pkcs12_password.conf
           docker exec replica cp ${PKIDIR}/master-ca_admin_cert.p12 .
           docker exec replica cp ${PKIDIR}/master-pkcs12_password.conf .
-          docker exec replica pki client-init
           docker exec replica pki client-cert-import ca_signing --ca-cert master-ca_signing.crt
           docker exec replica pki client-cert-import \
               --pkcs12 master-ca_admin_cert.p12 \
