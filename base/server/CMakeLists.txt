@@ -195,6 +195,13 @@ configure_file(
 
 install(
     DIRECTORY
+        certs/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/server/certs
+)
+
+install(
+    DIRECTORY
         examples/
     DESTINATION
         ${DATA_INSTALL_DIR}/server/examples
