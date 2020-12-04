@@ -9,45 +9,14 @@ This page describes the process to install a CA subsystem with an external CA si
 Starting CA Subsystem Installation
 ----------------------------------
 
-Prepare a file (e.g. ca-step1.cfg) that contains the deployment configuration step 1, for example:
+Prepare a file (e.g. external-ca-step1.cfg) that contains the first deployment configuration.
 
-```
-[DEFAULT]
-pki_server_database_password=Secret.123
-
-[CA]
-pki_admin_email=caadmin@example.com
-pki_admin_name=caadmin
-pki_admin_nickname=caadmin
-pki_admin_password=Secret.123
-pki_admin_uid=caadmin
-
-pki_client_database_password=Secret.123
-pki_client_database_purge=False
-pki_client_pkcs12_password=Secret.123
-
-pki_ds_base_dn=dc=ca,dc=pki,dc=example,dc=com
-pki_ds_database=ca
-pki_ds_password=Secret.123
-
-pki_security_domain_name=EXAMPLE
-
-pki_ca_signing_nickname=ca_signing
-pki_ocsp_signing_nickname=ca_ocsp_signing
-pki_audit_signing_nickname=ca_audit_signing
-pki_sslserver_nickname=sslserver
-pki_subsystem_nickname=subsystem
-
-pki_external=True
-pki_external_step_two=False
-
-pki_ca_signing_csr_path=ca_signing.csr
-```
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg](../../../base/server/examples/installation/ca-external-cert-step1.cfg).
 
 Then execute the following command:
 
 ```
-$ pkispawn -f ca-step1.cfg -s CA
+$ pkispawn -f ca-external-cert-step1.cfg -s CA
 ```
 
 It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
@@ -63,9 +32,13 @@ Use the CSR to issue the CA signing certificate:
 * for root CA installation, generate a self-signed CA signing certificate
 * for subordinate CA installation, submit the CSR to an external CA to issue the CA signing certificate
 
-Store the CA signing certificate in a file (e.g. ca_signing.crt). The CA signing certificate can be specified as a single certificate or a PKCS #7 certificate chain in PEM format.
+Store the CA signing certificate in a file (e.g. ca_signing.crt).
+The CA signing certificate can be specified as a single certificate or a PKCS #7 certificate chain in PEM format.
 
-If the CA signing certificate was issued by an external CA, store the external CA certificate chain in a file (e.g. external.crt). The certificate chain can be specified as a single certificate or a PKCS #7 certificate chain in PEM format. The certificate chain should include all CA certificates from the root CA to the external CA that issued the CA signing certificate, but it should not include the CA signing certificate itself.
+If the CA signing certificate was issued by an external CA, store the external CA certificate chain in a file (e.g. root-ca_signing.crt).
+The certificate chain can be specified as a single certificate or a PKCS #7 certificate chain in PEM format.
+The certificate chain should include all CA certificates from the root CA to the external CA that issued the CA signing certificate,
+but it should not include the CA signing certificate itself.
 
 See also:
 * [Generating CA Signing Certificate](https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-Certificate)
@@ -73,9 +46,8 @@ See also:
 Finishing CA Subsystem Installation
 -----------------------------------
 
-Prepare another file (e.g. ca-step2.cfg) that contains the deployment configuration step 2. The file can be copied from step 1 (i.e. ca-step1.cfg) with additional changes below.
-
-Specify step 2 with the following parameter:
+Prepare another file (e.g. ca-external-cert-step2.cfg) that contains the second deployment configuration.
+The file can be created from the first file (i.e. ca-external-cert-step1.cfg) with the following changes:
 
 ```
 pki_external_step_two=True
@@ -90,14 +62,16 @@ pki_ca_signing_cert_path=ca_signing.crt
 If the CA signing certificate was issued by an external CA, specify the external CA certificate chain with the following parameters:
 
 ```
-pki_cert_chain_nickname=external
-pki_cert_chain_path=external.crt
+pki_cert_chain_nickname=root-ca_signing
+pki_cert_chain_path=root-ca_signing.crt
 ```
+
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg](../../../base/server/examples/installation/ca-external-cert-step2.cfg).
 
 Finally, execute the following command:
 
 ```
-$ pkispawn -f ca-step2.cfg -s CA
+$ pkispawn -f ca-external-cert-step2.cfg -s CA
 ```
 
 Verifying System Certificates
@@ -111,7 +85,7 @@ $ certutil -L -d /etc/pki/pki-tomcat/alias
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
 
-external                                                     CT,C,C
+root-ca_signing                                              CT,C,C
 ca_signing                                                   CTu,Cu,Cu
 ca_ocsp_signing                                              u,u,u
 subsystem                                                    u,u,u
@@ -131,7 +105,7 @@ $ pki -c Secret.123 client-init
 Import the external CA certificate chain:
 
 ```
-$ pki -c Secret.123 client-cert-import --ca-cert external.crt
+$ pki -c Secret.123 client-cert-import --ca-cert root-ca_signing.crt
 ```
 
 Import the CA signing certificate:
