@@ -104,6 +104,15 @@ jobs:
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
 
+      - name: Verify TPS admin
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+          docker exec pki pki -n caadmin tps-user-show tpsadmin
+
       - name: Remove TPS
         run: docker exec pki pkidestroy -i pki-tomcat -s TPS -v
 
