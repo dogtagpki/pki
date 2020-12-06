@@ -67,6 +67,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.*;
 import org.mozilla.jss.pkcs7.IssuerAndSerialNumber;
 import org.mozilla.jss.pkix.cert.Certificate;
+import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.PasswordCallback;
 
@@ -842,7 +843,7 @@ public class CRSEnrollment extends HttpServlet {
             cx = new CryptoContext();
 
             // Verify Signature on message (throws exception if sig bad)
-            verifyRequest(req, cx);
+            verifyRequest(req, cx); // comment this out when using proxy.sh for renewal
 
             // Deal with Transaction ID
             String transactionID = req.getTransactionID();
@@ -1446,6 +1447,34 @@ public class CRSEnrollment extends HttpServlet {
         return authenticationFailed;
     }
 
+    // checks that the signer's cert is our own certificate
+    // returns true if authorization failed.
+    private boolean authorizeSignerCertificate(CRSPKIMessage req) {
+        boolean authorizationFailed = true;
+
+        try {
+            IssuerAndSerialNumber issuerAndSerialNumber = req.getSgnIssuerAndSerialNumber();
+            Name signerIssuer = issuerAndSerialNumber.getIssuer();
+
+            byte[] signerIssuerBytes = ASN1Util.encode(signerIssuer);
+            byte[] caSubjectBytes = mAuthority.getCACert().getSubjectObj().getX500Name().getEncoded();
+            logger.debug("Ensuring that the signer cert was issued by this CA:");
+            logger.debug("Request signer issuer bytes:");
+            logger.debug(Debug.dump(signerIssuerBytes));
+            logger.debug("CA subject bytes:");
+            logger.debug(Debug.dump(caSubjectBytes));
+
+            authorizationFailed = !(new String(signerIssuerBytes).equals(new String(caSubjectBytes)));
+
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        } catch (EBaseException e) {
+            logger.error(e.getMessage());
+        }
+
+        return authorizationFailed;
+    }
+
     private boolean areFingerprintsEqual(IRequest req, Hashtable<String, byte[]> fingerprints) {
 
         Hashtable<String, String> old_fprints = req.getExtDataInHashtable(IRequest.FINGERPRINTS);
@@ -1549,6 +1578,7 @@ public class CRSEnrollment extends HttpServlet {
 
             getDetailFromRequest(req, crsResp);
             boolean authFailed = authenticateUser(req);
+            boolean certAuthFailed = authorizeSignerCertificate(req);
 
             if (authFailed) {
                 logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_AUTH"));
@@ -1557,15 +1587,33 @@ public class CRSEnrollment extends HttpServlet {
 
                 // perform audit log
                 String auditMessage = CMS.getLogMessage(
-                            AuditEvent.NON_PROFILE_CERT_REQUEST,
-                            httpReq.getRemoteAddr(),
-                            ILogger.FAILURE,
-                            req.getTransactionID(),
-                            "CRSEnrollment",
-                            ILogger.SIGNED_AUDIT_EMPTY_VALUE);
+                        AuditEvent.NON_PROFILE_CERT_REQUEST,
+                        httpReq.getRemoteAddr(),
+                        ILogger.FAILURE,
+                        req.getTransactionID(),
+                        "CRSEnrollment",
+                        ILogger.SIGNED_AUDIT_EMPTY_VALUE);
                 signedAuditLogger.log(auditMessage);
 
                 return null;
+
+            } else if (certAuthFailed) {
+                logger.warn("CRSEnrollment: signer's certificate authorization failed (cert not issued by this CA)");
+                crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badIdentity);
+                crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
+
+                // perform audit log
+                String auditMessage = CMS.getLogMessage(
+                        AuditEvent.NON_PROFILE_CERT_REQUEST,
+                        httpReq.getRemoteAddr(),
+                        ILogger.FAILURE,
+                        req.getTransactionID(),
+                        "CRSEnrollment",
+                        ILogger.SIGNED_AUDIT_EMPTY_VALUE);
+                signedAuditLogger.log(auditMessage);
+
+                return null;
+
             } else {
                 // bypass SCEP handling via profile
                 mProfileId = null;
