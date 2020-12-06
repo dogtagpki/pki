@@ -21,20 +21,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.CharConversionException;
 import java.io.IOException;
-import java.security.PublicKey;
+import java.security.*;
 import java.util.Arrays;
 import java.util.Hashtable;
 
 import org.mozilla.jss.NotInitializedException;
-import org.mozilla.jss.asn1.ANY;
-import org.mozilla.jss.asn1.ASN1Util;
-import org.mozilla.jss.asn1.INTEGER;
-import org.mozilla.jss.asn1.InvalidBERException;
-import org.mozilla.jss.asn1.NULL;
-import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
-import org.mozilla.jss.asn1.OCTET_STRING;
-import org.mozilla.jss.asn1.PrintableString;
-import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.asn1.*;
+import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.pkcs7.Attribute;
@@ -52,6 +45,8 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 
 public class CRSPKIMessage {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRSPKIMessage.class);
 
     // OIDs for authenticated attributes
     public static OBJECT_IDENTIFIER CRS_MESSAGETYPE =
@@ -725,6 +720,57 @@ public class CRSPKIMessage {
         decodeCRSPKIMessage(bais);
     }
 
+    public void verify() throws InvalidBERException, NoSuchAlgorithmException, SignatureException {
+
+        // get data to digest
+        byte[] digestedData = sd.getContentInfo().getContent().getContents();
+        OBJECT_IDENTIFIER digestedDataContentType = sd.getContentInfo().getContentType();
+        logger.debug("digested data (content_type: " + digestedDataContentType.toDottedString() + "):");
+        logger.debug(dump(digestedData));
+
+        // get the message digest algorithm
+        SET algorithmIds = sd.getDigestAlgorithmIdentifiers();
+        AlgorithmIdentifier algorithmId = (AlgorithmIdentifier) algorithmIds.elementAt(0);
+        String algorithmName = DigestAlgorithm.fromOID(algorithmId.getOID()).toString();
+        logger.debug("digest algorithm: " + algorithmName);
+
+        // compute the digest
+        MessageDigest messageDigest = MessageDigest.getInstance(algorithmName);
+        messageDigest.update(digestedData);
+        byte[] computedDigest = messageDigest.digest();
+        logger.debug("computed data digest:");
+        logger.debug(dump(computedDigest));
+
+        // byte[] fakeDigest = new byte[] { 1, 2, 3, 4, 5 }; // use to test verification failure
+
+        // verify
+        try {
+            si.verify(computedDigest, digestedDataContentType, getSignerPublicKey());
+        } catch (NotInitializedException e) {
+            throw new SignatureException(e);
+        } catch (InvalidKeyException e) {
+            throw new SignatureException(e);
+        } catch (TokenException e) {
+            throw new SignatureException(e);
+        }
+
+        // logger.debug("sd:");
+        // ByteArrayOutputStream baos1 = new ByteArrayOutputStream();
+        // sd.encode(baos1);
+        // logger.debug(dump(baos1.toByteArray()));
+        //
+        // logger.debug("sd get content:");
+        // logger.debug(dump(sd.getContentInfo().getContent().getEncoded()));
+        //
+        // logger.debug("sded:");
+        // ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
+        // sded.encode(baos2);
+        // logger.debug(dump(baos2.toByteArray()));
+        //
+        // logger.debug("sded encr content:");
+        // logger.debug(dump(sded.getEncryptedContentInfo().getEncryptedContent().toByteArray()));
+    }
+
     private void decodeSD() throws Exception {
         ContentInfo sdci;
 
@@ -903,5 +949,33 @@ public class CRSPKIMessage {
         // messageType should match one of the above
         //Assert.assert(false);
         return null;
+    }
+
+    // taken from com.netscape.cmscore.util.Debug
+    private static String dump(byte[] b) {
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < b.length; i++) {
+            sb.append(getNybble((byte) ((b[i] & 0xf0) >> 4)));
+            sb.append(getNybble((byte) (b[i] & 0x0f)));
+
+            if (((i % 16) == 15) && i != b.length) {
+                sb.append('\n');
+            } else {
+                sb.append(" ");
+            }
+        }
+
+        return sb.toString();
+    }
+
+    // taken from com.netscape.cmscore.util.Debug
+    private static char getNybble(byte b) {
+        if (b < 10) {
+            return (char)('0' + b);
+        } else {
+            return (char)('a' + b - 10);
+        }
     }
 }

@@ -1039,6 +1039,14 @@ public class CRSEnrollment extends HttpServlet {
         @SuppressWarnings("unused")
         byte[] reqAAsig = req.getAADigest(); // check for errors
 
+        // new code below:
+        logger.debug("Verifying SCEP request");
+        try {
+            req.verify();
+        } catch (Exception e) {
+            throw new CRSInvalidSignatureException("An exception occurred while verifying SCEP request signature", e);
+        }
+        logger.debug("Request verification successful");
     }
 
     /**
@@ -2239,6 +2247,9 @@ public class CRSEnrollment extends HttpServlet {
         public CRSInvalidSignatureException(String s) {
             super(s);
         }
+
+        public CRSInvalidSignatureException(String s, Exception e) { super(s, e); }
+
     }
 
     class CRSPolicyException extends Exception {
