@@ -728,10 +728,8 @@ public class CRSPKIMessage {
         logger.debug("digested data (content_type: " + digestedDataContentType.toDottedString() + "):");
         logger.debug(dump(digestedData));
 
-        // get the message digest algorithm
-        SET algorithmIds = sd.getDigestAlgorithmIdentifiers();
-        AlgorithmIdentifier algorithmId = (AlgorithmIdentifier) algorithmIds.elementAt(0);
-        String algorithmName = DigestAlgorithm.fromOID(algorithmId.getOID()).toString();
+        // get the signer's message digest algorithm
+        String algorithmName = si.getDigestAlgorithm().toString();
         logger.debug("digest algorithm: " + algorithmName);
 
         // compute the digest
