@@ -791,8 +791,14 @@ public class KeyService extends SubsystemService implements KeyResource {
         KeyData keyData = new KeyData();
         keyData.setP12Data(pkcs12base64encoded);
 
-        queue.processRequest(request);
-        queue.markAsServiced(request);
+        try {
+            queue.processRequest(request);
+            logger.debug(method + "queue.processRequest returned");
+            queue.markAsServiced(request);
+        } catch (EBaseException e) {
+            // intentionally not propagating
+            logger.debug(method + "queue.processRequest failed bug ignored: " + e.toString());
+        }
 
         return keyData;
     }
