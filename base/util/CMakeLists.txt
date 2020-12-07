@@ -72,11 +72,6 @@ add_junit_test(test-pki-util
         pki-util-test-classes
 )
 
-add_test(
-    NAME "test_PKICertImport"
-    COMMAND bash "${CMAKE_SOURCE_DIR}/base/util/src/test/shell/test_PKICertImport.bash"
-)
-
 install(
     FILES
         src/main/shell/PKICertImport.bash

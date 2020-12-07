@@ -87,6 +87,7 @@ See also [Building PKI](docs/development/Building_PKI.md)
 | TKS       | ![TKS Tests](https://github.com/dogtagpki/pki/workflows/TKS%20Tests/badge.svg)       |
 | TPS       | ![TPS Tests](https://github.com/dogtagpki/pki/workflows/TPS%20Tests/badge.svg)       |
 | Python    | ![Python Tests](https://github.com/dogtagpki/pki/workflows/Python%20Tests/badge.svg) |
+| Tools     | ![Python Tests](https://github.com/dogtagpki/pki/workflows/Tools%20Tests/badge.svg)  |
 | QE        | ![QE Tests](https://github.com/dogtagpki/pki/workflows/QE%20Tests/badge.svg)         |
 | IPA       | ![IPA Tests](https://github.com/dogtagpki/pki/workflows/IPA%20Tests/badge.svg)       |
 
