@@ -147,7 +147,7 @@ $ pki <agent authentication> kra-key-recover --keyID <Key Identifier>
 The request ID returned by this operation must be approved using the **key-request-review** command
 before the actual key retrieval.
 
-This step is performed internally by the kra-key-retrieve command.
+To actually recover (retrieve) the PKCS12 of the private key, use the "recovery request template" method listed above under "Retrieving a key"
 
 ### Generating a Symmetric Key
 
@@ -324,13 +324,13 @@ Following is the description of the various parameters in the key retrieval temp
 
 - keyID - Key identifier
 - requestID - Key request identifier
-- nonceData - Base64 encoded string of nonce used during encryption
+- nonceData - Base64 encoded string of nonce used during encryption (unused for PKCS12 key recovery)
 - passphrase - passphrase to encrypt the secret with/ passphrase for the PKCS12 file returned
-- sessionWrappedpassphrase - Base64 encoded string of - Passphrase encrypted with a session key.
-- transWrapedSessionKey - Base64 encoded string of - session key encrypted with KRA's transport key.
+- sessionWrappedpassphrase - Base64 encoded string of - Passphrase encrypted with a session key. (unused for PKCS12 key recovery)
+- transWrapedSessionKey - Base64 encoded string of - session key encrypted with KRA's transport key. (unused for PKCS12 key recovery)
 - certificate - Base64 encoded certificate for recovering the key.
 
-To create a retrieval request using the template file:
+To retrieve (recover) keys using the template file (note: key recovery into PKCS12 can only use a template file):
 
 ```
 $ pki -d <CERT_DB> -c <CERT_DB_PWD> -n <Certificate_Nickname> kra-key-retrieve \
@@ -370,7 +370,7 @@ $ pki -d <CERT_DB> -c <CERT_DB_PWD> -n <Certificate_Nickname> kra-key-generate \
 ## AUTHORS
 
 Ade Lee &lt;alee@redhat.com&gt;, Endi S. Dewata &lt;edewata@redhat.com&gt;,
-Matthew Harmsen &lt;mharmsen@redhat.com&gt;, and Abhishek Koneru &lt;akoneru@redhat.com&gt;.
+Matthew Harmsen &lt;mharmsen@redhat.com&gt;, Christina Fu lt;cfu@redhat.com;, and Abhishek Koneru &lt;akoneru@redhat.com&gt;.
 
 ## COPYRIGHT
 
