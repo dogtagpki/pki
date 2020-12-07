@@ -130,7 +130,7 @@ policyset.auditSigningCertSet.9.default.params.signingAlg=-
             self.backup(path)
 
             with open(path, 'w') as outfile:
-                outfile.write(caAuditSigningCert)
+                outfile.write(self.caAuditSigningCert)
 
             os.chown(path, instance.uid, instance.gid)
             os.chmod(path, 0o0660)
