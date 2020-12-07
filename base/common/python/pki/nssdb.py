@@ -1368,6 +1368,9 @@ class NSSDatabase(object):
 
         if self.token:
             cmd.extend(['--token', self.token])
+            fullname = self.token + ':' + nickname
+        else:
+            fullname = nickname
 
         cmd.extend(['nss-cert-export'])
 
@@ -1377,7 +1380,7 @@ class NSSDatabase(object):
         if output_format:
             cmd.extend(['--format', output_format])
 
-        cmd.extend([nickname, output_file])
+        cmd.extend([fullname, output_file])
 
         logger.debug('Command: %s', ' '.join(map(str, cmd)))
         subprocess.check_call(cmd)

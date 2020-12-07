@@ -138,10 +138,14 @@ class MigrateCLI(pki.cli.CLI):
             nssdb.close()
 
         ca_path = os.path.join(instance.nssdb_dir, 'ca.crt')
+
         token = pki.nssdb.INTERNAL_TOKEN_NAME
         nickname = instance.get_sslserver_cert_nickname()
+
         if ':' in nickname:
-            token = nickname.split(':', 1)[0]
+            parts = nickname.split(':', 1)
+            token = parts[0]
+            nickname = parts[1]
 
         # Re-open NSS DB with correct token name
         nssdb = instance.open_nssdb(token=token)
