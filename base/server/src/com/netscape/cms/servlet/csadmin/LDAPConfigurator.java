@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -142,6 +143,30 @@ public class LDAPConfigurator {
     public void setupDatabaseManager() throws Exception {
         logger.info("Setting up database manager");
         importLDIF("/usr/share/pki/server/conf/manager.ldif", true);
+    }
+
+    public List<LDAPEntry> findVLVs() throws Exception {
+
+        String database = config.getDatabase();
+        String baseDN = "cn=" + database + ",cn=ldbm database,cn=plugins,cn=config";
+
+        logger.info("Searching " + baseDN);
+
+        LDAPSearchResults results = connection.search(
+                baseDN,
+                LDAPConnection.SCOPE_SUB,
+                "(|(objectClass=vlvSearch)(objectClass=vlvIndex))",
+                null,
+                false);
+
+        List<LDAPEntry> entries = new ArrayList<>();
+
+        while (results.hasMoreElements()) {
+            LDAPEntry entry = results.next();
+            entries.add(entry);
+        }
+
+        return entries;
     }
 
     public void addVLVs(String subsystem) throws Exception {
