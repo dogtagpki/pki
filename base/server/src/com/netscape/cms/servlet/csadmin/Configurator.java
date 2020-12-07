@@ -314,23 +314,6 @@ public class Configurator {
         return null;
     }
 
-    public void importLDIFS(LDAPConfigurator ldapConfigurator, String param) throws Exception {
-        importLDIFS(ldapConfigurator, param, true);
-    }
-
-    public void importLDIFS(LDAPConfigurator ldapConfigurator, String param, boolean ignoreErrors) throws Exception {
-
-        logger.info("Configurator: Importing " + param);
-
-        String filenames = cs.getString(param);
-        StringTokenizer tokenizer = new StringTokenizer(filenames, ",");
-
-        while (tokenizer.hasMoreTokens()) {
-            String filename = tokenizer.nextToken().trim();
-            ldapConfigurator.importLDIF(filename, ignoreErrors);
-        }
-    }
-
     public boolean deleteDir(File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
