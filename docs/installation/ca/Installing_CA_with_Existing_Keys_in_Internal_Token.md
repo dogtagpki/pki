@@ -13,43 +13,14 @@ so they will not be included in the installation process.
 Starting CA Subsystem Installation
 ----------------------------------
 
-Prepare a file (e.g. ca-step1.cfg) that contains the deployment configuration step 1, for example:
+Prepare a file (e.g. ca-existing-certs-step1.cfg) that contains the first deployment configuration.
 
-```
-[DEFAULT]
-pki_server_database_password=Secret.123
-
-[CA]
-pki_admin_email=caadmin@example.com
-pki_admin_name=caadmin
-pki_admin_nickname=caadmin
-pki_admin_password=Secret.123
-pki_admin_uid=caadmin
-
-pki_client_database_password=Secret.123
-pki_client_database_purge=False
-pki_client_pkcs12_password=Secret.123
-
-pki_ds_base_dn=dc=ca,dc=pki,dc=example,dc=com
-pki_ds_database=ca
-pki_ds_password=Secret.123
-
-pki_security_domain_name=EXAMPLE
-
-pki_ca_signing_nickname=ca_signing
-pki_ocsp_signing_nickname=ca_ocsp_signing
-pki_audit_signing_nickname=ca_audit_signing
-pki_sslserver_nickname=sslserver/server.example.com
-pki_subsystem_nickname=subsystem/server.example.com
-
-pki_external=True
-pki_external_step_two=False
-```
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ca-existing-certs-step1.cfg](../../../base/server/examples/installation/ca-existing-certs-step1.cfg).
 
 Then execute the following command:
 
 ```
-$ pkispawn -f ca-step1.cfg -s CA
+$ pkispawn -f ca-existing-certs-step1.cfg -s CA
 ```
 
 It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
@@ -67,8 +38,8 @@ Export the system keys and certificates from the existing CA into a PKCS #12 fil
 $ pki -d /etc/pki/pki-tomcat/alias -c Secret.123 pkcs12-export \
   --pkcs12 ca-certs.p12 \
   --password Secret.123
-$ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 sslserver/server.example.com
-$ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 subsystem/server.example.com
+$ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 sslserver
+$ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 subsystem
 ```
 
 Export the CSRs from the existing CA with the following commands:
@@ -90,10 +61,8 @@ $ echo "-----END CERTIFICATE REQUEST-----" >> ca_audit_signing.csr
 Finishing CA Subsystem Installation
 -----------------------------------
 
-Prepare another file (e.g. ca-step2.cfg) that contains the deployment configuration step 2.
-The file can be copied from step 1 (i.e. ca-step1.cfg) with additional changes below.
-
-Specify step 2 with the following parameter:
+Prepare another file (e.g. ca-existing-certs-step2.cfg) that contains the second deployment configuration.
+The file can be created from the first file (i.e. ca-existing-certs-step1.cfg) with the following changes:
 
 ```
 pki_external_step_two=True
@@ -117,13 +86,15 @@ pki_audit_signing_csr_path=ca_audit_signing.csr
 Specify the serial number starting range such that new certificates will not conflict with the existing certificates:
 
 ```
-pki_serial_number_range_start=6
+pki_serial_number_range_start=4
 ```
+
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ca-existing-certs-step2.cfg](../../../base/server/examples/installation/ca-existing-certs-step2.cfg).
 
 Finally, execute the following command:
 
 ```
-$ pkispawn -f ca-step2.cfg -s CA
+$ pkispawn -f ca-existing-certs-step2.cfg -s CA
 ```
 
 Verifying System Certificates
@@ -139,9 +110,9 @@ Certificate Nickname                                         Trust Attributes
 
 ca_signing                                                   CTu,Cu,Cu
 ca_ocsp_signing                                              u,u,u
-subsystem/server.example.com                                 u,u,u
+subsystem                                                    u,u,u
 ca_audit_signing                                             u,u,Pu
-sslserver/server.example.com                                 u,u,u
+sslserver                                                    u,u,u
 ```
 
 Verifying Admin Certificate
