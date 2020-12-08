@@ -190,131 +190,20 @@ class TPSDBCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.db.SubsystemDBEmptyCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBRemoveCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBUpgradeCLI(self))
-        self.add_module(TPSDBVLVCLI())
+        self.add_module(TPSDBVLVCLI(self))
 
 
 class TPSDBVLVCLI(pki.cli.CLI):
 
-    def __init__(self):
+    def __init__(self, parent):
         super(TPSDBVLVCLI, self).__init__(
             'vlv', 'TPS VLV management commands')
 
-        self.add_module(TPSDBVLVFindCLI())
+        self.parent = parent
+        self.add_module(pki.server.cli.db.SubsystemDBVLVFindCLI(self))
         self.add_module(TPSDBVLVAddCLI())
         self.add_module(TPSDBVLVDeleteCLI())
         self.add_module(TPSDBVLVReindexCLI())
-
-
-class TPSDBVLVFindCLI(pki.cli.CLI):
-
-    def __init__(self):
-        super(TPSDBVLVFindCLI, self).__init__(
-            'find', 'Find TPS VLVs')
-
-    def print_help(self):
-        print('Usage: pki-server tps-db-vlv-find [OPTIONS]')
-        print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('  -D, --bind-dn <Bind DN>            Connect DN (default: cn=Directory Manager).')
-        print('  -w, --bind-password <password>     Password to connect to database.')
-        print('  -v, --verbose                      Run in verbose mode.')
-        print('      --debug                        Run in debug mode.')
-        print('      --help                         Show help message.')
-        print()
-
-    def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(
-                argv,
-                'i:D:w:x:g:v',
-                ['instance=', 'bind-dn=', 'bind-password=', 'generate-ldif=',
-                 'verbose', 'debug', 'help'])
-
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = 'pki-tomcat'
-        bind_dn = None
-        bind_password = None
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-D', '--bind-dn'):
-                bind_dn = a
-
-            elif o in ('-w', '--bind-password'):
-                bind_password = a
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance %s.', instance_name)
-            sys.exit(1)
-        instance.load()
-
-        subsystem = instance.get_subsystem('tps')
-        if not subsystem:
-            logger.error('No TPS subsystem in instance %s.', instance_name)
-            sys.exit(1)
-
-        self.find_vlv(subsystem, bind_dn, bind_password)
-
-    def find_vlv(self, subsystem, bind_dn, bind_password):
-
-        conn = subsystem.open_database(bind_dn=bind_dn,
-                                       bind_password=bind_password)
-
-        try:
-            database = subsystem.config['internaldb.database']
-            base_dn = 'cn=' + database + ',cn=ldbm database, cn=plugins, cn=config'
-
-            logger.info('Searching %s', base_dn)
-
-            entries = conn.ldap.search_s(
-                base_dn,
-                ldap.SCOPE_SUBTREE,
-                '(|(objectClass=vlvSearch)(objectClass=vlvIndex))')
-
-            self.print_message('%d entries found' % len(entries))
-
-            if not entries:
-                return
-
-            first = True
-            for entry in entries:
-                dn = entry[0]
-                attrs = entry[1]
-
-                if first:
-                    first = False
-                else:
-                    print()
-
-                print('  dn: %s' % dn)
-                for key, values in attrs.items():
-                    for value in values:
-                        print('  %s: %s' % (key, value))
-
-        finally:
-            conn.close()
 
 
 class TPSDBVLVAddCLI(pki.cli.CLI):
