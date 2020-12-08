@@ -34,8 +34,10 @@ class AddProfileCaAuditSigningCert(pki.server.upgrade.PKIServerUpgradeScriptlet)
         pki.util.load_properties(opath, oconfig)
 
         oconfig['enable'] = 'true'
-        oconfig['desc'] = '(deprecated; use caAuditSigningCert) This profile is for enrolling audit log signing certificates'
-        oconfig['name'] = '(deprecated; use caAuditSigningCert) Manual Audit Log Signing Certificate Enrollment'
+        oconfig['desc'] = '(deprecated; use caAuditSigningCert) ' + \
+            'This profile is for enrolling audit log signing certificates'
+        oconfig['name'] = '(deprecated; use caAuditSigningCert) ' + \
+            'Manual Audit Log Signing Certificate Enrollment'
 
         pki.util.store_properties(opath, oconfig)
 
