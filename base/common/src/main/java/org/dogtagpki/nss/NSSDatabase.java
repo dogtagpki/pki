@@ -54,6 +54,7 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.extensions.AccessDescription;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
+import org.mozilla.jss.netscape.security.extensions.OCSPNoCheckExtension;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
@@ -763,6 +764,40 @@ public class NSSDatabase {
         stdin.println();
     }
 
+    /**
+     * This method provides the arguments and the standard input for certutil
+     * to create a cert/CSR with OCSP No Check extension.
+     *
+     * @param cmd certutil command and arguments
+     * @param stdin certutil's standard input
+     * @param extension The extension to add
+     * @param tmpDir Temporary directory to store extension value
+     */
+    public void addOCSPNoCheckExtension(
+            List<String> cmd,
+            PrintWriter stdin,
+            OCSPNoCheckExtension extension,
+            Path tmpDir) throws Exception {
+
+        logger.info("Adding OCSP No Check extension:");
+
+        cmd.add("--extGeneric");
+
+        ObjectIdentifier oid = extension.getExtensionId();
+        logger.info("- OID: " + oid);
+
+        boolean critical = extension.isCritical();
+        logger.info("- critical: " + critical);
+        String flag = critical ? "critical" : "not-critical";
+
+        byte[] value = extension.getExtensionValue();
+        logger.info("- value: " + (value == null ? null : Utils.base64encodeSingleLine(value)));
+        Path file = tmpDir.resolve("ocsp-no-check.ext");
+        Files.write(file, value);
+
+        cmd.add(oid + ":" + flag + ":" + file);
+    }
+
     public void addExtensions(
             List<String> cmd,
             StringWriter sw,
@@ -800,6 +835,10 @@ public class NSSDatabase {
             } else if (extension instanceof CertificatePoliciesExtension) {
                 CertificatePoliciesExtension certificatePoliciesExtension = (CertificatePoliciesExtension) extension;
                 addCertificatePoliciesExtension(cmd, stdin, certificatePoliciesExtension);
+
+            } else if (extension instanceof OCSPNoCheckExtension) {
+                OCSPNoCheckExtension ocspNoCheckExtension = (OCSPNoCheckExtension) extension;
+                addOCSPNoCheckExtension(cmd, stdin, ocspNoCheckExtension, tmpDir);
             }
         }
     }
