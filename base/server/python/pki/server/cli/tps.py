@@ -43,7 +43,6 @@ import pki.server.instance
 
 logger = logging.getLogger(__name__)
 
-TPS_VLV_PATH = '/usr/share/pki/tps/conf/vlv.ldif'
 TPS_VLV_TASKS_PATH = '/usr/share/pki/tps/conf/vlvtasks.ldif'
 
 
@@ -202,144 +201,8 @@ class TPSDBVLVCLI(pki.cli.CLI):
         self.parent = parent
         self.add_module(pki.server.cli.db.SubsystemDBVLVFindCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBVLVAddCLI(self))
-        self.add_module(TPSDBVLVDeleteCLI())
+        self.add_module(pki.server.cli.db.SubsystemDBVLVDeleteCLI(self))
         self.add_module(TPSDBVLVReindexCLI())
-
-
-class TPSDBVLVDeleteCLI(pki.cli.CLI):
-
-    def __init__(self):
-        super(TPSDBVLVDeleteCLI, self).__init__(
-            'del', 'Delete TPS VLVs')
-
-    def print_help(self):
-        print('Usage: pki-server tps-db-vlv-del [OPTIONS]')
-        print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('  -D, --bind-dn <Bind DN>            Connect DN (default: cn=Directory Manager).')
-        print('  -w, --bind-password <password>     Password to connect to DB.')
-        print('  -g, --generate-ldif <outfile>      Generate LDIF of required changes.')
-        print('  -v, --verbose                      Run in verbose mode.')
-        print('      --debug                        Run in debug mode.')
-        print('      --help                         Show help message.')
-        print()
-
-    def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(
-                argv,
-                'i:D:w:x:g:v',
-                ['instance=', 'bind-dn=', 'bind-password=', 'generate-ldif=',
-                 'verbose', 'debug', 'help'])
-
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = 'pki-tomcat'
-        bind_dn = None
-        bind_password = None
-        out_file = None
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-D', '--bind-dn'):
-                bind_dn = a
-
-            elif o in ('-w', '--bind-password'):
-                bind_password = a
-
-            elif o in ('-g', '--generate-ldif'):
-                out_file = a
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance %s.', instance_name)
-            sys.exit(1)
-        instance.load()
-
-        subsystem = instance.get_subsystem('tps')
-        if not subsystem:
-            logger.error('No TPS subsystem in instance %s.', instance_name)
-            sys.exit(1)
-
-        if out_file:
-            self.generate_ldif(subsystem, out_file)
-            return
-
-        self.delete_vlv(subsystem, bind_dn, bind_password)
-
-    def generate_ldif(self, subsystem, out_file):
-
-        tmp_file = tempfile.NamedTemporaryFile(delete=False)
-
-        try:
-            subsystem.customize_file(TPS_VLV_PATH, tmp_file.name)
-
-            parser = ldif.LDIFRecordList(open(tmp_file.name, 'rb'))
-            parser.parse()
-
-            with open(out_file, 'w') as outfile:
-
-                writer = ldif.LDIFWriter(outfile)
-
-                for dn, _ in reversed(parser.all_records):
-                    entry = {'changetype': ['delete']}
-                    writer.unparse(dn, entry)
-
-            self.print_message('Output: %s' % out_file)
-
-        finally:
-            os.unlink(tmp_file.name)
-
-    def delete_vlv(self, subsystem, bind_dn, bind_password):
-
-        conn = subsystem.open_database(bind_dn=bind_dn,
-                                       bind_password=bind_password)
-        try:
-            database = subsystem.config['internaldb.database']
-            base_dn = 'cn=' + database + ',cn=ldbm database, cn=plugins, cn=config'
-
-            logger.info('Searching %s', base_dn)
-
-            entries = conn.ldap.search_s(
-                base_dn,
-                ldap.SCOPE_SUBTREE,
-                '(|(objectClass=vlvSearch)(objectClass=vlvIndex))')
-
-            if not entries:
-                self.print_message('VLVs not found')
-                return
-
-            for entry in reversed(entries):
-                dn = entry[0]
-
-                logger.info('Deleting %s', dn)
-
-                conn.ldap.delete_s(dn)
-
-        finally:
-            conn.close()
-
-        self.print_message('VLVs deleted')
 
 
 class TPSDBVLVReindexCLI(pki.cli.CLI):
