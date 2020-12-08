@@ -17,5 +17,6 @@ public class SubsystemDBVLVCLI extends CLI {
 
         addModule(new SubsystemDBVLVFindCLI(this));
         addModule(new SubsystemDBVLVAddCLI(this));
+        addModule(new SubsystemDBVLVDeleteCLI(this));
     }
 }

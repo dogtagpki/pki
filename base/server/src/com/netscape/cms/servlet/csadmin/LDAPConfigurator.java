@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -172,6 +173,19 @@ public class LDAPConfigurator {
     public void addVLVs(String subsystem) throws Exception {
         logger.info("Add VLVs");
         importLDIF("/usr/share/pki/" + subsystem + "/conf/vlv.ldif", true);
+    }
+
+    public void deleteVLVs() throws Exception {
+
+        List<LDAPEntry> entries = findVLVs();
+        Collections.reverse(entries);
+
+        logger.info("Delete VLVs");
+        for (LDAPEntry entry : entries) {
+            String dn = entry.getDN();
+            logger.info("Deleting " + dn);
+            connection.delete(dn);
+        }
     }
 
     public void reindexVLVs(String subsystem) throws Exception {

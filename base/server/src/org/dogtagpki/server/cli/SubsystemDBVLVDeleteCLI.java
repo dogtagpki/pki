@@ -6,8 +6,6 @@
 package org.dogtagpki.server.cli;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
@@ -32,18 +30,15 @@ import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPEntry;
-
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemDBVLVFindCLI extends CommandCLI {
+public class SubsystemDBVLVDeleteCLI extends CommandCLI {
 
-    public static Logger logger = LoggerFactory.getLogger(SubsystemDBVLVFindCLI.class);
+    public static Logger logger = LoggerFactory.getLogger(SubsystemDBVLVDeleteCLI.class);
 
-    public SubsystemDBVLVFindCLI(CLI parent) {
-        super("find", "Find " + parent.parent.parent.getName().toUpperCase() + " VLVs", parent);
+    public SubsystemDBVLVDeleteCLI(CLI parent) {
+        super("del", "Delete " + parent.parent.parent.getName().toUpperCase() + " VLVs", parent);
     }
 
     public void execute(CommandLine cmd) throws Exception {
@@ -97,32 +92,7 @@ public class SubsystemDBVLVFindCLI extends CommandCLI {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig, instanceId);
 
         try {
-            Collection<LDAPEntry> entries = ldapConfigurator.findVLVs();
-
-            boolean first = true;
-
-            for (LDAPEntry entry : entries) {
-
-                if (first) {
-                    first = false;
-                } else {
-                    System.out.println();
-                }
-
-                System.out.println("  dn: " + entry.getDN());
-
-                Enumeration<LDAPAttribute> attrs = entry.getAttributeSet().getAttributes();
-                while (attrs.hasMoreElements()) {
-                    LDAPAttribute attr = attrs.nextElement();
-                    String name = attr.getName();
-
-                    Enumeration<String> values = attr.getStringValues();
-                    while (values.hasMoreElements()) {
-                        String value = values.nextElement();
-                        System.out.println("  " + name + ": " + value);
-                    }
-                }
-            }
+            ldapConfigurator.deleteVLVs();
 
         } finally {
             conn.disconnect();
