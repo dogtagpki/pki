@@ -16,5 +16,6 @@ public class SubsystemDBVLVCLI extends CLI {
         super("vlv", parent.parent.name.toUpperCase() + " VLV management commands", parent);
 
         addModule(new SubsystemDBVLVFindCLI(this));
+        addModule(new SubsystemDBVLVAddCLI(this));
     }
 }
