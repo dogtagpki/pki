@@ -672,6 +672,10 @@ public class NSSDatabase {
                 logger.info("- clientAuth");
                 options.add("clientAuth");
 
+            } else if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.9").equals(oid)) {
+                logger.info("- OCSPSigning");
+                options.add("ocspResponder");
+
             } else {
                 throw new Exception("Unsupported extended key usage: " + oid);
             }
