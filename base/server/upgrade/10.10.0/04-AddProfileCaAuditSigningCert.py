@@ -25,6 +25,21 @@ class AddProfileCaAuditSigningCert(pki.server.upgrade.PKIServerUpgradeScriptlet)
         if subsystem.name != 'ca':
             return
 
+        # enable old profile caSignedLogCert to properly deprecate
+        opath = os.path.join(subsystem.base_dir, 'profiles', 'ca', 'caSignedLogCert.cfg')
+        self.backup(opath)
+
+        oconfig = {}
+
+        pki.util.load_properties(opath, oconfig)
+
+        oconfig['enable'] = 'true'
+        oconfig['desc'] = '(deprecated; use caAuditSigningCert) This profile is for enrolling audit log signing certificates'
+        oconfig['name'] = '(deprecated; use caAuditSigningCert) Manual Audit Log Signing Certificate Enrollment'
+
+        pki.util.store_properties(opath, oconfig)
+
+        # now handle new profile
         path = os.path.join(subsystem.base_dir, 'profiles', 'ca', 'caAuditSigningCert.cfg')
 
         if not os.path.exists(path):
