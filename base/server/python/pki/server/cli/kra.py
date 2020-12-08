@@ -49,7 +49,6 @@ KRA_VLVS = ['allKeys', 'kraAll',
             'kraCanceled', 'kraCanceledEnrollment', 'kraCanceledRecovery',
             'kraRejected', 'kraRejectedEnrollment', 'kraRejectedRecovery',
             'kraComplete', 'kraCompleteEnrollment', 'kraCompleteRecovery']
-KRA_VLV_PATH = '/usr/share/pki/kra/conf/vlv.ldif'
 KRA_VLV_TASKS_PATH = '/usr/share/pki/kra/conf/vlvtasks.ldif'
 
 
@@ -212,119 +211,9 @@ class KRADBVLVCLI(pki.cli.CLI):
 
         self.parent = parent
         self.add_module(pki.server.cli.db.SubsystemDBVLVFindCLI(self))
-        self.add_module(KRADBVLVAddCLI())
+        self.add_module(pki.server.cli.db.SubsystemDBVLVAddCLI(self))
         self.add_module(KRADBVLVDeleteCLI())
         self.add_module(KRADBVLVReindexCLI())
-
-
-class KRADBVLVAddCLI(pki.cli.CLI):
-
-    def __init__(self):
-        super(KRADBVLVAddCLI, self).__init__(
-            'add', 'Add KRA VLVs')
-        self.out_file = None
-
-    def print_help(self):
-        print('Usage: pki-server kra-db-vlv-add [OPTIONS]')
-        print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('  -D, --bind-dn <Bind DN>            Connect DN (default: cn=Directory Manager).')
-        print('  -w, --bind-password <password>     Password to connect to database.')
-        print('  -g, --generate-ldif <outfile>      Generate LDIF of required changes.')
-        print('  -v, --verbose                      Run in verbose mode.')
-        print('      --debug                        Run in debug mode.')
-        print('      --help                         Show help message.')
-        print()
-
-    def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(
-                argv,
-                'i:D:w:x:g:v',
-                ['instance=', 'bind-dn=', 'bind-password=', 'generate-ldif=',
-                 'verbose', 'debug', 'help']
-            )
-
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = 'pki-tomcat'
-        bind_dn = 'cn=Directory Manager'
-        bind_password = None
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-D', '--bind-dn'):
-                bind_dn = a
-
-            elif o in ('-w', '--bind-password'):
-                bind_password = a
-
-            elif o in ('-g', '--generate-ldif'):
-                self.out_file = a
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance %s.', instance_name)
-            sys.exit(1)
-        instance.load()
-
-        subsystem = instance.get_subsystem('kra')
-        if not subsystem:
-            logger.error('No KRA subsystem in instance %s.', instance_name)
-            sys.exit(1)
-
-        if self.out_file:
-            subsystem.customize_file(KRA_VLV_PATH, self.out_file)
-            print('KRA VLVs written to ' + self.out_file)
-            return
-
-        try:
-            self.add_vlv(subsystem, bind_dn, bind_password)
-
-            print('KRA VLVs added to the database for ' + instance_name)
-
-        except ldap.LDAPError as e:
-            logger.error(e)
-            sys.exit(1)
-
-    def add_vlv(self, subsystem, bind_dn, bind_password):
-
-        ldif_file = tempfile.NamedTemporaryFile(delete=False)
-        subsystem.customize_file(KRA_VLV_PATH, ldif_file.name)
-
-        conn = subsystem.open_database(bind_dn=bind_dn,
-                                       bind_password=bind_password)
-
-        try:
-            parser = ldif.LDIFRecordList(open(ldif_file.name, "rb"))
-            parser.parse()
-            for dn, entry in parser.all_records:
-                add_modlist = ldap.modlist.addModlist(entry)
-                conn.ldap.add_s(dn, add_modlist)
-
-        finally:
-            os.unlink(ldif_file.name)
-            conn.close()
 
 
 class KRADBVLVDeleteCLI(pki.cli.CLI):
