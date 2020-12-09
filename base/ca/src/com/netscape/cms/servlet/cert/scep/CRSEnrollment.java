@@ -881,7 +881,8 @@ public class CRSEnrollment extends HttpServlet {
             }
 
             // now run appropriate code, depending on message type
-            if (mRenewalEnabled && mt.equals(CRSPKIMessage.mType_RenewalReq)) {
+            if (mRenewalEnabled && (mt.equals(CRSPKIMessage.mType_RenewalReq)
+                || (mt.equals(CRSPKIMessage.mType_PKCSReq) && !authorizeSignerCertificate(req)))) {
                 logger.debug("Processing RenewalReq");
                 try {
                     // The same checks as for PKCSReq below.
