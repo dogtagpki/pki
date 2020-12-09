@@ -9,7 +9,7 @@ This page describes the process to install a CA subsystem with an external CA si
 Starting CA Subsystem Installation
 ----------------------------------
 
-Prepare a file (e.g. external-ca-step1.cfg) that contains the first deployment configuration.
+Prepare a file (e.g. ca-external-cert-step1.cfg) that contains the first deployment configuration.
 
 A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg](../../../base/server/examples/installation/ca-external-cert-step1.cfg).
 
