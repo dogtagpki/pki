@@ -47,6 +47,10 @@ public class NSSCertIssueCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
+        option = new Option(null, "serial", true, "Serial number (default is random)");
+        option.setArgName("number");
+        options.addOption(option);
+
         option = new Option(null, "months-valid", true, "Months valid (default is 3)");
         option.setArgName("months");
         options.addOption(option);
@@ -65,6 +69,7 @@ public class NSSCertIssueCLI extends CommandCLI {
         String issuerNickname = cmd.getOptionValue("issuer");
         String csrFile = cmd.getOptionValue("csr");
         String extConf = cmd.getOptionValue("ext");
+        String serialNumber = cmd.getOptionValue("serial");
         String monthsValid = cmd.getOptionValue("months-valid");
 
         if (csrFile == null) {
@@ -100,6 +105,7 @@ public class NSSCertIssueCLI extends CommandCLI {
         X509Certificate cert = nssdb.createCertificate(
                 issuer,
                 pkcs10,
+                serialNumber,
                 monthsValid == null ? null : new Integer(monthsValid),
                 extensions);
 
