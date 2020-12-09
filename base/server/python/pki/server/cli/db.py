@@ -866,6 +866,7 @@ class SubsystemDBVLVCLI(pki.cli.CLI):
         self.add_module(SubsystemDBVLVFindCLI(self))
         self.add_module(SubsystemDBVLVAddCLI(self))
         self.add_module(SubsystemDBVLVDeleteCLI(self))
+        self.add_module(SubsystemDBVLVReindexCLI(self))
 
 
 class SubsystemDBVLVFindCLI(pki.cli.CLI):
@@ -1091,3 +1092,78 @@ class SubsystemDBVLVDeleteCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem.delete_vlv(as_current_user=as_current_user)
+
+
+class SubsystemDBVLVReindexCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super(SubsystemDBVLVReindexCLI, self).__init__(
+            'reindex',
+            'Re-index %s VLVs' % parent.parent.parent.name.upper())
+
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-db-vlv-reindex [OPTIONS]' % self.parent.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --as-current-user              Run as current user.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'as-current-user',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.parent.name
+        as_current_user = False
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--as-current-user':
+                as_current_user = True
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIInstance(instance_name)
+
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        subsystem.reindex_vlv(as_current_user=as_current_user)

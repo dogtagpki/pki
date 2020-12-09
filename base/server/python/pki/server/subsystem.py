@@ -996,6 +996,18 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
+    def reindex_vlv(self, as_current_user=False):
+
+        cmd = [self.name + '-db-vlv-reindex']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def request_range(self, master_url, install_token, range_type):
 
         cmd = [
