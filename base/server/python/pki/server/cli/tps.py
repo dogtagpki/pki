@@ -23,15 +23,11 @@ from __future__ import print_function
 
 import getopt
 import io
-import ldap
-import ldap.modlist
-import ldif
 import logging
 import os
 import shutil
 import sys
 import tempfile
-import time
 
 import pki.cli
 import pki.server.cli.audit
@@ -42,8 +38,6 @@ import pki.server.cli.user
 import pki.server.instance
 
 logger = logging.getLogger(__name__)
-
-TPS_VLV_TASKS_PATH = '/usr/share/pki/tps/conf/vlvtasks.ldif'
 
 
 class TPSCLI(pki.cli.CLI):
@@ -202,125 +196,4 @@ class TPSDBVLVCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.db.SubsystemDBVLVFindCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBVLVAddCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBVLVDeleteCLI(self))
-        self.add_module(TPSDBVLVReindexCLI())
-
-
-class TPSDBVLVReindexCLI(pki.cli.CLI):
-
-    def __init__(self):
-        super(TPSDBVLVReindexCLI, self).__init__(
-            'reindex', 'Re-index TPS VLVs')
-
-    def print_help(self):
-        print('Usage: pki-server tps-db-vlv-reindex [OPTIONS]')
-        print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('  -D, --bind-dn <Bind DN>            Connect DN (default: cn=Directory Manager).')
-        print('  -w, --bind-password <password>     Password to connect to database.')
-        print('  -g, --generate-ldif <outfile>      Generate LDIF of required changes.')
-        print('  -v, --verbose                      Run in verbose mode.')
-        print('      --debug                        Run in debug mode.')
-        print('      --help                         Show help message.')
-        print()
-
-    def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(
-                argv,
-                'i:D:w:x:g:v',
-                ['instance=', 'bind-dn=', 'bind-password=', 'generate-ldif=',
-                 'verbose', 'debug', 'help'])
-
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = 'pki-tomcat'
-        bind_dn = 'cn=Directory Manager'
-        bind_password = None
-        out_file = None
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-D', '--bind-dn'):
-                bind_dn = a
-
-            elif o in ('-w', '--bind-password'):
-                bind_password = a
-
-            elif o in ('-g', '--generate-ldif'):
-                out_file = a
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        instance = pki.server.instance.PKIInstance(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance %s.', instance_name)
-            sys.exit(1)
-        instance.load()
-
-        subsystem = instance.get_subsystem('tps')
-        if not subsystem:
-            logger.error('No TPS subsystem in instance %s.', instance_name)
-            sys.exit(1)
-
-        if out_file:
-            self.generate_ldif(subsystem, out_file)
-            return
-
-        self.reindex_vlv(subsystem, bind_dn, bind_password)
-
-    def generate_ldif(self, subsystem, out_file):
-        subsystem.customize_file(TPS_VLV_TASKS_PATH, out_file)
-        self.print_message('Output: %s' % out_file)
-
-    def reindex_vlv(self, subsystem, bind_dn, bind_password):
-
-        input_file = tempfile.NamedTemporaryFile(delete=False)
-        subsystem.customize_file(TPS_VLV_TASKS_PATH, input_file.name)
-
-        conn = subsystem.open_database(bind_dn=bind_dn,
-                                       bind_password=bind_password)
-
-        try:
-            parser = ldif.LDIFRecordList(open(input_file.name, 'rb'))
-            parser.parse()
-
-            for dn, entry in parser.all_records:
-
-                logger.info('Adding %s', dn)
-
-                add_modlist = ldap.modlist.addModlist(entry)
-                conn.ldap.add_s(dn, add_modlist)
-
-                while True:
-                    time.sleep(1)
-
-                    try:
-                        logger.info('Checking %s', dn)
-
-                        conn.ldap.search_s(dn, ldap.SCOPE_BASE)
-                    except ldap.NO_SUCH_OBJECT:
-                        break
-
-        finally:
-            os.unlink(input_file.name)
-            conn.close()
-
-        self.print_message('Reindex complete')
+        self.add_module(pki.server.cli.db.SubsystemDBVLVReindexCLI(self))
