@@ -40,6 +40,7 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
@@ -88,6 +89,9 @@ public class NSSDatabase {
 
     FileAttribute<Set<PosixFilePermission>> FILE_PERMISSIONS =
             PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------"));
+
+    FileAttribute<Set<PosixFilePermission>> DIR_PERMISSIONS =
+            PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
 
     Path path;
     IPasswordStore passwordStore;
@@ -762,7 +766,8 @@ public class NSSDatabase {
     public void addExtensions(
             List<String> cmd,
             StringWriter sw,
-            CertificateExtensions extensions) throws Exception {
+            CertificateExtensions extensions,
+            Path tmpDir) throws Exception {
 
         PrintWriter stdin = new PrintWriter(sw, true);
 
@@ -826,12 +831,11 @@ public class NSSDatabase {
             logger.info("- curve: " + curve);
         }
 
-        Path csrPath = null;
-        Path passwordPath = null;
-        Path noisePath = null;
+        Path tmpDir = null;
 
         try {
-            csrPath = Files.createTempFile("nss-request-", ".csr", FILE_PERMISSIONS);
+            tmpDir = Files.createTempDirectory("pki-nss-", DIR_PERMISSIONS);
+            Path csrPath = tmpDir.resolve("request.der");
 
             // TODO: Use JSS to generate the request.
 
@@ -847,7 +851,7 @@ public class NSSDatabase {
                 String password = passwordStore.getPassword("internal", 0);
 
                 if (password != null) {
-                    passwordPath = Files.createTempFile("nss-password-", ".txt", FILE_PERMISSIONS);
+                    Path passwordPath = tmpDir.resolve("password.txt");
                     logger.info("Storing password into " + passwordPath);
 
                     Files.write(passwordPath, password.getBytes());
@@ -886,7 +890,7 @@ public class NSSDatabase {
                     cmd.add(curve);
                 }
 
-                noisePath = Files.createTempFile("nss-noise-", ".bin", FILE_PERMISSIONS);
+                Path noisePath = tmpDir.resolve("noise.bin");
                 logger.info("Storing noise into " + noisePath);
 
                 byte[] bytes = new byte[2048];
@@ -906,7 +910,7 @@ public class NSSDatabase {
 
             StringWriter stdin = new StringWriter();
             if (extensions != null) {
-                addExtensions(cmd, stdin, extensions);
+                addExtensions(cmd, stdin, extensions, tmpDir);
             }
 
             debug(cmd);
@@ -930,9 +934,12 @@ public class NSSDatabase {
             return new PKCS10(csrBytes);
 
         } finally {
-            if (noisePath != null) Files.delete(noisePath);
-            if (passwordPath != null) Files.delete(passwordPath);
-            if (csrPath != null) Files.delete(csrPath);
+            if (tmpDir != null) {
+                Files.walk(tmpDir).
+                    sorted(Comparator.reverseOrder()).
+                    map(Path::toFile).
+                    forEach(File::delete);
+            }
         }
     }
 
@@ -942,13 +949,12 @@ public class NSSDatabase {
             Integer monthsValid,
             CertificateExtensions extensions) throws Exception {
 
-        Path csrPath = null;
-        Path certPath = null;
-        Path passwordPath = null;
+        Path tmpDir = null;
 
         try {
-            csrPath = Files.createTempFile("nss-request-", ".csr", FILE_PERMISSIONS);
-            certPath = Files.createTempFile("nss-cert-", ".crt", FILE_PERMISSIONS);
+            tmpDir = Files.createTempDirectory("pki-nss-", DIR_PERMISSIONS);
+            Path csrPath = tmpDir.resolve("request.der");
+            Path certPath = tmpDir.resolve("cert.der");
 
             logger.info("Storing CSR into " + csrPath);
             Files.write(csrPath, pkcs10.toByteArray());
@@ -967,7 +973,7 @@ public class NSSDatabase {
                 String password = passwordStore.getPassword("internal", 0);
 
                 if (password != null) {
-                    passwordPath = Files.createTempFile("nss-password-", ".txt", FILE_PERMISSIONS);
+                    Path passwordPath = tmpDir.resolve("password.txt");
                     logger.info("Storing password into " + passwordPath);
 
                     Files.write(passwordPath, password.getBytes());
@@ -998,7 +1004,7 @@ public class NSSDatabase {
 
             StringWriter stdin = new StringWriter();
             if (extensions != null) {
-                addExtensions(cmd, stdin, extensions);
+                addExtensions(cmd, stdin, extensions, tmpDir);
             }
 
             debug(cmd);
@@ -1022,9 +1028,12 @@ public class NSSDatabase {
             return new X509CertImpl(certBytes);
 
         } finally {
-            if (passwordPath != null) Files.delete(passwordPath);
-            if (certPath != null) Files.delete(certPath);
-            if (csrPath != null) Files.delete(csrPath);
+            if (tmpDir != null) {
+                Files.walk(tmpDir).
+                    sorted(Comparator.reverseOrder()).
+                    map(Path::toFile).
+                    forEach(File::delete);
+            }
         }
     }
 
