@@ -992,6 +992,21 @@ public class NSSDatabase {
             Integer monthsValid,
             CertificateExtensions extensions) throws Exception {
 
+        return createCertificate(
+                issuer,
+                pkcs10,
+                null, // serial number
+                monthsValid,
+                extensions);
+    }
+
+    public X509Certificate createCertificate(
+            org.mozilla.jss.crypto.X509Certificate issuer,
+            PKCS10 pkcs10,
+            String serialNumber,
+            Integer monthsValid,
+            CertificateExtensions extensions) throws Exception {
+
         Path tmpDir = null;
 
         try {
@@ -1039,6 +1054,11 @@ public class NSSDatabase {
 
             cmd.add("-o");
             cmd.add(certPath.toString());
+
+            if (serialNumber != null) {
+                cmd.add("-m");
+                cmd.add(serialNumber.toString());
+            }
 
             if (monthsValid != null) {
                 cmd.add("-v");
