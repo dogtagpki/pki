@@ -49,7 +49,7 @@ class TPSCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(TPSCloneCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
-        self.add_module(TPSDBCLI(self))
+        self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
         self.add_module(pki.server.cli.group.GroupCLI(self))
         self.add_module(pki.server.cli.user.UserCLI(self))
 
@@ -169,31 +169,3 @@ class TPSClonePrepareCLI(pki.cli.CLI):
 
         finally:
             shutil.rmtree(tmpdir)
-
-
-class TPSDBCLI(pki.cli.CLI):
-
-    def __init__(self, parent):
-        super(TPSDBCLI, self).__init__(
-            'db', 'TPS database management commands')
-
-        self.parent = parent
-        self.add_module(pki.server.cli.db.SubsystemDBConfigCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBInfoCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBEmptyCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBRemoveCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBUpgradeCLI(self))
-        self.add_module(TPSDBVLVCLI(self))
-
-
-class TPSDBVLVCLI(pki.cli.CLI):
-
-    def __init__(self, parent):
-        super(TPSDBVLVCLI, self).__init__(
-            'vlv', 'TPS VLV management commands')
-
-        self.parent = parent
-        self.add_module(pki.server.cli.db.SubsystemDBVLVFindCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBVLVAddCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBVLVDeleteCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBVLVReindexCLI(self))
