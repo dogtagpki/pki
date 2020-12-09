@@ -50,7 +50,7 @@ class KRACLI(pki.cli.CLI):
         self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(KRACloneCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
-        self.add_module(KRADBCLI(self))
+        self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
         self.add_module(pki.server.cli.group.GroupCLI(self))
         self.add_module(pki.server.cli.range.RangeCLI(self))
         self.add_module(pki.server.cli.user.UserCLI(self))
@@ -175,31 +175,3 @@ class KRAClonePrepareCLI(pki.cli.CLI):
 
         finally:
             shutil.rmtree(tmpdir)
-
-
-class KRADBCLI(pki.cli.CLI):
-
-    def __init__(self, parent):
-        super(KRADBCLI, self).__init__(
-            'db', 'KRA database management commands')
-
-        self.parent = parent
-        self.add_module(pki.server.cli.db.SubsystemDBConfigCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBInfoCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBEmptyCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBRemoveCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBUpgradeCLI(self))
-        self.add_module(KRADBVLVCLI(self))
-
-
-class KRADBVLVCLI(pki.cli.CLI):
-
-    def __init__(self, parent):
-        super(KRADBVLVCLI, self).__init__(
-            'vlv', 'KRA VLV management commands')
-
-        self.parent = parent
-        self.add_module(pki.server.cli.db.SubsystemDBVLVFindCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBVLVAddCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBVLVDeleteCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBVLVReindexCLI(self))
