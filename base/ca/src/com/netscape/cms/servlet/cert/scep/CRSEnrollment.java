@@ -144,6 +144,7 @@ public class CRSEnrollment extends HttpServlet {
     private String mAuthManagerName;
     private String mSubstoreName;
     private boolean mEnabled = false;
+    private boolean mRenewalEnabled = false;
     private boolean mUseCA = true;
     private String mNickname = null;
     private String mTokenName = "";
@@ -232,6 +233,7 @@ public class CRSEnrollment extends HttpServlet {
             mAllowedHashAlgorithm = mHashAlgorithmList.split(",");
             mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
             mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");
+            mRenewalEnabled = scepConfig.getBoolean("enableRenewal", false);
             mNickname = scepConfig.getString("nickname", ca.getNickname());
             if (mNickname.equals(ca.getNickname())) {
                 mTokenName = ca.getSigningUnit().getTokenName();
@@ -251,6 +253,7 @@ public class CRSEnrollment extends HttpServlet {
         }
         mEncryptionAlgorithm = mConfiguredEncryptionAlgorithm;
         logger.debug("CRSEnrollment: init: SCEP support is " + ((mEnabled) ? "enabled" : "disabled") + ".");
+        logger.debug("CRSEnrollment: init: SCEP RenewalReq support is " + ((mRenewalEnabled) ? "enabled" : "disabled") + ".");
         logger.debug("CRSEnrollment: init: SCEP nickname: " + mNickname);
         logger.debug("CRSEnrollment: init:   CA nickname: " + ca.getNickname());
         logger.debug("CRSEnrollment: init:    Token name: " + mTokenName);
@@ -843,7 +846,7 @@ public class CRSEnrollment extends HttpServlet {
             cx = new CryptoContext();
 
             // Verify Signature on message (throws exception if sig bad)
-            verifyRequest(req, cx); // comment this out when using proxy.sh for renewal
+            verifyRequest(req, cx);
 
             // Deal with Transaction ID
             String transactionID = req.getTransactionID();
@@ -878,7 +881,20 @@ public class CRSEnrollment extends HttpServlet {
             }
 
             // now run appropriate code, depending on message type
-            if (mt.equals(CRSPKIMessage.mType_PKCSReq)) {
+            if (mRenewalEnabled && mt.equals(CRSPKIMessage.mType_RenewalReq)) {
+                logger.debug("Processing RenewalReq");
+                try {
+                    // The same checks as for PKCSReq below.
+                    IRequest cmsRequest = findRequestByTransactionID(req.getTransactionID(), true);
+
+                    // If there was no request (with a cert) with this transaction ID,
+                    // process it as a new request
+                    cert = handleRenewalReq(httpReq, cmsRequest, req, crsResp, cx);
+
+                } catch (CRSFailureException e) {
+                    throw new ServletException("Couldn't handle CEP request (PKCSReq) - " + e.getMessage());
+                }
+            } else if (mt.equals(CRSPKIMessage.mType_PKCSReq)) {
                 logger.debug("Processing PKCSReq");
                 try {
                     // Check if there is an existing request. If this returns non-null,
@@ -896,19 +912,6 @@ public class CRSEnrollment extends HttpServlet {
                     // process it as a new request
 
                     cert = handlePKCSReq(httpReq, cmsRequest, req, crsResp, cx);
-
-                } catch (CRSFailureException e) {
-                    throw new ServletException("Couldn't handle CEP request (PKCSReq) - " + e.getMessage());
-                }
-            } else if (mt.equals(CRSPKIMessage.mType_RenewalReq)) {
-                logger.debug("Processing RenewalReq");
-                try {
-                    // The same checks as for PKCSReq above.
-                    IRequest cmsRequest = findRequestByTransactionID(req.getTransactionID(), true);
-
-                    // If there was no request (with a cert) with this transaction ID,
-                    // process it as a new request
-                    cert = handleRenewalReq(httpReq, cmsRequest, req, crsResp, cx);
 
                 } catch (CRSFailureException e) {
                     throw new ServletException("Couldn't handle CEP request (PKCSReq) - " + e.getMessage());
