@@ -174,6 +174,7 @@ public class NetkeyKeygenService implements IService {
         EngineConfig configStore = engine.getConfig();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 
+        boolean useOAEPKeyWrap = configStore.getBoolean("keyWrap.useOAEP",false);
         wrapped_des_key = null;
         boolean archive = true;
         byte[] publicKeyData = null;
@@ -252,9 +253,15 @@ public class NetkeyKeygenService implements IService {
         if ((wrapped_des_key != null) &&
                 (wrapped_des_key.length > 0)) {
 
+            KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+
+            if(useOAEPKeyWrap == true) {
+                wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+            }
+
             WrappingParams wrapParams = new WrappingParams(
                     SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
-                    KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                    wrapAlg, EncryptionAlgorithm.DES3_CBC_PAD,
                     KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
 
             /* XXX could be done in HSM*/
@@ -426,6 +433,7 @@ public class NetkeyKeygenService implements IService {
                         // the IVs are the same.
                         params.setPayloadEncryptionIV(params.getPayloadWrappingIV());
 
+                        logger.debug("NetKeyKeygenService: wrap params: " + params);
                         privateKeyData = mStorageUnit.wrap((org.mozilla.jss.crypto.PrivateKey) privKey, params);
 
                     } catch (Exception e) {

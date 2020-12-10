@@ -106,6 +106,7 @@ public class GeneratePKIArchiveOptions {
         String key_file = "./symkey.out";
         String passphrase = null;
         boolean passphraseMode = false;
+        boolean useOAEPKeyWrap = false;
 
         // parse command line arguments
         Options options = new Options();
@@ -115,6 +116,7 @@ public class GeneratePKIArchiveOptions {
         options.addOption("t", true, "File with transport cert");
         options.addOption("o", true, "Output file");
         options.addOption("k", true, "Key file");
+        options.addOption("oaep",true, "Use OAEP key wrapping");
 
         try {
             CommandLineParser parser = new PosixParser();
@@ -147,6 +149,11 @@ public class GeneratePKIArchiveOptions {
             if (cmd.hasOption("d")) {
                 db_dir = cmd.getOptionValue("d");
             }
+
+            if (cmd.hasOption("oaep")) {
+                useOAEPKeyWrap = true;
+            }
+
 
         } catch (ParseException e) {
             System.err.println("Error in parsing command line options: " + e.getMessage());
@@ -204,9 +211,15 @@ public class GeneratePKIArchiveOptions {
 
         byte[] encoded = null;
 
+        KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+
+        if(useOAEPKeyWrap == true) {
+            wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+        }
+
         WrappingParams params = new WrappingParams(
                 SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
-                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                wrapAlg, EncryptionAlgorithm.DES3_CBC_PAD,
                 KeyWrapAlgorithm.DES3_CBC_PAD, ivps, ivps);
 
         AlgorithmIdentifier aid = new AlgorithmIdentifier(

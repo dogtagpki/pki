@@ -150,10 +150,14 @@ public class RecoveryService implements IService {
         X509Certificate transportCert =
                 request.getExtDataInCert(ATTR_TRANSPORT_CERT);
         String transportCertNick = null;
+
+        KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+
         try {
             cm = CryptoManager.getInstance();
             config = engine.getConfig();
             tokName = config.getString("kra.storageUnit.hardware", CryptoUtil.INTERNAL_TOKEN_NAME);
+            boolean useOAEPKeyWrap = config.getBoolean("keyWrap.useOAEP",false);
 
             // default to "KRA transport certificate" would require one to
             // change the nickname for existing KRA transport cert
@@ -189,12 +193,16 @@ public class RecoveryService implements IService {
 
                 // key size and alg must match with serverKeygenUserKeyDefault.java
 
+                if(useOAEPKeyWrap == true) {
+                    wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+                }
+
                 SymmetricKey unwrappedSessionKey =
                         CryptoUtil.unwrap(token,  SymmetricKey.AES, 128,
                         SymmetricKey.Usage.UNWRAP,
                         transPrivateKey,
                         transWrappedSessionKey,
-                        KeyWrapAlgorithm.RSA);
+                        wrapAlg);
 
                 if (unwrappedSessionKey == null) {
                     logger.debug("RecoveryService: serviceRequest: unwrappedSessionKey null");

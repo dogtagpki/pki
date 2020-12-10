@@ -35,12 +35,16 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
+import java.security.spec.MGF1ParameterSpec;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 import java.util.regex.PatternSyntaxException;
+
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 
 import org.mozilla.jss.CertDatabaseException;
 import org.mozilla.jss.CryptoManager;
@@ -663,6 +667,7 @@ public class KRATool {
                              + "100000000000";
 
     // Constants:  Command-line Options
+    private static final String USE_OAEP_RSA_KEY_WRAP = "-use_rsa_oaep_keywrap";
     private static final String SOURCE_KRA_NAMING_CONTEXT = "-source_kra_naming_context";
 
     private static final String SOURCE_KRA_NAMING_CONTEXT_DESCRIPTION = "  <source KRA naming context>";
@@ -969,6 +974,7 @@ public class KRATool {
     private static boolean mRemoveIdOffsetFlag = false;
     private static boolean mKraNamingContextsFlag = false;
     private static boolean mProcessRequestsAndKeyRecordsOnlyFlag = false;
+    private static boolean mUseOAEPKeyWrapAlg = false;
     private static int mMandatoryNameValuePairs = 0;
     private static int mRewrapNameValuePairs = 0;
     private static int mPKISecurityDatabasePwdfileNameValuePairs = 0;
@@ -1888,9 +1894,20 @@ public class KRATool {
             source_session = dSession.getOctetString();
             dPri = in.getDerValue();
             pri = dPri.getOctetString();
+
+            KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+
+            if(mUseOAEPKeyWrapAlg == true) {
+                wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+            }
+
             source_rsaWrap = mSourceToken.getKeyWrapper(
-                                 KeyWrapAlgorithm.RSA);
-            source_rsaWrap.initUnwrap(mUnwrapPrivateKey, null);
+                                 wrapAlg);
+            OAEPParameterSpec config =  null;
+            if(mUseOAEPKeyWrapAlg == true) {
+                config = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+            }
+            source_rsaWrap.initUnwrap(mUnwrapPrivateKey, config);
             sk = source_rsaWrap.unwrapSymmetric(source_session,
                                                  keyUnwrapAlgorithm,
                                                  SymmetricKey.Usage.DECRYPT,
@@ -1956,11 +1973,19 @@ public class KRATool {
         // public byte[]
         // mStorageUnit.encryptInternalPrivate( byte priKey[] )
         // throws EBaseException
+        KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+        if(mUseOAEPKeyWrapAlg == true) {
+            wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+        }
         try (DerOutputStream out = new DerOutputStream()) {
             // Use "mSourceToken" to get "KeyWrapAlgorithm.RSA"
             target_rsaWrap = mSourceToken.getKeyWrapper(
-                                 KeyWrapAlgorithm.RSA);
-            target_rsaWrap.initWrap(mWrapPublicKey, null);
+                                 wrapAlg);
+            OAEPParameterSpec config = null;
+            if(mUseOAEPKeyWrapAlg == true) {
+                config = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+            }
+            target_rsaWrap.initWrap(mWrapPublicKey, config);
             target_session = target_rsaWrap.wrap(sk);
 
             tmp = new DerOutputStream();
@@ -4986,6 +5011,8 @@ public class KRATool {
                 i -= 1;
             } else if (args[i].contentEquals(KEY_UNWRAP_ALGORITHM)) {
                 keyUnwrapAlgorithmName = args[i + 1];
+            } else if (args[i].contentEquals(USE_OAEP_RSA_KEY_WRAP)) {
+                mUseOAEPKeyWrapAlg = true;
             } else {
                 System.err.println("ERROR:  Unknown argument '"
                                   + args[i]
