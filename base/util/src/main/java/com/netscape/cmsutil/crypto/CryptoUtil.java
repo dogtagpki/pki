@@ -44,6 +44,7 @@ import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.MGF1ParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -55,6 +56,8 @@ import java.util.Vector;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
@@ -171,6 +174,13 @@ public class CryptoUtil {
     public final static String INTERNAL_TOKEN_FULL_NAME = "Internal Key Storage Token";
 
     public static final int LINE_COUNT = 76;
+
+    private static SymmetricKey.Usage sess_key_usages[] = {
+        SymmetricKey.Usage.WRAP,
+        SymmetricKey.Usage.UNWRAP,
+        SymmetricKey.Usage.ENCRYPT,
+        SymmetricKey.Usage.DECRYPT
+    };
 
     static public final Integer[] clientECCiphers = {
 /*
@@ -561,6 +571,37 @@ public class CryptoUtil {
 
     public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize, boolean temporary) throws Exception {
         KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+
+        if (temporary == true)
+            kg.temporaryPairs(true);
+
+        logger.debug("CryptoUtil: Keypair Generator initializing for: " + token.getName());
+        kg.initialize(keysize);
+        logger.debug("CryptoUtil: Initialization complete");
+        return kg.genKeyPair();
+    }
+
+    public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages[],
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[]) throws Exception {
+        return generateRSAKeyPair(token, keysize, false,false,false,usages,usages_mask);
+    }
+
+    public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize, boolean temporary,
+            boolean sensitive, boolean extractable,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages[],
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[]) throws Exception {
+        KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+
+        if(usages != null) {
+            kg.setKeyPairUsages(usages, usages_mask);
+        }
+
+        if(extractable == true)
+            kg.extractablePairs(true);
+
+        if(sensitive == true)
+            kg.sensitivePairs(true);
 
         if (temporary == true)
             kg.temporaryPairs(true);
@@ -1574,6 +1615,21 @@ public class CryptoUtil {
         return kg.generate();
     }
 
+     public static SymmetricKey generateKey(CryptoToken token, KeyGenAlgorithm alg, int keySize,
+            SymmetricKey.Usage[] usages, boolean temporary,boolean sensitive) throws Exception {
+        KeyGenerator kg = token.getKeyGenerator(alg);
+        if (usages != null)
+            kg.setKeyUsages(usages);
+        kg.sensitiveKeys(sensitive);
+        kg.temporaryKeys(temporary);
+        if (alg == KeyGenAlgorithm.AES || alg == KeyGenAlgorithm.RC4
+                || alg == KeyGenAlgorithm.RC2) {
+            kg.initialize(keySize);
+        }
+
+        return kg.generate();
+    }
+
     /**
      * Compares 2 byte arrays to see if they are the same.
      */
@@ -2091,12 +2147,13 @@ public class CryptoUtil {
             SymmetricKey symKeyData,
             WrappingParams params,
             AlgorithmIdentifier aid) throws Exception {
+
         SymmetricKey sessionKey = CryptoUtil.generateKey(
                 token,
                 params.getSkKeyGenAlgorithm(),
                 params.getSkLength(),
-                null,
-                false);
+                sess_key_usages,
+                false, false /* sensitive */);
         byte[] key_data;
 
         if (passphraseData != null) {
@@ -2174,7 +2231,7 @@ public class CryptoUtil {
 
     public static PrivateKey importPKIArchiveOptions(
             CryptoToken token, PrivateKey unwrappingKey,
-            PublicKey pubkey, byte[] data)
+            PublicKey pubkey, byte[] data,boolean useOAEPKeyWrap)
             throws InvalidBERException, Exception {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         PKIArchiveOptions options = (PKIArchiveOptions) (new PKIArchiveOptions.Template()).decode(in);
@@ -2191,11 +2248,16 @@ public class CryptoUtil {
         byte iv[] = ((OCTET_STRING) v).toByteArray();
         IVParameterSpec ivps = new IVParameterSpec(iv);
 
+        KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+
+        if(useOAEPKeyWrap == true) {
+            wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+        }
         // des-ede3-cbc
         if (oid.equals(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"))) {
             SymmetricKey sk = unwrap(
                 token, SymmetricKey.Type.DES3, 0, SymmetricKey.Usage.UNWRAP,
-                unwrappingKey, encSymKey.getBits(), KeyWrapAlgorithm.RSA);
+                unwrappingKey, encSymKey.getBits(), wrapAlg);
             return unwrap(
                 token, pubkey, false, sk, encPrivKey.getBits(),
                 KeyWrapAlgorithm.DES3_CBC_PAD, ivps);
@@ -2204,7 +2266,7 @@ public class CryptoUtil {
         } else if (oid.equals(new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.1.2"))) {
             SymmetricKey sk = unwrap(
                 token, SymmetricKey.Type.AES, 0, SymmetricKey.Usage.UNWRAP,
-                unwrappingKey, encSymKey.getBits(), KeyWrapAlgorithm.RSA);
+                unwrappingKey, encSymKey.getBits(), wrapAlg);
             return unwrap(
                 token, pubkey, false, sk, encPrivKey.getBits(),
                 KeyWrapAlgorithm.AES_CBC_PAD, ivps);
@@ -2321,7 +2383,7 @@ public class CryptoUtil {
         KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
         X509Certificate cert = cm.findCertByNickname(subsystemCertNickname);
         PrivateKey subsystemPrivateKey = cm.findPrivKeyByCert(cert);
-        keyWrap.initUnwrap(subsystemPrivateKey, null);
+        keyWrap.initUnwrap(subsystemPrivateKey,null);
 
         SymmetricKey unwrappedSessionKey = keyWrap.unwrapSymmetric(wrappedSessionKey, SymmetricKey.DES3,
                 0);
@@ -2424,8 +2486,18 @@ public class CryptoUtil {
 
     public static byte[] wrapUsingPublicKey(CryptoToken token, PublicKey wrappingKey, SymmetricKey data,
             KeyWrapAlgorithm alg) throws Exception {
+        String method = "CryptoUtil.wrapUsingPublicKey ";
         KeyWrapper rsaWrap = token.getKeyWrapper(alg);
-        rsaWrap.initWrap(wrappingKey, null);
+        logger.debug(method + " KeyWwrapAlg: " + alg);
+        if (alg.equals(KeyWrapAlgorithm.RSA_OAEP)) {
+            OAEPParameterSpec config = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
+                    PSource.PSpecified.DEFAULT);
+            rsaWrap.initWrap(wrappingKey, config);
+
+        } else {
+            rsaWrap.initWrap(wrappingKey, null);
+        }
+
         return rsaWrap.wrap(data);
     }
 
@@ -2441,7 +2513,16 @@ public class CryptoUtil {
             int strength, SymmetricKey.Usage usage, PrivateKey wrappingKey, byte[] wrappedData,
             KeyWrapAlgorithm wrapAlgorithm) throws Exception {
         KeyWrapper keyWrapper = token.getKeyWrapper(wrapAlgorithm);
-        keyWrapper.initUnwrap(wrappingKey, null);
+        String method = "CryptoUtil.unwrap";
+        logger.debug(method + " KeyWwrapAlg: " + wrapAlgorithm);
+
+        if (wrapAlgorithm.equals(KeyWrapAlgorithm.RSA_OAEP)) {
+            OAEPParameterSpec config = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
+                    PSource.PSpecified.DEFAULT);
+            keyWrapper.initUnwrap(wrappingKey, config);
+        } else {
+            keyWrapper.initUnwrap(wrappingKey, null);
+        }
 
         return keyWrapper.unwrapSymmetric(wrappedData, keyType, usage, strength/8);
     }
@@ -2686,7 +2767,6 @@ public class CryptoUtil {
             return KeyWrapAlgorithm.DES_CBC_PAD_OID;
         if (name.equals(KeyWrapAlgorithm.DES_CBC_PAD.toString()))
             return KeyWrapAlgorithm.DES_CBC_PAD_OID;
-
         throw new NoSuchAlgorithmException();
     }
 

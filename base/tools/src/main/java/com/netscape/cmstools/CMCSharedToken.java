@@ -96,6 +96,8 @@ public class CMCSharedToken {
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "help", false, "Show help message.");
 
+        options.addOption(null,"oaep",false, "Use OAEP key wrap algorithm.");
+
         return options;
     }
 
@@ -118,6 +120,7 @@ public class CMCSharedToken {
         System.out.println();
         System.out.println("  -v, --verbose                Run in verbose mode.");
         System.out.println("      --help                   Show help message.");
+        System.out.println("      --oaep                   Use OAEP key wrap algorithm");
         System.out.println();
     }
 
@@ -179,6 +182,8 @@ public class CMCSharedToken {
             System.exit(0);
         }
 
+        boolean oaep = cmd.hasOption("oaep");
+
         boolean verbose = cmd.hasOption("v");
 
         String databaseDir = cmd.getOptionValue("d", ".");
@@ -234,7 +239,12 @@ public class CMCSharedToken {
             }
 
             EncryptionAlgorithm encryptAlgorithm = EncryptionAlgorithm.AES_128_CBC_PAD;
+
             KeyWrapAlgorithm wrapAlgorithm = KeyWrapAlgorithm.RSA;
+
+            if(oaep == true) {
+                wrapAlgorithm = KeyWrapAlgorithm.RSA_OAEP;
+            }
 
             if (verbose) System.out.println("Generating session key");
             SymmetricKey sessionKey = CryptoUtil.generateKey(

@@ -107,6 +107,25 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class CRMFPopClient {
 
     public boolean verbose;
+    private boolean useOAEP = false;
+
+    private static org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage rsa_keypair_usages[] = {
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.ENCRYPT,
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DECRYPT,
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.WRAP,
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.UNWRAP,
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
+    };
+
+    private static org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage rsa_keypair_usages_mask[] = {
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.ENCRYPT,
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DECRYPT,
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.WRAP,
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.UNWRAP,
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
+    };
 
     public static Options createOptions() {
 
@@ -197,6 +216,8 @@ public class CRMFPopClient {
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "help", false, "Show help message.");
 
+        options.addOption(null, "oaep", false, "Use OAEP key wrap algorithm.");
+
         return options;
     }
 
@@ -235,6 +256,7 @@ public class CRMFPopClient {
         System.out.println();
         System.out.println("With RSA algorithm the following options can be specified:");
         System.out.println("  -l <length>                  Key length (default: 2048)");
+        System.out.println(" -oaep                         Use OAEP key wrap algorithm");
         System.out.println();
         System.out.println("With ECC algorithm the following options can be specified:");
         System.out.println("  -c <curve>                   ECC curve name (default: nistp256)");
@@ -296,6 +318,11 @@ public class CRMFPopClient {
         if (cmd.hasOption("help")) {
             printHelp();
             System.exit(0);
+        }
+
+        boolean useOAEP = false;
+        if (cmd.hasOption("oaep")) {
+            useOAEP = true;
         }
 
         boolean verbose = cmd.hasOption("v");
@@ -444,6 +471,7 @@ public class CRMFPopClient {
 
             CRMFPopClient client = new CRMFPopClient();
             client.setVerbose(verbose);
+            client.setUseOAEP(useOAEP);
 
             String encoded = null;
             X509Certificate transportCert = null;
@@ -467,10 +495,12 @@ public class CRMFPopClient {
                 subject.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),  new PrintableString("MyUid")));
             }
 
-            if (verbose) System.out.println("Generating key pair");
+            if (verbose) System.out.println("Generating key pair: temporary: " + temporary);
             KeyPair keyPair;
             if (algorithm.equals("rsa")) {
-                keyPair = CryptoUtil.generateRSAKeyPair(token, keySize, temporary);
+                boolean sens = false;
+                boolean extract = true;
+                keyPair = CryptoUtil.generateRSAKeyPair(token, keySize, temporary,sens, extract, rsa_keypair_usages, rsa_keypair_usages_mask);
             } else if (algorithm.equals("ec")) {
                 keyPair = client.generateECCKeyPair(token, curve, sslECDH, temporary, sensitive, extractable);
 
@@ -612,6 +642,14 @@ public class CRMFPopClient {
         this.verbose = verbose;
     }
 
+    public void setUseOAEP(boolean useOAEP) {
+        this.useOAEP = useOAEP;
+    }
+
+    public boolean useOAEP() {
+        return useOAEP;
+    }
+
     public boolean isVerbose() {
         return verbose;
     }
@@ -721,24 +759,29 @@ public class CRMFPopClient {
     private WrappingParams getWrappingParams(KeyWrapAlgorithm kwAlg, byte[] iv) throws Exception {
         IVParameterSpec ivps = iv != null ? new IVParameterSpec(iv): null;
 
+        KeyWrapAlgorithm rsaKeyWrapAlg = KeyWrapAlgorithm.RSA;
+        if(useOAEP()) {
+            rsaKeyWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+        }
         if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP_PAD ||
             kwAlg == KeyWrapAlgorithm.AES_CBC_PAD) {
+
             return new WrappingParams(
-                SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
-                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_128_CBC_PAD,
+                SymmetricKey.AES, KeyGenAlgorithm.AES,128 ,
+                rsaKeyWrapAlg, EncryptionAlgorithm.AES_128_CBC_PAD,
                 kwAlg, ivps, ivps);
         } else if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP) {
             return new WrappingParams(
                 SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
-                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_128_CBC,
+                rsaKeyWrapAlg, EncryptionAlgorithm.AES_128_CBC,
                 kwAlg, ivps, ivps);
         } else if (kwAlg == KeyWrapAlgorithm.DES3_CBC_PAD) {
             return new WrappingParams(
                     SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
-                    KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                    rsaKeyWrapAlg, EncryptionAlgorithm.DES3_CBC_PAD,
                     KeyWrapAlgorithm.DES3_CBC_PAD,
                     ivps, ivps);
-        } else {
+        } else  {
             throw new Exception("Invalid encryption algorithm");
         }
     }

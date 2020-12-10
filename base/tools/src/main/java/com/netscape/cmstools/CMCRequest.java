@@ -1797,11 +1797,12 @@ public class CMCRequest {
      * @param privKey
      * @return request PKIData
      * @author cfu
+     * @param useOAEP
      */
     private static PKIData constructDecryptedPopRequest(
             Object[] encryptedPopInfo,
             String tokenName,
-            PrivateKey privKey) {
+            PrivateKey privKey, boolean useOAEP) {
         PKIData pkidata = null;
         DecryptedPOP decryptedPop = null;
 
@@ -1840,6 +1841,10 @@ public class CMCRequest {
             System.out.println(method + " previous response parsed.");
 
             CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+            KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+            if(useOAEP == true) {
+                wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+            }
             SymmetricKey symKey = CryptoUtil.unwrap(
                     token,
                     SymmetricKey.AES,
@@ -1847,7 +1852,7 @@ public class CMCRequest {
                     SymmetricKey.Usage.DECRYPT,
                     privKey,
                     recipient.getEncryptedKey().toByteArray(),
-                    KeyWrapAlgorithm.RSA);
+                    wrapAlg);
 
             if (symKey == null) {
                 System.out.println(method + "symKey returned null from CryptoUtil.unwrap(). Abort!");
@@ -2080,6 +2085,7 @@ public class CMCRequest {
         String tokenName = null;
         String ifilename = null, ofilename = null, password = null, format = null;
         String privKeyId = null;
+        String oaep = null;
         String decryptedPopEnable = "false", encryptedPopResponseFile=null, decryptedPopRequestFile= null;
         String confirmCertEnable = "false", confirmCertIssuer = null, confirmCertSerial = null;
         String getCertEnable = "false", getCertIssuer = null, getCertSerial = null;
@@ -2231,6 +2237,8 @@ public class CMCRequest {
                         lraPopWitnessEnable = val;
                     } else if (name.equals("LraPopWitness.bodyPartIDs")) {
                         bodyPartIDs = val;
+                    } else if (name.equals("oaep")) {
+                        oaep = val;
                     }
                 }
             }
@@ -2356,7 +2364,12 @@ public class CMCRequest {
                     System.out.println("processEncryptedPopResponse() returns null");
                     System.exit(1);
                 }
-                pkidata = constructDecryptedPopRequest(encryptedPopInfo, tokenName, privk);
+
+                boolean useOAEP = false;
+                if(oaep != null && oaep.equalsIgnoreCase("true")) {
+                    useOAEP = true;
+                }
+                pkidata = constructDecryptedPopRequest(encryptedPopInfo, tokenName, privk, useOAEP);
 
                 if (pkidata == null) {
                     System.out.println("after constructDecryptedPopRequest, pkidata null. no good");

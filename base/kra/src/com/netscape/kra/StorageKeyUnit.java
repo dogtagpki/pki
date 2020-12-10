@@ -34,6 +34,7 @@ import javax.crypto.BadPaddingException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.server.kra.KRAEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -96,7 +97,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     private PrivateKey mPrivateKey = null;
     private byte mPrivateKeyData[] = null;
     private boolean mKeySplitting = false;
-
+    private boolean useOAEPKeyWrap = false;
     private static final String PROP_N = "n";
     private static final String PROP_M = "m";
     private static final String PROP_UID = "uid";
@@ -151,7 +152,11 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         WrappingParams params = new WrappingParams();
         params.setSkType(config.getString(KeyRecordParser.OUT_SK_TYPE));
         params.setSkLength(config.getInteger(KeyRecordParser.OUT_SK_LENGTH, 0));
-        params.setSkWrapAlgorithm(config.getString(KeyRecordParser.OUT_SK_WRAP_ALGORITHM));
+        String keyWrapAlg = config.getString(KeyRecordParser.OUT_SK_WRAP_ALGORITHM);
+        if("RSA".equals(keyWrapAlg) && useOAEPKeyWrap == true) {
+            keyWrapAlg = "RSAES-OAEP";
+        }
+        params.setSkWrapAlgorithm(keyWrapAlg);
         params.setSkKeyGenAlgorithm(config.getString(KeyRecordParser.OUT_SK_KEYGEN_ALGORITHM));
         params.setPayloadWrapAlgorithm(config.getString(KeyRecordParser.OUT_PL_WRAP_ALGORITHM));
 
@@ -233,6 +238,11 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         mConfig = config;
         mKeySplitting = keySplitting;
 
+        EngineConfig kraCfg = null;
+        kraCfg  = engine.getConfig();
+
+        useOAEPKeyWrap = kraCfg.getBoolean("keyWrap.useOAEP",false);
+        logger.debug("StorageKeyUnit.init: keyWrap.useOAEP" + useOAEPKeyWrap);
         try {
             mManager = CryptoManager.getInstance();
             mToken = getToken();
