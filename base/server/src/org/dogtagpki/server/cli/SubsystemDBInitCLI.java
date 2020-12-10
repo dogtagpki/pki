@@ -69,8 +69,6 @@ public class SubsystemDBInitCLI extends CommandCLI {
         options.addOption(null, "replication-security", true, "Replication security");
         options.addOption(null, "replication-port", true, "Replication port");
         options.addOption(null, "master-replication-port", true, "Master replication port");
-        options.addOption(null, "setup-db-manager", false, "Set up database manager");
-        options.addOption(null, "setup-vlv-indexes", false, "Set up VLV indexes");
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
@@ -174,14 +172,9 @@ public class SubsystemDBInitCLI extends CommandCLI {
                         masterReplicationPort);
             }
 
-            if (cmd.hasOption("setup-db-manager")) {
-                ldapConfigurator.setupDatabaseManager();
-            }
-
-            if (cmd.hasOption("setup-vlv-indexes")) {
-                ldapConfigurator.addVLVs(subsystem);
-                ldapConfigurator.reindexVLVs(subsystem);
-            }
+            ldapConfigurator.setupDatabaseManager();
+            ldapConfigurator.addVLVs(subsystem);
+            ldapConfigurator.reindexVLVs(subsystem);
 
             cs.commit(false);
 
@@ -293,11 +286,6 @@ public class SubsystemDBInitCLI extends CommandCLI {
                 passwords.remove("master_internaldb");
                 passwords.commit(false);
             }
-
-            ldapConfigurator.setupDatabaseManager();
-
-            ldapConfigurator.addVLVs(subsystem);
-            ldapConfigurator.reindexVLVs(subsystem);
 
         } finally {
             if (conn != null) conn.disconnect();

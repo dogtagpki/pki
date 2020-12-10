@@ -904,14 +904,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             not config.str2bool(deployer.mdict['pki_clone_setup_replication']) and \
             config.str2bool(deployer.mdict['pki_clone_reindex_data'])
 
-        setup_db_manager = not config.str2bool(deployer.mdict['pki_clone']) or \
-            not config.str2bool(deployer.mdict['pki_clone_setup_replication'])
-
-        # If setting up replication, set up VLV indexes after replication.
-
-        setup_vlv_indexes = not config.str2bool(deployer.mdict['pki_clone']) or \
-            not config.str2bool(deployer.mdict['pki_clone_setup_replication'])
-
         subsystem.init_database(
             setup_schema=setup_schema,
             create_database=create_database,
@@ -921,9 +913,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             setup_replication=setup_replication,
             replication_security=replication_security,
             replication_port=replication_port,
-            master_replication_port=master_replication_port,
-            setup_db_manager=setup_db_manager,
-            setup_vlv_indexes=setup_vlv_indexes)
+            master_replication_port=master_replication_port)
 
         subsystem.load()
 

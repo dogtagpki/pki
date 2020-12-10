@@ -883,8 +883,6 @@ class PKISubsystem(object):
             replication_security=None,
             replication_port=None,
             master_replication_port=None,
-            setup_db_manager=False,
-            setup_vlv_indexes=False,
             as_current_user=False):
 
         cmd = [self.name + '-db-init']
@@ -915,12 +913,6 @@ class PKISubsystem(object):
 
         if master_replication_port:
             cmd.extend(['--master-replication-port', master_replication_port])
-
-        if setup_db_manager:
-            cmd.append('--setup-db-manager')
-
-        if setup_vlv_indexes:
-            cmd.append('--setup-vlv-indexes')
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
