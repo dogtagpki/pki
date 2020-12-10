@@ -199,10 +199,11 @@ public class TokenKeyRecoveryService implements IService {
 
         EngineConfig config = null;
         Boolean allowEncDecrypt_recovery = false;
-
+        boolean useOAEPKeyWrap = false;
         try {
             config = engine.getConfig();
             allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
+            useOAEPKeyWrap = config.getBoolean("keyWrap.useOAEP",false);
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
@@ -259,9 +260,13 @@ public class TokenKeyRecoveryService implements IService {
         if ((wrapped_des_key != null) &&
                 (wrapped_des_key.length > 0)) {
 
+            KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+            if(useOAEPKeyWrap == true) {
+                wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+            }
             WrappingParams wrapParams = new WrappingParams(
                     SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
-                    KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                    wrapAlg, EncryptionAlgorithm.DES3_CBC_PAD,
                     KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
 
             // unwrap the des key

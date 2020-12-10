@@ -180,6 +180,7 @@ public class CRSEnrollment extends HttpServlet {
     private SecureRandom mRandom = null;
     private int mNonceSizeLimit = 0;
     private ICertificateAuthority ca;
+    private boolean mUseOAEPKeyWrap = false;
     /* for hashing challenge password */
     protected MessageDigest mSHADigest = null;
 
@@ -248,6 +249,7 @@ public class CRSEnrollment extends HttpServlet {
             IConfigStore authorityConfig = ((ISubsystem) mAuthority).getConfigStore();
             IConfigStore scepConfig = authorityConfig.getSubStore("scep");
             mEnabled = scepConfig.getBoolean("enable", false);
+            mUseOAEPKeyWrap = authorityConfig.getBoolean("keyWrap.useOAEP",false);
             mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
             mConfiguredEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
             mNonceSizeLimit = scepConfig.getInteger("nonceSizeLimit", 0);
@@ -281,6 +283,7 @@ public class CRSEnrollment extends HttpServlet {
         logger.debug("CRSEnrollment: init: mNonceSizeLimit: " + mNonceSizeLimit);
         logger.debug("CRSEnrollment: init: mHashAlgorithm: " + mHashAlgorithm);
         logger.debug("CRSEnrollment: init: mHashAlgorithmList: " + mHashAlgorithmList);
+        logger.debug("CRSEnrollment: init: mUseOAEPKeyWrap: " + mUseOAEPKeyWrap);
         for (int i = 0; i < mAllowedHashAlgorithm.length; i++) {
             mAllowedHashAlgorithm[i] = mAllowedHashAlgorithm[i].trim();
             logger.debug("CRSEnrollment: init: mAllowedHashAlgorithm[" + i + "]=" + mAllowedHashAlgorithm[i]);
@@ -2040,8 +2043,14 @@ public class CRSEnrollment extends HttpServlet {
 
         public KeyWrapper getKeyWrapper()
                 throws CryptoContextException {
+            KeyWrapAlgorithm keyWrapAlg = KeyWrapAlgorithm.RSA;
+
+            if(mUseOAEPKeyWrap == true) {
+                keyWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+            }
+
             try {
-                return signingCertPrivKey.getOwningToken().getKeyWrapper(KeyWrapAlgorithm.RSA);
+                return signingCertPrivKey.getOwningToken().getKeyWrapper(keyWrapAlg);
             } catch (TokenException e) {
                 throw new CryptoContextException("Problem with Crypto Token: " + e.getMessage());
             } catch (NoSuchAlgorithmException e) {
@@ -2051,8 +2060,13 @@ public class CRSEnrollment extends HttpServlet {
 
         public KeyWrapper getInternalKeyWrapper()
                 throws CryptoContextException {
+            KeyWrapAlgorithm keyWrapAlg = KeyWrapAlgorithm.RSA;
+
+            if(mUseOAEPKeyWrap == true) {
+                keyWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+            }
             try {
-                return getInternalToken().getKeyWrapper(KeyWrapAlgorithm.RSA);
+                return getInternalToken().getKeyWrapper(keyWrapAlg);
             } catch (TokenException e) {
                 throw new CryptoContextException("Problem with Crypto Token: " + e.getMessage());
             } catch (NoSuchAlgorithmException e) {

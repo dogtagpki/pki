@@ -26,6 +26,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
@@ -41,6 +42,7 @@ public class KeyRetrieverRunner implements Runnable {
     private AuthorityID aid;
     private String nickname;
     private Collection<String> hosts;
+    private boolean useOAEPKeyWrap = false;
 
     public KeyRetrieverRunner(KeyRetriever keyRetriever, CertificateAuthority certificateAuthority) {
         this.keyRetriever = keyRetriever;
@@ -48,6 +50,15 @@ public class KeyRetrieverRunner implements Runnable {
         this.aid = certificateAuthority.getAuthorityID();
         this.nickname = certificateAuthority.getNickname();
         this.hosts = certificateAuthority.getAuthorityKeyHosts();
+
+        CAEngine engine = CAEngine.getInstance();
+        EngineConfig cs = engine.getConfig();
+        try {
+            this.useOAEPKeyWrap = cs.getBoolean("keyWrap.useOAEP",false);
+        } catch (EBaseException e1) {
+            throw new RuntimeException("Invalid value for keyWrap.useOAEP: " + e1);
+        }
+
     }
 
     public void run() {
@@ -113,7 +124,7 @@ public class KeyRetrieverRunner implements Runnable {
             PrivateKey unwrappingKey = engine.getCA().mSigningUnit.getPrivateKey();
 
             CryptoUtil.importPKIArchiveOptions(
-                token, unwrappingKey, pubkey, paoData);
+                token, unwrappingKey, pubkey, paoData, useOAEPKeyWrap);
 
             cert = manager.importUserCACertPackage(certBytes, nickname);
         } catch (Throwable e) {
