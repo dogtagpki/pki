@@ -173,8 +173,6 @@ public class SubsystemDBInitCLI extends CommandCLI {
             }
 
             ldapConfigurator.setupDatabaseManager();
-            ldapConfigurator.addVLVs(subsystem);
-            ldapConfigurator.reindexVLVs(subsystem);
 
             cs.commit(false);
 

@@ -915,6 +915,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             replication_port=replication_port,
             master_replication_port=master_replication_port)
 
+        subsystem.add_vlv()
+        subsystem.reindex_vlv()
+
         subsystem.load()
 
         if not clone and subsystem.type == 'CA':
