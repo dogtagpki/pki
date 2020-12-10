@@ -548,6 +548,8 @@ public abstract class EnrollProfile extends Profile {
                 String tokenName = cs.getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                 token = CryptoUtil.getCryptoToken(tokenName);
 
+                boolean useOAEP = cs.getBoolean("keyWrap.useOAEP",false);
+
                 byte[] iv = CryptoUtil.getNonceData(EncryptionAlgorithm.AES_128_CBC.getIVLength());
                 IVParameterSpec ivps = new IVParameterSpec(iv);
 
@@ -578,11 +580,16 @@ public abstract class EnrollProfile extends Profile {
                     throw new EBaseException(msg);
                 }
 
+                KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+                if(useOAEP) {
+                    wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+                }
+
                 byte[] pop_sysPubEncryptedSession =  CryptoUtil.wrapUsingPublicKey(
                         token,
                         issuanceProtPubKey,
                         symKey,
-                        KeyWrapAlgorithm.RSA);
+                        wrapAlg);
 
                 if (pop_sysPubEncryptedSession == null) {
                     msg = method + "pop_sysPubEncryptedSession null";
@@ -595,7 +602,7 @@ public abstract class EnrollProfile extends Profile {
                         token,
                         userPubKey,
                         symKey,
-                        KeyWrapAlgorithm.RSA);
+                        wrapAlg);
 
                 if (pop_userPubEncryptedSession == null) {
                     msg = method + "pop_userPubEncryptedSession null";
@@ -1344,6 +1351,11 @@ public abstract class EnrollProfile extends Profile {
             String tokenName = cs.getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
             token = CryptoUtil.getKeyStorageToken(tokenName);
 
+            KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+            boolean useOAEP = cs.getBoolean("keyWrap.useOAEP",false);
+            if(useOAEP == true) {
+                wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+            }
             SymmetricKey symKey = CryptoUtil.unwrap(
                     token,
                     SymmetricKey.AES,
@@ -1351,7 +1363,7 @@ public abstract class EnrollProfile extends Profile {
                     SymmetricKey.Usage.DECRYPT,
                     issuanceProtPrivKey,
                     pop_sysPubEncryptedSession,
-                    KeyWrapAlgorithm.RSA);
+                    wrapAlg);
 
             if (symKey == null) {
                 msg = "symKey null after CryptoUtil.unwrap returned";

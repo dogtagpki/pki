@@ -23,6 +23,7 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
@@ -39,6 +40,8 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import org.dogtagpki.server.kra.KRAEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * A class represents the transport key pair. This key pair
@@ -63,6 +66,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
     private org.mozilla.jss.crypto.X509Certificate[] chain;
     private org.mozilla.jss.crypto.X509Certificate mNewCert = null;
     private CryptoManager mManager = null;
+    private KeyWrapAlgorithm rsaKeyWrapAlg = KeyWrapAlgorithm.RSA;
 
     /**
      * Constructs this token.
@@ -100,6 +104,17 @@ public class TransportKeyUnit extends EncryptionUnit implements
             chain = mManager.buildCertificateChain(mCert);
 
             String algo = config.getString("signingAlgorithm", "SHA256withRSA");
+
+
+            KRAEngine engine = KRAEngine.getInstance();
+            EngineConfig kraCfg = null;
+            kraCfg  = engine.getConfig();
+
+            boolean useOAEPKeyWrap = kraCfg.getBoolean("keyWrap.useOAEP",false);
+            logger.debug("TransportKeyUnit: keyWrap.useOAEP:  " + useOAEPKeyWrap);
+            if(useOAEPKeyWrap == true) {
+                this.rsaKeyWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+            }
 
             // #613795 - initialize this; otherwise JSS is not happy
             CryptoToken token = getToken();
@@ -299,6 +314,13 @@ public class TransportKeyUnit extends EncryptionUnit implements
                 priKeyAlgo,
                 new IVParameterSpec(wrapIV));
 
+        KeyWrapAlgorithm skWrapAlgorithm = null;
+        if(priKeyAlgo == "RSA") {
+            skWrapAlgorithm = rsaKeyWrapAlg;
+        } else {
+            skWrapAlgorithm = params.getSkWrapAlgorithm();
+        }
+
         SymmetricKey sk = CryptoUtil.unwrap(
                 token,
                 params.getSkType(),
@@ -306,7 +328,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
                 SymmetricKey.Usage.DECRYPT,
                 wrappingKey,
                 encSymmKey,
-                params.getSkWrapAlgorithm());
+                skWrapAlgorithm);
 
         return CryptoUtil.decryptUsingSymmetricKey(
                 token,
@@ -369,6 +391,15 @@ public class TransportKeyUnit extends EncryptionUnit implements
                 new IVParameterSpec(wrapIV));
 
         // (1) unwrap the session key
+
+
+        KeyWrapAlgorithm skWrapAlgorithm = null;
+        if(priKeyAlgo == "RSA") {
+            skWrapAlgorithm = rsaKeyWrapAlg;
+        } else {
+            skWrapAlgorithm = params.getSkWrapAlgorithm();
+        }
+
         SymmetricKey sk = CryptoUtil.unwrap(
                 token,
                 params.getSkType(),
@@ -376,7 +407,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
                 SymmetricKey.Usage.UNWRAP,
                 wrappingKey,
                 encSymmKey,
-                params.getSkWrapAlgorithm());
+                skWrapAlgorithm);
 
         // (2) unwrap the session-wrapped-private key
         return CryptoUtil.unwrap(

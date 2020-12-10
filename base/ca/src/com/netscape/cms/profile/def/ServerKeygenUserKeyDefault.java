@@ -311,7 +311,18 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
 
                 EncryptionAlgorithm encryptAlgorithm =
                         EncryptionAlgorithm.AES_128_CBC_PAD;
+
+                CAEngine engine = CAEngine.getInstance();
+                IConfigStore caCfg = engine.getConfigStore();
+
+                boolean useOAEP = caCfg.getBoolean("keyWrap.useOAEP",false);
+
                 KeyWrapAlgorithm wrapAlgorithm = KeyWrapAlgorithm.RSA;
+                if(useOAEP == false) {
+                    wrapAlgorithm = KeyWrapAlgorithm.RSA_OAEP;
+                }
+
+                logger.debug(method + "KeyWrapAlgorithm: " + wrapAlgorithm);
 
                 SymmetricKey sessionKey = CryptoUtil.generateKey(
                         ct,

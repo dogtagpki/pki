@@ -55,6 +55,10 @@ public class AuthorityKeyExportCLI extends CommandCLI {
         option = new Option(null, "algorithm", true, "Symmetric encryption algorithm");
         option.setArgName("OID");
         options.addOption(option);
+
+        option = new Option(null,"oaep", false, "Use RSA OAEP key wrap algorithm");
+        options.addOption(option);
+
     }
 
     public void printHelp() {
@@ -82,6 +86,12 @@ public class AuthorityKeyExportCLI extends CommandCLI {
             throw new Exception("No target key nickname specified.");
         }
 
+        boolean useOAEP = false;
+
+        if(cmd.hasOption("oaep") ) {
+            useOAEP = true;
+        }
+
         // Old servers only support DES and do not specify
         // the algorithm to use, so default to DES.
         OBJECT_IDENTIFIER algOid = DES_EDE3_CBC_OID;
@@ -103,15 +113,20 @@ public class AuthorityKeyExportCLI extends CommandCLI {
 
         AlgorithmIdentifier aid = null;
         WrappingParams params = null;
+        KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
 
+        if(useOAEP == true) {
+            wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+        }
         if (algOid.equals(DES_EDE3_CBC_OID)) {
             EncryptionAlgorithm encAlg = EncryptionAlgorithm.DES3_CBC_PAD;
             byte iv[] = CryptoUtil.getNonceData(encAlg.getIVLength());
             IVParameterSpec ivps = new IVParameterSpec(iv);
 
+
             params = new WrappingParams(
                 SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
-                KeyWrapAlgorithm.RSA, encAlg,
+                wrapAlg, encAlg,
                 KeyWrapAlgorithm.DES3_CBC_PAD, ivps, ivps);
 
             aid = new AlgorithmIdentifier(algOid, new OCTET_STRING(iv));
@@ -124,7 +139,7 @@ public class AuthorityKeyExportCLI extends CommandCLI {
 
             params = new WrappingParams(
                 SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
-                KeyWrapAlgorithm.RSA, encAlg,
+                wrapAlg, encAlg,
                 KeyWrapAlgorithm.AES_CBC_PAD, ivps, ivps);
 
             aid = new AlgorithmIdentifier(algOid, new OCTET_STRING(iv));

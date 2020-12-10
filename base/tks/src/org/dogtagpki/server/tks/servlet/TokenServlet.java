@@ -22,10 +22,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.spec.MGF1ParameterSpec;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
 
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -661,8 +664,18 @@ public class TokenServlet extends CMSServlet {
                         keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.AES_ECB);
                         keyWrapper.initWrap(pubKey, null);
                     } else {
-                        keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-                        keyWrapper.initWrap(pubKey, null);
+                        boolean useOAEP = config.getBoolean("keyWrap.useOAEP",false);
+                        KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+                        if(useOAEP == true) {
+                            wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+                        }
+                        keyWrapper = token.getKeyWrapper(wrapAlg);
+
+                        OAEPParameterSpec params =  null;
+                        if(useOAEP) {
+                            params = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+                        }
+                        keyWrapper.initWrap(pubKey, params);
                     }
 
                     drm_trans_wrapped_desKey = keyWrapper.wrap(desKey);
@@ -1224,8 +1237,19 @@ public class TokenServlet extends CMSServlet {
                             keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.AES_ECB);
                             keyWrapper.initWrap(pubKey, null);
                         } else {
-                            keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-                            keyWrapper.initWrap(pubKey, null);
+
+                            boolean useOAEP = config.getBoolean("keyWrap.useOAEP",false);
+                            KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+                            if(useOAEP == true) {
+                                wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+                            }
+
+                            keyWrapper = token.getKeyWrapper(wrapAlg);
+                            OAEPParameterSpec params = null;
+                            if(useOAEP == true) {
+                                params =new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+                            }
+                            keyWrapper.initWrap(pubKey, params);
                         }
                         logger.debug("desKey token " + desKey.getOwningToken().getName() + " token: " + token.getName());
                         drm_trans_wrapped_desKey = keyWrapper.wrap(desKey);
@@ -3116,8 +3140,19 @@ public class TokenServlet extends CMSServlet {
                 keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.AES_ECB);
                 keyWrapper.initWrap(pubKey, null);
             } else {
-                keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-                keyWrapper.initWrap(pubKey, null);
+
+                boolean useOAEP = config.getBoolean("keyWrap.useOAEP",false);
+                KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+                if(useOAEP == true) {
+                    wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+                }
+
+                keyWrapper = token.getKeyWrapper(wrapAlg);
+                OAEPParameterSpec params = null;
+                if(useOAEP == true) {
+                    params = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+                }
+                keyWrapper.initWrap(pubKey, params);
             }
             logger.debug("desKey token " + desKey.getOwningToken().getName() + " token: " + token.getName());
             byte[] drm_trans_wrapped_desKey = keyWrapper.wrap(desKey);
