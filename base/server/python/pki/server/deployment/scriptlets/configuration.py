@@ -727,48 +727,37 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             deployer.join_domain()
 
-            subsystem.config['securitydomain.name'] = deployer.domain_info.id
-            subsystem.config['securitydomain.select'] = 'existing'
-
-            # hostname and ports point to security domain
-            subsystem.config['securitydomain.host'] = deployer.sd_host.Hostname
-            subsystem.config['securitydomain.httpport'] = deployer.sd_host.Port
-            subsystem.config['securitydomain.httpseeport'] = deployer.sd_host.SecurePort
-            subsystem.config['securitydomain.httpsadminport'] = deployer.sd_host.SecureAdminPort
-            subsystem.config['securitydomain.httpsagentport'] = deployer.sd_host.SecureAgentPort
+            subsystem.configure_security_domain(
+                'existing',
+                deployer.domain_info.id,
+                deployer.sd_host.Hostname,
+                deployer.sd_host.Port,
+                deployer.sd_host.SecurePort)
 
         elif config.str2bool(deployer.mdict['pki_subordinate']) and \
                 config.str2bool(deployer.mdict['pki_subordinate_create_new_security_domain']):
 
-            logger.info('Creating new security subdomain')
+            logger.info('Creating new subordinate security domain')
 
             deployer.join_domain()
 
-            sd_name = deployer.mdict['pki_subordinate_security_domain_name']
-            subsystem.config['securitydomain.name'] = sd_name
-            subsystem.config['securitydomain.select'] = 'new'
-
-            # hostname and ports point to current host
-            subsystem.config['securitydomain.host'] = deployer.mdict['pki_hostname']
-            subsystem.config['securitydomain.httpport'] = unsecurePort
-            subsystem.config['securitydomain.httpsagentport'] = securePort
-            subsystem.config['securitydomain.httpseeport'] = securePort
-            subsystem.config['securitydomain.httpsadminport'] = securePort
+            subsystem.configure_security_domain(
+                'new',
+                deployer.mdict['pki_subordinate_security_domain_name'],
+                deployer.mdict['pki_hostname'],
+                unsecurePort,
+                securePort)
 
         else:
 
             logger.info('Creating new security domain')
 
-            sd_name = deployer.mdict['pki_security_domain_name']
-            subsystem.config['securitydomain.name'] = sd_name
-            subsystem.config['securitydomain.select'] = 'new'
-
-            # hostname and ports point to current host
-            subsystem.config['securitydomain.host'] = deployer.mdict['pki_hostname']
-            subsystem.config['securitydomain.httpport'] = unsecurePort
-            subsystem.config['securitydomain.httpsagentport'] = securePort
-            subsystem.config['securitydomain.httpseeport'] = securePort
-            subsystem.config['securitydomain.httpsadminport'] = securePort
+            subsystem.configure_security_domain(
+                'new',
+                deployer.mdict['pki_security_domain_name'],
+                deployer.mdict['pki_hostname'],
+                unsecurePort,
+                securePort)
 
         subsystem.config['service.securityDomainPort'] = securePort
 
