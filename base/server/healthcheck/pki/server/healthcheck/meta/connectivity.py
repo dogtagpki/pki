@@ -117,7 +117,7 @@ class DogtagKRAConnectivityCheck(MetaPlugin):
                                            port='8443',
                                            verify=False)
 
-                system_cert_client = SystemCertClient(connection)
+                system_cert_client = SystemCertClient(connection, subsystem='kra')
 
                 # This gets the KRA cert from CS.cfg via REST API. In future, the system
                 # certs will be moved into LDAP. This means that even if LDAP is down
