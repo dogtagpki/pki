@@ -107,6 +107,12 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec pki pki -n caadmin kra-user-show kraadmin
 
+      - name: Verify KRA connector in CA
+        run: |
+          docker exec pki bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${PKIDIR}/kraconnector.host"
+          echo pki.example.com > kra.hostname
+          diff kra.hostname kraconnector.host
+
       - name: Remove KRA
         run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
 
@@ -128,3 +134,166 @@ jobs:
         with:
           name: pki-logs-${{ matrix.os }}
           path: pki-logs.tar
+
+  # docs/installation/kra/Installing_KRA_on_Separate_Instance.md
+  kra-separate-test:
+    name: Installing KRA on Separate Instance
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      LOGS: ${GITHUB_WORKSPACE}/logs.txt
+      COPR_REPO: "@pki/master"
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Build container with systemd
+        run: docker build ci -t pki --build-arg OS_VERSION=${{ matrix.os }}
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Setup CA container
+        run: |
+          IMAGE=pki \
+          NAME=ca \
+          HOSTNAME=ca.example.com \
+          ci/runner-init.sh
+
+      - name: Connect CA container to network
+        run: docker network connect example ca --alias ca.example.com
+
+      - name: Install dependencies in CA container
+        run: |
+          docker exec ca dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec ca dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages in CA container
+        run: docker exec ca bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS in CA container
+        run: docker exec ca ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install CA in CA container
+        run: docker exec ca pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+
+      - name: Setup KRA container
+        run: |
+          IMAGE=pki \
+          NAME=kra \
+          HOSTNAME=kra.example.com \
+          ci/runner-init.sh
+
+      - name: Connect KRA container to network
+        run: docker network connect example kra --alias kra.example.com
+
+      - name: Install dependencies in KRA container
+        run: |
+          docker exec kra dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec kra dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages in KRA container
+        run: docker exec kra bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS in KRA container
+        run: docker exec kra ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install KRA in KRA container
+        run: |
+          docker exec ca pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${PKIDIR}/ca_admin.cert
+          docker exec kra cp ${PKIDIR}/ca_signing.crt .
+          docker exec kra cp ${PKIDIR}/ca_admin.cert .
+          docker exec kra pkispawn -f /usr/share/pki/server/examples/installation/kra-separate.cfg -s KRA -v
+
+      - name: Gather config files from KRA container
+        if: always()
+        run: docker exec kra tar cvf ${PKIDIR}/kra-separate-conf.tar -C / etc/pki
+
+      - name: Upload config files from KRA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-separate-conf-${{ matrix.os }}
+          path: kra-separate-conf.tar
+
+      - name: Run PKI healthcheck
+        run: docker exec kra pki-healthcheck --debug
+
+      - name: Verify KRA admin
+        run: |
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
+          docker exec kra pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec kra pki client-cert-import \
+              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
+          docker exec kra pki -n caadmin kra-user-show kraadmin
+
+      - name: Verify KRA connector in CA
+        run: |
+          docker exec ca pki client-cert-import ca_signing --ca-cert ${PKIDIR}/ca_signing.crt
+          docker exec ca pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+          docker exec ca bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${PKIDIR}/kraconnector.host"
+          echo kra.example.com > kra.hostname
+          diff kra.hostname kraconnector.host
+
+      - name: Remove KRA from KRA container
+        run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove DS from KRA container
+        run: docker exec kra ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Disconnect KRA container from network
+        run: docker network disconnect example kra
+
+      - name: Gather log files from KRA container
+        if: always()
+        run: |
+          docker exec kra bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec kra tar cvf ${PKIDIR}/kra-separate-logs.tar -C / var/log/pki
+
+      - name: Upload log files from KRA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-separate-logs-${{ matrix.os }}
+          path: kra-separate-logs.tar
+
+      - name: Remove CA from CA container
+        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS from CA container
+        run: docker exec ca ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Disconnect CA container from network
+        run: docker network disconnect example ca
+
+      - name: Gather log files from CA container
+        if: always()
+        run: |
+          docker exec ca bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec ca tar cvf ${PKIDIR}/ca-separate-logs.tar -C / var/log/pki
+
+      - name: Upload log files from CA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ca-separate-logs-${{ matrix.os }}
+          path: ca-separate-logs.tar
+
+      - name: Remove network
+        run: docker network rm example
