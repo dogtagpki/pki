@@ -175,6 +175,12 @@ public class KRAConnectorProcessor extends CAProcessor {
 
     public void addConnector(KRAConnectorInfo info) throws EPropertyNotFound, EBaseException {
 
+        logger.info("KRAConnectorProcessor: Updating KRA connector:");
+        logger.info("KRAConnectorProcessor: - host: " + info.getHost());
+        logger.info("KRAConnectorProcessor: - port: " + info.getPort());
+        logger.info("KRAConnectorProcessor: - path: " + info.getUri());
+        logger.info("KRAConnectorProcessor: - transport nickname: " + info.getTransportCertNickname());
+
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
