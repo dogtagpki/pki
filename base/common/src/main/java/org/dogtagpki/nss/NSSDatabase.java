@@ -672,6 +672,10 @@ public class NSSDatabase {
                 logger.info("- clientAuth");
                 options.add("clientAuth");
 
+            } else if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.4").equals(oid)) {
+                logger.info("- emailProtection");
+                options.add("emailProtection");
+
             } else if (ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.9").equals(oid)) {
                 logger.info("- OCSPSigning");
                 options.add("ocspResponder");

@@ -342,6 +342,9 @@ public class NSSExtensionGenerator {
             } else if ("clientAuth".equals(option)) {
                 oids.add(ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.2"));
 
+            } else if ("emailProtection".equals(option)) {
+                oids.add(ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.4"));
+
             } else if ("OCSPSigning".equals(option)) {
                 oids.add(ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.3.9"));
 
