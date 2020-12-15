@@ -775,18 +775,28 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         hierarchy = subsystem.config.get('hierarchy.select')
         issuing_ca = deployer.mdict['pki_issuing_ca']
 
-        if not (subsystem.type == 'CA' and hierarchy == 'Root'):
+        if external and subsystem.type == 'CA':
+            # No need to use issuing CA during CA installation
+            # with external certs since the certs will be provided.
+            pass
 
-            if not external and not standalone:
+        elif standalone and subsystem.type in ['KRA', 'OCSP']:
+            # No need to use issuing CA during standalone KRA/OCSP
+            # installation since the certs will be provided.
+            pass
 
-                logger.info('Using CA at %s', issuing_ca)
+        else:
+            # For other cases, use issuing CA to issue certs during installation.
+            # KRA will also configure a connector in the issuing CA, and OCSP will
+            # configure a publisher in the issuing CA.
 
-                url = urllib.parse.urlparse(issuing_ca)
+            logger.info('Using CA at %s', issuing_ca)
+            url = urllib.parse.urlparse(issuing_ca)
 
-                subsystem.config['preop.ca.url'] = issuing_ca
-                subsystem.config['preop.ca.hostname'] = url.hostname
-                subsystem.config['preop.ca.httpsport'] = str(url.port)
-                subsystem.config['preop.ca.httpsadminport'] = str(url.port)
+            subsystem.config['preop.ca.url'] = issuing_ca
+            subsystem.config['preop.ca.hostname'] = url.hostname
+            subsystem.config['preop.ca.httpsport'] = str(url.port)
+            subsystem.config['preop.ca.httpsadminport'] = str(url.port)
 
         system_certs_imported = \
             deployer.mdict['pki_server_pkcs12_path'] != '' or \

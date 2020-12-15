@@ -73,20 +73,27 @@ public class KRAConfigurator extends Configurator {
         int caPort = preopConfig.getInteger("ca.httpsadminport", -1);
         String serverURL = "https://" + caHost + ":" + caPort;
 
-        logger.debug("KRAConfigurator: Configuring KRA connector in CA at " + serverURL);
+        logger.info("KRAConfigurator: Creating KRA connector in CA at " + serverURL);
 
         String kraHost = cs.getHostname();
+        logger.info("KRAConfigurator: - host: " + kraHost);
+
         String kraPort = engine.getAgentPort();
+        logger.info("KRAConfigurator: - port: " + kraPort);
+
+        String path = "/kra/agent/kra/connector";
+        logger.info("KRAConfigurator: - path: " + path);
+
         String transportCert = cs.getString("kra.transport.cert", "");
         String sessionId = request.getInstallToken().getToken();
         String transportCertNickname = cs.getString("kra.cert.transport.nickname");
-        logger.debug("KRAConfigurator: transportCert nickname: " + transportCertNickname);
+        logger.info("KRAConfigurator: - transport nickname: " + transportCertNickname);
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("ca.connector.KRA.enable", "true");
         content.putSingle("ca.connector.KRA.local", "false");
         content.putSingle("ca.connector.KRA.timeout", "30");
-        content.putSingle("ca.connector.KRA.uri", "/kra/agent/kra/connector");
+        content.putSingle("ca.connector.KRA.uri", path);
         content.putSingle("ca.connector.KRA.host", kraHost);
         content.putSingle("ca.connector.KRA.port", kraPort);
         content.putSingle("ca.connector.KRA.transportCert", transportCert);
