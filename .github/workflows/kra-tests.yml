@@ -297,3 +297,218 @@ jobs:
 
       - name: Remove network
         run: docker network rm example
+
+  # docs/installation/kra/Installing_KRA_with_External_Certificates.md
+  kra-external-certs-test:
+    name: Installing KRA with External Certificates
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      LOGS: ${GITHUB_WORKSPACE}/logs.txt
+      COPR_REPO: "@pki/master"
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Build container with systemd
+        run: docker build ci -t pki --build-arg OS_VERSION=${{ matrix.os }}
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Setup CA container
+        run: |
+          IMAGE=pki \
+          NAME=ca \
+          HOSTNAME=ca.example.com \
+          ci/runner-init.sh
+
+      - name: Connect CA container to network
+        run: docker network connect example ca --alias ca.example.com
+
+      - name: Install dependencies in CA container
+        run: |
+          docker exec ca dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec ca dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages in CA container
+        run: docker exec ca bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS in CA container
+        run: docker exec ca ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install CA in CA container
+        run: docker exec ca pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+
+      - name: Initialize CA admin in CA container
+        run: |
+          docker exec ca pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
+          docker exec ca pki client-cert-import ca_signing --ca-cert ${PKIDIR}/ca_signing.crt
+          docker exec ca pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+
+      - name: Setup KRA container
+        run: |
+          IMAGE=pki \
+          NAME=kra \
+          HOSTNAME=kra.example.com \
+          ci/runner-init.sh
+
+      - name: Connect KRA container to network
+        run: docker network connect example kra --alias kra.example.com
+
+      - name: Install dependencies in KRA container
+        run: |
+          docker exec kra dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec kra dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages in KRA container
+        run: docker exec kra bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS in KRA container
+        run: docker exec kra ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install KRA in KRA container (step 1)
+        run: |
+          docker exec kra cp ${PKIDIR}/ca_signing.crt .
+          docker exec kra pkispawn -f /usr/share/pki/server/examples/installation/kra-external-certs-step1.cfg -s KRA -v
+
+      - name: Issue KRA storage cert
+        run: |
+          docker exec kra cp kra_storage.csr ${PKIDIR}/kra_storage.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caStorageCert --csr-file ${PKIDIR}/kra_storage.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_storage.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_storage.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_storage.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat kra_storage.certid` --output-file ${PKIDIR}/kra_storage.crt"
+          docker exec kra cp ${PKIDIR}/kra_storage.crt kra_storage.crt
+
+      - name: Issue KRA transport cert
+        run: |
+          docker exec kra cp kra_transport.csr ${PKIDIR}/kra_transport.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caTransportCert --csr-file ${PKIDIR}/kra_transport.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_transport.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_transport.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_transport.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat kra_transport.certid` --output-file ${PKIDIR}/kra_transport.crt"
+          docker exec kra cp ${PKIDIR}/kra_transport.crt kra_transport.crt
+
+      - name: Issue subsystem cert
+        run: |
+          docker exec kra cp subsystem.csr ${PKIDIR}/subsystem.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${PKIDIR}/subsystem.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/subsystem.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat subsystem.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/subsystem.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat subsystem.certid` --output-file ${PKIDIR}/subsystem.crt"
+          docker exec kra cp ${PKIDIR}/subsystem.crt subsystem.crt
+
+      - name: Issue SSL server cert
+        run: |
+          docker exec kra cp sslserver.csr ${PKIDIR}/sslserver.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caServerCert --csr-file ${PKIDIR}/sslserver.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/sslserver.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat sslserver.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/sslserver.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat sslserver.certid` --output-file ${PKIDIR}/sslserver.crt"
+          docker exec kra cp ${PKIDIR}/sslserver.crt sslserver.crt
+
+      - name: Issue KRA audit signing cert
+        run: |
+          docker exec kra cp kra_audit_signing.csr ${PKIDIR}/kra_audit_signing.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${PKIDIR}/kra_audit_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_audit_signing.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_audit_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_audit_signing.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat kra_audit_signing.certid` --output-file ${PKIDIR}/kra_audit_signing.crt"
+          docker exec kra cp ${PKIDIR}/kra_audit_signing.crt kra_audit_signing.crt
+
+      - name: Issue KRA admin cert
+        run: |
+          docker exec kra cp kra_admin.csr ${PKIDIR}/kra_admin.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caUserCert --csr-file ${PKIDIR}/kra_admin.csr --subject uid=kraadmin | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_admin.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_admin.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/kra_admin.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat kra_admin.certid` --output-file ${PKIDIR}/kra_admin.crt"
+          docker exec kra cp ${PKIDIR}/kra_admin.crt kra_admin.crt
+
+      - name: Install KRA in KRA container (step 2)
+        run: |
+          docker exec kra pkispawn -f /usr/share/pki/server/examples/installation/kra-external-certs-step2.cfg -s KRA -v
+
+      - name: Gather config files from KRA container
+        if: always()
+        run: docker exec kra tar cvf ${PKIDIR}/kra-external-certs-conf.tar -C / etc/pki
+
+      - name: Upload config files from KRA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-external-certs-conf-${{ matrix.os }}
+          path: kra-external-certs-conf.tar
+
+      # TODO: Fix DogtagKRAConnectivityCheck to work without CA
+      # - name: Run PKI healthcheck
+      #   run: docker exec kra pki-healthcheck --debug
+
+      - name: Verify KRA admin
+        run: |
+          docker exec kra pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec kra pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/kra_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/kra/pkcs12_password.conf
+          docker exec kra pki -n kraadmin kra-user-show kraadmin
+
+      - name: Verify KRA connector in CA
+        run: |
+          docker exec ca bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${PKIDIR}/kraconnector.host"
+          echo kra.example.com > kra.hostname
+          diff kra.hostname kraconnector.host
+
+      - name: Remove KRA from KRA container
+        run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove DS from KRA container
+        run: docker exec kra ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Disconnect KRA container from network
+        run: docker network disconnect example kra
+
+      - name: Gather log files from KRA container
+        if: always()
+        run: |
+          docker exec kra bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec kra tar cvf ${PKIDIR}/kra-external-certs-logs.tar -C / var/log/pki
+
+      - name: Upload log files from KRA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-external-certs-logs-${{ matrix.os }}
+          path: kra-external-certs-logs.tar
+
+      - name: Remove CA from CA container
+        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS from CA container
+        run: docker exec ca ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Disconnect CA container from network
+        run: docker network disconnect example ca
+
+      - name: Gather log files from CA container
+        if: always()
+        run: |
+          docker exec ca bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec ca tar cvf ${PKIDIR}/ca-external-certs-logs.tar -C / var/log/pki
+
+      - name: Upload log files from CA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ca-external-certs-logs-${{ matrix.os }}
+          path: ca-external-certs-logs.tar
+
+      - name: Remove network
+        run: docker network rm example

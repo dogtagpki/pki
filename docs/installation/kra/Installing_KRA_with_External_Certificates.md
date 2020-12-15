@@ -9,52 +9,16 @@ This page describes the process to install a KRA subsystem with external certifi
 Starting KRA Subsystem Installation
 -----------------------------------
 
-Prepare a file (e.g. kra-step1.cfg) that contains the deployment configuration step 1, for example:
+Prepare a file (e.g. kra-external-certs-step1.cfg) that contains the first deployment configuration.
 
-```
-[DEFAULT]
-pki_server_database_password=Secret.123
-
-[KRA]
-pki_admin_email=kraadmin@example.com
-pki_admin_name=kraadmin
-pki_admin_nickname=kraadmin
-pki_admin_password=Secret.123
-pki_admin_uid=kraadmin
-
-pki_client_database_password=Secret.123
-pki_client_database_purge=False
-pki_client_pkcs12_password=Secret.123
-
-pki_ds_base_dn=dc=kra,dc=pki,dc=example,dc=com
-pki_ds_database=kra
-pki_ds_password=Secret.123
-
-pki_security_domain_name=EXAMPLE
-pki_security_domain_user=caadmin
-pki_security_domain_password=Secret.123
-
-pki_storage_nickname=kra_storage
-pki_transport_nickname=kra_transport
-pki_subsystem_nickname=subsystem
-pki_sslserver_nickname=sslserver
-pki_audit_signing_nickname=kra_audit_signing
-
-pki_external=True
-pki_external_step_two=False
-
-pki_storage_csr_path=kra_storage.csr
-pki_transport_csr_path=kra_transport.csr
-pki_subsystem_csr_path=subsystem.csr
-pki_sslserver_csr_path=sslserver.csr
-pki_audit_signing_csr_path=kra_audit_signing.csr
-pki_admin_csr_path=kra_admin.csr
-```
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/kra-external-certs-step1.cfg](../../../base/server/examples/installation/kra-external-certs-step1.cfg).
+It assumes that the CA is running at https://ca.example.com:8443,
+and the CA signing certificate has been exported into `ca_signing.crt`.
 
 Then execute the following command:
 
 ```
-$ pkispawn -f kra-step1.cfg -s KRA
+$ pkispawn -f kra-external-certs-step1.cfg -s KRA
 ```
 
 It will install KRA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
@@ -81,9 +45,8 @@ Store the external CA certificate chain in a file (e.g. ca_signing.crt). The cer
 Finishing KRA Subsystem Installation
 ------------------------------------
 
-Prepare another file (e.g. kra-step2.cfg) that contains the deployment configuration step 2. The file can be copied from step 1 (i.e. kra-step1.cfg) with additional changes below.
-
-Specify step 2 with the following parameter:
+Prepare another file (e.g. kra-external-certs-step2.cfg) that contains the second deployment configuration.
+The file can be created from the first file (i.e. kra-external-certs-step1.cfg) with the following changes:
 
 ```
 pki_external_step_two=True
@@ -107,10 +70,12 @@ pki_cert_chain_nickname=ca_signing
 pki_cert_chain_path=ca_signing.crt
 ```
 
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/kra-external-certs-step2.cfg](../../../base/server/examples/installation/kra-external-certs-step2.cfg).
+
 Finally, execute the following command:
 
 ```
-$ pkispawn -f kra-step2.cfg -s KRA
+$ pkispawn -f kra-external-certs-step2.cfg -s KRA
 ```
 
 Verifying System Certificates
@@ -141,7 +106,7 @@ Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 $ pki -c Secret.123 client-init
 ```
 
-Import the external CA certificate chain:
+Import the CA certificate chain:
 
 ```
 $ pki -c Secret.123 client-cert-import --ca-cert ca_signing.crt
@@ -167,4 +132,22 @@ User "kraadmin"
   Email: kraadmin@example.com
   Type: adminType
   State: 1
+```
+
+Verifying KRA Connector
+-----------------------
+
+Verify that the KRA connector is configured in the CA subsystem:
+
+```
+$ pki -c Secret.123 -n caadmin ca-kraconnector-show
+
+Host: kra.example.com:8443
+Enabled: true
+Local: false
+Timeout: 30
+URI: /kra/agent/kra/connector
+Transport Cert:
+
+<base-64 certificate>
 ```
