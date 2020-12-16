@@ -18,19 +18,17 @@ jobs:
           matrix:
             os: ['32']
       steps:
-          - name: Update base image
-            run: |
-                  set -x &&
-                  dnf update -y &&
-                  dnf install -y dnf-plugins-core rpm-build git
+          - name: Install git
+            run: dnf install -y git
 
           - name: Clone the repository
             uses: actions/checkout@v2
 
           - name: Install PKI build deps
             run: |
-                  dnf copr enable -y @pki/master
-                  dnf builddep -y --allowerasing --spec ./pki.spec
+              dnf install -y dnf-plugins-core rpm-build
+              dnf copr enable -y @pki/master
+              dnf builddep -y --allowerasing --spec ./pki.spec
 
           - name: Build PKI packages
             run: ./build.sh --with-timestamp --with-commit-id --work-dir=../packages rpm
@@ -38,8 +36,6 @@ jobs:
           - name: Compress RPMS
             run: tar -czf pki-rpms.tar.gz ../packages/RPMS/*
 
-          # upload-artifact runs on host-vm rather than inside the container. Fixed in v2 (unreleased)
-          # Bug: https://github.com/actions/upload-artifact/issues/13#issuecomment-532936650
           - name: Upload RPM artifacts
             uses: actions/upload-artifact@v1
             with:
@@ -66,7 +62,6 @@ jobs:
         matrix:
           os: ['32']  # NOTE: In F31, NFS client installation fails!
       steps:
-
         - name: Clone the repository
           uses: actions/checkout@v2
 

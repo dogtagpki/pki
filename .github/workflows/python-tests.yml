@@ -12,16 +12,15 @@ jobs:
       matrix:
         os: ['32', '33']
     steps:
-      - name: Update container
-        run: |
-          dnf update -y
-          dnf install -y dnf-plugins-core rpm-build git
+      - name: Install git
+        run: dnf install -y git
 
       - name: Clone repository
         uses: actions/checkout@v2
 
       - name: Install dependencies
         run: |
+          dnf install -y dnf-plugins-core rpm-build
           dnf copr enable -y @pki/master
           dnf builddep -y --allowerasing --spec ./pki.spec
 
@@ -45,17 +44,16 @@ jobs:
       matrix:
         os: ['32', '33']
     steps:
-      - name: Update container
-        run: |
-          dnf update -y
-          dnf install -y python3-pylint python3-flake8 python3-pyflakes findutils dnf-plugins-core
-          dnf copr enable -y ${COPR_REPO}
-
       - name: Download PKI packages
         uses: actions/download-artifact@v2
         with:
           name: pki-build-${{ matrix.os }}
           path: build/RPMS
+
+      - name: Update container
+        run: |
+          dnf install -y python3-pylint python3-flake8 python3-pyflakes findutils dnf-plugins-core
+          dnf copr enable -y ${COPR_REPO}
 
       - name: Install PKI packages
         run: dnf -y localinstall build/RPMS/*
