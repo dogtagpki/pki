@@ -12,16 +12,15 @@ jobs:
       matrix:
         os: ['32', '33']
     steps:
-      - name: Update container
-        run: |
-          dnf update -y
-          dnf install -y dnf-plugins-core rpm-build git
+      - name: Install git
+        run: dnf install -y git
 
       - name: Clone repository
         uses: actions/checkout@v2
 
       - name: Install dependencies
         run: |
+          dnf install -y dnf-plugins-core rpm-build
           dnf copr enable -y @pki/master
           dnf builddep -y --allowerasing --spec ./pki.spec
 
@@ -51,6 +50,12 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
       - name: Build container with systemd
         run: docker build ci -t pki --build-arg OS_VERSION=${{ matrix.os }}
 
@@ -65,12 +70,6 @@ jobs:
         run: |
           docker exec pki dnf install -y findutils dnf-plugins-core wget 389-ds-base
           docker exec pki dnf copr enable -y ${COPR_REPO}
-
-      - name: Download PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
 
       - name: Install PKI packages
         run: docker exec pki bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"

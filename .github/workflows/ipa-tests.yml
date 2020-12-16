@@ -18,19 +18,17 @@ jobs:
           matrix:
             os: ['32', '33']
       steps:
-          - name: Update base image
-            run: |
-                  set -x &&
-                  dnf update -y &&
-                  dnf install -y dnf-plugins-core rpm-build git
+          - name: Install git
+            run: dnf install -y git
 
           - name: Clone the repository
             uses: actions/checkout@v2
 
           - name: Install PKI build deps
             run: |
-                  dnf copr enable -y @pki/master
-                  dnf builddep -y --allowerasing --spec ./pki.spec
+              dnf install -y dnf-plugins-core rpm-build
+              dnf copr enable -y @pki/master
+              dnf builddep -y --allowerasing --spec ./pki.spec
 
           - name: Build PKI packages required by IPA
             run: ./build.sh --with-pkgs=base,server,acme,ca,kra --with-timestamp --with-commit-id --work-dir=../packages rpm
@@ -38,8 +36,6 @@ jobs:
           - name: Compress RPMS
             run: tar -czf pki-rpms.tar.gz ../packages/RPMS/*
 
-          # upload-artifact runs on host-vm rather than inside the container. Fixed in v2 (unreleased)
-          # Bug: https://github.com/actions/upload-artifact/issues/13#issuecomment-532936650
           - name: Upload RPM artifacts
             uses: actions/upload-artifact@v1
             with:
@@ -66,6 +62,11 @@ jobs:
         - name: Clone the repository
           uses: actions/checkout@v2
 
+        - name: Download PKI binaries from Build job
+          uses: actions/download-artifact@v1
+          with:
+            name: pki-build-${{ matrix.os }}
+
         - name: Build IPA container image with systemd
           run: docker build ci/ -t ipa-fedora-${{ matrix.os }} --build-arg OS_VERSION=${{ matrix.os }}
 
@@ -75,11 +76,6 @@ jobs:
             NAME=ipa \
             HOSTNAME=ipa.example.com \
             ci/runner-init.sh
-
-        - name: Download PKI binaries from Build job
-          uses: actions/download-artifact@v1
-          with:
-            name: pki-build-${{ matrix.os }}
 
         - name: Extract tar.gz for rpms
           run: tar -xzf pki-build-${{ matrix.os }}/pki-rpms.tar.gz
@@ -112,7 +108,7 @@ jobs:
 
         - name: Upload compressed log
           if: always()
-          uses: actions/upload-artifact@v1
+          uses: actions/upload-artifact@v2
           with:
             name: ipa-logs-${{ matrix.os }}
             path: ipa-logs.tar.gz

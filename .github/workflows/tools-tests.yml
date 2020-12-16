@@ -13,8 +13,7 @@ jobs:
         os: ['32', '33']
     steps:
       - name: Install git
-        run: |
-          dnf install -y git
+        run: dnf install -y git
 
       - name: Clone repository
         uses: actions/checkout@v2
@@ -43,10 +42,6 @@ jobs:
       matrix:
         os: ['32', '33']
     steps:
-      - name: Install git
-        run: |
-          dnf install -y git
-
       - name: Clone repository
         uses: actions/checkout@v2
 
