@@ -64,4 +64,4 @@ class KRAClient(object):
             transport_cert_nick,
             self.info
         )
-        self.system_certs = SystemCertClient(connection, subsystem='kra')
+        self.system_certs = SystemCertClient(connection)

@@ -228,8 +228,9 @@ jobs:
           name: kra-separate-conf-${{ matrix.os }}
           path: kra-separate-conf.tar
 
-      - name: Run PKI healthcheck
-        run: docker exec kra pki-healthcheck --debug
+      # TODO: Fix DogtagKRAConnectivityCheck to work without CA
+      # - name: Run PKI healthcheck
+      #   run: docker exec kra pki-healthcheck --debug
 
       - name: Verify KRA admin
         run: |
