@@ -89,11 +89,13 @@ public class NSSCertImportCLI extends CommandCLI {
         ClientConfig clientConfig = mainCLI.getConfig();
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
 
+        String tokenName = clientConfig.getTokenName();
+
         if (nickname == null) {
             nssdb.addCertificate(cert, trustAttributes);
 
         } else {
-            nssdb.addCertificate(nickname, cert, trustAttributes);
+            nssdb.addCertificate(tokenName, nickname, cert, trustAttributes);
         }
     }
 }
