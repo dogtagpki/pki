@@ -305,6 +305,15 @@ public class NSSDatabase {
             X509Certificate cert,
             String trustAttributes) throws Exception {
 
+        addCertificate(null, nickname, cert, trustAttributes);
+    }
+
+    public void addCertificate(
+            String tokenName,
+            String nickname,
+            X509Certificate cert,
+            String trustAttributes) throws Exception {
+
         byte[] bytes = CertUtil.toPEM(cert).getBytes();
         Path certPath = null;
 
@@ -312,7 +321,7 @@ public class NSSDatabase {
             certPath = Files.createTempFile("nss-cert-", ".crt", FILE_PERMISSIONS);
             Files.write(certPath, bytes);
 
-            addPEMCertificate(nickname, certPath.toString(), trustAttributes);
+            addPEMCertificate(tokenName, nickname, certPath.toString(), trustAttributes);
 
         } finally {
             if (certPath != null) Files.delete(certPath);
@@ -324,7 +333,21 @@ public class NSSDatabase {
             String filename,
             String trustAttributes) throws Exception {
 
+        addPEMCertificate(
+                null,
+                nickname,
+                filename,
+                trustAttributes);
+    }
+
+    public void addPEMCertificate(
+            String tokenName,
+            String nickname,
+            String filename,
+            String trustAttributes) throws Exception {
+
         Path passwordPath = null;
+        if (trustAttributes == null) trustAttributes = ",,";
 
         try {
             List<String> cmd = new ArrayList<>();
@@ -333,17 +356,25 @@ public class NSSDatabase {
             cmd.add("-d");
             cmd.add(path.toString());
 
-            // TODO: Add support for HSM.
-            String password = passwordStore.getPassword("internal", 0);
+            if (tokenName != null) {
+                cmd.add("-h");
+                cmd.add(tokenName);
+            }
 
-            if (password != null) {
-                passwordPath = Files.createTempFile("nss-password-", ".txt", FILE_PERMISSIONS);
-                logger.info("Storing password into " + passwordPath);
+            if (passwordStore != null) {
 
-                Files.write(passwordPath, password.getBytes());
+                String tag = tokenName == null ? "internal" : "hardware-" + tokenName;
+                String password = passwordStore.getPassword(tag, 0);
 
-                cmd.add("-f");
-                cmd.add(passwordPath.toString());
+                if (password != null) {
+                    passwordPath = Files.createTempFile("nss-password-", ".txt", FILE_PERMISSIONS);
+                    logger.info("Storing password into " + passwordPath);
+
+                    Files.write(passwordPath, password.getBytes());
+
+                    cmd.add("-f");
+                    cmd.add(passwordPath.toString());
+                }
             }
 
             // accept PEM or PKCS #7 certificate
