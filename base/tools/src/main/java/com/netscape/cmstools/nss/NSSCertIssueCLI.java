@@ -102,7 +102,10 @@ public class NSSCertIssueCLI extends CommandCLI {
             extensions = generator.createExtensions(issuer, pkcs10);
         }
 
+        String tokenName = clientConfig.getTokenName();
+
         X509Certificate cert = nssdb.createCertificate(
+                tokenName,
                 issuer,
                 pkcs10,
                 serialNumber,
