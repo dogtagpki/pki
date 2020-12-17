@@ -276,14 +276,16 @@ public class MainCLI extends CLI {
             String password = line.substring(p + 1).trim();
 
             if (token.equals("internal")) {
+                logger.info("- internal: ********");
                 passwords.put(token, password);
 
             } else if (token.startsWith("hardware-")) {
                 token = token.substring(9);  // remove hardware- prefix
+                logger.info("- " + token + ": ********");
                 passwords.put(token, password);
 
             } else {
-                // skip non-token passwords
+                logger.warn("Invalid entry in " + filename + ":" + (i+1));
             }
         }
 
