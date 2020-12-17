@@ -860,7 +860,32 @@ public class NSSDatabase {
             String hash,
             CertificateExtensions extensions) throws Exception {
 
+        return createRequest(
+                null,
+                subject,
+                keyID,
+                keyType,
+                keySize,
+                curve,
+                hash,
+                extensions);
+    }
+
+    public PKCS10 createRequest(
+            String tokenName,
+            String subject,
+            String keyID,
+            String keyType,
+            String keySize,
+            String curve,
+            String hash,
+            CertificateExtensions extensions) throws Exception {
+
         logger.info("Creating certificate signing request for " + subject);
+
+        if (tokenName != null) {
+            logger.info("- token: " + tokenName);
+        }
 
         if (keyID != null) {
             logger.info("- key ID: " + keyID);
@@ -892,10 +917,15 @@ public class NSSDatabase {
             cmd.add("-d");
             cmd.add(path.toString());
 
+            if (tokenName != null) {
+                cmd.add("-h");
+                cmd.add(tokenName);
+            }
+
             if (passwordStore != null) {
 
-                // TODO: Add support for HSM.
-                String password = passwordStore.getPassword("internal", 0);
+                String tag = tokenName == null ? "internal" : "hardware-" + tokenName;
+                String password = passwordStore.getPassword(tag, 0);
 
                 if (password != null) {
                     Path passwordPath = tmpDir.resolve("password.txt");

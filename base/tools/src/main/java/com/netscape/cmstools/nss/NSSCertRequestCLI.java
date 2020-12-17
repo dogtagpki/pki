@@ -97,7 +97,10 @@ public class NSSCertRequestCLI extends CommandCLI {
             extensions = generator.createExtensions();
         }
 
+        String tokenName = clientConfig.getTokenName();
+
         PKCS10 pkcs10 = nssdb.createRequest(
+                tokenName,
                 subject,
                 keyID,
                 keyType,
