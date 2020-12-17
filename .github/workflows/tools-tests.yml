@@ -25,7 +25,7 @@ jobs:
           dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
 
       - name: Build PKI packages
-        run: ./build.sh --with-pkgs=base --with-timestamp --with-commit-id --work-dir=build rpm
+        run: ./build.sh --with-pkgs=base,server --with-timestamp --with-commit-id --work-dir=build rpm
 
       - name: Upload PKI packages
         uses: actions/upload-artifact@v2
@@ -59,3 +59,123 @@ jobs:
 
       - name: Run PKICertImport test
         run: bash base/util/src/test/shell/test_PKICertImport.bash
+
+  # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
+  pki-nss-test:
+    name: PKI NSS CLI
+    needs: build
+    runs-on: ubuntu-latest
+    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Install PKI packages
+        run: |
+          dnf install -y dnf-plugins-core
+          dnf copr enable -y @pki/master
+          dnf -y localinstall build/RPMS/*
+
+      - name: Generate cert request with key
+        run: |
+          pki nss-cert-request \
+              --subject "CN=Certificate Authority" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr ca_signing.csr
+
+      - name: Issue self-signed cert
+        run: |
+          pki nss-cert-issue \
+              --csr ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert ca_signing.crt
+
+      - name: Import cert into
+        run: |
+          pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+      - name: Verify trust flags
+        run: |
+          echo "CTu,Cu,Cu" > flags1
+          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^ca_signing *\(\S\+\)/\1/p' > flags2
+          diff flags1 flags2
+
+  # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
+  pki-nss-hsm-test:
+    name: PKI NSS CLI with HSM
+    needs: build
+    runs-on: ubuntu-latest
+    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    strategy:
+      matrix:
+        # NSS cannot find the SoftHSM token on F32
+        os: ['33']
+    steps:
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Install PKI packages
+        run: |
+          dnf install -y dnf-plugins-core softhsm
+          dnf copr enable -y @pki/master
+          dnf -y localinstall build/RPMS/*
+
+      - name: Create HSM token
+        run: |
+          softhsm2-util --init-token \
+              --label HSM \
+              --so-pin Secret.123 \
+              --pin Secret.123 \
+              --free
+          softhsm2-util --show-slots
+
+      - name: Generate cert request with key in HSM
+        run: |
+          echo "internal=" > password.conf
+          echo "hardware-HSM=Secret.123" >> password.conf
+          pki --token HSM -f password.conf nss-cert-request \
+              --subject "CN=Certificate Authority" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr ca_signing.csr
+
+      - name: Issue self-signed cert
+        run: |
+          pki --token HSM -f password.conf nss-cert-issue \
+              --csr ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert ca_signing.crt
+
+      - name: Import cert into internal token and HSM
+        run: |
+          pki --token HSM -f password.conf nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+      - name: Verify trust flags in internal token
+        run: |
+          echo "CT,C,C" > flags.internal1
+          echo "Secret.123" > password.txt
+          certutil -L -d /root/.dogtag/nssdb | sed -n 's/^ca_signing *\(\S\+\)/\1/p' > flags.internal2
+          diff flags.internal1 flags.internal2
+
+      - name: Verify trust flags in HSM
+        run: |
+          echo "CTu,Cu,Cu" > flags.hsm1
+          certutil -L -d /root/.dogtag/nssdb -h HSM -f password.txt | sed -n 's/^HSM:ca_signing *\(\S\+\)/\1/p' > flags.hsm2
+          diff flags.hsm1 flags.hsm2
+
+      - name: Remove HSM token
+        run: softhsm2-util --delete-token --token HSM
