@@ -398,6 +398,7 @@ Provides:         pki-base-python3 = %{version}
 Requires:         pki-base = %{version}-%{release}
 Requires:         python3 >= 3.5
 Requires:         python3-cryptography
+Requires:         python3-ldap
 Requires:         python3-lxml
 Requires:         python3-nss
 Requires:         python3-requests >= 2.6.0
@@ -496,7 +497,6 @@ Requires:         keyutils
 
 Requires:         policycoreutils-python-utils
 
-Requires:         python3-ldap
 Requires:         python3-lxml
 Requires:         python3-libselinux
 Requires:         python3-policycoreutils
