@@ -82,8 +82,7 @@ public class PlainPasswordFile implements IPasswordStore {
      * @exception IOException if an error occurred when reading from the
      *                input stream.
      */
-    public void init(String pwdPath)
-            throws IOException {
+    public void init(String pwdPath) throws IOException {
 
         logger.debug("PlainPasswordFile: Initializing PlainPasswordFile");
 
@@ -108,8 +107,11 @@ public class PlainPasswordFile implements IPasswordStore {
                     throw new IOException("Missing delimiter '=' in file " + mPwdPath + " in line " + index);
                 }
 
-                // Load key value into the password store
-                mPwdStore.put(parts[0].trim(), parts[1].trim());
+                String name = parts[0].trim();
+                String value = parts[1].trim();
+                logger.debug("PlainPasswordFile: - " + name + ": ********");
+
+                mPwdStore.put(name, value);
                 index++;
             }
         }
