@@ -1041,6 +1041,23 @@ public class NSSDatabase {
             Integer monthsValid,
             CertificateExtensions extensions) throws Exception {
 
+        return createCertificate(
+                null, // token name
+                issuer,
+                pkcs10,
+                null, // serial number
+                monthsValid,
+                extensions);
+    }
+
+    public X509Certificate createCertificate(
+            String tokenName,
+            org.mozilla.jss.crypto.X509Certificate issuer,
+            PKCS10 pkcs10,
+            String serialNumber,
+            Integer monthsValid,
+            CertificateExtensions extensions) throws Exception {
+
         Path tmpDir = null;
 
         try {
@@ -1059,10 +1076,15 @@ public class NSSDatabase {
             cmd.add("-d");
             cmd.add(path.toString());
 
+            if (tokenName != null) {
+                cmd.add("-h");
+                cmd.add(tokenName);
+            }
+
             if (passwordStore != null) {
 
-                // TODO: Add support for HSM.
-                String password = passwordStore.getPassword("internal", 0);
+                String tag = tokenName == null ? "internal" : "hardware-" + tokenName;
+                String password = passwordStore.getPassword(tag, 0);
 
                 if (password != null) {
                     Path passwordPath = tmpDir.resolve("password.txt");
