@@ -91,6 +91,8 @@ import org.mozilla.jss.pkcs7.IssuerAndSerialNumber;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.PasswordCallback;
+import org.mozilla.jss.netscape.security.x509.ChallengePassword;
+import org.mozilla.jss.netscape.security.x509.ExtensionsRequested;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -928,7 +930,7 @@ public class CRSEnrollment extends HttpServlet {
                 logger.warn("Invalid request type " + mt);
             }
         } catch (ServletException e) {
-            throw new ServletException(e.getMessage().toString());
+            throw e;
         } catch (CRSInvalidSignatureException e) {
             logger.error("handlePKIMessage exception " + e.getMessage(), e);
             crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badMessageCheck);

@@ -67,11 +67,11 @@ public class Setup {
             { "oidmap.subject_info_access.oid", "1.3.6.1.5.5.7.1.11" },
             { "oidmap.auth_info_access.class", "org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension" },
             { "oidmap.auth_info_access.oid", "1.3.6.1.5.5.7.1.1" },
-            { "oidmap.challenge_password.class", "com.netscape.cms.servlet.cert.scep.ChallengePassword" },
+            { "oidmap.challenge_password.class", "org.mozilla.jss.netscape.security.x509.ChallengePassword" },
             { "oidmap.challenge_password.oid", "1.2.840.113549.1.9.7" },
-            { "oidmap.extensions_requested_vsgn.class", "com.netscape.cms.servlet.cert.scep.ExtensionsRequested" },
+            { "oidmap.extensions_requested_vsgn.class", "org.mozilla.jss.netscape.security.x509.ExtensionsRequested" },
             { "oidmap.extensions_requested_vsgn.oid", "2.16.840.1.113733.1.9.8" },
-            { "oidmap.extensions_requested_pkcs9.class", "com.netscape.cms.servlet.cert.scep.ExtensionsRequested" },
+            { "oidmap.extensions_requested_pkcs9.class", "org.mozilla.jss.netscape.security.x509.ExtensionsRequested" },
             { "oidmap.extensions_requested_pkcs9.oid", "1.2.840.113549.1.9.14" },
         };
 
