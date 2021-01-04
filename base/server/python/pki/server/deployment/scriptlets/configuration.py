@@ -957,7 +957,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if 'pki_one_time_pin' not in deployer.mdict:
             deployer.mdict['pki_one_time_pin'] = subsystem.config['preop.pin']
 
-        sslserver = subsystem.get_subsystem_cert('sslserver')
+        system_certs = {}
+        for system_cert in subsystem.find_system_certs():
+            cert_id = system_cert['id']
+            system_certs[cert_id] = system_cert
 
         for tag in subsystem.config['preop.cert.list'].split(','):
 
@@ -982,10 +985,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.debug('- cert: %s', cert['cert'])
             logger.debug('- request: %s', cert['request'])
 
-            if tag == 'sslserver':
-                sslserver['data'] = cert['cert']
-                sslserver['request'] = cert['request']
-                sslserver['token'] = cert['token']
+            system_certs[tag]['data'] = cert['cert']
+            system_certs[tag]['request'] = cert['request']
+            system_certs[tag]['token'] = cert['token']
 
         if not clone:
             logger.info('Setting up admin user')
@@ -1120,27 +1122,27 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # If temp SSL server cert was created and there's a new perm cert,
         # replace it with the perm cert.
-        if create_temp_sslserver_cert and sslserver and sslserver['data']:
+        if create_temp_sslserver_cert and system_certs['sslserver']['data']:
             logger.info('Stopping server')
             instance.stop()
 
             # Remove temp SSL server cert.
-            self.remove_temp_sslserver_cert(instance, sslserver)
+            self.remove_temp_sslserver_cert(instance, system_certs['sslserver'])
 
             # Import perm SSL server cert unless it's already imported
             # earlier in external/standalone installation.
 
             if not (standalone or external and subsystem.name in ['kra', 'ocsp']):
 
-                nickname = sslserver['nickname']
-                token = pki.nssdb.normalize_token(sslserver['token'])
+                nickname = system_certs['sslserver']['nickname']
+                token = pki.nssdb.normalize_token(system_certs['sslserver']['token'])
 
                 if not token:
                     token = deployer.mdict['pki_token_name']
 
                 instance.set_sslserver_cert_nickname(nickname, token)
 
-                self.import_perm_sslserver_cert(deployer, instance, sslserver)
+                self.import_perm_sslserver_cert(deployer, instance, system_certs['sslserver'])
 
             logger.info('Starting server')
             instance.start()
