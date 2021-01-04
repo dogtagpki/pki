@@ -34,7 +34,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
-import org.dogtagpki.ca.CASystemCertClient;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -44,10 +43,8 @@ import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
@@ -64,7 +61,6 @@ import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.AdminSetupRequest;
@@ -917,7 +913,7 @@ public class Configurator {
         return new X509CertImpl(bytes);
     }
 
-    public void setupSubsystemUser(X509CertImpl cert) throws Exception {
+    public void setupSubsystemUser() throws Exception {
 
         String sysType = cs.getType();
         String machineName = cs.getHostname();
@@ -925,7 +921,7 @@ public class Configurator {
 
         String id = sysType + "-" + machineName + "-" + securePort;
 
-        setupUser(id, cert);
+        setupUser(id);
     }
 
     public void setupClientAuthUser() throws Exception {
@@ -934,27 +930,13 @@ public class Configurator {
 
         String host = preopConfig.getString("ca.hostname");
         int port = preopConfig.getInteger("ca.httpsadminport");
-        String url = "https://" + host + ":" + port;
-
-        logger.info("Configurator: Retrieving subsystem certificate from " + url);
-
-        PKIClient client = createClient(url, null, null);
-        CASystemCertClient certClient = new CASystemCertClient(client, "ca");
-        CertData certData = certClient.getSubsystemCert();
-
-        String certChain = certData.getPkcs7CertChain();
-        PKCS7 pkcs7 = new PKCS7(Utils.base64decode(certChain));
-        java.security.cert.X509Certificate[] certs = pkcs7.getCertificates();
-
-        java.security.cert.X509Certificate leafCert = certs[certs.length - 1];
-        X509CertImpl cert = new X509CertImpl(leafCert.getEncoded());
 
         String id = "CA-" + host + "-" + port;
 
-        setupUser(id, cert);
+        setupUser(id);
     }
 
-    public void setupUser(String id, X509CertImpl cert) throws Exception {
+    public void setupUser(String id) throws Exception {
 
         UGSubsystem system = engine.getUGSubsystem();
 
@@ -972,18 +954,6 @@ public class Configurator {
         } catch (ConflictingOperationException e) {
             // ignore exception
             logger.warn("Configurator: User already exists: " + id);
-        }
-
-        X509CertImpl[] certs = new X509CertImpl[1];
-        certs[0] = cert;
-        user.setX509Certificates(certs);
-
-        try {
-            logger.info("Configurator: Adding user certificate: " + cert.getSubjectDN());
-            system.addUserCert(id, cert);
-        } catch (ConflictingOperationException e) {
-            // ignore exception
-            logger.warn("Configurator: User certificate already exists: " + cert.getSubjectDN());
         }
     }
 

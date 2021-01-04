@@ -263,7 +263,7 @@ public class CAConfigurator extends Configurator {
 
         if (tag.equals("subsystem")) {
             logger.debug("CAConfigurator: creating subsystem user");
-            setupSubsystemUser(certImpl);
+            setupSubsystemUser();
         }
 
         return certImpl;

@@ -994,6 +994,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             ca_host = deployer.mdict['pki_hostname']
             ca_port = securePort
             uid = 'CA-%s-%s' % (ca_host, ca_port)
+
+            logger.info('Adding subsystem certificate into %s', uid)
+            subsystem_cert_data = pki.nssdb.convert_cert(
+                system_certs['subsystem']['data'],
+                'base64',
+                'pem')
+            subsystem.add_user_cert(
+                uid,
+                cert_data=subsystem_cert_data.encode(),
+                cert_format='PEM')
+
             logger.info('Adding %s into Subsystem Group', uid)
             subsystem.add_group_member('Subsystem Group', uid)
 
@@ -1113,7 +1124,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             if not clone and not standalone and ca_host:
                 ca_port = subsystem.config.get('preop.ca.httpsadminport')
+                ca_url = 'https://%s:%s' % (ca_host, ca_port)
                 uid = 'CA-%s-%s' % (ca_host, ca_port)
+
+                logger.info('Getting subsystem certificate from %s', ca_url)
+                subsystem_cert_data = deployer.get_subsystem_cert(instance, ca_url)
+
+                logger.info('Adding subsystem certificate into %s', uid)
+                subsystem.add_user_cert(uid, cert_data=subsystem_cert_data, cert_format='PEM')
+
                 logger.info('Adding %s into Trusted Managers', uid)
                 subsystem.add_group_member('Trusted Managers', uid)
 
@@ -1123,7 +1142,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             if not clone and not standalone and ca_host:
                 ca_port = subsystem.config.get('preop.ca.httpsadminport')
+                ca_url = 'https://%s:%s' % (ca_host, ca_port)
                 uid = 'CA-%s-%s' % (ca_host, ca_port)
+
+                logger.info('Getting subsystem certificate from %s', ca_url)
+                subsystem_cert_data = deployer.get_subsystem_cert(instance, ca_url)
+
+                logger.info('Adding subsystem certificate into %s', uid)
+                subsystem.add_user_cert(uid, cert_data=subsystem_cert_data, cert_format='PEM')
+
                 logger.info('Adding %s into Trusted Managers', uid)
                 subsystem.add_group_member('Trusted Managers', uid)
 
