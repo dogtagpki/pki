@@ -272,20 +272,20 @@ public class MainCLI extends CLI {
                 throw new Exception("Missing delimiter in " + filename + ":" + (i + 1));
             }
 
-            String token = line.substring(0, p).trim();
+            String name = line.substring(0, p).trim();
             String password = line.substring(p + 1).trim();
 
-            if (token.equals("internal")) {
+            if (name.equals("internal")) {
                 logger.info("- internal: ********");
-                passwords.put(token, password);
+                passwords.put(name, password);
 
-            } else if (token.startsWith("hardware-")) {
-                token = token.substring(9);  // remove hardware- prefix
-                logger.info("- " + token + ": ********");
-                passwords.put(token, password);
+            } else if (name.startsWith("hardware-")) {
+                name = name.substring(9);  // remove hardware- prefix
+                logger.info("- " + name + ": ********");
+                passwords.put(name, password);
 
             } else {
-                logger.warn("Invalid entry in " + filename + ":" + (i+1));
+                logger.debug("- " + name + ": ******** (not token)");
             }
         }
 
