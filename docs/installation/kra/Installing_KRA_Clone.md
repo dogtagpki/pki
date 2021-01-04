@@ -25,49 +25,18 @@ $ pki -d /etc/pki/pki-tomcat/alias -f /etc/pki/pki-tomcat/password.conf \
 KRA Subsystem Installation
 --------------------------
 
-Prepare a file (e.g. kra.cfg) that contains the deployment configuration, for example:
+Prepare a file (e.g. kra-clone.cfg) that contains the deployment configuration.
 
-```
-[DEFAULT]
-pki_server_database_password=Secret.123
-
-[KRA]
-pki_admin_email=kraadmin@example.com
-pki_admin_name=kraadmin
-pki_admin_nickname=kraadmin
-pki_admin_password=Secret.123
-pki_admin_uid=kraadmin
-
-pki_client_database_password=Secret.123
-pki_client_database_purge=False
-pki_client_pkcs12_password=Secret.123
-
-pki_ds_base_dn=dc=kra,dc=pki,dc=example,dc=com
-pki_ds_database=kra
-pki_ds_password=Secret.123
-
-pki_security_domain_hostname=server.example.com
-pki_security_domain_https_port=8443
-pki_security_domain_user=caadmin
-pki_security_domain_password=Secret.123
-
-pki_storage_nickname=kra_storage
-pki_transport_nickname=kra_transport
-pki_audit_signing_nickname=kra_audit_signing
-pki_sslserver_nickname=sslserver
-pki_subsystem_nickname=subsystem
-
-pki_clone=True
-pki_clone_replicate_schema=True
-pki_clone_uri=https://server.example.com:8443
-pki_clone_pkcs12_path=kra-certs.p12
-pki_clone_pkcs12_password=Secret.123
-```
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/kra-clone.cfg](../../../base/server/examples/installation/kra-clone.cfg).
+It assumes that the primary CA and KRA are running at https://primary.example.com:8443,
+the CA signing certificate has been exported into `ca_signing.crt`,
+the admin certificate and key have been exported into `ca_admin_cert.p12`,
+and the admin PKCS #12 password file has been exported into `pkcs12_password.conf`.
 
 Then execute the following command:
 
 ```
-$ pkispawn -f kra.cfg -s KRA
+$ pkispawn -f kra-clone.cfg -s KRA
 ```
 
 It will install KRA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
@@ -108,7 +77,7 @@ Import the CA signing certificate:
 $ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
 ```
 
-Import the master's admin key and certificate:
+Import the admin key and certificate:
 
 ```
 $ pki -c Secret.123 client-cert-import \
