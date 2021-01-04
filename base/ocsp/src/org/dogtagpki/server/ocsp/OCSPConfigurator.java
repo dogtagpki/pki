@@ -43,8 +43,6 @@ public class OCSPConfigurator extends Configurator {
         super(engine);
     }
 
-    private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
-
     @Override
     public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
 
@@ -75,10 +73,6 @@ public class OCSPConfigurator extends Configurator {
 
                     setupClientAuthUser();
                 }
-            }
-
-            if (request.isClone()) {
-                configureCloneRefresh(request);
             }
 
         } catch (Exception e) {
@@ -179,10 +173,5 @@ public class OCSPConfigurator extends Configurator {
             logger.error("OCSPConfigurator: Unable to update OCSP configuration: " + error);
             throw new IOException(error);
         }
-    }
-
-    public void configureCloneRefresh(FinalizeConfigRequest request) {
-        //Set well know default value for OCSP clone
-        cs.putInteger("ocsp.store.defStore.refreshInSec", DEF_REFRESH_IN_SECS_FOR_CLONE);
     }
 }

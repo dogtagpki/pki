@@ -297,6 +297,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.config['preop.cert.signing.type'] = 'remote'
                 subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
 
+        # configure OCSP
+        if subsystem.type == 'OCSP':
+            if clone:
+                subsystem.config['ocsp.store.defStore.refreshInSec'] = '14400'
+
         # configure TPS
         if subsystem.type == 'TPS':
             subsystem.config['auths.instance.ldap1.ldap.basedn'] = \
