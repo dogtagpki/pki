@@ -17,15 +17,24 @@
 //--- END COPYRIGHT BLOCK ---
 package org.dogtagpki.ca;
 
+import java.io.ByteArrayInputStream;
+import java.security.cert.X509Certificate;
+
 import javax.ws.rs.core.Response;
 
+import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * @author Endi S. Dewata
@@ -71,6 +80,37 @@ public class CASystemCertClient extends Client {
         }
 
         return certData;
+    }
+
+    public CertData getSubsystemCert() throws Exception {
+
+        String c = client.get("/ca/admin/ca/getSubsystemCert", String.class);
+
+        if (c == null) {
+            throw new Exception("Unable to get subsystem certificate: No response");
+        }
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        XMLObject parser = new XMLObject(bis);
+        String status = parser.getValue("Status");
+
+        if ("2".equals(status)) {
+            throw new Exception("Unable to get subsystem certificate: Authentication error");
+
+        } else if (!"0".equals(status)) {
+            throw new Exception("Unable to get subsystem certificate: Internal server error");
+        }
+
+        String b64 = parser.getValue("Cert");
+        X509CertImpl cert = new X509CertImpl(Utils.base64decode(b64));
+
+        PKCS7 pkcs7 = new PKCS7(
+                new AlgorithmId[0],
+                new ContentInfo(new byte[0]),
+                new X509Certificate[] { cert },
+                new SignerInfo[0]);
+
+        return CertData.fromCertChain(pkcs7);
     }
 
     public CertData getTransportCert() throws Exception {
