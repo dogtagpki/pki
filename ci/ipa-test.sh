@@ -65,7 +65,9 @@ ipa-run-tests \
 --verbose \
 ${cert_test_file_loc} 2>&1
 
-ipa-healthcheck --debug
+# TODO: Re-enable ipa-healthcheck test once the following issue is fixed.
+# https://github.com/freeipa/freeipa-healthcheck/issues/163
+#ipa-healthcheck --debug
 
 echo "Test complete"
 
