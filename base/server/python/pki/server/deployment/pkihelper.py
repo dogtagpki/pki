@@ -857,7 +857,7 @@ class Instance:
 
         """
 
-        fips_mode = not pki.FIPS.is_enabled()
+        fips_mode = pki.FIPS.is_enabled()
         logger.info('FIPS mode: %s', fips_mode)
 
         # must use 'http' protocol when FIPS mode is enabled
