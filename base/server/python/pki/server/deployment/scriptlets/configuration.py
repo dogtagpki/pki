@@ -989,6 +989,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             system_certs[tag]['request'] = cert['request']
             system_certs[tag]['token'] = cert['token']
 
+        if subsystem.type == 'CA':
+
+            ca_host = deployer.mdict['pki_hostname']
+            ca_port = securePort
+            uid = 'CA-%s-%s' % (ca_host, ca_port)
+            logger.info('Adding %s into Subsystem Group', uid)
+            subsystem.add_group_member('Subsystem Group', uid)
+
         if not clone:
             logger.info('Setting up admin user')
             deployer.setup_admin(subsystem, client)
@@ -1100,6 +1108,24 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if not clone:
                 logger.info('Updating KRA ranges')
                 subsystem.update_ranges()
+
+            ca_host = subsystem.config.get('preop.ca.hostname')
+
+            if not clone and not standalone and ca_host:
+                ca_port = subsystem.config.get('preop.ca.httpsadminport')
+                uid = 'CA-%s-%s' % (ca_host, ca_port)
+                logger.info('Adding %s into Trusted Managers', uid)
+                subsystem.add_group_member('Trusted Managers', uid)
+
+        if subsystem.type == 'OCSP':
+
+            ca_host = subsystem.config.get('preop.ca.hostname')
+
+            if not clone and not standalone and ca_host:
+                ca_port = subsystem.config.get('preop.ca.httpsadminport')
+                uid = 'CA-%s-%s' % (ca_host, ca_port)
+                logger.info('Adding %s into Trusted Managers', uid)
+                subsystem.add_group_member('Trusted Managers', uid)
 
         if subsystem.type == 'TPS':
             logger.info('Setting up shared secret')

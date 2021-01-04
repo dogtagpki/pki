@@ -81,7 +81,6 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -925,9 +924,8 @@ public class Configurator {
         String securePort = cs.getString("service.securePort", "");
 
         String id = sysType + "-" + machineName + "-" + securePort;
-        String groupName = "Subsystem Group";
 
-        setupUser(id, cert, groupName);
+        setupUser(id, cert);
     }
 
     public void setupClientAuthUser() throws Exception {
@@ -952,12 +950,11 @@ public class Configurator {
         X509CertImpl cert = new X509CertImpl(leafCert.getEncoded());
 
         String id = "CA-" + host + "-" + port;
-        String groupName = "Trusted Managers";
 
-        setupUser(id, cert, groupName);
+        setupUser(id, cert);
     }
 
-    public void setupUser(String id, X509CertImpl cert, String groupName) throws Exception {
+    public void setupUser(String id, X509CertImpl cert) throws Exception {
 
         UGSubsystem system = engine.getUGSubsystem();
 
@@ -987,14 +984,6 @@ public class Configurator {
         } catch (ConflictingOperationException e) {
             // ignore exception
             logger.warn("Configurator: User certificate already exists: " + cert.getSubjectDN());
-        }
-
-        Group group = system.getGroupFromName(groupName);
-
-        if (!group.isMember(id)) {
-            logger.info("Configurator: Adding user to group: " + groupName);
-            group.addMemberName(id);
-            system.modifyGroup(group);
         }
     }
 
