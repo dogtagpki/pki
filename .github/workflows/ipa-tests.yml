@@ -3,112 +3,93 @@ name: IPA Tests
 on: [push, pull_request]
 
 jobs:
-    # "Build" job
-    build:
-      # This job tries to build PKI from src on a fresh docker container.
-      # The docker container is spawned by github itself and we merely just
-      # run the build commands. We then upload the artifact for consumption
-      # by the test jobs + for the public to consume. This job **does not**
-      # upload any build logs as they are visible in the log console itself.
+  # docs/development/Building_PKI.md
+  build:
+    name: Building PKI
+    runs-on: ubuntu-latest
+    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Install git
+        run: dnf install -y git
 
-      name: Build PKI
-      runs-on: ubuntu-latest
-      container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-      strategy:
-          matrix:
-            os: ['32', '33']
-      steps:
-          - name: Install git
-            run: dnf install -y git
+      - name: Clone the repository
+        uses: actions/checkout@v2
 
-          - name: Clone the repository
-            uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          dnf install -y dnf-plugins-core rpm-build
+          dnf copr enable -y @pki/master
+          dnf builddep -y --allowerasing --spec ./pki.spec
 
-          - name: Install PKI build deps
-            run: |
-              dnf install -y dnf-plugins-core rpm-build
-              dnf copr enable -y @pki/master
-              dnf builddep -y --allowerasing --spec ./pki.spec
+      - name: Build PKI packages
+        run: ./build.sh --with-pkgs=base,server,acme,ca,kra --with-timestamp --with-commit-id --work-dir=build rpm
 
-          - name: Build PKI packages required by IPA
-            run: ./build.sh --with-pkgs=base,server,acme,ca,kra --with-timestamp --with-commit-id --work-dir=../packages rpm
+      - name: Upload PKI packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS/
 
-          - name: Compress RPMS
-            run: tar -czf pki-rpms.tar.gz ../packages/RPMS/*
+  ipa-tests:
+    name: Testing IPA
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      LOGS: ${GITHUB_WORKSPACE}/logs.txt
+      COPR_REPO: "@pki/master"
+      test_set: "test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_ca_plugin.py test_vault_plugin.py"
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
 
-          - name: Upload RPM artifacts
-            uses: actions/upload-artifact@v1
-            with:
-              name: pki-build-${{ matrix.os }}
-              path: pki-rpms.tar.gz
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
 
-    ipa-tests:
-      # This job depends on the 'build' job and waits till it completes.
-      # This job needs container to be started manually, as Github provided
-      # container **does not** use /usr/bin/init as its ENTRYPOINT.
-      name: Test IPA
-      needs: build
-      runs-on: ubuntu-latest
-      env:
-        BUILDDIR: /tmp/workdir
-        PKIDIR: /tmp/workdir/pki
-        LOGS: ${GITHUB_WORKSPACE}/logs.txt
-        COPR_REPO: "@pki/master"
-        test_set: "test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_ca_plugin.py test_vault_plugin.py"
-      strategy:
-        matrix:
-          os: ['32', '33']
-      steps:
-        - name: Clone the repository
-          uses: actions/checkout@v2
+      - name: Build container image with systemd
+        run: docker build ci -t ipa --build-arg OS_VERSION=${{ matrix.os }}
 
-        - name: Download PKI binaries from Build job
-          uses: actions/download-artifact@v1
-          with:
-            name: pki-build-${{ matrix.os }}
+      - name: Run container
+        run: |
+          IMAGE=ipa \
+          NAME=ipa \
+          HOSTNAME=ipa.example.com \
+          ci/runner-init.sh
 
-        - name: Build IPA container image with systemd
-          run: docker build ci/ -t ipa-fedora-${{ matrix.os }} --build-arg OS_VERSION=${{ matrix.os }}
+      - name: Install dependencies
+        run: |
+          docker exec ipa dnf install -y findutils dnf-plugins-core
+          docker exec ipa dnf copr enable -y @freeipa/freeipa-master-nightly
+          docker exec ipa dnf copr enable -y ${COPR_REPO}
 
-        - name: Run IPA container
-          run: |
-            IMAGE=ipa-fedora-${{ matrix.os }} \
-            NAME=ipa \
-            HOSTNAME=ipa.example.com \
-            ci/runner-init.sh
+      - name: Install IPA packages
+        run: docker exec ipa dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests freeipa-healthcheck
 
-        - name: Extract tar.gz for rpms
-          run: tar -xzf pki-build-${{ matrix.os }}/pki-rpms.tar.gz
+      - name: Install PKI packages
+        run: docker exec ipa bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
 
-        - name: Install required packages
-          run: docker exec ipa dnf install -y  findutils dnf-plugins-core
+      - name: Run IPA tests
+        run: docker exec ipa ${PKIDIR}/ci/ipa-test.sh
 
-        - name: Enable freeipa nightly COPR
-          run: docker exec ipa dnf copr enable -y @freeipa/freeipa-master-nightly
+      - name: Gather log files
+        if: always()
+        run: |
+          docker exec ipa bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
+          docker exec ipa bash -c "tar cvf ${PKIDIR}/ipa-logs.tar /var/log/ipa* /var/log/pki*"
 
-        - name: Enable PKI COPR repo
-          run: docker exec ipa dnf copr enable -y ${COPR_REPO}
-
-        - name: Install FreeIPA packages
-          run: docker exec ipa dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests freeipa-healthcheck
-
-        - name: Install newly built PKI packages
-          run: docker exec ipa bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
-
-        - name: Run IPA tests
-          run: docker exec ipa ${PKIDIR}/ci/ipa-test.sh
-
-        - name: Extract PKI related journalctl logs
-          if: always()
-          run: docker exec ipa bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
-
-        - name: Compress PKI and IPA related logs
-          if: always()
-          run: docker exec ipa bash -c "tar -czf ${PKIDIR}/ipa-logs.tar.gz /var/log/ipa* /var/log/pki*"
-
-        - name: Upload compressed log
-          if: always()
-          uses: actions/upload-artifact@v2
-          with:
-            name: ipa-logs-${{ matrix.os }}
-            path: ipa-logs.tar.gz
+      - name: Upload log files
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipa-logs-${{ matrix.os }}
+          path: ipa-logs.tar
