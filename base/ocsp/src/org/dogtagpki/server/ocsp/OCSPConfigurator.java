@@ -70,8 +70,6 @@ public class OCSPConfigurator extends Configurator {
                     if (!request.isClone()) {
                         updateOCSPConfiguration(request);
                     }
-
-                    setupClientAuthUser();
                 }
             }
 

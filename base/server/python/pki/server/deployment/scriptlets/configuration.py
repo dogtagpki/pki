@@ -995,6 +995,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             ca_port = securePort
             uid = 'CA-%s-%s' % (ca_host, ca_port)
 
+            logger.info('Adding %s', uid)
+            subsystem.add_user(
+                uid,
+                full_name=uid,
+                user_type='agentType',
+                state='1')
+
             logger.info('Adding subsystem certificate into %s', uid)
             subsystem_cert_data = pki.nssdb.convert_cert(
                 system_certs['subsystem']['data'],
@@ -1127,6 +1134,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 ca_url = 'https://%s:%s' % (ca_host, ca_port)
                 uid = 'CA-%s-%s' % (ca_host, ca_port)
 
+                logger.info('Adding %s', uid)
+                subsystem.add_user(
+                    uid,
+                    full_name=uid,
+                    user_type='agentType',
+                    state='1')
+
                 logger.info('Getting subsystem certificate from %s', ca_url)
                 subsystem_cert_data = deployer.get_subsystem_cert(instance, ca_url)
 
@@ -1144,6 +1158,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 ca_port = subsystem.config.get('preop.ca.httpsadminport')
                 ca_url = 'https://%s:%s' % (ca_host, ca_port)
                 uid = 'CA-%s-%s' % (ca_host, ca_port)
+
+                logger.info('Adding %s', uid)
+                subsystem.add_user(
+                    uid,
+                    full_name=uid,
+                    user_type='agentType',
+                    state='1')
 
                 logger.info('Getting subsystem certificate from %s', ca_url)
                 subsystem_cert_data = deployer.get_subsystem_cert(instance, ca_url)

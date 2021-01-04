@@ -261,11 +261,6 @@ public class CAConfigurator extends Configurator {
             certImpl = createLocalCert(tag, keyPair, certType, profileID, certreq, dnsNames);
         }
 
-        if (tag.equals("subsystem")) {
-            logger.debug("CAConfigurator: creating subsystem user");
-            setupSubsystemUser();
-        }
-
         return certImpl;
     }
 

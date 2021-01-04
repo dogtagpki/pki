@@ -57,7 +57,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.authentication.EAuthException;
-import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.PKIException;
@@ -77,8 +76,6 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmscore.usrgrp.UGSubsystem;
-import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -911,50 +908,6 @@ public class Configurator {
         b64 = CryptoUtil.stripCertBrackets(b64.trim());
         byte[] bytes = CryptoUtil.base64Decode(b64);
         return new X509CertImpl(bytes);
-    }
-
-    public void setupSubsystemUser() throws Exception {
-
-        String sysType = cs.getType();
-        String machineName = cs.getHostname();
-        String securePort = cs.getString("service.securePort", "");
-
-        String id = sysType + "-" + machineName + "-" + securePort;
-
-        setupUser(id);
-    }
-
-    public void setupClientAuthUser() throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String host = preopConfig.getString("ca.hostname");
-        int port = preopConfig.getInteger("ca.httpsadminport");
-
-        String id = "CA-" + host + "-" + port;
-
-        setupUser(id);
-    }
-
-    public void setupUser(String id) throws Exception {
-
-        UGSubsystem system = engine.getUGSubsystem();
-
-        User user = system.createUser(id);
-        user.setFullName(id);
-        user.setEmail("");
-        user.setPassword("");
-        user.setUserType("agentType");
-        user.setState("1");
-        user.setPhone("");
-
-        try {
-            logger.info("Configurator: Adding user: " + id);
-            system.addUser(user);
-        } catch (ConflictingOperationException e) {
-            // ignore exception
-            logger.warn("Configurator: User already exists: " + id);
-        }
     }
 
     public void registerUser(

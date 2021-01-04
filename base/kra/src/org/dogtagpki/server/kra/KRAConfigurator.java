@@ -48,7 +48,6 @@ public class KRAConfigurator extends Configurator {
             // need to push connector information to the CA
             if (!request.getStandAlone() && !ca_host.equals("")) {
                 configureKRAConnector(request);
-                setupClientAuthUser();
             }
 
         } catch (Exception e) {
