@@ -793,7 +793,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if not (subsystem.type == 'CA' and hierarchy == 'Root'):
 
-            if external or standalone:
+            if external and subsystem.type == 'CA' or \
+                    standalone and subsystem.type in ['KRA', 'OCSP']:
                 subsystem.config['preop.ca.pkcs7'] = ''
 
             elif not clone and not system_certs_imported:
