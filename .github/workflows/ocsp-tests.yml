@@ -127,3 +127,203 @@ jobs:
         with:
           name: pki-logs-${{ matrix.os }}
           path: pki-logs.tar
+
+  # docs/installation/ocsp/Installing_OCSP_with_External_Certificates.md
+  ocsp-external-certs-test:
+    name: Installing OCSP with External Certificates
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      LOGS: ${GITHUB_WORKSPACE}/logs.txt
+      COPR_REPO: "@pki/master"
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Build container with systemd
+        run: docker build ci -t pki --build-arg OS_VERSION=${{ matrix.os }}
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Setup CA container
+        run: |
+          IMAGE=pki \
+          NAME=ca \
+          HOSTNAME=ca.example.com \
+          ci/runner-init.sh
+
+      - name: Connect CA container to network
+        run: docker network connect example ca --alias ca.example.com
+
+      - name: Install dependencies in CA container
+        run: |
+          docker exec ca dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec ca dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages in CA container
+        run: docker exec ca bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS in CA container
+        run: docker exec ca ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install CA in CA container
+        run: docker exec ca pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+
+      - name: Initialize CA admin in CA container
+        run: |
+          docker exec ca pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
+          docker exec ca pki client-cert-import ca_signing --ca-cert ${PKIDIR}/ca_signing.crt
+          docker exec ca pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+
+      - name: Setup OCSP container
+        run: |
+          IMAGE=pki \
+          NAME=ocsp \
+          HOSTNAME=ocsp.example.com \
+          ci/runner-init.sh
+
+      - name: Connect OCSP container to network
+        run: docker network connect example ocsp --alias ocsp.example.com
+
+      - name: Install dependencies in OCSP container
+        run: |
+          docker exec ocsp dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec ocsp dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages in OCSP container
+        run: docker exec ocsp bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS in OCSP container
+        run: docker exec ocsp ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install OCSP in OCSP container (step 1)
+        run: |
+          docker exec ocsp cp ${PKIDIR}/ca_signing.crt .
+          docker exec ocsp pkispawn -f /usr/share/pki/server/examples/installation/ocsp-external-certs-step1.cfg -s OCSP -v
+
+      - name: Issue OCSP signing cert
+        run: |
+          docker exec ocsp cp ocsp_signing.csr ${PKIDIR}/ocsp_signing.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caOCSPCert --csr-file ${PKIDIR}/ocsp_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/ocsp_signing.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat ocsp_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/ocsp_signing.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat ocsp_signing.certid` --output-file ${PKIDIR}/ocsp_signing.crt"
+          docker exec ocsp cp ${PKIDIR}/ocsp_signing.crt ocsp_signing.crt
+
+      - name: Issue subsystem cert
+        run: |
+          docker exec ocsp cp subsystem.csr ${PKIDIR}/subsystem.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${PKIDIR}/subsystem.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/subsystem.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat subsystem.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/subsystem.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat subsystem.certid` --output-file ${PKIDIR}/subsystem.crt"
+          docker exec ocsp cp ${PKIDIR}/subsystem.crt subsystem.crt
+
+      - name: Issue SSL server cert
+        run: |
+          docker exec ocsp cp sslserver.csr ${PKIDIR}/sslserver.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caServerCert --csr-file ${PKIDIR}/sslserver.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/sslserver.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat sslserver.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/sslserver.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat sslserver.certid` --output-file ${PKIDIR}/sslserver.crt"
+          docker exec ocsp cp ${PKIDIR}/sslserver.crt sslserver.crt
+
+      - name: Issue OCSP audit signing cert
+        run: |
+          docker exec ocsp cp ocsp_audit_signing.csr ${PKIDIR}/ocsp_audit_signing.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${PKIDIR}/ocsp_audit_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/ocsp_audit_signing.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat ocsp_audit_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/ocsp_audit_signing.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat ocsp_audit_signing.certid` --output-file ${PKIDIR}/ocsp_audit_signing.crt"
+          docker exec ocsp cp ${PKIDIR}/ocsp_audit_signing.crt ocsp_audit_signing.crt
+
+      - name: Issue OCSP admin cert
+        run: |
+          docker exec ocsp cp ocsp_admin.csr ${PKIDIR}/ocsp_admin.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caUserCert --csr-file ${PKIDIR}/ocsp_admin.csr --subject uid=ocspadmin | sed -n 's/Request ID: *\(.*\)/\1/p' > ${PKIDIR}/ocsp_admin.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat ocsp_admin.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${PKIDIR}/ocsp_admin.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat ocsp_admin.certid` --output-file ${PKIDIR}/ocsp_admin.crt"
+          docker exec ocsp cp ${PKIDIR}/ocsp_admin.crt ocsp_admin.crt
+
+      - name: Install OCSP in OCSP container (step 2)
+        run: |
+          docker exec ocsp pkispawn -f /usr/share/pki/server/examples/installation/ocsp-external-certs-step2.cfg -s OCSP -v
+
+      - name: Gather config files from OCSP container
+        if: always()
+        run: docker exec ocsp tar cvf ${PKIDIR}/ocsp-external-certs-conf.tar -C / etc/pki
+
+      - name: Upload config files from OCSP container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ocsp-external-certs-conf-${{ matrix.os }}
+          path: ocsp-external-certs-conf.tar
+
+      - name: Run PKI healthcheck
+        run: docker exec ocsp pki-healthcheck --debug
+
+      - name: Verify OCSP admin
+        run: |
+          docker exec ocsp pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec ocsp pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ocsp_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/ocsp/pkcs12_password.conf
+          docker exec ocsp pki -n ocspadmin ocsp-user-show ocspadmin
+
+      - name: Remove OCSP from OCSP container
+        run: docker exec ocsp pkidestroy -i pki-tomcat -s OCSP -v
+
+      - name: Remove DS from OCSP container
+        run: docker exec ocsp ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Disconnect OCSP container from network
+        run: docker network disconnect example ocsp
+
+      - name: Gather log files from OCSP container
+        if: always()
+        run: |
+          docker exec ocsp bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec ocsp tar cvf ${PKIDIR}/ocsp-external-certs-logs.tar -C / var/log/pki
+
+      - name: Upload log files from OCSP container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ocsp-external-certs-logs-${{ matrix.os }}
+          path: ocsp-external-certs-logs.tar
+
+      - name: Remove CA from CA container
+        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS from CA container
+        run: docker exec ca ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Disconnect CA container from network
+        run: docker network disconnect example ca
+
+      - name: Gather log files from CA container
+        if: always()
+        run: |
+          docker exec ca bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec ca tar cvf ${PKIDIR}/ca-external-certs-logs.tar -C / var/log/pki
+
+      - name: Upload log files from CA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ca-external-certs-logs-${{ matrix.os }}
+          path: ca-external-certs-logs.tar
+
+      - name: Remove network
+        run: docker network rm example
