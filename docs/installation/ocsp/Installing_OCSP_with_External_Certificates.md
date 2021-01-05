@@ -9,50 +9,16 @@ This page describes the process to install a OCSP subsystem with external certif
 Starting OCSP Subsystem Installation
 ------------------------------------
 
-Prepare a file (e.g. ocsp-step1.cfg) that contains the deployment configuration step 1, for example:
+Prepare a file (e.g. ocsp-external-certs-step1.cfg) that contains the first deployment configuration.
 
-```
-[DEFAULT]
-pki_server_database_password=Secret.123
-
-[OCSP]
-pki_admin_email=ocspadmin@example.com
-pki_admin_name=ocspadmin
-pki_admin_nickname=ocspadmin
-pki_admin_password=Secret.123
-pki_admin_uid=ocspadmin
-
-pki_client_database_password=Secret.123
-pki_client_database_purge=False
-pki_client_pkcs12_password=Secret.123
-
-pki_ds_base_dn=dc=ocsp,dc=pki,dc=example,dc=com
-pki_ds_database=ocsp
-pki_ds_password=Secret.123
-
-pki_security_domain_name=EXAMPLE
-pki_security_domain_user=caadmin
-pki_security_domain_password=Secret.123
-
-pki_ocsp_signing_nickname=ocsp_signing
-pki_subsystem_nickname=subsystem
-pki_sslserver_nickname=sslserver
-pki_audit_signing_nickname=ocsp_audit_signing
-
-pki_external=True
-pki_external_step_two=False
-
-pki_ocsp_signing_csr_path=ocsp_signing.csr
-pki_subsystem_csr_path=subsystem.csr
-pki_sslserver_csr_path=sslserver.csr
-pki_audit_signing_csr_path=ocsp_audit_signing.csr
-pki_admin_csr_path=ocsp_admin.csr
-```
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ocsp-external-certs-step1.cfg](../../../base/server/examples/installation/ocsp-external-certs-step1.cfg).
+It assumes that the CA is running at https://ca.example.com:8443,
+and the CA signing certificate has been exported into `ca_signing.crt`.
 
 Then execute the following command:
 
 ```
-$ pkispawn -f ocsp-step1.cfg -s OCSP
+$ pkispawn -f ocsp-external-certs-step1.cfg -s OCSP
 ```
 
 It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
@@ -78,9 +44,8 @@ Store the external CA certificate chain in a file (e.g. ca_signing.crt). The cer
 Finishing OCSP Subsystem Installation
 -------------------------------------
 
-Prepare another file (e.g. ocsp-step2.cfg) that contains the deployment configuration step 2. The file can be copied from step 1 (i.e. ocsp-step1.cfg) with additional changes below.
-
-Specify step 2 with the following parameter:
+Prepare another file (e.g. ocsp-external-certs-step2.cfg) that contains the second deployment configuration.
+The file can be created from the first file (i.e. ocsp-external-certs-step1.cfg) with the following changes:
 
 ```
 pki_external_step_two=True
@@ -103,10 +68,12 @@ pki_cert_chain_nickname=ca_signing
 pki_cert_chain_path=ca_signing.crt
 ```
 
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ocsp-external-certs-step2.cfg](../../../base/server/examples/installation/ocsp-external-certs-step2.cfg).
+
 Finally, execute the following command:
 
 ```
-$ pkispawn -f ocsp-step2.cfg -s OCSP
+$ pkispawn -f ocsp-external-certs-step2.cfg -s OCSP
 ```
 
 Verifying System Certificates
