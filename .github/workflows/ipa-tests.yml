@@ -93,3 +93,167 @@ jobs:
         with:
           name: ipa-logs-${{ matrix.os }}
           path: ipa-logs.tar
+
+  ipa-clone-test:
+    name: Installing IPA Clone
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      LOGS: ${GITHUB_WORKSPACE}/logs.txt
+      COPR_REPO: "@pki/master"
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Build container with systemd
+        run: docker build ci -t ipa --build-arg OS_VERSION=${{ matrix.os }}
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Run primary container
+        run: |
+          IMAGE=ipa \
+          NAME=primary \
+          HOSTNAME=primary.example.com \
+          ci/runner-init.sh
+
+      - name: Connect primary container to network
+        run: docker network connect example primary --alias primary.example.com
+
+      - name: Install dependencies in primary container
+        run: |
+          docker exec primary dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec primary dnf copr enable -y ${COPR_REPO}
+
+      - name: Install IPA packages in primary container
+        run: docker exec primary dnf install -y freeipa-server
+
+      - name: Install PKI packages in primary container
+        run: docker exec primary bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install IPA server in primary container
+        run: |
+          docker exec primary sysctl net.ipv6.conf.lo.disable_ipv6=0
+          docker exec primary ipa-server-install \
+            -U \
+            --domain example.com \
+            -r EXAMPLE.COM \
+            -p Secret.123 \
+            -a Secret.123 \
+            --setup-kra
+          docker exec primary bash -c "echo Secret.123 | kinit admin"
+          docker exec primary klist
+
+      - name: Gather config files from primary container
+        if: always()
+        run: docker exec primary tar cvf ${PKIDIR}/ipa-primary-conf.tar -C / etc/pki
+
+      - name: Upload config files from primary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipa-primary-conf-${{ matrix.os }}
+          path: ipa-primary-conf.tar
+
+      - name: Run replica container
+        run: |
+          IMAGE=ipa \
+          NAME=replica \
+          HOSTNAME=replica.example.com \
+          ci/runner-init.sh
+
+      - name: Connect replica container to network
+        run: docker network connect example replica --alias replica.example.com
+
+      - name: Install dependencies in replica container
+        run: |
+          docker exec replica dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec replica dnf copr enable -y ${COPR_REPO}
+
+      - name: Install IPA packages in replica container
+        run: docker exec replica dnf install -y freeipa-server
+
+      - name: Install PKI packages in replica container
+        run: docker exec replica bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install IPA client in replica container
+        run: |
+          docker exec replica sysctl net.ipv6.conf.lo.disable_ipv6=0
+          docker exec replica ipa-client-install \
+            -U \
+            --server=primary.example.com \
+            --domain=example.com \
+            --realm=EXAMPLE.COM \
+            -p admin \
+            -w Secret.123
+          docker exec replica bash -c "echo Secret.123 | kinit admin"
+          docker exec replica klist
+
+      - name: Promote IPA client into IPA replica in replica container
+        run: docker exec replica ipa-replica-install --setup-ca --setup-kra
+
+      - name: Gather config files from replica container
+        if: always()
+        run: docker exec replica tar cvf ${PKIDIR}/ipa-replica-conf.tar -C / etc/pki
+
+      - name: Upload config files from replica container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipa-replica-conf-${{ matrix.os }}
+          path: ipa-replica-conf.tar
+
+      - name: Verify CA admin
+        run: |
+          docker exec primary cp /root/ca-agent.p12 ${PKIDIR}/ca-agent.p12
+          docker exec replica pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec replica pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec replica pki client-cert-import --pkcs12 ${PKIDIR}/ca-agent.p12 --pkcs12-password Secret.123
+          docker exec replica pki -n ipa-ca-agent ca-user-show admin
+
+      - name: Disconnect replica container from network
+        run: docker network disconnect example replica
+
+      - name: Gather log files from replica container
+        if: always()
+        run: |
+          docker exec replica bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec replica tar cvf ${PKIDIR}/ipa-replica-logs.tar -C / var/log/pki
+
+      - name: Upload log files from replica container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipa-replica-logs-${{ matrix.os }}
+          path: ipa-replica-logs.tar
+
+      - name: Disconnect primary container from network
+        run: docker network disconnect example primary
+
+      - name: Remove network
+        run: docker network rm example
+
+      - name: Gather log files from primary container
+        if: always()
+        run: |
+          docker exec primary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec primary tar cvf ${PKIDIR}/ipa-primary-logs.tar -C / var/log/pki
+
+      - name: Upload log files from primary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipa-primary-logs-${{ matrix.os }}
+          path: ipa-primary-logs.tar
