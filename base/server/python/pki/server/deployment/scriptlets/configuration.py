@@ -1218,16 +1218,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # earlier in external/standalone installation.
 
             if not (standalone or external and subsystem.name in ['kra', 'ocsp']):
-
-                nickname = system_certs['sslserver']['nickname']
-                token = pki.nssdb.normalize_token(system_certs['sslserver']['token'])
-
-                if not token:
-                    token = deployer.mdict['pki_token_name']
-
-                instance.set_sslserver_cert_nickname(nickname, token)
-
                 self.import_perm_sslserver_cert(deployer, instance, system_certs['sslserver'])
+
+            # Store perm SSL server cert nickname and token
+            nickname = system_certs['sslserver']['nickname']
+            token = pki.nssdb.normalize_token(system_certs['sslserver']['token'])
+
+            if not token:
+                token = deployer.mdict['pki_token_name']
+
+            instance.set_sslserver_cert_nickname(nickname, token)
 
             logger.info('Starting server')
             instance.start()
