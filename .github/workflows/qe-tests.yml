@@ -28,7 +28,7 @@ jobs:
             run: |
               dnf install -y dnf-plugins-core rpm-build
               dnf copr enable -y @pki/master
-              dnf builddep -y --allowerasing --spec ./pki.spec
+              dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
 
           - name: Build PKI packages
             run: ./build.sh --with-timestamp --with-commit-id --work-dir=../packages rpm
