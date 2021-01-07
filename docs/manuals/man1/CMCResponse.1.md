@@ -22,7 +22,7 @@ In addition, it can optionally output the response in PKCS#7 PEM format for furt
 The following are supported options.
 
 **-d** *path*  
-    Path of directory to the NSS database. This option is required.
+    Path of directory to the NSS database. Defaults to '.' (the current directory).
 
 **-i** *path*  
     Name of file (could include path) for the CMC issuance or revocation response. This option is required.
