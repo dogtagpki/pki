@@ -212,7 +212,7 @@ public class CRMFPopClient {
         System.out.println("  -k <true|false>              Attribute value encoding in subject DN (default: false)");
         System.out.println("                               - true: enabled");
         System.out.println("                               - false: disabled");
-        System.out.println("  -y <true|false>              Add SubjectKeyIdentifier extension in case of CMC SharedSecret requests (default: false); To be used with 'request.useSharedSecret=true' when running CMCRequest.");
+        System.out.println("  -y                           Add SubjectKeyIdentifier extension in case of CMC SharedSecret requests (default: false when not specified); To be used with 'request.useSharedSecret=true' when running CMCRequest.");
         System.out.println("                               - true: enabled");
         System.out.println("                               - false: disabled");
         System.out.println("  -a <rsa|ec>                  Key algorithm (default: rsa)");
