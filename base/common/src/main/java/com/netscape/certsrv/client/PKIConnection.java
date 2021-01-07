@@ -33,7 +33,6 @@ import java.util.List;
 
 import javax.ws.rs.client.WebTarget;
 
-import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -288,8 +287,7 @@ public class PKIConnection {
                 InetSocketAddress localAddress,
                 HttpParams params)
                 throws IOException,
-                UnknownHostException,
-                ConnectTimeoutException {
+                UnknownHostException {
 
             // Make sure certificate database is already initialized,
             // otherwise SSLSocket will throw UnsatisfiedLinkError.
