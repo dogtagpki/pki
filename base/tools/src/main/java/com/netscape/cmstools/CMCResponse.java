@@ -335,7 +335,7 @@ public class CMCResponse {
 
     public static void main(String args[]) throws Exception {
 
-        Option option = new Option("d", true, "NSS database location");
+        Option option = new Option("d", true, "NSS database location (defaults to '.')");
         option.setArgName("path");
         options.addOption(option);
 
