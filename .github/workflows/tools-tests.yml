@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           dnf install -y dnf-plugins-core rpm-build
-          dnf copr enable -y @pki/master
+          dnf copr enable -y @pki/10.10
           dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
 
       - name: Build PKI packages
@@ -54,7 +54,7 @@ jobs:
       - name: Install PKI packages
         run: |
           dnf install -y dnf-plugins-core
-          dnf copr enable -y @pki/master
+          dnf copr enable -y @pki/10.10
           dnf -y localinstall build/RPMS/*
 
       - name: Run PKICertImport test

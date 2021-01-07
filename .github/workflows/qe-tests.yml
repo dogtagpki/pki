@@ -27,7 +27,7 @@ jobs:
           - name: Install PKI build deps
             run: |
               dnf install -y dnf-plugins-core rpm-build
-              dnf copr enable -y @pki/master
+              dnf copr enable -y @pki/10.10
               dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
 
           - name: Build PKI packages
@@ -53,7 +53,7 @@ jobs:
         BUILDDIR: /tmp/workdir
         PKIDIR: /tmp/workdir/pki
         LOGS: ${GITHUB_WORKSPACE}/logs.txt
-        COPR_REPO: "@pki/master"
+        COPR_REPO: "@pki/10.10"
         HOSTFILE: /tmp/hostfile
         CONTROLLER_IP: "192.168.33.10"
         MASTER_IP: "192.168.33.20"
