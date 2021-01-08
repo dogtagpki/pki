@@ -25,29 +25,29 @@ Exporting Existing System Certificates
 Export the existing system certificates (including the certificate chain) into a PKCS #12 file, for example:
 
 ```
-$ pki-server ca-clone-prepare --pkcs12-file master-ca-certs.p12 --pkcs12-password Secret.123
+$ pki-server ca-clone-prepare --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123
 ```
 
 If necessary, third-party certificates (e.g. trust anchors) can be added into the same PKCS #12 file with the following command:
 
 ```
 $ pki -d /etc/pki/pki-tomcat/alias -f /etc/pki/pki-tomcat/password.conf \
-    pkcs12-cert-import <nickname> --pkcs12-file master-ca-certs.p12 --pkcs12-password Secret.123 --append
+    pkcs12-cert-import <nickname> --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 --append
 ```
 
 Set SELinux permissions
 -----------------------
-After copying the `master-ca-certs.p12` to the clone machine, ensure that appropriate SELinux rules are added:
+After copying the `ca-certs.p12` to the clone machine, ensure that appropriate SELinux rules are added:
 
 ````
-$ semanage fcontext -a -t pki_tomcat_cert_t master-ca-certs.p12
-$ restorecon -R -v master-ca-certs.p12
+$ semanage fcontext -a -t pki_tomcat_cert_t ca-certs.p12
+$ restorecon -R -v ca-certs.p12
 ````
 
-Also, make sure the `master-ca-certs.p12` file is owned by the `pkiuser`
+Also, make sure the `ca-certs.p12` file is owned by the `pkiuser`
 
 ````
-$ chown pkiuser:pkiuser master-ca-certs.p12
+$ chown pkiuser:pkiuser ca-certs.p12
 ````
 
 CA Subsystem Installation
@@ -56,10 +56,10 @@ CA Subsystem Installation
 Prepare a file (e.g. ca-clone.cfg) that contains the deployment configuration.
 
 A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ca-clone.cfg](../../../base/server/examples/installation/ca-clone.cfg).
-It assumes that the master CA is running at https://master.example.com:8443,
-the master CA signing certificate has been exported into `master-ca_signing.crt`,
-the master admin certificate and key have been exported into `master-ca_admin_cert.p12`,
-and the master admin PKCS #12 password file has been exported into `master-pkcs12_password.conf`.
+It assumes that the primary CA is running at https://primary.example.com:8443,
+the CA signing certificate has been exported into `ca_signing.crt`,
+the admin certificate and key have been exported into `ca_admin_cert.p12`,
+and the admin PKCS #12 password file has been exported into `pkcs12_password.conf`.
 
 Then execute the following command:
 
@@ -98,18 +98,18 @@ Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 $ pki client-init
 ```
 
-Import the master CA signing certificate:
+Import the CA signing certificate:
 
 ```
-$ pki client-cert-import ca_signing --ca-cert master-ca_signing.crt
+$ pki client-cert-import ca_signing --ca-cert ca_signing.crt
 ```
 
-Import the master CA's admin key and certificate:
+Import the admin key and certificate:
 
 ```
 $ pki client-cert-import \
-    --pkcs12 master-ca_admin_cert.p12 \
-    --pkcs12-password-file master-pkcs12_password.conf
+    --pkcs12 ca_admin_cert.p12 \
+    --pkcs12-password-file pkcs12_password.conf
 ```
 
 Verify that the admin certificate can be used to access the CA clone by executing the following command:
