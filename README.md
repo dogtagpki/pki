@@ -86,6 +86,7 @@ See also [Building PKI](docs/development/Building_PKI.md)
 | OCSP      | ![OCSP Tests](https://github.com/dogtagpki/pki/workflows/OCSP%20Tests/badge.svg)     |
 | TKS       | ![TKS Tests](https://github.com/dogtagpki/pki/workflows/TKS%20Tests/badge.svg)       |
 | TPS       | ![TPS Tests](https://github.com/dogtagpki/pki/workflows/TPS%20Tests/badge.svg)       |
+| ACME      | ![ACME Tests](https://github.com/dogtagpki/pki/workflows/ACME%20Tests/badge.svg)     |
 | Python    | ![Python Tests](https://github.com/dogtagpki/pki/workflows/Python%20Tests/badge.svg) |
 | Tools     | ![Python Tests](https://github.com/dogtagpki/pki/workflows/Tools%20Tests/badge.svg)  |
 | QE        | ![QE Tests](https://github.com/dogtagpki/pki/workflows/QE%20Tests/badge.svg)         |

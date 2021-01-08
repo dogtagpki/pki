@@ -11,3 +11,13 @@ sed \
     ds.tmp > ds.inf
 
 dscreate from-file ds.inf
+
+ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 << EOF
+dn: dc=example,dc=com
+objectClass: domain
+dc: example
+
+dn: dc=pki,dc=example,dc=com
+objectClass: domain
+dc: pki
+EOF
