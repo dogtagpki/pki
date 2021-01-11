@@ -45,29 +45,6 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def import_admin_cert(self, deployer):
-
-        cert_file = deployer.mdict.get('pki_admin_cert_path')
-        if not cert_file or not os.path.exists(cert_file):
-            return
-
-        nickname = deployer.mdict['pki_admin_nickname']
-
-        client_nssdb = pki.nssdb.NSSDatabase(
-            directory=deployer.mdict['pki_client_database_dir'],
-            password=deployer.mdict['pki_client_database_password'])
-
-        try:
-            logger.info('Importing admin certificate from %s', cert_file)
-
-            client_nssdb.import_cert_chain(
-                nickname=nickname,
-                cert_chain_file=cert_file,
-                trust_attributes=',,')
-
-        finally:
-            client_nssdb.close()
-
     def import_certs_and_keys(self, deployer, nssdb):
 
         pkcs12_file = deployer.mdict.get('pki_external_pkcs12_path')
@@ -106,13 +83,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             deployer.import_system_cert(nssdb, subsystem, 'storage')
             deployer.import_system_cert(nssdb, subsystem, 'transport')
-            self.import_admin_cert(deployer)
+            deployer.import_admin_cert()
 
         if subsystem.name == 'ocsp':
             deployer.import_ca_signing_cert(nssdb)
 
             deployer.import_system_cert(nssdb, subsystem, 'signing')
-            self.import_admin_cert(deployer)
+            deployer.import_admin_cert()
 
         sslserver = subsystem.get_subsystem_cert('sslserver')
         nickname = sslserver['nickname']

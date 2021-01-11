@@ -290,6 +290,29 @@ class PKIDeployer:
             token=token,
             trust_attributes=trust_attributes)
 
+    def import_admin_cert(self):
+
+        cert_file = self.mdict.get('pki_admin_cert_path')
+        if not cert_file or not os.path.exists(cert_file):
+            return
+
+        nickname = self.mdict['pki_admin_nickname']
+
+        client_nssdb = pki.nssdb.NSSDatabase(
+            directory=self.mdict['pki_client_database_dir'],
+            password=self.mdict['pki_client_database_password'])
+
+        try:
+            logger.info('Importing admin certificate from %s', cert_file)
+
+            client_nssdb.import_cert_chain(
+                nickname=nickname,
+                cert_chain_file=cert_file,
+                trust_attributes=',,')
+
+        finally:
+            client_nssdb.close()
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name
