@@ -261,6 +261,35 @@ class PKIDeployer:
             cert_chain_file=cert_file,
             trust_attributes='CT,C,C')
 
+    def import_system_cert(
+            self,
+            nssdb,
+            subsystem,
+            tag,
+            trust_attributes=None):
+
+        cert_id = self.get_cert_id(subsystem, tag)
+        param = 'pki_%s_cert_path' % cert_id
+        cert_file = self.mdict.get(param)
+
+        if not cert_file or not os.path.exists(cert_file):
+            return
+
+        logger.info('Importing %s certificate from %s', cert_id, cert_file)
+
+        cert = subsystem.get_subsystem_cert(tag)
+        nickname = cert['nickname']
+        token = pki.nssdb.normalize_token(cert['token'])
+
+        if not token:
+            token = self.mdict['pki_token_name']
+
+        nssdb.import_cert_chain(
+            nickname=nickname,
+            cert_chain_file=cert_file,
+            token=token,
+            trust_attributes=trust_attributes)
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name
