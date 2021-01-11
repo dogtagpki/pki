@@ -45,46 +45,6 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def import_system_certs(self, deployer, nssdb, subsystem):
-
-        if subsystem.name == 'ca':
-            deployer.import_system_cert(nssdb, subsystem, 'signing', 'CT,C,C')
-            deployer.import_system_cert(nssdb, subsystem, 'ocsp_signing')
-
-        if subsystem.name == 'kra':
-            deployer.import_ca_signing_cert(nssdb)
-
-            deployer.import_system_cert(nssdb, subsystem, 'storage')
-            deployer.import_system_cert(nssdb, subsystem, 'transport')
-            deployer.import_admin_cert()
-
-        if subsystem.name == 'ocsp':
-            deployer.import_ca_signing_cert(nssdb)
-
-            deployer.import_system_cert(nssdb, subsystem, 'signing')
-            deployer.import_admin_cert()
-
-        sslserver = subsystem.get_subsystem_cert('sslserver')
-        nickname = sslserver['nickname']
-        token = sslserver['token']
-        subsystem.instance.set_sslserver_cert_nickname(nickname, token)
-
-        deployer.import_system_cert(nssdb, subsystem, 'sslserver')
-        deployer.import_system_cert(nssdb, subsystem, 'subsystem')
-        deployer.import_system_cert(nssdb, subsystem, 'audit_signing', ',,P')
-
-        # If provided, import certs and keys from PKCS #12 file
-        # into NSS database.
-
-        deployer.import_certs_and_keys(nssdb)
-
-        # If provided, import cert chain into NSS database.
-        # Note: Cert chain must be imported after the system certs
-        # to ensure that the system certs are imported with
-        # the correct nicknames.
-
-        deployer.import_cert_chain(nssdb)
-
     def configure_system_cert(self, deployer, subsystem, tag):
 
         cert_id = deployer.get_cert_id(subsystem, tag)
@@ -489,7 +449,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if existing or (external or standalone) and step_two:
 
                 deployer.import_system_cert_requests(subsystem)
-                self.import_system_certs(deployer, nssdb, subsystem)
+                deployer.import_system_certs(nssdb, subsystem)
 
                 self.configure_system_certs(deployer, subsystem)
                 self.update_system_certs(deployer, nssdb, subsystem)

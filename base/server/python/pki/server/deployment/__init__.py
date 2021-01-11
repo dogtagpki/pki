@@ -340,6 +340,46 @@ class PKIDeployer:
             cert_chain_file=chain_file,
             trust_attributes='CT,C,C')
 
+    def import_system_certs(self, nssdb, subsystem):
+
+        if subsystem.name == 'ca':
+            self.import_system_cert(nssdb, subsystem, 'signing', 'CT,C,C')
+            self.import_system_cert(nssdb, subsystem, 'ocsp_signing')
+
+        if subsystem.name == 'kra':
+            self.import_ca_signing_cert(nssdb)
+
+            self.import_system_cert(nssdb, subsystem, 'storage')
+            self.import_system_cert(nssdb, subsystem, 'transport')
+            self.import_admin_cert()
+
+        if subsystem.name == 'ocsp':
+            self.import_ca_signing_cert(nssdb)
+
+            self.import_system_cert(nssdb, subsystem, 'signing')
+            self.import_admin_cert()
+
+        sslserver = subsystem.get_subsystem_cert('sslserver')
+        nickname = sslserver['nickname']
+        token = sslserver['token']
+        subsystem.instance.set_sslserver_cert_nickname(nickname, token)
+
+        self.import_system_cert(nssdb, subsystem, 'sslserver')
+        self.import_system_cert(nssdb, subsystem, 'subsystem')
+        self.import_system_cert(nssdb, subsystem, 'audit_signing', ',,P')
+
+        # If provided, import certs and keys from PKCS #12 file
+        # into NSS database.
+
+        self.import_certs_and_keys(nssdb)
+
+        # If provided, import cert chain into NSS database.
+        # Note: Cert chain must be imported after the system certs
+        # to ensure that the system certs are imported with
+        # the correct nicknames.
+
+        self.import_cert_chain(nssdb)
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name
