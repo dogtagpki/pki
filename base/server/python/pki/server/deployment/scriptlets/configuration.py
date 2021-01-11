@@ -45,23 +45,6 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def import_system_cert_requests(self, deployer, subsystem):
-
-        if subsystem.name == 'ca':
-            deployer.import_system_cert_request(subsystem, 'signing')
-            deployer.import_system_cert_request(subsystem, 'ocsp_signing')
-
-        if subsystem.name == 'kra':
-            deployer.import_system_cert_request(subsystem, 'storage')
-            deployer.import_system_cert_request(subsystem, 'transport')
-
-        if subsystem.name == 'ocsp':
-            deployer.import_system_cert_request(subsystem, 'signing')
-
-        deployer.import_system_cert_request(subsystem, 'audit_signing')
-        deployer.import_system_cert_request(subsystem, 'subsystem')
-        deployer.import_system_cert_request(subsystem, 'sslserver')
-
     def import_ca_signing_cert(self, deployer, nssdb):
 
         param = 'pki_ca_signing_cert_path'
@@ -601,7 +584,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         try:
             if existing or (external or standalone) and step_two:
 
-                self.import_system_cert_requests(deployer, subsystem)
+                deployer.import_system_cert_requests(subsystem)
                 self.import_system_certs(deployer, nssdb, subsystem)
 
                 self.configure_system_certs(deployer, subsystem)

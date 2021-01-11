@@ -224,6 +224,23 @@ class PKIDeployer:
         b64_csr = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
         subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
 
+    def import_system_cert_requests(self, subsystem):
+
+        if subsystem.name == 'ca':
+            self.import_system_cert_request(subsystem, 'signing')
+            self.import_system_cert_request(subsystem, 'ocsp_signing')
+
+        if subsystem.name == 'kra':
+            self.import_system_cert_request(subsystem, 'storage')
+            self.import_system_cert_request(subsystem, 'transport')
+
+        if subsystem.name == 'ocsp':
+            self.import_system_cert_request(subsystem, 'signing')
+
+        self.import_system_cert_request(subsystem, 'audit_signing')
+        self.import_system_cert_request(subsystem, 'subsystem')
+        self.import_system_cert_request(subsystem, 'sslserver')
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name
