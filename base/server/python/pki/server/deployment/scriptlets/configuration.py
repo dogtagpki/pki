@@ -79,27 +79,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             client_nssdb.close()
 
-    def configure_system_certs(self, deployer, subsystem):
-
-        if subsystem.name == 'ca':
-            deployer.configure_system_cert(subsystem, 'signing')
-
-            nickname = deployer.mdict['pki_ca_signing_nickname']
-            subsystem.config['ca.signing.cacertnickname'] = nickname
-
-            deployer.configure_system_cert(subsystem, 'ocsp_signing')
-
-        if subsystem.name == 'kra':
-            deployer.configure_system_cert(subsystem, 'storage')
-            deployer.configure_system_cert(subsystem, 'transport')
-
-        if subsystem.name == 'ocsp':
-            deployer.configure_system_cert(subsystem, 'signing')
-
-        deployer.configure_system_cert(subsystem, 'sslserver')
-        deployer.configure_system_cert(subsystem, 'subsystem')
-        deployer.configure_system_cert(subsystem, 'audit_signing')
-
     def update_system_certs(self, deployer, nssdb, subsystem):
 
         if subsystem.name == 'ca':
@@ -393,7 +372,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.import_system_cert_requests(subsystem)
                 deployer.import_system_certs(nssdb, subsystem)
 
-                self.configure_system_certs(deployer, subsystem)
+                deployer.configure_system_certs(subsystem)
                 self.update_system_certs(deployer, nssdb, subsystem)
                 subsystem.save()
 

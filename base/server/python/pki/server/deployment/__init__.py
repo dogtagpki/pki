@@ -393,6 +393,27 @@ class PKIDeployer:
         subsystem.config['%s.%s.defaultSigningAlgorithm' % (subsystem.name, tag)] = \
             self.mdict['pki_%s_key_algorithm' % cert_id]
 
+    def configure_system_certs(self, subsystem):
+
+        if subsystem.name == 'ca':
+            self.configure_system_cert(subsystem, 'signing')
+
+            nickname = self.mdict['pki_ca_signing_nickname']
+            subsystem.config['ca.signing.cacertnickname'] = nickname
+
+            self.configure_system_cert(subsystem, 'ocsp_signing')
+
+        if subsystem.name == 'kra':
+            self.configure_system_cert(subsystem, 'storage')
+            self.configure_system_cert(subsystem, 'transport')
+
+        if subsystem.name == 'ocsp':
+            self.configure_system_cert(subsystem, 'signing')
+
+        self.configure_system_cert(subsystem, 'sslserver')
+        self.configure_system_cert(subsystem, 'subsystem')
+        self.configure_system_cert(subsystem, 'audit_signing')
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name
