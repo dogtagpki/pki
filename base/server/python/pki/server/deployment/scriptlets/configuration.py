@@ -45,23 +45,6 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def validate_system_certs(self, deployer, nssdb, subsystem):
-
-        if subsystem.name == 'ca':
-            deployer.validate_system_cert(nssdb, subsystem, 'signing')
-            deployer.validate_system_cert(nssdb, subsystem, 'ocsp_signing')
-
-        if subsystem.name == 'kra':
-            deployer.validate_system_cert(nssdb, subsystem, 'storage')
-            deployer.validate_system_cert(nssdb, subsystem, 'transport')
-
-        if subsystem.name == 'ocsp':
-            deployer.validate_system_cert(nssdb, subsystem, 'signing')
-
-        deployer.validate_system_cert(nssdb, subsystem, 'sslserver')
-        deployer.validate_system_cert(nssdb, subsystem, 'subsystem')
-        deployer.validate_system_cert(nssdb, subsystem, 'audit_signing')
-
     def create_temp_sslserver_cert(self, deployer, instance):
 
         if len(deployer.instance.tomcat_instance_subsystems()) > 1:
@@ -309,7 +292,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.update_system_certs(nssdb, subsystem)
                 subsystem.save()
 
-                self.validate_system_certs(deployer, nssdb, subsystem)
+                deployer.validate_system_certs(nssdb, subsystem)
 
             elif len(subsystems) > 1:
 
