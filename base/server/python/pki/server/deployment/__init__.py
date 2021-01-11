@@ -448,6 +448,25 @@ class PKIDeployer:
         finally:
             client_nssdb.close()
 
+    def update_system_certs(self, nssdb, subsystem):
+
+        if subsystem.name == 'ca':
+            self.update_system_cert(nssdb, subsystem, 'signing')
+            self.update_system_cert(nssdb, subsystem, 'ocsp_signing')
+
+        if subsystem.name == 'kra':
+            self.update_system_cert(nssdb, subsystem, 'storage')
+            self.update_system_cert(nssdb, subsystem, 'transport')
+            self.update_admin_cert(subsystem)
+
+        if subsystem.name == 'ocsp':
+            self.update_system_cert(nssdb, subsystem, 'signing')
+            self.update_admin_cert(subsystem)
+
+        self.update_system_cert(nssdb, subsystem, 'sslserver')
+        self.update_system_cert(nssdb, subsystem, 'subsystem')
+        self.update_system_cert(nssdb, subsystem, 'audit_signing')
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name

@@ -45,25 +45,6 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def update_system_certs(self, deployer, nssdb, subsystem):
-
-        if subsystem.name == 'ca':
-            deployer.update_system_cert(nssdb, subsystem, 'signing')
-            deployer.update_system_cert(nssdb, subsystem, 'ocsp_signing')
-
-        if subsystem.name == 'kra':
-            deployer.update_system_cert(nssdb, subsystem, 'storage')
-            deployer.update_system_cert(nssdb, subsystem, 'transport')
-            deployer.update_admin_cert(subsystem)
-
-        if subsystem.name == 'ocsp':
-            deployer.update_system_cert(nssdb, subsystem, 'signing')
-            deployer.update_admin_cert(subsystem)
-
-        deployer.update_system_cert(nssdb, subsystem, 'sslserver')
-        deployer.update_system_cert(nssdb, subsystem, 'subsystem')
-        deployer.update_system_cert(nssdb, subsystem, 'audit_signing')
-
     def validate_system_cert(self, deployer, nssdb, subsystem, tag):
 
         cert_id = deployer.get_cert_id(subsystem, tag)
@@ -339,7 +320,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.import_system_certs(nssdb, subsystem)
 
                 deployer.configure_system_certs(subsystem)
-                self.update_system_certs(deployer, nssdb, subsystem)
+                deployer.update_system_certs(nssdb, subsystem)
                 subsystem.save()
 
                 self.validate_system_certs(deployer, nssdb, subsystem)
