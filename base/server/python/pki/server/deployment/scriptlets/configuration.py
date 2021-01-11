@@ -45,19 +45,6 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def update_system_cert(self, deployer, nssdb, subsystem, tag):
-
-        cert_id = deployer.get_cert_id(subsystem, tag)
-        nickname = deployer.mdict['pki_%s_nickname' % cert_id]
-
-        cert_data = nssdb.get_cert(
-            nickname=nickname,
-            output_format='base64',
-            output_text=True,
-        )
-
-        subsystem.config['%s.%s.cert' % (subsystem.name, tag)] = cert_data
-
     def update_admin_cert(self, deployer, subsystem):
 
         logger.info('Updating admin certificate')
@@ -82,21 +69,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def update_system_certs(self, deployer, nssdb, subsystem):
 
         if subsystem.name == 'ca':
-            self.update_system_cert(deployer, nssdb, subsystem, 'signing')
-            self.update_system_cert(deployer, nssdb, subsystem, 'ocsp_signing')
+            deployer.update_system_cert(nssdb, subsystem, 'signing')
+            deployer.update_system_cert(nssdb, subsystem, 'ocsp_signing')
 
         if subsystem.name == 'kra':
-            self.update_system_cert(deployer, nssdb, subsystem, 'storage')
-            self.update_system_cert(deployer, nssdb, subsystem, 'transport')
+            deployer.update_system_cert(nssdb, subsystem, 'storage')
+            deployer.update_system_cert(nssdb, subsystem, 'transport')
             self.update_admin_cert(deployer, subsystem)
 
         if subsystem.name == 'ocsp':
-            self.update_system_cert(deployer, nssdb, subsystem, 'signing')
+            deployer.update_system_cert(nssdb, subsystem, 'signing')
             self.update_admin_cert(deployer, subsystem)
 
-        self.update_system_cert(deployer, nssdb, subsystem, 'sslserver')
-        self.update_system_cert(deployer, nssdb, subsystem, 'subsystem')
-        self.update_system_cert(deployer, nssdb, subsystem, 'audit_signing')
+        deployer.update_system_cert(nssdb, subsystem, 'sslserver')
+        deployer.update_system_cert(nssdb, subsystem, 'subsystem')
+        deployer.update_system_cert(nssdb, subsystem, 'audit_signing')
 
     def validate_system_cert(self, deployer, nssdb, subsystem, tag):
 

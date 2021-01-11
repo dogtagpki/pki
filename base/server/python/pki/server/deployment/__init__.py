@@ -414,6 +414,19 @@ class PKIDeployer:
         self.configure_system_cert(subsystem, 'subsystem')
         self.configure_system_cert(subsystem, 'audit_signing')
 
+    def update_system_cert(self, nssdb, subsystem, tag):
+
+        cert_id = self.get_cert_id(subsystem, tag)
+        nickname = self.mdict['pki_%s_nickname' % cert_id]
+
+        cert_data = nssdb.get_cert(
+            nickname=nickname,
+            output_format='base64',
+            output_text=True,
+        )
+
+        subsystem.config['%s.%s.cert' % (subsystem.name, tag)] = cert_data
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name
