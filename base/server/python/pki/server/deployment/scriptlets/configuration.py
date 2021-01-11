@@ -45,22 +45,6 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def import_cert_chain(self, deployer, nssdb):
-
-        chain_file = deployer.mdict.get('pki_cert_chain_path')
-
-        if not chain_file or not os.path.exists(chain_file):
-            return
-
-        nickname = deployer.mdict['pki_cert_chain_nickname']
-
-        logger.info('Importing certificate chain from %s', chain_file)
-
-        nssdb.import_cert_chain(
-            nickname=nickname,
-            cert_chain_file=chain_file,
-            trust_attributes='CT,C,C')
-
     def import_system_certs(self, deployer, nssdb, subsystem):
 
         if subsystem.name == 'ca':
@@ -99,7 +83,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # to ensure that the system certs are imported with
         # the correct nicknames.
 
-        self.import_cert_chain(deployer, nssdb)
+        deployer.import_cert_chain(nssdb)
 
     def configure_system_cert(self, deployer, subsystem, tag):
 

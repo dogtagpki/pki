@@ -324,6 +324,22 @@ class PKIDeployer:
         pkcs12_password = self.mdict['pki_external_pkcs12_password']
         nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
 
+    def import_cert_chain(self, nssdb):
+
+        chain_file = self.mdict.get('pki_cert_chain_path')
+
+        if not chain_file or not os.path.exists(chain_file):
+            return
+
+        nickname = self.mdict['pki_cert_chain_nickname']
+
+        logger.info('Importing certificate chain from %s', chain_file)
+
+        nssdb.import_cert_chain(
+            nickname=nickname,
+            cert_chain_file=chain_file,
+            trust_attributes='CT,C,C')
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name
