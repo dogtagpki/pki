@@ -241,6 +241,26 @@ class PKIDeployer:
         self.import_system_cert_request(subsystem, 'subsystem')
         self.import_system_cert_request(subsystem, 'sslserver')
 
+    def import_ca_signing_cert(self, nssdb):
+
+        param = 'pki_ca_signing_cert_path'
+        cert_file = self.mdict.get(param)
+
+        if not cert_file:
+            return
+
+        if not os.path.exists(cert_file):
+            raise Exception('Invalid certificate path: %s=%s' % (param, cert_file))
+
+        nickname = self.mdict['pki_ca_signing_nickname']
+
+        logger.info('Importing ca_signing certificate from %s', cert_file)
+
+        nssdb.import_cert_chain(
+            nickname=nickname,
+            cert_chain_file=cert_file,
+            trust_attributes='CT,C,C')
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name

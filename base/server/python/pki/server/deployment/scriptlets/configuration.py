@@ -45,26 +45,6 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def import_ca_signing_cert(self, deployer, nssdb):
-
-        param = 'pki_ca_signing_cert_path'
-        cert_file = deployer.mdict.get(param)
-
-        if not cert_file:
-            return
-
-        if not os.path.exists(cert_file):
-            raise Exception('Invalid certificate path: %s=%s' % (param, cert_file))
-
-        nickname = deployer.mdict['pki_ca_signing_nickname']
-
-        logger.info('Importing ca_signing certificate from %s', cert_file)
-
-        nssdb.import_cert_chain(
-            nickname=nickname,
-            cert_chain_file=cert_file,
-            trust_attributes='CT,C,C')
-
     def import_system_cert(
             self, deployer, nssdb, subsystem, tag,
             trust_attributes=None):
@@ -148,14 +128,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             self.import_system_cert(deployer, nssdb, subsystem, 'ocsp_signing')
 
         if subsystem.name == 'kra':
-            self.import_ca_signing_cert(deployer, nssdb)
+            deployer.import_ca_signing_cert(nssdb)
 
             self.import_system_cert(deployer, nssdb, subsystem, 'storage')
             self.import_system_cert(deployer, nssdb, subsystem, 'transport')
             self.import_admin_cert(deployer)
 
         if subsystem.name == 'ocsp':
-            self.import_ca_signing_cert(deployer, nssdb)
+            deployer.import_ca_signing_cert(nssdb)
 
             self.import_system_cert(deployer, nssdb, subsystem, 'signing')
             self.import_admin_cert(deployer)
