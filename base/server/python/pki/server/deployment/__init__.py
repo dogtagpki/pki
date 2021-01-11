@@ -201,6 +201,13 @@ class PKIDeployer:
             subsystem_dict[0] = None
             self.mdict.update(subsystem_dict)
 
+    def get_cert_id(self, subsystem, tag):
+
+        if tag == 'signing':
+            return '%s_%s' % (subsystem.name, tag)
+        else:
+            return tag
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name

@@ -38,13 +38,6 @@ logger = logging.getLogger('keygen')
 
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def get_cert_id(self, subsystem, tag):
-
-        if tag == 'signing':
-            return '%s_%s' % (subsystem.name, tag)
-        else:
-            return tag
-
     def get_key_params(self, deployer, cert_id):
 
         key_type = deployer.mdict['pki_%s_key_type' % cert_id]
@@ -91,7 +84,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                      subject_key_id=None,
                      generic_exts=None):
 
-        cert_id = self.get_cert_id(subsystem, tag)
+        cert_id = deployer.get_cert_id(subsystem, tag)
 
         logger.info('Generating %s CSR in %s', cert_id, csr_path)
 

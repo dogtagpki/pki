@@ -45,16 +45,9 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def get_cert_id(self, subsystem, tag):
-
-        if tag == 'signing':
-            return '%s_%s' % (subsystem.name, tag)
-        else:
-            return tag
-
     def import_system_cert_request(self, deployer, subsystem, tag):
 
-        cert_id = self.get_cert_id(subsystem, tag)
+        cert_id = deployer.get_cert_id(subsystem, tag)
 
         csr_path = deployer.mdict.get('pki_%s_csr_path' % cert_id)
         if not csr_path or not os.path.exists(csr_path):
@@ -123,7 +116,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             self, deployer, nssdb, subsystem, tag,
             trust_attributes=None):
 
-        cert_id = self.get_cert_id(subsystem, tag)
+        cert_id = deployer.get_cert_id(subsystem, tag)
         param = 'pki_%s_cert_path' % cert_id
         cert_file = deployer.mdict.get(param)
 
@@ -237,7 +230,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def configure_system_cert(self, deployer, subsystem, tag):
 
-        cert_id = self.get_cert_id(subsystem, tag)
+        cert_id = deployer.get_cert_id(subsystem, tag)
         nickname = deployer.mdict['pki_%s_nickname' % cert_id]
 
         subsystem.config['%s.%s.nickname' % (subsystem.name, tag)] = nickname
@@ -248,7 +241,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def update_system_cert(self, deployer, nssdb, subsystem, tag):
 
-        cert_id = self.get_cert_id(subsystem, tag)
+        cert_id = deployer.get_cert_id(subsystem, tag)
         nickname = deployer.mdict['pki_%s_nickname' % cert_id]
 
         cert_data = nssdb.get_cert(
@@ -369,7 +362,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def validate_system_cert(self, deployer, nssdb, subsystem, tag):
 
-        cert_id = self.get_cert_id(subsystem, tag)
+        cert_id = deployer.get_cert_id(subsystem, tag)
         nickname = deployer.mdict['pki_%s_nickname' % cert_id]
         cert_data = nssdb.get_cert(
             nickname=nickname)
