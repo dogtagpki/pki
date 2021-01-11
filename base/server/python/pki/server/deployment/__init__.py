@@ -427,6 +427,27 @@ class PKIDeployer:
 
         subsystem.config['%s.%s.cert' % (subsystem.name, tag)] = cert_data
 
+    def update_admin_cert(self, subsystem):
+
+        logger.info('Updating admin certificate')
+
+        client_nssdb = pki.nssdb.NSSDatabase(
+            directory=self.mdict['pki_client_database_dir'],
+            password=self.mdict['pki_client_database_password'])
+
+        try:
+            nickname = self.mdict['pki_admin_nickname']
+            cert_data = client_nssdb.get_cert(
+                nickname=nickname,
+                output_format='base64',
+                output_text=True,
+            )
+
+            subsystem.config['%s.admin.cert' % subsystem.name] = cert_data
+
+        finally:
+            client_nssdb.close()
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name

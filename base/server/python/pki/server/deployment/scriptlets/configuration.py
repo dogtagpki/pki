@@ -45,27 +45,6 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def update_admin_cert(self, deployer, subsystem):
-
-        logger.info('Updating admin certificate')
-
-        client_nssdb = pki.nssdb.NSSDatabase(
-            directory=deployer.mdict['pki_client_database_dir'],
-            password=deployer.mdict['pki_client_database_password'])
-
-        try:
-            nickname = deployer.mdict['pki_admin_nickname']
-            cert_data = client_nssdb.get_cert(
-                nickname=nickname,
-                output_format='base64',
-                output_text=True,
-            )
-
-            subsystem.config['%s.admin.cert' % subsystem.name] = cert_data
-
-        finally:
-            client_nssdb.close()
-
     def update_system_certs(self, deployer, nssdb, subsystem):
 
         if subsystem.name == 'ca':
@@ -75,11 +54,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if subsystem.name == 'kra':
             deployer.update_system_cert(nssdb, subsystem, 'storage')
             deployer.update_system_cert(nssdb, subsystem, 'transport')
-            self.update_admin_cert(deployer, subsystem)
+            deployer.update_admin_cert(subsystem)
 
         if subsystem.name == 'ocsp':
             deployer.update_system_cert(nssdb, subsystem, 'signing')
-            self.update_admin_cert(deployer, subsystem)
+            deployer.update_admin_cert(subsystem)
 
         deployer.update_system_cert(nssdb, subsystem, 'sslserver')
         deployer.update_system_cert(nssdb, subsystem, 'subsystem')
