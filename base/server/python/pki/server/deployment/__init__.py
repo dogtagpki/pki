@@ -208,6 +208,22 @@ class PKIDeployer:
         else:
             return tag
 
+    def import_system_cert_request(self, subsystem, tag):
+
+        cert_id = self.get_cert_id(subsystem, tag)
+
+        csr_path = self.mdict.get('pki_%s_csr_path' % cert_id)
+        if not csr_path or not os.path.exists(csr_path):
+            return
+
+        logger.info('Importing %s CSR from %s', tag, csr_path)
+
+        with open(csr_path) as f:
+            csr_data = f.read()
+
+        b64_csr = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
+        subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name

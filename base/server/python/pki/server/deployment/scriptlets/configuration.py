@@ -45,22 +45,6 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def import_system_cert_request(self, deployer, subsystem, tag):
-
-        cert_id = deployer.get_cert_id(subsystem, tag)
-
-        csr_path = deployer.mdict.get('pki_%s_csr_path' % cert_id)
-        if not csr_path or not os.path.exists(csr_path):
-            return
-
-        logger.info('Importing %s CSR from %s', tag, csr_path)
-
-        with open(csr_path) as f:
-            csr_data = f.read()
-
-        b64_csr = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
-        subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
-
     def import_ca_signing_csr(self, deployer, subsystem):
 
         csr_path = deployer.mdict.get('pki_ca_signing_csr_path')
@@ -79,18 +63,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if subsystem.name == 'ca':
             self.import_ca_signing_csr(deployer, subsystem)
-            self.import_system_cert_request(deployer, subsystem, 'ocsp_signing')
+            deployer.import_system_cert_request(subsystem, 'ocsp_signing')
 
         if subsystem.name == 'kra':
-            self.import_system_cert_request(deployer, subsystem, 'storage')
-            self.import_system_cert_request(deployer, subsystem, 'transport')
+            deployer.import_system_cert_request(subsystem, 'storage')
+            deployer.import_system_cert_request(subsystem, 'transport')
 
         if subsystem.name == 'ocsp':
-            self.import_system_cert_request(deployer, subsystem, 'signing')
+            deployer.import_system_cert_request(subsystem, 'signing')
 
-        self.import_system_cert_request(deployer, subsystem, 'audit_signing')
-        self.import_system_cert_request(deployer, subsystem, 'subsystem')
-        self.import_system_cert_request(deployer, subsystem, 'sslserver')
+        deployer.import_system_cert_request(subsystem, 'audit_signing')
+        deployer.import_system_cert_request(subsystem, 'subsystem')
+        deployer.import_system_cert_request(subsystem, 'sslserver')
 
     def import_ca_signing_cert(self, deployer, nssdb):
 
