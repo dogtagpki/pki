@@ -45,17 +45,6 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def import_certs_and_keys(self, deployer, nssdb):
-
-        pkcs12_file = deployer.mdict.get('pki_external_pkcs12_path')
-        if not pkcs12_file or not os.path.exists(pkcs12_file):
-            return
-
-        logger.info('Importing certificates and keys from %s', pkcs12_file)
-
-        pkcs12_password = deployer.mdict['pki_external_pkcs12_password']
-        nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
-
     def import_cert_chain(self, deployer, nssdb):
 
         chain_file = deployer.mdict.get('pki_cert_chain_path')
@@ -103,7 +92,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # If provided, import certs and keys from PKCS #12 file
         # into NSS database.
 
-        self.import_certs_and_keys(deployer, nssdb)
+        deployer.import_certs_and_keys(nssdb)
 
         # If provided, import cert chain into NSS database.
         # Note: Cert chain must be imported after the system certs

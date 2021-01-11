@@ -313,6 +313,17 @@ class PKIDeployer:
         finally:
             client_nssdb.close()
 
+    def import_certs_and_keys(self, nssdb):
+
+        pkcs12_file = self.mdict.get('pki_external_pkcs12_path')
+        if not pkcs12_file or not os.path.exists(pkcs12_file):
+            return
+
+        logger.info('Importing certificates and keys from %s', pkcs12_file)
+
+        pkcs12_password = self.mdict['pki_external_pkcs12_password']
+        nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name
