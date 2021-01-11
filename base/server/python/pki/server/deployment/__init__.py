@@ -380,6 +380,19 @@ class PKIDeployer:
 
         self.import_cert_chain(nssdb)
 
+    def configure_system_cert(self, subsystem, tag):
+
+        cert_id = self.get_cert_id(subsystem, tag)
+        nickname = self.mdict['pki_%s_nickname' % cert_id]
+
+        logger.info('Configuring %s certificate', cert_id)
+
+        subsystem.config['%s.%s.nickname' % (subsystem.name, tag)] = nickname
+        subsystem.config['%s.%s.tokenname' % (subsystem.name, tag)] = \
+            self.mdict['pki_%s_token' % cert_id]
+        subsystem.config['%s.%s.defaultSigningAlgorithm' % (subsystem.name, tag)] = \
+            self.mdict['pki_%s_key_algorithm' % cert_id]
+
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
         record.name = name
