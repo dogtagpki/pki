@@ -45,36 +45,22 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def validate_system_cert(self, deployer, nssdb, subsystem, tag):
-
-        cert_id = deployer.get_cert_id(subsystem, tag)
-        nickname = deployer.mdict['pki_%s_nickname' % cert_id]
-        cert_data = nssdb.get_cert(
-            nickname=nickname)
-
-        if not cert_data:
-            return
-
-        logger.info('Validating %s certificate', tag)
-
-        subsystem.validate_system_cert(tag)
-
     def validate_system_certs(self, deployer, nssdb, subsystem):
 
         if subsystem.name == 'ca':
-            self.validate_system_cert(deployer, nssdb, subsystem, 'signing')
-            self.validate_system_cert(deployer, nssdb, subsystem, 'ocsp_signing')
+            deployer.validate_system_cert(nssdb, subsystem, 'signing')
+            deployer.validate_system_cert(nssdb, subsystem, 'ocsp_signing')
 
         if subsystem.name == 'kra':
-            self.validate_system_cert(deployer, nssdb, subsystem, 'storage')
-            self.validate_system_cert(deployer, nssdb, subsystem, 'transport')
+            deployer.validate_system_cert(nssdb, subsystem, 'storage')
+            deployer.validate_system_cert(nssdb, subsystem, 'transport')
 
         if subsystem.name == 'ocsp':
-            self.validate_system_cert(deployer, nssdb, subsystem, 'signing')
+            deployer.validate_system_cert(nssdb, subsystem, 'signing')
 
-        self.validate_system_cert(deployer, nssdb, subsystem, 'sslserver')
-        self.validate_system_cert(deployer, nssdb, subsystem, 'subsystem')
-        self.validate_system_cert(deployer, nssdb, subsystem, 'audit_signing')
+        deployer.validate_system_cert(nssdb, subsystem, 'sslserver')
+        deployer.validate_system_cert(nssdb, subsystem, 'subsystem')
+        deployer.validate_system_cert(nssdb, subsystem, 'audit_signing')
 
     def create_temp_sslserver_cert(self, deployer, instance):
 
