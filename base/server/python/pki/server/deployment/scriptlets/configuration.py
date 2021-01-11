@@ -45,24 +45,10 @@ logger = logging.getLogger('configuration')
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def import_ca_signing_csr(self, deployer, subsystem):
-
-        csr_path = deployer.mdict.get('pki_ca_signing_csr_path')
-        if not csr_path or not os.path.exists(csr_path):
-            return
-
-        logger.info('Importing ca_signing CSR from %s', csr_path)
-
-        with open(csr_path) as f:
-            csr_data = f.read()
-
-        b64_csr = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
-        subsystem.config['ca.signing.certreq'] = b64_csr
-
     def import_system_cert_requests(self, deployer, subsystem):
 
         if subsystem.name == 'ca':
-            self.import_ca_signing_csr(deployer, subsystem)
+            deployer.import_system_cert_request(subsystem, 'signing')
             deployer.import_system_cert_request(subsystem, 'ocsp_signing')
 
         if subsystem.name == 'kra':
