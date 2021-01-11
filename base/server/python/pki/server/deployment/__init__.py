@@ -494,7 +494,30 @@ class PKIDeployer:
             logger.info('Adding pkidbuser into %s', group)
             subsystem.add_group_member(group, 'pkidbuser')
 
-    def get_subsystem_cert(self, instance, ca_url):
+    def get_ca_signing_cert(self, instance, ca_url):
+
+        cmd = [
+            'pki',
+            '-d', instance.nssdb_dir,
+            '-f', instance.password_conf,
+            '-U', ca_url,
+            '--ignore-cert-status', 'UNTRUSTED_ISSUER',
+            'ca-cert-signing-export',
+            '--pkcs7'
+        ]
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        output = subprocess.check_output(cmd)
+
+        return output.decode()
+
+    def get_ca_subsystem_cert(self, instance, ca_url):
 
         cmd = [
             'pki',

@@ -25,7 +25,6 @@ from cryptography.x509.oid import NameOID
 import logging
 import os
 import shutil
-import subprocess
 import tempfile
 import urllib.parse
 
@@ -527,23 +526,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             nssdb.close()
             shutil.rmtree(tmpdir)
 
-    def get_cert_chain(self, instance, url):
-
-        cmd = [
-            'pki',
-            '-d', instance.nssdb_dir,
-            '-f', instance.password_conf,
-            '-U', url,
-            '--ignore-cert-status', 'UNTRUSTED_ISSUER',
-            'ca-cert-signing-export',
-            '--pkcs7'
-        ]
-
-        logger.debug('Command: %s', ' '.join(cmd))
-        output = subprocess.check_output(cmd)
-
-        return output.decode()
-
     def spawn(self, deployer):
 
         external = deployer.configuration_file.external
@@ -801,7 +783,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 logger.info('Retrieving CA certificate chain from %s', issuing_ca)
 
-                pem_chain = self.get_cert_chain(instance, issuing_ca)
+                pem_chain = deployer.get_ca_signing_cert(instance, issuing_ca)
                 base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
                 subsystem.config['preop.ca.pkcs7'] = base64_chain
 
@@ -817,7 +799,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             logger.info('Retrieving CA certificate chain from %s', master_url)
 
-            pem_chain = self.get_cert_chain(instance, master_url)
+            pem_chain = deployer.get_ca_signing_cert(instance, master_url)
             base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
             subsystem.config['preop.clone.pkcs7'] = base64_chain
 
@@ -1153,7 +1135,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     state='1')
 
                 logger.info('Getting subsystem certificate from %s', ca_url)
-                subsystem_cert_data = deployer.get_subsystem_cert(instance, ca_url)
+                subsystem_cert_data = deployer.get_ca_subsystem_cert(instance, ca_url)
 
                 logger.info('Adding subsystem certificate into %s', uid)
                 subsystem.add_user_cert(uid, cert_data=subsystem_cert_data, cert_format='PEM')
@@ -1178,7 +1160,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     state='1')
 
                 logger.info('Getting subsystem certificate from %s', ca_url)
-                subsystem_cert_data = deployer.get_subsystem_cert(instance, ca_url)
+                subsystem_cert_data = deployer.get_ca_subsystem_cert(instance, ca_url)
 
                 logger.info('Adding subsystem certificate into %s', uid)
                 subsystem.add_user_cert(uid, cert_data=subsystem_cert_data, cert_format='PEM')
