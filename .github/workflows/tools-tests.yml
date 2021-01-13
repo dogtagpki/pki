@@ -79,7 +79,7 @@ jobs:
       - name: Install PKI packages
         run: |
           dnf install -y dnf-plugins-core
-          dnf copr enable -y @pki/master
+          dnf copr enable -y @pki/10.10
           dnf -y localinstall build/RPMS/*
 
       - name: Generate cert request with key
@@ -129,7 +129,7 @@ jobs:
       - name: Install PKI packages
         run: |
           dnf install -y dnf-plugins-core softhsm
-          dnf copr enable -y @pki/master
+          dnf copr enable -y @pki/10.10
           dnf -y localinstall build/RPMS/*
 
       - name: Create HSM token

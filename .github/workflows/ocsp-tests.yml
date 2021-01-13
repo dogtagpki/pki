@@ -137,7 +137,7 @@ jobs:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       LOGS: ${GITHUB_WORKSPACE}/logs.txt
-      COPR_REPO: "@pki/master"
+      COPR_REPO: "@pki/10.10"
     strategy:
       matrix:
         os: ['32', '33']
