@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.rest;
 
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+
 import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -30,7 +33,6 @@ import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.SystemCertData;
-import com.netscape.certsrv.system.SystemConfigResource;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.Configurator;
@@ -45,7 +47,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @author alee
  *
  */
-public class SystemConfigService extends PKIService implements SystemConfigResource {
+@Path("installer")
+public class SystemConfigService extends PKIService {
 
     public final static Logger logger = LoggerFactory.getLogger(SystemConfigService.class);
 
@@ -77,7 +80,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         configurator = engine.createConfigurator();
     }
 
-    @Override
+    @POST
+    @Path("setupCert")
     public SystemCertData setupCert(CertificateSetupRequest request) throws Exception {
 
         String tag = request.getTag();
@@ -104,7 +108,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    @Override
+    @POST
+    @Path("setupAdmin")
     public AdminSetupResponse setupAdmin(AdminSetupRequest request) throws Exception {
 
         logger.info("SystemConfigService: setting up admin");
@@ -174,7 +179,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    @Override
+    @POST
+    @Path("finalizeConfiguration")
     public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
 
         logger.info("SystemConfigService: finalizing configuration");
