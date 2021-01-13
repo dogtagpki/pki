@@ -21,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -55,10 +54,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
-import com.netscape.certsrv.client.ClientConfig;
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.SystemCertData;
-import com.netscape.certsrv.system.SystemConfigClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -176,17 +172,6 @@ public class ConfigurationTest {
             }
         } catch (Exception e) {
             System.out.println("Exception in logging into token:" + e.toString());
-        }
-
-        SystemConfigClient client = null;
-        try {
-            ClientConfig config = new ClientConfig();
-            config.setServerURL(protocol + "://" + host + ":" + port);
-
-            client = new SystemConfigClient(new PKIClient(config), cstype);
-        } catch (URISyntaxException e1) {
-            e1.printStackTrace();
-            System.exit(1);
         }
 
         switch (testnum) {
