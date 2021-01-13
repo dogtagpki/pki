@@ -2962,6 +2962,16 @@ public class CertificateAuthority
         }
 
         ProfileSubsystem ps = engine.getProfileSubsystem();
+        /* NOTE: hard-coding the profile to use for Lightweight CA renewal
+         * might be OK, but caManualRenewal was not the right one to use.
+         * As a consequence, we have an undesirable special case in
+         * RenewalProcessor.processRenewal().
+         *
+         * We should introduce a new profile specifically for LWCA renewal,
+         * with an authenticator and ACLs to match the authz requirements
+         * for the renewAuthority REST resource itself.  Then we can use
+         * it here, and remove the workaround from RenewalProcessor.
+         */
         Profile profile = ps.getProfile("caManualRenewal");
         CertEnrollmentRequest req = CertEnrollmentRequestFactory.create(
             new ArgBlock(), profile, httpReq.getLocale());

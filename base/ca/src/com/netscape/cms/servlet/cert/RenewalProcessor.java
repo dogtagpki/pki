@@ -31,6 +31,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -267,15 +268,77 @@ public class RenewalProcessor extends CertProcessor {
 
             // before creating the request, authenticate the request
             IAuthToken authToken = null;
-            Principal principal = request.getUserPrincipal();
-            if (principal instanceof PKIPrincipal)
-                authToken = ((PKIPrincipal) principal).getAuthToken();
-            if (authToken == null && authenticator != null) {
-                authToken = authenticate(request, origReq, authenticator, context, true, credentials);
+
+            if (authenticator != null) {
+                /* The profile specifies an authenticator.  Use it to
+                 * authenticate the user.  Ignore the "latent" session
+                 * principal (if any).
+                 */
+                authToken = authenticate(
+                    request,
+                    origReq,
+                    authenticator,
+                    context,
+                    true /* isRenewal */,
+                    credentials);
+            } else {
+                /* When authenticator is null, we expect manual agent
+                 * review (leave authToken as null).
+                 *
+                 * But as a special case to ensure Lightweight CA (LWCA)
+                 * renewal works, if there is a latent user in the HTTP
+                 * request, we use that user (i.e. set authToken to the
+                 * principal's IAuthToken) if and only if:
+                 *
+                 * - The renewal profile is caManualRenewal (LWCA renewal
+                 *   is hardcoded to use this profile); AND
+                 *
+                 * - The latent user is authorized to "execute"
+                 *   certificate requests (i.e. agent approval)
+                 *
+                 * See also CertificateAuthority.renewAuthority().
+                 */
+
+                Principal principal = request.getUserPrincipal();
+                if (
+                    renewProfileId.equals("caManualRenewal")
+                    && principal instanceof PKIPrincipal
+                ) {
+                    IAuthToken latentToken = ((PKIPrincipal) principal).getAuthToken();
+                    AuthzToken authzToken = authorize(
+                        "DirAclAuthz", latentToken, "certServer.ca.certrequests", "execute");
+                    if (authzToken != null) {
+                        // Success (no exception); user is authorized to approve
+                        // cert requests.  Set the authToken.
+                        //
+                        // NOTE: This authz does not replace or subsume the
+                        // profile-specific authz check below.
+                        authToken = latentToken;
+                    } else {
+                        // leave authToken as null to enqueue a pending request.
+                    }
+                } else {
+                    // not caManualRenewal or no latent principal;
+                    // leave authToken as null to enqueue a pending request.
+                }
             }
 
-            // authentication success, now authorize
+            /* Authorize the request.
+             *
+             * If authToken != null, it will be checked against ACLs specified
+             * in the profile (if any).  If ACLs are defined and authToken does
+             * not match, throws an authorization exception.
+             *
+             * If authToken == null, no check is performed (even if the profile
+             * defines ACLs).  This is fine, because null authToken will cause
+             * the request status to be 'pending' [agent approval].
+             */
             authorize(profileId, renewProfile, authToken);
+
+            /* At this point, the request will be created.  If authToken
+             * is non-null, then the certificate will be issued
+             * immediately.  Otherwise the request will be pending. */
+
 
             ///////////////////////////////////////////////
             // create and populate requests
