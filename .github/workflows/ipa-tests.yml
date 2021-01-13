@@ -167,77 +167,77 @@ jobs:
           name: ipa-primary-conf-${{ matrix.os }}
           path: ipa-primary-conf.tar
 
-      - name: Run replica container
+      - name: Run secondary container
         run: |
           IMAGE=ipa \
-          NAME=replica \
-          HOSTNAME=replica.example.com \
+          NAME=secondary \
+          HOSTNAME=secondary.example.com \
           ci/runner-init.sh
 
-      - name: Connect replica container to network
-        run: docker network connect example replica --alias replica.example.com
+      - name: Connect secondary container to network
+        run: docker network connect example secondary --alias secondary.example.com
 
-      - name: Install dependencies in replica container
+      - name: Install dependencies in secondary container
         run: |
-          docker exec replica dnf install -y findutils dnf-plugins-core wget 389-ds-base
-          docker exec replica dnf copr enable -y ${COPR_REPO}
+          docker exec secondary dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec secondary dnf copr enable -y ${COPR_REPO}
 
-      - name: Install IPA packages in replica container
-        run: docker exec replica dnf install -y freeipa-server
+      - name: Install IPA packages in secondary container
+        run: docker exec secondary dnf install -y freeipa-server
 
-      - name: Install PKI packages in replica container
-        run: docker exec replica bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+      - name: Install PKI packages in secondary container
+        run: docker exec secondary bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
 
-      - name: Install IPA client in replica container
+      - name: Install IPA client in secondary container
         run: |
-          docker exec replica sysctl net.ipv6.conf.lo.disable_ipv6=0
-          docker exec replica ipa-client-install \
+          docker exec secondary sysctl net.ipv6.conf.lo.disable_ipv6=0
+          docker exec secondary ipa-client-install \
             -U \
             --server=primary.example.com \
             --domain=example.com \
             --realm=EXAMPLE.COM \
             -p admin \
             -w Secret.123
-          docker exec replica bash -c "echo Secret.123 | kinit admin"
-          docker exec replica klist
+          docker exec secondary bash -c "echo Secret.123 | kinit admin"
+          docker exec secondary klist
 
-      - name: Promote IPA client into IPA replica in replica container
-        run: docker exec replica ipa-replica-install --setup-ca --setup-kra
+      - name: Promote IPA client into IPA replica in secondary container
+        run: docker exec secondary ipa-replica-install --setup-ca --setup-kra
 
-      - name: Gather config files from replica container
+      - name: Gather config files from secondary container
         if: always()
-        run: docker exec replica tar cvf ${PKIDIR}/ipa-replica-conf.tar -C / etc/pki
+        run: docker exec secondary tar cvf ${PKIDIR}/ipa-secondary-conf.tar -C / etc/pki
 
-      - name: Upload config files from replica container
+      - name: Upload config files from secondary container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ipa-replica-conf-${{ matrix.os }}
-          path: ipa-replica-conf.tar
+          name: ipa-secondary-conf-${{ matrix.os }}
+          path: ipa-secondary-conf.tar
 
       - name: Verify CA admin
         run: |
           docker exec primary cp /root/ca-agent.p12 ${PKIDIR}/ca-agent.p12
-          docker exec replica pki-server cert-export ca_signing --cert-file ca_signing.crt
-          docker exec replica pki client-cert-import ca_signing --ca-cert ca_signing.crt
-          docker exec replica pki client-cert-import --pkcs12 ${PKIDIR}/ca-agent.p12 --pkcs12-password Secret.123
-          docker exec replica pki -n ipa-ca-agent ca-user-show admin
+          docker exec secondary pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec secondary pki client-cert-import --pkcs12 ${PKIDIR}/ca-agent.p12 --pkcs12-password Secret.123
+          docker exec secondary pki -n ipa-ca-agent ca-user-show admin
 
-      - name: Disconnect replica container from network
-        run: docker network disconnect example replica
+      - name: Disconnect secondary container from network
+        run: docker network disconnect example secondary
 
-      - name: Gather log files from replica container
+      - name: Gather log files from secondary container
         if: always()
         run: |
-          docker exec replica bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec replica tar cvf ${PKIDIR}/ipa-replica-logs.tar -C / var/log/pki
+          docker exec secondary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec secondary tar cvf ${PKIDIR}/ipa-secondary-logs.tar -C / var/log/pki
 
-      - name: Upload log files from replica container
+      - name: Upload log files from secondary container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ipa-replica-logs-${{ matrix.os }}
-          path: ipa-replica-logs.tar
+          name: ipa-secondary-logs-${{ matrix.os }}
+          path: ipa-secondary-logs.tar
 
       - name: Disconnect primary container from network
         run: docker network disconnect example primary
