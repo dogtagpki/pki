@@ -22,8 +22,6 @@ import java.security.KeyPair;
 
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
@@ -52,9 +50,6 @@ public class SubsystemCert extends CertificateInfo {
 
     public String getSubjectName() {
         return (String) mProperties.get(Constants.PR_SUBJECT_NAME);
-    }
-
-    public void updateConfig(IConfigStore cmsFileTmp) throws EBaseException {
     }
 
     public String getNickname() {

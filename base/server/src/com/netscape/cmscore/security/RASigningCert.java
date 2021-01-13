@@ -22,12 +22,9 @@ import java.security.KeyPair;
 
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * RA signing certificate
@@ -52,17 +49,6 @@ public class RASigningCert extends CertificateInfo {
         } catch (Exception e) {
             mProperties.put(Constants.PR_AKI, Constants.FALSE);
         }
-    }
-
-    public void updateConfig(IConfigStore cmsFileTmp) throws EBaseException {
-        String tokenname = (String) mProperties.get(Constants.PR_TOKEN_NAME);
-        String nickname = getNickname();
-
-        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
-            cmsFileTmp.putString("ra.certNickname", nickname);
-        else
-            cmsFileTmp.putString("ra.certNickname", tokenname + ":" + nickname);
-        cmsFileTmp.commit(false);
     }
 
     public String getSubjectName() {

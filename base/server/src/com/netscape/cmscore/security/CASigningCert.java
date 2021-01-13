@@ -23,17 +23,12 @@ import java.security.KeyPair;
 
 import org.mozilla.jss.crypto.PQGParamGenException;
 import org.mozilla.jss.crypto.PQGParams;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.security.KeyCertData;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 
 /**
  * CA signing certificate.
@@ -112,31 +107,6 @@ public class CASigningCert extends CertificateInfo {
             return new PQGParams(P, Q, G, pqgSeed, counter, pqgH);
         }
         return null;
-    }
-
-    public void updateConfig(IConfigStore cmsFileTmp) throws EBaseException {
-        String tokenname = (String) mProperties.get(Constants.PR_TOKEN_NAME);
-        String nickname = getNickname();
-
-        cmsFileTmp.putString("ca.signing.tokenname", tokenname);
-        String keyType = (String) mProperties.get(Constants.PR_KEY_TYPE);
-        String alg = "";
-
-        if (keyType.equals("DSA"))
-            alg = "SHA1withDSA";
-        else if (keyType.equals("RSA"))
-            alg = "SHA1withRSA";
-        else
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", keyType));
-
-        cmsFileTmp.putString("ca.signing.defaultSigningAlgorithm", alg);
-
-        if (!CryptoUtil.isInternalToken(tokenname)) {
-            nickname = tokenname + ":" + nickname;
-        }
-        cmsFileTmp.putString("ca.signing." + SigningUnit.PROP_CA_CERT_NICKNAME, nickname);
-
-        cmsFileTmp.commit(false);
     }
 
     public String getNickname() {

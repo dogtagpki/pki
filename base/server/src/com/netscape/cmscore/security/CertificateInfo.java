@@ -95,8 +95,6 @@ public abstract class CertificateInfo {
 
     public abstract String getNickname();
 
-    public abstract void updateConfig(IConfigStore store) throws EBaseException;
-
     public CertificateValidity getCertificateValidity() throws EBaseException {
 
         /*

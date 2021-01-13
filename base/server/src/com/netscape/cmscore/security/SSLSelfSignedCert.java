@@ -20,14 +20,11 @@ package com.netscape.cmscore.security;
 import java.io.IOException;
 import java.security.KeyPair;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
-import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 
 /**
  * SSL server certificate
@@ -50,20 +47,6 @@ public class SSLSelfSignedCert extends CertificateInfo {
         // 020599: This SSL server bit has to be turned on. Otherwise, it
         // might crash jss.
         mProperties.put(Constants.PR_SSL_SERVER_BIT, Constants.TRUE);
-    }
-
-    public void updateConfig(IConfigStore cmsFileTmp) throws EBaseException {
-        String tokenname = (String) mProperties.get(Constants.PR_TOKEN_NAME);
-        String nickname = getNickname();
-        String fullNickname = "";
-
-        if (CryptoUtil.isInternalToken(tokenname)) {
-            fullNickname = nickname;
-        } else {
-            fullNickname = tokenname + ":" + nickname;
-        }
-        cmsFileTmp.putString("radm.https.nickName", fullNickname);
-        cmsFileTmp.commit(false);
     }
 
     public String getSubjectName() {
