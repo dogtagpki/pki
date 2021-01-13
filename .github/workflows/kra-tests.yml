@@ -569,102 +569,102 @@ jobs:
       - name: Install primary KRA in primary container
         run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/kra.cfg -s KRA -v
 
-      - name: Gather config files from replica container
+      - name: Gather config files from primary container
         if: always()
         run: docker exec primary tar cvf ${PKIDIR}/primary-conf.tar -C / etc/pki
 
-      - name: Upload config files from replica container
+      - name: Upload config files from primary container
         if: always()
         uses: actions/upload-artifact@v2
         with:
           name: primary-conf-${{ matrix.os }}
           path: primary-conf.tar
 
-      - name: Setup replica container
+      - name: Setup secondary container
         run: |
           IMAGE=pki \
-          NAME=replica \
-          HOSTNAME=replica.example.com \
+          NAME=secondary \
+          HOSTNAME=secondary.example.com \
           ci/runner-init.sh
 
-      - name: Connect replica container to network
-        run: docker network connect example replica --alias replica.example.com
+      - name: Connect secondary container to network
+        run: docker network connect example secondary --alias secondary.example.com
 
-      - name: Install dependencies in replica container
+      - name: Install dependencies in secondary container
         run: |
-          docker exec replica dnf install -y findutils dnf-plugins-core wget 389-ds-base
-          docker exec replica dnf copr enable -y ${COPR_REPO}
+          docker exec secondary dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec secondary dnf copr enable -y ${COPR_REPO}
 
-      - name: Install PKI packages on replica container
-        run: docker exec replica bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+      - name: Install PKI packages on secondary container
+        run: docker exec secondary bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
 
-      - name: Install DS in replica container
-        run: docker exec replica ${PKIDIR}/ci/ds-create.sh
+      - name: Install DS in secondary container
+        run: docker exec secondary ${PKIDIR}/ci/ds-create.sh
 
-      - name: Install CA clone in replica container
+      - name: Install CA in secondary container
         run: |
           docker exec primary pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
           docker exec primary pki-server ca-clone-prepare --pkcs12-file ${PKIDIR}/ca-certs.p12 --pkcs12-password Secret.123
-          docker exec replica cp ${PKIDIR}/ca_signing.crt .
-          docker exec replica cp ${PKIDIR}/ca-certs.p12 .
-          docker exec replica pkispawn -f /usr/share/pki/server/examples/installation/ca-clone.cfg -s CA -v
+          docker exec secondary cp ${PKIDIR}/ca_signing.crt .
+          docker exec secondary cp ${PKIDIR}/ca-certs.p12 .
+          docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone.cfg -s CA -v
 
-      - name: Install KRA clone in replica container
+      - name: Install KRA in secondary container
         run: |
           docker exec primary pki-server kra-clone-prepare --pkcs12-file ${PKIDIR}/kra-certs.p12 --pkcs12-password Secret.123
-          docker exec replica cp ${PKIDIR}/kra-certs.p12 .
-          docker exec replica pkispawn -f /usr/share/pki/server/examples/installation/kra-clone.cfg -s KRA -v
+          docker exec secondary cp ${PKIDIR}/kra-certs.p12 .
+          docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/kra-clone.cfg -s KRA -v
 
-      - name: Gather config files from replica container
+      - name: Gather config files from secondary container
         if: always()
-        run: docker exec replica tar cvf ${PKIDIR}/replica-conf.tar -C / etc/pki
+        run: docker exec secondary tar cvf ${PKIDIR}/secondary-conf.tar -C / etc/pki
 
-      - name: Upload config files from replica container
+      - name: Upload config files from secondary container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: replica-conf-${{ matrix.os }}
-          path: replica-conf.tar
+          name: secondary-conf-${{ matrix.os }}
+          path: secondary-conf.tar
 
       - name: Verify KRA admin
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
           docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
-          docker exec replica pki client-cert-import ca_signing --ca-cert ca_signing.crt
-          docker exec replica pki client-cert-import \
+          docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec secondary pki client-cert-import \
               --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
-          docker exec replica pki -n caadmin kra-user-show kraadmin
+          docker exec secondary pki -n caadmin kra-user-show kraadmin
 
-      - name: Remove KRA clone from replica container
-        run: docker exec replica pkidestroy -i pki-tomcat -s KRA -v
+      - name: Remove KRA from secondary container
+        run: docker exec secondary pkidestroy -i pki-tomcat -s KRA -v
 
-      - name: Remove CA clone from replica container
-        run: docker exec replica pkidestroy -i pki-tomcat -s CA -v
+      - name: Remove CA from secondary container
+        run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS from replica container
-        run: docker exec replica ${PKIDIR}/ci/ds-remove.sh
+      - name: Remove DS from secondary container
+        run: docker exec secondary ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Disconnect replica container from network
-        run: docker network disconnect example replica
+      - name: Disconnect secondary container from network
+        run: docker network disconnect example secondary
 
-      - name: Gather log files from replica container
+      - name: Gather log files from secondary container
         if: always()
         run: |
-          docker exec replica bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec replica tar cvf ${PKIDIR}/replica-logs.tar -C / var/log/pki
+          docker exec secondary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec secondary tar cvf ${PKIDIR}/secondary-logs.tar -C / var/log/pki
 
-      - name: Upload log files from replica container
+      - name: Upload log files from secondary container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: replica-logs-${{ matrix.os }}
-          path: replica-logs.tar
+          name: secondary-logs-${{ matrix.os }}
+          path: secondary-logs.tar
 
-      - name: Remove primary KRA from primary container
+      - name: Remove KRA from primary container
         run: docker exec primary pkidestroy -i pki-tomcat -s KRA -v
 
-      - name: Remove primary CA from primary container
+      - name: Remove CA from primary container
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS from primary container
