@@ -11,7 +11,7 @@
       command: podman pod create --name {{topology}} -p {{variable.CA_HTTP_PORT}}:{{variable.CA_HTTP_PORT}} -p {{variable.CA_HTTPS_PORT}}:{{variable.CA_HTTPS_PORT}}
 
     - name: Deploy PostgreSQL persistent database containers
-      command: podman run --name postgresql --rm --pod {{topology}} -e POSTGRES_USER={{variable.POSTGRES_USER}} -e POSTGRES_PASSWORD={{variable.POSTGRES_PASSWORD}} -e POSTGRES_DB={{variable.POSTGRES_DB}} -d postgres
+      command: podman run --name postgresql --rm --pod {{topology}} -e POSTGRES_USER={{variable.POSTGRES_USER}} -e POSTGRES_PASSWORD={{variable.POSTGRES_PASSWORD}} -e POSTGRES_DB={{variable.POSTGRES_DB}} -d quay.io/dpuniaredhat/postgres
 
     - name: Create a directory to store database file
       file:

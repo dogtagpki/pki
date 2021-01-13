@@ -66,14 +66,19 @@ def test_bug_1392616_kra_key_recovery_cli_generates_p12_file(ansible_module):
     # Generate CRMF request
     request_id = userop.create_certificate_request(ansible_module, subject='CN=foo1', request_type='crmf',
                                                    profile='caOtherCert')
-    cert_id = userop.process_certificate_request(ansible_module, profile='caOtherCert', request_id=request_id,
-                                                 action='approve')
+    cert_id = userop.process_certificate_request(ansible_module, request_id=request_id, action='approve')
+
+    if cert_id is None:
+        #  Observed that Sometime first attempt of request approval failed
+        # because of intermittent network issue, then retrying again for approval.
+        time.sleep(5)
+        cert_id = userop.process_certificate_request(ansible_module, request_id=request_id, action='approve')
 
     ansible_module.pki(cli='ca-cert-show',
                        nssdb=constants.NSSDB,
                        dbpassword=constants.CLIENT_DATABASE_PASSWORD,
-                       port=constants.CA_HTTP_PORT,
-                       protocol='http',
+                       port=constants.CA_HTTPS_PORT,
+                       protocol='https',
                        certnick="'{}'".format(constants.CA_ADMIN_NICK),
                        extra_args=' {} --output {}'.format(cert_id, cert_file))
 
@@ -150,8 +155,8 @@ def test_bug_1392616_kra_key_recovery_cli_generates_p12_file(ansible_module):
                        extra_args='retrieveKey --output {}'.format(template_name))
 
     # Retrieve b64 certificate
-    cert_out = ansible_module.shell("cat {} | tr -d '\r\n-' | sed -e 's/BEGIN CERTIFICATE//' "
-                                    "-e 's/END CERTIFICATE//'".format(cert_file))
+    cert_out = ansible_module.shell("cat {} | tr -d '\r\n' | sed -e 's/-----BEGIN CERTIFICATE-----//' "
+                                    "-e 's/-----END CERTIFICATE-----//'".format(cert_file))
     for result in cert_out.values():
         if result['rc'] == 0:
             b64_cert = re.findall('.*', result['stdout'])[0]

@@ -199,7 +199,7 @@ def test_acme_create_account(ansible_module):
     cmd_out = ansible_module.expect(command=cmd.format(acme_url), responses={"\(Y\)es\/\(N\)o": 'Y'})
     for result in cmd_out.values():
         if result['rc'] == 0:
-            assert "account credentials have been saved" in result['stdout']
+            assert "Account registered" in result['stdout']
             log.info("Successfully ran : '{}'".format(result['cmd']))
         else:
             assert result['rc'] >= 1
