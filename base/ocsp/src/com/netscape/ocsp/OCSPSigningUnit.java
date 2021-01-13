@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -56,10 +55,9 @@ public final class OCSPSigningUnit extends SigningUnit {
         mConfig.putString(PROP_TOKEN_NAME, tokenname);
     }
 
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+    public void init(IConfigStore config) throws EBaseException {
 
-        logger.debug("OCSPSigningUnit.init(" + owner.getId() + ", " + config.getName() + ")");
+        logger.debug("OCSPSigningUnit.init(" + config.getName() + ")");
 
         mConfig = config;
 

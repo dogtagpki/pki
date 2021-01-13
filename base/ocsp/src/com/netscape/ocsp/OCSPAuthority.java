@@ -291,7 +291,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         try {
             // init signing unit
             mSigningUnit = new OCSPSigningUnit();
-            mSigningUnit.init(this, mConfig.getSubStore(PROP_SIGNING_SUBSTORE));
+            mSigningUnit.init(mConfig.getSubStore(PROP_SIGNING_SUBSTORE));
             logger.debug("OCSP signing unit inited");
 
             // init cert chain
