@@ -234,8 +234,6 @@ public class CRMFPopClient {
         System.out.println("                               - true: enabled");
         System.out.println("                               - false: disabled");
         System.out.println("  -y                           Add SubjectKeyIdentifier extension in case of CMC SharedSecret requests (default: false when not specified); To be used with 'request.useSharedSecret=true' when running CMCRequest.");
-        System.out.println("                               - true: enabled");
-        System.out.println("                               - false: disabled");
         System.out.println("  -a <rsa|ec>                  Key algorithm (default: rsa)");
         System.out.println("                               - rsa: RSA");
         System.out.println("                               - ec: ECC");
