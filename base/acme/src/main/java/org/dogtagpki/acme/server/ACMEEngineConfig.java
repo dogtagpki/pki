@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ACMEEngineConfig {
 
     private Boolean enabled = true;
+    private Boolean noncesPersistent;
 
     @JsonProperty("policy")
     private ACMEPolicyConfig policyConfig = new ACMEPolicyConfig();
@@ -32,6 +33,14 @@ public class ACMEEngineConfig {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public Boolean getNoncesPersistent() {
+        return noncesPersistent;
+    }
+
+    public void setNoncePersistent(Boolean noncesPersistent) {
+        this.noncesPersistent = noncesPersistent;
     }
 
     public ACMEPolicyConfig getPolicyConfig() {
@@ -63,6 +72,9 @@ public class ACMEEngineConfig {
 
             if (key.equals("enabled")) {
                 config.setEnabled(new Boolean(value));
+
+            } else if (key.equals("nonces.persistent")) {
+                config.setNoncePersistent(new Boolean(value));
 
             } else if (key.startsWith("policy.")) {
 

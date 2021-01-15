@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import javax.servlet.ServletContextEvent;
@@ -116,6 +117,9 @@ public class ACMEEngine implements ServletContextListener {
 
     private ACMERealmConfig realmConfig;
     private ACMERealm realm;
+
+    private boolean noncesPersistent;
+    private Map<String, ACMENonce> nonces = new ConcurrentHashMap<>();
 
     public static ACMEEngine getInstance() {
         return INSTANCE;
@@ -219,6 +223,7 @@ public class ACMEEngine implements ServletContextListener {
 
         config = ACMEEngineConfig.fromProperties(props);
         logger.info("- enabled: " + config.isEnabled());
+        logger.info("- nonces persistent: " + config.getNoncesPersistent());
 
         ACMEPolicyConfig policyConfig = config.getPolicyConfig();
         logger.info("- wildcard: " + policyConfig.getEnableWildcards());
@@ -493,6 +498,9 @@ public class ACMEEngine implements ServletContextListener {
         logger.info("ACME configuration directory: " + acmeConfDir);
         loadConfig(acmeConfDir + File.separator + "engine.conf");
 
+        Boolean noncePersistent = config.getNoncesPersistent();
+        this.noncesPersistent =  noncePersistent != null ? noncePersistent : false;
+
         initRandomGenerator();
         initMetadata(acmeConfDir + File.separator + "metadata.conf");
         initDatabase(acmeConfDir + File.separator + "database.conf");
@@ -588,7 +596,12 @@ public class ACMEEngine implements ServletContextListener {
         Date expirationTime = policy.getNonceExpirationTime(currentTime);
         nonce.setExpirationTime(expirationTime);
 
-        database.addNonce(nonce);
+        if (noncesPersistent) {
+            database.addNonce(nonce);
+        } else {
+            nonces.put(nonce.getID(), nonce);
+        }
+
         logger.info("Created nonce: " + nonce);
 
         return nonce;
@@ -596,7 +609,13 @@ public class ACMEEngine implements ServletContextListener {
 
     public void validateNonce(String value) throws Exception {
 
-        ACMENonce nonce = database.removeNonce(value);
+        ACMENonce nonce;
+
+        if (noncesPersistent) {
+            nonce = database.removeNonce(value);
+        } else {
+            nonce = nonces.remove(value);
+        }
 
         if (nonce == null) {
             // TODO: generate proper exception
@@ -612,6 +631,19 @@ public class ACMEEngine implements ServletContextListener {
         }
 
         logger.info("Valid nonce: " + value);
+    }
+
+    public void removeExpiredRecords(Date currentTime) throws Exception {
+
+        if (noncesPersistent) {
+            database.removeExpiredNonces(currentTime);
+        } else {
+            nonces.values().removeIf(n -> !currentTime.before(n.getExpirationTime()));
+        }
+
+        database.removeExpiredAuthorizations(currentTime);
+        database.removeExpiredOrders(currentTime);
+        database.removeExpiredCertificates(currentTime);
     }
 
     public void validateJWS(JWS jws, String alg, JWK jwk) throws Exception {
