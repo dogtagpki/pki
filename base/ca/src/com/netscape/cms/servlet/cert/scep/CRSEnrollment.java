@@ -107,9 +107,11 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
@@ -180,7 +182,7 @@ public class CRSEnrollment extends HttpServlet {
     private SecureRandom mRandom = null;
     private int mNonceSizeLimit = 0;
     private ICertificateAuthority ca;
-    private boolean mDynamicProfileId = false;
+    private boolean mIsDynamicProfileId = false;
     private String mAllowedDynamicProfileIdList = null;
     private String[] mAllowedDynamicProfileId;
     private boolean mUseOAEPKeyWrap = false;
@@ -216,6 +218,7 @@ public class CRSEnrollment extends HttpServlet {
     public static final String SUBJECTNAME = "SubjectName";
 
     public static final String SERVLET_NAME_DYN_PROFILE = "caDynamicProfileSCEP";
+
     public static ObjectIdentifier OID_UNSTRUCTUREDNAME = null;
     public static ObjectIdentifier OID_UNSTRUCTUREDADDRESS = null;
     public static ObjectIdentifier OID_SERIALNUMBER = null;
@@ -254,6 +257,10 @@ public class CRSEnrollment extends HttpServlet {
             IConfigStore scepConfig = authorityConfig.getSubStore("scep");
             mEnabled = scepConfig.getBoolean("enable", false);
             mUseOAEPKeyWrap = authorityConfig.getBoolean("keyWrap.useOAEP",false);
+            if (sc.getServletName().equals(SERVLET_NAME_DYN_PROFILE)) {
+                mIsDynamicProfileId = true;
+                logger.debug("CRSEnrollment: init: expecting dynamic ProfileId in URL");
+            }
             mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
             mConfiguredEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
             mNonceSizeLimit = scepConfig.getInteger("nonceSizeLimit", 0);
@@ -261,8 +268,16 @@ public class CRSEnrollment extends HttpServlet {
             mAllowedHashAlgorithm = mHashAlgorithmList.split(",");
             mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
             mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");
-            mAllowedDynamicProfileIdList = scepConfig.getString("allowedDynamicProfileIds", "caRouterCert,caServerCert");
-            mAllowedDynamicProfileId = mAllowedDynamicProfileIdList.split(",");
+            if (mIsDynamicProfileId) {
+                mAllowedDynamicProfileIdList = scepConfig.getString("allowedDynamicProfileIds", "caRouterCert");
+                logger.debug("CRSEnrollment: init: mAllowedDynamicProfileIdList: " + mAllowedDynamicProfileIdList);
+                mAllowedDynamicProfileId = mAllowedDynamicProfileIdList.split(",");
+
+                for (int i = 0; i < mAllowedDynamicProfileId.length; i++) {
+                mAllowedDynamicProfileId[i] = mAllowedDynamicProfileId[i].trim();
+                logger.debug("CRSEnrollment: init: mAllowedDynamicProfileId[" + i + "]=" + mAllowedDynamicProfileId[i]);
+                }
+            }
 
             mNickname = scepConfig.getString("nickname", ca.getNickname());
             if (mNickname.equals(ca.getNickname())) {
@@ -295,25 +310,18 @@ public class CRSEnrollment extends HttpServlet {
             mAllowedHashAlgorithm[i] = mAllowedHashAlgorithm[i].trim();
             logger.debug("CRSEnrollment: init: mAllowedHashAlgorithm[" + i + "]=" + mAllowedHashAlgorithm[i]);
         }
+
         logger.debug("CRSEnrollment: init: mEncryptionAlgorithm: " + mEncryptionAlgorithm);
         logger.debug("CRSEnrollment: init: mEncryptionAlgorithmList: " + mEncryptionAlgorithmList);
         for (int i = 0; i < mAllowedEncryptionAlgorithm.length; i++) {
             mAllowedEncryptionAlgorithm[i] = mAllowedEncryptionAlgorithm[i].trim();
             logger.debug("CRSEnrollment: init: mAllowedEncryptionAlgorithm[" + i + "]=" + mAllowedEncryptionAlgorithm[i]);
         }
-        logger.debug("CRSEnrollment: init: mAllowedDynamicProfileIdList: " + mAllowedDynamicProfileIdList);
-        for (int i = 0; i < mAllowedDynamicProfileId.length; i++) {
-            mAllowedDynamicProfileId[i] = mAllowedDynamicProfileId[i].trim();
-            logger.debug("CRSEnrollment: init: mAllowedDynamicProfileId[" + i + "]=" + mAllowedDynamicProfileId[i]);
-        }
 
         try {
             mProfileSubsystem = engine.getProfileSubsystem();
 
-            if (sc.getServletName().equals(SERVLET_NAME_DYN_PROFILE)) {
-                mDynamicProfileId = true;
-                logger.debug("CRSEnrollment: init: expecting dynamic ProfileId in URL");
-            } else {
+            if (!mIsDynamicProfileId) {
                 mProfileId = sc.getInitParameter("profileId");
                 logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
             }
@@ -374,18 +382,17 @@ public class CRSEnrollment extends HttpServlet {
                     "CMS server is not ready to serve.");
 
         // Retrieve the ProfileId from URI if this servlet was called as dynamic profile id servlet
-        // and check if it's allowed.
-        if (mDynamicProfileId) {
+        if (mIsDynamicProfileId) {
             mProfileId = extractProfileIdFromURL(httpReq);
             logger.debug("CRSEnrollment: service: (dynamic) mProfileId=" + mProfileId);
 
+            //check if prfile id allowed
             if (!isDynamicProfileIdAllowed(mAllowedDynamicProfileId, mProfileId)) {
                 logger.error("CRSEnrollment: serve: (dynamic) ProfileId '" + mProfileId +
                         "' is not allowed (" + mAllowedDynamicProfileIdList + ").");
                 throw new ServletException("(dynamic) ProfileId '" + mProfileId +
                         "' is not allowed (" + mAllowedDynamicProfileIdList + ").");
             }
-
         }
 
         String operation = null;
@@ -1655,9 +1662,7 @@ public class CRSEnrollment extends HttpServlet {
             credentials.set("PWD", p10Password);
 
             if (authenticator == null) {
-                // XXX - to help caRouterCert to work, we need to
-                // add authentication to caRouterCert
-                authToken = new AuthToken(null);
+                // leave authToken null to default to manual approval
             } else {
                 authToken = authenticate(credentials, authenticator, httpReq);
             }
@@ -1687,16 +1692,38 @@ public class CRSEnrollment extends HttpServlet {
             reqs[0].setExtData("profileRemoteAddr", httpReq.getRemoteAddr());
             reqs[0].setExtData("profileApprovedBy", profile.getApprovedBy());
 
+            // complete composing the request so that the request could be
+            // manually approved in case of pending mode
+            String setId = profile.getPolicySetId(reqs[0]);
+            if (setId == null) {
+                logger.debug("CRSEnrollment: setId null");
+                throw new CRSFailureException("CRSEnrollment: profile policy setId not found");
+            }
+            logger.debug("CRSEnrollment: setId : " + setId);
+            reqs[0].setExtData("profileSetId", setId);
+
             logger.debug("CRSEnrollment: Populating inputs");
             profile.populateInput(ctx, reqs[0]);
             logger.debug("CRSEnrollment: Populating requests");
             profile.populate(reqs[0]);
 
             logger.debug("CRSEnrollment: Submitting request");
-            profile.submit(authToken, reqs[0]);
+            try {
+                profile.submit(authToken, reqs[0]);
+                profile.getRequestQueue().markAsServiced(reqs[0]);
+                logger.debug("CRSEnrollment: Request marked as serviced");
+            } catch (EDeferException e) {
+                crsResp.setPKIStatus(CRSPKIMessage.mStatus_PENDING);
+                reqs[0].setRequestStatus(RequestStatus.PENDING);
+                //profile.getRequestQueue().rejectRequest(reqs[0]);
+                // need to notify
+                INotify notify = profile.getRequestQueue().getPendingNotify();
+                if (notify != null) {
+                    notify.notify(reqs[0]);
+                }
+                logger.debug("CRSEnrollment: request is placed in pending mode");
+            }
             logger.debug("CRSEnrollment: Done submitting request");
-            profile.getRequestQueue().markAsServiced(reqs[0]);
-            logger.debug("CRSEnrollment: Request marked as serviced");
 
             return reqs[0];
 
