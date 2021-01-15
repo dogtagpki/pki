@@ -7,7 +7,6 @@ package org.dogtagpki.acme.scheduler;
 
 import java.util.Date;
 
-import org.dogtagpki.acme.database.ACMEDatabase;
 import org.dogtagpki.acme.server.ACMEEngine;
 
 /**
@@ -24,11 +23,6 @@ public class ACMEMaintenanceTask extends ACMETask {
         Date currentTime = new Date();
 
         ACMEEngine engine = ACMEEngine.getInstance();
-        ACMEDatabase database = engine.getDatabase();
-
-        database.removeExpiredNonces(currentTime);
-        database.removeExpiredAuthorizations(currentTime);
-        database.removeExpiredOrders(currentTime);
-        database.removeExpiredCertificates(currentTime);
+        engine.removeExpiredRecords(currentTime);
     }
 }
