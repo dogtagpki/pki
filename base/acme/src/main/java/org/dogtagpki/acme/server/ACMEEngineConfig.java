@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.acme.server;
 
+import java.net.URL;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ACMEEngineConfig {
 
     private Boolean enabled = true;
+    private URL baseURL;
     private Boolean noncesPersistent;
 
     @JsonProperty("policy")
@@ -33,6 +35,14 @@ public class ACMEEngineConfig {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public URL getBaseURL() {
+        return baseURL;
+    }
+
+    public void setBaseURL(URL baseURL) {
+        this.baseURL = baseURL;
     }
 
     public Boolean getNoncesPersistent() {
@@ -72,6 +82,9 @@ public class ACMEEngineConfig {
 
             if (key.equals("enabled")) {
                 config.setEnabled(new Boolean(value));
+
+            } else if (key.equals("baseURL")) {
+                config.setBaseURL(new URL(value));
 
             } else if (key.equals("nonces.persistent")) {
                 config.setNoncePersistent(new Boolean(value));
