@@ -6,6 +6,7 @@
 package org.dogtagpki.acme.server;
 
 import java.net.URI;
+import java.net.URL;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.acme.ACMEDirectory;
@@ -36,21 +38,30 @@ public class ACMEDirectoryService {
 
         logger.info("Creating directory");
 
+        ACMEEngine engine = ACMEEngine.getInstance();
+        URL baseURL = engine.getBaseURL();
+
+        UriBuilder uriBuilder;
+        if (baseURL != null) {
+            uriBuilder = UriBuilder.fromUri(baseURL.toURI());
+        } else {
+            uriBuilder = uriInfo.getBaseUriBuilder();
+        }
+
         ACMEDirectory directory = new ACMEDirectory();
 
-        ACMEEngine engine = ACMEEngine.getInstance();
         directory.setMetadata(engine.getMetadata());
 
-        URI newNonceURL = uriInfo.getBaseUriBuilder().path("new-nonce").build();
+        URI newNonceURL = uriBuilder.clone().path("new-nonce").build();
         directory.setNewNonce(newNonceURL);
 
-        URI newAccountURL = uriInfo.getBaseUriBuilder().path("new-account").build();
+        URI newAccountURL = uriBuilder.clone().path("new-account").build();
         directory.setNewAccount(newAccountURL);
 
-        URI newOrderURL = uriInfo.getBaseUriBuilder().path("new-order").build();
+        URI newOrderURL = uriBuilder.clone().path("new-order").build();
         directory.setNewOrder(newOrderURL);
 
-        URI revokeCertURL = uriInfo.getBaseUriBuilder().path("revoke-cert").build();
+        URI revokeCertURL = uriBuilder.clone().path("revoke-cert").build();
         directory.setRevokeCert(revokeCertURL);
 
         logger.info("Directory:\n" + directory);

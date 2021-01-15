@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.math.BigInteger;
+import java.net.URL;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.Principal;
@@ -207,6 +208,10 @@ public class ACMEEngine implements ServletContextListener {
         config.setEnabled(enabled);
     }
 
+    public URL getBaseURL() {
+        return config.getBaseURL();
+    }
+
     public void loadConfig(String filename) throws Exception {
 
         File configFile = new File(filename);
@@ -223,6 +228,7 @@ public class ACMEEngine implements ServletContextListener {
 
         config = ACMEEngineConfig.fromProperties(props);
         logger.info("- enabled: " + config.isEnabled());
+        logger.info("- base URL: " + config.getBaseURL());
         logger.info("- nonces persistent: " + config.getNoncesPersistent());
 
         ACMEPolicyConfig policyConfig = config.getPolicyConfig();
