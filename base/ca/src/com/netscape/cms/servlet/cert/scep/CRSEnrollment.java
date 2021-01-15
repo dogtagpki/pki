@@ -180,6 +180,9 @@ public class CRSEnrollment extends HttpServlet {
     private SecureRandom mRandom = null;
     private int mNonceSizeLimit = 0;
     private ICertificateAuthority ca;
+    private boolean mDynamicProfileId = false;
+    private String mAllowedDynamicProfileIdList = null;
+    private String[] mAllowedDynamicProfileId;
     private boolean mUseOAEPKeyWrap = false;
     /* for hashing challenge password */
     protected MessageDigest mSHADigest = null;
@@ -212,6 +215,7 @@ public class CRSEnrollment extends HttpServlet {
     public static final String CERTINFO = "CertInfo";
     public static final String SUBJECTNAME = "SubjectName";
 
+    public static final String SERVLET_NAME_DYN_PROFILE = "caDynamicProfileSCEP";
     public static ObjectIdentifier OID_UNSTRUCTUREDNAME = null;
     public static ObjectIdentifier OID_UNSTRUCTUREDADDRESS = null;
     public static ObjectIdentifier OID_SERIALNUMBER = null;
@@ -257,6 +261,9 @@ public class CRSEnrollment extends HttpServlet {
             mAllowedHashAlgorithm = mHashAlgorithmList.split(",");
             mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
             mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");
+            mAllowedDynamicProfileIdList = scepConfig.getString("allowedDynamicProfileIds", "caRouterCert,caServerCert");
+            mAllowedDynamicProfileId = mAllowedDynamicProfileIdList.split(",");
+
             mNickname = scepConfig.getString("nickname", ca.getNickname());
             if (mNickname.equals(ca.getNickname())) {
                 mTokenName = ca.getSigningUnit().getTokenName();
@@ -294,11 +301,22 @@ public class CRSEnrollment extends HttpServlet {
             mAllowedEncryptionAlgorithm[i] = mAllowedEncryptionAlgorithm[i].trim();
             logger.debug("CRSEnrollment: init: mAllowedEncryptionAlgorithm[" + i + "]=" + mAllowedEncryptionAlgorithm[i]);
         }
+        logger.debug("CRSEnrollment: init: mAllowedDynamicProfileIdList: " + mAllowedDynamicProfileIdList);
+        for (int i = 0; i < mAllowedDynamicProfileId.length; i++) {
+            mAllowedDynamicProfileId[i] = mAllowedDynamicProfileId[i].trim();
+            logger.debug("CRSEnrollment: init: mAllowedDynamicProfileId[" + i + "]=" + mAllowedDynamicProfileId[i]);
+        }
 
         try {
             mProfileSubsystem = engine.getProfileSubsystem();
-            mProfileId = sc.getInitParameter("profileId");
-            logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
+
+            if (sc.getServletName().equals(SERVLET_NAME_DYN_PROFILE)) {
+                mDynamicProfileId = true;
+                logger.debug("CRSEnrollment: init: expecting dynamic ProfileId in URL");
+            } else {
+                mProfileId = sc.getInitParameter("profileId");
+                logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
+            }
 
             mAuthSubsystem = engine.getAuthSubsystem();
             mAuthManagerName = sc.getInitParameter(PROP_CRSAUTHMGR);
@@ -355,6 +373,21 @@ public class CRSEnrollment extends HttpServlet {
             throw new ServletException(
                     "CMS server is not ready to serve.");
 
+        // Retrieve the ProfileId from URI if this servlet was called as dynamic profile id servlet
+        // and check if it's allowed.
+        if (mDynamicProfileId) {
+            mProfileId = extractProfileIdFromURL(httpReq);
+            logger.debug("CRSEnrollment: service: (dynamic) mProfileId=" + mProfileId);
+
+            if (!isDynamicProfileIdAllowed(mAllowedDynamicProfileId, mProfileId)) {
+                logger.error("CRSEnrollment: serve: (dynamic) ProfileId '" + mProfileId +
+                        "' is not allowed (" + mAllowedDynamicProfileIdList + ").");
+                throw new ServletException("(dynamic) ProfileId '" + mProfileId +
+                        "' is not allowed (" + mAllowedDynamicProfileIdList + ").");
+            }
+
+        }
+
         String operation = null;
         String message = null;
         mEncryptionAlgorithm = mConfiguredEncryptionAlgorithm;
@@ -408,12 +441,39 @@ public class CRSEnrollment extends HttpServlet {
 
     }
 
+    /**
+     *
+     * Extracts the ProfileId encoded in the URI.
+     * Expects URI in the form of "/scep/PROFILE_ID/pkiclient.exe".
+     *
+     * @param httpReq The HttpServletRequest.
+     *
+     */
+    private String extractProfileIdFromURL(HttpServletRequest httpReq) throws ServletException {
+        String pathInfo = httpReq.getPathInfo();
+
+        if (!pathInfo.matches("^/[^/]+/pkiclient\\.exe$")) {
+            throw new ServletException("dynamic ProfileId URL must be in the form of '" +
+                    httpReq.getContextPath() + httpReq.getServletPath() + "/PROFILE_ID/pkiclient.exe'");
+        }
+
+        return pathInfo.split("/")[1];
+    }
+
     private boolean isAlgorithmAllowed(String[] allowedAlgorithm, String algorithm) {
+        return isInAllowedList(allowedAlgorithm, algorithm);
+    }
+
+    private boolean isDynamicProfileIdAllowed(String[] allowedDynamicProfileId, String profileId) {
+        return isInAllowedList(allowedDynamicProfileId, profileId);
+    }
+
+    private boolean isInAllowedList(String[] allowedList, String searchedItem) {
         boolean allowed = false;
 
-        if (algorithm != null && algorithm.length() > 0) {
-            for (int i = 0; i < allowedAlgorithm.length; i++) {
-                if (algorithm.equalsIgnoreCase(allowedAlgorithm[i])) {
+        if (searchedItem != null && searchedItem.length() > 0) {
+            for (int i = 0; i < allowedList.length; i++) {
+                if (searchedItem.equalsIgnoreCase(allowedList[i])) {
                     allowed = true;
                 }
             }

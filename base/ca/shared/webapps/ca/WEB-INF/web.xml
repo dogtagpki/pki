@@ -2000,6 +2000,13 @@
    </servlet>
 
    <servlet>
+      <servlet-name>  caDynamicProfileSCEP  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.cert.scep.CRSEnrollment  </servlet-class>
+             <init-param><param-name>  authority  </param-name>
+                         <param-value> ca       </param-value> </init-param>
+   </servlet>
+
+   <servlet>
       <servlet-name>  caRASCEP  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.scep.CRSEnrollment  </servlet-class>
              <init-param><param-name>  authority  </param-name>
@@ -2610,6 +2617,11 @@
    <servlet-mapping>
       <servlet-name>  caSCEP </servlet-name>
       <url-pattern>   /cgi-bin/pkiclient.exe </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  caDynamicProfileSCEP </servlet-name>
+      <url-pattern>   /scep/* </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
