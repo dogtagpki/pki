@@ -25,16 +25,13 @@ jobs:
           dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
 
       - name: Build PKI packages
-        run: ./build.sh --with-timestamp --with-commit-id --work-dir=../packages rpm
-
-      - name: Compress RPMS
-        run: tar -czf pki-rpms.tar.gz ../packages/RPMS/*
+        run: ./build.sh --with-timestamp --with-commit-id --work-dir=build rpm
 
       - name: Upload RPM artifacts
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: pki-build-${{ matrix.os }}
-          path: pki-rpms.tar.gz
+          path: build/RPMS/
 
   # Tier 0
   installation-sanity:
@@ -59,13 +56,11 @@ jobs:
       - name: Clone the repository
         uses: actions/checkout@v2
 
-      - name: Download PKI binaries from Build job
-        uses: actions/download-artifact@v1
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
         with:
           name: pki-build-${{ matrix.os }}
-
-      - name: Extract tar.gz for rpms
-        run: tar -xzf pki-build-${{ matrix.os }}/pki-rpms.tar.gz
+          path: build/RPMS
 
       - name: Modify the vagrant file per requirement
         run: |
