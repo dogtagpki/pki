@@ -356,3 +356,163 @@ jobs:
 
       - name: Remove network
         run: docker network rm example
+
+  ocsp-standalone-test:
+    name: Installing Standalone OCSP
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      LOGS: ${GITHUB_WORKSPACE}/logs.txt
+      COPR_REPO: "@pki/master"
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Download container
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-${{ matrix.os }}
+          path: /tmp
+
+      - name: Load container
+        run: docker load --input /tmp/pki.tar
+
+      - name: Run container
+        run: |
+          IMAGE=pki \
+          NAME=pki \
+          HOSTNAME=pki.example.com \
+          ci/runner-init.sh
+
+      - name: Install dependencies
+        run: |
+          docker exec pki dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec pki dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages
+        run: docker exec pki bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS
+        run: docker exec pki ${PKIDIR}/ci/ds-create.sh
+
+      - name: Create CA signing cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-request \
+              --subject "CN=CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr ca_signing.csr
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --csr ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --serial 1 \
+              --cert ca_signing.crt
+          docker exec pki pki -d nssdb nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+      - name: Install OCSP (step 1)
+        run: |
+          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ocsp-standalone-step1.cfg -s OCSP -v
+
+      - name: Issue OCSP signing cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer ca_signing \
+              --csr ocsp_signing.csr \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              --serial 2 \
+              --cert ocsp_signing.crt
+
+      - name: Issue subsystem cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer ca_signing \
+              --csr subsystem.csr \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --serial 3 \
+              --cert subsystem.crt
+
+      - name: Issue SSL server cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer ca_signing \
+              --csr sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --serial 4 \
+              --cert sslserver.crt
+
+      - name: Issue OCSP audit signing cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer ca_signing \
+              --csr ocsp_audit_signing.csr \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --serial 5 \
+              --cert ocsp_audit_signing.crt
+
+      - name: Issue OCSP admin cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer ca_signing \
+              --csr ocsp_admin.csr \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --serial 6 \
+              --cert ocsp_admin.crt
+
+      - name: Install OCSP (step 2)
+        run: |
+          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ocsp-standalone-step2.cfg -s OCSP -v
+
+      - name: Gather config files
+        if: always()
+        run: docker exec pki tar cvf ${PKIDIR}/ocsp-standalone-conf.tar -C / etc/pki
+
+      - name: Upload config files
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ocsp-standalone-conf-${{ matrix.os }}
+          path: ocsp-standalone-conf.tar
+
+      # TODO: Fix DogtagOCSPConnectivityCheck to work without CA
+      # - name: Run PKI healthcheck
+      #   run: docker exec pki pki-healthcheck --debug
+
+      - name: Verify admin user
+        run: |
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ocsp_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/ocsp/pkcs12_password.conf
+          docker exec pki pki -n ocspadmin ocsp-user-show ocspadmin
+
+      - name: Remove OCSP
+        run: docker exec pki pkidestroy -i pki-tomcat -s OCSP -v
+
+      - name: Remove DS
+        run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Gather log files
+        if: always()
+        run: |
+          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec pki tar cvf ${PKIDIR}/ocsp-standalone-logs.tar -C / var/log/pki
+
+      - name: Upload log files
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ocsp-standalone-logs-${{ matrix.os }}
+          path: ocsp-standalone-logs.tar
