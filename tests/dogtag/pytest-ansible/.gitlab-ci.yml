@@ -227,6 +227,7 @@ ca-topo-00-bugzilla-cp:
   script:
     - ansible-playbook -u fedora --become -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-00" -vv | sed 's/\\n/\n/g'
     - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/bugzilla/test_bug_1656772_man_pkispawn_having_reference_to_setup-ds.py -q -s --junitxml ${CI_JOB_NAME}_junit.xml |  sed 's/\\n/\n/g'
+    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/ca/bugzilla/test_pki_bug_1912493_pkispawn_reports_incorrect_fips_mode.py -q -s --junitxml ${CI_JOB_NAME}_junit.xml |  sed 's/\\n/\n/g'
 
 topo-02-ca-bugzillas-gs:
   <<: *job_definition
