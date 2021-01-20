@@ -729,3 +729,172 @@ jobs:
         with:
           name: primary-logs-${{ matrix.os }}
           path: primary-logs.tar
+
+  kra-standalone-test:
+    name: Installing Standalone KRA
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      LOGS: ${GITHUB_WORKSPACE}/logs.txt
+      COPR_REPO: "@pki/master"
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Download container
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-${{ matrix.os }}
+          path: /tmp
+
+      - name: Load container
+        run: docker load --input /tmp/pki.tar
+
+      - name: Run container
+        run: |
+          IMAGE=pki \
+          NAME=pki \
+          HOSTNAME=pki.example.com \
+          ci/runner-init.sh
+
+      - name: Install dependencies
+        run: |
+          docker exec pki dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec pki dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages
+        run: docker exec pki bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS
+        run: docker exec pki ${PKIDIR}/ci/ds-create.sh
+
+      - name: Create CA signing cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-request \
+              --subject "CN=CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr ca_signing.csr
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --csr ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --serial 1 \
+              --cert ca_signing.crt
+          docker exec pki pki -d nssdb nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+      - name: Install KRA (step 1)
+        run: |
+          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/kra-standalone-step1.cfg -s KRA -v
+
+      - name: Issue KRA storage cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer ca_signing \
+              --csr kra_storage.csr \
+              --ext /usr/share/pki/server/certs/kra_storage.conf \
+              --serial 2 \
+              --cert kra_storage.crt
+
+      - name: Issue KRA transport cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer ca_signing \
+              --csr kra_transport.csr \
+              --ext /usr/share/pki/server/certs/kra_transport.conf \
+              --serial 3 \
+              --cert kra_transport.crt
+
+      - name: Issue subsystem cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer ca_signing \
+              --csr subsystem.csr \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --serial 4 \
+              --cert subsystem.crt
+
+      - name: Issue SSL server cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer ca_signing \
+              --csr sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --serial 5 \
+              --cert sslserver.crt
+
+      - name: Issue KRA audit signing cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer ca_signing \
+              --csr kra_audit_signing.csr \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --serial 6 \
+              --cert kra_audit_signing.crt
+
+      - name: Issue KRA admin cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer ca_signing \
+              --csr kra_admin.csr \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --serial 7 \
+              --cert kra_admin.crt
+
+      - name: Install KRA (step 2)
+        run: |
+          docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/kra-standalone-step2.cfg -s KRA -v
+
+      - name: Gather config files
+        if: always()
+        run: docker exec pki tar cvf ${PKIDIR}/kra-standalone-conf.tar -C / etc/pki
+
+      - name: Upload config files
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-standalone-conf-${{ matrix.os }}
+          path: kra-standalone-conf.tar
+
+      # TODO: Fix DogtagKRAConnectivityCheck to work without CA
+      # - name: Run PKI healthcheck
+      #   run: docker exec pki pki-healthcheck --debug
+
+      - name: Verify admin user
+        run: |
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/kra_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/kra/pkcs12_password.conf
+          docker exec pki pki -n kraadmin kra-user-show kraadmin
+
+      - name: Remove KRA
+        run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove DS
+        run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Gather log files
+        if: always()
+        run: |
+          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec pki tar cvf ${PKIDIR}/kra-standalone-logs.tar -C / var/log/pki
+
+      - name: Upload log files
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-standalone-logs-${{ matrix.os }}
+          path: kra-standalone-logs.tar

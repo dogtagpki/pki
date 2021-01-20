@@ -1,0 +1,107 @@
+= Installing Standalone KRA =
+
+== Overview ==
+
+This page describes the process to install a standalone KRA subsystem.
+In link:Installing_KRA.md[regular KRA installation] the KRA certificates are issued automatically by the CA and the KRA will join the CA's security domain.
+In standalone KRA installation, the KRA certificates will be issued manually and the KRA have its own security domain.
+
+The installation process consists multiple steps:
+
+* Generating certificate requests
+* Issuing the certificates
+* Completing installation with the certificates
+
+== Generating Certificate Requests ==
+
+Prepare a file (e.g. kra-standalone-step1.cfg) that contains the first deployment configuration.
+
+A sample deployment configuration is available at link:../../../base/server/examples/installation/kra-standalone-step1.cfg[/usr/share/pki/server/examples/installation/kra-standalone-step1.cfg].
+
+Then execute the following command:
+
+----
+$ pkispawn -f kra-standalone-step1.cfg -s KRA
+----
+
+It will create an NSS database in /var/lib/pki/pki-tomcat/alias and generate CSRs in the specified paths.
+
+== Issuing Certificates ==
+
+Use the CSRs to obtain KRA certificates:
+
+* link:https://github.com/dogtagpki/pki/wiki/Generating-KRA-Storage-Certificate[Generating KRA Storage Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-KRA-Transport-Certificate[Generating KRA Transport Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-Subsystem-Certificate[Generating Subsystem Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-Certificate[Generating SSL Server Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-Audit-Signing-Certificate[Generating Audit Signing Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-Admin-Certificate[Generating Admin Certificate]
+
+== Completing Installation ==
+
+Prepare another file (e.g. kra-standalone-step2.cfg) that contains the second deployment configuration.
+The file can be created from the first file (i.e. kra-standalone-step1.cfg) with the following changes:
+
+----
+pki_external_step_two=True
+----
+
+Specify the certificate files with the following parameters:
+
+----
+pki_storage_cert_path=kra_storage.crt
+pki_transport_cert_path=kra_transport.crt
+pki_subsystem_cert_path=subsystem.crt
+pki_sslserver_cert_path=sslserver.crt
+pki_audit_signing_cert_path=kra_audit_signing.crt
+pki_admin_cert_path=kra_admin.crt
+----
+
+Each certificate file can contain either a single PEM certificate or a PKCS #7 certificate chain.
+
+Specify the CA certificate chain with the following parameters:
+
+```
+pki_cert_chain_nickname=ca_signing
+pki_cert_chain_path=ca_signing.crt
+```
+
+The CA certificate chain file can contain either a single PEM certificate or a PKCS #7 certificate chain as well.
+
+A sample deployment configuration is available at link:../../../base/server/examples/installation/kra-standalone-step2.cfg[/usr/share/pki/server/examples/installation/kra-standalone-step2.cfg].
+
+Finally, execute the following command:
+
+----
+$ pkispawn -f kra-standalone-step2.cfg -s KRA
+----
+
+== Verifying Admin Certificate ==
+
+Import the CA signing certificate:
+
+----
+$ pki client-cert-import ca_signing --ca-cert ca_signing.crt
+----
+
+Import admin key and certificate:
+
+----
+$ pki client-cert-import \
+   --pkcs12 kra_admin_cert.p12 \
+   --pkcs12-password-file pkcs12_password.conf
+----
+
+Verify that the admin certificate can be used to access the KRA subsystem by executing the following command:
+
+----
+$ pki -n kraadmin kra-user-show kraadmin
+---------------
+User "kraadmin"
+---------------
+  User ID: kraadmin
+  Full name: kraadmin
+  Email: kraadmin@example.com
+  Type: adminType
+  State: 1
+----
