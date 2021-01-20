@@ -50,7 +50,8 @@ public class SDCreateCLI extends CommandCLI {
         tomcatjss.loadConfig();
         tomcatjss.init();
 
-        String subsystemDir = catalinaBase + File.separator + "ca";
+        String subsystem = parent.getParent().getName();
+        String subsystemDir = catalinaBase + File.separator + subsystem;
         String subsystemConfDir = subsystemDir + File.separator + "conf";
         String configFile = subsystemConfDir + File.separator + CMS.CONFIG_FILE;
 

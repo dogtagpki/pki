@@ -1163,7 +1163,7 @@ class PKISubsystem(object):
 
     def create_security_domain(self, as_current_user=False):
 
-        cmd = ['sd-create']
+        cmd = [self.name + '-sd-create']
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1184,7 +1184,7 @@ class PKISubsystem(object):
             as_current_user=False):
 
         cmd = [
-            'sd-host-add',
+            self.name + '-sd-host-add',
             '--hostname', hostname
         ]
 

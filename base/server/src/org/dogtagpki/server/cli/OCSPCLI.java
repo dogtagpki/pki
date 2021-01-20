@@ -31,5 +31,6 @@ public class OCSPCLI extends CLI {
         addModule(new SubsystemDBCLI(this));
         addModule(new SubsystemGroupCLI(this));
         addModule(new SubsystemUserCLI(this));
+        addModule(new SDCLI(this));
     }
 }
