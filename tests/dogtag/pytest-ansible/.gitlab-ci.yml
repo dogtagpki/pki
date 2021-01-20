@@ -245,7 +245,12 @@ topo-03-kra-bugzilla:
     - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/sanity/test_role_users_kra.py --junitxml $CI_PROJECT_DIR/role-user-creation_junit.xml -qsvvvv
     - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $PYTEST_DIR/pytest/kra/bugzilla/test* -q -s --junitxml $CI_PROJECT_DIR/kra_bugzilla.xml -qsvv
 
-
+topo-00-BZ-1664435-ca-scep-gs:
+  <<: *job_definition
+  stage: tier2-other
+  script:
+    - ansible-playbook  -u fedora --become  -i $HOSTFILE $PYTEST_DIR/installation/main.yml --extra-vars "topology=topology-00" -vv  | sed 's/\\n/\n/g'
+    - py.test --html=$CI_PROJECT_DIR/${CI_JOB_NAME}_html_report.html --self-contained-html --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE  --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE --ansible-playbook-directory $PYTEST_DIR/pytest/ca/bugzilla/ $PYTEST_DIR/pytest-ansible/pytest/ca/scep/test_bug_1664435_pki_ca_scep_enrollment.py -qsvv --junitxml $CI_PROJECT_DIR/BZ_1664435_junit.xml
 
 #=================================================================================================================================================================================================================
 #
