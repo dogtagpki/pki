@@ -32,5 +32,6 @@ public class KRACLI extends CLI {
         addModule(new SubsystemGroupCLI(this));
         addModule(new SubsystemRangeCLI(this));
         addModule(new SubsystemUserCLI(this));
+        addModule(new SDCLI(this));
     }
 }
