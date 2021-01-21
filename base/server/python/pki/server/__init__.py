@@ -21,6 +21,7 @@
 
 from __future__ import absolute_import
 
+import datetime
 import functools
 import getpass
 import grp
@@ -30,9 +31,11 @@ import os
 import pathlib
 import pwd
 import re
+import requests
 import shutil
 import subprocess
 import tempfile
+import time
 import socket
 
 import ldap
@@ -691,7 +694,38 @@ class PKIServer(object):
 
         return os.path.exists(context_xml)
 
-    def deploy_webapp(self, webapp_id, descriptor, doc_base=None):
+    def is_available(self, path, timeout=None):
+
+        server_config = self.get_server_config()
+
+        protocol = 'https'
+        hostname = socket.getfqdn()
+        port = server_config.get_secure_port()
+
+        connection = pki.client.PKIConnection(
+            protocol=protocol,
+            hostname=hostname,
+            port=port,
+            trust_env=False,
+            verify=False)
+
+        try:
+            connection.get(path, timeout=timeout)
+            return True
+
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                return False
+            raise
+
+    def deploy_webapp(
+            self,
+            webapp_id,
+            descriptor,
+            doc_base=None,
+            wait=False,
+            max_wait=60,
+            timeout=None):
         """
         Deploy a web application into a Tomcat instance.
 
@@ -733,7 +767,52 @@ class PKIServer(object):
         os.chown(context_xml, self.uid, self.gid)
         os.chmod(context_xml, DEFAULT_FILE_MODE)
 
-    def undeploy_webapp(self, webapp_id, force=False):
+        if not wait:
+            return
+
+        logger.info('Waiting for web application to start')
+
+        if webapp_id == 'ROOT':
+            path = '/'
+        else:
+            path = '/' + webapp_id
+
+        start_time = datetime.datetime.today()
+        started = False
+        counter = 0
+
+        while not started:
+            try:
+                time.sleep(1)
+                started = self.is_available(path, timeout=timeout)
+
+            except requests.exceptions.SSLError as e:
+                max_retry_error = e.args[0]
+                reason = getattr(max_retry_error, 'reason')
+                raise Exception('Server unreachable due to SSL error: %s' % reason) from e
+
+            except pki.RETRYABLE_EXCEPTIONS as e:
+
+                stop_time = datetime.datetime.today()
+                counter = (stop_time - start_time).total_seconds()
+
+                if max_wait is not None and counter >= max_wait:
+                    raise Exception('Web application did not start after %ds' %
+                                    max_wait) from e
+
+                logger.info(
+                    'Waiting for web application to start (%ds)',
+                    int(round(counter)))
+
+        logger.info('Web application started')
+
+    def undeploy_webapp(
+            self,
+            webapp_id,
+            force=False,
+            wait=False,
+            max_wait=60,
+            timeout=None):
 
         context_xml = os.path.join(
             self.conf_dir,
@@ -743,6 +822,45 @@ class PKIServer(object):
 
         logger.info('Removing %s', context_xml)
         pki.util.remove(context_xml, force=force)
+
+        if not wait:
+            return
+
+        logger.info('Waiting for web application to stop')
+
+        if webapp_id == 'ROOT':
+            path = '/'
+        else:
+            path = '/' + webapp_id
+
+        start_time = datetime.datetime.today()
+        stopped = False
+        counter = 0
+
+        while not stopped:
+            try:
+                time.sleep(1)
+                stopped = not self.is_available(path, timeout=timeout)
+
+            except requests.exceptions.SSLError as e:
+                max_retry_error = e.args[0]
+                reason = getattr(max_retry_error, 'reason')
+                raise Exception('Server unreachable due to SSL error: %s' % reason) from e
+
+            except pki.RETRYABLE_EXCEPTIONS as e:
+
+                stop_time = datetime.datetime.today()
+                counter = (stop_time - start_time).total_seconds()
+
+                if max_wait is not None and counter >= max_wait:
+                    raise Exception('Web application did not start after %ds' %
+                                    max_wait) from e
+
+                logger.info(
+                    'Waiting for web application to stop (%ds)',
+                    int(round(counter)))
+
+        logger.info('Web application stopped')
 
     def remove(self, force=False):
 
