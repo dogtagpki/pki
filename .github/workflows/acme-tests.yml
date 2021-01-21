@@ -124,7 +124,7 @@ jobs:
           docker exec pki pki-server acme-database-mod --type ds
           docker exec pki pki-server acme-issuer-mod --type pki
           docker exec pki pki-server acme-realm-mod --type ds
-          docker exec pki pki-server acme-deploy
+          docker exec pki pki-server acme-deploy --wait
 
       - name: Gather config files
         if: always()
@@ -154,7 +154,7 @@ jobs:
 
       - name: Remove ACME
         run: |
-          docker exec pki pki-server acme-undeploy
+          docker exec pki pki-server acme-undeploy --wait
           docker exec pki pki-server acme-remove
 
       - name: Remove CA
