@@ -51,8 +51,9 @@ jobs:
           path: /tmp/pki.tar
 
   # docs/installation/acme/Installing_PKI_ACME_Responder.md
-  acme-test:
-    name: Installing ACME
+  # docs/user/acme/Using_PKI_ACME_Responder_with_Certbot.md
+  acme-certbot-test:
+    name: Testing ACME with certbot
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -82,28 +83,34 @@ jobs:
       - name: Load container
         run: docker load --input /tmp/pki.tar
 
-      - name: Run container
+      - name: Create network
+        run: docker network create example
+
+      - name: Run PKI container
         run: |
           IMAGE=pki \
           NAME=pki \
           HOSTNAME=pki.example.com \
           ci/runner-init.sh
 
-      - name: Install dependencies
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install dependencies in PKI container
         run: |
           docker exec pki dnf install -y findutils dnf-plugins-core wget 389-ds-base
           docker exec pki dnf copr enable -y ${COPR_REPO}
 
-      - name: Install PKI packages
+      - name: Install PKI packages in PKI container
         run: docker exec pki bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
 
-      - name: Install DS
+      - name: Install DS in PKI container
         run: docker exec pki ${PKIDIR}/ci/ds-create.sh
 
-      - name: Install CA
+      - name: Install CA in PKI container
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
 
-      - name: Install ACME
+      - name: Install ACME in PKI container
         run: |
           docker exec pki pki-server acme-create
           docker exec pki ldapmodify -h pki.example.com \
@@ -126,21 +133,21 @@ jobs:
           docker exec pki pki-server acme-realm-mod --type ds
           docker exec pki pki-server acme-deploy --wait
 
-      - name: Gather config files
+      - name: Gather config files from PKI container
         if: always()
         run: docker exec pki tar cvf ${PKIDIR}/pki-conf.tar -C / etc/pki
 
-      - name: Upload config files
+      - name: Upload config files from PKI container
         if: always()
         uses: actions/upload-artifact@v2
         with:
           name: pki-conf-${{ matrix.os }}
           path: pki-conf.tar
 
-      - name: Run PKI healthcheck
+      - name: Run PKI healthcheck in PKI container
         run: docker exec pki pki-healthcheck --debug
 
-      - name: Verify CA admin
+      - name: Verify admin user in PKI container
         run: |
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
@@ -149,27 +156,69 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec pki pki -n caadmin ca-user-show caadmin
 
-      - name: Verify ACME
+      - name: Verify ACME in PKI container
         run: docker exec pki pki acme-info
 
-      - name: Remove ACME
+      - name: Run client container
+        run: |
+          IMAGE=pki \
+          NAME=client \
+          HOSTNAME=client.example.com \
+          ci/runner-init.sh
+
+      - name: Connect client container to network
+        run: docker network connect example client --alias client.example.com
+
+      - name: Install dependencies in client container
+        run: docker exec client dnf install -y certbot
+
+      - name: Verify certbot in client container
+        run: |
+          docker exec client certbot register \
+              --server http://pki.example.com:8080/acme/directory \
+              --email user1@example.com \
+              --agree-tos \
+              --non-interactive
+          docker exec client certbot certonly \
+              --server http://pki.example.com:8080/acme/directory \
+              -d client.example.com \
+               --standalone \
+              --non-interactive
+          docker exec client certbot renew \
+              --server http://pki.example.com:8080/acme/directory \
+              --cert-name client.example.com \
+              --force-renewal \
+              --non-interactive
+          docker exec client certbot revoke \
+              --server http://pki.example.com:8080/acme/directory \
+              --cert-name client.example.com \
+              --non-interactive
+          docker exec client certbot update_account \
+              --server http://pki.example.com:8080/acme/directory \
+              --email user2@example.com \
+              --non-interactive
+          docker exec client certbot unregister \
+              --server http://pki.example.com:8080/acme/directory \
+              --non-interactive
+
+      - name: Remove ACME from PKI container
         run: |
           docker exec pki pki-server acme-undeploy --wait
           docker exec pki pki-server acme-remove
 
-      - name: Remove CA
+      - name: Remove CA from PKI container
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Remove DS
+      - name: Remove DS from PKI container
         run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Gather log files
+      - name: Gather log files from PKI container
         if: always()
         run: |
           docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
           docker exec pki tar cvf ${PKIDIR}/pki-logs.tar -C / var/log/pki
 
-      - name: Upload log files
+      - name: Upload log files from PKI container
         if: always()
         uses: actions/upload-artifact@v2
         with:
