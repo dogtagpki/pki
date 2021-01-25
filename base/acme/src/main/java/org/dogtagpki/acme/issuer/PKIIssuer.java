@@ -115,6 +115,34 @@ public class PKIIssuer extends ACMEIssuer {
 
         PKIClient pkiClient = new PKIClient(clientConfig);
         CAClient caClient = new CAClient(pkiClient);
+
+        // Here the agent credentials are stored in the ClientConfig and will
+        // be sent to the CA automatically if any of the methods being called
+        // requires REST authentication. However, the methods being called
+        // depend on the cert profile being used.
+        //
+        // If the profile has an authenticator, the request can be completed
+        // with the following methods:
+        // - CACertClient.getEnrollmentTemplate()
+        // - CACertClient.enrollRequest()
+        //
+        // The above methods do not require REST authentication, but the
+        // profile still requires authentication, so the credentials must be
+        // provided either through the request itself (i.e. using profile
+        // authentication) or by calling CAClient.login() (i.e. using REST
+        // authentication).
+        //
+        // If the profile does not have an authenticator, the request must
+        // be reviewed and approved with the following additional methods:
+        // - CACertClient.reviewRequest()
+        // - CACertClient.approveRequest()
+        //
+        // The above methods do require REST authentication so in this case
+        // it's not actually necessary to call CAClient.login(). However, to
+        // support both types of profiles the CAClient.login() needs to be
+        // called explicitly.
+        caClient.login();
+
         CACertClient certClient = new CACertClient(caClient);
         CertEnrollmentRequest certEnrollmentRequest = certClient.getEnrollmentTemplate(profile);
 
