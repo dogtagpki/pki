@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.system;
 
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -24,6 +25,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.ca.CAClient;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
@@ -47,6 +50,7 @@ public class KRAConnectorAddCLI extends CommandCLI {
     }
 
     public void createOptions() {
+
         Option option = new Option(null, "host", true, "KRA host");
         option.setArgName("host");
         options.addOption(option);
@@ -57,6 +61,34 @@ public class KRAConnectorAddCLI extends CommandCLI {
 
         option = new Option(null, "input-file", true, "Input file");
         option.setArgName("input-file");
+        options.addOption(option);
+
+        option = new Option(null, "url", true, "Connector URL");
+        option.setArgName("URL");
+        options.addOption(option);
+
+        option = new Option(null, "transport-cert", true, "Transport certificate path");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "transport-nickname", true, "Transport certificate nickname");
+        option.setArgName("nickname");
+        options.addOption(option);
+
+        option = new Option(null, "enable", true, "Enable (default: true)");
+        option.setArgName("boolean");
+        options.addOption(option);
+
+        option = new Option(null, "local", true, "Local (default: false)");
+        option.setArgName("boolean");
+        options.addOption(option);
+
+        option = new Option(null, "timeout", true, "Timeout (default: 30)");
+        option.setArgName("seconds");
+        options.addOption(option);
+
+        option = new Option(null, "session-file", true, "Session file");
+        option.setArgName("path");
         options.addOption(option);
     }
 
@@ -77,20 +109,21 @@ public class KRAConnectorAddCLI extends CommandCLI {
 
         KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient();
 
-        //check if connector exists
-        boolean connectorExists = true;
-        try {
-            @SuppressWarnings("unused")
-            KRAConnectorInfo info = kraConnectorClient.getConnectorInfo();
-        } catch (ConnectorNotFoundException e) {
-            connectorExists = false;
-        }
-
         if (inputFile != null) {
 
-            if (connectorExists) {
+            try {
+                KRAConnectorInfo info = kraConnectorClient.getConnectorInfo();
+
+                logger.info("KRA connector:");
+                logger.info("- host: " + info.getHost());
+                logger.info("- port: " + info.getPort());
+                logger.info("- path: " + info.getUri());
+
                 throw new Exception("Cannot add new connector from file.  " +
                         "Delete the existing connector first");
+
+            } catch (ConnectorNotFoundException e) {
+                // no existing KRA connector
             }
 
             String xml = new String(Files.readAllBytes(Paths.get(inputFile)));
@@ -98,16 +131,68 @@ public class KRAConnectorAddCLI extends CommandCLI {
 
             kraConnectorClient.addConnector(info);
             MainCLI.printMessage("Added KRA connector");
+            return;
+        }
 
-        } else {
+        if (kraHost != null || kraPort != null) {
 
-            if (!connectorExists) {
+            try {
+                KRAConnectorInfo info = kraConnectorClient.getConnectorInfo();
+
+                logger.info("KRA connector:");
+                logger.info("- host: " + info.getHost());
+                logger.info("- port: " + info.getPort());
+                logger.info("- path: " + info.getUri());
+
+            } catch (ConnectorNotFoundException e) {
                 throw new Exception("Cannot add new host to existing connector.  " +
                         "No connector currently exists");
             }
 
             kraConnectorClient.addHost(kraHost, kraPort);
             MainCLI.printMessage("Added KRA host \"" + kraHost + ":" + kraPort + "\"");
+            return;
         }
+
+        String sessionFile = cmd.getOptionValue("session-file");
+        if (sessionFile == null) {
+            throw new Exception("Missing session file");
+        }
+
+        String sessionID = new String(Files.readAllBytes(Paths.get(sessionFile)));
+
+        KRAConnectorInfo info = new KRAConnectorInfo();
+
+        String connectorURL = cmd.getOptionValue("url");
+        if (connectorURL != null) {
+            URL url = new URL(connectorURL);
+            info.setHost(url.getHost());
+            info.setPort(url.getPort() + "");
+            info.setUri(url.getPath());
+        }
+
+        String transportCertPath = cmd.getOptionValue("transport-cert");
+        if (transportCertPath != null) {
+            String transportCert = new String(Files.readAllBytes(Paths.get(transportCertPath)));
+            info.setTransportCert(transportCert);
+        }
+
+        String transportNickname = cmd.getOptionValue("transport-nickname");
+        if (transportNickname != null) {
+            info.setTransportCertNickname(transportNickname);
+        }
+
+        String enable = cmd.getOptionValue("enable", "true");
+        info.setEnable(enable);
+
+        String local = cmd.getOptionValue("local", "false");
+        info.setLocal(local);
+
+        String timeout = cmd.getOptionValue("timeout", "30");
+        info.setTimeout(timeout);
+
+        PKIClient client = mainCLI.getClient();
+        CAClient caClient = new CAClient(client);
+        caClient.addKRAConnector(info, sessionID);
     }
 }
