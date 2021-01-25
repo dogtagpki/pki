@@ -17,11 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -213,32 +215,39 @@ public class KRAConnectorInfo {
         return true;
     }
 
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(KRAConnectorInfo.class).createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static KRAConnectorInfo fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(KRAConnectorInfo.class).createUnmarshaller();
+        return (KRAConnectorInfo) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
     public String toString() {
         try {
-            JAXBContext context = JAXBContext.newInstance(KRAConnectorInfo.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-            marshaller.marshal(this, stream);
-            return stream.toString();
+            return toXML();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     public static void main(String args[]) throws Exception {
-        KRAConnectorInfo info = new KRAConnectorInfo();
-        info.setEnable("true");
-        info.setHost("host1.example.com");
-        info.setLocal("false");
-        info.setPort("8443");
-        info.setTimeout("30");
-        info.setUri("");
-        info.setTransportCertNickname("KRA Transport Certificate");
-        info.setTransportCert(
+
+        KRAConnectorInfo before = new KRAConnectorInfo();
+        before.setEnable("true");
+        before.setHost("host1.example.com");
+        before.setLocal("false");
+        before.setPort("8443");
+        before.setTimeout("30");
+        before.setUri("");
+        before.setTransportCertNickname("KRA Transport Certificate");
+        before.setTransportCert(
             "MIIDnDCCAoSgAwIBAgIBDzANBgkqhkiG9w0BAQsFADBGMSMwIQYDVQQKExpyZWRo" +
             "YXQuY29tIFNlY3VyaXR5IERvbWFpbjEfMB0GA1UEAxMWQ0EgU2lnbmluZyBDZXJ0" +
             "aWZpY2F0ZTAeFw0xMzAxMDkyMTE5MDBaFw0xNDEyMzAyMTE5MDBaMEkxIzAhBgNV" +
@@ -260,6 +269,12 @@ public class KRAConnectorInfo {
             "2ZBYwBsI2DhAyWBKQgQfgxQwxmobbg6BVnn9/CW7gJ0Gwb+VJEvRtaBOnjliP74/" +
             "Jb+fenCZE47zRNCDubBe+Q==");
 
-        System.out.println(info);
+        String xml = before.toXML();
+        System.out.println("Before: " + xml);
+
+        KRAConnectorInfo after = KRAConnectorInfo.fromXML(xml);
+        System.out.println("After: " + after.toXML());
+
+        System.out.println(before.equals(after));
     }
 }

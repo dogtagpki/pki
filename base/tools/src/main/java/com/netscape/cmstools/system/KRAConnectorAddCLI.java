@@ -17,10 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.system;
 
-import java.io.FileInputStream;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -89,23 +87,25 @@ public class KRAConnectorAddCLI extends CommandCLI {
         }
 
         if (inputFile != null) {
+
             if (connectorExists) {
                 throw new Exception("Cannot add new connector from file.  " +
                         "Delete the existing connector first");
             }
-            FileInputStream fis = new FileInputStream(inputFile);
-            JAXBContext context = JAXBContext.newInstance(KRAConnectorInfo.class);
-            Unmarshaller unmarshaller = context.createUnmarshaller();
-            KRAConnectorInfo info = (KRAConnectorInfo) unmarshaller.unmarshal(fis);
+
+            String xml = new String(Files.readAllBytes(Paths.get(inputFile)));
+            KRAConnectorInfo info = KRAConnectorInfo.fromXML(xml);
 
             kraConnectorClient.addConnector(info);
             MainCLI.printMessage("Added KRA connector");
 
         } else {
+
             if (!connectorExists) {
                 throw new Exception("Cannot add new host to existing connector.  " +
                         "No connector currently exists");
             }
+
             kraConnectorClient.addHost(kraHost, kraPort);
             MainCLI.printMessage("Added KRA host \"" + kraHost + ":" + kraPort + "\"");
         }
