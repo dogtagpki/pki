@@ -52,6 +52,7 @@ public class CACLI extends SubsystemCLI {
         addModule(new GroupCLI(this));
         addModule(new KRAConnectorCLI(this));
         addModule(new ProfileCLI(this));
+        addModule(new PublisherCLI(this));
         addModule(new RangeCLI(this));
         addModule(new SelfTestCLI(this));
         addModule(new UserCLI(this));
