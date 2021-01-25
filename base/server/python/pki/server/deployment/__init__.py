@@ -893,6 +893,43 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
+    def add_ocsp_publisher(self, instance):
+
+        server_config = instance.get_server_config()
+        hostname = self.mdict['pki_hostname']
+        securePort = server_config.get_secure_port()
+
+        ca_url = self.mdict['pki_issuing_ca']
+        ocsp_url = 'https://%s:%s' % (hostname, securePort)
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            session_file = os.path.join(tmpdir, 'session.txt')
+            with open(session_file, 'w') as f:
+                f.write(self.install_token.token)
+
+            cmd = [
+                'pki',
+                '-d', instance.nssdb_dir,
+                '-f', instance.password_conf,
+                '-U', ca_url,
+                'ca-publisher-ocsp-add',
+                '--url', ocsp_url,
+                '--session-file', session_file
+            ]
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def get_tps_connector(self, instance, subsystem):
 
         tks_uri = self.mdict['pki_tks_uri']
@@ -1223,6 +1260,13 @@ class PKIDeployer:
 
                 logger.info('Adding %s into Trusted Managers', uid)
                 subsystem.add_group_member('Trusted Managers', uid)
+
+                logger.info('Adding OCSP publisher in CA')
+                # For now don't register publishing with the CA for a clone,
+                # preserving existing functionality.
+                # Next we need to treat the publishing of clones as a group,
+                # and fail over amongst them.
+                self.add_ocsp_publisher(instance)
 
         if subsystem.type == 'TPS':
             logger.info('Setting up shared secret')

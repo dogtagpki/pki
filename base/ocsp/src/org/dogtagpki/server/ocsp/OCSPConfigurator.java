@@ -18,13 +18,10 @@
 package org.dogtagpki.server.ocsp;
 
 import java.io.IOException;
-import java.net.URL;
 import java.security.cert.CertificateEncodingException;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.ca.CAClient;
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
@@ -55,17 +52,6 @@ public class OCSPConfigurator extends Configurator {
                     importCACert();
                 } else {
                     logger.debug("OCSPInstallerService: Skipping importCACertToOCSP for clone.");
-                }
-
-                if (!request.getStandAlone()) {
-
-                    // For now don't register publishing with the CA for a clone.
-                    // Preserves existing functionality
-                    // Next we need to treat the publishing of clones as a group ,
-                    // and fail over amongst them.
-                    if (!request.isClone()) {
-                        updateOCSPConfiguration(request);
-                    }
                 }
             }
 
@@ -115,25 +101,5 @@ public class OCSPConfigurator extends Configurator {
         defStore.addCRLIssuingPoint(leafCert.getSubjectDN().getName(), rec);
 
         logger.debug("OCSPConfigurator: Added CA certificate.");
-    }
-
-    public void updateOCSPConfiguration(FinalizeConfigRequest request) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String caHost = preopConfig.getString("ca.hostname", "");
-        int caPort = preopConfig.getInteger("ca.httpsport", -1);
-        String serverURL = "https://" + caHost + ":" + caPort;
-
-        logger.debug("OCSPConfigurator: Updating OCSP configuration in CA at " + serverURL);
-
-        String ocspHost = cs.getHostname();
-        String ocspPort = engine.getAgentPort();
-        URL url = new URL("https://" + ocspHost + ":" + ocspPort);
-        String sessionId = request.getInstallToken().getToken();
-
-        PKIClient client = createClient(serverURL, null, null);
-        CAClient caClient = new CAClient(client);
-        caClient.addOCSPPublisher(url, sessionId);
     }
 }
