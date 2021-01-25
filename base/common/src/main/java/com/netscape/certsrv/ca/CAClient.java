@@ -128,4 +128,41 @@ public class CAClient extends SubsystemClient {
             throw new IOException("Unable to update connector: " + error);
         }
     }
+
+    public void addOCSPPublisher(URL url, String sessionID) throws Exception {
+
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("ocsp_host", url.getHost());
+        content.putSingle("ocsp_port", url.getPort() + "");
+        content.putSingle("sessionID", sessionID);
+        logger.debug("CAClient: content: " + content);
+
+        String response = client.post("/ca/ee/ca/updateOCSPConfig", content, String.class);
+        logger.debug("CAClient: Response: " + response);
+
+        if (response == null || response.equals("")) {
+            logger.error("CAClient: Unable to update publisher: No response");
+            throw new IOException("Unable to update publisher: No response");
+        }
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
+        XMLObject parser = new XMLObject(bis);
+
+        String status = parser.getValue("Status");
+        logger.debug("CAClient: status: " + status);
+
+        if (status.equals("0")) {
+            logger.debug("CAClient: Publisher updated");
+
+        } else if (status.equals("2")) {
+            logger.error("CAClient: Unable to update publisher: Authentication failure");
+            throw new EAuthException("Unable to update publisher: Authentication failure");
+
+        } else {
+            String error = parser.getValue("Error");
+            logger.error("CAClient: Unable to update publisher: " + error);
+            throw new IOException("Unable to update publisher: " + error);
+        }
+    }
 }

@@ -17,16 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ocsp;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.security.cert.CertificateEncodingException;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-
-import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
@@ -35,7 +32,6 @@ import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
-import com.netscape.cmsutil.xml.XMLObject;
 
 public class OCSPConfigurator extends Configurator {
 
@@ -132,44 +128,12 @@ public class OCSPConfigurator extends Configurator {
         logger.debug("OCSPConfigurator: Updating OCSP configuration in CA at " + serverURL);
 
         String ocspHost = cs.getHostname();
-        int ocspPort = Integer.parseInt(engine.getAgentPort());
+        String ocspPort = engine.getAgentPort();
+        URL url = new URL("https://" + ocspHost + ":" + ocspPort);
         String sessionId = request.getInstallToken().getToken();
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionId);
-        content.putSingle("ocsp_host", ocspHost);
-        content.putSingle("ocsp_port", ocspPort + "");
-
         PKIClient client = createClient(serverURL, null, null);
-        String response = client.post(
-                "/ca/ee/ca/updateOCSPConfig",
-                content,
-                String.class);
-        logger.debug("OCSPConfigurator: Response: " + response);
-
-        if (response == null || response.equals("")) {
-            logger.error("OCSPConfigurator: Unable to update OCSP configuration: No response from CA");
-            throw new IOException("Unable to update OCSP configuration: No response from CA");
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-        XMLObject parser = new XMLObject(bis);
-
-        String status = parser.getValue("Status");
-        logger.debug("OCSPConfigurator: status: " + status);
-
-        if (status.equals(Configurator.SUCCESS)) {
-            logger.debug("OCSPConfigurator: Successfully updated OCSP configuration in CA");
-
-        } else if (status.equals(Configurator.AUTH_FAILURE)) {
-            logger.error("OCSPConfigurator: Unable to update OCSP configuration: Authentication failure");
-            throw new EAuthException(Configurator.AUTH_FAILURE);
-
-        } else {
-            String error = parser.getValue("Error");
-            logger.error("OCSPConfigurator: Unable to update OCSP configuration: " + error);
-            throw new IOException(error);
-        }
+        CAClient caClient = new CAClient(client);
+        caClient.addOCSPPublisher(url, sessionId);
     }
 }
