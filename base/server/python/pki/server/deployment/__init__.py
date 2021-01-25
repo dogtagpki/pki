@@ -847,6 +847,52 @@ class PKIDeployer:
         logger.debug('Command: %s', ' '.join(cmd))
         return subprocess.check_output(cmd)
 
+    def add_kra_connector(self, instance, subsystem):
+
+        server_config = instance.get_server_config()
+        hostname = self.mdict['pki_hostname']
+        securePort = server_config.get_secure_port()
+
+        ca_url = self.mdict['pki_issuing_ca']
+        kra_url = 'https://%s:%s/kra/agent/kra/connector' % (hostname, securePort)
+
+        transport_cert = subsystem.config.get('kra.transport.cert')
+        transport_nickname = subsystem.config.get('kra.cert.transport.nickname')
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            transport_cert_file = os.path.join(tmpdir, 'kra_transport.crt')
+            with open(transport_cert_file, 'w') as f:
+                f.write(transport_cert)
+
+            session_file = os.path.join(tmpdir, 'session.txt')
+            with open(session_file, 'w') as f:
+                f.write(self.install_token.token)
+
+            cmd = [
+                'pki',
+                '-d', instance.nssdb_dir,
+                '-f', instance.password_conf,
+                '-U', ca_url,
+                'ca-kraconnector-add',
+                '--url', kra_url,
+                '--transport-cert', transport_cert_file,
+                '--transport-nickname', transport_nickname,
+                '--session-file', session_file
+            ]
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def get_tps_connector(self, instance, subsystem):
 
         tks_uri = self.mdict['pki_tks_uri']
@@ -1145,6 +1191,13 @@ class PKIDeployer:
 
                 logger.info('Adding %s into Trusted Managers', uid)
                 subsystem.add_group_member('Trusted Managers', uid)
+
+            ca_url = subsystem.config.get('preop.ca.url')
+
+            if not standalone and ca_host and ca_url:
+
+                logger.info('Adding KRA connector in CA')
+                self.add_kra_connector(instance, subsystem)
 
         if subsystem.type == 'OCSP':
 
