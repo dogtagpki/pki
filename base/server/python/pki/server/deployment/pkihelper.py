@@ -2595,7 +2595,6 @@ class ConfigClient:
         # generic extension support in CSR - for external CA
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
-        self.security_domain_type = self.mdict['pki_security_domain_type']
 
     def process_admin_cert(self, admin_cert):
 
