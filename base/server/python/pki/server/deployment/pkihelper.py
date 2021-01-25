@@ -36,8 +36,6 @@ import re
 import requests
 import shutil
 import subprocess
-import time
-from datetime import datetime
 from grp import getgrgid
 from grp import getgrnam
 from pwd import getpwnam
@@ -840,60 +838,6 @@ class Instance:
         except OSError as exc:
             logger.error(log.PKI_OSERROR_1, exc)
             raise
-
-    def wait_for_startup(
-        self,
-        subsystem,
-        startup_timeout,
-        request_timeout=None,
-    ):
-        """
-        Wait for Dogtag to start and become ready to serve requests.
-
-        :param startup_timeout: Total timeout. Unsuccessful status requests will
-            be retried until this timeout is exceeded.
-        :param request_timeout: connect/receive timeout for each individual
-            status request (default: None)
-
-        """
-
-        fips_mode = pki.FIPS.is_enabled()
-        logger.info('FIPS mode: %s', fips_mode)
-
-        # must use 'http' protocol when FIPS mode is enabled
-        secure_connection = not fips_mode
-
-        start_time = datetime.today()
-        ready = False
-        counter = 0
-
-        while not ready:
-            try:
-                time.sleep(1)
-
-                ready = subsystem.is_ready(
-                    secure_connection=secure_connection,
-                    timeout=request_timeout,
-                )
-
-            except requests.exceptions.SSLError as exc:
-                max_retry_error = exc.args[0]
-                reason = getattr(max_retry_error, 'reason')
-                raise Exception('Server unreachable due to SSL error: %s' % reason) from exc
-
-            except pki.RETRYABLE_EXCEPTIONS as exc:
-
-                stop_time = datetime.today()
-                counter = (stop_time - start_time).total_seconds()
-
-                if counter >= startup_timeout:
-                    raise Exception('%s subsystem did not start after %ds' %
-                                    (subsystem.type, startup_timeout)) from exc
-
-                logger.info(
-                    'Waiting for %s subsystem to start (%ds)',
-                    subsystem.type,
-                    int(round(counter)))
 
 
 class Directory:

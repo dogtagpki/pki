@@ -21,16 +21,19 @@
 
 from __future__ import absolute_import
 
+import datetime
 import functools
 import json
 import logging
 import os
 import pwd
 import re
+import requests
 import shutil
 import socket
 import subprocess
 import tempfile
+import time
 import xml.etree.ElementTree as ET
 
 import ldap
@@ -389,6 +392,53 @@ class PKISubsystem(object):
 
         logger.info('Subsystem status: %s', status)
         return status == 'running'
+
+    def wait_for_startup(self, startup_timeout=None, request_timeout=None):
+        """
+        Wait for subsystem to become ready to serve requests.
+
+        :param startup_timeout: Total timeout. Unsuccessful status requests will
+            be retried until this timeout is exceeded. Default: None.
+        :param request_timeout: Connect/receive timeout for each individual
+            status request. Default: None.
+        """
+
+        fips_mode = pki.FIPS.is_enabled()
+        logger.info('FIPS mode: %s', fips_mode)
+
+        # must use 'http' protocol when FIPS mode is enabled
+        secure_connection = not fips_mode
+
+        start_time = datetime.datetime.today()
+        ready = False
+        counter = 0
+
+        while not ready:
+            try:
+                time.sleep(1)
+
+                ready = self.is_ready(
+                    secure_connection=secure_connection,
+                    timeout=request_timeout)
+
+            except requests.exceptions.SSLError as exc:
+                max_retry_error = exc.args[0]
+                reason = getattr(max_retry_error, 'reason')
+                raise Exception('Server unreachable due to SSL error: %s' % reason) from exc
+
+            except pki.RETRYABLE_EXCEPTIONS as exc:
+
+                stop_time = datetime.datetime.today()
+                counter = (stop_time - start_time).total_seconds()
+
+                if startup_timeout is not None and counter >= startup_timeout:
+                    raise Exception('%s subsystem did not start after %ds' %
+                                    (self.type, startup_timeout)) from exc
+
+                logger.info(
+                    'Waiting for %s subsystem to start (%ds)',
+                    self.type,
+                    int(round(counter)))
 
     def enable(self):
         if os.path.exists(self.doc_base):
@@ -1607,11 +1657,11 @@ class CASubsystem(PKISubsystem):
 
         con.close()
 
-        requests = []
+        cert_requests = []
         for entry in entries:
-            requests.append(self.create_request_object(entry))
+            cert_requests.append(self.create_request_object(entry))
 
-        return requests
+        return cert_requests
 
     def get_cert_requests(self, request_id):
 

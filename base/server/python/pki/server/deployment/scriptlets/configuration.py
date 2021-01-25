@@ -570,11 +570,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Restarting server')
             instance.restart()
 
-        deployer.instance.wait_for_startup(
-            subsystem,
-            startup_timeout,
-            request_timeout,
-        )
+        subsystem.wait_for_startup(startup_timeout, request_timeout)
 
         # Optionally wait for debugger to attach (e. g. - 'eclipse'):
         if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
@@ -865,11 +861,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Restarting server')
             instance.restart()
 
-        deployer.instance.wait_for_startup(
-            subsystem,
-            startup_timeout,
-            request_timeout,
-        )
+        subsystem.wait_for_startup(startup_timeout, request_timeout)
 
     def destroy(self, deployer):
         pass
