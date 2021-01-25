@@ -716,10 +716,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if subsystem.type == 'CA':
 
-            if not clone:
-                logger.info('Updating CA ranges')
-                subsystem.update_ranges()
-
             if clone:
                 if sd_host.DomainManager and sd_host.DomainManager.lower() == 'true':
 
@@ -732,90 +728,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     subsystem.config['securitydomain.httpsagentport'] = securePort
                     subsystem.config['securitydomain.httpseeport'] = securePort
 
-                logger.info('Disabling CRL caching and generation on clone')
-
-                subsystem.config['ca.certStatusUpdateInterval'] = '0'
-                subsystem.config['ca.listenToCloneModifications'] = 'false'
-                subsystem.config['ca.crl.MasterCRL.enableCRLCache'] = 'false'
-                subsystem.config['ca.crl.MasterCRL.enableCRLUpdates'] = 'false'
-
-                url = urllib.parse.urlparse(master_url)
-
-                subsystem.config['master.ca.agent.host'] = url.hostname
-                subsystem.config['master.ca.agent.port'] = str(url.port)
-
-            crl_number = deployer.mdict['pki_ca_starting_crl_number']
-            logger.info('Starting CRL number: %s', crl_number)
-            subsystem.config['ca.crl.MasterCRL.startingCrlNumber'] = crl_number
-
-            logger.info('Enabling profile subsystem')
-            subsystem.enable_subsystem('profile')
-
-            # Delete CA signing cert record to avoid migration conflict
-            if not config.str2bool(deployer.mdict['pki_ca_signing_record_create']):
-                logger.info('Deleting CA signing cert record')
-                serial_number = deployer.mdict['pki_ca_signing_serial_number']
-                subsystem.remove_cert(serial_number)
-
-        if subsystem.type == 'KRA':
-
-            if not clone:
-                logger.info('Updating KRA ranges')
-                subsystem.update_ranges()
-
-            ca_host = subsystem.config.get('preop.ca.hostname')
-
-            if not clone and not standalone and ca_host:
-                ca_port = subsystem.config.get('preop.ca.httpsadminport')
-                ca_url = 'https://%s:%s' % (ca_host, ca_port)
-                uid = 'CA-%s-%s' % (ca_host, ca_port)
-
-                logger.info('Adding %s', uid)
-                subsystem.add_user(
-                    uid,
-                    full_name=uid,
-                    user_type='agentType',
-                    state='1')
-
-                logger.info('Getting subsystem certificate from %s', ca_url)
-                subsystem_cert_data = deployer.get_ca_subsystem_cert(instance, ca_url)
-
-                logger.info('Adding subsystem certificate into %s', uid)
-                subsystem.add_user_cert(uid, cert_data=subsystem_cert_data, cert_format='PEM')
-
-                logger.info('Adding %s into Trusted Managers', uid)
-                subsystem.add_group_member('Trusted Managers', uid)
-
-        if subsystem.type == 'OCSP':
-
-            ca_host = subsystem.config.get('preop.ca.hostname')
-
-            if not clone and not standalone and ca_host:
-                ca_port = subsystem.config.get('preop.ca.httpsadminport')
-                ca_url = 'https://%s:%s' % (ca_host, ca_port)
-                uid = 'CA-%s-%s' % (ca_host, ca_port)
-
-                logger.info('Adding %s', uid)
-                subsystem.add_user(
-                    uid,
-                    full_name=uid,
-                    user_type='agentType',
-                    state='1')
-
-                logger.info('Getting subsystem certificate from %s', ca_url)
-                subsystem_cert_data = deployer.get_ca_subsystem_cert(instance, ca_url)
-
-                logger.info('Adding subsystem certificate into %s', uid)
-                subsystem.add_user_cert(uid, cert_data=subsystem_cert_data, cert_format='PEM')
-
-                logger.info('Adding %s into Trusted Managers', uid)
-                subsystem.add_group_member('Trusted Managers', uid)
-
-        if subsystem.type == 'TPS':
-            logger.info('Setting up shared secret')
-            deployer.setup_shared_secret(instance, subsystem)
-
-        deployer.finalize_subsystem(subsystem)
+        deployer.finalize_subsystem(instance, subsystem)
 
         logger.info('%s configuration complete', subsystem.type)
 
