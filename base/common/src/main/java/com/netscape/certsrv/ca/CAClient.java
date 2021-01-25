@@ -21,10 +21,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -33,6 +37,7 @@ import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.system.FeatureClient;
+import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -80,5 +85,47 @@ public class CAClient extends SubsystemClient {
         byte[] bytes = CryptoUtil.base64Decode(CryptoUtil.normalizeCertStr(chain));
 
         return new PKCS7(bytes);
+    }
+
+    public void addKRAConnector(KRAConnectorInfo info, String sessionID) throws Exception {
+
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("ca.connector.KRA.enable", info.getEnable());
+        content.putSingle("ca.connector.KRA.local", info.getLocal());
+        content.putSingle("ca.connector.KRA.timeout", info.getTimeout());
+        content.putSingle("ca.connector.KRA.uri", info.getUri());
+        content.putSingle("ca.connector.KRA.host", info.getHost());
+        content.putSingle("ca.connector.KRA.port", info.getPort());
+        content.putSingle("ca.connector.KRA.transportCert", info.getTransportCert());
+        content.putSingle("ca.connector.KRA.transportCertNickname", info.getTransportCertNickname());
+        content.putSingle("sessionID", sessionID);
+        logger.debug("CAClient: content: " + content);
+
+        String response = client.post("/ca/admin/ca/updateConnector", content, String.class);
+        logger.debug("CAClient: Response: " + response);
+
+        if (response == null || response.equals("")) {
+            logger.error("CAClient: Unable to update connector: No response");
+            throw new IOException("Unable to update connector: No response");
+        }
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
+        XMLObject parser = new XMLObject(bis);
+
+        String status = parser.getValue("Status");
+        logger.debug("CAClient: status: " + status);
+
+        if (status.equals("0")) {
+            logger.debug("CAClient: Connector updated");
+
+        } else if (status.equals("2")) {
+            logger.error("CAClient: Unable to update connector: Authentication failure");
+            throw new EAuthException("Unable to update connector: Authentication failure");
+
+        } else {
+            String error = parser.getValue("Error");
+            logger.error("CAClient: Unable to update connector: " + error);
+            throw new IOException("Unable to update connector: " + error);
+        }
     }
 }

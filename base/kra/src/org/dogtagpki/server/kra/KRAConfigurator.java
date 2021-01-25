@@ -17,20 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.kra;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-
-import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
+import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
-import com.netscape.cmsutil.xml.XMLObject;
 
 public class KRAConfigurator extends Configurator {
 
@@ -88,47 +82,18 @@ public class KRAConfigurator extends Configurator {
         String transportCertNickname = cs.getString("kra.cert.transport.nickname");
         logger.info("KRAConfigurator: - transport nickname: " + transportCertNickname);
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("ca.connector.KRA.enable", "true");
-        content.putSingle("ca.connector.KRA.local", "false");
-        content.putSingle("ca.connector.KRA.timeout", "30");
-        content.putSingle("ca.connector.KRA.uri", path);
-        content.putSingle("ca.connector.KRA.host", kraHost);
-        content.putSingle("ca.connector.KRA.port", kraPort);
-        content.putSingle("ca.connector.KRA.transportCert", transportCert);
-        content.putSingle("ca.connector.KRA.transportCertNickname",transportCertNickname);
-        content.putSingle("sessionID", sessionId);
+        KRAConnectorInfo info = new KRAConnectorInfo();
+        info.setEnable("true");
+        info.setLocal("false");
+        info.setTimeout("30");
+        info.setUri(path);
+        info.setHost(kraHost);
+        info.setPort(kraPort);
+        info.setTransportCert(transportCert);
+        info.setTransportCertNickname(transportCertNickname);
 
-        logger.debug("KRAConfigurator: content: " + content);
         PKIClient client = createClient(serverURL, null, null);
-        String response = client.post(
-                "/ca/admin/ca/updateConnector",
-                content,
-                String.class);
-        logger.debug("Response: " + response);
-
-        if (response == null || response.equals("")) {
-            logger.error("KRAConfigurator: Unable to configure KRA connector: No response from CA");
-            throw new IOException("Unable to configure KRA connector: No response from CA");
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-        XMLObject parser = new XMLObject(bis);
-
-        String status = parser.getValue("Status");
-        logger.debug("KRAConfigurator: status: " + status);
-
-        if (status.equals(Configurator.SUCCESS)) {
-            logger.debug("KRAConfigurator: Successfully configured KRA connector in CA");
-
-        } else if (status.equals(Configurator.AUTH_FAILURE)) {
-            logger.error("KRAConfigurator: Unable to configure KRA connector: Authentication failure");
-            throw new EAuthException(Configurator.AUTH_FAILURE);
-
-        } else {
-            String error = parser.getValue("Error");
-            logger.error("KRAConfigurator: Unable to configure KRA connector: " + error);
-            throw new IOException(error);
-        }
+        CAClient caClient = new CAClient(client);
+        caClient.addKRAConnector(info, sessionId);
     }
 }
