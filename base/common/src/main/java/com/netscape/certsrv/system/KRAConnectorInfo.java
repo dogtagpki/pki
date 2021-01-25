@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KRAConnectorInfo {
+
     private static final String HOST = "host";
     private static final String PORT = "port";
     private static final String TRANSPORT_CERT= "transportCert";
@@ -145,6 +146,73 @@ public class KRAConnectorInfo {
         this.enable = enable;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((enable == null) ? 0 : enable.hashCode());
+        result = prime * result + ((host == null) ? 0 : host.hashCode());
+        result = prime * result + ((local == null) ? 0 : local.hashCode());
+        result = prime * result + ((port == null) ? 0 : port.hashCode());
+        result = prime * result + ((timeout == null) ? 0 : timeout.hashCode());
+        result = prime * result + ((transportCert == null) ? 0 : transportCert.hashCode());
+        result = prime * result + ((transportCertNickname == null) ? 0 : transportCertNickname.hashCode());
+        result = prime * result + ((uri == null) ? 0 : uri.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        KRAConnectorInfo other = (KRAConnectorInfo) obj;
+        if (enable == null) {
+            if (other.enable != null)
+                return false;
+        } else if (!enable.equals(other.enable))
+            return false;
+        if (host == null) {
+            if (other.host != null)
+                return false;
+        } else if (!host.equals(other.host))
+            return false;
+        if (local == null) {
+            if (other.local != null)
+                return false;
+        } else if (!local.equals(other.local))
+            return false;
+        if (port == null) {
+            if (other.port != null)
+                return false;
+        } else if (!port.equals(other.port))
+            return false;
+        if (timeout == null) {
+            if (other.timeout != null)
+                return false;
+        } else if (!timeout.equals(other.timeout))
+            return false;
+        if (transportCert == null) {
+            if (other.transportCert != null)
+                return false;
+        } else if (!transportCert.equals(other.transportCert))
+            return false;
+        if (transportCertNickname == null) {
+            if (other.transportCertNickname != null)
+                return false;
+        } else if (!transportCertNickname.equals(other.transportCertNickname))
+            return false;
+        if (uri == null) {
+            if (other.uri != null)
+                return false;
+        } else if (!uri.equals(other.uri))
+            return false;
+        return true;
+    }
+
     public String toString() {
         try {
             JAXBContext context = JAXBContext.newInstance(KRAConnectorInfo.class);
@@ -195,4 +263,3 @@ public class KRAConnectorInfo {
         System.out.println(info);
     }
 }
-
