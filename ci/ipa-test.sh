@@ -23,24 +23,8 @@
 # Print the version of installed components
 rpm -qa tomcat* pki-* freeipa-* nss* 389-ds* jss* | sort
 
-# Disable IPV6
-sysctl net.ipv6.conf.lo.disable_ipv6=0
-
 # Define constants
 server_password="Secret.123"
-
-# Install IPA-server
-echo "Installing IPA ..."
-ipa-server-install -U \
-    --domain example.com \
-    --realm EXAMPLE.COM \
-    -p ${server_password} \
-    -a ${server_password} \
-    --setup-kra \
-    --no-host-dns
-
-# Test whether IPA server is reachable
-echo ${server_password} | kinit admin && ipa ping
 
 # Setup environment to run tests
 cp -r /etc/ipa/* ~/.ipa/
@@ -68,8 +52,3 @@ ${cert_test_file_loc} 2>&1
 # TODO: Re-enable ipa-healthcheck test once the following issue is fixed.
 # https://github.com/freeipa/freeipa-healthcheck/issues/163
 #ipa-healthcheck --debug
-
-echo "Test complete"
-
-# Uninstall ipa-server
-ipa-server-install --uninstall -U

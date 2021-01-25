@@ -50,7 +50,7 @@ jobs:
           name: ipa-${{ matrix.os }}
           path: /tmp/ipa.tar
 
-  ipa-tests:
+  ipa-test:
     name: Testing IPA
     needs: build
     runs-on: ubuntu-latest
@@ -101,8 +101,45 @@ jobs:
       - name: Install PKI packages
         run: docker exec ipa bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
 
+      - name: Install IPA server
+        run: |
+          docker exec ipa sysctl net.ipv6.conf.lo.disable_ipv6=0
+          docker exec ipa ipa-server-install \
+            -U \
+            --domain example.com \
+            -r EXAMPLE.COM \
+            -p Secret.123 \
+            -a Secret.123 \
+            --setup-kra \
+            --no-host-dns
+          docker exec ipa bash -c "echo Secret.123 | kinit admin"
+          docker exec ipa ipa ping
+
+      - name: Verify CA admin
+        run: |
+          docker exec ipa pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec ipa pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec ipa pki client-cert-import \
+              --pkcs12 /root/ca-agent.p12 \
+              --pkcs12-password Secret.123
+          docker exec ipa pki -n ipa-ca-agent ca-user-show admin
+
+      - name: Gather config files
+        if: always()
+        run: docker exec ipa tar cvf ${PKIDIR}/ipa-conf.tar -C / etc/pki
+
+      - name: Upload config files
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipa-conf-${{ matrix.os }}
+          path: ipa-conf.tar
+
       - name: Run IPA tests
         run: docker exec ipa ${PKIDIR}/ci/ipa-test.sh
+
+      - name: Remove IPA server
+        run: docker exec ipa ipa-server-install --uninstall -U
 
       - name: Gather log files
         if: always()
