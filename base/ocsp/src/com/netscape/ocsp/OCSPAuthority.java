@@ -155,7 +155,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
                     String className = mConfig.getString(PROP_STORE + "." + id + ".class", null);
                     IOCSPStore store = (IOCSPStore) Class.forName(className).newInstance();
 
-                    store.init(this, mConfig.getSubStore(PROP_STORE + "." + id));
+                    store.init(mConfig.getSubStore(PROP_STORE + "." + id));
                     mStores.put(id, store);
                     if (id.equals(defStoreId)) {
                         mDefStore = store;

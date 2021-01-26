@@ -109,7 +109,6 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     protected boolean mByName = true;
     protected boolean mIncludeNextUpdate = false;
     protected Hashtable<String, CRLIPContainer> mCacheCRLIssuingPoints = new Hashtable<String, CRLIPContainer>();
-    private IOCSPAuthority mOCSPAuthority;
     private IConfigStore mConfig = null;
     private String mId = null;
     private DBSubsystem dbSubsystem;
@@ -134,9 +133,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         return org.mozilla.jss.netscape.security.util.Utils.getStringArrayFromVector(v);
     }
 
-    public void init(IOCSPAuthority owner, IConfigStore config)
-            throws EBaseException {
-        mOCSPAuthority = owner;
+    public void init(IConfigStore config) throws EBaseException {
+
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();

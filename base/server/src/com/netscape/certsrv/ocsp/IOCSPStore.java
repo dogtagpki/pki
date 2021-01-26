@@ -36,8 +36,7 @@ import com.netscape.cmsutil.ocsp.OCSPResponse;
  */
 public interface IOCSPStore {
 
-    public void init(IOCSPAuthority owner, IConfigStore config)
-            throws EBaseException;
+    public void init(IConfigStore config) throws EBaseException;
 
     public void startup() throws EBaseException;
 

@@ -99,7 +99,6 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private final static String PROP_INCLUDE_NEXT_UPDATE =
             "includeNextUpdate";
 
-    private IOCSPAuthority mOCSPAuthority;
     private IConfigStore mConfig = null;
     private String mId = null;
     private String mCRLAttr = null;
@@ -134,9 +133,8 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Fetch CA certificate and CRL from LDAP server.
      */
-    public void init(IOCSPAuthority owner, IConfigStore config)
-            throws EBaseException {
-        mOCSPAuthority = owner;
+    public void init(IConfigStore config) throws EBaseException {
+
         mConfig = config;
 
         mCRLAttr = mConfig.getString(PROP_CRL_ATTR, DEF_CRL_ATTR);
