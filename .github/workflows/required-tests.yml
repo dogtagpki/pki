@@ -96,7 +96,6 @@ jobs:
       needs: build
       runs-on: ubuntu-latest
       env:
-        CONTAINER: pkitest
         BUILDDIR: /tmp/workdir
         PKIDIR: /tmp/workdir/pki
         LOGS: ${GITHUB_WORKSPACE}/logs.txt
@@ -112,7 +111,10 @@ jobs:
           run: docker build ci/ -t pki-fedora-${{ matrix.os }} --build-arg OS_VERSION=${{ matrix.os }}
 
         - name: Setup required test environment
-          run: IMAGE=pki-fedora-${{ matrix.os }} ci/runner-init.sh
+          run: |
+            IMAGE=pki-fedora-${{ matrix.os }} \
+            NAME=pki \
+            ci/runner-init.sh
 
         - name: Download PKI binaries from Build job
           uses: actions/download-artifact@v1
@@ -123,61 +125,61 @@ jobs:
           run: tar -xzf pki-build-${{ matrix.os }}/pki-rpms.tar.gz
 
         - name: Install required packages
-          run: docker exec -i ${CONTAINER} dnf install -y findutils dnf-plugins-core sudo wget 389-ds-base
+          run: docker exec pki dnf install -y findutils dnf-plugins-core sudo wget 389-ds-base
 
         - name: Enable PKI COPR repo
-          run: docker exec -i ${CONTAINER} dnf copr enable -y ${COPR_REPO}
+          run: docker exec pki dnf copr enable -y ${COPR_REPO}
 
         - name: Install PKI packages
-          run: docker exec -i ${CONTAINER} bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
+          run: docker exec pki bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
 
         - name: Install DS
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ds-create.sh
+          run: docker exec pki ${PKIDIR}/ci/ds-create.sh
 
         - name: Install CA
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ca-create.sh
+          run: docker exec pki ${PKIDIR}/ci/ca-create.sh
 
         - name: Install KRA
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/kra-create.sh
+          run: docker exec pki ${PKIDIR}/ci/kra-create.sh
 
         - name: Install OCSP
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ocsp-create.sh
+          run: docker exec pki ${PKIDIR}/ci/ocsp-create.sh
 
         - name: Install TKS
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/tks-create.sh
+          run: docker exec pki ${PKIDIR}/ci/tks-create.sh
 
         - name: Install TPS
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/tps-create.sh
+          run: docker exec pki ${PKIDIR}/ci/tps-create.sh
 
         - name: Gather instance config
           if: always()
-          run: docker exec -i ${CONTAINER} bash -c "cp -rf /etc/pki /var/log/pki/etc-pki"
+          run: docker exec pki bash -c "cp -rf /etc/pki /var/log/pki/etc-pki"
 
         - name: Remove TPS
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/tps-remove.sh
+          run: docker exec pki ${PKIDIR}/ci/tps-remove.sh
 
         - name: Remove TKS
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/tks-remove.sh
+          run: docker exec pki ${PKIDIR}/ci/tks-remove.sh
 
         - name: Remove OCSP
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ocsp-remove.sh
+          run: docker exec pki ${PKIDIR}/ci/ocsp-remove.sh
 
         - name: Remove KRA
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/kra-remove.sh
+          run: docker exec pki ${PKIDIR}/ci/kra-remove.sh
 
         - name: Remove CA
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ca-remove.sh
+          run: docker exec pki ${PKIDIR}/ci/ca-remove.sh
 
         - name: Remove DS
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ds-remove.sh
+          run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
         - name: Gather journalctl logs
           if: always()
-          run: docker exec -i ${CONTAINER} bash -c "journalctl -u pki-tomcatd@pkitest > /var/log/pki/pki-journalctl.log"
+          run: docker exec pki bash -c "journalctl -u pki-tomcatd@pkitest > /var/log/pki/pki-journalctl.log"
 
         - name: Compress logs
           if: always()
-          run: docker exec -i ${CONTAINER} bash -c "tar -czf ${PKIDIR}/pki-logs.tar.gz /var/log/pki"
+          run: docker exec pki bash -c "tar -czf ${PKIDIR}/pki-logs.tar.gz /var/log/pki"
 
         - name: Upload Logs
           if: always()
@@ -195,7 +197,6 @@ jobs:
       needs: build
       runs-on: ubuntu-latest
       env:
-        CONTAINER: pkitest
         BUILDDIR: /tmp/workdir
         PKIDIR: /tmp/workdir/pki
         LOGS: ${GITHUB_WORKSPACE}/logs.txt
@@ -212,7 +213,10 @@ jobs:
           run: docker build ci/ -t pki-fedora-${{ matrix.os }} --build-arg OS_VERSION=${{ matrix.os }}
 
         - name: Setup required test environment
-          run: IMAGE=pki-fedora-${{ matrix.os }} ci/runner-init.sh
+          run: |
+            IMAGE=pki-fedora-${{ matrix.os }} \
+            NAME=ipa \
+            ci/runner-init.sh
 
         - name: Download PKI binaries from Build job
           uses: actions/download-artifact@v1
@@ -223,30 +227,30 @@ jobs:
           run: tar -xzf pki-build-${{ matrix.os }}/pki-rpms.tar.gz
 
         - name: Install required packages
-          run: docker exec -i ${CONTAINER} dnf install -y  findutils dnf-plugins-core
+          run: docker exec ipa dnf install -y  findutils dnf-plugins-core
 
         - name: Enable freeipa nightly COPR
-          run: docker exec -i ${CONTAINER} dnf copr enable -y @freeipa/freeipa-master-nightly
+          run: docker exec ipa dnf copr enable -y @freeipa/freeipa-4.8-nightly
 
         - name: Enable PKI COPR repo
-          run: docker exec -i ${CONTAINER} dnf copr enable -y ${COPR_REPO}
+          run: docker exec ipa dnf copr enable -y ${COPR_REPO}
 
         - name: Install FreeIPA packages
-          run: docker exec -i ${CONTAINER} dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests
+          run: docker exec ipa dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests
 
         - name: Install newly built PKI packages
-          run: docker exec -i ${CONTAINER} bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
+          run: docker exec ipa bash -c "find ${PKIDIR} -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf -y install"
 
         - name: Run IPA tests
-          run: docker exec -i ${CONTAINER} ${PKIDIR}/ci/ipa-test.sh
+          run: docker exec ipa ${PKIDIR}/ci/ipa-test.sh
 
         - name: Extract PKI related journalctl logs
           if: always()
-          run: docker exec -i ${CONTAINER} bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
+          run: docker exec ipa bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-journalctl.log"
 
         - name: Compress PKI and IPA related logs
           if: always()
-          run: docker exec -i ${CONTAINER} bash -c "tar -czf ${PKIDIR}/ipa-logs.tar.gz /var/log/ipa* /var/log/pki*"
+          run: docker exec ipa bash -c "tar -czf ${PKIDIR}/ipa-logs.tar.gz /var/log/ipa* /var/log/pki*"
 
         - name: Upload compressed log
           if: always()
