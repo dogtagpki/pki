@@ -54,7 +54,7 @@ public interface IOCSPStore {
      * @exception EBaseException an error associated with the inability to
      *                process the supplied OCSP request
      */
-    public OCSPResponse validate(OCSPRequest req)
+    public OCSPResponse validate(IOCSPAuthority ocspAuthority, OCSPRequest req)
             throws EBaseException;
 
     /**

@@ -265,7 +265,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Validate an OCSP request.
      */
-    public OCSPResponse validate(OCSPRequest request)
+    public OCSPResponse validate(IOCSPAuthority ocspAuthority, OCSPRequest request)
             throws EBaseException {
 
         logger.debug("LDAPStore: validating OCSP request");
@@ -280,7 +280,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         CMSEngine engine = CMS.getCMSEngine();
         IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
 
-        mOCSPAuthority.incNumOCSPRequest(1);
+        ocspAuthority.incNumOCSPRequest(1);
         long startTime = new Date().getTime();
 
         try {
@@ -301,7 +301,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             }
 
             long lookupEndTime = new Date().getTime();
-            mOCSPAuthority.incLookupTime(lookupEndTime - lookupStartTime);
+            ocspAuthority.incLookupTime(lookupEndTime - lookupStartTime);
 
             if (statsSub != null) {
                 statsSub.endTiming("lookup");
@@ -317,9 +317,9 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             ResponderID rid = null;
 
             if (mByName) {
-                rid = mOCSPAuthority.getResponderIDByName();
+                rid = ocspAuthority.getResponderIDByName();
             } else {
-                rid = mOCSPAuthority.getResponderIDByHash();
+                rid = ocspAuthority.getResponderIDByHash();
             }
 
             Extension nonce[] = null;
@@ -346,10 +346,10 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
             long signStartTime = new Date().getTime();
 
-            BasicOCSPResponse basicRes = mOCSPAuthority.sign(rd);
+            BasicOCSPResponse basicRes = ocspAuthority.sign(rd);
 
             long signEndTime = new Date().getTime();
-            mOCSPAuthority.incSignTime(signEndTime - signStartTime);
+            ocspAuthority.incSignTime(signEndTime - signStartTime);
 
             if (statsSub != null) {
                 statsSub.endTiming("signing");
@@ -363,7 +363,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             logger.info("LDAPStore: done OCSP request");
 
             long endTime = new Date().getTime();
-            mOCSPAuthority.incTotalTime(endTime - startTime);
+            ocspAuthority.incTotalTime(endTime - startTime);
 
             return response;
 

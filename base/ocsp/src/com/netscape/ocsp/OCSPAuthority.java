@@ -356,7 +356,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     public OCSPResponse validate(OCSPRequest request)
             throws EBaseException {
         long startTime = new Date().getTime();
-        OCSPResponse response = mDefStore.validate(request);
+        OCSPResponse response = mDefStore.validate(this, request);
         long endTime = new Date().getTime();
 
         mServedTime = mServedTime + (endTime - startTime);
