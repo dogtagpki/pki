@@ -458,8 +458,7 @@ public abstract class EnrollProfile extends Profile {
             req.setExtData(REQUEST_EXTENSIONS, new CertificateExtensions());
 
         } catch (EBaseException e) {
-            logger.warn("Unable to create enrollment request: " + e.getMessage(), e);
-            // raise exception?
+            throw new EProfileException("Unable to create enrollment request: " + e.getMessage(), e);
         }
 
         return req;
