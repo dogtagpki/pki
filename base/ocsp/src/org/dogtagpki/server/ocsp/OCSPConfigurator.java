@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
@@ -46,24 +47,29 @@ public class OCSPConfigurator extends Configurator {
             // import the CA certificate into the OCSP
             // configure the CRL Publishing to OCSP in CA
             if (!ca_host.equals("")) {
-                engine.reinit(OCSPAuthority.ID);
+
+                logger.info("OCSPConfigurator: Reinitializing OCSP subsystem");
+
+                OCSPAuthority ocspSubsystem = (OCSPAuthority) engine.getSubsystem(OCSPAuthority.ID);
+                IConfigStore ocspConfig = cs.getSubStore(OCSPAuthority.ID);
+                ocspSubsystem.init(ocspConfig);
 
                 if (!request.isClone()) {
                     importCACert();
-                } else {
-                    logger.debug("OCSPInstallerService: Skipping importCACertToOCSP for clone.");
                 }
             }
 
         } catch (Exception e) {
-            logger.error("OCSPInstallerService: " + e.getMessage(), e);
-            throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
+            logger.error("OCSPConfigurator: Unable to configure OCSP publishing in CA: " + e.getMessage(), e);
+            throw new PKIException("Unable to configure OCSP publishing in CA: " + e.getMessage(), e);
         }
 
         super.finalizeConfiguration(request);
     }
 
     public void importCACert() throws IOException, EBaseException, CertificateEncodingException {
+
+        logger.info("OCSPConfigurator: Adding CRL issuing point");
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -99,7 +105,5 @@ public class OCSPConfigurator extends Configurator {
 
         rec.set(ICRLIssuingPointRecord.ATTR_CA_CERT, leafCert.getEncoded());
         defStore.addCRLIssuingPoint(leafCert.getSubjectDN().getName(), rec);
-
-        logger.debug("OCSPConfigurator: Added CA certificate.");
     }
 }

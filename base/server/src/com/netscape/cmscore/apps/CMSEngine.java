@@ -957,15 +957,6 @@ public class CMSEngine implements ServletContextListener {
         logger.debug(method + "passed; continue");
     }
 
-    public void reinit(String id) throws EBaseException {
-
-        logger.info("CMSEngine: reinitializing " + id + " subsystem");
-
-        ISubsystem system = getSubsystem(id);
-        IConfigStore cs = mConfig.getSubStore(id);
-        system.init(cs);
-    }
-
     protected void startupSubsystems() throws Exception {
 
         for (ISubsystem subsystem : subsystems.values()) {
