@@ -7,6 +7,7 @@ MANIFEST
 __pycache__
 .pytest_cache/
 .idea/
+node_modules/
 tests/artifacts/
 tests/tests.retry
 base/util/test/PKICertImport/dbs

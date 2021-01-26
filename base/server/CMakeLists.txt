@@ -194,6 +194,13 @@ install(
 
 install(
     DIRECTORY
+        examples/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/server/examples
+)
+
+install(
+    DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}/lib/
     DESTINATION
         ${DATA_INSTALL_DIR}/server/lib
