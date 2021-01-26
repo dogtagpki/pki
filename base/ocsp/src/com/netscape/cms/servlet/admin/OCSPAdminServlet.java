@@ -39,6 +39,7 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ocsp.IOCSPStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.ocsp.OCSPAuthority;
 
 /**
  * A class representings an administration servlet for Certificate
@@ -59,7 +60,7 @@ public class OCSPAdminServlet extends AdminServlet {
 
     private final static String INFO = "OCSPAdminServlet";
 
-    private IOCSPAuthority mOCSP = null;
+    private OCSPAuthority mOCSP = null;
 
     public OCSPAdminServlet() {
         super();
@@ -71,7 +72,7 @@ public class OCSPAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         CMSEngine engine = CMS.getCMSEngine();
-        mOCSP = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
+        mOCSP = (OCSPAuthority) engine.getSubsystem(OCSPAuthority.ID);
     }
 
     /**

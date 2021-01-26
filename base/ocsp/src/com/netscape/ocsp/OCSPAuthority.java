@@ -187,7 +187,11 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     }
 
     /**
-     * Retrieves the specificed OCSP store.
+     * This method retrieves the OCSP store given its name.
+     * <P>
+     *
+     * @param id the string representation of an OCSP store
+     * @return IOCSPStore an instance of an OCSP store object
      */
     public IOCSPStore getOCSPStore(String id) {
         return mStores.get(id);

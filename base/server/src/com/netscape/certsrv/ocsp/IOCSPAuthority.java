@@ -46,15 +46,6 @@ public interface IOCSPAuthority extends ISubsystem {
     public final static String PROP_NEW_NICKNAME = "newNickname";
 
     /**
-     * This method retrieves the OCSP store given its name.
-     * <P>
-     *
-     * @param id the string representation of an OCSP store
-     * @return IOCSPStore an instance of an OCSP store object
-     */
-    public IOCSPStore getOCSPStore(String id);
-
-    /**
      * This method retrieves the signing unit.
      * <P>
      *
