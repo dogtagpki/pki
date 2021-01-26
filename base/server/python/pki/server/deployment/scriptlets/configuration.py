@@ -655,17 +655,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Setting up admin user')
             deployer.setup_admin(subsystem, client)
 
-        if config.str2bool(deployer.mdict['pki_backup_keys']):
-
-            # by default store the backup file in the NSS databases directory
-            if not deployer.mdict['pki_backup_file']:
-                deployer.mdict['pki_backup_file'] = \
-                    deployer.mdict['pki_server_database_path'] + '/' + \
-                    deployer.mdict['pki_subsystem'].lower() + '_backup_keys.p12'
-
-            logger.info('Backing up keys into %s', deployer.mdict['pki_backup_file'])
-            deployer.backup_keys(instance, subsystem)
-
         domain_manager = False
 
         if subsystem.type == 'CA':
