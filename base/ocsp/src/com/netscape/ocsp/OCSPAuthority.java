@@ -287,6 +287,13 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         return mName;
     }
 
+    /**
+     * This method retrieves the default OCSP store
+     * (i. e. - information from the internal database).
+     * <P>
+     *
+     * @return DefStore an instance of the default OCSP store
+     */
     public IDefStore getDefaultStore() {
         return (IDefStore) mDefStore;
     }

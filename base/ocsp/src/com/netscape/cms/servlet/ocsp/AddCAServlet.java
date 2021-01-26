@@ -39,7 +39,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.OCSPAddCARequestEvent;
 import com.netscape.certsrv.logging.event.OCSPAddCARequestProcessedEvent;
 import com.netscape.certsrv.ocsp.IDefStore;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -47,6 +46,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.ocsp.OCSPAuthority;
 
 /**
  * Configure the CA to respond to OCSP requests for a CA
@@ -63,7 +63,7 @@ public class AddCAServlet extends CMSServlet {
 
     private final static String TPL_FILE = "addCA.template";
     private String mFormPath = null;
-    private IOCSPAuthority mOCSPAuthority = null;
+    private OCSPAuthority mOCSPAuthority;
 
     public AddCAServlet() {
         super();
@@ -81,7 +81,7 @@ public class AddCAServlet extends CMSServlet {
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         mTemplates.remove(ICMSRequest.SUCCESS);
-        mOCSPAuthority = (IOCSPAuthority) mAuthority;
+        mOCSPAuthority = (OCSPAuthority) mAuthority;
 
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;

@@ -37,7 +37,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -45,6 +44,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.ocsp.OCSPAuthority;
 
 /**
  * Check the status of a specific certificate
@@ -69,7 +69,7 @@ public class CheckCertServlet extends CMSServlet {
 
     private final static String TPL_FILE = "checkCert.template";
     private String mFormPath = null;
-    private IOCSPAuthority mOCSPAuthority = null;
+    private OCSPAuthority mOCSPAuthority;
 
     public CheckCertServlet() {
         super();
@@ -87,7 +87,7 @@ public class CheckCertServlet extends CMSServlet {
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         mTemplates.remove(ICMSRequest.SUCCESS);
-        mOCSPAuthority = (IOCSPAuthority) mAuthority;
+        mOCSPAuthority = (OCSPAuthority) mAuthority;
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
     }

@@ -47,7 +47,6 @@ import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -59,6 +58,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.ocsp.OCSPAuthority;
 
 /**
  * Update the OCSP responder with a new CRL
@@ -77,7 +77,7 @@ public class AddCRLServlet extends CMSServlet {
 
     private final static String TPL_FILE = "addCRL.template";
     private String mFormPath = null;
-    private IOCSPAuthority mOCSPAuthority = null;
+    private OCSPAuthority mOCSPAuthority;
 
     public AddCRLServlet() {
         super();
@@ -95,7 +95,7 @@ public class AddCRLServlet extends CMSServlet {
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         mTemplates.remove(ICMSRequest.SUCCESS);
-        mOCSPAuthority = (IOCSPAuthority) mAuthority;
+        mOCSPAuthority = (OCSPAuthority) mAuthority;
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
     }

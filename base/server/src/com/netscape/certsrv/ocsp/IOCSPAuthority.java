@@ -70,15 +70,6 @@ public interface IOCSPAuthority extends ISubsystem {
     public ResponderID getResponderIDByHash();
 
     /**
-     * This method retrieves the default OCSP store
-     * (i. e. - information from the internal database).
-     * <P>
-     *
-     * @return IDefStore an instance of the default OCSP store
-     */
-    public IDefStore getDefaultStore();
-
-    /**
      * This method sets the supplied algorithm as the default signing algorithm.
      * <P>
      *

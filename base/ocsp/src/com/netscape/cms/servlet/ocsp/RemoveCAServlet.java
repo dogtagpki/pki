@@ -35,7 +35,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.OCSPRemoveCARequestEvent;
 import com.netscape.certsrv.logging.event.OCSPRemoveCARequestProcessedEvent;
 import com.netscape.certsrv.ocsp.IDefStore;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -43,6 +42,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.ocsp.OCSPAuthority;
 
 /**
  * Configure the CA to no longer respond to OCSP requests for a CA
@@ -55,7 +55,7 @@ public class RemoveCAServlet extends CMSServlet {
     private static final long serialVersionUID = -4519898238552366358L;
     private final static String TPL_FILE = "removeCA.template";
     private String mFormPath = null;
-    private IOCSPAuthority mOCSPAuthority = null;
+    private OCSPAuthority mOCSPAuthority;
 
     public RemoveCAServlet() {
         super();
@@ -73,7 +73,7 @@ public class RemoveCAServlet extends CMSServlet {
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         mTemplates.remove(ICMSRequest.SUCCESS);
-        mOCSPAuthority = (IOCSPAuthority) mAuthority;
+        mOCSPAuthority = (OCSPAuthority) mAuthority;
 
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;

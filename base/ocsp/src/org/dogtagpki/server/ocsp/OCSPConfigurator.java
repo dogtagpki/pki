@@ -24,11 +24,11 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
+import com.netscape.ocsp.OCSPAuthority;
 
 public class OCSPConfigurator extends Configurator {
 
@@ -46,7 +46,7 @@ public class OCSPConfigurator extends Configurator {
             // import the CA certificate into the OCSP
             // configure the CRL Publishing to OCSP in CA
             if (!ca_host.equals("")) {
-                engine.reinit(IOCSPAuthority.ID);
+                engine.reinit(OCSPAuthority.ID);
 
                 if (!request.isClone()) {
                     importCACert();
@@ -86,7 +86,7 @@ public class OCSPConfigurator extends Configurator {
             leafCert = certs[0];
         }
 
-        IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
+        OCSPAuthority ocsp = (OCSPAuthority) engine.getSubsystem(OCSPAuthority.ID);
         IDefStore defStore = ocsp.getDefaultStore();
 
         // (1) need to normalize (sort) the chain
