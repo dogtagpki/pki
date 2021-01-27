@@ -532,9 +532,9 @@ public class ListCerts extends CMSServlet {
             logger.debug("ListCerts: no next record");
         }
 
-        header.addStringValue("op", req.getParameter("op"));
+        header.addStringValue("op", CMSTemplate.escapeJavaScriptString(req.getParameter("op")));
         if (revokeAll != null)
-            header.addStringValue("revokeAll", revokeAll);
+            header.addStringValue("revokeAll", CMSTemplate.escapeJavaScriptString(revokeAll));
 
         if (mAuthName != null)
             header.addStringValue("issuerName", mAuthName.toString());
@@ -546,10 +546,10 @@ public class ListCerts extends CMSServlet {
         header.addStringValue("queryCertFilter", filter);
 
         String skipRevoked = req.getParameter("skipRevoked");
-        header.addStringValue("skipRevoked", skipRevoked == null ? "" : skipRevoked);
+        header.addStringValue("skipRevoked", skipRevoked == null ? "" : (skipRevoked.equals("on") ? "on" : "off"));
 
         String skipNonValid = req.getParameter("skipNonValid");
-        header.addStringValue("skipNonValid", skipNonValid == null ? "" : skipNonValid);
+        header.addStringValue("skipNonValid", skipNonValid == null ? "" : (skipNonValid.equals("on") ? "on" : "off"));
 
         header.addStringValue("templateName", "queryCert");
         header.addStringValue("queryFilter", filter);
@@ -644,7 +644,7 @@ public class ListCerts extends CMSServlet {
         if (cert.getSubjectDN().toString().equals("")) {
             rarg.addStringValue("subject", " ");
         } else
-            rarg.addStringValue("subject", cert.getSubjectDN().toString());
+            rarg.addStringValue("subject", CMSTemplate.escapeJavaScriptString(cert.getSubjectDN().toString()));
 
         rarg.addStringValue("type", "X.509");
 
@@ -678,11 +678,11 @@ public class ListCerts extends CMSServlet {
 
         if (issuedBy == null)
             issuedBy = "";
-        rarg.addStringValue("issuedBy", issuedBy); // cert.getIssuerDN().toString()
+        rarg.addStringValue("issuedBy", CMSTemplate.escapeJavaScriptString(issuedBy)); // cert.getIssuerDN().toString()
         rarg.addLongValue("issuedOn", rec.getCreateTime().getTime() / 1000);
 
         rarg.addStringValue("revokedBy",
-                ((rec.getRevokedBy() == null) ? "" : rec.getRevokedBy()));
+                ((rec.getRevokedBy() == null) ? "" : CMSTemplate.escapeJavaScriptString(rec.getRevokedBy())));
         if (rec.getRevokedOn() == null) {
             rarg.addStringValue("revokedOn", null);
         } else {
