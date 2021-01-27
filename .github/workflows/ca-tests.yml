@@ -144,3 +144,172 @@ jobs:
         with:
           name: pki-logs-${{ matrix.os }}
           path: pki-logs.tar
+
+  # docs/installation/ca/Installing_CA_Clone.md
+  ca-clone-test:
+    name: Installing CA Clone
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      LOGS: ${GITHUB_WORKSPACE}/logs.txt
+      COPR_REPO: "@pki/10.9"
+    strategy:
+      matrix:
+        os: ['32']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Download container
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-${{ matrix.os }}
+          path: /tmp
+
+      - name: Load container
+        run: docker load --input /tmp/pki.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Run primary container
+        run: |
+          IMAGE=pki \
+          NAME=primary \
+          HOSTNAME=primary.example.com \
+          ci/runner-init.sh
+
+      - name: Connect primary container to network
+        run: docker network connect example primary --alias primary.example.com
+
+      - name: Install dependencies in primary container
+        run: |
+          docker exec primary dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec primary dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages in primary container
+        run: docker exec primary bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS in primary container
+        run: docker exec primary ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install CA in primary container
+        run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
+
+      - name: Gather config files from primary container
+        if: always()
+        run: docker exec primary tar cvf ${PKIDIR}/primary-conf.tar -C / etc/pki
+
+      - name: Upload config files from primary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: primary-conf-${{ matrix.os }}
+          path: primary-conf.tar
+
+      - name: Setup secondary container
+        run: |
+          IMAGE=pki \
+          NAME=secondary \
+          HOSTNAME=secondary.example.com \
+          ci/runner-init.sh
+
+      - name: Connect secondary container to network
+        run: docker network connect example secondary --alias secondary.example.com
+
+      - name: Install dependencies in secondary container
+        run: |
+          docker exec secondary dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec secondary dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages on secondary container
+        run: docker exec secondary bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS in secondary container
+        run: docker exec secondary ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install CA in secondary container
+        run: |
+          docker exec primary pki-server cert-export ca_signing --cert-file ${PKIDIR}/ca_signing.crt
+          docker exec primary pki-server ca-clone-prepare --pkcs12-file ${PKIDIR}/ca-certs.p12 --pkcs12-password Secret.123
+          docker exec secondary cp ${PKIDIR}/ca_signing.crt .
+          docker exec secondary cp ${PKIDIR}/ca-certs.p12 .
+          docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone.cfg -s CA -v
+
+      - name: Gather config files from secondary container
+        if: always()
+        run: docker exec secondary tar cvf ${PKIDIR}/secondary-conf.tar -C / etc/pki
+
+      - name: Upload config files from secondary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: secondary-conf-${{ matrix.os }}
+          path: secondary-conf.tar
+
+      - name: Verify CA admin
+        run: |
+          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
+          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
+          docker exec secondary cp ${PKIDIR}/ca_admin_cert.p12 .
+          docker exec secondary cp ${PKIDIR}/pkcs12_password.conf .
+          docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec secondary pki client-cert-import \
+              --pkcs12 ca_admin_cert.p12 \
+              --pkcs12-password-file pkcs12_password.conf
+          docker exec secondary pki -n caadmin ca-user-show caadmin
+
+      - name: Remove CA from secondary container
+        run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS from secondary container
+        run: docker exec secondary ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Disconnect secondary container from network
+        run: docker network disconnect example secondary
+
+      - name: Gather log files from secondary container
+        if: always()
+        run: |
+          docker exec secondary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec secondary tar cvf ${PKIDIR}/secondary-logs.tar -C / var/log/pki
+
+      - name: Upload log files from secondary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: secondary-logs-${{ matrix.os }}
+          path: secondary-logs.tar
+
+      - name: Remove CA from primary container
+        run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS from primary container
+        run: docker exec primary ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Disconnect primary container from network
+        run: docker network disconnect example primary
+
+      - name: Remove network
+        run: docker network rm example
+
+      - name: Gather log files from primary container
+        if: always()
+        run: |
+          docker exec primary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec primary tar cvf ${PKIDIR}/primary-logs.tar -C / var/log/pki
+
+      - name: Upload log files from primary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: primary-logs-${{ matrix.os }}
+          path: primary-logs.tar
