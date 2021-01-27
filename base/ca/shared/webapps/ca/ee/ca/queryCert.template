@@ -390,6 +390,27 @@ function renderHidden(name,value)
 	return 	"<INPUT TYPE='hidden' NAME='"+ name +"' VALUE=''>\n";
 }
 
+function renderHiddenElement(name, value)
+{
+    var result = document.createElement("input");
+    result.type = 'hidden';
+    result.name = name;
+    result.value = value ? value : '';
+    return result;
+}
+
+function renderNextButtonElement(name, label, disabled)
+{
+    var result = document.createElement("button");
+    result.name = name;
+    result.value = label;
+    result.innerText = label;
+    result.width = 72;
+    result.disabled = disabled ? true : false;
+    result.onClick = () => doNext(result);
+    return result;
+}
+
 function doNext(element)
 {
 	var form = element.form;
@@ -428,48 +449,45 @@ function doNext(element)
 
 function displayNextForm()
 {
-	document.write(
-//"<div align=center> \n"+
-"<FORM NAME ='nextForm' METHOD=POST ACTION=''>\n"+
-renderHidden("op"));
+    var nextForm = document.createElement("form");
+    nextForm.name = 'nextForm';
+    nextForm.method = 'POST';
+    nextForm.action = '';
 
-if (result.header.revokeAll != null) {
-	document.write(renderHidden("revokeAll"));
-}
+    nextForm.appendChild(renderHiddenElement("op"));
 
-if (result.header.queryFilterHash != null) {
-    document.write(renderHidden("queryFilterHash"));
-}
+    if (result.header.revokeAll != null) {
+        nextForm.appendChild(renderHiddenElement("revokeAll"));
+    }
 
-var disabledDown = ((result.header.querySentinelDown == null) ||
-                    (result.fixed.maxCount+1 >= result.header.currentRecordCount)) ? "disabled='true'" : "";
-var disabledUp = (result.header.querySentinelUp != null && result.header.querySentinelUp <= 1) ? "disabled='true'" : "";
+    if (result.header.queryFilterHash != null) {
+        nextForm.appendChild(renderHiddenElement("queryFilterHash"));
+    }
 
-document.write(
-"<button NAME=begin onClick='doNext(this)' VALUE='|<<' width='72'>|&lt;&lt;</button>\n"+
-"<button "+disabledUp+" NAME=up onClick='doNext(this)' VALUE='<' width='72'>&lt;</button>\n"+
-"<INPUT TYPE=hidden NAME=totalRecordCount VALUE='"+
-result.header.totalRecordCount+ "'>\n"+
-"<INPUT TYPE=hidden NAME=queryCertFilter VALUE='"+
-result.header.queryCertFilter+ "'>\n"+
-"<INPUT TYPE=hidden NAME=skipRevoked VALUE='"+
-(result.header.skipRevoked ? result.header.skipRevoked : "") + "'>\n"+
-"<INPUT TYPE=hidden NAME=skipNonValid VALUE='"+
-(result.header.skipNonValid ? result.header.skipNonValid : "") + "'>\n"+
-"<INPUT TYPE=hidden NAME=querySentinelDown VALUE='"+
-result.header.querySentinelDown+ "'>\n"+
-"<INPUT TYPE=hidden NAME=querySentinelUp VALUE='"+
-result.header.querySentinelUp+ "'>\n"+
-"<INPUT TYPE=hidden NAME=serialTo VALUE='"+
-result.header.serialTo+ "'>\n"+
-"<INPUT TYPE=hidden NAME=direction VALUE='"+
-result.header.direction+ "'>\n"+
-"<INPUT style='padding-left: 2px;' TYPE=text SIZE=16 NAME=maxCount VALUE='"+
-result.header.maxCount+ "'>\n"+
+    var disabledDown = ((result.header.querySentinelDown == null) ||
+                        (result.fixed.maxCount+1 >= result.header.currentRecordCount));
+    var disabledUp = (result.header.querySentinelUp != null && result.header.querySentinelUp <= 1);
 
-"<button "+disabledDown+" NAME=down onClick='doNext(this)' VALUE='>' width='72'>&gt;</button>\n"+
-"<button NAME=end onClick='doNext(this)' VALUE='>>|' width='72'>&gt;&gt;|</button>\n"+
-"</FORM>\n");
+    nextForm.appendChild(renderNextButtonElement("begin", "|<<"));
+    nextForm.appendChild(renderNextButtonElement("up", "<", disabledUp));
+
+    for (let element of ["totalRecordCount", "queryCertFilter", "skipRevoked", "skipNonValid", "querySentinelDown", "querySentinelUp", "serialTo", "direction"]) {
+        nextForm.appendChild(renderHiddenElement(element, result.header[element]));
+    }
+
+    var maxCount = document.createElement('input');
+    maxCount.style = 'padding-left: 2px;';
+    maxCount.type = 'text';
+    maxCount.size = '16';
+    maxCount.name = 'maxCount';
+    maxCount.value = result.header.maxCount;
+    nextForm.appendChild(maxCount);
+
+    nextForm.appendChild(renderNextButtonElement("down", ">", disabledDown));
+    nextForm.appendChild(renderNextButtonElement("end", ">>|"));
+
+    document.body.appendChild(nextForm);
+    return nextForm;
 }
 
 function doRevokeAll(form)
