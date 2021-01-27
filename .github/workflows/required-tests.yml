@@ -114,6 +114,7 @@ jobs:
           run: |
             IMAGE=pki-fedora-${{ matrix.os }} \
             NAME=pki \
+            HOSTNAME=pki.example.com \
             ci/runner-init.sh
 
         - name: Download PKI binaries from Build job
@@ -216,6 +217,7 @@ jobs:
           run: |
             IMAGE=pki-fedora-${{ matrix.os }} \
             NAME=ipa \
+            HOSTNAME=ipa.example.com \
             ci/runner-init.sh
 
         - name: Download PKI binaries from Build job
