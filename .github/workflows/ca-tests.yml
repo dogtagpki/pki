@@ -706,16 +706,14 @@ jobs:
           name: secondary-conf-${{ matrix.os }}
           path: secondary-conf.tar
 
-      - name: Verify CA admin
+      - name: Verify CA admin in secondary container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
           docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
-          docker exec secondary cp ${PKIDIR}/ca_admin_cert.p12 .
-          docker exec secondary cp ${PKIDIR}/pkcs12_password.conf .
           docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec secondary pki client-cert-import \
-              --pkcs12 ca_admin_cert.p12 \
-              --pkcs12-password-file pkcs12_password.conf
+              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec secondary pki -n caadmin ca-user-show caadmin
 
       - name: Setup tertiary container
@@ -758,16 +756,12 @@ jobs:
           name: tertiary-conf-${{ matrix.os }}
           path: tertiary-conf.tar
 
-      - name: Verify CA admin
+      - name: Verify CA admin in tertiary container
         run: |
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
-          docker exec tertiary cp ${PKIDIR}/ca_admin_cert.p12 .
-          docker exec tertiary cp ${PKIDIR}/pkcs12_password.conf .
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec tertiary pki client-cert-import \
-              --pkcs12 ca_admin_cert.p12 \
-              --pkcs12-password-file pkcs12_password.conf
+              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec tertiary pki -n caadmin ca-user-show caadmin
 
       - name: Remove CA from tertiary container
