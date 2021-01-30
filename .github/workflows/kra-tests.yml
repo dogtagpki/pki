@@ -667,7 +667,7 @@ jobs:
           name: secondary-conf-${{ matrix.os }}
           path: secondary-conf.tar
 
-      - name: Verify KRA admin
+      - name: Verify KRA admin in secondary container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
           docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
@@ -723,17 +723,16 @@ jobs:
           name: tertiary-conf-${{ matrix.os }}
           path: tertiary-conf.tar
 
-      - name: Verify KRA admin
+      - name: Verify KRA admin in tertiary container
         run: |
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf ${PKIDIR}/pkcs12_password.conf
-          docker exec tertiary cp ${PKIDIR}/ca_admin_cert.p12 .
-          docker exec tertiary cp ${PKIDIR}/pkcs12_password.conf .
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec tertiary pki client-cert-import \
-              --pkcs12 ca_admin_cert.p12 \
-              --pkcs12-password-file pkcs12_password.conf
+              --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
+              --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec tertiary pki -n caadmin kra-user-show kraadmin
+
+      - name: Remove KRA from tertiary container
+        run: docker exec tertiary pkidestroy -i pki-tomcat -s KRA -v
 
       - name: Remove CA from tertiary container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
