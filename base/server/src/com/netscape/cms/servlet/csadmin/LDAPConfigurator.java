@@ -767,6 +767,12 @@ public class LDAPConfigurator {
         }
     }
 
+    /**
+     * This method creates or updates a replica object. If the object did not exist
+     * previously, it will add the object and return true. If the object already
+     * existed previously, it will add a new replica bind DN and return false. If
+     * any of these operation fails, it will throw the exception.
+     */
     public boolean createReplicaObject(String bindUser, int id) throws Exception {
 
         String baseDN = config.getBaseDN();
@@ -797,29 +803,21 @@ public class LDAPConfigurator {
         } catch (LDAPException e) {
 
             if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
-                logger.warn("Unable to add " + replicaDN + ": " + e.getMessage(), e);
-                return false;
+                throw e;
             }
 
             // BZ 470918: We can't just add the new dn.
             // We need to do a replace until the bug is fixed.
-            logger.warn("Entry already exists: " + replicaDN);
+            logger.warn("Entry already exists, adding bind DN");
 
             entry = connection.read(replicaDN);
             LDAPAttribute attr = entry.getAttribute("nsDS5ReplicaBindDN");
             attr.addValue(bindDN);
 
             LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
+            connection.modify(replicaDN, mod);
 
-            try {
-                connection.modify(replicaDN, mod);
-
-            } catch (LDAPException ee) {
-                if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
-                    logger.warn("Unable to modify " + replicaDN + ": " + ee.getMessage(), ee);
-                    return false;
-                }
-            }
+            return false;
         }
 
         return true;
