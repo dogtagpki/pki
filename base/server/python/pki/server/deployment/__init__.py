@@ -538,8 +538,10 @@ class PKIDeployer:
             return self.sd_connection
 
         sd_url = self.mdict['pki_security_domain_uri']
-        sd_hostname = self.mdict['pki_security_domain_hostname']
-        sd_port = self.mdict['pki_security_domain_https_port']
+
+        url = urllib.parse.urlparse(sd_url)
+        sd_hostname = url.hostname
+        sd_port = str(url.port)
 
         logger.info('Connecting to security domain at %s', sd_url)
 
