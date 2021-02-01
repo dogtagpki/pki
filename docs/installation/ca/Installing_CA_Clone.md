@@ -19,24 +19,39 @@ Some useful tips:
  - Not having a `dc=pki,dc=example,dc=com` entry in LDAP will give the same error as
        not being able to connect to the LDAP server.
 
-Exporting Existing System Certificates
---------------------------------------
+Exporting Existing CA System Certificates
+-----------------------------------------
 
-Export the existing system certificates (including the certificate chain) into a PKCS #12 file, for example:
+On the existing system, export the CA system certificates with the following command:
 
 ```
-$ pki-server ca-clone-prepare --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123
+$ pki-server ca-clone-prepare \
+    --pkcs12-file ca-certs.p12 \
+    --pkcs12-password Secret.123
 ```
+
+The command will export the following certificates (including the certificate chain) and their keys into a PKCS #12 file:
+
+* CA signing certificate
+* OCSP signing certificate
+* audit signing certificate
+* subsystem certificate
+
+Note that the existing SSL server certificate will not be exported.
 
 If necessary, third-party certificates (e.g. trust anchors) can be added into the same PKCS #12 file with the following command:
 
 ```
 $ pki -d /etc/pki/pki-tomcat/alias -f /etc/pki/pki-tomcat/password.conf \
-    pkcs12-cert-import <nickname> --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 --append
+    pkcs12-cert-import <nickname> \
+    --pkcs12-file ca-certs.p12 \
+    --pkcs12-password Secret.123 \
+    --append
 ```
 
-Set SELinux permissions
------------------------
+SELinux Permissions
+-------------------
+
 After copying the `ca-certs.p12` to the clone machine, ensure that appropriate SELinux rules are added:
 
 ````
@@ -53,28 +68,28 @@ $ chown pkiuser:pkiuser ca-certs.p12
 CA Subsystem Installation
 -------------------------
 
-Prepare a file (e.g. ca-clone.cfg) that contains the deployment configuration.
+Prepare a deployment configuration (e.g. `ca-clone.cfg`) to deploy CA subsystem clone.
+By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
 
 A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ca-clone.cfg](../../../base/server/examples/installation/ca-clone.cfg).
-It assumes that the primary CA is running at https://primary.example.com:8443,
+It assumes that the primary CA subsystem is running at https://primary.example.com:8443,
 the CA signing certificate has been exported into `ca_signing.crt`,
 the admin certificate and key have been exported into `ca_admin_cert.p12`,
-and the admin PKCS #12 password file has been exported into `pkcs12_password.conf`.
+and the password for this file has been exported into `pkcs12_password.conf`.
+See [Installing CA](Installing_CA.md) for details.
 
-Then execute the following command:
+To start the installation execute the following command:
 
 ```
 $ pkispawn -f ca-clone.cfg -s CA
 ```
 
-It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
-* server NSS database: /etc/pki/pki-tomcat/alias
-* admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
+CA System Certificates
+----------------------
 
-Verifying System Certificates
------------------------------
-
-Verify that the server NSS database contains the following certificates:
+After installation the existing CA system certificates (including the certificate chain)
+and their keys will be stored in the server NSS database (i.e. `/etc/pki/pki-tomcat/alias`),
+and a new SSL server certificate will be created for the new instance:
 
 ```
 $ certutil -L -d /etc/pki/pki-tomcat/alias
@@ -89,22 +104,38 @@ ca_audit_signing                                             u,u,Pu
 sslserver                                                    u,u,u
 ```
 
-Verifying Admin Certificate
----------------------------
+If necessary, the certificates can be exported into PEM files with the following command:
 
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+```
+$ pki-server cert-export <cert ID> --cert-file <filename>
+```
+
+The valid certificate IDs for CA are:
+* `ca_signing`
+* `ca_ocsp_signing`
+* `ca_audit_signing`
+* `subsystem`
+* `sslserver`
+
+Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname.
+For simplicity the nicknames in this example are configured to be the same as the certificate IDs.
+
+Admin Certificate
+-----------------
+
+To use the admin certificate from the primary CA subsystem, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 
 ```
 $ pki client-init
 ```
 
-Import the CA signing certificate:
+Then import the CA signing certificate into the client NSS database:
 
 ```
 $ pki client-cert-import ca_signing --ca-cert ca_signing.crt
 ```
 
-Import the admin key and certificate:
+Finally, import admin certificate and key with the following command:
 
 ```
 $ pki client-cert-import \
@@ -112,7 +143,7 @@ $ pki client-cert-import \
     --pkcs12-password-file pkcs12_password.conf
 ```
 
-Verify that the admin certificate can be used to access the CA clone by executing the following command:
+To verify that the admin certificate can be used to access the CA subsystem clone, execute the following command:
 
 ```
 $ pki -n caadmin ca-user-show caadmin
