@@ -651,6 +651,46 @@ class PKIDeployer:
 
         return client.setupCert(request)
 
+    def setup_system_certs(self, subsystem, client):
+
+        system_certs = {}
+
+        for system_cert in subsystem.find_system_certs():
+            cert_id = system_cert['id']
+            system_certs[cert_id] = system_cert
+
+        clone = self.configuration_file.clone
+        tomcat_instance_subsystems = len(self.instance.tomcat_instance_subsystems())
+
+        for tag in subsystem.config['preop.cert.list'].split(','):
+
+            if tag != 'sslserver' and clone:
+                logger.info('%s certificate is already set up', tag)
+                continue
+
+            if tag == 'sslserver' and tomcat_instance_subsystems > 1:
+                logger.info('sslserver certificate is already set up')
+                continue
+
+            if tag == 'subsystem' and tomcat_instance_subsystems > 1:
+                logger.info('subsystem certificate is already set up')
+                continue
+
+            logger.info('Setting up %s certificate', tag)
+            cert = self.setup_cert(client, tag)
+
+            if not cert:
+                continue
+
+            logger.debug('- cert: %s', cert['cert'])
+            logger.debug('- request: %s', cert['request'])
+
+            system_certs[tag]['data'] = cert['cert']
+            system_certs[tag]['request'] = cert['request']
+            system_certs[tag]['token'] = cert['token']
+
+        return system_certs
+
     def setup_admin(self, subsystem, client):
 
         uid = self.mdict['pki_admin_uid']

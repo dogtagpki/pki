@@ -593,37 +593,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if 'pki_one_time_pin' not in deployer.mdict:
             deployer.mdict['pki_one_time_pin'] = subsystem.config['preop.pin']
 
-        system_certs = {}
-        for system_cert in subsystem.find_system_certs():
-            cert_id = system_cert['id']
-            system_certs[cert_id] = system_cert
-
-        for tag in subsystem.config['preop.cert.list'].split(','):
-
-            if tag != 'sslserver' and clone:
-                logger.info('%s certificate is already set up', tag)
-                continue
-
-            if tag == 'sslserver' and tomcat_instance_subsystems > 1:
-                logger.info('sslserver certificate is already set up')
-                continue
-
-            if tag == 'subsystem' and tomcat_instance_subsystems > 1:
-                logger.info('subsystem certificate is already set up')
-                continue
-
-            logger.info('Setting up %s certificate', tag)
-            cert = deployer.setup_cert(client, tag)
-
-            if not cert:
-                continue
-
-            logger.debug('- cert: %s', cert['cert'])
-            logger.debug('- request: %s', cert['request'])
-
-            system_certs[tag]['data'] = cert['cert']
-            system_certs[tag]['request'] = cert['request']
-            system_certs[tag]['token'] = cert['token']
+        system_certs = deployer.setup_system_certs(subsystem, client)
 
         if subsystem.type == 'CA':
 
