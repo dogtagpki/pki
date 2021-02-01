@@ -623,12 +623,16 @@ class PKIDeployer:
 
         return self.install_token
 
-    def join_domain(self):
+    def join_security_domain(self):
 
         self.get_domain_info()
 
-        sd_hostname = self.mdict['pki_security_domain_hostname']
-        sd_port = self.mdict['pki_security_domain_https_port']
+        sd_url = self.mdict['pki_security_domain_uri']
+
+        url = urllib.parse.urlparse(sd_url)
+        sd_hostname = url.hostname
+        sd_port = str(url.port)
+
         sd_subsystem = self.domain_info.subsystems['CA']
         self.sd_host = sd_subsystem.get_host(sd_hostname, sd_port)
 

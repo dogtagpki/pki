@@ -354,7 +354,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             logger.info('Joining existing domain')
 
-            deployer.join_domain()
+            deployer.join_security_domain()
 
             subsystem.configure_security_domain(
                 'existing',
@@ -368,7 +368,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             logger.info('Creating new subordinate security domain')
 
-            deployer.join_domain()
+            deployer.join_security_domain()
 
             subsystem.configure_security_domain(
                 'new',
