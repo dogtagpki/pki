@@ -596,30 +596,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         system_certs = deployer.setup_system_certs(subsystem, client)
 
         if subsystem.type == 'CA':
-
-            ca_host = deployer.mdict['pki_hostname']
-            ca_port = securePort
-            uid = 'CA-%s-%s' % (ca_host, ca_port)
-
-            logger.info('Adding %s', uid)
-            subsystem.add_user(
-                uid,
-                full_name=uid,
-                user_type='agentType',
-                state='1')
-
-            logger.info('Adding subsystem certificate into %s', uid)
-            subsystem_cert_data = pki.nssdb.convert_cert(
-                system_certs['subsystem']['data'],
-                'base64',
-                'pem')
-            subsystem.add_user_cert(
-                uid,
-                cert_data=subsystem_cert_data.encode(),
-                cert_format='PEM')
-
-            logger.info('Adding %s into Subsystem Group', uid)
-            subsystem.add_group_member('Subsystem Group', uid)
+            logger.info('Setting up subsystem user')
+            deployer.setup_subsystem_user(instance, subsystem, system_certs['subsystem'])
 
         if not clone:
             logger.info('Setting up admin user')

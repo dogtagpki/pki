@@ -763,6 +763,33 @@ class PKIDeployer:
 
             self.config_client.process_admin_cert(admin_cert)
 
+    def setup_subsystem_user(self, instance, subsystem, cert):
+
+        server_config = instance.get_server_config()
+        secure_port = server_config.get_secure_port()
+
+        uid = 'CA-%s-%s' % (self.mdict['pki_hostname'], secure_port)
+
+        logger.info('Adding %s', uid)
+        subsystem.add_user(
+            uid,
+            full_name=uid,
+            user_type='agentType',
+            state='1')
+
+        logger.info('Adding subsystem certificate into %s', uid)
+        cert_data = pki.nssdb.convert_cert(
+            cert['data'],
+            'base64',
+            'pem')
+        subsystem.add_user_cert(
+            uid,
+            cert_data=cert_data.encode(),
+            cert_format='PEM')
+
+        logger.info('Adding %s into Subsystem Group', uid)
+        subsystem.add_group_member('Subsystem Group', uid)
+
     def backup_keys(self, instance, subsystem):
 
         tmpdir = tempfile.mkdtemp()
