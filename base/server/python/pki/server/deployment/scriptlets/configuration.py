@@ -617,8 +617,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     domain_manager = True
 
         if deployer.mdict['pki_security_domain_type'] == 'existing':
-            logger.info('Joining security domain')
+
+            sd_url = deployer.mdict['pki_security_domain_uri']
+            logger.info('Joining security domain at %s', sd_url)
             subsystem.join_security_domain(
+                sd_url,
                 deployer.install_token,
                 deployer.mdict['pki_subsystem_name'],
                 deployer.mdict['pki_hostname'],

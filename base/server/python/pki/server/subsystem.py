@@ -1264,6 +1264,7 @@ class PKISubsystem(object):
 
     def join_security_domain(
             self,
+            sd_url,
             install_token,
             host_id,
             hostname,
@@ -1271,10 +1272,6 @@ class PKISubsystem(object):
             secure_port='8443',
             domain_manager=False,
             clone=False):
-
-        sd_hostname = self.config['securitydomain.host']
-        sd_port = self.config['securitydomain.httpsadminport']
-        sd_url = 'https://%s:%s' % (sd_hostname, sd_port)
 
         cmd = [
             'pki',
