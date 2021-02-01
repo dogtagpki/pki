@@ -6,77 +6,66 @@ Overview
 
 This page describes the process to install a OCSP subsystem as a clone of an existing OCSP subsystem.
 
-Exporting Existing System Certificates
---------------------------------------
+Before beginning with the installation, please ensure that you have configured the directory
+server and added base entries.
+The step is described [here](https://github.com/dogtagpki/pki/wiki/DS-Installation).
 
-Export the existing system certificates (including the certificate chain) into a PKCS #12 file, for example:
+Additionally, make sure the FQDN has been [configured](../server/FQDN_Configuration.adoc) correctly.
+
+Exporting Existing OCSP System Certificates
+-------------------------------------------
+
+On the existing system, export the existing OCSP system certificates with the following command:
 
 ```
-$ pki-server ocsp-clone-prepare --pkcs12-file ocsp-certs.p12 --pkcs12-password Secret.123
+$ pki-server ocsp-clone-prepare \
+    --pkcs12-file ocsp-certs.p12 \
+    --pkcs12-password Secret.123
 ```
+
+The command will export the following certificates (including the certificate chain) and their keys into a PKCS #12 file:
+
+* OCSP signing certificate
+* audit signing certificate
+* subsystem certificate
+
+Note that the existing SSL server certificate will not be exported.
 
 If necessary, third-party certificates (e.g. trust anchors) can be added into the same PKCS #12 file with the following command:
 
 ```
 $ pki -d /etc/pki/pki-tomcat/alias -f /etc/pki/pki-tomcat/password.conf \
-    pkcs12-cert-import <nickname> --pkcs12-file ocsp-certs.p12 --pkcs12-password Secret.123 --append
+    pkcs12-cert-import <nickname> \
+    --pkcs12-file ocsp-certs.p12 \
+    --pkcs12-password Secret.123 \
+    --append
 ```
 
 OCSP Subsystem Installation
 ---------------------------
 
-Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration, for example:
+Prepare a deployment configuration (e.g. `ocsp-clone.cfg`) to deploy OCSP subsystem clone.
+By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
+
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ocsp-clone.cfg](../../../base/server/examples/installation/ocsp-clone.cfg).
+It assumes that the primary CA and OCSP subsystems are running at https://primary.example.com:8443,
+the CA signing certificate has been exported into `ca_signing.crt`,
+the admin certificate and key have been exported into `ca_admin_cert.p12`,
+and the password for this file has been exported into `pkcs12_password.conf`.
+See [Installing CA](../ca/Installing_CA.md) for details.
+
+To start the installation execute the following command:
 
 ```
-[DEFAULT]
-pki_server_database_password=Secret.123
-
-[OCSP]
-pki_admin_email=ocspadmin@example.com
-pki_admin_name=ocspadmin
-pki_admin_nickname=ocspadmin
-pki_admin_password=Secret.123
-pki_admin_uid=ocspadmin
-
-pki_client_database_password=Secret.123
-pki_client_database_purge=False
-pki_client_pkcs12_password=Secret.123
-
-pki_ds_base_dn=dc=ocsp,dc=pki,dc=example,dc=com
-pki_ds_database=ocsp
-pki_ds_password=Secret.123
-
-pki_security_domain_hostname=server.example.com
-pki_security_domain_https_port=8443
-pki_security_domain_user=caadmin
-pki_security_domain_password=Secret.123
-
-pki_ocsp_signing_nickname=ocsp_signing
-pki_audit_signing_nickname=ocsp_audit_signing
-pki_sslserver_nickname=sslserver
-pki_subsystem_nickname=subsystem
-
-pki_clone=True
-pki_clone_replicate_schema=True
-pki_clone_uri=https://server.example.com:8443
-pki_clone_pkcs12_path=ocsp-certs.p12
-pki_clone_pkcs12_password=Secret.123
+$ pkispawn -f ocsp-clone.cfg -s OCSP
 ```
 
-Then execute the following command:
+OCSP System Certificates
+------------------------
 
-```
-$ pkispawn -f ocsp.cfg -s OCSP
-```
-
-It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
-* server NSS database: /etc/pki/pki-tomcat/alias
-* admin NSS database: ~/.dogtag/pki-tomcat/ocsp/alias
-
-Verifying System Certificates
------------------------------
-
-Verify that the server NSS database contains the following certificates:
+After installation the existing OCSP system certificates (including the certificate chain)
+and their keys will be stored in the server NSS database (i.e. `/etc/pki/pki-tomcat/alias`),
+and a new SSL server certificate will be created for the new instance:
 
 ```
 $ certutil -L -d /etc/pki/pki-tomcat/alias
@@ -91,33 +80,48 @@ subsystem                                                    u,u,u
 ocsp_audit_signing                                           u,u,Pu
 ```
 
-Verifying Admin Certificate
----------------------------
-
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+If necessary, the certificates can be exported into PEM files with the following command:
 
 ```
-$ pki -c Secret.123 client-init
+$ pki-server cert-export <cert ID> --cert-file <filename>
 ```
 
-Import the CA signing certificate:
+The valid certificate IDs for OCSP are:
+* `ocsp_signing`
+* `ocsp_audit_signing`
+* `subsystem`
+* `sslserver`
+
+Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname.
+For simplicity the nicknames in this example are configured to be the same as the certificate ID.
+
+Admin Certificate
+-----------------
+
+To use the admin certificate from the CA subsystem, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 
 ```
-$ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
+$ pki client-init
 ```
 
-Import the master's admin key and certificate:
+Then import the CA signing certificate into the client NSS database:
 
 ```
-$ pki -c Secret.123 client-cert-import \
- --pkcs12 ca_admin_cert.p12 \
- --pkcs12-password-file pkcs12_password.conf
+$ pki client-cert-import ca_signing --ca-cert ca_signing.crt
 ```
 
-Verify that the admin certificate can be used to access the OCSP clone by executing the following command:
+Finally, import admin certificate and key with the following command:
 
 ```
-$ pki -c Secret.123 -n caadmin ocsp-user-show ocspadmin
+$ pki client-cert-import \
+    --pkcs12 ca_admin_cert.p12 \
+    --pkcs12-password-file pkcs12_password.conf
+```
+
+To verify that the admin certificate can be used to access the OCSP subsystem clone, execute the following command:
+
+```
+$ pki -n caadmin ocsp-user-show ocspadmin
 ----------------
 User "ocspadmin"
 ----------------
