@@ -468,7 +468,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.request_ranges(master_url, session_id=deployer.install_token.token)
 
             logger.info('Updating configuration for %s clone', subsystem.type)
-            subsystem.update_config(master_url, deployer.install_token)
+            subsystem.update_config(master_url, session_id=deployer.install_token.token)
 
         if config.str2bool(deployer.mdict['pki_ds_remove_data']):
 

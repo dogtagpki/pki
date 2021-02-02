@@ -5,6 +5,8 @@
 //
 package com.netscape.cmstools.config;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
@@ -39,8 +41,12 @@ public class ConfigExportCLI extends CommandCLI {
         option.setArgName("substores");
         options.addOption(option);
 
-        option = new Option(null, "session", true, "Session ID.");
+        option = new Option(null, "session", true, "Session ID");
         option.setArgName("ID");
+        options.addOption(option);
+
+        option = new Option(null, "install-token", true, "Install token");
+        option.setArgName("path");
         options.addOption(option);
 
         option = new Option(null, "output-format", true, "Output format: text (default), json");
@@ -50,10 +56,17 @@ public class ConfigExportCLI extends CommandCLI {
 
     public void execute(CommandLine cmd) throws Exception {
 
-        String sessionID = cmd.getOptionValue("session");
+        String installToken = cmd.getOptionValue("install-token");
+        String sessionID;
+
+        if (installToken != null) {
+            sessionID = new String(Files.readAllBytes(Paths.get(installToken)));
+        } else {
+            sessionID = cmd.getOptionValue("session");
+        }
 
         if (sessionID == null) {
-            throw new Exception("Missing session ID");
+            throw new Exception("Missing session ID or install token");
         }
 
         String names = cmd.getOptionValue("names", "");
