@@ -36,7 +36,11 @@ public class PublisherOCSPAddCLI extends CommandCLI {
         option.setArgName("URL");
         options.addOption(option);
 
-        option = new Option(null, "session-file", true, "Session file");
+        option = new Option(null, "session", true, "Session ID");
+        option.setArgName("ID");
+        options.addOption(option);
+
+        option = new Option(null, "install-token", true, "Install token");
         option.setArgName("path");
         options.addOption(option);
     }
@@ -52,12 +56,18 @@ public class PublisherOCSPAddCLI extends CommandCLI {
 
         URL url = new URL(publisherURL);
 
-        String sessionFile = cmd.getOptionValue("session-file");
-        if (sessionFile == null) {
-            throw new Exception("Missing session file");
+        String installToken = cmd.getOptionValue("install-token");
+        String sessionID;
+
+        if (installToken != null) {
+            sessionID = new String(Files.readAllBytes(Paths.get(installToken)));
+        } else {
+            sessionID = cmd.getOptionValue("session");
         }
 
-        String sessionID = new String(Files.readAllBytes(Paths.get(sessionFile)));
+        if (sessionID == null) {
+            throw new Exception("Missing session ID or install token");
+        }
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();

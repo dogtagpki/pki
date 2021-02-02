@@ -977,8 +977,8 @@ class PKIDeployer:
 
         tmpdir = tempfile.mkdtemp()
         try:
-            session_file = os.path.join(tmpdir, 'session.txt')
-            with open(session_file, 'w') as f:
+            install_token = os.path.join(tmpdir, 'install-token')
+            with open(install_token, 'w') as f:
                 f.write(self.install_token.token)
 
             cmd = [
@@ -988,7 +988,7 @@ class PKIDeployer:
                 '-U', ca_url,
                 'ca-publisher-ocsp-add',
                 '--url', ocsp_url,
-                '--session-file', session_file
+                '--install-token', install_token
             ]
 
             if logger.isEnabledFor(logging.DEBUG):
