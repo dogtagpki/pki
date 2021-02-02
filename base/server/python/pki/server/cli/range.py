@@ -119,7 +119,8 @@ class RangeRequestCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --master <URL>                 Master URL.')
-        print('      --session <ID>                 Session ID.')
+        print('      --session <ID>                 Session ID')
+        print('      --install-token <path>         Install token')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -129,7 +130,7 @@ class RangeRequestCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'master=', 'session=',
+                'master=', 'session=', 'install-token=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -141,6 +142,7 @@ class RangeRequestCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.name
         master_url = None
         session_id = None
+        install_token = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -151,6 +153,9 @@ class RangeRequestCLI(pki.cli.CLI):
 
             elif o == '--session':
                 session_id = a
+
+            elif o == '--install-token':
+                install_token = a
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -170,8 +175,8 @@ class RangeRequestCLI(pki.cli.CLI):
         if not master_url:
             raise Exception('Missing master URL')
 
-        if not session_id:
-            raise Exception('Missing session ID')
+        if not session_id and not install_token:
+            raise Exception('Missing session ID or install token')
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -187,7 +192,10 @@ class RangeRequestCLI(pki.cli.CLI):
                          subsystem_name.upper(), instance_name)
             sys.exit(1)
 
-        subsystem.request_ranges(master_url, session_id)
+        subsystem.request_ranges(
+            master_url,
+            session_id=session_id,
+            install_token=install_token)
 
 
 class RangeUpdateCLI(pki.cli.CLI):
