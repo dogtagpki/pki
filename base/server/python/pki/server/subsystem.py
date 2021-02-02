@@ -1033,32 +1033,42 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
-    def retrieve_config(self, master_url, names, substores, install_token):
+    def retrieve_config(self, master_url, names, substores, session_id=None, install_token=None):
 
-        cmd = [
-            'pki',
-            '-d', self.instance.nssdb_dir,
-            '-f', self.instance.password_conf,
-            '-U', master_url,
-            '%s-config-export' % self.name,
-            '--names', ','.join(names),
-            '--substores', ','.join(substores),
-            '--session', install_token.token,
-            '--output-format', 'json'
-        ]
+        tmpdir = tempfile.mkdtemp()
+        try:
+            if not install_token:
+                install_token = os.path.join(tmpdir, 'install-token')
+                with open(install_token, 'w') as f:
+                    f.write(session_id)
 
-        if logger.isEnabledFor(logging.DEBUG):
-            cmd.append('--debug')
+            cmd = [
+                'pki',
+                '-d', self.instance.nssdb_dir,
+                '-f', self.instance.password_conf,
+                '-U', master_url,
+                '%s-config-export' % self.name,
+                '--names', ','.join(names),
+                '--substores', ','.join(substores),
+                '--install-token', install_token,
+                '--output-format', 'json'
+            ]
 
-        elif logger.isEnabledFor(logging.INFO):
-            cmd.append('--verbose')
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
 
-        logger.debug('Command: %s', ' '.join(cmd))
-        output = subprocess.check_output(cmd)
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
 
-        return json.loads(output.decode())
+            logger.debug('Command: %s', ' '.join(cmd))
+            output = subprocess.check_output(cmd)
 
-    def update_config(self, master_url, install_token):
+            return json.loads(output.decode())
+
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def update_config(self, master_url, session_id=None, install_token=None):
 
         logger.info('Updating configuration')
 
@@ -1084,7 +1094,8 @@ class PKISubsystem(object):
         else:
             names.append('cloning.ca.type')
 
-        config = self.retrieve_config(master_url, names, substores, install_token)
+        config = self.retrieve_config(
+            master_url, names, substores, session_id=session_id, install_token=install_token)
         properties = config['properties']
 
         for name in properties:
