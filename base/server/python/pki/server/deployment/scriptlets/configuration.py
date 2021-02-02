@@ -847,7 +847,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if subsystem.type in ['CA', 'KRA']:
 
                 logger.info('Requesting ranges from %s master', subsystem.type)
-                subsystem.request_ranges(master_url, deployer.install_token)
+                subsystem.request_ranges(master_url, session_id=deployer.install_token.token)
 
             logger.info('Updating configuration for %s clone', subsystem.type)
             subsystem.update_config(master_url, deployer.install_token)
