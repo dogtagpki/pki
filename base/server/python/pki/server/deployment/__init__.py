@@ -938,8 +938,8 @@ class PKIDeployer:
             with open(transport_cert_file, 'w') as f:
                 f.write(transport_cert)
 
-            session_file = os.path.join(tmpdir, 'session.txt')
-            with open(session_file, 'w') as f:
+            install_token = os.path.join(tmpdir, 'install-token')
+            with open(install_token, 'w') as f:
                 f.write(self.install_token.token)
 
             cmd = [
@@ -951,7 +951,7 @@ class PKIDeployer:
                 '--url', kra_url,
                 '--transport-cert', transport_cert_file,
                 '--transport-nickname', transport_nickname,
-                '--session-file', session_file
+                '--install-token', install_token
             ]
 
             if logger.isEnabledFor(logging.DEBUG):
