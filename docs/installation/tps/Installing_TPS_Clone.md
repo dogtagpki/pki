@@ -4,78 +4,68 @@ Installing TPS Clone
 Overview
 --------
 
-This page describes the process to install a TPS subsystem as a clone of an existing TPS subsystem.
+This page describes the process to install a TPS subsystem as a clone of an existing TPS subsystem
+where the system certificates and their keys are stored in internal NSS token.
 
-Exporting Existing System Certificates
---------------------------------------
+Before beginning with the installation, please ensure that you have configured the directory
+server and added base entries.
+The step is described [here](https://github.com/dogtagpki/pki/wiki/DS-Installation).
 
-Export the existing system certificates (including the certificate chain) into a PKCS #12 file, for example:
+Additionally, make sure the FQDN has been [configured](../server/FQDN_Configuration.adoc) correctly.
+
+Exporting Existing TPS System Certificates
+------------------------------------------
+
+On the existing system, export the TPS system certificates with the following command:
 
 ```
-$ pki-server tps-clone-prepare --pkcs12-file tps-certs.p12 --pkcs12-password Secret.123
+$ pki-server tps-clone-prepare \
+    --pkcs12-file tps-certs.p12 \
+    --pkcs12-password Secret.123
 ```
+
+The command will export the following certificates (including the certificate chain) and their keys into a PKCS #12 file:
+
+* audit signing certificate
+* subsystem certificate
+
+Note that the existing SSL server certificate will not be exported.
 
 If necessary, third-party certificates (e.g. trust anchors) can be added into the same PKCS #12 file with the following command:
 
 ```
 $ pki -d /etc/pki/pki-tomcat/alias -f /etc/pki/pki-tomcat/password.conf \
-    pkcs12-cert-import <nickname> --pkcs12-file tps-certs.p12 --pkcs12-password Secret.123 --append
+    pkcs12-cert-import <nickname> \
+    --pkcs12-file tps-certs.p12 \
+    --pkcs12-password Secret.123 \
+    --append
 ```
 
 TPS Subsystem Installation
 --------------------------
 
-Prepare a file (e.g. tps.cfg) that contains the deployment configuration, for example:
+Prepare a deployment configuration (e.g. `tps-clone.cfg`) to deploy TPS subsystem clone.
+By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
+
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/tps-clone.cfg](../../../base/server/examples/installation/tps-clone.cfg).
+It assumes that the primary CA, KRA, TKS, and TPS subsystems are running at https://primary.example.com:8443,
+the CA signing certificate has been exported into `ca_signing.crt`,
+the admin certificate and key have been exported into `ca_admin_cert.p12`,
+and the password for this file has been exported into `pkcs12_password.conf`.
+See [Installing CA](../ca/Installing_CA.md) for details.
+
+To start the installation execute the following command:
 
 ```
-[DEFAULT]
-pki_server_database_password=Secret.123
-
-[TPS]
-pki_admin_email=tpsadmin@example.com
-pki_admin_name=tpsadmin
-pki_admin_nickname=tpsadmin
-pki_admin_password=Secret.123
-pki_admin_uid=tpsadmin
-
-pki_client_database_password=Secret.123
-pki_client_database_purge=False
-pki_client_pkcs12_password=Secret.123
-
-pki_ds_base_dn=dc=tps,dc=pki,dc=example,dc=com
-pki_ds_database=tps
-pki_ds_password=Secret.123
-
-pki_security_domain_hostname=server.example.com
-pki_security_domain_https_port=8443
-pki_security_domain_user=caadmin
-pki_security_domain_password=Secret.123
-
-pki_audit_signing_nickname=tps_audit_signing
-pki_sslserver_nickname=sslserver
-pki_subsystem_nickname=subsystem
-
-pki_clone=True
-pki_clone_replicate_schema=True
-pki_clone_uri=https://server.example.com:8443
-pki_clone_pkcs12_path=tps-certs.p12
-pki_clone_pkcs12_password=Secret.123
+$ pkispawn -f tps-clone.cfg -s TPS
 ```
 
-Then execute the following command:
+TPS System Certificates
+-----------------------
 
-```
-$ pkispawn -f tps.cfg -s TPS
-```
-
-It will install TPS subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
-* server NSS database: /etc/pki/pki-tomcat/alias
-* admin NSS database: ~/.dogtag/pki-tomcat/tps/alias
-
-Verifying System Certificates
------------------------------
-
-Verify that the server NSS database contains the following certificates:
+After installation the existing TPS system certificates (including the certificate chain)
+and their keys will be stored in the server NSS database (i.e. `/etc/pki/pki-tomcat/alias`),
+and a new SSL server certificate will be created for the new instance:
 
 ```
 $ certutil -L -d /etc/pki/pki-tomcat/alias
@@ -89,33 +79,47 @@ subsystem                                                    u,u,u
 tps_audit_signing                                            u,u,Pu
 ```
 
-Verifying Admin Certificate
----------------------------
-
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+If necessary, the certificates can be exported into PEM files with the following command:
 
 ```
-$ pki -c Secret.123 client-init
+$ pki-server cert-export <cert ID> --cert-file <filename>
 ```
 
-Import the CA signing certificate:
+The valid certificate IDs for TPS are:
+* `tps_audit_signing`
+* `subsystem`
+* `sslserver`
+
+Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname.
+For simplicity the nicknames in this example are configured to be the same as the certificate IDs.
+
+Admin Certificate
+-----------------
+
+To use the admin certificate from the CA subsystem, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 
 ```
-$ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
+$ pki client-init
 ```
 
-Import the master's admin key and certificate:
+Then import the CA signing certificate into the client NSS database:
 
 ```
-$ pki -c Secret.123 client-cert-import \
+$ pki client-cert-import ca_signing --ca-cert ca_signing.crt
+```
+
+Finally, import admin certificate and key with the following command:
+
+```
+$ pki client-cert-import \
  --pkcs12 ca_admin_cert.p12 \
  --pkcs12-password-file pkcs12_password.conf
 ```
 
-Verify that the admin certificate can be used to access the TPS clone by executing the following command:
+To verify that the admin certificate can be used to access the TPS subsystem clone, execute the following command:
 
 ```
-$ pki -c Secret.123 -n caadmin tps-user-show tpsadmin
+$ pki -n caadmin tps-user-show tpsadmin
 ---------------
 User "tpsadmin"
 ---------------
