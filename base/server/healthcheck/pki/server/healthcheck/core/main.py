@@ -10,6 +10,7 @@
 import logging
 import sys
 
+from ipahealthcheck.core import constants
 from ipahealthcheck.core.core import RunChecks
 from configparser import ConfigParser, ParsingError
 
@@ -25,8 +26,29 @@ DOGTAG_DEFAULT_CONFIG = {
 dogtag_config_parsed = False
 
 
+class PKIChecks(RunChecks):
+    def pre_check(self):
+        pass
+
+    def add_options(self):
+        # pylint: disable=W0212
+        self.parser.add_argument('--input-file', dest='infile',
+                                 help='File to read as input')
+        self.parser.add_argument('--failures-only', dest='failures_only',
+                                 action='store_true', default=False,
+                                 help='Exclude SUCCESS results on output '
+                                 '(see man page for more details)')
+        self.parser.add_argument('--all', dest='all', action='store_true',
+                                 default=False, help='Report all results '
+                                 'on output')
+        self.parser.add_argument('--severity', dest='severity',
+                                 action='append', help='Include only the '
+                                 'selected severity(s)',
+                                 choices=list(constants._nameToLevel))
+
+
 def main():
-    checks = RunChecks(['pkihealthcheck.registry'],
+    checks = PKIChecks(['pkihealthcheck.registry'],
                        DOGTAG_CONFIG_FILE)
     sys.exit(checks.run_healthcheck())
 
