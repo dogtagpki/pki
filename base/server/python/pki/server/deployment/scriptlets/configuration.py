@@ -622,13 +622,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Joining security domain at %s', sd_url)
             subsystem.join_security_domain(
                 sd_url,
-                deployer.install_token,
                 deployer.mdict['pki_subsystem_name'],
                 deployer.mdict['pki_hostname'],
                 unsecure_port=proxyUnsecurePort,
                 secure_port=proxySecurePort,
                 domain_manager=domain_manager,
-                clone=clone)
+                clone=clone,
+                session_id=deployer.install_token.token)
 
         else:
             logger.info('Creating security domain')

@@ -6,6 +6,8 @@
 package com.netscape.cmstools.system;
 
 import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -41,6 +43,10 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         option.setArgName("ID");
         options.addOption(option);
 
+        option = new Option(null, "install-token", true, "Install token");
+        option.setArgName("path");
+        options.addOption(option);
+
         option = new Option(null, "type", true, "Subsystem type");
         option.setArgName("type");
         options.addOption(option);
@@ -71,9 +77,17 @@ public class SecurityDomainJoinCLI extends CommandCLI {
 
         String hostID = cmdArgs[0];
 
-        String sessionID = cmd.getOptionValue("session");
+        String installToken = cmd.getOptionValue("install-token");
+        String sessionID;
+
+        if (installToken != null) {
+            sessionID = new String(Files.readAllBytes(Paths.get(installToken)));
+        } else {
+            sessionID = cmd.getOptionValue("session");
+        }
+
         if (sessionID == null) {
-            throw new Exception("Missing session ID");
+            throw new Exception("Missing session ID or install token");
         }
 
         String type = cmd.getOptionValue("type");
