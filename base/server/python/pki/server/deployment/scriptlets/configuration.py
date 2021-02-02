@@ -1047,13 +1047,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.mdict['pki_security_domain_type'] == 'existing':
             logger.info('Joining security domain')
             subsystem.join_security_domain(
-                deployer.install_token,
                 deployer.mdict['pki_subsystem_name'],
                 deployer.mdict['pki_hostname'],
                 unsecure_port=proxyUnsecurePort,
                 secure_port=proxySecurePort,
                 domain_manager=domain_manager,
-                clone=clone)
+                clone=clone,
+                session_id=deployer.install_token.token)
 
         else:
             logger.info('Creating security domain')

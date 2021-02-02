@@ -1182,47 +1182,58 @@ class PKISubsystem(object):
 
     def join_security_domain(
             self,
-            install_token,
             host_id,
             hostname,
             unsecure_port='8080',
             secure_port='8443',
             domain_manager=False,
-            clone=False):
+            clone=False,
+            session_id=None,
+            install_token=None):
 
         sd_hostname = self.config['securitydomain.host']
         sd_port = self.config['securitydomain.httpsadminport']
         sd_url = 'https://%s:%s' % (sd_hostname, sd_port)
 
-        cmd = [
-            'pki',
-            '-d', self.instance.nssdb_dir,
-            '-f', self.instance.password_conf,
-            '-U', sd_url,
-            'securitydomain-join',
-            '--session', install_token.token,
-            '--type', self.type,
-            '--hostname', hostname,
-            '--unsecure-port', unsecure_port,
-            '--secure-port', secure_port
-        ]
+        tmpdir = tempfile.mkdtemp()
+        try:
+            if not install_token:
+                install_token = os.path.join(tmpdir, 'install-token')
+                with open(install_token, 'w') as f:
+                    f.write(session_id)
 
-        if domain_manager:
-            cmd.append('--domain-manager')
+            cmd = [
+                'pki',
+                '-d', self.instance.nssdb_dir,
+                '-f', self.instance.password_conf,
+                '-U', sd_url,
+                'securitydomain-join',
+                '--install-token', install_token,
+                '--type', self.type,
+                '--hostname', hostname,
+                '--unsecure-port', unsecure_port,
+                '--secure-port', secure_port
+            ]
 
-        if clone:
-            cmd.append('--clone')
+            if domain_manager:
+                cmd.append('--domain-manager')
 
-        if logger.isEnabledFor(logging.DEBUG):
-            cmd.append('--debug')
+            if clone:
+                cmd.append('--clone')
 
-        elif logger.isEnabledFor(logging.INFO):
-            cmd.append('--verbose')
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
 
-        cmd.append(host_id)
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
 
-        logger.debug('Command: %s', ' '.join(cmd))
-        subprocess.check_call(cmd)
+            cmd.append(host_id)
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
     def find_groups(self, as_current_user=False):
 
