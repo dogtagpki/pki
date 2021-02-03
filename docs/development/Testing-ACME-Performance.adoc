@@ -1,0 +1,27 @@
+= Testing ACME Performance =
+
+== Certificate Enrollment ==
+
+Prepare a web server (e.g. NGINX) for HTTP-01 validation:
+
+----
+$ dnf install nginx
+$ systemctl start nginx
+----
+
+Then create the ACME challenge directory:
+
+----
+$ mkdir -p /usr/share/nginx/html/.well-known/acme-challenge
+----
+
+Execute the following command to run the certificate enrollment test:
+
+----
+$ python /usr/share/pki/tests/python/performance/test_acme_cert_enrollment.py \
+    --domain $HOSTNAME \
+    --acme-dir /usr/share/nginx/html/.well-known/acme-challenge \
+    --directory-url http://$HOSTNAME:8080/acme/directory \
+    --number-of-threads 1 \
+    --number-of-tests-per-thread 1
+----
