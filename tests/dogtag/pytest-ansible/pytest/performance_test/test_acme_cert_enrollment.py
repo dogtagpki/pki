@@ -32,9 +32,8 @@ from urllib.request import urlopen, Request
 DEFAULT_CHALLENGE_DIR = "/usr/share/nginx/html/.well-known/acme-challenge"
 DEFAULT_DIRECTORY_URL = "http://%s:8080/acme/directory" % socket.gethostname()
 
-LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(logging.StreamHandler())
-LOGGER.setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(levelname)s: %(message)s')
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter)
 parser.add_argument("--domain",
@@ -54,9 +53,14 @@ parser.add_argument("--number-of-tests-per-thread", "--tests-per-client",
                     help="Number of tests per client (default: 1)",
                     default=1,
                     type=int)
+parser.add_argument("-v", "--verbose",
+                    help="Run in verbose mode.",
+                    action="store_true")
+parser.add_argument("--debug",
+                    help="Run in debug mode.",
+                    action="store_true")
 
 args = parser.parse_args()
-LOGGER.setLevel(LOGGER.level)
 
 account_key = "{}.key".format(args.domain)
 csr = "{}.csr".format(args.domain)
@@ -121,34 +125,43 @@ def poll_until_not(url, statuses, err_msg, acct_headers=None, nonce=None):
     return result, nonce
 
 
-def get_crt(domain_name, acme_dir, log=LOGGER, nonce=None):
+def get_crt(id, domain_name, acme_dir, nonce=None):
     # create a new order
     order_payload = {"identifiers": [{"type": "dns", "value": d} for d in {domain_name}]}
     order, _, order_headers, nonce = send_signed_request(directory['newOrder'], order_payload,
                                                          "Error creating new order", acct_headers=acct_headers,
                                                          nonce=nonce)
-    log.info("Order created!")
+    logger.debug("Client %s: Order: %s", id, order)
 
     # get the authorizations that need to be completed
     wellknown_paths = []
     for auth_url in order['authorizations']:
+
+        logger.debug("Client %s: Retrieving authorization from %s", id, auth_url)
         authorization, _, _, nonce = send_signed_request(auth_url, None, "Error getting challenges",
                                                          acct_headers=acct_headers, nonce=nonce)
+        logger.debug("Client %s: Authorization: %s", id, authorization)
+
         domain = authorization['identifier']['value']
 
         # find the http-01 challenge and write the challenge file
         challenge = [c for c in authorization['challenges'] if c['type'] == "http-01"][0]
         token = re.sub(r"[^A-Za-z0-9_\-]", "_", challenge['token'])
         keyauthorization = "{0}.{1}".format(token, thumbprint)
+
         wellknown_path = os.path.join(acme_dir, token)
+        logger.debug("Client %s: Creating challenge response at %s", id, wellknown_path)
+
         wellknown_paths.append(wellknown_path)
         with open(wellknown_path, "w") as wellknown_file:
             wellknown_file.write(keyauthorization)
 
-        # say the challenge is done
+        logger.debug("Client %s: Responding to challenge at %s", id, challenge['url'])
         authorization, _, _, nonce = send_signed_request(challenge['url'], {},
                                                          "Error submitting challenges: {0}".format(domain),
                                                          acct_headers=acct_headers, nonce=nonce)
+
+    logger.debug("Client %s: Waiting for all authorizations to complete", id)
     order, nonce = poll_until_not(order_headers['Location'], ['pending'],
                                   "Error checking challenge status for {0}".format(domain),
                                   acct_headers=acct_headers, nonce=nonce)
@@ -158,12 +171,12 @@ def get_crt(domain_name, acme_dir, log=LOGGER, nonce=None):
     for wellknown_path in wellknown_paths:
         os.remove(wellknown_path)
 
-    # finalize the order with the csr
+    logger.debug("Client %s: Finalizing order", id)
     authorization, _, _, nonce = send_signed_request(order['finalize'], {"csr": b64(csr_der)},
                                                      "Error finalizing order",
                                                      acct_headers=acct_headers, nonce=nonce)
 
-    # poll the order to monitor when it's done
+    logger.debug("Client %s: Waiting for certificate to be issued", id)
     order, nonce = poll_until_not(order_headers['Location'], ["processing"],
                                   "Error checking order status", acct_headers=acct_headers, nonce=nonce)
     if order['status'] != "valid":
@@ -173,29 +186,49 @@ def get_crt(domain_name, acme_dir, log=LOGGER, nonce=None):
     certificate_pem, _, _, nonce = send_signed_request(order['certificate'], None,
                                                        "Certificate download failed",
                                                        acct_headers=acct_headers, nonce=nonce)
-    log.info("Certificate signed!")
+
+    logger.debug("Client %s: Certificate: %s", id, certificate_pem)
     return nonce
 
 
-def main(domain_name, number_of_tests_per_thread):
+def main(id, domain_name, number_of_tests_per_thread):
+
+    logger.debug("Client %s: Getting a new nonce", id)
     nonce = do_request(directory['newNonce'])[2]['Replay-Nonce']
-    for i in range(number_of_tests_per_thread):
-        nonce = get_crt(domain_name, args.acme_dir, log=LOGGER, nonce=nonce)
+    logger.debug("Client %s: Nonce: %s", id, nonce)
+
+    for i in range(1, number_of_tests_per_thread + 1):
+        logger.info("Client %s: Enrolling cert %s of %s", id, i, number_of_tests_per_thread)
+        nonce = get_crt(id, domain_name, args.acme_dir, nonce=nonce)
 
 
 if __name__ == "__main__":  # pragma: no cover
+
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+
+    elif args.verbose:
+        logger.setLevel(logging.INFO)
+
+    print("Test parameters:")
+    print("- target: %s" % args.directory_url)
+
     number_of_threads = args.number_of_threads
+    print("- number of clients: %s" % number_of_threads)
+
     number_of_tests_per_thread = args.number_of_tests_per_thread
+    print("- number of tests per client: %s" % number_of_tests_per_thread)
 
-    # get the ACME directory of urls
+    logger.debug("Getting ACME directory from %s", args.directory_url)
+
     directory, _, _, nonce = do_request(args.directory_url, err_msg="Error getting directory")
-    LOGGER.info("Directory found!")
+    logger.debug("Directory: %s", directory)
 
-    # Generating new csr
+    logger.debug("Generating a new CSR")
     pkey_pem, csr_pem, pkey = new_csr_comp(args.domain)
+    logger.debug("CSR: %s", csr_pem)
 
     # parse account key to get public key
-    LOGGER.info("Parsing account key...")
     proc = subprocess.Popen(["openssl", "rsa", "-in", account_key, "-noout", "-text"], stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
     out, err = proc.communicate()
@@ -211,17 +244,21 @@ if __name__ == "__main__":  # pragma: no cover
         "kty": "RSA",
         "n": b64(binascii.unhexlify(re.sub(r"(\s|:)", "", pub_hex).encode("utf-8")))
     }
+    logger.debug("JWK: %s", jwk)
 
     accountkey_json = json.dumps(jwk, sort_keys=True, separators=(',', ':'))
     thumbprint = b64(hashlib.sha256(accountkey_json.encode('utf8')).digest())
 
-    # create account, update contact details (if any), and set the global key identifier
-    LOGGER.info("Registering account...")
-    reg_payload = {"termsOfServiceAgreed": True}
-
+    logger.debug("Getting a new nonce")
     nonce = do_request(directory['newNonce'])[2]['Replay-Nonce']
+    logger.debug("Nonce: %s", nonce)
+
+    logger.debug("Creating a new account")
+    reg_payload = {"termsOfServiceAgreed": True}
     account, code, acct_headers, nonce = send_signed_request(directory['newAccount'], reg_payload,
                                                              "Error registering", nonce=nonce)
+    logger.debug("Account: %s", account)
+
     # Convert csr to der
     csr = OpenSSL.crypto.load_certificate_request(OpenSSL.crypto.FILETYPE_PEM, csr_pem)
     csr_der = OpenSSL.crypto.dump_certificate_request(OpenSSL.crypto.FILETYPE_ASN1, csr)
@@ -229,8 +266,9 @@ if __name__ == "__main__":  # pragma: no cover
     # start performance test
     threads = []
     start = timer()
-    for t in range(number_of_threads):
-        t1 = threading.Thread(target=main, args=(args.domain, number_of_tests_per_thread))
+    for t in range(1, number_of_threads + 1):
+        logger.info("Starting client %s", t)
+        t1 = threading.Thread(target=main, args=(t, args.domain, number_of_tests_per_thread))
         t1.start()
         threads.append(t1)
 
@@ -243,6 +281,6 @@ if __name__ == "__main__":  # pragma: no cover
     T = end - start
     N = number_of_threads * number_of_tests_per_thread
 
-    LOGGER.info("Number of certs enrolled (N)={}".format(N))
-    LOGGER.info("Test execution time (T)={}".format(T))
-    LOGGER.info("Throughput (V = N/T)={}".format(N / T))
+    print("Number of certs enrolled (N): {}".format(N))
+    print("Test execution time (T): {}".format(T))
+    print("Throughput (V = N/T): {}".format(N / T))
