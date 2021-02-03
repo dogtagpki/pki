@@ -227,7 +227,7 @@ if __name__ == "__main__":  # pragma: no cover
     end = timer()
 
     # Below part is for reporting purpose to calculate Throughput
-    T = int(end - start)
+    T = end - start
     N = number_of_threads * number_of_tests_per_thread
 
     LOGGER.info("Number of certs enrolled (N)={}".format(N))
