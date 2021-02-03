@@ -22,25 +22,38 @@ import base64
 import binascii, time
 import hashlib
 import re, logging
+import socket
 import threading
 import OpenSSL
 from acme import crypto_util
 from timeit import default_timer as timer
 from urllib.request import urlopen, Request
 
-DEFAULT_DIRECTORY_URL = "http://localhost:8080/acme/directory"
+DEFAULT_CHALLENGE_DIR = "/usr/share/nginx/html/.well-known/acme-challenge"
+DEFAULT_DIRECTORY_URL = "http://%s:8080/acme/directory" % socket.gethostname()
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
 LOGGER.setLevel(logging.INFO)
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter)
-parser.add_argument("--domain", required=True, help="Client Domain name")
-parser.add_argument("--acme-dir", required=True, help="path to the .well-known/acme-challenge/ directory")
-parser.add_argument("--directory-url", required=True, default=DEFAULT_DIRECTORY_URL,
-                    help="certificate authority directory url")
-parser.add_argument("--number-of-threads", required=True, help="Number of threads", type=int)
-parser.add_argument("--number-of-tests-per-thread", required=True, help="Number of test per thread", type=int)
+parser.add_argument("--domain",
+                    help="Client domain name (default: localhost)",
+                    default="localhost")
+parser.add_argument("--acme-dir",
+                    help="Path to .well-known/acme-challenge directory (default: %s)" % DEFAULT_CHALLENGE_DIR,
+                    default=DEFAULT_CHALLENGE_DIR)
+parser.add_argument("--directory-url",
+                    help="ACME directory URL (default: %s)" % DEFAULT_DIRECTORY_URL,
+                    default=DEFAULT_DIRECTORY_URL)
+parser.add_argument("--number-of-threads", "--clients",
+                    help="Number of clients (default: 1)",
+                    default=1,
+                    type=int)
+parser.add_argument("--number-of-tests-per-thread", "--tests-per-client",
+                    help="Number of tests per client (default: 1)",
+                    default=1,
+                    type=int)
 
 args = parser.parse_args()
 LOGGER.setLevel(LOGGER.level)
