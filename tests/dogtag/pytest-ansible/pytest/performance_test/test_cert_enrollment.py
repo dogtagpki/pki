@@ -16,6 +16,7 @@
 from pki.client import PKIConnection
 from pki.cert import CertClient
 from timeit import default_timer as timer
+import socket
 import sys
 import logging
 import threading
@@ -23,12 +24,24 @@ import argparse
 import json
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--hostname", help="<CA hostname>")
-parser.add_argument("--port", help="<CA Port Number>")
-parser.add_argument("--client-cert", help="path for admin.pem certificate")
-parser.add_argument("--number-of-clients", help="Number of thread", type=int)
-parser.add_argument("--number-of-tests-per-client", help="Number of test per thread", type=int)
-parser.add_argument("--ca-cert-path", help="path for CA signing certifcate")
+parser.add_argument("--hostname",
+                    help="CA hostname (default: %s)" % socket.gethostname(),
+                    default=socket.gethostname())
+parser.add_argument("--port",
+                    help="CA port number (default: 8443)",
+                    default="8443")
+parser.add_argument("--client-cert",
+                    help="Path to admin certificate and key in PEM format")
+parser.add_argument("--number-of-clients", "--clients",
+                    help="Number of clients",
+                    default=1,
+                    type=int)
+parser.add_argument("--number-of-tests-per-client", "--tests-per-client",
+                    help="Number of tests per client",
+                    default=1,
+                    type=int)
+parser.add_argument("--ca-cert-path",
+                    help="Path to CA signing certificate in PEM format")
 
 log = logging.getLogger()
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
