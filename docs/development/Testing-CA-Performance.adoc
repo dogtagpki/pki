@@ -1,0 +1,33 @@
+= Testing CA Performance =
+
+== Prerequisites ==
+
+Install a CA, export the CA signing certificate:
+
+----
+$ pki-server cert-export ca_signing --cert-file ca_signing.crt
+----
+
+Then export the CA admin certificate and key:
+
+----
+$ openssl pkcs12 \
+    -in $HOME/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+    -passin file:$HOME/.dogtag/pki-tomcat/ca/pkcs12_password.conf \
+    -out caadmin.pem \
+    -nodes
+----
+
+== Certificate Enrollment ==
+
+Execute the following command to run the certificate enrollment test:
+
+----
+$ python /usr/share/pki/tests/python/performance/test_cert_enrollment.py \
+    --hostname $HOSTNAME \
+    --port 8443 \
+    --ca-cert-path ca_signing.crt \
+    --client-cert caadmin.pem \
+    --number-of-clients 1 \
+    --number-of-tests-per-client 1
+----
