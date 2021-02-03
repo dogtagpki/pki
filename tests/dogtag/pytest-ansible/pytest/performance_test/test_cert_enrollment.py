@@ -95,7 +95,7 @@ def run_test(sn_uid, number_of_tests_per_thread):
         start = timer()
         serial_num = cert_enroll(sn_uid)
         end = timer()
-        issuance_times.append(int(start - end))
+        issuance_times.append(end - start)
         cert_list.append(serial_num.cert_serial_number)
     # call cert_enroll(sn_uid)
 
@@ -127,7 +127,7 @@ if __name__ == "__main__":
         json.dump(issuance_times, cf)
 
     # Below part is for reporting purpose to calculate Throughput
-    T = int(end - start)
+    T = end - start
     N = number_of_threads * number_of_tests_per_thread
 
     log.info("Number of certs enrolled (N)={}".format(N))
