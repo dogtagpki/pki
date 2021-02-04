@@ -45,13 +45,6 @@ public class TPSConfigurator extends Configurator {
         super(engine);
     }
 
-    public void configureTKSConnector(URI tksURI, String nickname) throws Exception {
-
-        // TODO: get installer from session
-        TPSInstaller installer = new TPSInstaller();
-        installer.configureTKSConnector(tksURI, nickname);
-    }
-
     public void configureKRAConnector(URI kraURI, String nickname, boolean keygen) throws Exception {
 
         // TODO: get installer from session
@@ -87,9 +80,6 @@ public class TPSConfigurator extends Configurator {
         logger.debug("TPSConfigurator: subsystem cert: " + nickname);
 
         String subsystemCert = getSubsystemCert();
-
-        logger.info("TPSConfigurator: Configuring TKS connector");
-        configureTKSConnector(tksURI, nickname);
 
         logger.info("TPSConfigurator: Configuring KRA connector");
         configureKRAConnector(kraURI, nickname, keygen);

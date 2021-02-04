@@ -307,7 +307,33 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem.config['config.Subsystem_Connections.ca1.state'] = 'Enabled'
             subsystem.config['config.Subsystem_Connections.ca1.timestamp'] = timestamp
 
-            subsystem.config['target.Subsystem_Connections.list'] = 'ca1'
+            logger.info('Configuring TKS connector')
+
+            tks_url = urllib.parse.urlparse(deployer.mdict['pki_tks_uri'])
+            subsystem.config['tps.connector.tks1.enable'] = 'true'
+            subsystem.config['tps.connector.tks1.host'] = tks_url.hostname
+            subsystem.config['tps.connector.tks1.port'] = str(tks_url.port)
+            subsystem.config['tps.connector.tks1.minHttpConns'] = '1'
+            subsystem.config['tps.connector.tks1.maxHttpConns'] = '15'
+            subsystem.config['tps.connector.tks1.nickName'] = fullname
+            subsystem.config['tps.connector.tks1.timeout'] = '30'
+            subsystem.config['tps.connector.tks1.generateHostChallenge'] = 'true'
+            subsystem.config['tps.connector.tks1.serverKeygen'] = 'false'
+            subsystem.config['tps.connector.tks1.keySet'] = 'defKeySet'
+            subsystem.config['tps.connector.tks1.tksSharedSymKeyName'] = 'sharedSecret'
+            subsystem.config['tps.connector.tks1.uri.computeRandomData'] = \
+                '/tks/agent/tks/computeRandomData'
+            subsystem.config['tps.connector.tks1.uri.computeSessionKey'] = \
+                '/tks/agent/tks/computeSessionKey'
+            subsystem.config['tps.connector.tks1.uri.createKeySetData'] = \
+                '/tks/agent/tks/createKeySetData'
+            subsystem.config['tps.connector.tks1.uri.encryptData'] = \
+                '/tks/agent/tks/encryptData'
+
+            subsystem.config['config.Subsystem_Connections.tks1.state'] = 'Enabled'
+            subsystem.config['config.Subsystem_Connections.tks1.timestamp'] = timestamp
+
+            subsystem.config['target.Subsystem_Connections.list'] = 'ca1,tks1'
 
         subsystem.save()
 

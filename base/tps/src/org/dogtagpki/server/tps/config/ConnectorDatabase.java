@@ -190,31 +190,4 @@ public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
 
         addRecord(id, record);
     }
-
-    public void addTKSConnector(String hostname, Integer port, String nickname, Boolean keygen) throws Exception {
-
-        String id  = getNextID("tks");
-
-        ConnectorRecord record = new ConnectorRecord();
-        record.setID(id);
-        record.setStatus(Constants.CFG_ENABLED);
-
-        record.setProperty(prefix + "." + id + ".enable", "true");
-        record.setProperty(prefix + "." + id + ".host", hostname);
-        record.setProperty(prefix + "." + id + ".port", port.toString());
-        record.setProperty(prefix + "." + id + ".minHttpConns", "1");
-        record.setProperty(prefix + "." + id + ".maxHttpConns", "15");
-        record.setProperty(prefix + "." + id + ".nickName", nickname);
-        record.setProperty(prefix + "." + id + ".timeout", "30");
-        record.setProperty(prefix + "." + id + ".generateHostChallenge", "true");
-        record.setProperty(prefix + "." + id + ".serverKeygen", keygen.toString());
-        record.setProperty(prefix + "." + id + ".keySet", "defKeySet");
-        record.setProperty(prefix + "." + id + ".tksSharedSymKeyName", "sharedSecret");
-        record.setProperty(prefix + "." + id + ".uri.computeRandomData", "/tks/agent/tks/computeRandomData");
-        record.setProperty(prefix + "." + id + ".uri.computeSessionKey", "/tks/agent/tks/computeSessionKey");
-        record.setProperty(prefix + "." + id + ".uri.createKeySetData", "/tks/agent/tks/createKeySetData");
-        record.setProperty(prefix + "." + id + ".uri.encryptData", "/tks/agent/tks/encryptData");
-
-        addRecord(id, record);
-    }
 }

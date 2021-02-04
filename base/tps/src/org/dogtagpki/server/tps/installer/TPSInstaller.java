@@ -41,14 +41,6 @@ public class TPSInstaller {
     public TPSInstaller() {
     }
 
-    public void configureTKSConnector(URI uri, String nickname) throws Exception {
-
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
-        ConnectorDatabase database = subsystem.getConnectorDatabase();
-        database.addTKSConnector(uri.getHost(), uri.getPort(), nickname, false);
-    }
-
     public void configureKRAConnector(Boolean keygen, URI uri, String nickname) throws Exception {
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
