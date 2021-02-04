@@ -1,0 +1,13 @@
+dn: cn=acme,cn=index,cn=tasks,cn=config
+objectclass: top
+objectclass: extensibleObject
+cn: acme
+ttl: 10
+nsinstance: userroot
+nsIndexAttribute: acmeExpires:eq
+nsIndexAttribute: acmeAccountId:eq
+nsIndexAttribute: acmeStatus:eq
+nsIndexAttribute: acmeAuthorizationId:eq
+nsIndexAttribute: acmeIdentifier:eq
+nsIndexAttribute: acmeCertificateId:eq
+nsIndexAttribute: acmeAuthorizationWildcard:eq,pres

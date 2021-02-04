@@ -78,15 +78,38 @@ $ ldapmodify -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
     -f /usr/share/pki/acme/database/ds/schema.ldif
 ```
 
-Next, prepare an LDIF file to create the ACME subtree.
-A sample LDIF file is available at [/usr/share/pki/acme/database/ds/create.ldif](../../../base/acme/database/ds/create.ldif).
-This example uses dc=acme,dc=pki,dc=example,dc=com as the base DN.
-Import the file with the following command:
+Next, create the ACME DS indexes by importing [/usr/share/pki/acme/database/ds/index.ldif](../../../base/acme/database/ds/index.ldif) with the following command:
+
+```
+$ ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
+    -f /usr/share/pki/acme/database/ds/index.ldif
+```
+
+**Note:** By default the `index.ldif` will use `userroot` as the DS backend.
+
+If necessary, the database can be reindexed by importing [/usr/share/pki/acme/database/ds/indextask.ldif](../../../base/acme/database/ds/indextask.ldif) with the following command:
+
+```
+$ ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
+    -f /usr/share/pki/acme/database/ds/indextask.ldif
+```
+
+The progress of the reindex task can be monitored with the following command:
+
+```
+$ ldapsearch -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
+    -b "cn=acme,cn=index,cn=tasks,cn=config"
+```
+
+Once the indexes are ready, create the ACME subtree by importing
+[/usr/share/pki/acme/database/ds/create.ldif](../../../base/acme/database/ds/create.ldif) with the following command:
 
 ```
 $ ldapadd -h $HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
     -f /usr/share/pki/acme/database/ds/create.ldif
 ```
+
+**Note:** By default the `create.ldif` will create the subtree under `dc=pki,dc=example,dc=com` which is mapped to `userroot` DS backend.
 
 A sample DS database configuration is available at
 [/usr/share/pki/acme/database/ds/database.conf](../../../base/acme/database/ds/database.conf).
