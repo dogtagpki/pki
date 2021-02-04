@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.URI;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -932,53 +931,6 @@ public class Configurator {
         b64 = CryptoUtil.stripCertBrackets(b64.trim());
         byte[] bytes = CryptoUtil.base64Decode(b64);
         return new X509CertImpl(bytes);
-    }
-
-    public void registerUser(
-            PKIClient client,
-            URI secdomainURI,
-            String targetType,
-            String uid,
-            String subsystemName,
-            String subsystemCert,
-            String sessionId) throws Exception {
-
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("uid", uid);
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionId);
-        content.putSingle("auth_hostname", secdomainURI.getHost());
-        content.putSingle("auth_port", secdomainURI.getPort() + "");
-        content.putSingle("certificate", subsystemCert);
-        content.putSingle("name", subsystemName);
-
-        String response = client.post(
-                "/" + targetType + "/admin/" + targetType + "/registerUser",
-                content,
-                String.class);
-        logger.debug("Configurator: Response: " + response);
-
-        if (response == null || response.equals("")) {
-            logger.error("Unable to add user: empty response");
-            throw new IOException("Unable to add user: empty response");
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-        XMLObject parser = new XMLObject(bis);
-
-        String status = parser.getValue("Status");
-        logger.debug("Configurator: Status: " + status);
-
-        if (status.equals(SUCCESS)) {
-            logger.debug("Configurator: Successfully added user " + uid);
-
-        } else if (status.equals(AUTH_FAILURE)) {
-            throw new EAuthException(AUTH_FAILURE);
-
-        } else {
-            String error = parser.getValue("Error");
-            throw new IOException(error);
-        }
     }
 
     public String getSubsystemCert() throws EBaseException, NotInitializedException, ObjectNotFoundException,

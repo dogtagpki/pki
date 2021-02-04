@@ -28,8 +28,11 @@ import org.dogtagpki.server.tps.installer.TPSInstaller;
 
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.kra.KRAClient;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
+import com.netscape.certsrv.tks.TKSClient;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
@@ -104,7 +107,8 @@ public class TPSConfigurator extends Configurator {
         try {
             logger.info("TPSConfigurator: Registering TPS to CA: " + caURI);
             PKIClient client = Configurator.createClient(caURI.toString(), null, null);
-            registerUser(client, secdomainURI, "ca", uid, subsystemName, subsystemCert, sessionID);
+            CAClient caClient = new CAClient(client);
+            caClient.addUser(secdomainURI, uid, subsystemName, subsystemCert, sessionID);
 
         } catch (Exception e) {
             String message = "Unable to register TPS to CA: " + e.getMessage();
@@ -115,7 +119,8 @@ public class TPSConfigurator extends Configurator {
         try {
             logger.info("TPSConfigurator: Registering TPS to TKS: " + tksURI);
             PKIClient client = Configurator.createClient(tksURI.toString(), null, null);
-            registerUser(client, secdomainURI, "tks", uid, subsystemName, subsystemCert, sessionID);
+            TKSClient tksClient = new TKSClient(client);
+            tksClient.addUser(secdomainURI, uid, subsystemName, subsystemCert, sessionID);
 
         } catch (Exception e) {
             String message = "Unable to register TPS to TKS: " + e.getMessage();
@@ -128,7 +133,8 @@ public class TPSConfigurator extends Configurator {
             try {
                 logger.info("TPSConfigurator: Registering TPS to KRA: " + kraURI);
                 PKIClient client = Configurator.createClient(kraURI.toString(), null, null);
-                registerUser(client, secdomainURI, "kra", uid, subsystemName, subsystemCert, sessionID);
+                KRAClient kraClient = new KRAClient(client);
+                kraClient.addUser(secdomainURI, uid, subsystemName, subsystemCert, sessionID);
 
             } catch (Exception e) {
                 String message = "Unable to register TPS to KRA: " + e.getMessage();

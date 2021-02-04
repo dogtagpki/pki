@@ -148,6 +148,49 @@ public class SubsystemClient extends Client {
         return range;
     }
 
+    public void addUser(
+            URI secdomainURI,
+            String uid,
+            String subsystemName,
+            String subsystemCert,
+            String sessionId) throws Exception {
+
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("uid", uid);
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", sessionId);
+        content.putSingle("auth_hostname", secdomainURI.getHost());
+        content.putSingle("auth_port", secdomainURI.getPort() + "");
+        content.putSingle("certificate", subsystemCert);
+        content.putSingle("name", subsystemName);
+
+        String path = "/" + name + "/admin/" + name + "/registerUser";
+        String response = client.post(path, content, String.class);
+        logger.debug("SubsystemClient: Response: " + response);
+
+        if (response == null || response.equals("")) {
+            logger.error("SubsystemClient: No response");
+            throw new IOException("No response");
+        }
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
+        XMLObject parser = new XMLObject(bis);
+
+        String status = parser.getValue("Status");
+        logger.debug("SubsystemClient: Status: " + status);
+
+        if (status.equals(AUTH_FAILURE)) {
+            throw new EAuthException(AUTH_FAILURE);
+        }
+
+        if (!status.equals(SUCCESS)) {
+            String error = parser.getValue("Error");
+            throw new IOException(error);
+        }
+
+        logger.debug("SubsystemClient: Added user " + uid);
+    }
+
     /**
      * Log out from the subsystem.
      */
