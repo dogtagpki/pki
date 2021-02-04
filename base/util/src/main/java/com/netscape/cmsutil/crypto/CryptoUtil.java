@@ -2148,12 +2148,14 @@ public class CryptoUtil {
             WrappingParams params,
             AlgorithmIdentifier aid) throws Exception {
 
+        CryptoManager cm = CryptoManager.getInstance();
+
         SymmetricKey sessionKey = CryptoUtil.generateKey(
                 token,
                 params.getSkKeyGenAlgorithm(),
                 params.getSkLength(),
                 sess_key_usages,
-                false, false /* sensitive */);
+                false, cm.FIPSEnabled() /* sensitive */);
         byte[] key_data;
 
         if (passphraseData != null) {
