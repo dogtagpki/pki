@@ -18,13 +18,11 @@
 package org.dogtagpki.server.tps;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.URI;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
-import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.PKIClient;
@@ -128,7 +126,8 @@ public class TPSConfigurator extends Configurator {
             try {
                 logger.info("TPSConfigurator: Importing transport cert into TKS");
                 PKIClient client = createClient(tksURI.toString(), null, null);
-                exportTransportCert(client, secdomainURI, transportNickname, transportCert, sessionID);
+                TKSClient tksClient = new TKSClient(client);
+                tksClient.importTransportCert(secdomainURI, transportNickname, transportCert, sessionID);
 
             } catch (Exception e) {
                 String message = "Unable to import transport cert into TKS: " + e.getMessage();
@@ -170,47 +169,5 @@ public class TPSConfigurator extends Configurator {
         }
 
         return parser.getValue("TransportCert");
-    }
-
-    public void exportTransportCert(
-            PKIClient client,
-            URI secdomainURI,
-            String name,
-            String transportCert,
-            String sessionId) throws Exception {
-
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("name", name);
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionId);
-        content.putSingle("auth_hostname", secdomainURI.getHost());
-        content.putSingle("auth_port", secdomainURI.getPort() + "");
-        content.putSingle("certificate", transportCert);
-
-        String targetURL = "/tks/admin/tks/importTransportCert";
-        String response = client.post(targetURL, content, String.class);
-        logger.debug("TPSConfigurator: Response: " + response);
-
-        if (response == null || response.equals("")) {
-            logger.error("TPSConfigurator: No response");
-            throw new IOException("No response");
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-        XMLObject parser = new XMLObject(bis);
-
-        String status = parser.getValue("Status");
-        logger.debug("TPSConfigurator: Status: " + status);
-
-        if (status.equals(AUTH_FAILURE)) {
-            throw new EAuthException(AUTH_FAILURE);
-        }
-
-        if (!status.equals(SUCCESS)) {
-            String error = parser.getValue("Error");
-            throw new IOException(error);
-        }
-
-        logger.debug("TPSConfigurator: Added transport cert");
     }
 }
