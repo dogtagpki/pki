@@ -121,9 +121,14 @@ public class TPSConfigurator extends Configurator {
                 throw new PKIException(message, e);
             }
 
+            String securePort = cs.getString("service.securePort", "");
+            String machineName = cs.getHostname();
+            String transportNickname = "transportCert-" + machineName + "-" + securePort;
+
             try {
                 logger.info("TPSConfigurator: Importing transport cert into TKS");
-                exportTransportCert(request, secdomainURI, tksURI, transportCert);
+                PKIClient client = createClient(tksURI.toString(), null, null);
+                exportTransportCert(client, secdomainURI, transportNickname, transportCert, sessionID);
 
             } catch (Exception e) {
                 String message = "Unable to import transport cert into TKS: " + e.getMessage();
@@ -168,16 +173,11 @@ public class TPSConfigurator extends Configurator {
     }
 
     public void exportTransportCert(
-            FinalizeConfigRequest request,
+            PKIClient client,
             URI secdomainURI,
-            URI targetURI,
-            String transportCert) throws Exception {
-
-        String sessionId = request.getInstallToken().getToken();
-
-        String securePort = cs.getString("service.securePort", "");
-        String machineName = cs.getHostname();
-        String name = "transportCert-" + machineName + "-" + securePort;
+            String name,
+            String transportCert,
+            String sessionId) throws Exception {
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("name", name);
@@ -187,16 +187,13 @@ public class TPSConfigurator extends Configurator {
         content.putSingle("auth_port", secdomainURI.getPort() + "");
         content.putSingle("certificate", transportCert);
 
-        String serverURL = "https://" + targetURI.getHost() + ":" + targetURI.getPort();
         String targetURL = "/tks/admin/tks/importTransportCert";
-
-        PKIClient client = createClient(serverURL, null, null);
         String response = client.post(targetURL, content, String.class);
         logger.debug("TPSConfigurator: Response: " + response);
 
         if (response == null || response.equals("")) {
-            logger.error("TPSConfigurator: The server " + targetURI + " is not available");
-            throw new IOException("The server " + targetURI + " is not available");
+            logger.error("TPSConfigurator: No response");
+            throw new IOException("No response");
         }
 
         ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
@@ -214,6 +211,6 @@ public class TPSConfigurator extends Configurator {
             throw new IOException(error);
         }
 
-        logger.debug("TPSConfigurator: Successfully added transport cert to " + targetURI);
+        logger.debug("TPSConfigurator: Added transport cert");
     }
 }
