@@ -33,11 +33,12 @@ logger = logging.getLogger(__name__)
 
 class CLI(object):
 
-    def __init__(self, name, description):
+    def __init__(self, name, description, deprecated=False):
 
         self.name = name
         self.description = description
         self.parent = None
+        self.deprecated = deprecated
 
         self.modules = collections.OrderedDict()
 
@@ -71,6 +72,25 @@ class CLI(object):
         print('Commands:')
 
         for module in itervalues(self.modules):
+
+            if module.deprecated:
+                continue
+
+            full_name = module.get_full_name()
+            print(' {:30}{:30}'.format(full_name, module.description))
+
+        first = True
+
+        for module in itervalues(self.modules):
+
+            if not module.deprecated:
+                continue
+
+            if first:
+                print()
+                print('Deprecated:')
+                first = False
+
             full_name = module.get_full_name()
             print(' {:30}{:30}'.format(full_name, module.description))
 
