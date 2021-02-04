@@ -74,7 +74,7 @@ import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.ssl.SSLSocketListener;
 
-public class PKIConnection {
+public class PKIConnection implements AutoCloseable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIConnection.class);
 
@@ -401,5 +401,11 @@ public class PKIConnection {
 
     public void setOutput(File output) {
         this.output = output;
+    }
+
+    public void close() {
+        client.close();
+        engine.close();
+        httpClient.close();
     }
 }

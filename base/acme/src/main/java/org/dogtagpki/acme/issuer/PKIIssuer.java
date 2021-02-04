@@ -113,85 +113,87 @@ public class PKIIssuer extends ACMEIssuer {
 
         logger.info("Issuing certificate");
 
-        PKIClient pkiClient = new PKIClient(clientConfig);
-        CAClient caClient = new CAClient(pkiClient);
+        try (PKIClient pkiClient = new PKIClient(clientConfig)) {
 
-        // Here the agent credentials are stored in the ClientConfig and will
-        // be sent to the CA automatically if any of the methods being called
-        // requires REST authentication. However, the methods being called
-        // depend on the cert profile being used.
-        //
-        // If the profile has an authenticator, the request can be completed
-        // with the following methods:
-        // - CACertClient.getEnrollmentTemplate()
-        // - CACertClient.enrollRequest()
-        //
-        // The above methods do not require REST authentication, but the
-        // profile still requires authentication, so the credentials must be
-        // provided either through the request itself (i.e. using profile
-        // authentication) or by calling CAClient.login() (i.e. using REST
-        // authentication).
-        //
-        // If the profile does not have an authenticator, the request must
-        // be reviewed and approved with the following additional methods:
-        // - CACertClient.reviewRequest()
-        // - CACertClient.approveRequest()
-        //
-        // The above methods do require REST authentication so in this case
-        // it's not actually necessary to call CAClient.login(). However, to
-        // support both types of profiles the CAClient.login() needs to be
-        // called explicitly.
-        caClient.login();
+            CAClient caClient = new CAClient(pkiClient);
 
-        CACertClient certClient = new CACertClient(caClient);
-        CertEnrollmentRequest certEnrollmentRequest = certClient.getEnrollmentTemplate(profile);
+            // Here the agent credentials are stored in the ClientConfig and will
+            // be sent to the CA automatically if any of the methods being called
+            // requires REST authentication. However, the methods being called
+            // depend on the cert profile being used.
+            //
+            // If the profile has an authenticator, the request can be completed
+            // with the following methods:
+            // - CACertClient.getEnrollmentTemplate()
+            // - CACertClient.enrollRequest()
+            //
+            // The above methods do not require REST authentication, but the
+            // profile still requires authentication, so the credentials must be
+            // provided either through the request itself (i.e. using profile
+            // authentication) or by calling CAClient.login() (i.e. using REST
+            // authentication).
+            //
+            // If the profile does not have an authenticator, the request must
+            // be reviewed and approved with the following additional methods:
+            // - CACertClient.reviewRequest()
+            // - CACertClient.approveRequest()
+            //
+            // The above methods do require REST authentication so in this case
+            // it's not actually necessary to call CAClient.login(). However, to
+            // support both types of profiles the CAClient.login() needs to be
+            // called explicitly.
+            caClient.login();
 
-        for (ProfileInput input : certEnrollmentRequest.getInputs()) {
+            CACertClient certClient = new CACertClient(caClient);
+            CertEnrollmentRequest certEnrollmentRequest = certClient.getEnrollmentTemplate(profile);
 
-            ProfileAttribute typeAttr = input.getAttribute("cert_request_type");
-            if (typeAttr != null) {
-                typeAttr.setValue("pkcs10");
+            for (ProfileInput input : certEnrollmentRequest.getInputs()) {
+
+                ProfileAttribute typeAttr = input.getAttribute("cert_request_type");
+                if (typeAttr != null) {
+                    typeAttr.setValue("pkcs10");
+                }
+
+                ProfileAttribute csrAttr = input.getAttribute("cert_request");
+                if (csrAttr != null) {
+                    csrAttr.setValue(Utils.base64encodeSingleLine(pkcs10.toByteArray()));
+                }
             }
 
-            ProfileAttribute csrAttr = input.getAttribute("cert_request");
-            if (csrAttr != null) {
-                csrAttr.setValue(Utils.base64encodeSingleLine(pkcs10.toByteArray()));
+            logger.info("Request:\n" + certEnrollmentRequest);
+
+            CertRequestInfos infos = certClient.enrollRequest(certEnrollmentRequest, null, null);
+
+            logger.info("Responses:");
+            CertRequestInfo info = infos.getEntries().iterator().next();
+
+            RequestId requestId = info.getRequestId();
+
+            logger.info("- Request ID: " + requestId);
+            logger.info("  Type: " + info.getRequestType());
+            logger.info("  Request Status: " + info.getRequestStatus());
+            logger.info("  Operation Result: " + info.getOperationResult());
+
+            String error = info.getErrorMessage();
+            if (error != null) {
+                throw new Exception("Unable to generate certificate: " + error);
             }
+
+            CertId id = null;
+            if (info.getRequestStatus() == RequestStatus.COMPLETE) {
+                id = info.getCertId();
+            } else {
+                CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
+                certClient.approveRequest(requestId, reviewInfo);
+
+                info = certClient.getRequest(requestId);
+                id = info.getCertId();
+            }
+
+            logger.info("Serial number: " + id.toHexString());
+            BigInteger serialNumber = id.toBigInteger();
+            return Base64.encodeBase64URLSafeString(serialNumber.toByteArray());
         }
-
-        logger.info("Request:\n" + certEnrollmentRequest);
-
-        CertRequestInfos infos = certClient.enrollRequest(certEnrollmentRequest, null, null);
-
-        logger.info("Responses:");
-        CertRequestInfo info = infos.getEntries().iterator().next();
-
-        RequestId requestId = info.getRequestId();
-
-        logger.info("- Request ID: " + requestId);
-        logger.info("  Type: " + info.getRequestType());
-        logger.info("  Request Status: " + info.getRequestStatus());
-        logger.info("  Operation Result: " + info.getOperationResult());
-
-        String error = info.getErrorMessage();
-        if (error != null) {
-            throw new Exception("Unable to generate certificate: " + error);
-        }
-
-        CertId id = null;
-        if (info.getRequestStatus() == RequestStatus.COMPLETE) {
-            id = info.getCertId();
-        } else {
-            CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
-            certClient.approveRequest(requestId, reviewInfo);
-
-            info = certClient.getRequest(requestId);
-            id = info.getCertId();
-        }
-
-        logger.info("Serial number: " + id.toHexString());
-        BigInteger serialNumber = id.toBigInteger();
-        return Base64.encodeBase64URLSafeString(serialNumber.toByteArray());
     }
 
     public String getCertificateChain(String certID) throws Exception {
@@ -199,35 +201,37 @@ public class PKIIssuer extends ACMEIssuer {
         CertId id = new CertId(new BigInteger(1, Base64.decodeBase64(certID)));
         logger.info("Serial number: " + id.toHexString());
 
-        PKIClient pkiClient = new PKIClient(clientConfig);
-        CAClient caClient = new CAClient(pkiClient);
-        CACertClient certClient = new CACertClient(caClient);
-        CertData certData = certClient.getCert(id);
+        try (PKIClient pkiClient = new PKIClient(clientConfig)) {
 
-        String pkcs7Chain = certData.getPkcs7CertChain();
-        logger.info("Cert chain:\n" + pkcs7Chain);
+            CAClient caClient = new CAClient(pkiClient);
+            CACertClient certClient = new CACertClient(caClient);
+            CertData certData = certClient.getCert(id);
 
-        PKCS7 pkcs7 = new PKCS7(Utils.base64decode(pkcs7Chain));
-        X509Certificate[] certs = pkcs7.getCertificates();
+            String pkcs7Chain = certData.getPkcs7CertChain();
+            logger.info("Cert chain:\n" + pkcs7Chain);
 
-        if (certs == null || certs.length == 0) {
-            throw new Error("PKCS #7 data contains no certificates");
-        }
+            PKCS7 pkcs7 = new PKCS7(Utils.base64decode(pkcs7Chain));
+            X509Certificate[] certs = pkcs7.getCertificates();
 
-        // sort certs from leaf to root
-        certs = Cert.sortCertificateChain(certs, true);
-
-        StringWriter sw = new StringWriter();
-
-        try (PrintWriter out = new PrintWriter(sw, true)) {
-            for (X509Certificate cert : certs) {
-                out.println(Cert.HEADER);
-                out.print(Utils.base64encode(cert.getEncoded(), true));
-                out.println(Cert.FOOTER);
+            if (certs == null || certs.length == 0) {
+                throw new Error("PKCS #7 data contains no certificates");
             }
-        }
 
-        return sw.toString();
+            // sort certs from leaf to root
+            certs = Cert.sortCertificateChain(certs, true);
+
+            StringWriter sw = new StringWriter();
+
+            try (PrintWriter out = new PrintWriter(sw, true)) {
+                for (X509Certificate cert : certs) {
+                    out.println(Cert.HEADER);
+                    out.print(Utils.base64encode(cert.getEncoded(), true));
+                    out.println(Cert.FOOTER);
+                }
+            }
+
+            return sw.toString();
+        }
     }
 
     public void revokeCertificate(ACMERevocation revocation) throws Exception {
@@ -254,43 +258,46 @@ public class PKIIssuer extends ACMEIssuer {
         logger.info("Serial number: " + certID.toHexString());
 
         logger.info("Reviewing certificate");
-        PKIClient pkiClient = new PKIClient(clientConfig);
-        CAClient caClient = new CAClient(pkiClient);
-        CACertClient certClient = new CACertClient(caClient);
-        CertData certData = certClient.reviewCert(certID);
 
-        // Compare cert in request to cert retrieved from PKI.
-        // This prevents DOS attacks against certificates from this issuer,
-        // where the presented certificate was from a different issuer or
-        // has been modified (we don't validate it cryptographically).
-        //
-        String certFromIssuerPEM = certData.getEncoded();
-        if (null == certFromIssuerPEM) {
-            throw new Exception(
-                "Unable to revoke certificate: failed to retrieve cert from PKI");
-        }
-        byte[] certFromIssuerDER = Cert.parseCertificate(certFromIssuerPEM);
-        if (!Arrays.equals(certBytes, certFromIssuerDER)) {
-            throw new Exception(
-                "Unable to revoke certificate: cert in request was not issued by this PKI");
-            // TODO better exception (400?)
-        }
+        try (PKIClient pkiClient = new PKIClient(clientConfig)) {
 
-        CertRevokeRequest request = new CertRevokeRequest();
-        request.setReason(RevocationReason.valueOf(reason));
-        request.setNonce(certData.getNonce());
+            CAClient caClient = new CAClient(pkiClient);
+            CACertClient certClient = new CACertClient(caClient);
+            CertData certData = certClient.reviewCert(certID);
 
-        logger.info("Revoking certificate");
-        CertRequestInfo certRequestInfo = certClient.revokeCert(certID, request);
+            // Compare cert in request to cert retrieved from PKI.
+            // This prevents DOS attacks against certificates from this issuer,
+            // where the presented certificate was from a different issuer or
+            // has been modified (we don't validate it cryptographically).
+            //
+            String certFromIssuerPEM = certData.getEncoded();
+            if (null == certFromIssuerPEM) {
+                throw new Exception(
+                    "Unable to revoke certificate: failed to retrieve cert from PKI");
+            }
+            byte[] certFromIssuerDER = Cert.parseCertificate(certFromIssuerPEM);
+            if (!Arrays.equals(certBytes, certFromIssuerDER)) {
+                throw new Exception(
+                    "Unable to revoke certificate: cert in request was not issued by this PKI");
+                // TODO better exception (400?)
+            }
 
-        RequestStatus status = certRequestInfo.getRequestStatus();
-        if (status != RequestStatus.COMPLETE) {
-            throw new Exception("Unable to revoke certificate: " + status);
-        }
+            CertRevokeRequest request = new CertRevokeRequest();
+            request.setReason(RevocationReason.valueOf(reason));
+            request.setNonce(certData.getNonce());
 
-        if (certRequestInfo.getOperationResult().equals(CertRequestInfo.RES_ERROR)) {
-            String error = certRequestInfo.getErrorMessage();
-            throw new Exception("Unable to revoke certificate: " + error);
+            logger.info("Revoking certificate");
+            CertRequestInfo certRequestInfo = certClient.revokeCert(certID, request);
+
+            RequestStatus status = certRequestInfo.getRequestStatus();
+            if (status != RequestStatus.COMPLETE) {
+                throw new Exception("Unable to revoke certificate: " + status);
+            }
+
+            if (certRequestInfo.getOperationResult().equals(CertRequestInfo.RES_ERROR)) {
+                String error = certRequestInfo.getErrorMessage();
+                throw new Exception("Unable to revoke certificate: " + error);
+            }
         }
     }
 }

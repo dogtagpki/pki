@@ -43,7 +43,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.util.CryptoProvider;
 
 
-public class PKIClient {
+public class PKIClient implements AutoCloseable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIClient.class);
 
@@ -253,5 +253,9 @@ public class PKIClient {
 
     public void setOutput(File output) {
         connection.setOutput(output);
+    }
+
+    public void close() {
+        connection.close();
     }
 }
