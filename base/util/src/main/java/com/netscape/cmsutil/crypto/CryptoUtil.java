@@ -2488,7 +2488,7 @@ public class CryptoUtil {
             KeyWrapAlgorithm alg) throws Exception {
         String method = "CryptoUtil.wrapUsingPublicKey ";
         KeyWrapper rsaWrap = token.getKeyWrapper(alg);
-        logger.debug(method + " KeyWwrapAlg: " + alg);
+        logger.debug(method + " KeyWrapAlg: " + alg);
         if (alg.equals(KeyWrapAlgorithm.RSA_OAEP)) {
             OAEPParameterSpec config = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
                     PSource.PSpecified.DEFAULT);
@@ -2514,7 +2514,7 @@ public class CryptoUtil {
             KeyWrapAlgorithm wrapAlgorithm) throws Exception {
         KeyWrapper keyWrapper = token.getKeyWrapper(wrapAlgorithm);
         String method = "CryptoUtil.unwrap";
-        logger.debug(method + " KeyWwrapAlg: " + wrapAlgorithm);
+        logger.debug(method + " KeyWrapAlg: " + wrapAlgorithm);
 
         if (wrapAlgorithm.equals(KeyWrapAlgorithm.RSA_OAEP)) {
             OAEPParameterSpec config = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,

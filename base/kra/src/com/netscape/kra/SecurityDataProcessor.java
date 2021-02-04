@@ -69,6 +69,8 @@ public class SecurityDataProcessor {
     private IStorageKeyUnit storageUnit = null;
     private IKeyRepository keyRepository = null;
 
+    private boolean useOAEPKeyWrap = false;
+
     private static boolean allowEncDecrypt_archival = false;
     private static boolean allowEncDecrypt_recovery = false;
 
@@ -112,6 +114,7 @@ public class SecurityDataProcessor {
         try {
             config = engine.getConfig();
             allowEncDecrypt_archival = config.getBoolean("kra.allowEncDecrypt.archival", false);
+            useOAEPKeyWrap = config.getBoolean("keyWrap.useOAEP", false);
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
@@ -380,6 +383,7 @@ public class SecurityDataProcessor {
         try {
             config = engine.getConfig();
             allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
+            useOAEPKeyWrap = config.getBoolean("keyWrap.useOAEP", false);
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
@@ -516,6 +520,21 @@ public class SecurityDataProcessor {
                 jssSubsystem.obscureBytes(unwrappedSecData);
                 throw new EBaseException("Cannot generate wrapping params: " + e, e);
             }
+        }
+
+        logger.debug("keyWrap.useOAEP=" + useOAEPKeyWrap);
+        logger.debug("wrapParams.getSkWrapAlgorithm()=" + wrapParams.getSkWrapAlgorithm());
+
+        if (useOAEPKeyWrap && wrapParams.getSkWrapAlgorithm() == KeyWrapAlgorithm.RSA) {
+            // We can't reliably distinguish between PKCS1v1.5 and OAEP at
+            // the key algorithm level. So, if we're using OAEP by config,
+            // update our algo here.
+            //
+            // Additionally... wrapParam's constructor assumes all RSA is
+            // the same. By updating skWrapAlgorithm after construction, we
+            // can override that flawed assumption and force the use of OAEP.
+            logger.debug("Upgrading RSA SkWrapAlgorithm to RSA_OAEP: keyWrap.useOAEP=true");
+            wrapParams.setSkWrapAlgorithm(KeyWrapAlgorithm.RSA_OAEP);
         }
 
         byte[] key_data = null;
