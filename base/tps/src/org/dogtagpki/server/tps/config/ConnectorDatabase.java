@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.cmscore.dbs.CSCfgDatabase;
 
 /**
@@ -168,26 +167,5 @@ public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
         }
 
         return id;
-    }
-
-    public void addKRAConnector(String hostname, Integer port, String nickname) throws Exception {
-
-        String id  = getNextID("kra");
-
-        ConnectorRecord record = new ConnectorRecord();
-        record.setID(id);
-        record.setStatus(Constants.CFG_ENABLED);
-
-        record.setProperty(prefix + "." + id + ".enable", "true");
-        record.setProperty(prefix + "." + id + ".host", hostname);
-        record.setProperty(prefix + "." + id + ".port", port.toString());
-        record.setProperty(prefix + "." + id + ".minHttpConns", "1");
-        record.setProperty(prefix + "." + id + ".maxHttpConns", "15");
-        record.setProperty(prefix + "." + id + ".nickName", nickname);
-        record.setProperty(prefix + "." + id + ".timeout", "30");
-        record.setProperty(prefix + "." + id + ".uri.GenerateKeyPair", "/kra/agent/kra/GenerateKeyPair");
-        record.setProperty(prefix + "." + id + ".uri.TokenKeyRecovery", "/kra/agent/kra/TokenKeyRecovery");
-
-        addRecord(id, record);
     }
 }

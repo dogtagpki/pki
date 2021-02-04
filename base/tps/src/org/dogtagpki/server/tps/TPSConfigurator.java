@@ -24,8 +24,6 @@ import java.net.URI;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.dogtagpki.server.tps.installer.TPSInstaller;
-
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CAClient;
@@ -43,13 +41,6 @@ public class TPSConfigurator extends Configurator {
 
     public TPSConfigurator(CMSEngine engine) {
         super(engine);
-    }
-
-    public void configureKRAConnector(URI kraURI, String nickname, boolean keygen) throws Exception {
-
-        // TODO: get installer from session
-        TPSInstaller installer = new TPSInstaller();
-        installer.configureKRAConnector(keygen, kraURI, nickname);
     }
 
     @Override
@@ -80,9 +71,6 @@ public class TPSConfigurator extends Configurator {
         logger.debug("TPSConfigurator: subsystem cert: " + nickname);
 
         String subsystemCert = getSubsystemCert();
-
-        logger.info("TPSConfigurator: Configuring KRA connector");
-        configureKRAConnector(kraURI, nickname, keygen);
 
         try {
             logger.info("TPSConfigurator: Registering TPS to CA: " + caURI);

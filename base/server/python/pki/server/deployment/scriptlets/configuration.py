@@ -335,6 +335,64 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             subsystem.config['target.Subsystem_Connections.list'] = 'ca1,tks1'
 
+            keygen = config.str2bool(deployer.mdict['pki_enable_server_side_keygen'])
+
+            if keygen:
+                logger.info('Configuring KRA connector')
+
+                kra_url = urllib.parse.urlparse(deployer.mdict['pki_kra_uri'])
+                subsystem.config['tps.connector.kra1.enable'] = 'true'
+                subsystem.config['tps.connector.kra1.host'] = kra_url.hostname
+                subsystem.config['tps.connector.kra1.port'] = str(kra_url.port)
+                subsystem.config['tps.connector.kra1.minHttpConns'] = '1'
+                subsystem.config['tps.connector.kra1.maxHttpConns'] = '15'
+                subsystem.config['tps.connector.kra1.nickName'] = fullname
+                subsystem.config['tps.connector.kra1.timeout'] = '30'
+                subsystem.config['tps.connector.kra1.uri.GenerateKeyPair'] = \
+                    '/kra/agent/kra/GenerateKeyPair'
+                subsystem.config['tps.connector.kra1.uri.TokenKeyRecovery'] = \
+                    '/kra/agent/kra/TokenKeyRecovery'
+
+                subsystem.config['config.Subsystem_Connections.kra1.state'] = 'Enabled'
+                subsystem.config['config.Subsystem_Connections.kra1.timestamp'] = timestamp
+
+                subsystem.config['target.Subsystem_Connections.list'] = 'ca1,tks1,kra1'
+
+                subsystem.config['tps.connector.tks1.serverKeygen'] = 'true'
+
+                # TODO: see if there are other profiles need to be configured
+                subsystem.config[
+                    'op.enroll.userKey.keyGen.encryption.serverKeygen.enable'] = 'true'
+                subsystem.config[
+                    'op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable'] = 'true'
+                subsystem.config[
+                    'op.enroll.soKey.keyGen.encryption.serverKeygen.enable'] = 'true'
+                subsystem.config[
+                    'op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable'] = 'true'
+
+            else:
+                # TODO: see if there are other profiles need to be configured
+                subsystem.config[
+                    'op.enroll.userKey.keyGen.encryption.serverKeygen.enable'] = 'false'
+                subsystem.config[
+                    'op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable'] = 'false'
+                subsystem.config[
+                    'op.enroll.userKey.keyGen.encryption.recovery.destroyed.scheme'
+                ] = 'GenerateNewKey'
+                subsystem.config[
+                    'op.enroll.userKeyTemporary.keyGen.encryption.recovery.onHold.scheme'
+                ] = 'GenerateNewKey'
+                subsystem.config[
+                    'op.enroll.soKey.keyGen.encryption.serverKeygen.enable'] = 'false'
+                subsystem.config[
+                    'op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable'] = 'false'
+                subsystem.config[
+                    'op.enroll.soKey.keyGen.encryption.recovery.destroyed.scheme'
+                ] = 'GenerateNewKey'
+                subsystem.config[
+                    'op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme'
+                ] = 'GenerateNewKey'
+
         subsystem.save()
 
         token = pki.nssdb.normalize_token(deployer.mdict['pki_token_name'])
