@@ -128,9 +128,9 @@ public class CAInfoService extends PKIService implements CAInfoResource {
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
 
-        KRAInfoClient kraInfoClient = getKRAInfoClient(connInfo);
+        try (PKIClient client = createPKIClient(connInfo)) {
 
-        try {
+            KRAInfoClient kraInfoClient = new KRAInfoClient(client, "kra");
             KRAInfo kraInfo = kraInfoClient.getInfo();
 
             archivalMechanism = kraInfo.getArchivalMechanism();
@@ -172,9 +172,9 @@ public class CAInfoService extends PKIService implements CAInfoResource {
     }
 
     /**
-     * Construct KRAInfoClient given KRAConnectorInfo
+     * Construct PKIClient given KRAConnectorInfo
      */
-    private static KRAInfoClient getKRAInfoClient(KRAConnectorInfo connInfo) throws Exception {
+    private static PKIClient createPKIClient(KRAConnectorInfo connInfo) throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
         EngineConfig cs = engine.getConfig();
@@ -196,7 +196,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
         }
         config.setCertNickname(nickname);
 
-        return new KRAInfoClient(new PKIClient(config), "kra");
+        return new PKIClient(config);
     }
 
 }
