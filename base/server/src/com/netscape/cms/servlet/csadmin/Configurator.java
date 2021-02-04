@@ -935,18 +935,13 @@ public class Configurator {
     }
 
     public void registerUser(
-            FinalizeConfigRequest request,
+            PKIClient client,
             URI secdomainURI,
-            URI targetURI,
-            String targetType) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String csType = cs.getType();
-        String uid = csType.toUpperCase() + "-" + cs.getHostname()
-                + "-" + cs.getString("service.securePort", "");
-        String sessionId = request.getInstallToken().getToken();
-        String subsystemName = preopConfig.getString("subsystem.name");
+            String targetType,
+            String uid,
+            String subsystemName,
+            String subsystemCert,
+            String sessionId) throws Exception {
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("uid", uid);
@@ -954,12 +949,9 @@ public class Configurator {
         content.putSingle("sessionID", sessionId);
         content.putSingle("auth_hostname", secdomainURI.getHost());
         content.putSingle("auth_port", secdomainURI.getPort() + "");
-        content.putSingle("certificate", getSubsystemCert());
+        content.putSingle("certificate", subsystemCert);
         content.putSingle("name", subsystemName);
 
-        String serverURL = "https://" + targetURI.getHost() + ":" + targetURI.getPort();
-
-        PKIClient client = Configurator.createClient(serverURL, null, null);
         String response = client.post(
                 "/" + targetType + "/admin/" + targetType + "/registerUser",
                 content,
@@ -978,7 +970,7 @@ public class Configurator {
         logger.debug("Configurator: Status: " + status);
 
         if (status.equals(SUCCESS)) {
-            logger.debug("Configurator: Successfully added user " + uid + " to " + targetURI);
+            logger.debug("Configurator: Successfully added user " + uid);
 
         } else if (status.equals(AUTH_FAILURE)) {
             throw new EAuthException(AUTH_FAILURE);

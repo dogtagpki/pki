@@ -32,6 +32,7 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -69,8 +70,16 @@ public class TPSConfigurator extends Configurator {
         URI caURI = request.getCaUri();
         URI tksURI = request.getTksUri();
         URI kraURI = request.getKraUri();
+        String sessionID = request.getInstallToken().getToken();
 
         boolean keygen = request.getEnableServerSideKeyGen().equalsIgnoreCase("true");
+
+        String csType = cs.getType();
+        String uid = csType.toUpperCase() + "-" + cs.getHostname()
+                + "-" + cs.getString("service.securePort", "");
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        String subsystemName = preopConfig.getString("subsystem.name");
 
         String nickname = cs.getString("tps.subsystem.nickname");
         String tokenname = cs.getString("tps.subsystem.tokenname");
@@ -80,6 +89,8 @@ public class TPSConfigurator extends Configurator {
         }
 
         logger.debug("TPSConfigurator: subsystem cert: " + nickname);
+
+        String subsystemCert = getSubsystemCert();
 
         logger.info("TPSConfigurator: Configuring CA connector");
         configureCAConnector(caURI, nickname);
@@ -92,7 +103,8 @@ public class TPSConfigurator extends Configurator {
 
         try {
             logger.info("TPSConfigurator: Registering TPS to CA: " + caURI);
-            registerUser(request, secdomainURI, caURI, "ca");
+            PKIClient client = Configurator.createClient(caURI.toString(), null, null);
+            registerUser(client, secdomainURI, "ca", uid, subsystemName, subsystemCert, sessionID);
 
         } catch (Exception e) {
             String message = "Unable to register TPS to CA: " + e.getMessage();
@@ -102,7 +114,8 @@ public class TPSConfigurator extends Configurator {
 
         try {
             logger.info("TPSConfigurator: Registering TPS to TKS: " + tksURI);
-            registerUser(request, secdomainURI, tksURI, "tks");
+            PKIClient client = Configurator.createClient(tksURI.toString(), null, null);
+            registerUser(client, secdomainURI, "tks", uid, subsystemName, subsystemCert, sessionID);
 
         } catch (Exception e) {
             String message = "Unable to register TPS to TKS: " + e.getMessage();
@@ -114,7 +127,8 @@ public class TPSConfigurator extends Configurator {
 
             try {
                 logger.info("TPSConfigurator: Registering TPS to KRA: " + kraURI);
-                registerUser(request, secdomainURI, kraURI, "kra");
+                PKIClient client = Configurator.createClient(kraURI.toString(), null, null);
+                registerUser(client, secdomainURI, "kra", uid, subsystemName, subsystemCert, sessionID);
 
             } catch (Exception e) {
                 String message = "Unable to register TPS to KRA: " + e.getMessage();
