@@ -41,13 +41,6 @@ public class TPSInstaller {
     public TPSInstaller() {
     }
 
-    public void configureCAConnector(URI uri, String nickname) throws Exception {
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
-        ConnectorDatabase database = subsystem.getConnectorDatabase();
-        database.addCAConnector(uri.getHost(), uri.getPort(), nickname);
-    }
-
     public void configureTKSConnector(URI uri, String nickname) throws Exception {
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();

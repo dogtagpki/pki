@@ -45,13 +45,6 @@ public class TPSConfigurator extends Configurator {
         super(engine);
     }
 
-    public void configureCAConnector(URI caURI, String nickname) throws Exception {
-
-        // TODO: get installer from session
-        TPSInstaller installer = new TPSInstaller();
-        installer.configureCAConnector(caURI, nickname);
-    }
-
     public void configureTKSConnector(URI tksURI, String nickname) throws Exception {
 
         // TODO: get installer from session
@@ -94,9 +87,6 @@ public class TPSConfigurator extends Configurator {
         logger.debug("TPSConfigurator: subsystem cert: " + nickname);
 
         String subsystemCert = getSubsystemCert();
-
-        logger.info("TPSConfigurator: Configuring CA connector");
-        configureCAConnector(caURI, nickname);
 
         logger.info("TPSConfigurator: Configuring TKS connector");
         configureTKSConnector(tksURI, nickname);

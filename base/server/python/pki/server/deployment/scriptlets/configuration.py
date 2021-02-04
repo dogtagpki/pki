@@ -22,6 +22,7 @@ from __future__ import absolute_import
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.x509.oid import NameOID
+import time
 import logging
 import os
 import shutil
@@ -271,6 +272,42 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem.config['tokendb.certBaseDN'] = 'ou=Certificates,' + baseDN
             subsystem.config['tokendb.userBaseDN'] = baseDN
             subsystem.config['tokendb.hostport'] = dsHost + ':' + dsPort
+
+            nickname = subsystem.config['tps.subsystem.nickname']
+            token = subsystem.config['tps.subsystem.tokenname']
+
+            if pki.nssdb.normalize_token(token):
+                fullname = token + ':' + nickname
+            else:
+                fullname = nickname
+
+            timestamp = round(time.time() * 1000 * 1000)
+
+            logger.info('Configuring CA connector')
+
+            ca_url = urllib.parse.urlparse(deployer.mdict['pki_ca_uri'])
+            subsystem.config['tps.connector.ca1.enable'] = 'true'
+            subsystem.config['tps.connector.ca1.host'] = ca_url.hostname
+            subsystem.config['tps.connector.ca1.port'] = str(ca_url.port)
+            subsystem.config['tps.connector.ca1.minHttpConns'] = '1'
+            subsystem.config['tps.connector.ca1.maxHttpConns'] = '15'
+            subsystem.config['tps.connector.ca1.nickName'] = fullname
+            subsystem.config['tps.connector.ca1.timeout'] = '30'
+            subsystem.config['tps.connector.ca1.uri.enrollment'] = \
+                '/ca/ee/ca/profileSubmitSSLClient'
+            subsystem.config['tps.connector.ca1.uri.getcert'] = \
+                '/ca/ee/ca/displayBySerial'
+            subsystem.config['tps.connector.ca1.uri.renewal'] = \
+                '/ca/ee/ca/profileSubmitSSLClient'
+            subsystem.config['tps.connector.ca1.uri.revoke'] = \
+                '/ca/ee/subsystem/ca/doRevoke'
+            subsystem.config['tps.connector.ca1.uri.unrevoke'] = \
+                '/ca/ee/subsystem/ca/doUnrevoke'
+
+            subsystem.config['config.Subsystem_Connections.ca1.state'] = 'Enabled'
+            subsystem.config['config.Subsystem_Connections.ca1.timestamp'] = timestamp
+
+            subsystem.config['target.Subsystem_Connections.list'] = 'ca1'
 
         subsystem.save()
 

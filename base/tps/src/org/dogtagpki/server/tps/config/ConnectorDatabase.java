@@ -170,30 +170,6 @@ public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
         return id;
     }
 
-    public void addCAConnector(String hostname, Integer port, String nickname) throws Exception {
-
-        String id  = getNextID("ca");
-
-        ConnectorRecord record = new ConnectorRecord();
-        record.setID(id);
-        record.setStatus(Constants.CFG_ENABLED);
-
-        record.setProperty(prefix + "." + id + ".enable", "true");
-        record.setProperty(prefix + "." + id + ".host", hostname);
-        record.setProperty(prefix + "." + id + ".port", port.toString());
-        record.setProperty(prefix + "." + id + ".minHttpConns", "1");
-        record.setProperty(prefix + "." + id + ".maxHttpConns", "15");
-        record.setProperty(prefix + "." + id + ".nickName", nickname);
-        record.setProperty(prefix + "." + id + ".timeout", "30");
-        record.setProperty(prefix + "." + id + ".uri.enrollment", "/ca/ee/ca/profileSubmitSSLClient");
-        record.setProperty(prefix + "." + id + ".uri.getcert", "/ca/ee/ca/displayBySerial");
-        record.setProperty(prefix + "." + id + ".uri.renewal", "/ca/ee/ca/profileSubmitSSLClient");
-        record.setProperty(prefix + "." + id + ".uri.revoke", "/ca/ee/subsystem/ca/doRevoke");
-        record.setProperty(prefix + "." + id + ".uri.unrevoke", "/ca/ee/subsystem/ca/doUnrevoke");
-
-        addRecord(id, record);
-    }
-
     public void addKRAConnector(String hostname, Integer port, String nickname) throws Exception {
 
         String id  = getNextID("kra");
