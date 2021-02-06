@@ -634,7 +634,7 @@ public class CRSEnrollment extends HttpServlet {
              - AES (currently not supported by Dogtag)
              - DES3
              - GetNextCACert (currently not supported by Dogtag)
-             - POSTPKIOperation
+             - POSTPKIOperation (currently not supported by Dogtag)
              - Renewal (currently not supported by Dogtag)
              - SHA-1
              - SHA-256
@@ -644,7 +644,7 @@ public class CRSEnrollment extends HttpServlet {
             if (isAlgorithmAllowed(mAllowedEncryptionAlgorithm, "DES3")) {
                 response.append("DES3\n");
             }
-            response.append("POSTPKIOperation\n");
+            // response.append("POSTPKIOperation\n");
             if (isAlgorithmAllowed(mAllowedHashAlgorithm, "SHA1")) {
                 response.append("SHA-1\n");
             }
@@ -664,7 +664,7 @@ public class CRSEnrollment extends HttpServlet {
             logger.debug(response.toString());
         } catch (Exception e) {
             logger.error("CRSEnrollment: failed sending CA capabilities", e);
-            throw new ServletException("Failed sending CA capabilities");
+            throw new ServletException("Failed sending CA capabilities:" + e.getMessage(), e);
         }
     }
 
