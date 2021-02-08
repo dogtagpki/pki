@@ -878,6 +878,56 @@ class PKIDeployer:
             logger.info('Adding pkidbuser into %s', group)
             subsystem.add_group_member(group, 'pkidbuser')
 
+    def add_subsystem_user(
+            self,
+            instance,
+            subsystem_type,
+            subsystem_url,
+            uid,
+            full_name,
+            cert=None,
+            session=None,
+            install_token=None):
+
+        sd_url = self.mdict['pki_security_domain_uri']
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            if not install_token:
+                install_token = os.path.join(tmpdir, 'install-token')
+                with open(install_token, 'w') as f:
+                    f.write(session)
+
+            cmd = [
+                'pki',
+                '-d', instance.nssdb_dir,
+                '-f', instance.password_conf,
+                '-U', subsystem_url,
+                '%s-user-add' % subsystem_type,
+                uid,
+                '--security-domain', sd_url,
+                '--install-token', install_token,
+                '--fullName', full_name
+            ]
+
+            if cert:
+                cert_file = os.path.join(tmpdir, 'cert.pem')
+                with open(cert_file, 'w') as f:
+                    f.write(cert)
+                cmd.extend(['--cert-file', cert_file])
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def get_ca_signing_cert(self, instance, ca_url):
 
         cmd = [
