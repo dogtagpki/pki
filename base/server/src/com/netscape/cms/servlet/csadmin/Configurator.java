@@ -24,7 +24,6 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.cert.CertificateEncodingException;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -931,33 +930,6 @@ public class Configurator {
         b64 = CryptoUtil.stripCertBrackets(b64.trim());
         byte[] bytes = CryptoUtil.base64Decode(b64);
         return new X509CertImpl(bytes);
-    }
-
-    public String getSubsystemCert() throws EBaseException, NotInitializedException, ObjectNotFoundException,
-            TokenException, CertificateEncodingException, IOException {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String subsystem = preopConfig.getString("cert.subsystem.subsystem");
-
-        String nickname = cs.getString(subsystem + ".subsystem.nickname");
-        String tokenname = cs.getString(subsystem + ".subsystem.tokenname");
-
-        if (!CryptoUtil.isInternalToken(tokenname)) {
-            nickname = tokenname + ":" + nickname;
-        }
-
-        logger.debug("Configurator: getSubsystemCert: nickname=" + nickname);
-
-        CryptoManager cm = CryptoManager.getInstance();
-        org.mozilla.jss.crypto.X509Certificate cert = cm.findCertByNickname(nickname);
-        if (cert == null) {
-            logger.warn("Configurator: getSubsystemCert: subsystem cert is null");
-            return null;
-        }
-        byte[] bytes = cert.getEncoded();
-        String s = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(bytes));
-        return s;
     }
 
     /**
