@@ -19,13 +19,8 @@ package org.dogtagpki.server.tps;
 
 import java.net.URI;
 
-import org.dogtagpki.kra.KRASystemCertClient;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
-
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CAClient;
-import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.kra.KRAClient;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
@@ -96,38 +91,14 @@ public class TPSConfigurator extends Configurator {
 
         if (keygen) {
 
-            CertData transportCertData;
-
             try {
                 logger.info("TPSConfigurator: Registering TPS to KRA: " + kraURI);
                 PKIClient client = Configurator.createClient(kraURI.toString(), null, null);
                 KRAClient kraClient = new KRAClient(client);
                 kraClient.addUser(secdomainURI, uid, subsystemName, subsystemCert, sessionID);
 
-                KRASystemCertClient kraSystemCertClient = new KRASystemCertClient(client, "kra");
-                transportCertData = kraSystemCertClient.getTransportCert();
-
             } catch (Exception e) {
                 String message = "Unable to register TPS to KRA: " + e.getMessage();
-                logger.error(message, e);
-                throw new PKIException(message, e);
-            }
-
-            byte[] binCert = Cert.parseCertificate(transportCertData.getEncoded());
-            String transportCert = Utils.base64encodeSingleLine(binCert);
-
-            String securePort = cs.getString("service.securePort", "");
-            String machineName = cs.getHostname();
-            String transportNickname = "transportCert-" + machineName + "-" + securePort;
-
-            try {
-                logger.info("TPSConfigurator: Importing transport cert into TKS");
-                PKIClient client = createClient(tksURI.toString(), null, null);
-                TKSClient tksClient = new TKSClient(client);
-                tksClient.importTransportCert(secdomainURI, transportNickname, transportCert, sessionID);
-
-            } catch (Exception e) {
-                String message = "Unable to import transport cert into TKS: " + e.getMessage();
                 logger.error(message, e);
                 throw new PKIException(message, e);
             }

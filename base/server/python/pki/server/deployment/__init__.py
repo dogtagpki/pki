@@ -1411,6 +1411,19 @@ class PKIDeployer:
                 self.add_ocsp_publisher(instance)
 
         if subsystem.type == 'TPS':
+
+            keygen = config.str2bool(self.mdict['pki_enable_server_side_keygen'])
+
+            if keygen:
+                logger.info('Exporting transport cert from KRA')
+                transport_cert = self.get_kra_transport_cert(instance)
+
+                logger.info('Importing transport cert into TKS')
+                self.set_tks_transport_cert(
+                    instance,
+                    transport_cert,
+                    session=self.install_token.token)
+
             logger.info('Setting up shared secret')
             self.setup_shared_secret(instance, subsystem)
 
