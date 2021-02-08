@@ -1462,9 +1462,43 @@ class PKIDeployer:
 
         if subsystem.type == 'TPS':
 
+            uid = 'TPS-%s-%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
+            full_name = subsystem.config['preop.subsystem.name']
+            subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
+
+            logger.info('Registering TPS in CA')
+            self.add_subsystem_user(
+                instance,
+                'ca',
+                self.mdict['pki_ca_uri'],
+                uid,
+                full_name,
+                cert=subsystem_cert,
+                session=self.install_token.token)
+
+            logger.info('Registering TPS in TKS')
+            self.add_subsystem_user(
+                instance,
+                'tks',
+                self.mdict['pki_tks_uri'],
+                uid,
+                full_name,
+                cert=subsystem_cert,
+                session=self.install_token.token)
+
             keygen = config.str2bool(self.mdict['pki_enable_server_side_keygen'])
 
             if keygen:
+                logger.info('Registering TPS in KRA')
+                self.add_subsystem_user(
+                    instance,
+                    'kra',
+                    self.mdict['pki_kra_uri'],
+                    uid,
+                    full_name,
+                    cert=subsystem_cert,
+                    session=self.install_token.token)
+
                 logger.info('Exporting transport cert from KRA')
                 transport_cert = self.get_kra_transport_cert(instance)
 
