@@ -40,6 +40,7 @@ public class TKSCLI extends SubsystemCLI {
         super("tks", "TKS management commands", mainCLI);
 
         addModule(new AuditCLI(this));
+        addModule(new TKSCertCLI(this));
         addModule(new ConfigCLI(this));
         addModule(new GroupCLI(this));
         addModule(new SelfTestCLI(this));
