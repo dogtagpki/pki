@@ -108,6 +108,9 @@ public class ClientCertRequestCLI extends CommandCLI {
         option.setArgName("curve name");
         options.addOption(option);
 
+        option = new Option(null, "oaep", false, "Use OAEP key wrap algorithm.");
+        options.addOption(option);
+
         option = new Option(null, "ssl-ecdh", false, "SSL certificate with ECDH ECDSA");
         options.addOption(option);
 
@@ -276,6 +279,8 @@ public class ClientCertRequestCLI extends CommandCLI {
             mainCLI.init();
             client = getClient();
 
+            boolean useOAEP = cmd.hasOption("oaep");
+
             String encoded;
             if (transportCertFilename == null) {
                 CASystemCertClient certClient = new CASystemCertClient(client, "ca");
@@ -296,7 +301,7 @@ public class ClientCertRequestCLI extends CommandCLI {
 
             csr = generateCrmfRequest(transportCert, subjectDN, attributeEncoding,
                     algorithm, length, curve, sslECDH, temporary, sensitive, extractable, withPop,
-                    keyWrapAlgorithm);
+                    keyWrapAlgorithm, useOAEP);
 
         } else {
             throw new Exception("Unknown request type: " + requestType);
@@ -438,12 +443,14 @@ public class ClientCertRequestCLI extends CommandCLI {
             int sensitive,
             int extractable,
             boolean withPop,
-            KeyWrapAlgorithm keyWrapAlgorithm) throws Exception {
+            KeyWrapAlgorithm keyWrapAlgorithm,
+            boolean useOAEP) throws Exception {
 
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = manager.getThreadToken();
 
         CRMFPopClient client = new CRMFPopClient();
+        client.setUseOAEP(useOAEP);
 
         Name subject = client.createName(subjectDN, attributeEncoding);
 
