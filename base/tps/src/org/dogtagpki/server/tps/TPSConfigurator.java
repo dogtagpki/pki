@@ -17,14 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps;
 
-import java.io.ByteArrayInputStream;
 import java.net.URI;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
+import org.dogtagpki.kra.KRASystemCertClient;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CAClient;
+import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.kra.KRAClient;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
@@ -33,7 +34,6 @@ import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.xml.XMLObject;
 
 public class TPSConfigurator extends Configurator {
 
@@ -96,11 +96,16 @@ public class TPSConfigurator extends Configurator {
 
         if (keygen) {
 
+            CertData transportCertData;
+
             try {
                 logger.info("TPSConfigurator: Registering TPS to KRA: " + kraURI);
                 PKIClient client = Configurator.createClient(kraURI.toString(), null, null);
                 KRAClient kraClient = new KRAClient(client);
                 kraClient.addUser(secdomainURI, uid, subsystemName, subsystemCert, sessionID);
+
+                KRASystemCertClient kraSystemCertClient = new KRASystemCertClient(client, "kra");
+                transportCertData = kraSystemCertClient.getTransportCert();
 
             } catch (Exception e) {
                 String message = "Unable to register TPS to KRA: " + e.getMessage();
@@ -108,16 +113,8 @@ public class TPSConfigurator extends Configurator {
                 throw new PKIException(message, e);
             }
 
-            String transportCert;
-            try {
-                logger.info("TPSConfigurator: Retrieving transport cert from KRA");
-                transportCert = getTransportCert(request, secdomainURI, kraURI);
-
-            } catch (Exception e) {
-                String message = "Unable to retrieve transport cert from KRA: " + e.getMessage();
-                logger.error(message, e);
-                throw new PKIException(message, e);
-            }
+            byte[] binCert = Cert.parseCertificate(transportCertData.getEncoded());
+            String transportCert = Utils.base64encodeSingleLine(binCert);
 
             String securePort = cs.getString("service.securePort", "");
             String machineName = cs.getHostname();
@@ -137,37 +134,5 @@ public class TPSConfigurator extends Configurator {
         }
 
         super.finalizeConfiguration(request);
-    }
-
-    public String getTransportCert(FinalizeConfigRequest request, URI secdomainURI, URI kraUri) throws Exception {
-
-        logger.debug("TPSConfigurator: getTransportCert() start");
-
-        String sessionId = request.getInstallToken().getToken();
-
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionId);
-        content.putSingle("auth_hostname", secdomainURI.getHost());
-        content.putSingle("auth_port", secdomainURI.getPort() + "");
-
-        String serverURL = "https://" + kraUri.getHost() + ":" + kraUri.getPort();
-        PKIClient client = createClient(serverURL, null, null);
-        String response = client.post("/kra/admin/kra/getTransportCert", content, String.class);
-        logger.debug("TPSConfigurator: " + response);
-
-        if (response == null) {
-            return null;
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-        XMLObject parser = new XMLObject(bis);
-        String status = parser.getValue("Status");
-
-        if (!status.equals(SUCCESS)) {
-            return null;
-        }
-
-        return parser.getValue("TransportCert");
     }
 }
