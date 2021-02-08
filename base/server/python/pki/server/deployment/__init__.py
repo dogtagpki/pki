@@ -1026,6 +1026,52 @@ class PKIDeployer:
 
         return result.stdout.decode()
 
+    def set_tks_transport_cert(self, instance, cert, session=None, install_token=None):
+
+        tks_url = self.mdict['pki_tks_uri']
+        sd_url = self.mdict['pki_security_domain_uri']
+
+        hostname = self.mdict['pki_hostname']
+
+        server_config = instance.get_server_config()
+        secure_port = server_config.get_secure_port()
+
+        nickname = 'transportCert-%s-%s' % (hostname, secure_port)
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            if not install_token:
+                install_token = os.path.join(tmpdir, 'install-token')
+                with open(install_token, 'w') as f:
+                    f.write(session)
+
+            cmd = [
+                'pki',
+                '-d', instance.nssdb_dir,
+                '-f', instance.password_conf,
+                '-U', tks_url,
+                'tks-cert-transport-import',
+                '--security-domain', sd_url,
+                '--install-token', install_token,
+                nickname
+            ]
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.run(
+                cmd,
+                input=cert,
+                text=True,
+                check=True)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def get_tps_connector(self, instance, subsystem):
 
         tks_uri = self.mdict['pki_tks_uri']
