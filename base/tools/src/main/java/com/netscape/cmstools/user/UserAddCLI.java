@@ -18,13 +18,23 @@
 
 package com.netscape.cmstools.user;
 
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
+import com.netscape.certsrv.client.SubsystemClient;
+import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCLI;
 
 /**
  * @author Endi S. Dewata
@@ -68,6 +78,26 @@ public class UserAddCLI extends CommandCLI {
         option = new Option(null, "state", true, "State");
         option.setArgName("state");
         options.addOption(option);
+
+        option = new Option(null, "cert-file", true, "Path to user certificate");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "format", true, "User certificate format: PEM (default), DER");
+        option.setArgName("format");
+        options.addOption(option);
+
+        option = new Option(null, "security-domain", true, "Security domain URL");
+        option.setArgName("URL");
+        options.addOption(option);
+
+        option = new Option(null, "session", true, "Session ID");
+        option.setArgName("ID");
+        options.addOption(option);
+
+        option = new Option(null, "install-token", true, "Install token");
+        option.setArgName("path");
+        options.addOption(option);
     }
 
     public void execute(CommandLine cmd) throws Exception {
@@ -85,6 +115,15 @@ public class UserAddCLI extends CommandCLI {
             throw new Exception("Missing full name");
         }
 
+        String installToken = cmd.getOptionValue("install-token");
+        String sessionID;
+
+        if (installToken != null) {
+            sessionID = new String(Files.readAllBytes(Paths.get(installToken)));
+        } else {
+            sessionID = cmd.getOptionValue("session");
+        }
+
         UserData userData = new UserData();
         userData.setUserID(userID);
         userData.setFullName(fullName);
@@ -94,11 +133,59 @@ public class UserAddCLI extends CommandCLI {
         userData.setType(cmd.getOptionValue("type"));
         userData.setState(cmd.getOptionValue("state"));
 
+        byte[] binCert = null;
+
+        String filename = cmd.getOptionValue("cert-file");
+        if (filename != null) {
+            binCert = Files.readAllBytes(Paths.get(filename));
+
+            String format = cmd.getOptionValue("format");
+            if (format == null || "PEM".equalsIgnoreCase(format)) {
+                binCert = Cert.parseCertificate(new String(binCert));
+
+            } else if ("DER".equalsIgnoreCase(format)) {
+                // nothing to do
+
+            } else {
+                throw new Exception("Unsupported format: " + format);
+            }
+        }
+
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        UserClient userClient = userCLI.getUserClient();
-        userData = userClient.addUser(userData);
+        String securityDomain = cmd.getOptionValue("security-domain");
+        if (securityDomain == null) {
+
+            UserClient userClient = userCLI.getUserClient();
+            userData = userClient.addUser(userData);
+
+            if (binCert != null) { // cert is optional
+
+                String pemCert =
+                        Cert.HEADER + "\n" +
+                        Utils.base64encodeMultiLine(binCert) +
+                        Cert.FOOTER + "\n";
+
+                UserCertData userCertData = new UserCertData();
+                userCertData.setEncoded(pemCert);
+
+                userCertData = userClient.addUserCert(userID, userCertData);
+            }
+
+        } else {
+            URI uri = new URL(securityDomain).toURI();
+
+            if (binCert == null) { // cert is required
+                throw new Exception("Missing user certificate");
+            }
+
+            String b64Cert = Utils.base64encodeSingleLine(binCert);
+
+            SubsystemCLI subsystemCLI = (SubsystemCLI) userCLI.getParent();
+            SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient();
+            subsystemClient.addUser(uri, userID, fullName, b64Cert, sessionID);
+        }
 
         MainCLI.printMessage("Added user \"" + userID + "\"");
 
