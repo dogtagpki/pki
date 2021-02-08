@@ -1003,6 +1003,29 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
+    def get_kra_transport_cert(self, instance):
+
+        kra_url = self.mdict['pki_kra_uri']
+
+        cmd = [
+            'pki',
+            '-d', instance.nssdb_dir,
+            '-f', instance.password_conf,
+            '-U', kra_url,
+            'kra-cert-transport-export'
+        ]
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
+
+        return result.stdout.decode()
+
     def get_tps_connector(self, instance, subsystem):
 
         tks_uri = self.mdict['pki_tks_uri']
