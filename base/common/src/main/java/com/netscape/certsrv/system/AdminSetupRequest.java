@@ -37,15 +37,6 @@ public class AdminSetupRequest {
     protected InstallToken installToken;
 
     @XmlElement
-    protected String adminUID;
-
-    @XmlElement
-    protected String adminPassword;
-
-    @XmlElement
-    protected String adminEmail;
-
-    @XmlElement
     protected String adminCertRequest;
 
     @XmlElement
@@ -55,16 +46,10 @@ public class AdminSetupRequest {
     protected String adminSubjectDN;
 
     @XmlElement
-    protected String adminName;
-
-    @XmlElement
     protected String adminKeyType;
 
     @XmlElement
     protected String adminProfileID;
-
-    @XmlElement
-    protected String adminCert;
 
     public String getPin() {
         return pin;
@@ -80,30 +65,6 @@ public class AdminSetupRequest {
 
     public void setInstallToken(InstallToken installToken) {
         this.installToken = installToken;
-    }
-
-    public String getAdminUID() {
-        return adminUID;
-    }
-
-    public void setAdminUID(String adminUID) {
-        this.adminUID = adminUID;
-    }
-
-    public String getAdminPassword() {
-        return adminPassword;
-    }
-
-    public void setAdminPassword(String adminPassword) {
-        this.adminPassword = adminPassword;
-    }
-
-    public String getAdminEmail() {
-        return adminEmail;
-    }
-
-    public void setAdminEmail(String adminEmail) {
-        this.adminEmail = adminEmail;
     }
 
     public String getAdminCertRequest() {
@@ -130,14 +91,6 @@ public class AdminSetupRequest {
         this.adminSubjectDN = adminSubjectDN;
     }
 
-    public String getAdminName() {
-        return adminName;
-    }
-
-    public void setAdminName(String adminName) {
-        this.adminName = adminName;
-    }
-
     /**
      * @return the admin key type
      */
@@ -160,26 +113,13 @@ public class AdminSetupRequest {
         this.adminProfileID = adminProfileID;
     }
 
-    public String getAdminCert() {
-        return adminCert;
-    }
-
-    public void setAdminCert(String adminCert) {
-        this.adminCert = adminCert;
-    }
-
     @Override
     public String toString() {
-        return "AdminSetupRequest [adminUID=" + adminUID +
-               ", adminPassword=XXXX" +
-               ", adminEmail=" + adminEmail +
-               ", adminCertRequest=" + adminCertRequest +
+        return "AdminSetupRequest [adminCertRequest=" + adminCertRequest +
                ", adminCertRequestType=" + adminCertRequestType +
                ", adminSubjectDN=" + adminSubjectDN +
-               ", adminName=" + adminName +
                ", adminKeyType=" + adminKeyType +
                ", adminProfileID=" + adminProfileID +
-               ", adminCert=" + adminCert +
                "]";
     }
 }
