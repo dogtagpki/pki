@@ -697,6 +697,62 @@ class PKIDeployer:
 
         return system_certs
 
+    def load_admin_cert(self, subsystem):
+
+        logger.info(
+            'Loading admin cert from client database: %s',
+            self.mdict['pki_admin_nickname'])
+
+        client_nssdb = pki.nssdb.NSSDatabase(
+            directory=self.mdict['pki_client_database_dir'],
+            password=self.mdict['pki_client_database_password'])
+
+        try:
+            b64cert = client_nssdb.get_cert(
+                nickname=self.mdict['pki_admin_nickname'],
+                output_format='base64',
+                output_text=True,  # JSON encoder needs text
+            )
+
+        finally:
+            client_nssdb.close()
+
+        if b64cert:
+            return b64cert
+
+        standalone = config.str2bool(self.mdict['pki_standalone'])
+        external = config.str2bool(self.mdict['pki_external'])
+
+        if standalone or external and subsystem.type in ['KRA', 'OCSP']:
+
+            # Stand-alone/External PKI (Step 2)
+            #
+            # Copy the externally-issued admin certificate into
+            # 'ca_admin.cert' under the specified 'pki_client_dir'
+            # stripping the certificate HEADER/FOOTER prior to saving it.
+
+            logger.info('Loading admin cert from %s', self.mdict['pki_admin_cert_path'])
+
+            with open(self.mdict['pki_admin_cert_path'], 'r') as f:
+                pem_cert = f.read()
+
+            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
+
+            logger.info('Storing admin cert into %s', self.mdict['pki_admin_cert_file'])
+
+            with open(self.mdict['pki_admin_cert_file'], 'w') as f:
+                f.write(b64cert)
+
+        else:
+            logger.info('Loading admin cert from %s', self.mdict['pki_admin_cert_file'])
+
+            with open(self.mdict['pki_admin_cert_file'], 'r') as f:
+                pem_cert = f.read()
+
+            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
+
+        return b64cert
+
     def get_admin_cert(self, subsystem, client):
 
         request = pki.system.AdminSetupRequest()

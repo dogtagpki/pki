@@ -2910,71 +2910,7 @@ class ConfigClient:
         data.adminSubjectDN = self.mdict['pki_admin_subject_dn']
 
         if config.str2bool(self.mdict['pki_import_admin_cert']):
-            data.importAdminCert = "true"
-
-            client_nssdb = pki.nssdb.NSSDatabase(
-                directory=self.mdict['pki_client_database_dir'],
-                password=self.mdict['pki_client_database_password'])
-
-            try:
-                logger.info(
-                    'Loading admin cert from client database: %s',
-                    self.mdict['pki_admin_nickname'])
-
-                data.adminCert = client_nssdb.get_cert(
-                    nickname=self.mdict['pki_admin_nickname'],
-                    output_format='base64',
-                    output_text=True,  # JSON encoder needs text
-                )
-
-                logger.debug('Admin cert: %s', data.adminCert)
-
-                if data.adminCert:
-                    return
-
-            finally:
-                client_nssdb.close()
-
-            if self.standalone or self.external and self.subsystem in ['KRA', 'OCSP']:
-
-                # Stand-alone/External PKI (Step 2)
-                #
-                # Copy the externally-issued admin certificate into
-                # 'ca_admin.cert' under the specified 'pki_client_dir'
-                # stripping the certificate HEADER/FOOTER prior to saving it.
-
-                logger.info(
-                    'Loading admin cert from %s',
-                    self.mdict['pki_admin_cert_path'])
-
-                imported_admin_cert = ""
-                with open(self.mdict['pki_admin_cert_path'], "r") as f:
-                    for line in f:
-                        if line.startswith("-----BEGIN CERTIFICATE-----"):
-                            continue
-                        elif line.startswith("-----END CERTIFICATE-----"):
-                            continue
-                        else:
-                            imported_admin_cert += line
-
-                logger.info(
-                    'Storing admin cert into %s',
-                    self.mdict['pki_admin_cert_file'])
-
-                with open(self.mdict['pki_admin_cert_file'], "w") as f:
-                    f.write(imported_admin_cert)
-
-            logger.info(
-                'Loading admin cert from %s',
-                self.mdict['pki_admin_cert_file'])
-
-            with open(self.mdict['pki_admin_cert_file'], "r") as f:
-                b64 = f.read().replace('\n', '')
-
-            logger.debug('Admin cert: %s', b64)
-
-            data.adminCert = b64
-
+            pass
         else:
             data.importAdminCert = "false"
             data.adminSubjectDN = self.mdict['pki_admin_subject_dn']
