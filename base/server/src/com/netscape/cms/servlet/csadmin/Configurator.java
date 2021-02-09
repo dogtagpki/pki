@@ -827,6 +827,10 @@ public class Configurator {
 
     public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
 
+        String certRequestType = request.getAdminCertRequestType();
+        String certRequest = request.getAdminCertRequest();
+        String sessionID = request.getInstallToken().getToken();
+
         PreOpConfig preopConfig = cs.getPreOpConfig();
         String adminSubjectDN = request.getAdminSubjectDN();
 
@@ -844,6 +848,9 @@ public class Configurator {
             ca_port = cs.getInteger("securitydomain.httpseeport");
         }
 
+        String caURL = "https://" + ca_hostname + ":" + ca_port;
+        logger.info("Configurator: CA URL: " + caURL);
+
         String keyType = request.getAdminKeyType();
         String profileID;
 
@@ -855,32 +862,24 @@ public class Configurator {
 
         logger.debug("Configurator: profile: " + profileID);
 
+        PKIClient client = Configurator.createClient(caURL, null, null);
+
         return createRemoteAdminCert(
-                request,
-                ca_hostname,
-                ca_port,
+                client,
+                certRequestType,
+                certRequest,
                 profileID,
-                adminSubjectDN);
+                adminSubjectDN,
+                sessionID);
     }
 
     public X509CertImpl createRemoteAdminCert(
-            AdminSetupRequest request,
-            String ca_hostname,
-            int ca_port,
+            PKIClient client,
+            String certRequestType,
+            String certRequest,
             String profileId,
-            String subjectDN) throws Exception {
-
-        logger.info("Configurator: Generating admin cert on https://" + ca_hostname + ":" + ca_port);
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        if (profileId == null) {
-            profileId = preopConfig.getString("admincert.profile", "caAdminCert");
-        }
-
-        String certRequestType = request.getAdminCertRequestType();
-        String certRequest = request.getAdminCertRequest();
-        String session_id = request.getInstallToken().getToken();
+            String subjectDN,
+            String session_id) throws Exception {
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("profileId", profileId);
@@ -890,9 +889,6 @@ public class Configurator {
         content.putSingle("sessionID", session_id);
         content.putSingle("subject", subjectDN);
 
-        String serverURL = "https://" + ca_hostname + ":" + ca_port;
-
-        PKIClient client = Configurator.createClient(serverURL, null, null);
         String response = client.post("/ca/ee/ca/profileSubmit", content, String.class);
         logger.info("Configurator: Response: " + response);
 
