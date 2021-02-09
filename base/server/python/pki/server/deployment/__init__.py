@@ -754,6 +754,69 @@ class PKIDeployer:
 
         return b64cert
 
+    def request_admin_cert(self, subsystem, csr):
+
+        ca_type = subsystem.config['preop.ca.type']
+
+        if ca_type == 'sdca':
+            ca_hostname = subsystem.config['preop.ca.hostname']
+            ca_port = subsystem.config['preop.ca.httpsport']
+        else:
+            ca_hostname = subsystem.config['securitydomain.host']
+            ca_port = subsystem.config['securitydomain.httpseeport']
+
+        ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
+        logger.info('Requesting admin cert from %s', ca_url)
+
+        request_type = self.mdict['pki_admin_cert_request_type']
+        key_type = self.mdict['pki_admin_key_type']
+
+        if key_type.lower() == 'ecc':
+            profile = 'caECAdminCert'
+        else:
+            profile = self.mdict['pki_admin_profile_id']
+
+        subject = self.mdict['pki_admin_subject_dn']
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            pem_csr = pki.nssdb.convert_csr(csr, 'base64', 'pem')
+            csr_file = os.path.join(tmpdir, 'admin.csr')
+            with open(csr_file, 'w') as f:
+                f.write(pem_csr)
+
+            install_token = os.path.join(tmpdir, 'install-token')
+            with open(install_token, 'w') as f:
+                f.write(self.install_token.token)
+
+            cmd = [
+                'pki',
+                '-d', subsystem.instance.nssdb_dir,
+                '-f', subsystem.instance.password_conf,
+                '-U', ca_url,
+                'ca-cert-request-submit',
+                '--request-type', request_type,
+                '--csr-file', csr_file,
+                '--profile', profile,
+                '--subject', subject,
+                '--install-token', install_token,
+                '--output-format', 'PEM'
+            ]
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            result = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
+
+            return pki.nssdb.convert_cert(result.stdout.decode(), 'pem', 'base64')
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def create_admin_csr(self):
 
         if self.mdict['pki_admin_cert_request_type'] != 'pkcs10':
@@ -829,7 +892,10 @@ class PKIDeployer:
             b64cert = self.load_admin_cert(subsystem)
         else:
             b64csr = self.create_admin_csr()
-            b64cert = self.create_admin_cert(client, b64csr)
+            if subsystem.type == 'CA':
+                b64cert = self.create_admin_cert(client, b64csr)
+            else:
+                b64cert = self.request_admin_cert(subsystem, b64csr)
 
         logger.info('Admin cert: %s', b64cert)
 

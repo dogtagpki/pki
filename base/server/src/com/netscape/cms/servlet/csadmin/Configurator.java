@@ -56,8 +56,6 @@ import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.ca.CACertClient;
-import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.AdminSetupRequest;
@@ -85,10 +83,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class Configurator {
 
     public final static Logger logger = LoggerFactory.getLogger(Configurator.class);
-
-    // Hard coded values for ECC and RSA internal cert profile names
-    public static final String ECC_INTERNAL_ADMIN_CERT_PROFILE = "caECAdminCert";
-    public static final String RSA_INTERNAL_ADMIN_CERT_PROFILE = "caAdminCert";
 
     public static String SUCCESS = "0";
     public static String FAILURE = "1";
@@ -825,52 +819,7 @@ public class Configurator {
     }
 
     public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
-
-        String certRequestType = request.getAdminCertRequestType();
-        String certRequest = request.getAdminCertRequest();
-        String sessionID = request.getInstallToken().getToken();
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        String adminSubjectDN = request.getAdminSubjectDN();
-
-        logger.info("Configurator: Requesting admin cert from CA");
-
-        String type = preopConfig.getString("ca.type", "");
-        String ca_hostname = "";
-        int ca_port = -1;
-
-        if (type.equals("sdca")) {
-            ca_hostname = preopConfig.getString("ca.hostname");
-            ca_port = preopConfig.getInteger("ca.httpsport");
-        } else {
-            ca_hostname = cs.getString("securitydomain.host", "");
-            ca_port = cs.getInteger("securitydomain.httpseeport");
-        }
-
-        String caURL = "https://" + ca_hostname + ":" + ca_port;
-        logger.info("Configurator: CA URL: " + caURL);
-
-        String keyType = request.getAdminKeyType();
-        String profileID;
-
-        if ("ecc".equalsIgnoreCase(keyType)) {
-            profileID = ECC_INTERNAL_ADMIN_CERT_PROFILE;
-        } else { // rsa
-            profileID = RSA_INTERNAL_ADMIN_CERT_PROFILE;
-        }
-
-        logger.debug("Configurator: profile: " + profileID);
-
-        PKIClient client = Configurator.createClient(caURL, null, null);
-        CAClient caClient = new CAClient(client);
-        CACertClient caCertClient = new CACertClient(caClient);
-
-        return caCertClient.submitRequest(
-                certRequestType,
-                certRequest,
-                profileID,
-                adminSubjectDN,
-                sessionID);
+        return null;
     }
 
     /**
