@@ -754,18 +754,10 @@ class PKIDeployer:
 
         return b64cert
 
-    def create_admin_cert(self, client):
+    def create_admin_csr(self):
 
         if self.mdict['pki_admin_cert_request_type'] != 'pkcs10':
             raise Exception(log.PKI_CONFIG_PKCS10_SUPPORT_ONLY)
-
-        request = pki.system.AdminSetupRequest()
-        request.pin = self.mdict['pki_one_time_pin']
-        request.installToken = self.install_token
-        request.adminKeyType = self.mdict['pki_admin_key_type']
-        request.adminProfileID = self.mdict['pki_admin_profile_id']
-        request.adminSubjectDN = self.mdict['pki_admin_subject_dn']
-        request.adminCertRequestType = self.mdict['pki_admin_cert_request_type']
 
         noise_file = os.path.join(self.mdict['pki_client_database_dir'], 'noise')
         output_file = os.path.join(self.mdict['pki_client_database_dir'], 'admin_pkcs10.bin')
@@ -815,7 +807,18 @@ class PKIDeployer:
         with open(output_file + '.asc', 'r') as f:
             b64csr = f.read().replace('\n', '')
 
-        request.adminCertRequest = b64csr
+        return b64csr
+
+    def create_admin_cert(self, client, csr):
+
+        request = pki.system.AdminSetupRequest()
+        request.pin = self.mdict['pki_one_time_pin']
+        request.installToken = self.install_token
+        request.adminKeyType = self.mdict['pki_admin_key_type']
+        request.adminProfileID = self.mdict['pki_admin_profile_id']
+        request.adminSubjectDN = self.mdict['pki_admin_subject_dn']
+        request.adminCertRequestType = self.mdict['pki_admin_cert_request_type']
+        request.adminCertRequest = csr
 
         response = client.setupAdmin(request)
         return response['adminCert']['cert']
@@ -825,7 +828,8 @@ class PKIDeployer:
         if config.str2bool(self.mdict['pki_import_admin_cert']):
             b64cert = self.load_admin_cert(subsystem)
         else:
-            b64cert = self.create_admin_cert(client)
+            b64csr = self.create_admin_csr()
+            b64cert = self.create_admin_cert(client, b64csr)
 
         logger.info('Admin cert: %s', b64cert)
 
