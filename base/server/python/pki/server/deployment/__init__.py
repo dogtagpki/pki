@@ -762,7 +762,6 @@ class PKIDeployer:
         request = pki.system.AdminSetupRequest()
         request.pin = self.mdict['pki_one_time_pin']
         request.installToken = self.install_token
-        request.importAdminCert = 'false'
         request.adminKeyType = self.mdict['pki_admin_key_type']
         request.adminProfileID = self.mdict['pki_admin_profile_id']
         request.adminSubjectDN = self.mdict['pki_admin_subject_dn']

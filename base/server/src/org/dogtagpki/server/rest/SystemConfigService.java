@@ -41,7 +41,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author alee
@@ -121,44 +120,19 @@ public class SystemConfigService extends PKIService {
                 throw new BadRequestException("System already configured");
             }
 
-            boolean importAdminCert = Boolean.parseBoolean(request.getImportAdminCert());
-
-            if (importAdminCert) {
-                if (StringUtils.isEmpty(request.getAdminCert())) {
-                    throw new BadRequestException("Missing admin certificate");
-                }
-
-            } else {
-                if (StringUtils.isEmpty(request.getAdminCertRequest())) {
-                    throw new BadRequestException("Missing admin certificate request");
-                }
-
-                if (StringUtils.isEmpty(request.getAdminCertRequestType())) {
-                    throw new BadRequestException("Missing admin certificate request type");
-                }
-
-                if (StringUtils.isEmpty(request.getAdminSubjectDN())) {
-                    throw new BadRequestException("Missing admin subject DN");
-                }
+            if (StringUtils.isEmpty(request.getAdminCertRequest())) {
+                throw new BadRequestException("Missing admin certificate request");
             }
 
-            X509CertImpl cert;
-
-            if (request.getImportAdminCert().equalsIgnoreCase("true")) {
-
-                String pemCert = request.getAdminCert();
-                logger.info("Configurator: Importing admin cert: " + pemCert);
-                // standalone admin cert is already stored into CS.cfg by configuration.py
-
-                String b64 = CryptoUtil.stripCertBrackets(pemCert.trim());
-                b64 = CryptoUtil.normalizeCertStr(b64);
-                byte[] b = CryptoUtil.base64Decode(b64);
-
-                cert = new X509CertImpl(b);
-
-            } else {
-                cert = configurator.createAdminCertificate(request);
+            if (StringUtils.isEmpty(request.getAdminCertRequestType())) {
+                throw new BadRequestException("Missing admin certificate request type");
             }
+
+            if (StringUtils.isEmpty(request.getAdminSubjectDN())) {
+                throw new BadRequestException("Missing admin subject DN");
+            }
+
+            X509CertImpl cert = configurator.createAdminCertificate(request);
 
             String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
             logger.debug("SystemConfigService: admin cert: " + b64cert);

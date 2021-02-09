@@ -63,9 +63,6 @@ public class AdminSetupRequest {
     @XmlElement
     protected String adminProfileID;
 
-    @XmlElement(defaultValue = "false")
-    protected String importAdminCert;
-
     @XmlElement
     protected String adminCert;
 
@@ -163,14 +160,6 @@ public class AdminSetupRequest {
         this.adminProfileID = adminProfileID;
     }
 
-    public String getImportAdminCert() {
-        return importAdminCert;
-    }
-
-    public void setImportAdminCert(String importAdminCert) {
-        this.importAdminCert = importAdminCert;
-    }
-
     public String getAdminCert() {
         return adminCert;
     }
@@ -191,7 +180,6 @@ public class AdminSetupRequest {
                ", adminKeyType=" + adminKeyType +
                ", adminProfileID=" + adminProfileID +
                ", adminCert=" + adminCert +
-               ", importAdminCert=" + importAdminCert +
                "]";
     }
 }
