@@ -2909,16 +2909,6 @@ class ConfigClient:
         data.adminProfileID = self.mdict['pki_admin_profile_id']
         data.adminSubjectDN = self.mdict['pki_admin_subject_dn']
 
-        if self.standalone or self.external and self.subsystem in ['KRA', 'OCSP']:
-            if not self.external_step_two:
-                # IMPORTANT:  ALWAYS set 'pki_import_admin_cert' FALSE for
-                #             Stand-alone PKI (Step 1)
-                self.mdict['pki_import_admin_cert'] = "False"
-            else:
-                # IMPORTANT:  ALWAYS set 'pki_import_admin_cert' TRUE for
-                #             Stand-alone PKI (Step 2)
-                self.mdict['pki_import_admin_cert'] = "True"
-
         if config.str2bool(self.mdict['pki_import_admin_cert']):
             data.importAdminCert = "true"
 
