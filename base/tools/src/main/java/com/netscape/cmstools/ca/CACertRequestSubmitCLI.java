@@ -3,7 +3,12 @@ package com.netscape.cmstools.ca;
 import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -12,7 +17,10 @@ import java.util.Vector;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
@@ -75,6 +83,22 @@ public class CACertRequestSubmitCLI extends CommandCLI {
 
         option = new Option(null, "subject", true, "Subject DN");
         option.setArgName("DN");
+        options.addOption(option);
+
+        option = new Option(null, "session", true, "Session ID");
+        option.setArgName("ID");
+        options.addOption(option);
+
+        option = new Option(null, "install-token", true, "Install token");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "output-format", true, "Output format: PEM (default), DER");
+        option.setArgName("format");
+        options.addOption(option);
+
+        option = new Option(null, "output-file", true, "Output file");
+        option.setArgName("file");
         options.addOption(option);
     }
 
@@ -158,9 +182,11 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         request.setRenewal(cmd.hasOption("renewal"));
 
         String csrFilename = cmd.getOptionValue("csr-file");
+        String csr = null;
+
         if (csrFilename != null) {
 
-            String csr = loadFile(csrFilename);
+            csr = loadFile(csrFilename);
 
             logger.info("CSR:\n" + csr);
 
@@ -248,9 +274,54 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         mainCLI.init();
 
         CACertClient certClient = certRequestCLI.getCertClient();
-        CertRequestInfos cri = certClient.enrollRequest(request, aid, adn);
-        MainCLI.printMessage("Submitted certificate request");
-        CACertRequestCLI.printCertRequestInfos(cri);
+
+        String installToken = cmd.getOptionValue("install-token");
+        String sessionID;
+
+        if (installToken != null) {
+            sessionID = new String(Files.readAllBytes(Paths.get(installToken)));
+        } else {
+            sessionID = cmd.getOptionValue("session");
+        }
+
+        if (sessionID == null) {
+            CertRequestInfos cri = certClient.enrollRequest(request, aid, adn);
+            MainCLI.printMessage("Submitted certificate request");
+            CACertRequestCLI.printCertRequestInfos(cri);
+            return;
+        }
+
+        X509CertImpl cert = certClient.submitRequest(requestType, csr, profileID, subjectDN, sessionID);
+        byte[] bytes = cert.getEncoded();
+
+        String outputFormat = cmd.getOptionValue("output-format");
+        if (outputFormat == null || "PEM".equalsIgnoreCase(outputFormat)) {
+            StringWriter sw = new StringWriter();
+
+            try (PrintWriter out = new PrintWriter(sw, true)) {
+                out.println(Cert.HEADER);
+                out.print(Utils.base64encodeMultiLine(cert.getEncoded()));
+                out.println(Cert.FOOTER);
+            }
+
+            bytes = sw.toString().getBytes();
+
+        } else if ("DER".equalsIgnoreCase(outputFormat)) {
+            bytes = cert.getEncoded();
+
+        } else {
+            throw new Exception("Unsupported format: " + outputFormat);
+        }
+
+        String outputFile = cmd.getOptionValue("output-file");
+        if (outputFile != null) {
+            try (FileOutputStream out = new FileOutputStream(outputFile)) {
+                out.write(bytes);
+            }
+
+        } else {
+            System.out.write(bytes);
+        }
     }
 
     private String loadFile(String fileName) throws FileNotFoundException {
