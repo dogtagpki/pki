@@ -40,6 +40,7 @@ import pki.system
 from . import pkiconfig as config
 from . import pkihelper as util
 from . import pkimanifest as manifest
+from . import pkimessages as log
 
 logger = logging.getLogger(__name__)
 
@@ -753,17 +754,80 @@ class PKIDeployer:
 
         return b64cert
 
-    def get_admin_cert(self, subsystem, client):
+    def create_admin_cert(self, client):
+
+        if self.mdict['pki_admin_cert_request_type'] != 'pkcs10':
+            raise Exception(log.PKI_CONFIG_PKCS10_SUPPORT_ONLY)
 
         request = pki.system.AdminSetupRequest()
         request.pin = self.mdict['pki_one_time_pin']
         request.installToken = self.install_token
+        request.importAdminCert = 'false'
+        request.adminKeyType = self.mdict['pki_admin_key_type']
+        request.adminProfileID = self.mdict['pki_admin_profile_id']
+        request.adminSubjectDN = self.mdict['pki_admin_subject_dn']
+        request.adminCertRequestType = self.mdict['pki_admin_cert_request_type']
 
-        self.config_client.set_admin_parameters(request)
+        noise_file = os.path.join(self.mdict['pki_client_database_dir'], 'noise')
+        output_file = os.path.join(self.mdict['pki_client_database_dir'], 'admin_pkcs10.bin')
+
+        # note: in the function below, certutil is used to generate
+        # the request for the admin cert.  The keys are generated
+        # by NSS, which does not actually use the data in the noise
+        # file, so it does not matter what is in this file.  Certutil
+        # still requires it though, otherwise it waits for keyboard
+        # input.
+        with open(noise_file, 'w') as f:
+            f.write('not_so_random_data')
+
+        self.certutil.generate_certificate_request(
+            self.mdict['pki_admin_subject_dn'],
+            self.mdict['pki_admin_key_type'],
+            self.mdict['pki_admin_key_size'],
+            self.mdict['pki_client_password_conf'],
+            noise_file,
+            output_file,
+            self.mdict['pki_client_database_dir'],
+            None,
+            None,
+            True)
+
+        self.file.delete(noise_file)
+
+        # convert output to ASCII
+        command = ['BtoA', output_file, output_file + '.asc']
+        logger.debug('Command: %s', ' '.join(command))
+
+        subprocess.check_call(command)
+
+        standalone = config.str2bool(self.mdict['pki_standalone'])
+        external_step_one = not config.str2bool(self.mdict['pki_external_step_two'])
+
+        if standalone and external_step_one:
+            # For convenience and consistency, save a copy of
+            # the Stand-alone PKI 'Admin Certificate' CSR to the
+            # specified "pki_admin_csr_path" location
+            # (Step 1)
+            self.config_client.save_admin_csr()
+
+            # Save the client database for stand-alone PKI (Step 1)
+            self.mdict['pki_client_database_purge'] = 'False'
+
+        with open(output_file + '.asc', 'r') as f:
+            b64csr = f.read().replace('\n', '')
+
+        request.adminCertRequest = b64csr
 
         response = client.setupAdmin(request)
+        return response['adminCert']['cert']
 
-        b64cert = response['adminCert']['cert']
+    def get_admin_cert(self, subsystem, client):
+
+        if config.str2bool(self.mdict['pki_import_admin_cert']):
+            b64cert = self.load_admin_cert(subsystem)
+        else:
+            b64cert = self.create_admin_cert(client)
+
         logger.info('Admin cert: %s', b64cert)
 
         if config.str2bool(self.mdict['pki_external']) \
@@ -772,7 +836,7 @@ class PKIDeployer:
 
             self.config_client.process_admin_cert(b64cert)
 
-        return base64.b64decode(cert)
+        return base64.b64decode(b64cert)
 
     def setup_admin_user(self, subsystem, cert_data, cert_format='DER'):
 
