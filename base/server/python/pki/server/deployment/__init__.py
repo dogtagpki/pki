@@ -697,7 +697,28 @@ class PKIDeployer:
 
         return system_certs
 
-    def setup_admin(self, subsystem, client):
+    def get_admin_cert(self, subsystem, client):
+
+        request = pki.system.AdminSetupRequest()
+        request.pin = self.mdict['pki_one_time_pin']
+        request.installToken = self.install_token
+
+        self.config_client.set_admin_parameters(request)
+
+        response = client.setupAdmin(request)
+
+        b64cert = response['adminCert']['cert']
+        logger.info('Admin cert: %s', b64cert)
+
+        if config.str2bool(self.mdict['pki_external']) \
+                or config.str2bool(self.mdict['pki_standalone']) \
+                or not config.str2bool(self.mdict['pki_import_admin_cert']):
+
+            self.config_client.process_admin_cert(b64cert)
+
+        return base64.b64decode(cert)
+
+    def setup_admin_user(self, subsystem, cert_data, cert_format='DER'):
 
         uid = self.mdict['pki_admin_uid']
         full_name = self.mdict['pki_admin_name']
@@ -707,14 +728,6 @@ class PKIDeployer:
         tps_profiles = None
         if subsystem.type == 'TPS':
             tps_profiles = ['All Profiles']
-
-        request = pki.system.AdminSetupRequest()
-        request.pin = self.mdict['pki_one_time_pin']
-        request.installToken = self.install_token
-
-        self.config_client.set_admin_parameters(request)
-
-        response = client.setupAdmin(request)
 
         subsystem.add_user(
             uid,
@@ -757,17 +770,8 @@ class PKIDeployer:
             logger.info('Adding %s into %s', uid, group)
             subsystem.add_group_member(group, uid)
 
-        admin_cert = response['adminCert']['cert']
-        cert_data = base64.b64decode(admin_cert)
-
         logger.info('Adding certificate for %s', uid)
-        subsystem.add_user_cert(uid, cert_data=cert_data, cert_format='DER')
-
-        if config.str2bool(self.mdict['pki_external']) \
-                or config.str2bool(self.mdict['pki_standalone']) \
-                or not config.str2bool(self.mdict['pki_import_admin_cert']):
-
-            self.config_client.process_admin_cert(admin_cert)
+        subsystem.add_user_cert(uid, cert_data=cert_data, cert_format=cert_format)
 
     def setup_subsystem_user(self, instance, subsystem, cert):
 

@@ -721,8 +721,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.setup_subsystem_user(instance, subsystem, system_certs['subsystem'])
 
         if not clone:
+            logger.info('Getting admin certificate')
+            admin_cert = deployer.get_admin_cert(subsystem, client)
+
             logger.info('Setting up admin user')
-            deployer.setup_admin(subsystem, client)
+            deployer.setup_admin_user(subsystem, admin_cert)
 
         domain_manager = False
 
