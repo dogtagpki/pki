@@ -17,12 +17,19 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ca;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
@@ -39,11 +46,15 @@ import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * @author Endi S. Dewata
  */
 public class CACertClient extends Client {
+
+    public final static Logger logger = LoggerFactory.getLogger(CACertClient.class);
 
     public CertResource certClient;
     public CertRequestResource certRequestClient;
@@ -170,5 +181,59 @@ public class CACertClient extends Client {
     public ProfileDataInfos listEnrollmentTemplates(Integer start, Integer size) throws Exception {
         Response response = certRequestClient.listEnrollmentTemplates(start, size);
         return client.getEntity(response, ProfileDataInfos.class);
+    }
+
+    public X509CertImpl submitRequest(
+            String certRequestType,
+            String certRequest,
+            String profileID,
+            String subjectDN,
+            String sessionID) throws Exception {
+
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("profileId", profileID);
+        content.putSingle("cert_request_type", certRequestType);
+        content.putSingle("cert_request", certRequest);
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", sessionID);
+        content.putSingle("subject", subjectDN);
+
+        String response = client.post("/ca/ee/ca/profileSubmit", content, String.class);
+        logger.info("CACertClient: Response: " + response);
+
+        if (response == null) {
+            logger.error("No response");
+            throw new IOException("No response");
+        }
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
+        XMLObject parser = new XMLObject(bis);
+
+        String status = parser.getValue("Status");
+        logger.info("CACertClient: Status: " + status);
+
+        if (status.equals("2")) {
+            logger.error("Authentication failure");
+            throw new EAuthException("Authentication failure");
+        }
+
+        if (!status.equals("0")) {
+            String error = parser.getValue("Error");
+            logger.error("Unable to generate certificate: " + error);
+            throw new IOException("Unable to generate certificate: " + error);
+        }
+
+        String id = parser.getValue("Id");
+        logger.info("CACertClient: Request ID: " + id);
+
+        String serial = parser.getValue("serialno");
+        logger.info("CACertClient: Serial: " + serial);
+
+        String b64 = parser.getValue("b64");
+        logger.info("CACertClient: Cert: " + b64);
+
+        b64 = CryptoUtil.stripCertBrackets(b64.trim());
+        byte[] bytes = CryptoUtil.base64Decode(b64);
+        return new X509CertImpl(bytes);
     }
 }

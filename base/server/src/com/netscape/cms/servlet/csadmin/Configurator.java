@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -54,10 +53,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.account.AccountClient;
-import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.ca.CACertClient;
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.AdminSetupRequest;
@@ -75,7 +75,6 @@ import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * Utility class for functions to be used by the RESTful installer.
@@ -863,69 +862,15 @@ public class Configurator {
         logger.debug("Configurator: profile: " + profileID);
 
         PKIClient client = Configurator.createClient(caURL, null, null);
+        CAClient caClient = new CAClient(client);
+        CACertClient caCertClient = new CACertClient(caClient);
 
-        return createRemoteAdminCert(
-                client,
+        return caCertClient.submitRequest(
                 certRequestType,
                 certRequest,
                 profileID,
                 adminSubjectDN,
                 sessionID);
-    }
-
-    public X509CertImpl createRemoteAdminCert(
-            PKIClient client,
-            String certRequestType,
-            String certRequest,
-            String profileId,
-            String subjectDN,
-            String session_id) throws Exception {
-
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("profileId", profileId);
-        content.putSingle("cert_request_type", certRequestType);
-        content.putSingle("cert_request", certRequest);
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", session_id);
-        content.putSingle("subject", subjectDN);
-
-        String response = client.post("/ca/ee/ca/profileSubmit", content, String.class);
-        logger.info("Configurator: Response: " + response);
-
-        if (response == null) {
-            logger.error("Unable to generate admin certificate: no response from CA");
-            throw new IOException("Unable to generate admin certificate: no response from CA");
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-        XMLObject parser = new XMLObject(bis);
-
-        String status = parser.getValue("Status");
-        logger.info("Configurator: Status: " + status);
-
-        if (status.equals(AUTH_FAILURE)) {
-            logger.error("Unable to generate admin certificate: authentication failure");
-            throw new EAuthException("Unable to generate admin certificate: authentication failure");
-        }
-
-        if (!status.equals(SUCCESS)) {
-            String error = parser.getValue("Error");
-            logger.error("Unable to generate admin certificate: " + error);
-            throw new IOException("Unable to generate admin certificate: " + error);
-        }
-
-        String id = parser.getValue("Id");
-        logger.info("Configurator: Request ID: " + id);
-
-        String serial = parser.getValue("serialno");
-        logger.info("Configurator: Serial: " + serial);
-
-        String b64 = parser.getValue("b64");
-        logger.info("Configurator: Cert: " + b64);
-
-        b64 = CryptoUtil.stripCertBrackets(b64.trim());
-        byte[] bytes = CryptoUtil.base64Decode(b64);
-        return new X509CertImpl(bytes);
     }
 
     /**
