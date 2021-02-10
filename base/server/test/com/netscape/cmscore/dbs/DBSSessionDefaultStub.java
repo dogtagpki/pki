@@ -1,7 +1,6 @@
 package com.netscape.cmscore.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBSSession;
@@ -15,10 +14,6 @@ import netscape.ldap.LDAPSearchResults;
  * A default stub ojbect for tests to extend.
  */
 public class DBSSessionDefaultStub implements IDBSSession {
-
-    public ISubsystem getDBSubsystem() {
-        return null;
-    }
 
     public void close() throws EDBException {
     }

@@ -18,7 +18,6 @@
 package com.netscape.certsrv.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 
 import netscape.ldap.LDAPSearchResults;
 
@@ -32,13 +31,6 @@ import netscape.ldap.LDAPSearchResults;
  * @version $Revision$, $Date$
  */
 public interface IDBSSession extends AutoCloseable {
-
-    /**
-     * Returns database subsystem.
-     *
-     * @return subsystem
-     */
-    public ISubsystem getDBSubsystem();
 
     /**
      * Closes this session.

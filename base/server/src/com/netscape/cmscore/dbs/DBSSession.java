@@ -20,7 +20,6 @@ package com.netscape.cmscore.dbs;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
@@ -78,13 +77,6 @@ public class DBSSession implements IDBSSession {
         } catch (LDAPException e) {
             throw new EDBException("Unable to create LDAP session: " + e.getMessage(), e);
         }
-    }
-
-    /**
-     * Returns database subsystem.
-     */
-    public ISubsystem getDBSubsystem() {
-        return dbSubsystem;
     }
 
     /**
