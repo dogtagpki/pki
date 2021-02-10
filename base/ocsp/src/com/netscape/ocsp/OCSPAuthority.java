@@ -63,6 +63,7 @@ import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.KeyHashID;
@@ -133,6 +134,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
 
         OCSPEngine engine = OCSPEngine.getInstance();
         OCSPEngineConfig engineConfig = engine.getConfig();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
 
         try {
             mConfig = engineConfig.getOCSPConfig();
@@ -154,8 +156,10 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
                     String id = ids.nextElement();
                     String className = mConfig.getString(PROP_STORE + "." + id + ".class", null);
                     IOCSPStore store = (IOCSPStore) Class.forName(className).newInstance();
+                    IConfigStore cfg = mConfig.getSubStore(PROP_STORE + "." + id);
 
-                    store.init(mConfig.getSubStore(PROP_STORE + "." + id));
+                    store.init(cfg, dbSubsystem);
+
                     mStores.put(id, store);
                     if (id.equals(defStoreId)) {
                         mDefStore = store;

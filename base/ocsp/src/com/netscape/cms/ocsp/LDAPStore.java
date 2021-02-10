@@ -50,6 +50,7 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
@@ -133,7 +134,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Fetch CA certificate and CRL from LDAP server.
      */
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(IConfigStore config, DBSubsystem dbSubsystem) throws EBaseException {
 
         mConfig = config;
 

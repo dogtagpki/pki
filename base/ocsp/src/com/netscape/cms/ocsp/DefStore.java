@@ -133,12 +133,10 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         return org.mozilla.jss.netscape.security.util.Utils.getStringArrayFromVector(v);
     }
 
-    public void init(IConfigStore config) throws EBaseException {
+    public void init(IConfigStore config, DBSubsystem dbSubsystem) throws EBaseException {
 
         mConfig = config;
-
-        CMSEngine engine = CMS.getCMSEngine();
-        dbSubsystem = engine.getDBSubsystem();
+        this.dbSubsystem = dbSubsystem;
 
         // Standalone OCSP server only stores information about revoked
         // certificates. So there is no way for the OCSP server to
