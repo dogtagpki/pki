@@ -27,6 +27,7 @@ import java.security.cert.CertificateParsingException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import org.dogtagpki.server.ocsp.OCSPConfig;
 import org.dogtagpki.server.ocsp.OCSPEngine;
@@ -34,6 +35,7 @@ import org.dogtagpki.server.ocsp.OCSPEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.GeneralizedTime;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
@@ -45,6 +47,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.pkix.cert.Extension;
 import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.authority.IAuthority;
@@ -60,9 +63,11 @@ import com.netscape.certsrv.ocsp.IOCSPStore;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.security.SigningUnit;
+import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -70,8 +75,13 @@ import com.netscape.cmsutil.ocsp.KeyHashID;
 import com.netscape.cmsutil.ocsp.NameID;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
+import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
+import com.netscape.cmsutil.ocsp.Request;
 import com.netscape.cmsutil.ocsp.ResponderID;
+import com.netscape.cmsutil.ocsp.ResponseBytes;
 import com.netscape.cmsutil.ocsp.ResponseData;
+import com.netscape.cmsutil.ocsp.SingleResponse;
+import com.netscape.cmsutil.ocsp.TBSRequest;
 
 /**
  * A class represents a Certificate Authority that is
@@ -366,15 +376,129 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     }
 
     /**
-     * Process OCSPRequest.
+     * This method validates the information associated with the specified
+     * OCSP request and returns an OCSP response.
+     * <P>
+     *
+     * @param request an OCSP request
+     * @return OCSPResponse the OCSP response associated with the specified
+     *         OCSP request
+     * @exception EBaseException an error associated with the inability to
+     *                process the supplied OCSP request
      */
-    public OCSPResponse validate(OCSPRequest request)
-            throws EBaseException {
+    public OCSPResponse validate(OCSPRequest request) throws EBaseException {
+
+        logger.info("OCSPAuthority: Validating OCSP request");
+
+        TBSRequest tbsReq = request.getTBSRequest();
+        if (tbsReq.getRequestCount() == 0) {
+            logger.error("OCSPAuthority: No request found");
+            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
+            throw new EBaseException("OCSP request is empty");
+        }
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+
+        incNumOCSPRequest(1);
         long startTime = new Date().getTime();
-        OCSPResponse response = mDefStore.validate(this, request);
+
+        logger.info("OCSPAuthority: Start OCSP request");
+
+        OCSPResponse response;
+
+        try {
+            // (3) look into database to check the certificate's status
+            Vector<SingleResponse> singleResponses = new Vector<SingleResponse>();
+
+            if (statsSub != null) {
+                statsSub.startTiming("lookup");
+            }
+
+            long lookupStartTime = new Date().getTime();
+
+            for (int i = 0; i < tbsReq.getRequestCount(); i++) {
+                Request req = tbsReq.getRequestAt(i);
+                SingleResponse sr = mDefStore.processRequest(req);
+                singleResponses.addElement(sr);
+            }
+
+            long lookupEndTime = new Date().getTime();
+            incLookupTime(lookupEndTime - lookupStartTime);
+
+            if (statsSub != null) {
+                statsSub.endTiming("lookup");
+            }
+
+            if (statsSub != null) {
+                statsSub.startTiming("build_response");
+            }
+
+            SingleResponse res[] = new SingleResponse[singleResponses.size()];
+            singleResponses.copyInto(res);
+
+            ResponderID rid = null;
+
+            if (mDefStore.isByName()) {
+                rid = getResponderIDByName();
+            } else {
+                rid = getResponderIDByHash();
+            }
+
+            Extension nonce[] = null;
+
+            for (int j = 0; j < tbsReq.getExtensionsCount(); j++) {
+                Extension thisExt = tbsReq.getRequestExtensionAt(j);
+
+                if (thisExt.getExtnId().equals(IOCSPAuthority.OCSP_NONCE)) {
+                    nonce = new Extension[1];
+                    nonce[0] = thisExt;
+                }
+            }
+
+            ResponseData rd = new ResponseData(rid,
+                    new GeneralizedTime(new Date()), res, nonce);
+
+            if (statsSub != null) {
+                statsSub.endTiming("build_response");
+            }
+
+            if (statsSub != null) {
+                statsSub.startTiming("signing");
+            }
+
+            long signStartTime = new Date().getTime();
+
+            BasicOCSPResponse basicRes = sign(rd);
+
+            long signEndTime = new Date().getTime();
+            incSignTime(signEndTime - signStartTime);
+
+            if (statsSub != null) {
+                statsSub.endTiming("signing");
+            }
+
+            response = new OCSPResponse(
+                    OCSPResponseStatus.SUCCESSFUL,
+                    new ResponseBytes(ResponseBytes.OCSP_BASIC,
+                            new OCTET_STRING(ASN1Util.encode(basicRes))));
+
+        } catch (EBaseException e) {
+            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()), e);
+            throw e;
+
+        } catch (Exception e) {
+            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()), e);
+            throw new EBaseException(e);
+        }
+
+        logger.info("OCSPAuthority: Done validating OCSP request");
+
         long endTime = new Date().getTime();
+        incTotalTime(endTime - startTime);
 
         mServedTime = mServedTime + (endTime - startTime);
+
         return response;
     }
 

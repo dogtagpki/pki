@@ -21,8 +21,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmsutil.ocsp.OCSPRequest;
-import com.netscape.cmsutil.ocsp.OCSPResponse;
+import com.netscape.cmsutil.ocsp.Request;
+import com.netscape.cmsutil.ocsp.SingleResponse;
 
 /**
  * This class represents the generic interface for an Online Certificate
@@ -37,6 +37,8 @@ import com.netscape.cmsutil.ocsp.OCSPResponse;
  */
 public interface IOCSPStore {
 
+    public boolean isByName();
+
     public void init(IConfigStore config, DBSubsystem dbSubsystem) throws EBaseException;
 
     public void startup() throws EBaseException;
@@ -44,18 +46,9 @@ public interface IOCSPStore {
     public void shutdown();
 
     /**
-     * This method validates the information associated with the specified
-     * OCSP request and returns an OCSP response.
-     * <P>
-     *
-     * @param req an OCSP request
-     * @return OCSPResponse the OCSP response associated with the specified
-     *         OCSP request
-     * @exception EBaseException an error associated with the inability to
-     *                process the supplied OCSP request
+     * Check against the database for status.
      */
-    public OCSPResponse validate(IOCSPAuthority ocspAuthority, OCSPRequest req)
-            throws EBaseException;
+    public SingleResponse processRequest(Request req) throws Exception;
 
     /**
      * This method retrieves the configuration parameters associated with this

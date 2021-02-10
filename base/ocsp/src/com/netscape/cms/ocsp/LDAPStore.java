@@ -28,15 +28,12 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.GeneralizedTime;
 import org.mozilla.jss.asn1.INTEGER;
-import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
-import org.mozilla.jss.pkix.cert.Extension;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -46,25 +43,14 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
 import com.netscape.cmsutil.ocsp.GoodInfo;
-import com.netscape.cmsutil.ocsp.OCSPRequest;
-import com.netscape.cmsutil.ocsp.OCSPResponse;
-import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
 import com.netscape.cmsutil.ocsp.Request;
-import com.netscape.cmsutil.ocsp.ResponderID;
-import com.netscape.cmsutil.ocsp.ResponseBytes;
-import com.netscape.cmsutil.ocsp.ResponseData;
 import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
-import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
 
 import netscape.ldap.LDAPAttribute;
@@ -112,6 +98,10 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
      * Constructs the default store.
      */
     public LDAPStore() {
+    }
+
+    public boolean isByName() {
+        return mByName;
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
@@ -261,120 +251,6 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         return mId;
     }
 
-    /**
-     * Validate an OCSP request.
-     */
-    public OCSPResponse validate(IOCSPAuthority ocspAuthority, OCSPRequest request)
-            throws EBaseException {
-
-        logger.debug("LDAPStore: validating OCSP request");
-
-        TBSRequest tbsReq = request.getTBSRequest();
-        if (tbsReq.getRequestCount() == 0) {
-            logger.error("LDAPStore: No request found");
-            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
-            throw new EBaseException("OCSP request is empty");
-        }
-
-        CMSEngine engine = CMS.getCMSEngine();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
-
-        ocspAuthority.incNumOCSPRequest(1);
-        long startTime = new Date().getTime();
-
-        try {
-            logger.info("LDAPStore: Start OCSP request");
-
-            Vector<SingleResponse> singleResponses = new Vector<SingleResponse>();
-
-            if (statsSub != null) {
-                statsSub.startTiming("lookup");
-            }
-
-            long lookupStartTime = new Date().getTime();
-
-            for (int i = 0; i < tbsReq.getRequestCount(); i++) {
-                Request req = tbsReq.getRequestAt(i);
-                SingleResponse sr = processRequest(req);
-                singleResponses.addElement(sr);
-            }
-
-            long lookupEndTime = new Date().getTime();
-            ocspAuthority.incLookupTime(lookupEndTime - lookupStartTime);
-
-            if (statsSub != null) {
-                statsSub.endTiming("lookup");
-            }
-
-            if (statsSub != null) {
-                statsSub.startTiming("build_response");
-            }
-
-            SingleResponse res[] = new SingleResponse[singleResponses.size()];
-            singleResponses.copyInto(res);
-
-            ResponderID rid = null;
-
-            if (mByName) {
-                rid = ocspAuthority.getResponderIDByName();
-            } else {
-                rid = ocspAuthority.getResponderIDByHash();
-            }
-
-            Extension nonce[] = null;
-
-            for (int j = 0; j < tbsReq.getExtensionsCount(); j++) {
-                Extension thisExt = tbsReq.getRequestExtensionAt(j);
-
-                if (thisExt.getExtnId().equals(IOCSPAuthority.OCSP_NONCE)) {
-                    nonce = new Extension[1];
-                    nonce[0] = thisExt;
-                }
-            }
-
-            ResponseData rd = new ResponseData(rid,
-                    new GeneralizedTime(new Date()), res, nonce);
-
-            if (statsSub != null) {
-                statsSub.endTiming("build_response");
-            }
-
-            if (statsSub != null) {
-                statsSub.startTiming("signing");
-            }
-
-            long signStartTime = new Date().getTime();
-
-            BasicOCSPResponse basicRes = ocspAuthority.sign(rd);
-
-            long signEndTime = new Date().getTime();
-            ocspAuthority.incSignTime(signEndTime - signStartTime);
-
-            if (statsSub != null) {
-                statsSub.endTiming("signing");
-            }
-
-            OCSPResponse response = new OCSPResponse(
-                    OCSPResponseStatus.SUCCESSFUL,
-                    new ResponseBytes(ResponseBytes.OCSP_BASIC,
-                            new OCTET_STRING(ASN1Util.encode(basicRes))));
-
-            logger.info("LDAPStore: done OCSP request");
-
-            long endTime = new Date().getTime();
-            ocspAuthority.incTotalTime(endTime - startTime);
-
-            return response;
-
-        } catch (EBaseException e) {
-            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()), e);
-            throw e;
-
-        } catch (Exception e) {
-            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()), e);
-            throw new EBaseException(e);
-        }
-    }
 
     public int getStateCount() {
         return 0;
@@ -471,7 +347,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Check against the database for status.
      */
-    private SingleResponse processRequest(Request req) throws Exception {
+    public SingleResponse processRequest(Request req) throws Exception {
 
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
