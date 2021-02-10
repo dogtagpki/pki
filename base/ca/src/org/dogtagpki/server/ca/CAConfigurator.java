@@ -151,46 +151,29 @@ public class CAConfigurator extends Configurator {
     }
 
     public X509CertImpl createLocalCert(
-            String tag,
-            KeyPair keyPair,
             String certType,
+            String dn,
+            String issuerDN,
+            String keyAlgorithm,
+            KeyPair keyPair,
+            X509Key x509key,
             String profileID,
-            byte[] certreq,
-            String[] dnsNames) throws Exception {
+            String[] dnsNames,
+            boolean installAdjustValidity,
+            String signingAlgorithm,
+            String certRequestType,
+            byte[] certRequest,
+            String subjectName) throws Exception {
 
-        logger.info("CAConfigurator: Creating local " + tag + " certificate");
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String dn = preopConfig.getString("cert." + tag + ".dn");
-        logger.debug("CAConfigurator: subject: " + dn);
-
-        String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
-        logger.debug("CAConfigurator: algorithm: " + algorithm);
-
-        String issuerDN = preopConfig.getString("cert.signing.dn", "");
-        logger.debug("CAConfigurator: issuer DN: " + issuerDN);
-
-        X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
+        logger.info("CAConfigurator: Creating local certificate");
+        logger.info("CAConfigurator: - subject DN: " + dn);
+        logger.info("CAConfigurator: - issuer DN: " + issuerDN);
+        logger.info("CAConfigurator: - key algorithm: " + keyAlgorithm);
 
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
 
-        java.security.PrivateKey signingPrivateKey;
-        String signingAlgorithm;
-
-        logger.debug("CAConfigurator: cert type: " + certType);
-
-        if (certType.equals("selfsign")) {
-            signingPrivateKey = keyPair.getPrivate();
-            signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-
-        } else {
-            signingPrivateKey = ca.getSigningUnit().getPrivateKey();
-            signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
-        }
-
-        X509CertInfo info = ca.createCertInfo(dn, issuerDN, algorithm, x509key, certType);
+        X509CertInfo info = ca.createCertInfo(dn, issuerDN, keyAlgorithm, x509key, certType);
         logger.info("CAConfigurator: Cert info:\n" + info);
 
         String instanceRoot = cs.getInstanceDir();
@@ -198,8 +181,6 @@ public class CAConfigurator extends Configurator {
 
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         CertInfoProfile profile = new CertInfoProfile(profileConfig);
-
-        boolean installAdjustValidity = !tag.equals("signing");
 
         IRequestQueue queue = ca.getRequestQueue();
         IRequest req = queue.newRequest("enrollment");
@@ -214,13 +195,20 @@ public class CAConfigurator extends Configurator {
 
         profile.populate(req, info);
 
+        java.security.PrivateKey signingPrivateKey;
+        if (certType.equals("selfsign")) {
+            signingPrivateKey = keyPair.getPrivate();
+        } else {
+            signingPrivateKey = ca.getSigningUnit().getPrivateKey();
+        }
+
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
         ca.createCertRecord(req, profile, cert);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
 
         // update the locally created request for renewal
-        updateLocalRequest(req, certreq, "pkcs10", null);
+        updateLocalRequest(req, certRequest, certRequestType, subjectName);
         queue.updateRequest(req);
 
         return cert;
@@ -258,7 +246,40 @@ public class CAConfigurator extends Configurator {
 
         } else { // selfsign or local
             // issue other system certs using self-signed or local CA signing cert
-            certImpl = createLocalCert(tag, keyPair, certType, profileID, certreq, dnsNames);
+
+            PreOpConfig preopConfig = cs.getPreOpConfig();
+
+            String dn = preopConfig.getString("cert." + tag + ".dn");
+            String issuerDN = preopConfig.getString("cert.signing.dn", "");
+            String keyAlgorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
+
+            String certRequestType = "pkcs10";
+            String subjectName = null;
+            X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
+
+            boolean installAdjustValidity = !tag.equals("signing");
+
+            String signingAlgorithm;
+            if (certType.equals("selfsign")) {
+                signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
+            } else {
+                signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
+            }
+
+            certImpl = createLocalCert(
+                    certType,
+                    dn,
+                    issuerDN,
+                    keyAlgorithm,
+                    keyPair,
+                    x509key,
+                    profileID,
+                    dnsNames,
+                    installAdjustValidity,
+                    signingAlgorithm,
+                    certRequestType,
+                    certreq,
+                    subjectName);
         }
 
         return certImpl;
