@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.io.File;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -56,6 +55,8 @@ import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.ca.CACertClient;
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.AdminSetupRequest;
@@ -71,7 +72,6 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.apps.ServerXml;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -487,34 +487,6 @@ public class Configurator {
         return createRemoteCert(hostname, port, sessionID, profileID, certreq, dnsNames);
     }
 
-    // Dynamically apply the SubjectAlternativeName extension to a
-    // remote PKI instance's request for its SSL Server Certificate.
-    //
-    // Since this information may vary from instance to
-    // instance, obtain the necessary information from the
-    // 'service.sslserver.san' value(s) in the instance's
-    // CS.cfg, process these values converting each item into
-    // its individual SubjectAlternativeName components, and
-    // build an SSL Server Certificate URL extension consisting
-    // of this information.
-    //
-    // 03/27/2013 - Should consider removing this
-    //              "buildSANSSLserverURLExtension()"
-    //              method if it becomes possible to
-    //              embed a certificate extension into
-    //              a PKCS #10 certificate request.
-    //
-    public void injectSANExtension(String[] dnsNames, MultivaluedMap<String, String> content) throws Exception {
-
-        int i = 0;
-        for (String dnsName : dnsNames) {
-            content.putSingle("req_san_pattern_" + i, dnsName);
-            i++;
-        }
-
-        content.putSingle("req_san_entries", "" + i);
-    }
-
     public X509CertImpl createRemoteCert(
             String hostname,
             int port,
@@ -527,30 +499,26 @@ public class Configurator {
         String serverURL = "https://" + hostname + ":" + port;
         logger.info("Configurator: Submitting cert request to " + serverURL);
 
+        String certRequestType = "pkcs10";
+        String certRequest = CryptoUtil.base64Encode(request);
+
         String sysType = cs.getType();
         String machineName = cs.getHostname();
         String securePort = cs.getString("service.securePort", "");
-
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
-        content.putSingle("profileId", profileID);
-        content.putSingle("cert_request_type", "pkcs10");
-        content.putSingle("cert_request", CryptoUtil.base64Encode(request));
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionID);
-
-        if (dnsNames != null) {
-            injectSANExtension(dnsNames, content);
-        }
+        String requestor = sysType + "-" + machineName + "-" + securePort;
 
         PKIClient client = Configurator.createClient(serverURL, null, null);
-        X509CertImpl cert = CertUtils.createRemoteCert(client, content);
+        CAClient caClient = new CAClient(client);
+        CACertClient caCertClient = new CACertClient(caClient);
 
-        if (cert == null) {
-            throw new IOException("Unable to create remote certificate");
-        }
-
-        return cert;
+        return caCertClient.submitRequest(
+                certRequestType,
+                certRequest,
+                profileID,
+                null,
+                dnsNames,
+                requestor,
+                sessionID);
     }
 
     public String getNickname(String certTag) throws EBaseException {

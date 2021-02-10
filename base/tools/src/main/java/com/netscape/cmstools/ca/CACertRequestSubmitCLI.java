@@ -291,7 +291,14 @@ public class CACertRequestSubmitCLI extends CommandCLI {
             return;
         }
 
-        X509CertImpl cert = certClient.submitRequest(requestType, csr, profileID, subjectDN, sessionID);
+        X509CertImpl cert = certClient.submitRequest(
+                requestType,
+                csr,
+                profileID,
+                subjectDN,
+                null,
+                null,
+                sessionID);
         byte[] bytes = cert.getEncoded();
 
         String outputFormat = cmd.getOptionValue("output-format");

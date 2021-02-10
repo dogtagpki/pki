@@ -188,6 +188,8 @@ public class CACertClient extends Client {
             String certRequest,
             String profileID,
             String subjectDN,
+            String[] dnsNames,
+            String requestor,
             String sessionID) throws Exception {
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
@@ -196,7 +198,40 @@ public class CACertClient extends Client {
         content.putSingle("cert_request", certRequest);
         content.putSingle("xmlOutput", "true");
         content.putSingle("sessionID", sessionID);
-        content.putSingle("subject", subjectDN);
+
+        if (subjectDN != null) {
+            content.putSingle("subject", subjectDN);
+        }
+
+        if (dnsNames != null) {
+            // Dynamically apply the SubjectAlternativeName extension to a
+            // remote PKI instance's request for its SSL Server Certificate.
+            //
+            // Since this information may vary from instance to
+            // instance, obtain the necessary information from the
+            // 'service.sslserver.san' value(s) in the instance's
+            // CS.cfg, process these values converting each item into
+            // its individual SubjectAlternativeName components, and
+            // build an SSL Server Certificate URL extension consisting
+            // of this information.
+            //
+            // 03/27/2013 - Should consider removing this
+            //              "buildSANSSLserverURLExtension()"
+            //              method if it becomes possible to
+            //              embed a certificate extension into
+            //              a PKCS #10 certificate request.
+            //
+            int i = 0;
+            for (String dnsName : dnsNames) {
+                content.putSingle("req_san_pattern_" + i, dnsName);
+                i++;
+            }
+            content.putSingle("req_san_entries", "" + i);
+        }
+
+        if (requestor != null) {
+            content.putSingle("requestor_name", requestor);
+        }
 
         String response = client.post("/ca/ee/ca/profileSubmit", content, String.class);
         logger.info("CACertClient: Response: " + response);
