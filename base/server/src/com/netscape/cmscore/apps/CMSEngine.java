@@ -513,9 +513,12 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void initDBSubsystem() throws Exception {
-        IConfigStore dbConfig = config.getSubStore(DBSubsystem.ID);
-        dbSubsystem.init(dbConfig);
-        dbSubsystem.startup();
+
+        DatabaseConfig dbConfig = config.getDatabaseConfig();
+        PKISocketConfig socketConfig = config.getSocketConfig();
+        IPasswordStore passwordStore = getPasswordStore();
+
+        dbSubsystem.init(dbConfig, socketConfig, passwordStore);
     }
 
     public void initUGSubsystem() throws Exception {

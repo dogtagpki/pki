@@ -24,8 +24,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.IDBRegistry;
@@ -43,6 +41,7 @@ import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSchema;
@@ -67,7 +66,7 @@ import netscape.ldap.LDAPv3;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class DBSubsystem implements ISubsystem {
+public class DBSubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSubsystem.class);
 
@@ -548,19 +547,18 @@ public class DBSubsystem implements ISubsystem {
     }
 
     /**
-     * Initializes the internal registery. Connects to the
+     * Initializes the internal registry. Connects to the
      * data source, and create a pool of connection of which
      * applications can use. Optionally, check the integrity
      * of the database.
      */
-    @SuppressWarnings("unchecked")
-    public void init(IConfigStore config)
+    public void init(
+            DatabaseConfig config,
+            PKISocketConfig socketConfig,
+            IPasswordStore passwordStore)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
-        mDBConfig = cs.getDatabaseConfig();
+        mDBConfig = config;
         mRepos = new Hashtable[DBSubsystem.NUM_REPOS];
 
         mConfig = config.getSubStore(PROP_LDAP, LDAPConfig.class);
@@ -664,11 +662,10 @@ public class DBSubsystem implements ISubsystem {
         }
 
         try {
-            PKISocketConfig socketConfig = cs.getSocketConfig();
             LDAPConfig tmpConfig = (LDAPConfig) mConfig.clone();
             tmpConfig.setBaseDN(mBaseDN);
 
-            mLdapConnFactory.init(socketConfig, tmpConfig, engine.getPasswordStore());
+            mLdapConnFactory.init(socketConfig, tmpConfig, passwordStore);
 
         } catch (EPropertyNotDefined e) {
             logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
@@ -866,12 +863,6 @@ public class DBSubsystem implements ISubsystem {
     }
 
     /**
-     * Starts up this service.
-     */
-    public void startup() throws EBaseException {
-    }
-
-    /**
      * Retrieves internal DB configuration store.
      */
     public LDAPConfig getConfigStore() {
@@ -941,9 +932,6 @@ public class DBSubsystem implements ISubsystem {
      */
     public IDBSSession createSession() throws EDBException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
         LDAPConnection conn = null;
 
         try {
@@ -978,6 +966,8 @@ public class DBSubsystem implements ISubsystem {
                 }
                 mDBConfig.setNewSchemaEntryAdded("true");
 
+                CMSEngine engine = CMS.getCMSEngine();
+                EngineConfig cs = engine.getConfig();
                 cs.commit(false);
             }
         } catch (ELdapException e) {

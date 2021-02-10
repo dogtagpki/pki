@@ -12,6 +12,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.security.JssSubsystemConfig;
@@ -92,7 +93,7 @@ public class EngineConfig extends PropConfigStore {
     }
 
     public DatabaseConfig getDatabaseConfig() {
-        return getSubStore("dbs", DatabaseConfig.class);
+        return getSubStore(DBSubsystem.ID, DatabaseConfig.class);
     }
 
     public PreOpConfig getPreOpConfig() {
