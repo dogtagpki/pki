@@ -305,14 +305,36 @@ public class CAConfigurator extends Configurator {
         return cert;
     }
 
-    public X509CertImpl createLocalAdminCert(String certRequest, String certRequestType, String subject) throws Exception {
+    public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
 
+        logger.info("CAConfigurator: Generating admin cert");
+
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+
+        String certType = preopConfig.getString("cert.admin.type", "local");
+
+        String dn = preopConfig.getString("cert.admin.dn");
+        String issuerDN = preopConfig.getString("cert.signing.dn", "");
+
+        String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
+        String profileFile = cs.getString("profile.caAdminCert.config");
+        String defaultSigningAlgsAllowed = cs.getString(
+                "ca.profiles.defaultSigningAlgsAllowed",
+                "SHA256withRSA,SHA256withEC,SHA1withDSA");
+        String keyAlgorithm = CertUtils.getAdminProfileAlgorithm(
+                caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
+
+        KeyPair keyPair = null;
+        String certRequest = request.getAdminCertRequest();
         byte[] binRequest = Utils.base64decode(certRequest);
+
+        String certRequestType = request.getAdminCertRequestType();
+        String subjectName = request.getAdminSubjectDN();
         X509Key x509key;
 
         if (certRequestType.equals("crmf")) {
             SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binRequest);
-            subject = CryptoUtil.getSubjectName(crmfMsgs);
+            subjectName = CryptoUtil.getSubjectName(crmfMsgs);
             x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
 
         } else if (certRequestType.equals("pkcs10")) {
@@ -324,78 +346,36 @@ public class CAConfigurator extends Configurator {
         }
 
         if (x509key == null) {
-            logger.error("CAConfigurator: Missing admin key");
-            throw new IOException("Missing admin key");
+            logger.error("CAConfigurator: Missing certificate public key");
+            throw new IOException("Missing certificate public key");
         }
 
-        CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
+        String profileID = preopConfig.getString("cert.admin.profile");
+        logger.debug("CertUtil: profile: " + profileID);
 
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        String caType = preopConfig.getString("cert.admin.type", "local");
-        String dn = preopConfig.getString("cert.admin.dn");
-        String issuerDN = preopConfig.getString("cert.signing.dn", "");
+        String[] dnsNames = null;
+        boolean installAdjustValidity = false;
 
-        String caSigningKeyType = preopConfig.getString("cert.signing.keytype", "rsa");
-        String profileFile = cs.getString("profile.caAdminCert.config");
-        String defaultSigningAlgsAllowed = cs.getString(
-                "ca.profiles.defaultSigningAlgsAllowed", "SHA256withRSA,SHA256withEC,SHA1withDSA");
-        String keyAlgorithm = CertUtils.getAdminProfileAlgorithm(
-                caSigningKeyType, profileFile, defaultSigningAlgsAllowed);
-
-        X509CertInfo info = ca.createCertInfo(dn, issuerDN, keyAlgorithm, x509key, caType);
-        logger.info("CAConfigurator: Cert info:\n" + info);
-
-        IRequestQueue queue = ca.getRequestQueue();
-
-        java.security.PrivateKey signingPrivateKey = ca.getSigningUnit().getPrivateKey();
         String signingAlgorithm;
-
-        if (caType.equals("selfsign")) {
+        if (certType.equals("selfsign")) {
             signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
         } else {
             signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
         }
 
-        String instanceRoot = cs.getInstanceDir();
-        String configurationRoot = cs.getString("configurationRoot");
-        String profileName = preopConfig.getString("cert.admin.profile");
-        logger.debug("CertUtil: profile: " + profileName);
-
-        IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileName);
-        CertInfoProfile profile = new CertInfoProfile(profileConfig);
-
-        IRequest req = queue.newRequest("enrollment");
-
-        ca.initCertRequest(
-                req,
-                profile,
-                info,
+        return createLocalCert(
+                certType,
+                dn,
+                issuerDN,
+                keyAlgorithm,
+                keyPair,
                 x509key,
-                null /* sanHostnames */,
-                true /* installAdjustValidity */);
-
-        profile.populate(req, info);
-
-        X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
-        ca.createCertRecord(req, profile, cert);
-
-        req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
-
-        // update the locally created request for renewal
-        updateLocalRequest(req, binRequest, certRequestType, subject);
-        queue.updateRequest(req);
-
-        return cert;
-    }
-
-    public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
-
-        logger.info("CAConfigurator: Generating admin cert");
-
-        return createLocalAdminCert(
-                request.getAdminCertRequest(),
-                request.getAdminCertRequestType(),
-                request.getAdminSubjectDN());
+                profileID,
+                dnsNames,
+                installAdjustValidity,
+                signingAlgorithm,
+                certRequestType,
+                binRequest,
+                subjectName);
     }
 }
