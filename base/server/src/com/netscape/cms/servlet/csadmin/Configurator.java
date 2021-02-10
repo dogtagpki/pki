@@ -658,11 +658,14 @@ public class Configurator {
     }
 
     public void loadCert(
-            String tag,
-            byte[] certreq,
-            X509Certificate x509Cert,
+            X509Key x509key,
+            X509CertImpl certImpl,
             String profileID,
-            String[] dnsNames) throws Exception {
+            String[] dnsNames,
+            boolean installAdjustValidity,
+            String certRequestType,
+            byte[] certRequest,
+            String subjectName) throws Exception {
     }
 
     public void processCert(
@@ -711,9 +714,26 @@ public class Configurator {
             cert.setRequest(binCertRequest);
 
             logger.info("Configurator: Loading existing " + tag + " certificate");
-            cert.setCert(x509Cert.getEncoded());
+            byte[] binCert = x509Cert.getEncoded();
+            cert.setCert(binCert);
 
-            loadCert(tag, binCertRequest, x509Cert, profileID, dnsNames);
+            boolean installAdjustValidity = !tag.equals("signing");
+            String certRequestType = "pkcs10";
+            String subjectName = null;
+
+            PKCS10 pkcs10 = new PKCS10(binCertRequest);
+            X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
+            X509CertImpl certImpl = new X509CertImpl(binCert);
+
+            loadCert(
+                    x509key,
+                    certImpl,
+                    profileID,
+                    dnsNames,
+                    installAdjustValidity,
+                    certRequestType,
+                    binCertRequest,
+                    subjectName);
 
         } else {
             byte[] binCertRequest = createCertRequest(tag, keyPair);

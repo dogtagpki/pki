@@ -83,14 +83,17 @@ public class CAConfigurator extends Configurator {
 
     @Override
     public void loadCert(
-            String tag,
-            byte[] certreq,
-            org.mozilla.jss.crypto.X509Certificate x509Cert,
+            X509Key x509key,
+            X509CertImpl cert,
             String profileID,
-            String[] dnsNames) throws Exception {
+            String[] dnsNames,
+            boolean installAdjustValidity,
+            String certRequestType,
+            byte[] certRequest,
+            String subjectName) throws Exception {
 
         // checking whether the cert was issued by existing CA
-        logger.debug("CAConfigurator: issuer DN: " + x509Cert.getIssuerDN());
+        logger.debug("CAConfigurator: issuer DN: " + cert.getIssuerDN());
 
         String caSigningNickname = cs.getString("ca.signing.nickname");
 
@@ -100,7 +103,7 @@ public class CAConfigurator extends Configurator {
 
         logger.debug("CAConfigurator: CA signing DN: " + caSigningDN);
 
-        if (!x509Cert.getIssuerDN().equals(caSigningDN)) {
+        if (!cert.getIssuerDN().equals(caSigningDN)) {
             logger.debug("Configurator: cert issued by external CA, don't create record");
             return;
         }
@@ -110,11 +113,15 @@ public class CAConfigurator extends Configurator {
         // might conflict with system certificates to be created later.
         // Also create the certificate request record for renewals.
 
-        logger.debug("CAConfigurator: cert issued by existing CA, create record");
+        logger.info("CAConfigurator: Creating certificate and request records");
+        logger.info("CAConfigurator: - subject DN: " + cert.getSubjectDN());
+        logger.info("CAConfigurator: - issuer DN: " + cert.getIssuerDN());
 
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
-        IRequestQueue queue = ca.getRequestQueue();
+
+        X509CertInfo info = cert.getInfo();
+        logger.info("CAConfigurator: Cert info:\n" + info);
 
         String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
@@ -122,15 +129,7 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         CertInfoProfile profile = new CertInfoProfile(profileConfig);
 
-        PKCS10 pkcs10 = new PKCS10(certreq);
-        X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
-
-        byte[] bytes = x509Cert.getEncoded();
-        X509CertImpl certImpl = new X509CertImpl(bytes);
-        X509CertInfo info = certImpl.getInfo();
-
-        boolean installAdjustValidity = !tag.equals("signing");
-
+        IRequestQueue queue = ca.getRequestQueue();
         IRequest req = queue.newRequest("enrollment");
 
         ca.initCertRequest(
@@ -141,13 +140,13 @@ public class CAConfigurator extends Configurator {
                 dnsNames,
                 installAdjustValidity);
 
-        req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, certImpl);
+        ca.createCertRecord(req, profile, cert);
+
+        req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
 
         // update the locally created request for renewal
-        updateLocalRequest(req, certreq, "pkcs10", null);
+        updateLocalRequest(req, certRequest, certRequestType, subjectName);
         queue.updateRequest(req);
-
-        ca.createCertRecord(req, profile, certImpl);
     }
 
     public X509CertImpl createLocalCert(
