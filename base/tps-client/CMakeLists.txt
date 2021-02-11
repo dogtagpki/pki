@@ -48,13 +48,6 @@ install(
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/applets
 )
 
-install(
-    DIRECTORY
-        apache/conf
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
-)
-
 # install empty directories
 install(
     DIRECTORY
