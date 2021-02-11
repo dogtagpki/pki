@@ -29,9 +29,10 @@ import org.dogtagpki.server.cli.SubsystemUserCLI;
  */
 public class OCSPCLI extends CLI {
 
-    public OCSPCLI(CLI parent) {
+    public OCSPCLI(CLI parent) throws Exception {
         super("ocsp", "OCSP subsystem management commands", parent);
 
+        addModule(new OCSPCRLCLI(this));
         addModule(new SubsystemDBCLI(this));
         addModule(new SubsystemGroupCLI(this));
         addModule(new SubsystemUserCLI(this));
