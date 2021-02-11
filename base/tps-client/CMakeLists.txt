@@ -59,18 +59,6 @@ install(
 install(
     DIRECTORY
     DESTINATION
-        ${VAR_INSTALL_DIR}/lock/pki/tps
-)
-
-install(
-    DIRECTORY
-    DESTINATION
-        ${VAR_INSTALL_DIR}/run/pki/tps
-)
-
-install(
-    DIRECTORY
-    DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/demo
 )
 
@@ -132,12 +120,6 @@ install(
     DIRECTORY
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/tps/admin/console/js
-)
-
-install(
-    DIRECTORY
-    DESTINATION
-        ${SYSTEMD_ETC_INSTALL_DIR}/pki-tpsd.target.wants
 )
 
 install(
