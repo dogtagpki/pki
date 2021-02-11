@@ -52,7 +52,7 @@ public class CLI {
     public CLI parent;
 
     public Options options = new Options();
-    public Map<String, CLI> modules = new LinkedHashMap<String, CLI>();
+    public Map<String, CLIModule> modules = new LinkedHashMap<>();
 
     public PKIClient client;
 
@@ -107,28 +107,34 @@ public class CLI {
         return getClass().getAnnotation(Deprecated.class) != null;
     }
 
-    public Collection<CLI> getModules() {
+    public Collection<CLIModule> getModules() {
         return modules.values();
     }
 
-    public CLI getModule(String name) {
+    public CLIModule getModule(String name) {
         return modules.get(name);
     }
 
-    public void addModule(CLI module) {
-        modules.put(module.getName(), module);
+    public void addModule(CLI cli) {
+        CLIModule module = new CLIModule(this, cli);
+        modules.put(cli.getName(), module);
     }
 
-    public CLI removeModule(String name) {
+    public void addModule(String name, String className) {
+        CLIModule module = new CLIModule(this, className);
+        modules.put(name, module);
+    }
+
+    public CLIModule removeModule(String name) {
         return modules.remove(name);
     }
 
     /**
      * Find the list of modules that handle the specified command.
      */
-    public List<CLI> findModules(String command) throws Exception {
+    public List<CLIModule> findModules(String command) throws Exception {
 
-        List<CLI> results = new ArrayList<CLI>();
+        List<CLIModule> results = new ArrayList<>();
 
         // split command into list of names:
         // <names[0]>-<names[1]>-<names[2]>-...-<names[n-1]>
@@ -141,7 +147,7 @@ public class CLI {
         while (i < names.length) {
 
             String moduleName = null;
-            CLI module = null;
+            CLIModule module = null;
             int j = i;
 
             // find module that matches the shortest sequence of names
@@ -173,7 +179,7 @@ public class CLI {
             results.add(module);
 
             // repeat for the remaining parts
-            current = module;
+            current = module.getCLI();
             i = j + 1;
         }
 
@@ -183,8 +189,8 @@ public class CLI {
     /**
      * Find the last module that handles the specified command.
      */
-    public CLI findModule(String command) throws Exception {
-        List<CLI> modules = findModules(command);
+    public CLIModule findModule(String command) throws Exception {
+        List<CLIModule> modules = findModules(command);
         return modules.get(modules.size() - 1);
     }
 
@@ -207,21 +213,18 @@ public class CLI {
         return null;
     }
 
-    public void printHelp() {
-        printCommands(modules);
-    }
-
-    public void printCommands(Map<String, CLI> modules) {
+    public void printHelp() throws Exception {
 
         int leftPadding = 1;
         int rightPadding = 35;
 
         System.out.println("Commands:");
 
-        for (CLI module : modules.values()) {
-            if (module.isDeprecated()) continue;
+        for (CLIModule module : modules.values()) {
+            CLI cli = module.getCLI();
+            if (cli.isDeprecated()) continue;
 
-            String label = module.getFullName();
+            String label = cli.getFullName();
 
             int padding = rightPadding - leftPadding - label.length();
             if (padding < 1)
@@ -230,13 +233,14 @@ public class CLI {
             System.out.print(StringUtils.repeat(" ", leftPadding));
             System.out.print(label);
             System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(module.getDescription());
+            System.out.println(cli.getDescription());
         }
 
         boolean first = true;
 
-        for (CLI module : modules.values()) {
-            if (!module.isDeprecated()) continue;
+        for (CLIModule module : modules.values()) {
+            CLI cli = module.getCLI();
+            if (!cli.isDeprecated()) continue;
 
             if (first) {
                 System.out.println();
@@ -244,7 +248,7 @@ public class CLI {
                 first = false;
             }
 
-            String label = module.getFullName();
+            String label = cli.getFullName();
 
             int padding = rightPadding - leftPadding - label.length();
             if (padding < 1)
@@ -253,7 +257,7 @@ public class CLI {
             System.out.print(StringUtils.repeat(" ", leftPadding));
             System.out.print(label);
             System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(module.getDescription());
+            System.out.println(cli.getDescription());
         }
     }
 
@@ -298,20 +302,21 @@ public class CLI {
             }
 
             // Find module with that name.
-            CLI m = getModule(moduleName);
+            CLIModule m = getModule(moduleName);
 
             if (m != null) {
+                CLI c = m.getCLI();
                 // Module found. Check sub command.
                 if (subCommand == null) {
                     // No sub command. Use this module.
-                    module = m;
+                    module = c;
                     break;
                 }
 
                 // There is a sub command. It must be processed by module's children.
-                if (!m.getModules().isEmpty()) {
+                if (!c.getModules().isEmpty()) {
                     // Module has children. Use this module.
-                    module = m;
+                    module = c;
                     break;
                 }
 

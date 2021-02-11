@@ -151,7 +151,7 @@ public class MainCLI extends CLI {
         System.out.println("PKI Command-Line Interface " + pkg.getImplementationVersion());
     }
 
-    public void printHelp() {
+    public void printHelp() throws Exception {
 
         formatter.printHelp(name + " [OPTIONS..] <command> [ARGS..]", options);
         System.out.println();

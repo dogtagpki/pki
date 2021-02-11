@@ -21,6 +21,7 @@ package com.netscape.cmstools.cli;
 import java.util.Collection;
 
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CLIModule;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.client.ClientConfig;
@@ -73,11 +74,11 @@ public class ProxyCLI extends CLI {
         return module.getParent();
     }
 
-    public Collection<CLI> getModules() {
+    public Collection<CLIModule> getModules() {
         return module.getModules();
     }
 
-    public CLI getModule(String name) {
+    public CLIModule getModule(String name) {
         return module.getModule(name);
     }
 
@@ -85,7 +86,7 @@ public class ProxyCLI extends CLI {
         this.module.addModule(module);
     }
 
-    public CLI removeModule(String name) {
+    public CLIModule removeModule(String name) {
         return module.removeModule(name);
     }
 
@@ -97,7 +98,7 @@ public class ProxyCLI extends CLI {
         return module.getClient(name);
     }
 
-    public void printHelp() {
+    public void printHelp() throws Exception {
         module.printHelp();
     }
 

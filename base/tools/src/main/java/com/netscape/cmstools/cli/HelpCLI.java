@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CLIModule;
 import org.dogtagpki.cli.CommandCLI;
 
 /**
@@ -51,12 +52,13 @@ public class HelpCLI extends CommandCLI {
 
         } else {
             // find all modules handling the specified command
-            List<CLI> modules = parent.findModules(cmdArgs[0]);
+            List<CLIModule> modules = parent.findModules(cmdArgs[0]);
 
             // find the module that has a man page starting from the last one
             for (int i = modules.size() - 1; i >= 0; i--) {
-                CLI module = modules.get(i);
-                manPage = module.getManPage();
+                CLIModule module = modules.get(i);
+                CLI cli = module.getCLI();
+                manPage = cli.getManPage();
                 if (manPage != null) break;
             }
 

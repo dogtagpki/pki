@@ -65,7 +65,7 @@ public class PKIServerCLI extends CLI {
         options.addOption(null, "help", false, "Show help message.");
     }
 
-    public void printHelp() {
+    public void printHelp() throws Exception {
 
         formatter.printHelp(name + " [OPTIONS..] <command> [ARGS..]", options);
         System.out.println();
