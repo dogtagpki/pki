@@ -39,9 +39,6 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 add_subdirectory(src)
 add_subdirectory(tools)
 
-# install files
-add_subdirectory(setup)
-
 install(
     FILES
         applets/1.3.44724DDE.ijc
