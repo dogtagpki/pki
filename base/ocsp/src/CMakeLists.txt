@@ -6,6 +6,7 @@ javac(pki-ocsp-classes
         *.java
     CLASSPATH
         ${SLF4J_API_JAR}
+        ${COMMONS_CLI_JAR}
         ${COMMONS_CODEC_JAR}
         ${SERVLET_JAR}
         ${JAXRS_API_JAR}

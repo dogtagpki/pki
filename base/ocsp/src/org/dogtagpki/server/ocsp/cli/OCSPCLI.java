@@ -16,9 +16,13 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package org.dogtagpki.server.cli;
+package org.dogtagpki.server.ocsp.cli;
 
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.server.cli.SDCLI;
+import org.dogtagpki.server.cli.SubsystemDBCLI;
+import org.dogtagpki.server.cli.SubsystemGroupCLI;
+import org.dogtagpki.server.cli.SubsystemUserCLI;
 
 /**
  * @author Endi S. Dewata
