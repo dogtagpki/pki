@@ -168,7 +168,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
 
         // keysize is for non-EC (EC uses keycurve)
         if (!rKeytype.equals("EC") && ((rKeysize == null) || (rKeysize.equals("")))) {
-            rKeysize = "1024"; // default to 1024
+            rKeysize = "2048"; // default to 2048
         }
 
         if (rKeytype.equals("EC")) {

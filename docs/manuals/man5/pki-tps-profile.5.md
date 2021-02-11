@@ -17,7 +17,7 @@ Token profiles are defined using properties in the TPS configuration file.
 The following property sets the size of the key the token should generate:
 
 ```
-op.enroll.<tokenType>.keyGen.<keyType>.keySize=1024
+op.enroll.<tokenType>.keyGen.<keyType>.keySize=2048
 ```
 
 The maximum value is 1024.
@@ -95,7 +95,7 @@ and which PIN user should be granted:
 
 ```
 op.enroll.<tokenType>.keyGen.<keyType>.alg=2
-op.enroll.<tokenType>.keyGen.<keyType>.keySize=1024
+op.enroll.<tokenType>.keyGen.<keyType>.keySize=2048
 op.enroll.<tokenType>.keyGen.<keyType>.keyUsage=0
 op.enroll.<tokenType>.keyGen.<keyType>.keyUser=0
 ```

@@ -196,7 +196,7 @@ extdata-keyrecord: 1
 extdata-wrappeduserprivate: %94%C1%36%D3%EA%4E%36%B5%42%91%AB%47%34%C0%35%A3%6
  F%E8%10%A9%B1%25%F4%BE%9C%11%D1%B3%3D%90%AB%79
 extdata-userid: jmagne
-extdata-keysize: 1024
+extdata-keysize: 2048
 extdata-updatedby: TPS-alpha.example.com-7889
 extdata-dbstatus: UPDATED
 extdata-cuid: 40906145C76224192D2B
