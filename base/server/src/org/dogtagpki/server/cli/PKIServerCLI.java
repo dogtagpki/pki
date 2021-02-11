@@ -38,7 +38,7 @@ public class PKIServerCLI extends CLI {
         super("pki-server", "PKI server management commands");
 
         addModule("ca", "org.dogtagpki.server.ca.cli.CACLI");
-        addModule(new KRACLI(this));
+        addModule("kra", "org.dogtagpki.server.kra.cli.KRACLI");
         addModule(new OCSPCLI(this));
         addModule(new TKSCLI(this));
         addModule(new TPSCLI(this));
