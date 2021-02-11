@@ -1771,6 +1771,24 @@ class OCSPSubsystem(PKISubsystem):
     def __init__(self, instance):
         super(OCSPSubsystem, self).__init__(instance, 'ocsp')
 
+    def find_crl_issuing_point(
+            self,
+            size=None,
+            as_current_user=False):
+
+        cmd = [self.name + '-crl-issuingpoint-find']
+
+        if size:
+            cmd.extend(['--size', size])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
+
 
 class TKSSubsystem(PKISubsystem):
 

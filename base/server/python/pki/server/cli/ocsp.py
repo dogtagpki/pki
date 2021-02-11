@@ -48,6 +48,7 @@ class OCSPCLI(pki.cli.CLI):
 
         self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(OCSPCloneCLI())
+        self.add_module(OCSPCRLCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
         self.add_module(pki.server.cli.group.GroupCLI(self))
@@ -171,3 +172,90 @@ class OCSPClonePrepareCLI(pki.cli.CLI):
 
         finally:
             shutil.rmtree(tmpdir)
+
+
+class OCSPCRLCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(OCSPCRLCLI, self).__init__(
+            'crl', 'OCSP CRL management commands')
+
+        self.add_module(OCSPCRLIssuingPointCLI())
+
+
+class OCSPCRLIssuingPointCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(OCSPCRLIssuingPointCLI, self).__init__(
+            'issuingpoint', 'OCSP CRL issuing point management commands')
+
+        self.add_module(OCSPCRLIssuingPointFindCLI())
+
+
+class OCSPCRLIssuingPointFindCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(OCSPCRLIssuingPointFindCLI, self).__init__(
+            'find',
+            'Find OCSP CRL issuing points')
+
+    def print_help(self):
+        print('Usage: pki-server ocsp-crl-issuingpoint-find [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat)')
+        print('      --size <size>                  Page size')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=', 'size=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        size = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--size':
+                size = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('ocsp')
+
+        if not subsystem:
+            logger.error('No OCSP subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        subsystem.find_crl_issuing_point(size=size)
