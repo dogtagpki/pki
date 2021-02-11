@@ -1789,6 +1789,32 @@ class OCSPSubsystem(PKISubsystem):
 
         self.run(cmd, as_current_user=as_current_user)
 
+    def add_crl_issuing_point(
+            self,
+            cert_chain=None,
+            cert_chain_file=None,
+            cert_format=None,
+            as_current_user=False):
+
+        cmd = [self.name + '-crl-issuingpoint-add']
+
+        if cert_chain_file:
+            cmd.extend(['--cert-chain', cert_chain_file])
+
+        if cert_format:
+            cmd.extend(['--cert-format', cert_format])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(
+            cmd,
+            input=cert_chain,
+            as_current_user=as_current_user)
+
 
 class TKSSubsystem(PKISubsystem):
 

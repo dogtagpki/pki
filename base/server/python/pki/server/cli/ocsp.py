@@ -193,6 +193,7 @@ class OCSPCRLIssuingPointCLI(pki.cli.CLI):
             'issuingpoint', 'OCSP CRL issuing point management commands')
 
         self.add_module(OCSPCRLIssuingPointFindCLI())
+        self.add_module(OCSPCRLIssuingPointAddCLI())
 
 
 class OCSPCRLIssuingPointFindCLI(pki.cli.CLI):
@@ -262,3 +263,80 @@ class OCSPCRLIssuingPointFindCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem.find_crl_issuing_point(size=size)
+
+
+class OCSPCRLIssuingPointAddCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(OCSPCRLIssuingPointAddCLI, self).__init__(
+            'add',
+            'Add OCSP CRL issuing point')
+
+    def print_help(self):
+        print('Usage: pki-server ocsp-crl-issuingpoint-add [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --cert-chain <path>            Path to PKCS #7 certificate chain')
+        print('      --cert-format <format>         Certificate format: PEM (default), DER')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'cert-chain=', 'cert-format=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        cert_chain_file = None
+        cert_format = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--cert-chain':
+                cert_chain_file = a
+
+            elif o == '--cert-format':
+                cert_format = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('ocsp')
+
+        if not subsystem:
+            logger.error('No OCSP subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        subsystem.add_crl_issuing_point(
+            cert_chain_file=cert_chain_file,
+            cert_format=cert_format)
