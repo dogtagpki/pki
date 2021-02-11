@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-package org.dogtagpki.server.cli;
+package org.dogtagpki.server.ca.cli;
 
 import java.io.File;
 import java.io.FileInputStream;

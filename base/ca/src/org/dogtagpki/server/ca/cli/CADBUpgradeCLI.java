@@ -16,9 +16,10 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package org.dogtagpki.server.cli;
+package org.dogtagpki.server.ca.cli;
 
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.server.cli.SubsystemDBUpgradeCLI;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

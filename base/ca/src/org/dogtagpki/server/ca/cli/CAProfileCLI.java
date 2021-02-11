@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package org.dogtagpki.server.cli;
+package org.dogtagpki.server.ca.cli;
 
 import org.dogtagpki.cli.CLI;
 

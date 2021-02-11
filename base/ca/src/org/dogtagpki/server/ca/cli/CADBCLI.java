@@ -16,24 +16,29 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package org.dogtagpki.server.cli;
+package org.dogtagpki.server.ca.cli;
 
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.server.cli.SubsystemDBEmptyCLI;
+import org.dogtagpki.server.cli.SubsystemDBInfoCLI;
+import org.dogtagpki.server.cli.SubsystemDBInitCLI;
+import org.dogtagpki.server.cli.SubsystemDBRemoveCLI;
+import org.dogtagpki.server.cli.SubsystemDBVLVCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class CACLI extends CLI {
+public class CADBCLI extends CLI {
 
-    public CACLI(CLI parent) {
-        super("ca", "CA subsystem management commands", parent);
+    public CADBCLI(CLI parent) {
+        super("db", "CA database management commands", parent);
 
-        addModule(new CACertCLI(this));
-        addModule(new CADBCLI(this));
-        addModule(new SubsystemGroupCLI(this));
-        addModule(new CAProfileCLI(this));
-        addModule(new SubsystemRangeCLI(this));
-        addModule(new SubsystemUserCLI(this));
-        addModule(new SDCLI(this));
+        addModule(new SubsystemDBInfoCLI(this));
+        addModule(new SubsystemDBInitCLI(this));
+        addModule(new SubsystemDBEmptyCLI(this));
+        addModule(new SubsystemDBRemoveCLI(this));
+        addModule(new CADBUpgradeCLI(this));
+
+        addModule(new SubsystemDBVLVCLI(this));
     }
 }
