@@ -40,15 +40,6 @@ add_subdirectory(src)
 add_subdirectory(tools)
 
 install(
-    FILES
-        applets/1.3.44724DDE.ijc
-        applets/1.4.499dc06c.ijc
-        applets/1.4.4d40a449.ijc
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/applets
-)
-
-install(
     DIRECTORY
         man/
     DESTINATION
