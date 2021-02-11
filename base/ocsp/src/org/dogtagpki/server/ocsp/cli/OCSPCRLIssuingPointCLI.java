@@ -16,5 +16,6 @@ public class OCSPCRLIssuingPointCLI extends CLI {
         super("issuingpoint", "OCSP CRL issuing point management commands", parent);
 
         addModule(new OCSPCRLIssuingPointFindCLI(this));
+        addModule(new OCSPCRLIssuingPointAddCLI(this));
     }
 }

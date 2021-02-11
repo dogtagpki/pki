@@ -8,6 +8,7 @@ javac(pki-ocsp-classes
         ${SLF4J_API_JAR}
         ${COMMONS_CLI_JAR}
         ${COMMONS_CODEC_JAR}
+        ${COMMONS_IO_JAR}
         ${SERVLET_JAR}
         ${JAXRS_API_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
