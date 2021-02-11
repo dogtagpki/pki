@@ -230,7 +230,7 @@ BuildRequires:    jna
 %endif
 BuildRequires:    systemd-units
 
-%if 0%{?rhel}
+%if 0%{?rhel} && ! 0%{?eln}
 BuildRequires:    pki-servlet-engine
 %else
 BuildRequires:    tomcat >= 1:9.0.7
@@ -501,7 +501,7 @@ Requires:         python3-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
-%if 0%{?rhel}
+%if 0%{?rhel} && ! 0%{?eln}
 Requires:         pki-servlet-engine >= 1:9.0.7
 %else
 Requires:         tomcat >= 1:9.0.7
