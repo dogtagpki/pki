@@ -82,21 +82,21 @@ jobs:
           dnf copr enable -y @pki/master
           dnf -y localinstall build/RPMS/*
 
-      - name: Generate cert request with key
+      - name: Generate CA signing cert request
         run: |
           pki nss-cert-request \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
 
-      - name: Issue self-signed cert
+      - name: Issue self-signed CA signing cert
         run: |
           pki nss-cert-issue \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
 
-      - name: Import cert into
+      - name: Import CA signing cert
         run: |
           pki nss-cert-import \
               --cert ca_signing.crt \
@@ -141,7 +141,7 @@ jobs:
               --free
           softhsm2-util --show-slots
 
-      - name: Generate cert request with key in HSM
+      - name: Generate CA signing cert request with key in HSM
         run: |
           echo "internal=" > password.conf
           echo "hardware-HSM=Secret.123" >> password.conf
@@ -150,14 +150,14 @@ jobs:
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
 
-      - name: Issue self-signed cert
+      - name: Issue self-signed CA signing cert
         run: |
           pki --token HSM -f password.conf nss-cert-issue \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
 
-      - name: Import cert into internal token and HSM
+      - name: Import CA signing cert into internal token and HSM
         run: |
           pki --token HSM -f password.conf nss-cert-import \
               --cert ca_signing.crt \
