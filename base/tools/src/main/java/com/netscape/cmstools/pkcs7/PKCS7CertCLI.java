@@ -33,6 +33,7 @@ public class PKCS7CertCLI extends CLI {
         this.pkcs7CLI = pkcs7CLI;
 
         addModule(new PKCS7CertFindCLI(this));
+        addModule(new PKCS7CertImportCLI(this));
         addModule(new PKCS7CertExportCLI(this));
     }
 
