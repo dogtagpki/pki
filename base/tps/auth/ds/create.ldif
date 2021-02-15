@@ -1,0 +1,10 @@
+dn: ou=people,dc=example,dc=com
+objectClass: top
+objectClass: organizationalUnit
+ou: people
+aci: (target = "ldap:///ou=people,dc=example,dc=com")
+ (targetattr=objectClass||dc||ou||uid||cn||sn||givenName)
+ (version 3.0; acl "Allow anyone to read and search basic attributes"; allow (search, read) userdn = "ldap:///anyone";)
+aci: (target = "ldap:///ou=people,dc=example,dc=com")
+ (targetattr=*)
+ (version 3.0; acl "Allow anyone to read and search itself"; allow (search, read) userdn = "ldap:///self";)
