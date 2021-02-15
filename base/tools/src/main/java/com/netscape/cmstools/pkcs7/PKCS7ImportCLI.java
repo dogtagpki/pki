@@ -7,6 +7,7 @@ package com.netscape.cmstools.pkcs7;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.cert.X509Certificate;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -64,11 +65,17 @@ public class PKCS7ImportCLI extends CommandCLI {
         String filename = cmd.getOptionValue("pkcs7");
         if (filename == null) {
             filename = cmd.getOptionValue("input-file");
+            if (filename != null) {
+                logger.warn("The --input-file has been deprecated. Use --pkcs7 instead.");
+            }
         }
 
         String trustAttributes = cmd.getOptionValue("trust");
         if (trustAttributes == null) {
             trustAttributes = cmd.getOptionValue("trust-flags");
+            if (trustAttributes != null) {
+                logger.warn("The --trust-flags has been deprecated. Use --trust instead.");
+            }
         }
 
         String input;
@@ -85,6 +92,10 @@ public class PKCS7ImportCLI extends CommandCLI {
         mainCLI.init();
 
         PKCS7 pkcs7 = new PKCS7(input);
+        for (X509Certificate cert : pkcs7.getCertificates()) {
+            logger.info("- " + cert.getSubjectDN());
+        }
+
         CryptoUtil.importPKCS7(pkcs7, nickname, trustAttributes);
     }
 }
