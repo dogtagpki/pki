@@ -38,6 +38,24 @@ add_custom_command(
 # install directories
 install(
     DIRECTORY
+        auth/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/tps/auth/
+)
+
+install(
+    DIRECTORY
+        bin/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/tps/bin
+    FILE_PERMISSIONS
+        OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
+)
+
+install(
+    DIRECTORY
         shared/
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}

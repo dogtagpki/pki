@@ -135,6 +135,58 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec pki pki -n caadmin tps-user-show tpsadmin
 
+      - name: Set up TPS authentication
+        run: |
+          #
+          # import sample TPS users
+          #
+          docker exec pki ldapadd -h pki.example.com -p 389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f /usr/share/pki/tps/auth/ds/create.ldif
+          docker exec pki ldapadd -h pki.example.com -p 389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f /usr/share/pki/tps/auth/ds/example.ldif
+          #
+          # configure TPS to use the sample TPS users
+          #
+          docker exec pki pki-server tps-config-set \
+              auths.instance.ldap1.ldap.basedn \
+              ou=people,dc=example,dc=com
+          docker exec pki pki-server tps-undeploy --wait
+          docker exec pki pki-server tps-deploy --wait
+
+      - name: Verify TPS client
+        run: |
+          #
+          # add unformatted token with random CUID
+          #
+          CUID=`hexdump -v -n "10" -e '1/1 "%02x"' /dev/urandom`
+          echo "UNFORMATTED" > expected
+          docker exec pki bash -c "pki -n caadmin tps-token-add $CUID | sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' > ${PKIDIR}/actual"
+          diff expected actual
+          #
+          # format the token
+          #
+          docker exec pki /usr/share/pki/tps/bin/pki-tps-format \
+              --user=testuser \
+              --password=Secret.123 \
+              $CUID
+          echo "FORMATTED" > expected
+          docker exec pki bash -c "pki -n caadmin tps-token-show $CUID | sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' > ${PKIDIR}/actual"
+          diff expected actual
+          #
+          # enroll the token
+          #
+          docker exec pki /usr/share/pki/tps/bin/pki-tps-enroll \
+              --user=testuser \
+              --password=Secret.123 \
+              $CUID
+          echo "ACTIVE" > expected
+          docker exec pki bash -c "pki -n caadmin tps-token-show $CUID | sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' > ${PKIDIR}/actual"
+          diff expected actual
+
       - name: Remove TPS
         run: docker exec pki pkidestroy -i pki-tomcat -s TPS -v
 
