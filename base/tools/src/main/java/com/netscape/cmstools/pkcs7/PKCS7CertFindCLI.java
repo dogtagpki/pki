@@ -48,14 +48,25 @@ public class PKCS7CertFindCLI extends CommandCLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "pkcs7-file", true, "PKCS #7 file");
+        Option option = new Option(null, "pkcs7", true, "PKCS #7 file");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "pkcs7-file", true, "DEPRECATED: PKCS #7 file");
         option.setArgName("path");
         options.addOption(option);
     }
 
     public void execute(CommandLine cmd) throws Exception {
 
-        String filename = cmd.getOptionValue("pkcs7-file");
+        String filename = cmd.getOptionValue("pkcs7");
+
+        if (filename == null) {
+            filename = cmd.getOptionValue("pkcs7-file");
+            if (filename != null) {
+                logger.warn("The --pkcs7-file has been deprecated. Use --pkcs7 instead.");
+            }
+        }
 
         if (filename == null) {
             throw new Exception("Missing PKCS #7 file.");
