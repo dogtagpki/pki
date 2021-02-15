@@ -51,8 +51,16 @@ public class PKCS7CertExportCLI extends CommandCLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "pkcs7-file", true, "PKCS #7 file");
+        Option option = new Option(null, "pkcs7", true, "PKCS #7 file");
         option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "pkcs7-file", true, "DEPRECATED: PKCS #7 file");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "output-file", true, "Output file");
+        option.setArgName("string");
         options.addOption(option);
 
         option = new Option(null, "output-prefix", true, "Prefix for output file");
@@ -66,7 +74,13 @@ public class PKCS7CertExportCLI extends CommandCLI {
 
     public void execute(CommandLine cmd) throws Exception {
 
-        String filename = cmd.getOptionValue("pkcs7-file");
+        String filename = cmd.getOptionValue("pkcs7");
+        if (filename == null) {
+            filename = cmd.getOptionValue("pkcs7-file");
+            if (filename != null) {
+                logger.warn("The --pkcs7-file has been deprecated. Use --pkcs7 instead.");
+            }
+        }
 
         if (filename == null) {
             throw new Exception("Missing PKCS #7 file.");
@@ -88,6 +102,22 @@ public class PKCS7CertExportCLI extends CommandCLI {
         // sort certs from root to leaf
         certs = Cert.sortCertificateChain(certs);
 
+        String outputFile = cmd.getOptionValue("output-file");
+        if (outputFile != null) {
+
+            // export certs into a series of PEM certificates in a single file
+            try (PrintWriter out = new PrintWriter(outputFile)) {
+                for (X509Certificate cert : certs) {
+                    out.println(Cert.HEADER);
+                    out.print(Utils.base64encodeMultiLine(cert.getEncoded()));
+                    out.println(Cert.FOOTER);
+                }
+            }
+
+            return;
+        }
+
+        // export certs into PEM certificates in separate files
         String prefix = cmd.getOptionValue("output-prefix", filename + "-");
         String suffix = cmd.getOptionValue("output-suffix", "");
         int i = 0;
