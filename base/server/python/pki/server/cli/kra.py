@@ -39,6 +39,7 @@ import pki.server.cli.config
 import pki.server.cli.db
 import pki.server.cli.group
 import pki.server.cli.range
+import pki.server.cli.subsystem
 import pki.server.cli.user
 import pki.server.instance
 
@@ -59,6 +60,8 @@ class KRACLI(pki.cli.CLI):
         super(KRACLI, self).__init__(
             'kra', 'KRA management commands')
 
+        self.add_module(pki.server.cli.subsystem.SubsystemDeployCLI(self))
+        self.add_module(pki.server.cli.subsystem.SubsystemUndeployCLI(self))
         self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(KRACloneCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))

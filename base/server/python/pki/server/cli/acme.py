@@ -16,6 +16,7 @@ import sys
 import pki.cli
 import pki.server
 import pki.server.instance
+import pki.server.cli.subsystem
 
 # TODO: auto-populate this map from /usr/share/pki/acme/database
 DATABASE_CLASSES = {
@@ -56,8 +57,8 @@ class ACMECLI(pki.cli.CLI):
 
         self.add_module(ACMECreateCLI())
         self.add_module(ACMERemoveCLI())
-        self.add_module(ACMEDeployCLI())
-        self.add_module(ACMEUndeployCLI())
+        self.add_module(pki.server.cli.subsystem.SubsystemDeployCLI(self))
+        self.add_module(pki.server.cli.subsystem.SubsystemUndeployCLI(self))
 
         self.add_module(ACMEMetadataCLI())
         self.add_module(ACMEDatabaseCLI())

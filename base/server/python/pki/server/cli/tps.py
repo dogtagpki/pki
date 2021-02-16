@@ -38,6 +38,7 @@ import pki.server.cli.audit
 import pki.server.cli.config
 import pki.server.cli.db
 import pki.server.cli.group
+import pki.server.cli.subsystem
 import pki.server.cli.user
 import pki.server.instance
 
@@ -53,6 +54,8 @@ class TPSCLI(pki.cli.CLI):
         super(TPSCLI, self).__init__(
             'tps', 'TPS management commands')
 
+        self.add_module(pki.server.cli.subsystem.SubsystemDeployCLI(self))
+        self.add_module(pki.server.cli.subsystem.SubsystemUndeployCLI(self))
         self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(TPSCloneCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
