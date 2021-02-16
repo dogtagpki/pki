@@ -853,7 +853,7 @@ class PKIServer(object):
                 counter = (stop_time - start_time).total_seconds()
 
                 if max_wait is not None and counter >= max_wait:
-                    raise Exception('Web application did not start after %ds' %
+                    raise Exception('Web application did not stop after %ds' %
                                     max_wait) from e
 
                 logger.info(
