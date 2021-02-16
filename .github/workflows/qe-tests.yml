@@ -48,7 +48,7 @@ jobs:
       HOSTFILE: /tmp/hostfile
       CONTROLLER_IP: "192.168.33.10"
       MASTER_IP: "192.168.33.20"
-      TOPOLOGY: "topology-02"
+      TOPOLOGY: "topology-00"
     strategy:
       matrix:
         os: ['32']  # NOTE: In F31, NFS client installation fails!
@@ -89,14 +89,23 @@ jobs:
       - name: Set up PKI deployment by running playbook on "controller"
         run: vagrant provision controller
 
-      - name: Run CA related tests
+          #- name: Run CA related tests
+        #run: |
+          #vagrant ssh controller -c \
+          #'pytest --ansible-host-pattern master \
+          #--ansible-inventory /vagrant/inventory \
+          #--ansible-module-path /vagrant/tests/dogtag/pytest-ansible/common-modules/ \
+          #/vagrant/tests/dogtag/pytest-ansible/pytest/sanity/test_role_users.py \
+          #          --junit-xml pki_cert_junit.xml -qsvvv'
+
+      - name: Run CA bz related tests
         run: |
           vagrant ssh controller -c \
           'pytest --ansible-host-pattern master \
           --ansible-inventory /vagrant/inventory \
           --ansible-module-path /vagrant/tests/dogtag/pytest-ansible/common-modules/ \
-          /vagrant/tests/dogtag/pytest-ansible/pytest/sanity/test_role_users.py \
-          --junit-xml pki_cert_junit.xml -qsvvv'
+          /vagrant/tests/dogtag/pytest-ansible/pytest/ca/bugzilla/test_bug_1489256_jss_should_support_rsa_with_oaep_padding.py \
+          --junit-xml bz_1489256_junit.xml -qsvvv'
 
       - name: Setup tmate session
         if: failure()
