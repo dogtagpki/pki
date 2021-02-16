@@ -257,20 +257,92 @@ class PKIServer(object):
         rc = subprocess.call(cmd)
         return rc == 0
 
-    def start(self):
+    def start(self, wait=False, max_wait=60, timeout=None):
+
         cmd = ['systemctl', 'start', '%s.service' % self.service_name]
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def stop(self):
+        if not wait:
+            return
+
+        logger.info('Waiting for server to start')
+
+        start_time = datetime.datetime.today()
+        started = False
+        counter = 0
+
+        while not started:
+            try:
+                time.sleep(1)
+                started = self.is_available(timeout=timeout)
+
+            except requests.exceptions.SSLError as e:
+                max_retry_error = e.args[0]
+                reason = getattr(max_retry_error, 'reason')
+                raise Exception('Server unreachable due to SSL error: %s' % reason) from e
+
+            except pki.RETRYABLE_EXCEPTIONS as e:
+
+                stop_time = datetime.datetime.today()
+                counter = (stop_time - start_time).total_seconds()
+
+                if max_wait is not None and counter >= max_wait:
+                    raise Exception('Server did not start after %ds' %
+                                    max_wait) from e
+
+                logger.info(
+                    'Waiting for server to start (%ds)',
+                    int(round(counter)))
+
+        logger.info('Server started')
+
+    def stop(self, wait=False, max_wait=60, timeout=None):
+
         cmd = ['systemctl', 'stop', '%s.service' % self.service_name]
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def restart(self):
-        cmd = ['systemctl', 'restart', '%s.service' % self.service_name]
-        logger.debug('Command: %s', ' '.join(cmd))
-        subprocess.check_call(cmd)
+        if not wait:
+            return
+
+        logger.info('Waiting for server to stop')
+
+        start_time = datetime.datetime.today()
+        stopped = False
+        counter = 0
+
+        while not stopped:
+            try:
+                time.sleep(1)
+                stopped = not self.is_available(timeout=timeout)
+
+            except requests.exceptions.SSLError as e:
+                max_retry_error = e.args[0]
+                reason = getattr(max_retry_error, 'reason')
+                raise Exception('Server unreachable due to SSL error: %s' % reason) from e
+
+            except requests.exceptions.ConnectionError:
+                stopped = True
+
+            except pki.RETRYABLE_EXCEPTIONS as e:
+
+                stop_time = datetime.datetime.today()
+                counter = (stop_time - start_time).total_seconds()
+
+                if max_wait is not None and counter >= max_wait:
+                    raise Exception('Server did not stop after %ds' %
+                                    max_wait) from e
+
+                logger.info(
+                    'Waiting for server to stop (%ds)',
+                    int(round(counter)))
+
+        logger.info('Server stopped')
+
+    def restart(self, wait=False, max_wait=60, timeout=None):
+        self.stop(wait=wait, max_wait=max_wait, timeout=timeout)
+        self.start(wait=wait, max_wait=max_wait, timeout=timeout)
 
     def enable(self):
         cmd = ['systemctl', 'enable', '%s.service' % self.service_name]
@@ -694,7 +766,7 @@ class PKIServer(object):
 
         return os.path.exists(context_xml)
 
-    def is_available(self, path, timeout=None):
+    def is_available(self, path='/', timeout=None):
 
         server_config = self.get_server_config()
 

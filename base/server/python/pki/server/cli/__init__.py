@@ -526,6 +526,9 @@ class StartCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server start [OPTIONS] [<instance ID>]')
         print()
+        print('      --wait                    Wait until started.')
+        print('      --max-wait <seconds>      Maximum wait time (default: 60)')
+        print('      --timeout <seconds>       Connection timeout')
         print('  -v, --verbose                 Run in verbose mode.')
         print('      --debug                   Run in debug mode.')
         print('      --help                    Show help message.')
@@ -535,6 +538,7 @@ class StartCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
+                'wait', 'max-wait=', 'timeout=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -543,9 +547,21 @@ class StartCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        wait = False
+        max_wait = 60
+        timeout = None
 
-        for o, _ in opts:
-            if o in ('-v', '--verbose'):
+        for o, a in opts:
+            if o == '--wait':
+                wait = True
+
+            elif o == '--max-wait':
+                max_wait = int(a)
+
+            elif o == '--timeout':
+                timeout = int(a)
+
+            elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--debug':
@@ -573,7 +589,7 @@ class StartCLI(pki.cli.CLI):
             self.print_message('Instance already started')
             return
 
-        instance.start()
+        instance.start(wait=wait, max_wait=max_wait, timeout=timeout)
 
 
 class StopCLI(pki.cli.CLI):
@@ -584,6 +600,9 @@ class StopCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server stop [OPTIONS] [<instance ID>]')
         print()
+        print('      --wait                    Wait until stopped.')
+        print('      --max-wait <seconds>      Maximum wait time (default: 60)')
+        print('      --timeout <seconds>       Connection timeout')
         print('  -v, --verbose                 Run in verbose mode.')
         print('      --debug                   Run in debug mode.')
         print('      --help                    Show help message.')
@@ -593,6 +612,7 @@ class StopCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
+                'wait', 'max-wait=', 'timeout=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -601,9 +621,21 @@ class StopCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        wait = False
+        max_wait = 60
+        timeout = None
 
-        for o, _ in opts:
-            if o in ('-v', '--verbose'):
+        for o, a in opts:
+            if o == '--wait':
+                wait = True
+
+            elif o == '--max-wait':
+                max_wait = int(a)
+
+            elif o == '--timeout':
+                timeout = int(a)
+
+            elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--debug':
@@ -631,7 +663,7 @@ class StopCLI(pki.cli.CLI):
             self.print_message('Instance already stopped')
             return
 
-        instance.stop()
+        instance.stop(wait=wait, max_wait=max_wait, timeout=timeout)
 
 
 class RestartCLI(pki.cli.CLI):
@@ -642,6 +674,9 @@ class RestartCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server restart [OPTIONS] [<instance ID>]')
         print()
+        print('      --wait                    Wait until restarted.')
+        print('      --max-wait <seconds>      Maximum wait time (default: 60)')
+        print('      --timeout <seconds>       Connection timeout')
         print('  -v, --verbose                 Run in verbose mode.')
         print('      --debug                   Run in debug mode.')
         print('      --help                    Show help message.')
@@ -651,6 +686,7 @@ class RestartCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
+                'wait', 'max-wait=', 'timeout=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -659,9 +695,21 @@ class RestartCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        wait = False
+        max_wait = 60
+        timeout = None
 
-        for o, _ in opts:
-            if o in ('-v', '--verbose'):
+        for o, a in opts:
+            if o == '--wait':
+                wait = True
+
+            elif o == '--max-wait':
+                max_wait = int(a)
+
+            elif o == '--timeout':
+                timeout = int(a)
+
+            elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--debug':
@@ -685,7 +733,7 @@ class RestartCLI(pki.cli.CLI):
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
-        instance.restart()
+        instance.restart(wait=wait, max_wait=max_wait, timeout=timeout)
 
 
 class RunCLI(pki.cli.CLI):
