@@ -325,11 +325,6 @@ class AdminSetupResponse(object):
         pass
 
 
-class FinalizeConfigRequest(object):
-    def __init__(self):
-        self.installToken = None
-
-
 class SystemCertData(object):
     """
     Class used to represent the data for a system certificate, which is
@@ -453,5 +448,4 @@ pki.encoder.NOTYPES['CertificateSetupRequest'] = CertificateSetupRequest
 pki.encoder.NOTYPES['CertificateSetupResponse'] = CertificateSetupResponse
 pki.encoder.NOTYPES['AdminSetupRequest'] = AdminSetupRequest
 pki.encoder.NOTYPES['AdminSetupResponse'] = AdminSetupResponse
-pki.encoder.NOTYPES['FinalizeConfigRequest'] = FinalizeConfigRequest
 pki.encoder.NOTYPES['SystemCertData'] = SystemCertData
