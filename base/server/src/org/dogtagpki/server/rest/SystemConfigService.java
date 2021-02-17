@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
-import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Cert;
@@ -142,31 +141,6 @@ public class SystemConfigService extends PKIService {
             adminCert.setCert(b64cert);
 
             return response;
-
-        } catch (PKIException e) { // normal response
-            logger.error("Configuration failed: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Configuration failed: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    @POST
-    @Path("finalizeConfiguration")
-    public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
-
-        logger.info("SystemConfigService: finalizing configuration");
-
-        try {
-            validatePin(request.getPin());
-
-            if (csState.equals("1")) {
-                throw new BadRequestException("System already configured");
-            }
-
-            configurator.finalizeConfiguration(request);
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());

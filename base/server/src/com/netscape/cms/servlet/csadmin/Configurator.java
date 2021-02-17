@@ -62,7 +62,6 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
-import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
@@ -808,14 +807,5 @@ public class Configurator {
 
     public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
         return null;
-    }
-
-    /**
-     * save variables needed for cloning and remove preops
-     *
-     * @throws EBaseException
-     */
-    public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
-        cs.commit(false);
     }
 }

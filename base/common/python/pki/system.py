@@ -361,7 +361,6 @@ class SystemConfigClient(object):
         self.setup_admin_url = '/rest/installer/setupAdmin'
         self.backup_keys_url = '/rest/installer/backupKeys'
         self.setup_security_domain_url = '/rest/installer/setupSecurityDomain'
-        self.finalize_config_url = '/rest/installer/finalizeConfiguration'
 
         if connection.subsystem is None:
 
@@ -372,7 +371,6 @@ class SystemConfigClient(object):
             self.setup_admin_url = '/' + subsystem + self.setup_admin_url
             self.backup_keys_url = '/' + subsystem + self.backup_keys_url
             self.setup_security_domain_url = '/' + subsystem + self.setup_security_domain_url
-            self.finalize_config_url = '/' + subsystem + self.finalize_config_url
 
     def setupCert(self, request):
         """
@@ -412,21 +410,6 @@ class SystemConfigClient(object):
             data,
             headers)
         return response.json()
-
-    def finalizeConfiguration(self, request):
-        """
-        Finalize server configuration.
-
-        :param request: Finalize configuration request
-        :type request: FinalizeConfigRequest
-        """
-        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
-        headers = {'Content-type': 'application/json',
-                   'Accept': 'application/json'}
-        self.connection.post(
-            self.finalize_config_url,
-            data,
-            headers)
 
 
 class SystemStatusClient(object):

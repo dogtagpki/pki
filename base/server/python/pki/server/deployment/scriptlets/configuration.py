@@ -770,12 +770,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Setting up database user')
             deployer.setup_database_user(instance, subsystem)
 
-        logger.info('Finalizing %s configuration', subsystem.type)
-        finalize_config_request = deployer.config_client.create_finalize_config_request()
-        finalize_config_request.domainInfo = deployer.domain_info
-        finalize_config_request.installToken = deployer.install_token
-        client.finalizeConfiguration(finalize_config_request)
-
         subsystem.load()
 
         if subsystem.type == 'CA':

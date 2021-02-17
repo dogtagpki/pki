@@ -2640,33 +2640,6 @@ class ConfigClient:
             self.mdict['pki_client_admin_cert_p12'],
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
-    def create_finalize_config_request(self):
-
-        logger.info('Creating finalize config request')
-
-        request = pki.system.FinalizeConfigRequest()
-
-        # Miscellaneous Configuration Information
-        request.pin = self.mdict['pki_one_time_pin']
-
-        request.standAlone = self.standalone
-
-        # Cloning parameters
-        if self.clone:
-            request.isClone = 'true'
-            request.cloneUri = self.mdict['pki_clone_uri']
-        else:
-            request.isClone = 'false'
-
-        # Security Domain
-        request.securityDomainUri = self.mdict['pki_security_domain_uri']
-
-        # TPS parameters
-        if self.subsystem == 'TPS':
-            self.set_tps_parameters(request)
-
-        return request
-
     def save_admin_csr(self):
         logger.info(
             log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_2,
