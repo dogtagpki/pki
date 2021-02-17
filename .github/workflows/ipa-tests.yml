@@ -111,13 +111,14 @@ jobs:
         run: |
           docker exec ipa sysctl net.ipv6.conf.lo.disable_ipv6=0
           docker exec ipa ipa-server-install \
-            -U \
-            --domain example.com \
-            -r EXAMPLE.COM \
-            -p Secret.123 \
-            -a Secret.123 \
-            --setup-kra \
-            --no-host-dns
+              -U \
+              --domain example.com \
+              -r EXAMPLE.COM \
+              -p Secret.123 \
+              -a Secret.123 \
+              --setup-kra \
+              --no-host-dns \
+              --no-ntp
           docker exec ipa bash -c "echo Secret.123 | kinit admin"
           docker exec ipa ipa ping
 
@@ -166,7 +167,8 @@ jobs:
               --domain=example.com \
               --realm=EXAMPLE.COM \
               -p admin \
-              -w Secret.123
+              -w Secret.123 \
+              --no-ntp
           docker exec client bash -c "echo Secret.123 | kinit admin"
           docker exec client klist
 
@@ -296,12 +298,13 @@ jobs:
         run: |
           docker exec primary sysctl net.ipv6.conf.lo.disable_ipv6=0
           docker exec primary ipa-server-install \
-            -U \
-            --domain example.com \
-            -r EXAMPLE.COM \
-            -p Secret.123 \
-            -a Secret.123 \
-            --setup-kra
+              -U \
+              --domain example.com \
+              -r EXAMPLE.COM \
+              -p Secret.123 \
+              -a Secret.123 \
+              --setup-kra \
+              --no-ntp
           docker exec primary bash -c "echo Secret.123 | kinit admin"
           docker exec primary klist
 
@@ -341,12 +344,13 @@ jobs:
         run: |
           docker exec secondary sysctl net.ipv6.conf.lo.disable_ipv6=0
           docker exec secondary ipa-client-install \
-            -U \
-            --server=primary.example.com \
-            --domain=example.com \
-            --realm=EXAMPLE.COM \
-            -p admin \
-            -w Secret.123
+              -U \
+              --server=primary.example.com \
+              --domain=example.com \
+              --realm=EXAMPLE.COM \
+              -p admin \
+              -w Secret.123 \
+              --no-ntp
           docker exec secondary bash -c "echo Secret.123 | kinit admin"
           docker exec secondary klist
 
