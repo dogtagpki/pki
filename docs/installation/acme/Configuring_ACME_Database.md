@@ -202,6 +202,13 @@ Verify the database connection with the following command:
 $ psql -h $HOSTNAME -d acme -U acme
 ```
 
+Next, install PostgreSQL JDBC driver in `/usr/share/pki/server/common/lib`, for example:
+
+```
+$ dnf install postgresql-jdbc
+$ ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib
+```
+
 A sample PostgreSQL database configuration is available at
 [/usr/share/pki/acme/database/postgresql/database.conf](../../../base/acme/database/postgresql/database.conf).
 
