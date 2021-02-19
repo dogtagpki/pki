@@ -713,7 +713,13 @@ class PKISubsystem(object):
 
     def get_startup_tests(self):
         # Split the line 'selftest.container.selftests.startup'
-        available_tests = self.config['selftests.container.order.startup'].split(',')
+        v = self.config.get('selftests.container.order.startup', '').strip()
+        if len(v) == 0:
+            # special case; empty value -> empty list
+            available_tests = []
+        else:
+            available_tests = v.split(',')
+
         target_tests = {}
         for testInfo in available_tests:
             temp = testInfo.split(':')
