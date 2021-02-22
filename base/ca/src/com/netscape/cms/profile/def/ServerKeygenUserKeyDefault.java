@@ -318,7 +318,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                 boolean useOAEP = caCfg.getBoolean("keyWrap.useOAEP",false);
 
                 KeyWrapAlgorithm wrapAlgorithm = KeyWrapAlgorithm.RSA;
-                if(useOAEP == false) {
+                if(useOAEP == true) {
                     wrapAlgorithm = KeyWrapAlgorithm.RSA_OAEP;
                 }
 
