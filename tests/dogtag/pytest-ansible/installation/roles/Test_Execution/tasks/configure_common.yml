@@ -5,33 +5,43 @@
 - name : Set hostname for machines Bydefault we choose pki1 for master and pki2 for clones.
   hostname: name=pki1.example.com
   tags: platform-ci
+  when: ansible_connection != "docker"
 
 - name: Install a required package for modify hostname task below
   dnf: pkg={{item}} state=latest
   with_items:
     - python3-libselinux
-  when: ansible_distribution == "Fedora"
+  when:
+    - ansible_connection != "docker"
+    - ansible_distribution == "Fedora"
 
 - name : Modify hostname for master in  /etc/hosts
   lineinfile: dest=/etc/hosts regexp='.*{{ inventory_hostname }}$' create=yes insertafter=EOF line="{{ inventory_hostname }} {{ansible_fqdn}}" state=present
   tags: platform-ci
+  when: ansible_connection != "docker"
 
 - name: Add 127.0.0.1 mapping to master hostname in /etc/hosts for 389ds
   lineinfile: dest=/etc/hosts create=yes insertafter=ROF line="127.0.0.1 {{ansible_fqdn}}" state=present
+  when: ansible_connection != "docker"
 
 - name: check the hostname/ip for the remote instance
   set_fact: inventory_ip={{ inventory_hostname }}
+  when: ansible_connection != "docker"
 
 - name: Check for private ip if exist for openstack instance
   shell: hostname -I
   register: private_addr
+  when: ansible_connection != "docker"
 
 - name: Set the private ip in a variable
   set_fact: private_ip={{ private_addr.stdout }}
+  when: ansible_connection != "docker"
 
 - name: Change in /etc/hosts to set right private/public ip for instance to be reachable
   replace: path=/etc/hosts regexp={{ inventory_ip }} replace={{ private_ip }}
-  when:  inventory_ip not in private_ip
+  when:
+    - ansible_connection != "docker"
+    - inventory_ip not in private_ip
 
 - name: pip install pexpect
   shell: pip3 install pexpect
@@ -39,7 +49,8 @@
 - name : fetch file in  master in  /etc/hosts
   fetch: src=/etc/hosts dest=/etc/ flat=yes validate_checksum=no
   tags: platform-ci
-  
+  when: ansible_connection != "docker"
+
 - name: Install list of packages for CS Master for Redhat
   yum : pkg={{item}} state=latest
   with_items:
