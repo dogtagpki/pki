@@ -19,7 +19,7 @@
  * @author Endi S. Dewata
  */
 
-var TPS = {
+var tps = {
     PROFILE_ID_PATTERN: /^[a-zA-Z0-9_]+$/,
     PROPERTY_NAME_PATTERN: /^[a-zA-Z0-9_\.]+$/,
     getElementName: function (component) {
@@ -133,7 +133,7 @@ var PropertiesTable = Table.extend({
     addEntry: function(entry) {
         var self = this;
 
-        if (!entry.name.match(TPS.PROPERTY_NAME_PATTERN)) {
+        if (!entry.name.match(tps.PROPERTY_NAME_PATTERN)) {
             throw "Invalid property name: " + entry.name;
         }
 
@@ -432,7 +432,7 @@ var ConfigEntryPage = EntryPage.extend({
     save: function() {
         var self = this;
 
-        if (!self.entry.profileID.match(TPS.PROFILE_ID_PATTERN)) {
+        if (!self.entry.profileID.match(tps.PROFILE_ID_PATTERN)) {
             throw "Invalid profile ID: " + self.entry.profileID;
         }
 
