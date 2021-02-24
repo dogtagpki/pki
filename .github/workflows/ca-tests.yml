@@ -145,6 +145,117 @@ jobs:
           name: pki-logs-${{ matrix.os }}
           path: pki-logs.tar
 
+  # docs/installation/ca/Installing_CA_with_ECC.md
+  ca-ecc-test:
+    name: Installing CA with ECC
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      LOGS: ${GITHUB_WORKSPACE}/logs.txt
+      COPR_REPO: "@pki/master"
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: build/RPMS
+
+      - name: Download container
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-${{ matrix.os }}
+          path: /tmp
+
+      - name: Load container
+        run: docker load --input /tmp/pki.tar
+
+      - name: Run container
+        run: |
+          IMAGE=pki \
+          NAME=pki \
+          HOSTNAME=pki.example.com \
+          ci/runner-init.sh
+
+      - name: Install dependencies
+        run: |
+          docker exec pki dnf install -y findutils dnf-plugins-core wget 389-ds-base
+          docker exec pki dnf copr enable -y ${COPR_REPO}
+
+      - name: Install PKI packages
+        run: docker exec pki bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
+
+      - name: Install DS
+        run: docker exec pki ${PKIDIR}/ci/ds-create.sh
+
+      - name: Install CA
+        run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-ecc.cfg -s CA -v
+
+      - name: Gather config files
+        if: always()
+        run: docker exec pki tar cvf ${PKIDIR}/pki-ecc-conf.tar -C / etc/pki
+
+      - name: Upload config files
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: pki-ecc-conf-${{ matrix.os }}
+          path: pki-ecc-conf.tar
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --debug
+
+      - name: Verify system keys
+        run: |
+          docker exec pki bash -c "echo Secret.123 > password.txt"
+          docker exec pki certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt
+          echo "ec" > expected
+          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep ca_signing | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${PKIDIR}/actual"
+          diff expected actual
+          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep ca_ocsp_signing | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${PKIDIR}/actual"
+          diff expected actual
+          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep ca_audit_signing | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${PKIDIR}/actual"
+          diff expected actual
+          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep subsystem | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${PKIDIR}/actual"
+          diff expected actual
+          docker exec pki bash -c "certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | grep sslserver | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > ${PKIDIR}/actual"
+          diff expected actual
+
+      - name: Verify CA admin
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove DS
+        run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
+
+      - name: Gather log files
+        if: always()
+        run: |
+          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
+          docker exec pki tar cvf ${PKIDIR}/pki-ecc-logs.tar -C / var/log/pki
+
+      - name: Upload log files
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: pki-ecc-logs-${{ matrix.os }}
+          path: pki-ecc-logs.tar
+
   # docs/installation/ca/Installing_Subordinate_CA.md
   subca-test:
     name: Installing Subordinate CA
