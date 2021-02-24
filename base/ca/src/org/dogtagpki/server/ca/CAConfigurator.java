@@ -217,32 +217,39 @@ public class CAConfigurator extends Configurator {
     @Override
     public X509CertImpl createCert(
             String tag,
-            CertificateSetupRequest request,
             KeyPair keyPair,
             byte[] certreq,
             String certType,
             String profileID,
-            String[] dnsNames) throws Exception {
+            String[] dnsNames,
+            Boolean clone,
+            URL masterURL,
+            InstallToken installToken) throws Exception {
 
-        X509CertImpl certImpl;
-
-        if (request.isClone() && tag.equals("sslserver")) {
+        if (clone && tag.equals("sslserver")) {
 
             // For Cloned CA always use its Master CA to generate the
             // sslserver certificate to avoid any changes which may have
             // been made to the X500Name directory string encoding order.
 
-            URL masterURL = request.getMasterURL();
             String hostname = masterURL.getHost();
             int port = masterURL.getPort();
 
-            InstallToken installToken = request.getInstallToken();
-
-            certImpl = createRemoteCert(hostname, port, profileID, certreq, dnsNames, installToken);
+            return createRemoteCert(hostname, port, profileID, certreq, dnsNames, installToken);
 
         } else if ("remote".equals(certType)) {
+
             // issue subordinate CA signing cert using remote CA signing cert
-            certImpl = super.createCert(tag, request, keyPair, certreq, certType, profileID, dnsNames);
+            return super.createCert(
+                    tag,
+                    keyPair,
+                    certreq,
+                    certType,
+                    profileID,
+                    dnsNames,
+                    clone,
+                    masterURL,
+                    installToken);
 
         } else { // selfsign or local
             // issue other system certs using self-signed or local CA signing cert
@@ -266,7 +273,7 @@ public class CAConfigurator extends Configurator {
                 signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
             }
 
-            certImpl = createLocalCert(
+            return createLocalCert(
                     certType,
                     dn,
                     issuerDN,
@@ -281,8 +288,6 @@ public class CAConfigurator extends Configurator {
                     certreq,
                     subjectName);
         }
-
-        return certImpl;
     }
 
     public Cert setupCert(CertificateSetupRequest request) throws Exception {

@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.csadmin;
 
 import java.io.File;
 import java.math.BigInteger;
+import java.net.URL;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -460,12 +461,14 @@ public class Configurator {
 
     public X509CertImpl createCert(
             String tag,
-            CertificateSetupRequest request,
             KeyPair keyPair,
             byte[] certreq,
             String certType,
             String profileID,
-            String[] dnsNames) throws Exception {
+            String[] dnsNames,
+            Boolean clone,
+            URL masterURL,
+            InstallToken installToken) throws Exception {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
@@ -480,8 +483,6 @@ public class Configurator {
             hostname = preopConfig.getString("ca.hostname", "");
             port = preopConfig.getInteger("ca.httpsport", -1);
         }
-
-        InstallToken installToken = request.getInstallToken();
 
         return createRemoteCert(hostname, port, profileID, certreq, dnsNames, installToken);
     }
@@ -712,14 +713,21 @@ public class Configurator {
             logger.debug("Configurator: request: " + certreq);
             cs.putString(type.toLowerCase() + "." + tag + ".certreq", certreq);
 
+            Boolean clone = request.isClone();
+            URL masterURL = request.getMasterURL();
+            InstallToken installToken = request.getInstallToken();
+
             X509CertImpl certImpl = createCert(
                     tag,
-                    request,
                     keyPair,
                     binCertRequest,
                     certType,
                     profileID,
-                    dnsNames);
+                    dnsNames,
+                    clone,
+                    masterURL,
+                    installToken);
+
             cert.setCert(certImpl.getEncoded());
 
             String certStr = CryptoUtil.base64Encode(cert.getCert());
