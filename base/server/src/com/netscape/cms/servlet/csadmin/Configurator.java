@@ -431,22 +431,6 @@ public class Configurator {
         return pair;
     }
 
-    public KeyPair createKeyPair(String tag, CryptoToken token, String keyType, String keySize) throws Exception {
-
-        if (keyType.equals("ecc")) {
-
-            // Default SSL server cert to ECDHE unless stated otherwise.
-            // Note: IE only supports ECDHE, but ECDH is more efficient.
-            PreOpConfig preopConfig = cs.getPreOpConfig();
-            String ecType = preopConfig.getString("cert." + tag + ".ec.type", "ECDHE");
-
-            return createECCKeyPair(tag, token, keySize, ecType);
-
-        } else {
-            return createRSAKeyPair(tag, token, keySize);
-        }
-    }
-
     public X509CertImpl createCert(
             String tag,
             KeyPair keyPair,
@@ -796,7 +780,18 @@ public class Configurator {
 
             String keyType = preopConfig.getString("cert." + tag + ".keytype");
             String keySize = certData.getKeySize();
-            keyPair = createKeyPair(tag, token, keyType, keySize);
+
+            if (keyType.equals("ecc")) {
+
+                // Default ssl server cert to ECDHE unless stated otherwise.
+                // Note: IE only supports "ECDHE", but "ECDH" is more efficient.
+                String ecType = preopConfig.getString("cert." + tag + ".ec.type", "ECDHE");
+
+                keyPair = createECCKeyPair(tag, token, keySize, ecType);
+
+            } else {
+                keyPair = createRSAKeyPair(tag, token, keySize);
+            }
         }
 
         // For external/existing CA case, some/all system certs may be provided.
