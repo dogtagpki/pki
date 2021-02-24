@@ -638,78 +638,45 @@ public class Configurator {
             String subjectName) throws Exception {
     }
 
-    public void processCert(
-            CertificateSetupRequest request,
+    public void setupExistingCert(
             String type,
             String tag,
             Cert cert,
-            String certType,
-            KeyPair keyPair,
             X509Certificate x509Cert,
             String profileID,
             String[] dnsNames) throws Exception {
 
-        // For external/existing CA case, some/all system certs may be provided.
-        // The SSL server cert will always be generated for the current host.
+        logger.info("Configurator: Loading existing " + tag + " cert request");
 
-        // For external/standalone KRA/OCSP case, all system certs will be provided.
-        // No system certs will be generated including the SSL server cert.
+        String certreq = cs.getString(type.toLowerCase() + "." + tag + ".certreq");
+        logger.debug("Configurator: request: " + certreq);
 
-        if (type.equals("CA") && request.isExternal() && !tag.equals("sslserver") && x509Cert != null
-                || type.equals("KRA") && (request.isExternal() || request.getStandAlone())
-                || type.equals("OCSP") && (request.isExternal() || request.getStandAlone())) {
+        byte[] binCertRequest = CryptoUtil.base64Decode(certreq);
+        cert.setRequest(binCertRequest);
 
-            logger.info("Configurator: Loading existing " + tag + " cert request");
+        logger.info("Configurator: Loading existing " + tag + " certificate");
+        byte[] binCert = x509Cert.getEncoded();
+        cert.setCert(binCert);
 
-            String certreq = cs.getString(type.toLowerCase() + "." + tag + ".certreq");
-            logger.debug("Configurator: request: " + certreq);
+        boolean installAdjustValidity = !tag.equals("signing");
+        String certRequestType = "pkcs10";
+        String subjectName = null;
 
-            byte[] binCertRequest = CryptoUtil.base64Decode(certreq);
-            cert.setRequest(binCertRequest);
+        PKCS10 pkcs10 = new PKCS10(binCertRequest);
+        X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
+        X509CertImpl certImpl = new X509CertImpl(binCert);
 
-            logger.info("Configurator: Loading existing " + tag + " certificate");
-            byte[] binCert = x509Cert.getEncoded();
-            cert.setCert(binCert);
+        loadCert(
+                x509key,
+                certImpl,
+                profileID,
+                dnsNames,
+                installAdjustValidity,
+                certRequestType,
+                binCertRequest,
+                subjectName);
 
-            boolean installAdjustValidity = !tag.equals("signing");
-            String certRequestType = "pkcs10";
-            String subjectName = null;
-
-            PKCS10 pkcs10 = new PKCS10(binCertRequest);
-            X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
-            X509CertImpl certImpl = new X509CertImpl(binCert);
-
-            loadCert(
-                    x509key,
-                    certImpl,
-                    profileID,
-                    dnsNames,
-                    installAdjustValidity,
-                    certRequestType,
-                    binCertRequest,
-                    subjectName);
-
-            trustCert(type, tag, x509Cert);
-
-        } else {
-
-            Boolean clone = request.isClone();
-            URL masterURL = request.getMasterURL();
-            InstallToken installToken = request.getInstallToken();
-
-            setupNewCert(
-                    type,
-                    tag,
-                    cert,
-                    certType,
-                    keyPair,
-                    x509Cert,
-                    profileID,
-                    dnsNames,
-                    clone,
-                    masterURL,
-                    installToken);
-        }
+        trustCert(type, tag, x509Cert);
     }
 
     public void setupNewCert(
@@ -844,16 +811,43 @@ public class Configurator {
             keyPair = createKeyPair(tag, token, keyType, keySize);
         }
 
-        processCert(
-                request,
-                type,
-                tag,
-                cert,
-                certType,
-                keyPair,
-                x509Cert,
-                profileID,
-                dnsNames);
+        // For external/existing CA case, some/all system certs may be provided.
+        // The SSL server cert will always be generated for the current host.
+
+        // For external/standalone KRA/OCSP case, all system certs will be provided.
+        // No system certs will be generated including the SSL server cert.
+
+        if (type.equals("CA") && request.isExternal() && !tag.equals("sslserver") && x509Cert != null
+                || type.equals("KRA") && (request.isExternal() || request.getStandAlone())
+                || type.equals("OCSP") && (request.isExternal() || request.getStandAlone())) {
+
+            setupExistingCert(
+                    type,
+                    tag,
+                    cert,
+                    x509Cert,
+                    profileID,
+                    dnsNames);
+
+        } else {
+
+            Boolean clone = request.isClone();
+            URL masterURL = request.getMasterURL();
+            InstallToken installToken = request.getInstallToken();
+
+            setupNewCert(
+                    type,
+                    tag,
+                    cert,
+                    certType,
+                    keyPair,
+                    x509Cert,
+                    profileID,
+                    dnsNames,
+                    clone,
+                    masterURL,
+                    installToken);
+        }
 
         return cert;
     }
