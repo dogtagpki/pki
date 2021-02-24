@@ -736,6 +736,11 @@ public class Configurator {
         logger.debug("Configurator: importing " + tag + " cert");
         x509Cert = CryptoUtil.importUserCertificate(cert.getCert(), cert.getNickname());
 
+        trustCert(type, tag, x509Cert);
+    }
+
+    public void trustCert(String type, String tag, X509Certificate x509Cert) {
+
         if (tag.equals("signing") && type.equals("CA")) { // set trust flags to CT,C,C
             CryptoUtil.trustCACert(x509Cert);
 
