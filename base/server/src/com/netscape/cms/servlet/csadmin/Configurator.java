@@ -21,7 +21,6 @@ import java.io.File;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.StringTokenizer;
 
@@ -32,12 +31,9 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.NoSuchTokenException;
-import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
@@ -54,7 +50,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
@@ -341,36 +336,30 @@ public class Configurator {
         return new KeyPair(publicKey, privateKey);
     }
 
-    public KeyPair createECCKeyPair(String tag, CryptoToken token, String curveName)
-            throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
-            NotInitializedException, EPropertyNotFound, EBaseException {
+    /**
+     * This method creates an ECC keypair for a system cert.
+     *
+     * For ECDHE SSL server cert, server.xml should have the following ciphers:
+     * +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+     * -TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
+     *
+     * For ECDH SSL server cert, server.xml should have the following ciphers:
+     * -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+     * +TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
+     */
+    public KeyPair createECCKeyPair(String tag, CryptoToken token, String curveName, String ecType)
+            throws Exception {
 
         if (curveName == null) {
             curveName = cs.getString("keys.ecc.curve.default");
         }
 
-        logger.debug("Configurator.createECCKeyPair(" + token + ", " + curveName + ")");
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
+        logger.info("Configurator: Creating ECC keypair for " + tag);
+        logger.info("Configurator: - token: " + token);
+        logger.info("Configurator: - curve: " + curveName);
 
         KeyPair pair = null;
-        /*
-         * default ssl server cert to ECDHE unless stated otherwise
-         * note: IE only supports "ECDHE", but "ECDH" is more efficient
-         *
-         * for "ECDHE", server.xml should have the following for ciphers:
-         * +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
-         * -TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
-         *
-         * for "ECDH", server.xml should have the following for ciphers:
-         * -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
-         * +TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
-         */
-        String sslType = "ECDHE";
-        try {
-            sslType = preopConfig.getString("cert." + tag + ".ec.type", "ECDHE");
-        } catch (Exception e) {
-        }
+        logger.info("Configurator: - type: " + ecType);
 
         // ECDHE needs "SIGN" but no "DERIVE"
         org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[] = {
@@ -384,17 +373,10 @@ public class Configurator {
         };
 
         do {
-            if (tag.equals("sslserver") && sslType.equalsIgnoreCase("ECDH")) {
-                logger.debug("Configurator: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set "
-                        +
-                        "properly with -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
+            if (tag.equals("sslserver") && ecType.equalsIgnoreCase("ECDH")) {
                 pair = CryptoUtil.generateECCKeyPair(token, curveName, null, ECDH_usages_mask);
+
             } else {
-                if (tag.equals("sslserver")) {
-                    logger.debug("Configurator: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set "
-                            +
-                            "properly with +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
-                }
                 pair = CryptoUtil.generateECCKeyPair(token, curveName, null, usages_mask);
             }
 
@@ -452,7 +434,13 @@ public class Configurator {
     public KeyPair createKeyPair(String tag, CryptoToken token, String keyType, String keySize) throws Exception {
 
         if (keyType.equals("ecc")) {
-            return createECCKeyPair(tag, token, keySize);
+
+            // Default SSL server cert to ECDHE unless stated otherwise.
+            // Note: IE only supports ECDHE, but ECDH is more efficient.
+            PreOpConfig preopConfig = cs.getPreOpConfig();
+            String ecType = preopConfig.getString("cert." + tag + ".ec.type", "ECDHE");
+
+            return createECCKeyPair(tag, token, keySize, ecType);
 
         } else {
             return createRSAKeyPair(tag, token, keySize);
