@@ -640,30 +640,14 @@ public class Configurator {
 
     public void processCert(
             CertificateSetupRequest request,
+            String type,
+            String tag,
             Cert cert,
             String certType,
             KeyPair keyPair,
-            X509Certificate x509Cert) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String tag = cert.getCertTag();
-        String type = cs.getType();
-
-        logger.info("Configurator: Processing " + tag + " certificate");
-
-        String profileID = preopConfig.getString("cert." + tag + ".profile");
-        logger.info("Configurator: - profile ID: " + profileID);
-
-        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        logger.info("Configurator: - inject SAN: " + injectSAN);
-        String[] dnsNames = null;
-
-        if (tag.equals("sslserver") && injectSAN) {
-            String list = cs.getString("service.sslserver.san");
-            logger.info("Configurator: - DNS names: " + list);
-            dnsNames = StringUtils.split(list, ",");
-        }
+            X509Certificate x509Cert,
+            String profileID,
+            String[] dnsNames) throws Exception {
 
         // For external/existing CA case, some/all system certs may be provided.
         // The SSL server cert will always be generated for the current host.
@@ -765,7 +749,24 @@ public class Configurator {
 
         PreOpConfig preopConfig = cs.getPreOpConfig();
 
+        String type = cs.getType();
         String tag = request.getTag();
+
+        logger.info("Configurator: Processing " + tag + " certificate");
+
+        String profileID = preopConfig.getString("cert." + tag + ".profile");
+        logger.info("Configurator: - profile ID: " + profileID);
+
+        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+        logger.info("Configurator: - inject SAN: " + injectSAN);
+        String[] dnsNames = null;
+
+        if (tag.equals("sslserver") && injectSAN) {
+            String list = cs.getString("service.sslserver.san");
+            logger.info("Configurator: - DNS names: " + list);
+            dnsNames = StringUtils.split(list, ",");
+        }
+
         SystemCertData certData = request.getSystemCert();
 
         String nickname = certData.getNickname();
@@ -810,7 +811,16 @@ public class Configurator {
             keyPair = createKeyPair(tag, token, keyType, keySize);
         }
 
-        processCert(request, cert, certType, keyPair, x509Cert);
+        processCert(
+                request,
+                type,
+                tag,
+                cert,
+                certType,
+                keyPair,
+                x509Cert,
+                profileID,
+                dnsNames);
 
         return cert;
     }
