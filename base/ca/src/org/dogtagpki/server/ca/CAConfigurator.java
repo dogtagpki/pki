@@ -37,6 +37,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.CertificateSetupRequest;
+import com.netscape.certsrv.system.InstallToken;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.CertInfoProfile;
@@ -235,9 +236,9 @@ public class CAConfigurator extends Configurator {
             String hostname = masterURL.getHost();
             int port = masterURL.getPort();
 
-            String sessionID = request.getInstallToken().getToken();
+            InstallToken installToken = request.getInstallToken();
 
-            certImpl = createRemoteCert(hostname, port, sessionID, profileID, certreq, dnsNames);
+            certImpl = createRemoteCert(hostname, port, profileID, certreq, dnsNames, installToken);
 
         } else if ("remote".equals(certType)) {
             // issue subordinate CA signing cert using remote CA signing cert

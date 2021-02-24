@@ -481,18 +481,18 @@ public class Configurator {
             port = preopConfig.getInteger("ca.httpsport", -1);
         }
 
-        String sessionID = request.getInstallToken().getToken();
+        InstallToken installToken = request.getInstallToken();
 
-        return createRemoteCert(hostname, port, sessionID, profileID, certreq, dnsNames);
+        return createRemoteCert(hostname, port, profileID, certreq, dnsNames, installToken);
     }
 
     public X509CertImpl createRemoteCert(
             String hostname,
             int port,
-            String sessionID,
             String profileID,
             byte[] request,
-            String[] dnsNames)
+            String[] dnsNames,
+            InstallToken installToken)
             throws Exception {
 
         String serverURL = "https://" + hostname + ":" + port;
@@ -505,6 +505,8 @@ public class Configurator {
         String machineName = cs.getHostname();
         String securePort = cs.getString("service.securePort", "");
         String requestor = sysType + "-" + machineName + "-" + securePort;
+
+        String sessionID = installToken.getToken();
 
         PKIClient client = Configurator.createClient(serverURL, null, null);
         CAClient caClient = new CAClient(client);
