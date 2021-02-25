@@ -659,17 +659,15 @@ public class Configurator {
             KeyPair keyPair,
             X509Certificate x509Cert,
             String profileID,
+            String dn,
+            String algorithm,
+            String extOID,
+            String extData,
+            boolean extCritical,
             String[] dnsNames,
             Boolean clone,
             URL masterURL,
             InstallToken installToken) throws Exception {
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-        String dn = preopConfig.getString("cert." + tag + ".dn");
-        String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
-        String extOID = preopConfig.getString("cert." + tag + ".ext.oid", null);
-        String extData = preopConfig.getString("cert." + tag + ".ext.data", null);
-        boolean extCritical = preopConfig.getBoolean("cert." + tag + ".ext.critical", false);
 
         byte[] binCertRequest = createCertRequest(
                 tag,
@@ -829,6 +827,12 @@ public class Configurator {
 
         } else {
 
+            String dn = preopConfig.getString("cert." + tag + ".dn");
+            String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
+            String extOID = preopConfig.getString("cert." + tag + ".ext.oid", null);
+            String extData = preopConfig.getString("cert." + tag + ".ext.data", null);
+            boolean extCritical = preopConfig.getBoolean("cert." + tag + ".ext.critical", false);
+
             Boolean clone = request.isClone();
             URL masterURL = request.getMasterURL();
             InstallToken installToken = request.getInstallToken();
@@ -841,6 +845,11 @@ public class Configurator {
                     keyPair,
                     x509Cert,
                     profileID,
+                    dn,
+                    algorithm,
+                    extOID,
+                    extData,
+                    extCritical,
                     dnsNames,
                     clone,
                     masterURL,
