@@ -18,7 +18,6 @@
 
 package com.netscape.certsrv.system;
 
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -31,20 +30,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name="SystemCertData")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SystemCertData {
-    public static final String TAG = "tag";
-    public static final String NICKNAME = "nickname";
-    public static final String TOKEN = "token";
-    public static final String KEY_TYPE = "keyType";
-    public static final String KEY_ALGORITHM = "keyAlgorithm";
-    public static final String SIGNING_ALGORITHM = "signingAlgorithm";
-    public static final String KEY_SIZE = "keySize";
-    public static final String KEY_CURVENAME = "keyCurveName";
-    public static final String REQUEST = "request";
-    public static final String SUBJECT_DN = "subjectDN";
-    public static final String CERT = "cert";
-    public static final String REQUEST_EXT_OID = "req_ext_oid";
-    public static final String REQUEST_EXT_CRITICAL = "req_ext_critial";
-    public static final String REQUEST_EXT_DATA = "req_ext_data";
 
     @XmlElement
     protected String tag;
@@ -81,21 +66,6 @@ public class SystemCertData {
 
     public SystemCertData() {
         // required for JAXB
-    }
-
-    public SystemCertData(MultivaluedMap<String, String> form) {
-        tag = form.getFirst(TAG);
-        nickname = form.getFirst(NICKNAME);
-        token = form.getFirst(TOKEN);
-        keySize = form.getFirst(KEY_SIZE);
-        keyCurveName = form.getFirst(KEY_CURVENAME);
-        request = form.getFirst(REQUEST);
-        subjectDN = form.getFirst(SUBJECT_DN);
-        cert = form.getFirst(CERT);
-        //support extension in CSR
-        req_ext_oid = form.getFirst(REQUEST_EXT_OID);
-        req_ext_critical = form.getFirst(REQUEST_EXT_CRITICAL);
-        req_ext_data = form.getFirst(REQUEST_EXT_DATA);
     }
 
     /**
