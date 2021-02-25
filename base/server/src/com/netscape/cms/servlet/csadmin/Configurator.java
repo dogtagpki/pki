@@ -509,32 +509,32 @@ public class Configurator {
         return nickname;
     }
 
-    public byte[] createCertRequest(String tag, KeyPair keyPair) throws Exception {
+    public byte[] createCertRequest(
+            String tag,
+            KeyPair keyPair,
+            String dn,
+            String algorithm,
+            String extOID,
+            String extData,
+            boolean extCritical) throws Exception {
 
         logger.info("Configurator: Creating request for " + tag + " certificate");
-
-        PreOpConfig preopConfig = cs.getPreOpConfig();
-
-        String dn = preopConfig.getString("cert." + tag + ".dn");
-        logger.debug("Configurator: subject: " + dn);
-
-        String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
-        logger.debug("Configurator: algorithm: " + algorithm);
+        logger.info("Configurator: - subject: " + dn);
+        logger.info("Configurator: - algorithm: " + algorithm);
 
         X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
 
         Extensions exts = new Extensions();
         if (tag.equals("signing")) {
-            logger.debug("Configurator: Generating basic CA extensions");
+            logger.info("Configurator: Creating basic CA extensions");
             createBasicCAExtensions(exts);
         }
 
-        String extOID = preopConfig.getString("cert." + tag + ".ext.oid", null);
-        String extData = preopConfig.getString("cert." + tag + ".ext.data", null);
-
         if (extOID != null && extData != null) {
-            logger.debug("Configurator: Creating generic extension");
-            boolean extCritical = preopConfig.getBoolean("cert." + tag + ".ext.critical");
+            logger.info("Configurator: Creating generic extension");
+            logger.info("Configurator: - OID: " + extOID);
+            logger.info("Configurator: - data: " + extData);
+            logger.info("Configurator: - critical: " + extCritical);
             Extension ext = createGenericExtension(extOID, extData, extCritical);
             exts.add(ext);
         }
@@ -664,7 +664,22 @@ public class Configurator {
             URL masterURL,
             InstallToken installToken) throws Exception {
 
-        byte[] binCertRequest = createCertRequest(tag, keyPair);
+        PreOpConfig preopConfig = cs.getPreOpConfig();
+        String dn = preopConfig.getString("cert." + tag + ".dn");
+        String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
+        String extOID = preopConfig.getString("cert." + tag + ".ext.oid", null);
+        String extData = preopConfig.getString("cert." + tag + ".ext.data", null);
+        boolean extCritical = preopConfig.getBoolean("cert." + tag + ".ext.critical", false);
+
+        byte[] binCertRequest = createCertRequest(
+                tag,
+                keyPair,
+                dn,
+                algorithm,
+                extOID,
+                extData,
+                extCritical);
+
         cert.setRequest(binCertRequest);
 
         String certreq = CryptoUtil.base64Encode(binCertRequest);
