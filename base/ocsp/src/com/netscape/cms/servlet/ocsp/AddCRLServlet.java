@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ocsp.OCSPEngine;
+import org.dogtagpki.server.ocsp.OCSPEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.netscape.security.util.Cert;
@@ -54,8 +56,6 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.ocsp.OCSPAuthority;
@@ -120,8 +120,8 @@ public class AddCRLServlet extends CMSServlet {
     protected synchronized void process(CMSRequest cmsReq)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        OCSPEngine engine = OCSPEngine.getInstance();
+        OCSPEngineConfig cs = engine.getConfig();
 
         boolean CRLFetched = false;
         boolean CRLValidated = false;

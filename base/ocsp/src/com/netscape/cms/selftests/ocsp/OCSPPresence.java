@@ -27,6 +27,7 @@ package com.netscape.cms.selftests.ocsp;
 import java.security.cert.CertificateParsingException;
 import java.util.Locale;
 
+import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
@@ -42,7 +43,6 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 //////////////////////
 // class definition //
@@ -197,7 +197,7 @@ public class OCSPPresence
      */
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        OCSPEngine engine = OCSPEngine.getInstance();
         IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(mOcspSubId);
         if (ocsp == null) {
             // log that the OCSP is not installed

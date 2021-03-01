@@ -28,6 +28,7 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.util.Locale;
 
+import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -42,7 +43,6 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 //////////////////////
 // class definition //
@@ -198,7 +198,7 @@ public class OCSPValidity
     public void runSelfTest(ILogEventListener logger) throws Exception {
         String logMessage = null;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        OCSPEngine engine = OCSPEngine.getInstance();
         IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(mOcspSubId);
         if (ocsp == null) {
             // log that the OCSP is not installed
