@@ -142,77 +142,45 @@ public final class CASigningUnit extends SigningUnit {
     /**
      * @param algname is expected to be one of JCA's algorithm names.
      */
-    public byte[] sign(byte[] data, String algname)
-            throws EBaseException {
-        CAEngine engine = CAEngine.getInstance();
+    public byte[] sign(byte[] data, String algname) throws Exception {
+
         if (!mInited) {
-            throw new EBaseException("CASigningUnit not initialized!");
+            throw new EBaseException("CASigningUnit not initialized");
         }
-        boolean testSignatureFailure = false;
-        try {
-            // XXX for now do this mapping until James changes the names
-            // to match JCA names and provide a getAlgorithm method.
-            SignatureAlgorithm signAlg = mDefSigningAlgorithm;
 
-            if (algname != null) {
-                signAlg = checkSigningAlgorithmFromName(algname);
-            }
+        // XXX for now do this mapping until James changes the names
+        // to match JCA names and provide a getAlgorithm method.
+        SignatureAlgorithm signAlg = mDefSigningAlgorithm;
 
-            // XXX use a pool of signers based on alg ?
-            // XXX Map algor. name to id. hack: use hardcoded define for now.
-            logger.debug("Getting algorithm context for " + algname + " " + signAlg);
-            Signature signer = mToken.getSignatureContext(signAlg);
-
-            signer.initSign(mPrivk);
-            signer.update(data);
-
-            /* debugging
-            boolean testAutoShutdown = false;
-            testAutoShutdown = mConfig.getBoolean("autoShutdown.test", false);
-            if (testAutoShutdown) {
-                logger.debug("SigningUnit.sign: test auto shutdown");
-                CMS.checkForAndAutoShutdown();
-            }
-            */
-
-            // XXX add something more descriptive.
-            logger.debug("Signing Certificate");
-
-            testSignatureFailure = mConfig.getBoolean("testSignatureFailure",false);
-
-            if(testSignatureFailure == true) {
-                throw new SignatureException("Signature Exception forced for testing purposes.");
-            }
-
-            return signer.sign();
-
-        } catch (NoSuchAlgorithmException e) {
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
-
-        } catch (TokenException e) {
-            // from get signature context or from initSign
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            // XXX fix this exception later.
-            throw new EBaseException(e);
-
-        } catch (InvalidKeyException e) {
-            // XXX fix this exception later.
-            throw new EBaseException(e);
-
-        } catch (SignatureException e) {
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-
-            //For this one case, show the eventual erorr message that will be written to the system error
-            //log in case of a Signature failure.
-            if (testSignatureFailure == true) {
-                System.err.println(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()));
-            }
-            engine.checkForAndAutoShutdown();
-            // XXX fix this exception later.
-            throw new EBaseException(e);
+        if (algname != null) {
+            signAlg = checkSigningAlgorithmFromName(algname);
         }
+
+        // XXX use a pool of signers based on alg ?
+        // XXX Map algor. name to id. hack: use hardcoded define for now.
+        logger.info("CASigningUnit: Getting algorithm context for " + algname + " " + signAlg);
+        Signature signer = mToken.getSignatureContext(signAlg);
+
+        signer.initSign(mPrivk);
+        signer.update(data);
+
+        /* debugging
+        boolean testAutoShutdown = false;
+        testAutoShutdown = mConfig.getBoolean("autoShutdown.test", false);
+        if (testAutoShutdown) {
+            logger.debug("SigningUnit.sign: test auto shutdown");
+            CMS.checkForAndAutoShutdown();
+        }
+        */
+
+        logger.info("CASigningUnit: Signing Certificate");
+
+        boolean testSignatureFailure = mConfig.getBoolean("testSignatureFailure", false);
+        if (testSignatureFailure) {
+            throw new SignatureException("SignatureException forced for testing");
+        }
+
+        return signer.sign();
     }
 
     public boolean verify(byte[] data, byte[] signature, String algname)

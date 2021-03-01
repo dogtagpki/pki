@@ -127,10 +127,9 @@ public abstract class SigningUnit {
      * @param data data to be signed
      * @param algname signing algorithm to be used
      * @return signed data
-     * @exception EBaseException failed to sign
+     * @exception Exception failed to sign
      */
-    public abstract byte[] sign(byte[] data, String algname)
-            throws EBaseException;
+    public abstract byte[] sign(byte[] data, String algname) throws Exception;
 
     /**
      * Verifies the signed data.

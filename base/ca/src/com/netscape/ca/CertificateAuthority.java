@@ -28,6 +28,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.security.SignatureException;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
@@ -1067,13 +1068,21 @@ public class CertificateAuthority
 
         } catch (NoSuchAlgorithmException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
 
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
+
+        } catch (SignatureException e) {
+            logger.error(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()), e);
+            engine.checkForAndAutoShutdown();
+            throw new EBaseException(e);
+
+        } catch (Exception e) {
+            logger.error("Unable to sign data: " + e.getMessage(), e);
+            throw new EBaseException(e);
 
         } finally {
             if (statsSub != null) {
@@ -1156,8 +1165,7 @@ public class CertificateAuthority
 
         } catch (NoSuchAlgorithmException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()), e);
 
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
@@ -1168,6 +1176,16 @@ public class CertificateAuthority
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()), e);
+
+
+        } catch (SignatureException e) {
+            logger.error(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()), e);
+            engine.checkForAndAutoShutdown();
+            throw new EBaseException(e);
+
+        } catch (Exception e) {
+            logger.error("Unable to sign data: " + e.getMessage(), e);
+            throw new EBaseException(e);
 
         } finally {
             if (statsSub != null) {
@@ -1188,8 +1206,26 @@ public class CertificateAuthority
      */
     public byte[] sign(byte[] data, String algname)
             throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
         ensureReady();
-        return mSigningUnit.sign(data, algname);
+
+        try {
+            return mSigningUnit.sign(data, algname);
+
+        } catch (NoSuchAlgorithmException e) {
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
+
+        } catch (SignatureException e) {
+            logger.error(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()), e);
+            engine.checkForAndAutoShutdown();
+            throw new EBaseException(e);
+
+        } catch (Exception e) {
+            logger.error("Unable to sign data: " + e.getMessage(), e);
+            throw new EBaseException(e);
+        }
     }
 
     /**
@@ -1681,11 +1717,14 @@ public class CertificateAuthority
     }
 
     private BasicOCSPResponse sign(ResponseData rd) throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
         ensureReady();
+
+        String algname = mOCSPSigningUnit.getDefaultAlgorithm();
+
         try (DerOutputStream out = new DerOutputStream()) {
             DerOutputStream tmp = new DerOutputStream();
-
-            String algname = mOCSPSigningUnit.getDefaultAlgorithm();
 
             byte rd_data[] = ASN1Util.encode(rd);
             if (rd_data != null) {
@@ -1716,9 +1755,19 @@ public class CertificateAuthority
             BasicOCSPResponse response = new BasicOCSPResponse(out.toByteArray());
 
             return response;
+
+        } catch (NoSuchAlgorithmException e) {
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
+
+        } catch (SignatureException e) {
+            logger.error(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()), e);
+            engine.checkForAndAutoShutdown();
+            throw new EBaseException(e);
+
         } catch (Exception e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGN", e.toString()), e);
-            throw new EBaseException(e.toString());
+            throw new EBaseException(e);
         }
     }
 
