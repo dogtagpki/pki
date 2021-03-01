@@ -68,12 +68,15 @@ public class CAInfoService extends PKIService implements CAInfoResource {
 
     private static Logger logger = LoggerFactory.getLogger(CAInfoService.class);
 
+    public final static String ENCRYPT_MECHANISM = "encrypt";
+    public final static String KEYWRAP_MECHANISM = "keywrap";
+
     // is the current KRA-related info authoritative?
     private static boolean kraInfoAuthoritative = false;
 
     // KRA-related fields (the initial values are only used if we
     // did not yet receive authoritative info from KRA)
-    private static String archivalMechanism = KRAInfoService.KEYWRAP_MECHANISM;
+    private static String archivalMechanism = KEYWRAP_MECHANISM;
     private static String encryptAlgorithm;
     private static String keyWrapAlgorithm;
 
@@ -157,9 +160,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
                 } catch (EBaseException e1) {
                     encrypt_archival = false;
                 }
-                archivalMechanism = encrypt_archival
-                    ? KRAInfoService.ENCRYPT_MECHANISM
-                    : KRAInfoService.KEYWRAP_MECHANISM;
+                archivalMechanism = encrypt_archival ? ENCRYPT_MECHANISM : KEYWRAP_MECHANISM;
 
                 // mark info as authoritative
                 kraInfoAuthoritative = true;
