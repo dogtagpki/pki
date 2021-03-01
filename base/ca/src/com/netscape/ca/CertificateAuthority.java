@@ -200,7 +200,6 @@ public class CertificateAuthority
     protected CertificateIssuerName mIssuerObj = null;
     protected CertificateSubjectName mSubjectObj = null;
     protected X500Name mName = null;
-    protected X500Name mCRLName = null;
     protected String mNickname = null; // nickname of CA signing cert.
     protected long mCertSerialNumberCounter = System.currentTimeMillis();
     protected long mRequestID = System.currentTimeMillis();
@@ -208,8 +207,6 @@ public class CertificateAuthority
     protected String[] mAllowedSignAlgors = null;
 
     protected CertificateChain mCACertChain = null;
-    protected X509CertImpl mCRLCert = null;
-    protected org.mozilla.jss.crypto.X509Certificate mCRLX509Cert = null;
     protected X509CertImpl mCaCert = null;
     protected org.mozilla.jss.crypto.X509Certificate mCaX509Cert = null;
     protected String[] mCASigningAlgorithms = null;
@@ -916,7 +913,8 @@ public class CertificateAuthority
     }
 
     public X500Name getCRLX500Name() {
-        return mCRLName;
+        X509CertImpl crlCertImpl = mCRLSigningUnit.getCertImpl();
+        return (X500Name) crlCertImpl.getSubjectDN();
     }
 
     public X500Name getOCSPX500Name() {
@@ -1375,13 +1373,11 @@ public class CertificateAuthority
             mCRLSigningUnit = mSigningUnit;
         }
 
-        mCRLX509Cert = mCRLSigningUnit.getCert();
-        logger.info("CertificateAuthority: - nickname: " + mCRLX509Cert.getNickname());
+        X509Certificate crlCert = mCRLSigningUnit.getCert();
+        logger.info("CertificateAuthority: - nickname: " + crlCert.getNickname());
 
-        mCRLCert = mCRLSigningUnit.getCertImpl();
-        mCRLName = (X500Name) mCRLCert.getSubjectDN();
-
-        String crlSigningSKI = CryptoUtil.getSKIString(mCRLCert);
+        X509CertImpl crlCertImpl = mCRLSigningUnit.getCertImpl();
+        String crlSigningSKI = CryptoUtil.getSKIString(crlCertImpl);
 
         if (hostCA) {
             // generate CRL signing info without authority ID
