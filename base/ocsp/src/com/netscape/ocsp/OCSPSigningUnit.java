@@ -17,11 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ocsp;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
-
-import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -147,44 +142,25 @@ public final class OCSPSigningUnit extends SigningUnit {
         return signer.sign();
     }
 
-    public boolean verify(byte[] data, byte[] signature, String algname)
-            throws EBaseException {
-        OCSPEngine engine = OCSPEngine.getInstance();
+    public boolean verify(byte[] data, byte[] signature, String algname) throws Exception {
+
         if (!mInited) {
             throw new EBaseException("OCSPSigningUnit not initialized!");
         }
-        try {
-            SignatureAlgorithm signAlg = mapAlgorithmToJss(algname);
 
-            if (signAlg == null) {
-                logger.error(CMS.getLogMessage("CMSCORE_OCSP_SIGN_ALG_NOT_SUPPORTED", algname));
-                throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", ""));
-            }
+        SignatureAlgorithm signAlg = mapAlgorithmToJss(algname);
 
-            // XXX make this configurable. hack: use hardcoded for now.
-            Signature signer = mToken.getSignatureContext(signAlg);
-
-            signer.initVerify(mPubk);
-            signer.update(data);
-            return signer.verify(signature);
-
-        } catch (NoSuchAlgorithmException e) {
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
-
-        } catch (TokenException e) {
-            // from get signature context or from initSign
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
-
-        } catch (InvalidKeyException e) {
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
-
-        } catch (SignatureException e) {
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            engine.checkForAndAutoShutdown();
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+        if (signAlg == null) {
+            logger.error(CMS.getLogMessage("CMSCORE_OCSP_SIGN_ALG_NOT_SUPPORTED", algname));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", ""));
         }
+
+        // XXX make this configurable. hack: use hardcoded for now.
+        Signature signer = mToken.getSignatureContext(signAlg);
+
+        signer.initVerify(mPubk);
+        signer.update(data);
+
+        return signer.verify(signature);
     }
 }
