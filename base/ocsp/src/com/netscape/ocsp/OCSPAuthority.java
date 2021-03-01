@@ -24,7 +24,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.util.Date;
 import java.util.Enumeration;
@@ -34,8 +33,6 @@ import java.util.Vector;
 import org.dogtagpki.server.ocsp.OCSPConfig;
 import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.dogtagpki.server.ocsp.OCSPEngineConfig;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.GeneralizedTime;
 import org.mozilla.jss.asn1.InvalidBERException;
@@ -45,7 +42,6 @@ import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
@@ -105,10 +101,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     private String mId = "ocsp";
     private OCSPConfig mConfig;
     private OCSPSigningUnit mSigningUnit;
-    private CertificateChain mCertChain = null;
-    private X509CertImpl mCert = null;
-    private X500Name mName = null;
-    private String mNickname = null;
+
     private String[] mOCSPSigningAlgorithms = null;
     private IOCSPStore mDefStore = null;
 
@@ -267,14 +260,15 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             return mOCSPSigningAlgorithms;
         }
 
-        if (mCert == null) {
+        X509CertImpl certImpl = mSigningUnit.getCertImpl();
+        if (certImpl == null) {
             return null; // CA not inited yet.
         }
 
         X509Key caPubKey = null;
 
         try {
-            caPubKey = (X509Key) mCert.get(X509CertImpl.PUBLIC_KEY);
+            caPubKey = (X509Key) certImpl.get(X509CertImpl.PUBLIC_KEY);
         } catch (CertificateParsingException e) {
             logger.warn(CMS.getLogMessage("CMSCORE_OCSP_RETRIEVE_KEY", e.toString()), e);
         }
@@ -299,7 +293,8 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * Retrieves the name of this OCSP server.
      */
     public X500Name getName() {
-        return mName;
+        X509CertImpl certImpl = mSigningUnit.getCertImpl();
+        return (X500Name) certImpl.getSubjectDN();
     }
 
     /**
@@ -314,44 +309,13 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     }
 
     private void initSigUnit() throws EBaseException {
-        try {
-            // init signing unit
-            mSigningUnit = new OCSPSigningUnit();
-            mSigningUnit.init(mConfig.getSubStore(PROP_SIGNING_SUBSTORE));
-            logger.debug("OCSP signing unit inited");
 
-            // init cert chain
-            CryptoManager manager = CryptoManager.getInstance();
-            org.mozilla.jss.crypto.X509Certificate[] chain =
-                    manager.buildCertificateChain(mSigningUnit.getCert());
-            // XXX do this in case other subsyss expect a X509CertImpl
-            // until JSS implements all methods of X509Certificate
-            java.security.cert.X509Certificate[] implchain =
-                    new java.security.cert.X509Certificate[chain.length];
+        logger.info("OCSPAuthority: Initializing OCSP signing unit");
 
-            for (int i = 0; i < chain.length; i++) {
-                implchain[i] = new X509CertImpl(chain[i].getEncoded());
-            }
-            mCertChain = new CertificateChain(implchain);
-            logger.debug("in init - got CA chain from JSS.");
+        mSigningUnit = new OCSPSigningUnit();
+        mSigningUnit.init(mConfig.getSubStore(PROP_SIGNING_SUBSTORE));
 
-            // init issuer name - take name from the cert.
-
-            mCert = new X509CertImpl(mSigningUnit.getCert().getEncoded());
-            getOCSPSigningAlgorithms();
-            mName = (X500Name) mCert.getSubjectDN();
-            mNickname = mSigningUnit.getNickname();
-            logger.debug("in init - got CA name " + mName);
-
-        } catch (NotInitializedException e) {
-            logger.warn(CMS.getLogMessage("CMSCORE_OCSP_SIGNING", e.toString()), e);
-
-        } catch (CertificateException e) {
-            logger.warn(CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()), e);
-
-        } catch (TokenException e) {
-            logger.warn(CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()), e);
-        }
+        getOCSPSigningAlgorithms();
     }
 
     /**
@@ -562,8 +526,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
 
             DerOutputStream tmpChain = new DerOutputStream();
             DerOutputStream tmp1 = new DerOutputStream();
-            java.security.cert.X509Certificate chains[] =
-                    mCertChain.getChain();
+            java.security.cert.X509Certificate chains[] = mSigningUnit.getCertChain().getChain();
 
             for (int i = 0; i < chains.length; i++) {
                 tmpChain.putDerValue(new DerValue(chains[i].getEncoded()));
@@ -639,7 +602,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * nickname of signing (id) cert
      */
     public String getNickname() {
-        return mNickname;
+        return mSigningUnit.getNickname();
     }
 
     public String getNewNickName() throws EBaseException {
