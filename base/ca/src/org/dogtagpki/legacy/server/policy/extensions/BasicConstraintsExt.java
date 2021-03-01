@@ -27,6 +27,7 @@ import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -43,7 +44,6 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Basic Constraints policy.
@@ -120,7 +120,7 @@ public class BasicConstraintsExt extends APolicyRule
             mCAPathLen = -1;
         } else {
             CertificateChain caChain = certAuthority.getCACertChain();
-            CMSEngine engine = CMS.getCMSEngine();
+            CAEngine engine = CAEngine.getInstance();
             if (caChain == null || engine.isPreOpMode()) {
                 logger.warn("BasicConstraintsExt.init(): Abort due to missing CA certificate chain or in pre-op-mode");
                 return;

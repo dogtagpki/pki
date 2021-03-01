@@ -23,6 +23,7 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -37,7 +38,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This simple policy checks the subordinate CA CSR to see
@@ -101,7 +101,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
         }
         mCA = (ICertificateAuthority) certAuthority;
         CASigningUnit su = (CASigningUnit) mCA.getSigningUnit();
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         if (su == null || engine.isPreOpMode()) {
             logger.warn("SubCANameConstraints.init(): Abort due to missing signing unit or in pre-op mode");
             return;

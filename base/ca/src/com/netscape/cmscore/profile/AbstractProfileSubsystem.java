@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -31,8 +32,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
 
@@ -117,7 +116,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
     public synchronized void commitProfile(String id)
             throws EProfileException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         IConfigStore cs = mProfiles.get(id).getConfigStore();
 
         // first create a *new* profile object from the configStore
@@ -174,7 +173,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         String authenticatorID = profile.getAuthenticatorId();
         if (StringUtils.isEmpty(authenticatorID)) return null;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
 
         AuthSubsystem authSub = engine.getAuthSubsystem();
         ProfileAuthenticator auth = (ProfileAuthenticator) authSub.get(authenticatorID);

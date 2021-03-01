@@ -22,6 +22,8 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.extensions.AccessDescription;
 import org.mozilla.jss.netscape.security.extensions.SubjectInfoAccessExtension;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -37,8 +39,6 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * This class implements an enrollment default policy
@@ -425,8 +425,8 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
 
                     if (location == null || location.equals("")) {
                         if (method.equals("1.3.6.1.5.5.7.48.1")) {
-                            CMSEngine engine = CMS.getCMSEngine();
-                            EngineConfig cs = engine.getConfig();
+                            CAEngine engine = CAEngine.getInstance();
+                            CAEngineConfig cs = engine.getConfig();
                             String hostname = cs.getHostname();
                             String port = engine.getEENonSSLPort();
                             if (hostname != null && port != null)

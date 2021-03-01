@@ -28,6 +28,7 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.util.Locale;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -41,7 +42,6 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 //////////////////////
 // class definition //
@@ -196,7 +196,7 @@ public class CAValidity
      */
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(mCaSubId);
         if (ca == null) {
             // log that the CA is not installed

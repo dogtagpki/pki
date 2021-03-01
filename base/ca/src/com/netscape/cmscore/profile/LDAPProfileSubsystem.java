@@ -25,6 +25,8 @@ import java.util.Enumeration;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +37,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.profile.common.Profile;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
@@ -98,8 +97,8 @@ public class LDAPProfileSubsystem
 
         logger.debug("LDAPProfileSubsystem: start init");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig dbCfg = cs.getInternalDBConfig();
@@ -160,7 +159,7 @@ public class LDAPProfileSubsystem
      */
     private synchronized void readProfile(LDAPEntry ldapProfile) {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         PluginRegistry registry = engine.getPluginRegistry();
 
         String nsUniqueId =
