@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.connector.IRemoteRequest;
+import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
@@ -37,8 +38,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 
@@ -75,7 +74,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
 
         mConfig = config;
         String authority = config.getInitParameter(PROP_AUTHORITY);

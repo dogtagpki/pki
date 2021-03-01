@@ -32,6 +32,8 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -66,9 +68,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * @author alee
@@ -107,7 +106,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     public KeyRequestDAO() {
         super("kra");
-        CMSEngine engine = CMS.getCMSEngine();
+        KRAEngine engine = KRAEngine.getInstance();
         kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
         repo = kra.getKeyRepository();
         service = (IKeyService) kra;
@@ -473,8 +472,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new BadRequestException("Invalid key generation request. Missing client ID");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        KRAEngine engine = KRAEngine.getInstance();
+        KRAEngineConfig cs = engine.getConfig();
 
         boolean keyExists = keyExists(clientKeyId, "active");
         if (keyExists) {
