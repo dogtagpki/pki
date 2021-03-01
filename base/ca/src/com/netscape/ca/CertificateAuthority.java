@@ -201,22 +201,17 @@ public class CertificateAuthority
     protected CertificateSubjectName mSubjectObj = null;
     protected X500Name mName = null;
     protected X500Name mCRLName = null;
-    protected X500Name mOCSPName = null;
     protected String mNickname = null; // nickname of CA signing cert.
-    protected String mOCSPNickname = null; // nickname of OCSP signing cert.
     protected long mCertSerialNumberCounter = System.currentTimeMillis();
     protected long mRequestID = System.currentTimeMillis();
 
     protected String[] mAllowedSignAlgors = null;
 
     protected CertificateChain mCACertChain = null;
-    protected CertificateChain mOCSPCertChain = null;
     protected X509CertImpl mCRLCert = null;
     protected org.mozilla.jss.crypto.X509Certificate mCRLX509Cert = null;
     protected X509CertImpl mCaCert = null;
     protected org.mozilla.jss.crypto.X509Certificate mCaX509Cert = null;
-    protected X509CertImpl mOCSPCert = null;
-    protected org.mozilla.jss.crypto.X509Certificate mOCSPX509Cert = null;
     protected String[] mCASigningAlgorithms = null;
 
     protected long mNumOCSPRequest = 0;
@@ -925,7 +920,8 @@ public class CertificateAuthority
     }
 
     public X500Name getOCSPX500Name() {
-        return mOCSPName;
+        X509CertImpl certImpl = mOCSPSigningUnit.getCertImpl();
+        return (X500Name) certImpl.getSubjectDN();
     }
 
     /**
@@ -936,16 +932,6 @@ public class CertificateAuthority
      */
     public String getNickname() {
         return mNickname;
-    }
-
-    /**
-     * Returns nickname of OCSP's signing cert.
-     * <p>
-     *
-     * @return OCSP signing cert nickname.
-     */
-    public String getOCSPNickname() {
-        return mOCSPNickname;
     }
 
     /**
@@ -1419,16 +1405,11 @@ public class CertificateAuthority
             mOCSPSigningUnit = mSigningUnit;
         }
 
-        mOCSPNickname = mOCSPSigningUnit.getNickname();
-        mOCSPX509Cert = mOCSPSigningUnit.getCert();
-        logger.info("CertificateAuthority: - nickname: " + mOCSPX509Cert.getNickname());
+        X509Certificate ocspCert = mOCSPSigningUnit.getCert();
+        logger.info("CertificateAuthority: - nickname: " + ocspCert.getNickname());
 
-        mOCSPCert = mOCSPSigningUnit.getCertImpl();
-        mOCSPName = (X500Name) mOCSPCert.getSubjectDN();
-
-        mOCSPCertChain = mOCSPSigningUnit.getCertChain();
-
-        String ocspSigningSKI = CryptoUtil.getSKIString(mOCSPCert);
+        X509CertImpl ocspCertImpl = mOCSPSigningUnit.getCertImpl();
+        String ocspSigningSKI = CryptoUtil.getSKIString(ocspCertImpl);
 
         if (hostCA) {
             // generate OCSP signing info without authority ID
@@ -1722,8 +1703,7 @@ public class CertificateAuthority
 
             DerOutputStream tmpChain = new DerOutputStream();
             DerOutputStream tmp1 = new DerOutputStream();
-            java.security.cert.X509Certificate chains[] =
-                    mOCSPCertChain.getChain();
+            java.security.cert.X509Certificate chains[] = mOCSPSigningUnit.getCertChain().getChain();
 
             for (int i = 0; i < chains.length; i++) {
                 tmpChain.putDerValue(new DerValue(chains[i].getEncoded()));
