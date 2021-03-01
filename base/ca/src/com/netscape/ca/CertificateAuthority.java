@@ -206,9 +206,6 @@ public class CertificateAuthority
 
     protected String[] mAllowedSignAlgors = null;
 
-    protected CertificateChain mCACertChain = null;
-    protected X509CertImpl mCaCert = null;
-    protected org.mozilla.jss.crypto.X509Certificate mCaX509Cert = null;
     protected String[] mCASigningAlgorithms = null;
 
     protected long mNumOCSPRequest = 0;
@@ -443,7 +440,8 @@ public class CertificateAuthority
             return;
         }
 
-        if (authoritySerial.equals(mCaCert.getSerialNumber())) {
+        X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
+        if (authoritySerial.equals(caCertImpl.getSerialNumber())) {
             return;
         }
 
@@ -460,7 +458,7 @@ public class CertificateAuthority
         CertificateRepository certificateRepository = engine.getCertificateRepository();
 
         try {
-            X509Certificate oldCert = mCaX509Cert;
+            X509Certificate oldCert = mSigningUnit.getCert();
             CryptoManager manager = CryptoManager.getInstance();
 
             // add new cert
@@ -1227,13 +1225,14 @@ public class CertificateAuthority
      * @return this CA's cert chain.
      */
     public CertificateChain getCACertChain() {
-        return mCACertChain;
+        return mSigningUnit.getCertChain();
     }
 
     public X509CertImpl getCACert() throws EBaseException {
 
-        if (mCaCert != null) {
-            return mCaCert;
+        X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
+        if (caCertImpl != null) {
+            return caCertImpl;
         }
 
         String cert = mConfig.getString("signing.cert");
@@ -1257,23 +1256,27 @@ public class CertificateAuthority
     }
 
     public org.mozilla.jss.crypto.X509Certificate getCaX509Cert() {
-        return mCaX509Cert;
+        return mSigningUnit.getCert();
     }
 
     public String[] getCASigningAlgorithms() {
+
         if (mCASigningAlgorithms != null)
             return mCASigningAlgorithms;
 
-        if (mCaCert == null)
+        X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
+        if (caCertImpl == null)
             return null; // CA not inited yet.
-        X509Key caPubKey = null;
 
+        X509Key caPubKey = null;
         try {
-            caPubKey = (X509Key) mCaCert.get(X509CertImpl.PUBLIC_KEY);
+            caPubKey = (X509Key) caCertImpl.get(X509CertImpl.PUBLIC_KEY);
         } catch (CertificateParsingException e) {
         }
+
         if (caPubKey == null)
             return null; // something seriously wrong.
+
         AlgorithmId alg = caPubKey.getAlgorithmId();
 
         if (alg == null)
@@ -1304,11 +1307,11 @@ public class CertificateAuthority
         if (!caSigningCertStr.equals("")) {
 
             byte[] bytes = Utils.base64decode(caSigningCertStr);
-            mCaCert = new X509CertImpl(bytes);
+            X509CertImpl caCertImpl = new X509CertImpl(bytes);
 
             // this ensures the isserDN and subjectDN have the same encoding
             // as that of the CA signing cert
-            mSubjectObj = mCaCert.getSubjectObj();
+            mSubjectObj = caCertImpl.getSubjectObj();
             logger.debug("CertificateAuthority: - subject DN: " + mSubjectObj);
 
             // The mIssuerObj is the "issuerDN" object for the certs issued by this CA,
@@ -1325,19 +1328,17 @@ public class CertificateAuthority
 
         mNickname = mSigningUnit.getNickname();
 
-        mCaX509Cert = mSigningUnit.getCert();
-        logger.info("CertificateAuthority: - nickname: " + mCaX509Cert.getNickname());
+        X509Certificate caCert = mSigningUnit.getCert();
+        logger.info("CertificateAuthority: - nickname: " + caCert.getNickname());
 
-        mCaCert = mSigningUnit.getCertImpl();
-        mName = (X500Name) mCaCert.getSubjectDN();
-
-        mCACertChain = mSigningUnit.getCertChain();
+        X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
+        mName = (X500Name) caCertImpl.getSubjectDN();
 
         getCASigningAlgorithms();
 
         // This ensures the isserDN and subjectDN have the same encoding
         // as that of the CA signing cert.
-        mSubjectObj = mCaCert.getSubjectObj();
+        mSubjectObj = caCertImpl.getSubjectObj();
 
         if (mSubjectObj != null) {
             // The mIssuerObj is the "issuerDN" object for the certs issued by this CA,
@@ -1347,7 +1348,7 @@ public class CertificateAuthority
             mIssuerObj = new CertificateIssuerName(issuerName);
         }
 
-        String certSigningSKI = CryptoUtil.getSKIString(mCaCert);
+        String certSigningSKI = CryptoUtil.getSKIString(caCertImpl);
 
         if (hostCA) {
             // generate cert info without authority ID
@@ -1974,7 +1975,10 @@ public class CertificateAuthority
         Profile profile = ps.getProfile("caManualRenewal");
         CertEnrollmentRequest req = CertEnrollmentRequestFactory.create(
             new ArgBlock(), profile, httpReq.getLocale());
-        req.setSerialNum(new CertId(mCaCert.getSerialNumber()));
+
+        X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
+        req.setSerialNum(new CertId(caCertImpl.getSerialNumber()));
+
         RenewalProcessor processor =
             new RenewalProcessor("renewAuthority", httpReq.getLocale());
         Map<String, Object> resultMap =
@@ -2054,7 +2058,10 @@ public class CertificateAuthority
         } catch (IOException e) {
             throw new ECAException("Unable to create CRL extensions", e);
         }
-        processor.addCertificateToRevoke(mCaCert);
+
+        X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
+        processor.addCertificateToRevoke(caCertImpl);
+
         processor.createRevocationRequest();
         processor.auditChangeRequest(ILogger.SUCCESS);
         processor.processRevocationRequest();
@@ -2086,7 +2093,7 @@ public class CertificateAuthority
         CryptoStore cryptoStore =
             cryptoManager.getInternalKeyStorageToken().getCryptoStore();
         try {
-            cryptoStore.deleteCert(mCaX509Cert);
+            cryptoStore.deleteCert(mSigningUnit.getCert());
         } catch (NoSuchItemOnTokenException e) {
             logger.warn("deleteAuthority: cert is not on token: " + e);
             // if the cert isn't there, never mind
