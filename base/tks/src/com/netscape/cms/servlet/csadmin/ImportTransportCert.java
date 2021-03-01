@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.tks.TKSEngine;
+import org.dogtagpki.server.tks.TKSEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.w3c.dom.Node;
@@ -38,8 +40,6 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -77,8 +77,8 @@ public class ImportTransportCert extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        TKSEngine engine = TKSEngine.getInstance();
+        TKSEngineConfig cs = engine.getConfig();
 
         IAuthToken authToken = null;
         try {
