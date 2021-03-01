@@ -19,9 +19,11 @@ package com.netscape.ocsp;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.util.Date;
@@ -537,6 +539,8 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     public BasicOCSPResponse sign(ResponseData rd)
             throws EBaseException {
 
+        OCSPEngine engine = OCSPEngine.getInstance();
+
         try (DerOutputStream out = new DerOutputStream()) {
             DerOutputStream tmp = new DerOutputStream();
 
@@ -575,11 +579,28 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
 
             return response;
 
+        } catch (NoSuchAlgorithmException e) {
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+
+        } catch (TokenException e) {
+            // from get signature context or from initSign
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+
+        } catch (InvalidKeyException e) {
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+
+        } catch (SignatureException e) {
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+            engine.checkForAndAutoShutdown();
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+
         } catch (Exception e) {
             logger.error(CMS.getLogMessage("CMSCORE_OCSP_SIGN_RESPONSE", e.toString()), e);
             throw new EBaseException(e);
         }
-
     }
 
     /**

@@ -121,49 +121,30 @@ public final class OCSPSigningUnit extends SigningUnit {
     /**
      * @param algname is expected to be one of JCA's algorithm names.
      */
-    public byte[] sign(byte[] data, String algname)
-            throws EBaseException {
-        OCSPEngine engine = OCSPEngine.getInstance();
+    public byte[] sign(byte[] data, String algname) throws Exception {
+
         if (!mInited) {
             throw new EBaseException("OCSPSigningUnit not initialized!");
         }
-        try {
-            // XXX for now do this mapping until James changes the names
-            // to match JCA names and provide a getAlgorithm method.
-            SignatureAlgorithm signAlg = mDefSigningAlgorithm;
 
-            if (algname != null) {
-                signAlg = checkSigningAlgorithmFromName(algname);
-            }
+        // XXX for now do this mapping until James changes the names
+        // to match JCA names and provide a getAlgorithm method.
+        SignatureAlgorithm signAlg = mDefSigningAlgorithm;
 
-            // XXX use a pool of signers based on alg ?
-            // XXX Map algor. name to id. hack: use hardcoded define for now.
-            logger.debug("Getting algorithm context for " + algname + " " + signAlg);
-            Signature signer = mToken.getSignatureContext(signAlg);
-
-            signer.initSign(mPrivk);
-            signer.update(data);
-            logger.debug("Signing OCSP Response");
-            return signer.sign();
-
-        } catch (NoSuchAlgorithmException e) {
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
-
-        } catch (TokenException e) {
-            // from get signature context or from initSign
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
-
-        } catch (InvalidKeyException e) {
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
-
-        } catch (SignatureException e) {
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            engine.checkForAndAutoShutdown();
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+        if (algname != null) {
+            signAlg = checkSigningAlgorithmFromName(algname);
         }
+
+        // XXX use a pool of signers based on alg ?
+        // XXX Map algor. name to id. hack: use hardcoded define for now.
+        logger.info("OCSPSigningUnit: Getting algorithm context for " + algname + " " + signAlg);
+        Signature signer = mToken.getSignatureContext(signAlg);
+
+        signer.initSign(mPrivk);
+        signer.update(data);
+
+        logger.info("OCSPSigningUnit: Signing OCSP response");
+        return signer.sign();
     }
 
     public boolean verify(byte[] data, byte[] signature, String algname)
