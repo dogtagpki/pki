@@ -74,6 +74,7 @@ public final class OCSPSigningUnit extends SigningUnit {
             mCert = mManager.findCertByNickname(mNickname);
             logger.debug("SigningUnit: certificate serial number: " + mCert.getSerialNumber());
 
+            buildCertChain();
             mCertImpl = new X509CertImpl(mCert.getEncoded());
 
             logger.debug("SigningUnit: Loading private key");

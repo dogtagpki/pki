@@ -20,8 +20,10 @@ package com.netscape.certsrv.security;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.cert.CertificateException;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
@@ -30,6 +32,7 @@ import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
@@ -69,6 +72,7 @@ public abstract class SigningUnit {
 
     protected X509Certificate mCert;
     protected X509CertImpl mCertImpl;
+    protected CertificateChain certChain;
     protected String mNickname;
 
     protected boolean mInited;
@@ -119,6 +123,27 @@ public abstract class SigningUnit {
      */
     public X509CertImpl getCertImpl() {
         return mCertImpl;
+    }
+
+    public void buildCertChain() throws NotInitializedException, CertificateException, TokenException {
+
+        logger.info("SigningUnit: cert chain:");
+
+        CryptoManager manager = CryptoManager.getInstance();
+        org.mozilla.jss.crypto.X509Certificate[] chain = manager.buildCertificateChain(mCert);
+
+        java.security.cert.X509Certificate[] certs = new java.security.cert.X509Certificate[chain.length];
+
+        for (int i = 0; i < chain.length; i++) {
+            certs[i] = new X509CertImpl(chain[i].getEncoded());
+            logger.info("SigningUnit: - " + certs[i].getSubjectDN());
+        }
+
+        certChain = new CertificateChain(certs);
+    }
+
+    public CertificateChain getCertChain() {
+        return certChain;
     }
 
     /**

@@ -1310,24 +1310,6 @@ public class CertificateAuthority
     // Initialization routines.
     //
 
-    public CertificateChain getCertChain(org.mozilla.jss.crypto.X509Certificate cert)
-            throws NotInitializedException, CertificateException, TokenException {
-
-        logger.debug("CertificateAuthority: cert chain:");
-
-        CryptoManager manager = CryptoManager.getInstance();
-        org.mozilla.jss.crypto.X509Certificate[] chain = manager.buildCertificateChain(cert);
-
-        java.security.cert.X509Certificate[] certs = new java.security.cert.X509Certificate[chain.length];
-
-        for (int i = 0; i < chain.length; i++) {
-            certs[i] = new X509CertImpl(chain[i].getEncoded());
-            logger.debug("CertificateAuthority: - " + certs[i].getSubjectDN());
-        }
-
-        return new CertificateChain(certs);
-    }
-
     public synchronized void initCertSigningUnit() throws Exception {
 
         logger.info("CertificateAuthority: Initializing cert signing unit");
@@ -1365,7 +1347,7 @@ public class CertificateAuthority
         mCaCert = mSigningUnit.getCertImpl();
         mName = (X500Name) mCaCert.getSubjectDN();
 
-        mCACertChain = getCertChain(mCaX509Cert);
+        mCACertChain = mSigningUnit.getCertChain();
 
         getCASigningAlgorithms();
 
@@ -1444,7 +1426,7 @@ public class CertificateAuthority
         mOCSPCert = mOCSPSigningUnit.getCertImpl();
         mOCSPName = (X500Name) mOCSPCert.getSubjectDN();
 
-        mOCSPCertChain = getCertChain(mOCSPX509Cert);
+        mOCSPCertChain = mOCSPSigningUnit.getCertChain();
 
         String ocspSigningSKI = CryptoUtil.getSKIString(mOCSPCert);
 

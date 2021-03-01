@@ -92,6 +92,7 @@ public final class CASigningUnit extends SigningUnit {
                 throw new CAMissingCertException("Certificate not found: " + mNickname + ": " + e.getMessage(), e);
             }
 
+            buildCertChain();
             mCertImpl = new X509CertImpl(mCert.getEncoded());
 
             try {
