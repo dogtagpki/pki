@@ -138,10 +138,9 @@ public abstract class SigningUnit {
      * @param signature signature
      * @param algname signing algorithm
      * @return true if verification is good
-     * @exception EBaseException failed to verify
+     * @exception Exception failed to verify
      */
-    public abstract boolean verify(byte[] data, byte[] signature, String algname)
-            throws EBaseException;
+    public abstract boolean verify(byte[] data, byte[] signature, String algname) throws Exception;
 
     /**
      * Retrieves the default algorithm.

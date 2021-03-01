@@ -17,11 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ca;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 
-import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -183,48 +180,25 @@ public final class CASigningUnit extends SigningUnit {
         return signer.sign();
     }
 
-    public boolean verify(byte[] data, byte[] signature, String algname)
-            throws EBaseException {
-        CAEngine engine = CAEngine.getInstance();
+    public boolean verify(byte[] data, byte[] signature, String algname) throws Exception {
+
         if (!mInited) {
             throw new EBaseException("CASigningUnit not initialized!");
         }
-        try {
-            SignatureAlgorithm signAlg = mapAlgorithmToJss(algname);
 
-            if (signAlg == null) {
-                logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, ""));
-                throw new ECAException(
-                        CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname));
-            }
-            // XXX make this configurable. hack: use hardcoded for now.
-            Signature signer = mToken.getSignatureContext(signAlg);
+        SignatureAlgorithm signAlg = mapAlgorithmToJss(algname);
 
-            signer.initVerify(mPubk);
-            signer.update(data);
-            return signer.verify(signature);
-
-        } catch (NoSuchAlgorithmException e) {
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            // XXX fix this exception later.
-            throw new EBaseException(e);
-
-        } catch (TokenException e) {
-            // from get signature context or from initSign
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            // XXX fix this exception later.
-            throw new EBaseException(e);
-
-        } catch (InvalidKeyException e) {
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            // XXX fix this exception later.
-            throw new EBaseException(e);
-
-        } catch (SignatureException e) {
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            engine.checkForAndAutoShutdown();
-            // XXX fix this exception later.
-            throw new EBaseException(e);
+        if (signAlg == null) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, ""));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname));
         }
+
+        // XXX make this configurable. hack: use hardcoded for now.
+        Signature signer = mToken.getSignatureContext(signAlg);
+
+        signer.initVerify(mPubk);
+        signer.update(data);
+
+        return signer.verify(signature);
     }
 }
