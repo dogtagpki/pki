@@ -1610,16 +1610,3 @@ class RequestList
 
     protected Enumeration<RequestId> mEnumeration;
 }
-
-class RecoverThread extends Thread {
-    private ARequestQueue mQ = null;
-
-    public RecoverThread(ARequestQueue q) {
-        mQ = q;
-        setName("RequestRecoverThread");
-    }
-
-    public void run() {
-        mQ.recoverWillBlock();
-    }
-}
