@@ -1469,35 +1469,3 @@ class Request implements IRequest {
         this.realm = realm;
     }
 }
-
-class RequestIAttrSetWrapper implements IAttrSet {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 8231914824991772682L;
-    IRequest mRequest;
-
-    public RequestIAttrSetWrapper(IRequest request) {
-        mRequest = request;
-    }
-
-    public void set(String name, Object obj) throws EBaseException {
-        try {
-            mRequest.setExtData(name, (String) obj);
-        } catch (ClassCastException e) {
-            throw new EBaseException(e.toString());
-        }
-    }
-
-    public Object get(String name) throws EBaseException {
-        return mRequest.getExtDataInString(name);
-    }
-
-    public void delete(String name) throws EBaseException {
-        mRequest.deleteExtData(name);
-    }
-
-    public Enumeration<String> getElements() {
-        return mRequest.getExtDataKeys();
-    }
-}
