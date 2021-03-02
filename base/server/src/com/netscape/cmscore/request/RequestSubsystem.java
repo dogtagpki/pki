@@ -25,8 +25,6 @@ import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
@@ -41,11 +39,13 @@ import com.netscape.cmscore.dbs.DBSubsystem;
  * @author thayes
  * @version $Revision$, $Date$
  */
-public class RequestSubsystem implements ISubsystem {
+public class RequestSubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestSubsystem.class);
 
     public final static String ID = "request";
+
+    DBSubsystem dbSubsystem;
 
     public RequestSubsystem() {
     }
@@ -105,8 +105,6 @@ public class RequestSubsystem implements ISubsystem {
             getRequestQueue(String name, int increment, IPolicy p, IService s, INotify n,
                     INotify pendingNotifier)
                     throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
-        DBSubsystem dbSubsystem = engine.getDBSubsystem();
         RequestQueue rq = new RequestQueue(dbSubsystem, name, increment, p, s, n, pendingNotifier);
 
         // can't do this here because the service depends on getting rq
@@ -138,8 +136,9 @@ public class RequestSubsystem implements ISubsystem {
     }
 
     // ISubsystem.init
-    public void init(IConfigStore config) {
-        mConfig = config;
+    public void init(IConfigStore config, DBSubsystem dbSubsystem) {
+        this.mConfig = config;
+        this.dbSubsystem = dbSubsystem;
     }
 
     /**
@@ -166,8 +165,6 @@ public class RequestSubsystem implements ISubsystem {
     //
     protected IDBSSession createDBSSession()
             throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
-        DBSubsystem dbSubsystem = engine.getDBSubsystem();
         return dbSubsystem.createSession();
     }
 
@@ -175,8 +172,6 @@ public class RequestSubsystem implements ISubsystem {
     // Make a queue name
     //
     protected String makeQueueName(String name) {
-        CMSEngine engine = CMS.getCMSEngine();
-        DBSubsystem dbSubsystem = engine.getDBSubsystem();
         return "cn=" + name + "," + dbSubsystem.getBaseDN();
     }
 

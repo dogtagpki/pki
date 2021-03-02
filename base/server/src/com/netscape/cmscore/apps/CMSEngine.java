@@ -540,7 +540,7 @@ public class CMSEngine implements ServletContextListener {
 
     public void initRequestSubsystem() throws Exception {
         IConfigStore requestConfig = config.getSubStore(RequestSubsystem.ID);
-        requestSubsystem.init(requestConfig);
+        requestSubsystem.init(requestConfig, dbSubsystem);
         requestSubsystem.startup();
     }
 
