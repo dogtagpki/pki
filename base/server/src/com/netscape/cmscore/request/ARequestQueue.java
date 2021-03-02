@@ -48,7 +48,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IAttrSet;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.request.AgentApprovals;
-import com.netscape.certsrv.request.IEnrollmentRequest;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
@@ -1500,17 +1499,5 @@ class RequestIAttrSetWrapper implements IAttrSet {
 
     public Enumeration<String> getElements() {
         return mRequest.getExtDataKeys();
-    }
-}
-
-/**
- * Example of a specialized request class.
- */
-class EnrollmentRequest extends Request implements IEnrollmentRequest {
-
-    private static final long serialVersionUID = 8214498908217267555L;
-
-    EnrollmentRequest(RequestId id) {
-        super(id);
     }
 }
