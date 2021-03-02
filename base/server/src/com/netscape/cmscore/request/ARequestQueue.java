@@ -1581,32 +1581,3 @@ class RequestListByStatus
     protected Enumeration<RequestId> mEnumeration;
     protected RequestId mNext;
 }
-
-class RequestList
-        implements IRequestList {
-    public boolean hasMoreElements() {
-        return mEnumeration.hasMoreElements();
-    }
-
-    public RequestId nextElement() {
-        return mEnumeration.nextElement();
-    }
-
-    public RequestId nextRequestId() {
-        return mEnumeration.nextElement();
-    }
-
-    public Object nextRequest() {
-        return null;
-    }
-
-    public IRequest nextRequestObject() {
-        return null;
-    }
-
-    public RequestList(Enumeration<RequestId> e) {
-        mEnumeration = e;
-    }
-
-    protected Enumeration<RequestId> mEnumeration;
-}
