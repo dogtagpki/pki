@@ -17,10 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
-import netscape.ldap.LDAPAttributeSet;
-
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+
+import netscape.ldap.LDAPAttributeSet;
 
 /**
  * A class represents a registry where all the
@@ -36,7 +35,7 @@ import com.netscape.certsrv.base.ISubsystem;
  *
  * @version $Revision$, $Date$
  */
-public interface IDBRegistry extends ISubsystem {
+public interface IDBRegistry {
 
     /**
      * Registers object class.

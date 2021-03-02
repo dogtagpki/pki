@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBDynAttrMapper;
@@ -56,7 +55,7 @@ import netscape.ldap.LDAPAttributeSet;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class DBRegistry implements IDBRegistry, ISubsystem {
+public class DBRegistry implements IDBRegistry {
 
     public final static Logger logger = LoggerFactory.getLogger(DBRegistry.class);
 
