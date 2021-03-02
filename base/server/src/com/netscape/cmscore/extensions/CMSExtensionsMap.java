@@ -25,8 +25,8 @@ import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.extensions.CMSExtension;
 import com.netscape.certsrv.extensions.EExtensionsException;
-import com.netscape.certsrv.extensions.ICMSExtension;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -47,8 +47,8 @@ public class CMSExtensionsMap implements ISubsystem {
 
     private static final String PROP_CLASS = "class";
 
-    private Hashtable<String, ICMSExtension> mName2Ext = new Hashtable<String, ICMSExtension>();
-    private Hashtable<String, ICMSExtension> mOID2Ext = new Hashtable<String, ICMSExtension>();
+    private Hashtable<String, CMSExtension> mName2Ext = new Hashtable<String, CMSExtension>();
+    private Hashtable<String, CMSExtension> mOID2Ext = new Hashtable<String, CMSExtension>();
     private IConfigStore mConfig = null;
 
     /**
@@ -66,11 +66,11 @@ public class CMSExtensionsMap implements ISubsystem {
             IConfigStore c = mConfig.getSubStore(name);
 
             String className = c.getString(PROP_CLASS);
-            ICMSExtension ext = null;
+            CMSExtension ext = null;
 
             try {
-                ext = (ICMSExtension) Class.forName(className).newInstance();
-                ext.init(this, c);
+                ext = (CMSExtension) Class.forName(className).newInstance();
+                ext.init(c);
                 addExt(ext);
             } catch (ClassNotFoundException e) {
                 throw new EExtensionsException(
@@ -90,7 +90,7 @@ public class CMSExtensionsMap implements ISubsystem {
         }
     }
 
-    public void addExt(ICMSExtension ext) throws EBaseException {
+    public void addExt(CMSExtension ext) throws EBaseException {
         String name = ext.getName();
         ObjectIdentifier oid = ext.getOID();
 
@@ -141,7 +141,7 @@ public class CMSExtensionsMap implements ISubsystem {
      * @param name name of the extension
      * @return the extension class.
      */
-    public ICMSExtension getByName(String name) {
+    public CMSExtension getByName(String name) {
         return mName2Ext.get(name);
     }
 
@@ -151,7 +151,7 @@ public class CMSExtensionsMap implements ISubsystem {
      * @param oid - the OID of the extension.
      * @return the extension class.
      */
-    public ICMSExtension getByOID(ObjectIdentifier oid) {
+    public CMSExtension getByOID(ObjectIdentifier oid) {
         return mOID2Ext.get(oid.toString());
     }
 }

@@ -23,43 +23,41 @@ import org.mozilla.jss.netscape.security.x509.Extension;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 
 /**
- * CMS extension interface, for creating extensions from http input and
+ * CMS extension class, for creating extensions from http input and
  * displaying extensions to html forms.
  *
  * @version $Revision$, $Date$
  */
-public interface ICMSExtension {
-    public static String EXT_IS_CRITICAL = "isCritical";
+public abstract class CMSExtension {
 
+    public static String EXT_IS_CRITICAL = "isCritical";
     public static String EXT_PREFIX = "ext_";
 
     /**
      * initialize from configuration file
      */
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException;
+    public abstract void init(IConfigStore config) throws EBaseException;
 
     /**
      * Get name of this extension.
      *
      * @return the name of this CMS extension, for
      */
-    public String getName();
+    public abstract String getName();
 
     /**
      * Get object identifier associated with this extension.
      */
-    public ObjectIdentifier getOID();
+    public abstract ObjectIdentifier getOID();
 
     /**
      * Get an instance of the extension given http input.
      *
      * @return an instance of the extension.
      */
-    public Extension getExtension(IArgBlock argblock)
+    public abstract Extension getExtension(IArgBlock argblock)
             throws EBaseException;
 
     /**
@@ -68,7 +66,7 @@ public interface ICMSExtension {
      *
      * @return name value pairs
      */
-    public IArgBlock getFormParams(Extension extension)
+    public abstract IArgBlock getFormParams(Extension extension)
             throws EBaseException;
 
 }
