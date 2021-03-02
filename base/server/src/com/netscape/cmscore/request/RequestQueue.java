@@ -52,7 +52,48 @@ public class RequestQueue
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestQueue.class);
 
-    DBSubsystem dbSubsystem;
+    protected DBSubsystem dbSubsystem;
+    protected String mBaseDN;
+    protected RequestRepository mRepository;
+
+    /**
+     * Create a request queue.
+     *
+     * @param name
+     *            the name of the request queue. (Ex: "ca" "ra")
+     * @param policy
+     *            A policy enforcement module. This object is called to make
+     *            adjustments to the request, and decide whether it needs agent
+     *            approval.
+     * @param service
+     *            The service object. This object actually performs the request
+     *            after it is finalized and approved.
+     * @param notiifer
+     *            A notifier object (optional). The notify() method of this object
+     *            is invoked when the request is completed (COMPLETE, REJECTED or
+     *            CANCELED states).
+     * @param pendingNotifier
+     *            A notifier object (optional). Like the notifier, except the
+     *            notification happens if the request is made PENDING. May be the
+     *            same as the 'n' argument if desired.
+     * @exception EBaseException failed to retrieve request queue
+     */
+    public RequestQueue(
+            DBSubsystem dbSubsystem,
+            String name,
+            int increment,
+            IPolicy policy,
+            IService service,
+            INotify notifier,
+            INotify pendingNotifier)
+            throws EBaseException {
+
+        super(policy, service, notifier, pendingNotifier);
+
+        this.dbSubsystem = dbSubsystem;
+        this.mBaseDN = "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN();
+        this.mRepository = new RequestRepository(name, increment, dbSubsystem, this);
+    }
 
     // ARequestQueue.newRequestId
     protected RequestId newRequestId()
@@ -591,18 +632,6 @@ public class RequestQueue
         return new ListEnumeration(this, results);
     }
 
-    public RequestQueue(DBSubsystem dbSubsystem, String name, int increment, IPolicy p, IService s, INotify n,
-            INotify pendingNotify)
-            throws EBaseException {
-        super(p, s, n, pendingNotify);
-
-        this.dbSubsystem = dbSubsystem;
-        mBaseDN = "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN();
-
-        mRepository = new RequestRepository(name, increment, dbSubsystem, this);
-
-    }
-
     /*
      * list record attributes (debugging output)
      */
@@ -631,9 +660,6 @@ public class RequestQueue
     public void setPublishingStatus(String status) {
         mRepository.setPublishingStatus(status);
     }
-
-    protected String mBaseDN;
-    protected RequestRepository mRepository;
 }
 
 class SearchEnumeration

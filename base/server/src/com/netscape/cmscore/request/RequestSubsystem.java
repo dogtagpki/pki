@@ -21,10 +21,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.IDBSSession;
-import com.netscape.certsrv.request.INotify;
-import com.netscape.certsrv.request.IPolicy;
-import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.request.IService;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
@@ -71,47 +67,6 @@ public class RequestSubsystem {
 
         dbs.add(dbName, r);
         */
-    }
-
-    /**
-     * Retrieves a request queue. This operation should only be done
-     * once on each queue. For example, the RA subsystem should retrieve
-     * its queue, and store it somewhere for use by related services, and
-     * servlets.
-     * <p>
-     * WARNING: retrieving the same queue twice with result in multi-thread race conditions.
-     * <p>
-     *
-     * @param name
-     *            the name of the request queue. (Ex: "ca" "ra")
-     * @param p
-     *            A policy enforcement module. This object is called to make
-     *            adjustments to the request, and decide whether it needs agent
-     *            approval.
-     * @param s
-     *            The service object. This object actually performs the request
-     *            after it is finalized and approved.
-     * @param n
-     *            A notifier object (optional). The notify() method of this object
-     *            is invoked when the request is completed (COMPLETE, REJECTED or
-     *            CANCELED states).
-     * @param pendingNotifier
-     *            A notifier object (optional). Like the 'n' argument, except the
-     *            notification happens if the request is made PENDING. May be the
-     *            same as the 'n' argument if desired.
-     * @exception EBaseException failed to retrieve request queue
-     */
-    public IRequestQueue
-            getRequestQueue(String name, int increment, IPolicy p, IService s, INotify n,
-                    INotify pendingNotifier)
-                    throws EBaseException {
-        RequestQueue rq = new RequestQueue(dbSubsystem, name, increment, p, s, n, pendingNotifier);
-
-        // can't do this here because the service depends on getting rq
-        // (to get request) and since this method hasn't returned it's rq is null.
-        //rq.recover();
-
-        return rq;
     }
 
     //

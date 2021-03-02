@@ -89,6 +89,7 @@ import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.request.ARequestNotifier;
+import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -365,8 +366,14 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         RequestSubsystem reqSub = engine.getRequestSubsystem();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
-        mRequestQueue = reqSub.getRequestQueue(getId(), reqdb_inc,
-                    mPolicy, service, mNotify, mPNotify);
+        mRequestQueue = new RequestQueue(
+                dbSubsystem,
+                getId(),
+                reqdb_inc,
+                mPolicy,
+                service,
+                mNotify,
+                mPNotify);
 
         // set KeyStatusUpdateInterval to be 10 minutes if serial management is enabled.
         mKeyDB.setKeyStatusUpdateInterval(
