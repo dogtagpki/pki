@@ -24,7 +24,6 @@ import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.extensions.CMSExtension;
 import com.netscape.certsrv.extensions.EExtensionsException;
 import com.netscape.cmscore.apps.CMS;
@@ -33,7 +32,7 @@ import com.netscape.cmscore.apps.CMS;
  * Loads extension classes from configuration file and return
  * for a given extension name or OID.
  */
-public class CMSExtensionsMap implements ISubsystem {
+public class CMSExtensionsMap {
     public static String ID = "extensions";
 
     private static CMSExtensionsMap mInstance = new CMSExtensionsMap();
