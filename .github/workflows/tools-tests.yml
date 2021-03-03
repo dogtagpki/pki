@@ -8,6 +8,8 @@ jobs:
     name: Building PKI
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    env:
+      COPR_REPO: "@pki/master"
     strategy:
       matrix:
         os: ['32', '33']
@@ -21,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           dnf install -y dnf-plugins-core rpm-build
-          dnf copr enable -y @pki/master
+          dnf copr enable -y $COPR_REPO
           dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
 
       - name: Build PKI packages
@@ -38,6 +40,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    env:
+      COPR_REPO: "@pki/master"
     strategy:
       matrix:
         os: ['32', '33']
@@ -54,7 +58,7 @@ jobs:
       - name: Install PKI packages
         run: |
           dnf install -y dnf-plugins-core
-          dnf copr enable -y @pki/master
+          dnf copr enable -y $COPR_REPO
           dnf -y localinstall build/RPMS/*
 
       - name: Run PKICertImport test
@@ -66,6 +70,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    env:
+      COPR_REPO: "@pki/master"
     strategy:
       matrix:
         os: ['32', '33']
@@ -79,7 +85,7 @@ jobs:
       - name: Install PKI packages
         run: |
           dnf install -y dnf-plugins-core
-          dnf copr enable -y @pki/master
+          dnf copr enable -y $COPR_REPO
           dnf -y localinstall build/RPMS/*
 
       - name: Generate CA signing cert request
@@ -115,6 +121,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    env:
+      COPR_REPO: "@pki/master"
     strategy:
       matrix:
         # NSS cannot find the SoftHSM token on F32
@@ -129,7 +137,7 @@ jobs:
       - name: Install PKI packages
         run: |
           dnf install -y dnf-plugins-core softhsm
-          dnf copr enable -y @pki/master
+          dnf copr enable -y $COPR_REPO
           dnf -y localinstall build/RPMS/*
 
       - name: Create HSM token
@@ -186,6 +194,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    env:
+      COPR_REPO: "@pki/master"
     strategy:
       matrix:
         os: ['32', '33']
@@ -199,7 +209,7 @@ jobs:
       - name: Install PKI packages
         run: |
           dnf install -y dnf-plugins-core
-          dnf copr enable -y @pki/master
+          dnf copr enable -y $COPR_REPO
           dnf -y localinstall build/RPMS/*
 
       - name: Generate CA signing cert request
