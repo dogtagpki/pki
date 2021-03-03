@@ -34,6 +34,8 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
@@ -47,6 +49,7 @@ import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CAConfigurator extends Configurator {
@@ -168,6 +171,26 @@ public class CAConfigurator extends Configurator {
         }
     }
 
+    public void createCertRecord(
+            IRequest request,
+            CertInfoProfile profile,
+            X509CertImpl cert)
+            throws Exception {
+
+        logger.info("CAConfigurator: Creating cert record " +
+                cert.getSerialNumber() + ": " + cert.getSubjectDN());
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository cr = engine.getCertificateRepository();
+
+        MetaInfo meta = new MetaInfo();
+        meta.set(ICertRecord.META_REQUEST_ID, request.getRequestId().toString());
+        meta.set(ICertRecord.META_PROFILE_ID, profile.getProfileIDMapping());
+
+        ICertRecord record = cr.createCertRecord(cert.getSerialNumber(), cert, meta);
+        cr.addCertificateRecord(record);
+    }
+
     @Override
     public void loadCert(
             X509Key x509key,
@@ -205,7 +228,6 @@ public class CAConfigurator extends Configurator {
         logger.info("CAConfigurator: - issuer DN: " + cert.getIssuerDN());
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
 
         X509CertInfo info = cert.getInfo();
         logger.info("CAConfigurator: Cert info:\n" + info);
@@ -216,7 +238,7 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         CertInfoProfile profile = new CertInfoProfile(profileConfig);
 
-        IRequestQueue queue = ca.getRequestQueue();
+        IRequestQueue queue = engine.getRequestQueue();
         IRequest req = queue.newRequest("enrollment");
 
         initCertRequest(
@@ -227,7 +249,7 @@ public class CAConfigurator extends Configurator {
                 dnsNames,
                 installAdjustValidity);
 
-        ca.createCertRecord(req, profile, cert);
+        createCertRecord(req, profile, cert);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
 
@@ -268,7 +290,7 @@ public class CAConfigurator extends Configurator {
         IConfigStore profileConfig = engine.createFileConfigStore(instanceRoot + configurationRoot + profileID);
         CertInfoProfile profile = new CertInfoProfile(profileConfig);
 
-        IRequestQueue queue = ca.getRequestQueue();
+        IRequestQueue queue = engine.getRequestQueue();
         IRequest req = queue.newRequest("enrollment");
 
         initCertRequest(
@@ -289,7 +311,7 @@ public class CAConfigurator extends Configurator {
         }
 
         X509CertImpl cert = CryptoUtil.signCert(signingPrivateKey, info, signingAlgorithm);
-        ca.createCertRecord(req, profile, cert);
+        createCertRecord(req, profile, cert);
 
         req.setExtData(EnrollProfile.REQUEST_ISSUED_CERT, cert);
 
