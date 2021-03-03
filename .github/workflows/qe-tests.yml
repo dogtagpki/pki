@@ -86,9 +86,7 @@ jobs:
           ci/runner-init.sh
 
       - name: Install dependencies in master container
-        run: |
-          docker exec pki1 dnf install -y dnf-plugins-core wget 389-ds-base
-          docker exec pki1 dnf copr enable -y ${COPR_REPO}
+        run: docker exec pki1 dnf install -y 389-ds-base
 
       - name: Set up inventory
         run: |

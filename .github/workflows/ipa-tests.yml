@@ -84,14 +84,11 @@ jobs:
       - name: Connect IPA container to network
         run: docker network connect example ipa --alias ipa.example.com --alias ipa-ca.example.com
 
-      - name: Install dependencies in IPA container
-        run: |
-          docker exec ipa dnf install -y findutils dnf-plugins-core
-          docker exec ipa dnf copr enable -y @freeipa/freeipa-master-nightly
-          docker exec ipa dnf copr enable -y ${COPR_REPO}
-
       - name: Install IPA packages in IPA container
-        run: docker exec ipa dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests freeipa-healthcheck
+        run: |
+          docker exec ipa dnf copr enable -y @freeipa/freeipa-master-nightly
+          docker exec ipa dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad \
+              python3-ipatests freeipa-healthcheck
 
       - name: Install IPA server in IPA container
         run: |
@@ -142,7 +139,6 @@ jobs:
 
       - name: Install dependencies in client container
         run: |
-          docker exec client dnf install -y dnf-plugins-core
           docker exec client dnf copr enable -y @freeipa/freeipa-master-nightly
           docker exec client dnf install -y freeipa-client certbot
 
@@ -265,13 +261,10 @@ jobs:
       - name: Connect primary container to network
         run: docker network connect example primary --alias primary.example.com
 
-      - name: Install dependencies in primary container
-        run: |
-          docker exec primary dnf install -y findutils dnf-plugins-core wget 389-ds-base
-          docker exec primary dnf copr enable -y ${COPR_REPO}
-
       - name: Install IPA packages in primary container
-        run: docker exec primary dnf install -y freeipa-server
+        run: |
+          docker exec primary dnf copr enable -y @freeipa/freeipa-master-nightly
+          docker exec primary dnf install -y freeipa-server
 
       - name: Install IPA server in primary container
         run: |
@@ -308,13 +301,10 @@ jobs:
       - name: Connect secondary container to network
         run: docker network connect example secondary --alias secondary.example.com
 
-      - name: Install dependencies in secondary container
-        run: |
-          docker exec secondary dnf install -y findutils dnf-plugins-core wget 389-ds-base
-          docker exec secondary dnf copr enable -y ${COPR_REPO}
-
       - name: Install IPA packages in secondary container
-        run: docker exec secondary dnf install -y freeipa-server
+        run: |
+          docker exec secondary dnf copr enable -y @freeipa/freeipa-master-nightly
+          docker exec secondary dnf install -y freeipa-server
 
       - name: Install IPA client in secondary container
         run: |

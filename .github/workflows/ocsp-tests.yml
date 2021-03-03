@@ -79,9 +79,7 @@ jobs:
           ci/runner-init.sh
 
       - name: Install dependencies
-        run: |
-          docker exec pki dnf install -y findutils dnf-plugins-core wget 389-ds-base
-          docker exec pki dnf copr enable -y ${COPR_REPO}
+        run: docker exec pki dnf install -y 389-ds-base
 
       - name: Install DS
         run: docker exec pki ${PKIDIR}/ci/ds-create.sh
@@ -177,9 +175,7 @@ jobs:
         run: docker network connect example ca --alias ca.example.com
 
       - name: Install dependencies in CA container
-        run: |
-          docker exec ca dnf install -y findutils dnf-plugins-core wget 389-ds-base
-          docker exec ca dnf copr enable -y ${COPR_REPO}
+        run: docker exec ca dnf install -y 389-ds-base
 
       - name: Install DS in CA container
         run: docker exec ca ${PKIDIR}/ci/ds-create.sh
@@ -206,9 +202,7 @@ jobs:
         run: docker network connect example ocsp --alias ocsp.example.com
 
       - name: Install dependencies in OCSP container
-        run: |
-          docker exec ocsp dnf install -y findutils dnf-plugins-core wget 389-ds-base
-          docker exec ocsp dnf copr enable -y ${COPR_REPO}
+        run: docker exec ocsp dnf install -y 389-ds-base
 
       - name: Install DS in OCSP container
         run: docker exec ocsp ${PKIDIR}/ci/ds-create.sh
@@ -371,9 +365,7 @@ jobs:
         run: docker network connect example primary --alias primary.example.com
 
       - name: Install dependencies in primary container
-        run: |
-          docker exec primary dnf install -y findutils dnf-plugins-core wget 389-ds-base
-          docker exec primary dnf copr enable -y ${COPR_REPO}
+        run: docker exec primary dnf install -y 389-ds-base
 
       - name: Install DS in primary container
         run: docker exec primary ${PKIDIR}/ci/ds-create.sh
@@ -406,9 +398,7 @@ jobs:
         run: docker network connect example secondary --alias secondary.example.com
 
       - name: Install dependencies in secondary container
-        run: |
-          docker exec secondary dnf install -y findutils dnf-plugins-core wget 389-ds-base
-          docker exec secondary dnf copr enable -y ${COPR_REPO}
+        run: docker exec secondary dnf install -y 389-ds-base
 
       - name: Install DS in secondary container
         run: docker exec secondary ${PKIDIR}/ci/ds-create.sh
@@ -459,9 +449,7 @@ jobs:
         run: docker network connect example tertiary --alias tertiary.example.com
 
       - name: Install dependencies in tertiary container
-        run: |
-          docker exec tertiary dnf install -y findutils dnf-plugins-core wget 389-ds-base
-          docker exec tertiary dnf copr enable -y ${COPR_REPO}
+        run: docker exec tertiary dnf install -y 389-ds-base
 
       - name: Install DS in tertiary container
         run: docker exec tertiary ${PKIDIR}/ci/ds-create.sh
@@ -610,9 +598,7 @@ jobs:
           ci/runner-init.sh
 
       - name: Install dependencies
-        run: |
-          docker exec pki dnf install -y findutils dnf-plugins-core wget 389-ds-base
-          docker exec pki dnf copr enable -y ${COPR_REPO}
+        run: docker exec pki dnf install -y 389-ds-base
 
       - name: Install DS
         run: docker exec pki ${PKIDIR}/ci/ds-create.sh
