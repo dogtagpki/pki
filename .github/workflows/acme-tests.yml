@@ -27,12 +27,6 @@ jobs:
       - name: Build PKI packages
         run: ./build.sh --with-pkgs=base,server,ca,acme --with-timestamp --with-commit-id --work-dir=build rpm
 
-      - name: Upload PKI packages
-        uses: actions/upload-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS/
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -69,12 +63,6 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
-
       - name: Download PKI container image
         uses: actions/download-artifact@v2
         with:
@@ -101,9 +89,6 @@ jobs:
         run: |
           docker exec pki dnf install -y findutils dnf-plugins-core wget 389-ds-base
           docker exec pki dnf copr enable -y ${COPR_REPO}
-
-      - name: Install PKI packages in PKI container
-        run: docker exec pki bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
 
       - name: Install DS in PKI container
         run: docker exec pki ${PKIDIR}/ci/ds-create.sh
@@ -244,12 +229,6 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
-
       - name: Download PKI container image
         uses: actions/download-artifact@v2
         with:
@@ -276,9 +255,6 @@ jobs:
         run: |
           docker exec pki dnf install -y findutils dnf-plugins-core wget 389-ds-base jq
           docker exec pki dnf copr enable -y ${COPR_REPO}
-
-      - name: Install PKI packages in PKI container
-        run: docker exec pki bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
 
       - name: Install DS in PKI container
         run: docker exec pki ${PKIDIR}/ci/ds-create.sh
