@@ -32,6 +32,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
+import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -76,6 +77,8 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      * @return KRA name
      */
     public X500Name getX500Name();
+
+    public IRepository getRequestRepository();
 
     /**
      * Retrieves KRA request repository.

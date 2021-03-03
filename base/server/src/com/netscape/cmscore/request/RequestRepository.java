@@ -39,8 +39,7 @@ import com.netscape.cmscore.dbs.RepositoryRecord;
  * @author thayes
  * @version $Revision$ $Date$
  */
-class RequestRepository
-        extends Repository {
+public class RequestRepository extends Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRepository.class);
 

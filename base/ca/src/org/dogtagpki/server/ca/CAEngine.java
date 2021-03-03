@@ -85,6 +85,7 @@ import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.ARequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -110,6 +111,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     protected CAService caService;
     protected ARequestNotifier requestNotifier;
     protected ARequestNotifier pendingNotifier;
+
+    protected RequestRepository requestRepository;
     protected RequestQueue requestQueue;
 
     protected CertificateVersion defaultCertVersion;
@@ -694,14 +697,17 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         String schedulerClass = caConfig.getString("requestSchedulerClass", null);
         logger.info("CAEngine: - scheduler: " + schedulerClass);
 
+        requestRepository = new RequestRepository(CertificateAuthority.ID, increment, dbSubsystem);
+
         requestQueue = new RequestQueue(
                 dbSubsystem,
-                CertificateAuthority.ID,
-                increment,
+                requestRepository,
                 caPolicy,
                 caService,
                 requestNotifier,
                 pendingNotifier);
+
+        requestRepository.setRequestQueue(requestQueue);
 
         if (schedulerClass != null) {
             IRequestScheduler scheduler = (IRequestScheduler) Class.forName(schedulerClass).newInstance();
@@ -718,7 +724,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             logger.info("CAEngine: - listen to clone modification: " + listenToCloneModifications);
 
             certificateRepository.setCertStatusUpdateInterval(
-                requestQueue.getRequestRepository(),
+                requestRepository,
                 certStatusUpdateInterval,
                 listenToCloneModifications);
 
@@ -736,7 +742,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             logger.info("CAEngine: - serial number update interval (seconds): " + serialNumberUpdateInterval);
 
             certificateRepository.setSerialNumberUpdateInterval(
-                requestQueue.getRequestRepository(),
+                requestRepository,
                 serialNumberUpdateInterval);
 
             caService.init(caConfig.getSubStore("connector"));
@@ -826,7 +832,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         if (!isPreOpMode()) {
             logger.debug("CAEngine: Checking cert request serial number ranges");
-            requestQueue.getRequestRepository().checkRanges();
+            requestRepository.checkRanges();
 
             logger.debug("CAEngine: Checking cert serial number ranges");
             certificateRepository.checkRanges();

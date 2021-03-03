@@ -14,6 +14,7 @@ import junit.framework.TestSuite;
 public class RequestQueueTest extends CMSBaseTestCase {
     DBSubsystem dbSubsystem;
     RequestStub request;
+    RequestRepository requestRepository;
     RequestQueue queue;
 
     public RequestQueueTest(String name) {
@@ -23,7 +24,18 @@ public class RequestQueueTest extends CMSBaseTestCase {
     public void cmsTestSetUp() throws Exception {
         dbSubsystem = DBSubsystem.getInstance();
         request = new RequestStub();
-        queue = new RequestQueue(dbSubsystem, "", 1, null, null, null, null);
+
+        requestRepository = new RequestRepository("", 1, dbSubsystem);
+
+        queue = new RequestQueue(
+                dbSubsystem,
+                requestRepository,
+                null,
+                null,
+                null,
+                null);
+
+        requestRepository.setRequestQueue(queue);
     }
 
     public void cmsTestTearDown() {

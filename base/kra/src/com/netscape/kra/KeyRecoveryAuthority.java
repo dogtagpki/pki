@@ -90,6 +90,7 @@ import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.request.ARequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -129,7 +130,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     protected X500Name mName = null;
     protected boolean mQueueRequests = false;
     protected String mId = null;
+
+    protected RequestRepository requestRepository;
     protected IRequestQueue mRequestQueue = null;
+
     protected TransportKeyUnit mTransportKeyUnit = null;
     protected StorageKeyUnit mStorageKeyUnit = null;
     protected Hashtable<String, Credential[]> mAutoRecovery = new Hashtable<String, Credential[]>();
@@ -366,18 +370,21 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         RequestSubsystem reqSub = engine.getRequestSubsystem();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
+        requestRepository = new RequestRepository(getId(), reqdb_inc, dbSubsystem);
+
         mRequestQueue = new RequestQueue(
                 dbSubsystem,
-                getId(),
-                reqdb_inc,
+                requestRepository,
                 mPolicy,
                 service,
                 mNotify,
                 mPNotify);
 
+        requestRepository.setRequestQueue(mRequestQueue);
+
         // set KeyStatusUpdateInterval to be 10 minutes if serial management is enabled.
         mKeyDB.setKeyStatusUpdateInterval(
-                mRequestQueue.getRequestRepository(),
+                requestRepository,
                 mConfig.getInteger("keyStatusUpdateInterval", 10 * 60));
 
         // init request scheduler if configured
@@ -1353,6 +1360,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     public IPolicy getPolicy() {
         return mPolicy;
+    }
+
+    public RequestRepository getRequestRepository() {
+        return requestRepository;
     }
 
     /**

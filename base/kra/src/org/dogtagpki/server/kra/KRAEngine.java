@@ -70,7 +70,7 @@ public class KRAEngine extends CMSEngine implements ServletContextListener {
         IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) getSubsystem(IKeyRecoveryAuthority.ID);
         if (!isPreOpMode()) {
             logger.debug("KRAEngine: checking request serial number ranges for the KRA");
-            kra.getRequestQueue().getRequestRepository().checkRanges();
+            kra.getRequestRepository().checkRanges();
 
             logger.debug("KRAEngine: checking key serial number ranges");
             kra.getKeyRepository().checkRanges();

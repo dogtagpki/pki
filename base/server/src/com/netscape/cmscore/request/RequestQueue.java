@@ -80,8 +80,7 @@ public class RequestQueue
      */
     public RequestQueue(
             DBSubsystem dbSubsystem,
-            String name,
-            int increment,
+            RequestRepository requestRepository,
             IPolicy policy,
             IService service,
             INotify notifier,
@@ -91,9 +90,8 @@ public class RequestQueue
         super(policy, service, notifier, pendingNotifier);
 
         this.dbSubsystem = dbSubsystem;
-        this.mBaseDN = "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN();
-        this.mRepository = new RequestRepository(name, increment, dbSubsystem);
-        this.mRepository.setRequestQueue(this);
+        this.mRepository = requestRepository;
+        this.mBaseDN = requestRepository.getBaseDN();
     }
 
     // ARequestQueue.newRequestId
