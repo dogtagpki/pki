@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
 
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.cmscore.request.RequestNotifier;
 
 /**
@@ -29,23 +28,4 @@ import com.netscape.cmscore.request.RequestNotifier;
  * @version $Revision$, $Date$
  */
 public class KRANotify extends RequestNotifier {
-    @SuppressWarnings("unused")
-    private IKeyRecoveryAuthority mKRA;
-
-    /**
-     * default constructor
-     */
-    public KRANotify() {
-        super();
-    }
-
-    /**
-     * Creates KRA notify.
-     */
-    public KRANotify(IKeyRecoveryAuthority kra) {
-        super();
-        mKRA = kra;
-    }
-
-    // XXX may want to do something else with mKRA ?
 }

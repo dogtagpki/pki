@@ -365,7 +365,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // setup the KRA request queue
         IService service = new KRAService(this);
 
-        mNotify = new KRANotify(this);
+        mNotify = new KRANotify();
         mPNotify = new RequestNotifier();
         RequestSubsystem reqSub = engine.getRequestSubsystem();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
