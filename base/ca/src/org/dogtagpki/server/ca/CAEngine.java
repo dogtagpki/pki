@@ -47,6 +47,7 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.AuthorityMonitor;
+import com.netscape.ca.CANotify;
 import com.netscape.ca.CAService;
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CRLIssuingPointConfig;
@@ -684,7 +685,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         caService = new CAService(hostCA);
 
         logger.info("CAEngine: Initializing CA request notifier");
-        requestNotifier = new RequestNotifier(hostCA);
+        requestNotifier = new CANotify(hostCA);
 
         logger.info("CAEngine: Initializing CA pending request notifier");
         pendingNotifier = new RequestNotifier();

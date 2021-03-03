@@ -22,8 +22,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
@@ -51,10 +49,10 @@ public class RequestNotifier implements IRequestNotifier {
     private int mMaxRequests = 100;
     private boolean mSearchForRequests = false;
     private int mMaxThreads = 1;
-    private ICertificateAuthority mCA = null;
+
     private boolean mIsPublishingQueueEnabled = false;
     private int mPublishingQueuePriority = 0;
-    private IRequestQueue mRequestQueue = null;
+
     private String mPublishingStatus = null;
     private int mSavePublishingStatus = 0;
     private int mSavePublishingCounter = 0;
@@ -63,10 +61,12 @@ public class RequestNotifier implements IRequestNotifier {
         mPublishingQueuePriority = Thread.currentThread().getPriority();
     }
 
-    public RequestNotifier(ICertificateAuthority ca) {
-        mCA = ca;
-        if (mCA != null)
-            mRequestQueue = mCA.getRequestQueue();
+    public IRequestQueue getRequestQueue() {
+        return null;
+    }
+
+    public PublisherProcessor getPublisherProcessor() {
+        return null;
     }
 
     public void setPublishingQueue(boolean isPublishingQueueEnabled,
@@ -96,10 +96,10 @@ public class RequestNotifier implements IRequestNotifier {
             mPublishingQueuePriority = Thread.currentThread().getPriority();
         }
 
-        if (mCA != null && mRequestQueue == null)
-            mRequestQueue = mCA.getRequestQueue();
-        if (mIsPublishingQueueEnabled && mSavePublishingStatus > 0 && mRequestQueue != null) {
-            mPublishingStatus = mRequestQueue.getPublishingStatus();
+        IRequestQueue requestQueue = getRequestQueue();
+
+        if (mIsPublishingQueueEnabled && mSavePublishingStatus > 0 && requestQueue != null) {
+            mPublishingStatus = requestQueue.getPublishingStatus();
             try {
                 BigInteger status = new BigInteger(mPublishingStatus);
                 if (status.compareTo(BigInteger.ZERO) > -1) {
@@ -184,11 +184,14 @@ public class RequestNotifier implements IRequestNotifier {
     private Object publishingCounterMonitor = new Object();
 
     public void updatePublishingStatus(String id) {
-        if (mRequestQueue != null) {
+
+        IRequestQueue requestQueue = getRequestQueue();
+
+        if (requestQueue != null) {
             synchronized (publishingCounterMonitor) {
                 if (mSavePublishingCounter == 0) {
                     logger.debug("updatePublishingStatus  requestId: " + id);
-                    mRequestQueue.setPublishingStatus(id);
+                    requestQueue.setPublishingStatus(id);
                 }
                 mSavePublishingCounter++;
                 logger.debug("updatePublishingStatus  mSavePublishingCounter: " + mSavePublishingCounter +
@@ -198,7 +201,7 @@ public class RequestNotifier implements IRequestNotifier {
                 }
             }
         } else {
-            logger.warn("updatePublishingStatus  mRequestQueue == null");
+            logger.warn("updatePublishingStatus  requestQueue == null");
         }
     }
 
@@ -213,12 +216,13 @@ public class RequestNotifier implements IRequestNotifier {
 
         logger.debug("getRequest  mRequests=" + mRequests.size() + "  mSearchForRequests=" + mSearchForRequests);
         if (mSearchForRequests && mRequests.size() == 1) {
+
             id = mRequests.elementAt(0);
-            if (mCA != null && mRequestQueue == null)
-                mRequestQueue = mCA.getRequestQueue();
-            if (id != null && mRequestQueue != null) {
+            IRequestQueue requestQueue = getRequestQueue();
+
+            if (id != null && requestQueue != null) {
                 logger.debug("getRequest  request id=" + id);
-                IRequestVirtualList list = mRequestQueue.getPagedRequestsByFilter(
+                IRequestVirtualList list = requestQueue.getPagedRequestsByFilter(
                                                new RequestId(id),
                                                "(requeststate=complete)", mMaxRequests, "requestId");
                 int s = list.getSize() - list.getCurrentIndex();
@@ -269,11 +273,11 @@ public class RequestNotifier implements IRequestNotifier {
             id = mRequests.elementAt(0);
             if (id != null) {
                 logger.debug("getRequest  getting request: " + id);
-                if (mCA != null && mRequestQueue == null)
-                    mRequestQueue = mCA.getRequestQueue();
-                if (mRequestQueue != null) {
+                IRequestQueue requestQueue = getRequestQueue();
+
+                if (requestQueue != null) {
                     try {
-                        r = mRequestQueue.findRequest(new RequestId(id));
+                        r = requestQueue.findRequest(new RequestId(id));
                         mRequests.remove(0);
                         logger.debug("getRequest  request " + id + ((r != null) ? " found" : " not found"));
                         //updatePublishingStatus(id);
@@ -320,7 +324,8 @@ public class RequestNotifier implements IRequestNotifier {
         if (mNotifierThreads.size() > 0) {
             mNotifierThreads.remove(notifierThread);
             if (mNotifierThreads.size() == 0) {
-                mRequestQueue.setPublishingStatus("-1");
+                IRequestQueue requestQueue = getRequestQueue();
+                requestQueue.setPublishingStatus("-1");
             }
         }
         logger.debug("Number of publishing threads: " + mNotifierThreads.size());
@@ -361,11 +366,10 @@ public class RequestNotifier implements IRequestNotifier {
      * @return true if there are available publishing connections, false otherwise
      */
     private boolean checkAvailablePublishingConnections() {
-        boolean availableConnections = false;
 
-        PublisherProcessor pp = null;
-        if (mCA != null)
-            pp = mCA.getPublisherProcessor();
+        boolean availableConnections = false;
+        PublisherProcessor pp = getPublisherProcessor();
+
         if (pp != null && (pp.isCertPublishingEnabled() || pp.isCRLPublishingEnabled())) {
             ILdapConnModule ldapConnModule = pp.getLdapConnModule();
             if (ldapConnModule != null) {
