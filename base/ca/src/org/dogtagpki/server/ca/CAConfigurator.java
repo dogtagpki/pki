@@ -192,7 +192,7 @@ public class CAConfigurator extends Configurator {
     }
 
     @Override
-    public void loadCert(
+    public void importCert(
             X509Key x509key,
             X509CertImpl cert,
             String profileID,
@@ -202,19 +202,20 @@ public class CAConfigurator extends Configurator {
             byte[] certRequest,
             String subjectName) throws Exception {
 
-        // checking whether the cert was issued by existing CA
-        logger.debug("CAConfigurator: issuer DN: " + cert.getIssuerDN());
-
-        String caSigningNickname = cs.getString("ca.signing.nickname");
+        logger.info("CAConfigurator: Importing certificate and request into database");
+        logger.info("CAConfigurator: - subject DN: " + cert.getSubjectDN());
+        logger.info("CAConfigurator: - issuer DN: " + cert.getIssuerDN());
 
         CryptoManager cm = CryptoManager.getInstance();
+
+        String caSigningNickname = cs.getString("ca.signing.nickname");
         org.mozilla.jss.crypto.X509Certificate caSigningCert = cm.findCertByNickname(caSigningNickname);
         Principal caSigningDN = caSigningCert.getSubjectDN();
 
-        logger.debug("CAConfigurator: CA signing DN: " + caSigningDN);
+        logger.info("CAConfigurator: - CA signing DN: " + caSigningDN);
 
         if (!cert.getIssuerDN().equals(caSigningDN)) {
-            logger.debug("Configurator: cert issued by external CA, don't create record");
+            logger.info("Configurator: Cert issued by external CA, don't import");
             return;
         }
 
@@ -222,10 +223,6 @@ public class CAConfigurator extends Configurator {
         // certificate record to reserve the serial number. Otherwise it
         // might conflict with system certificates to be created later.
         // Also create the certificate request record for renewals.
-
-        logger.info("CAConfigurator: Creating certificate and request records");
-        logger.info("CAConfigurator: - subject DN: " + cert.getSubjectDN());
-        logger.info("CAConfigurator: - issuer DN: " + cert.getIssuerDN());
 
         CAEngine engine = CAEngine.getInstance();
 

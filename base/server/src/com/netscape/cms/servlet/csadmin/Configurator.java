@@ -599,7 +599,7 @@ public class Configurator {
         }
     }
 
-    public void loadCert(
+    public void importCert(
             X509Key x509key,
             X509CertImpl certImpl,
             String profileID,
@@ -638,7 +638,7 @@ public class Configurator {
         X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
         X509CertImpl certImpl = new X509CertImpl(binCert);
 
-        loadCert(
+        importCert(
                 x509key,
                 certImpl,
                 profileID,
