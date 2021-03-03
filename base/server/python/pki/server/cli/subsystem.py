@@ -1039,12 +1039,12 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             logger.error('No %s subsystem in instance %s.',
                          subsystem_name, instance_name)
             sys.exit(1)
-        subsystem_cert = subsystem.get_subsystem_cert(cert_id)
+        system_cert = subsystem.get_subsystem_cert(cert_id)
 
         logger.info('Retrieving certificate %s from %s',
-                    subsystem_cert['nickname'], subsystem_cert['token'])
+                    system_cert['nickname'], system_cert['token'])
 
-        token = subsystem_cert['token']
+        token = system_cert['token']
         nssdb = instance.open_nssdb(token)
 
         if cert_file:
@@ -1054,25 +1054,25 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
                 sys.exit(1)
 
             data = nssdb.get_cert(
-                nickname=subsystem_cert['nickname'],
+                nickname=system_cert['nickname'],
                 output_format='base64')
 
             if data:
                 logger.info('Removing old %s certificate from database.',
-                            subsystem_cert['nickname'])
-                nssdb.remove_cert(nickname=subsystem_cert['nickname'])
+                            system_cert['nickname'])
+                nssdb.remove_cert(nickname=system_cert['nickname'])
 
-            logger.info('Adding new %s certificate into database.', subsystem_cert['nickname'])
+            logger.info('Adding new %s certificate into database.', system_cert['nickname'])
             nssdb.add_cert(
-                nickname=subsystem_cert['nickname'],
+                nickname=system_cert['nickname'],
                 cert_file=cert_file)
 
         # Retrieve the cert info from NSSDB
         # Note: This reloads `data` object if --cert option is provided
         data = nssdb.get_cert(
-            nickname=subsystem_cert['nickname'],
+            nickname=system_cert['nickname'],
             output_format='base64')
-        subsystem_cert['data'] = data
+        system_cert['data'] = data
 
         # format cert data for LDAP database
         lines = [data[i:i + 64] for i in range(0, len(data), 64)]
@@ -1099,13 +1099,13 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             if lines[-1] == '-----END CERTIFICATE REQUEST-----':
                 lines = lines[:-1]
             request = ''.join(lines)
-            subsystem_cert['request'] = request
+            system_cert['request'] = request
 
         else:
             logger.warning('Certificate request not found')
 
         # store cert data and request in CS.cfg
-        subsystem.update_subsystem_cert(subsystem_cert)
+        subsystem.update_system_cert(system_cert)
         subsystem.save()
 
         self.print_message('Updated "%s" subsystem certificate' % cert_id)

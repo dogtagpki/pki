@@ -202,7 +202,7 @@ class PKISubsystem(object):
         finally:
             nssdb.close()
 
-    def update_subsystem_cert(self, cert):
+    def update_system_cert(self, cert):
         cert_id = cert['id']
         self.config['%s.%s.nickname' % (self.name, cert_id)] = cert.get('nickname')
         self.config['%s.%s.tokenname' % (self.name, cert_id)] = cert.get('token')
