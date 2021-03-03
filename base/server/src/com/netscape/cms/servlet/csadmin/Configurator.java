@@ -825,36 +825,36 @@ public class Configurator {
                     profileID,
                     dnsNames);
 
-        } else {
-
-            String dn = preopConfig.getString("cert." + tag + ".dn");
-            String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
-            String extOID = preopConfig.getString("cert." + tag + ".ext.oid", null);
-            String extData = preopConfig.getString("cert." + tag + ".ext.data", null);
-            boolean extCritical = preopConfig.getBoolean("cert." + tag + ".ext.critical", false);
-
-            Boolean clone = request.isClone();
-            URL masterURL = request.getMasterURL();
-            InstallToken installToken = request.getInstallToken();
-
-            setupNewCert(
-                    type,
-                    tag,
-                    cert,
-                    certType,
-                    keyPair,
-                    x509Cert,
-                    profileID,
-                    dn,
-                    algorithm,
-                    extOID,
-                    extData,
-                    extCritical,
-                    dnsNames,
-                    clone,
-                    masterURL,
-                    installToken);
+            return cert;
         }
+
+        String dn = preopConfig.getString("cert." + tag + ".dn");
+        String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
+        String extOID = preopConfig.getString("cert." + tag + ".ext.oid", null);
+        String extData = preopConfig.getString("cert." + tag + ".ext.data", null);
+        boolean extCritical = preopConfig.getBoolean("cert." + tag + ".ext.critical", false);
+
+        Boolean clone = request.isClone();
+        URL masterURL = request.getMasterURL();
+        InstallToken installToken = request.getInstallToken();
+
+        setupNewCert(
+                type,
+                tag,
+                cert,
+                certType,
+                keyPair,
+                x509Cert,
+                profileID,
+                dn,
+                algorithm,
+                extOID,
+                extData,
+                extCritical,
+                dnsNames,
+                clone,
+                masterURL,
+                installToken);
 
         return cert;
     }
