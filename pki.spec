@@ -221,7 +221,7 @@ BuildRequires:    python3-pytest-runner
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.8.1
+BuildRequires:    jss >= 4.8.2
 BuildRequires:    tomcatjss >= 7.6.1
 
 # JNA is used to bind to libsystemd
@@ -346,7 +346,7 @@ Summary:          PKI Symmetric Key Package
 
 Requires:         %java_headless >= %{min_java_version}
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.8.0
+Requires:         jss >= 4.8.2
 Requires:         nss >= 3.38.0
 
 # Ensure we end up with a useful installation
@@ -424,7 +424,7 @@ Requires:         glassfish-jaxb-api
 Requires:         slf4j
 Requires:         slf4j-jdk14
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.7.0
+Requires:         jss >= 4.8.2
 Requires:         ldapjdk >= 4.22.0
 Requires:         pki-base = %{version}-%{release}
 
