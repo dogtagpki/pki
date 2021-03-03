@@ -26,7 +26,7 @@ public abstract class CMSBaseTestCase extends TestCase {
         super(name);
     }
 
-    public final void setUp() {
+    public final void setUp() throws Exception {
         db = new DBSubsystemStub();
         registry = new DBRegistryDefaultStub();
         session = new DBSSessionDefaultStub();
@@ -40,7 +40,7 @@ public abstract class CMSBaseTestCase extends TestCase {
         cmsTestTearDown();
     }
 
-    public abstract void cmsTestSetUp();
+    public abstract void cmsTestSetUp() throws Exception;
 
     public abstract void cmsTestTearDown();
 

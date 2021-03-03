@@ -20,14 +20,10 @@ public class RequestQueueTest extends CMSBaseTestCase {
         super(name);
     }
 
-    public void cmsTestSetUp() {
+    public void cmsTestSetUp() throws Exception {
         dbSubsystem = DBSubsystem.getInstance();
         request = new RequestStub();
-        try {
-            queue = new RequestQueue(dbSubsystem, "", 1, null, null, null, null);
-        } catch (EBaseException e) {
-            e.printStackTrace();
-        }
+        queue = new RequestQueue(dbSubsystem, "", 1, null, null, null, null);
     }
 
     public void cmsTestTearDown() {
