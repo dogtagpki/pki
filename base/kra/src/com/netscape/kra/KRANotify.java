@@ -18,7 +18,7 @@
 package com.netscape.kra;
 
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.cmscore.request.ARequestNotifier;
+import com.netscape.cmscore.request.RequestNotifier;
 
 /**
  * A class represents a KRA request queue notify. This
@@ -28,7 +28,7 @@ import com.netscape.cmscore.request.ARequestNotifier;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class KRANotify extends ARequestNotifier {
+public class KRANotify extends RequestNotifier {
     @SuppressWarnings("unused")
     private IKeyRecoveryAuthority mKRA;
 

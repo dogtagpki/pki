@@ -88,7 +88,7 @@ import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
-import com.netscape.cmscore.request.ARequestNotifier;
+import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.request.RequestSubsystem;
@@ -366,7 +366,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         IService service = new KRAService(this);
 
         mNotify = new KRANotify(this);
-        mPNotify = new ARequestNotifier();
+        mPNotify = new RequestNotifier();
         RequestSubsystem reqSub = engine.getRequestSubsystem();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 

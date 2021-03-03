@@ -41,9 +41,9 @@ import com.netscape.cmscore.ldap.PublisherProcessor;
  *
  * @version $Revision$, $Date$
  */
-public class ARequestNotifier implements IRequestNotifier {
+public class RequestNotifier implements IRequestNotifier {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ARequestNotifier.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestNotifier.class);
 
     private Hashtable<String, IRequestListener> mListeners = new Hashtable<String, IRequestListener>();
     private Vector<Thread> mNotifierThreads = new Vector<Thread>();
@@ -59,11 +59,11 @@ public class ARequestNotifier implements IRequestNotifier {
     private int mSavePublishingStatus = 0;
     private int mSavePublishingCounter = 0;
 
-    public ARequestNotifier() {
+    public RequestNotifier() {
         mPublishingQueuePriority = Thread.currentThread().getPriority();
     }
 
-    public ARequestNotifier(ICertificateAuthority ca) {
+    public RequestNotifier(ICertificateAuthority ca) {
         mCA = ca;
         if (mCA != null)
             mRequestQueue = mCA.getRequestQueue();

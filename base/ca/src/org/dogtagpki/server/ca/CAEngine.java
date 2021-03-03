@@ -83,7 +83,7 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
-import com.netscape.cmscore.request.ARequestNotifier;
+import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
@@ -109,8 +109,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
     protected CAPolicy caPolicy;
     protected CAService caService;
-    protected ARequestNotifier requestNotifier;
-    protected ARequestNotifier pendingNotifier;
+    protected RequestNotifier requestNotifier;
+    protected RequestNotifier pendingNotifier;
 
     protected RequestRepository requestRepository;
     protected RequestQueue requestQueue;
@@ -209,11 +209,11 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         return caService;
     }
 
-    public ARequestNotifier getRequestNotifier() {
+    public RequestNotifier getRequestNotifier() {
         return requestNotifier;
     }
 
-    public ARequestNotifier getPendingNotifier() {
+    public RequestNotifier getPendingNotifier() {
         return pendingNotifier;
     }
 
@@ -684,10 +684,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         caService = new CAService(hostCA);
 
         logger.info("CAEngine: Initializing CA request notifier");
-        requestNotifier = new ARequestNotifier(hostCA);
+        requestNotifier = new RequestNotifier(hostCA);
 
         logger.info("CAEngine: Initializing CA pending request notifier");
-        pendingNotifier = new ARequestNotifier();
+        pendingNotifier = new RequestNotifier();
 
         logger.info("CAEngine: Initializing CA request queue");
 
