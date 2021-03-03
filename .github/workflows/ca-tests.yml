@@ -8,6 +8,8 @@ jobs:
     name: Building PKI
     runs-on: ubuntu-latest
     container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    env:
+      COPR_REPO: "@pki/10.10"
     strategy:
       matrix:
         os: ['32', '33']
@@ -21,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           dnf install -y dnf-plugins-core rpm-build docker
-          dnf copr enable -y @pki/10.10
+          dnf copr enable -y $COPR_REPO
           dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
 
       - name: Build PKI packages
@@ -35,7 +37,9 @@ jobs:
         with:
           context: .
           file: ci/Dockerfile
-          build-args: OS_VERSION=${{ matrix.os }}
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki:latest
           outputs: type=docker,dest=/tmp/pki.tar
 
@@ -138,7 +142,7 @@ jobs:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
       LOGS: ${GITHUB_WORKSPACE}/logs.txt
-      COPR_REPO: "@pki/master"
+      COPR_REPO: "@pki/10.10"
     strategy:
       matrix:
         os: ['32', '33']
