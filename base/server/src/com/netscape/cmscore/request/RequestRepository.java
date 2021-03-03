@@ -61,7 +61,6 @@ class RequestRepository
             throws EDBException {
         super(dbSubsystem, increment, "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN());
 
-        logger.debug("RequestRepository: constructor 1");
         mBaseDN = "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN();
 
         // Let RequestRecord class register its
@@ -70,18 +69,8 @@ class RequestRepository
         this.dbSubsystem = dbSubsystem;
     }
 
-    public RequestRepository(String name, int increment, DBSubsystem dbSubsystem, IRequestQueue requestQueue)
-            throws EDBException {
-        super(dbSubsystem, increment, "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN());
-
-        logger.debug("RequestRepository: constructor2.");
-        mRequestQueue = requestQueue;
-        mBaseDN = "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN();
-
-        // Let RequestRecord class register its
-        // database mapping and object mapping values
-        RequestRecord.register(dbSubsystem);
-        this.dbSubsystem = dbSubsystem;
+    public void setRequestQueue(IRequestQueue requestQueue) {
+        this.mRequestQueue = requestQueue;
     }
 
     /**

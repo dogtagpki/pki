@@ -92,7 +92,8 @@ public class RequestQueue
 
         this.dbSubsystem = dbSubsystem;
         this.mBaseDN = "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN();
-        this.mRepository = new RequestRepository(name, increment, dbSubsystem, this);
+        this.mRepository = new RequestRepository(name, increment, dbSubsystem);
+        this.mRepository.setRequestQueue(this);
     }
 
     // ARequestQueue.newRequestId
