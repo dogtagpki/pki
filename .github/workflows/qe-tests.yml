@@ -27,12 +27,6 @@ jobs:
       - name: Build PKI packages
         run: ./build.sh --with-timestamp --with-commit-id --work-dir=build rpm
 
-      - name: Upload PKI packages
-        uses: actions/upload-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS/
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -75,12 +69,6 @@ jobs:
       - name: Clone the repository
         uses: actions/checkout@v2
 
-      - name: Download PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
-
       - name: Download PKI container image
         uses: actions/download-artifact@v2
         with:
@@ -101,7 +89,6 @@ jobs:
         run: |
           docker exec pki1 dnf install -y dnf-plugins-core wget 389-ds-base
           docker exec pki1 dnf copr enable -y ${COPR_REPO}
-          docker exec pki1 bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
 
       - name: Set up inventory
         run: |

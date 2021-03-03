@@ -27,12 +27,6 @@ jobs:
       - name: Build PKI packages
         run: ./build.sh --with-pkgs=base,server,acme,ca,kra --with-timestamp --with-commit-id --work-dir=build rpm
 
-      - name: Upload PKI packages
-        uses: actions/upload-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS/
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -68,12 +62,6 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
-
       - name: Download PKI container image
         uses: actions/download-artifact@v2
         with:
@@ -104,9 +92,6 @@ jobs:
 
       - name: Install IPA packages in IPA container
         run: docker exec ipa dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests freeipa-healthcheck
-
-      - name: Install PKI packages in IPA container
-        run: docker exec ipa bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
 
       - name: Install IPA server in IPA container
         run: |
@@ -258,12 +243,6 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download PKI packages
-        uses: actions/download-artifact@v2
-        with:
-          name: pki-build-${{ matrix.os }}
-          path: build/RPMS
-
       - name: Download PKI container image
         uses: actions/download-artifact@v2
         with:
@@ -293,9 +272,6 @@ jobs:
 
       - name: Install IPA packages in primary container
         run: docker exec primary dnf install -y freeipa-server
-
-      - name: Install PKI packages in primary container
-        run: docker exec primary bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
 
       - name: Install IPA server in primary container
         run: |
@@ -339,9 +315,6 @@ jobs:
 
       - name: Install IPA packages in secondary container
         run: docker exec secondary dnf install -y freeipa-server
-
-      - name: Install PKI packages in secondary container
-        run: docker exec secondary bash -c "dnf -y localinstall ${PKIDIR}/build/RPMS/*"
 
       - name: Install IPA client in secondary container
         run: |
