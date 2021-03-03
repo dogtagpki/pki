@@ -1,8 +1,9 @@
 ARG OS_VERSION=latest
 FROM registry.fedoraproject.org/fedora:$OS_VERSION
 
-# Install systemd since pki runs as a systemd service
-RUN true \
-        && dnf update -y --refresh \
-        && dnf install -y systemd \
-        && true
+COPY build/RPMS /tmp/RPMS/
+
+# Install PKI packages
+RUN dnf install -y dnf-plugins-core \
+        && dnf copr enable -y @pki/master \
+        && dnf localinstall -y /tmp/RPMS/*
