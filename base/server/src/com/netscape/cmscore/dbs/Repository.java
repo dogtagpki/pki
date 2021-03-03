@@ -74,7 +74,7 @@ public abstract class Repository implements IRepository {
     private BigInteger mLowWaterMarkNo = null;
 
     private DBSubsystem dbSubsystem;
-    private String mBaseDN = null;
+    protected String mBaseDN;
     private boolean mInit = false;
     private int mRadix = 10;
     private int mRepo = -1;
@@ -91,6 +91,18 @@ public abstract class Repository implements IRepository {
         mBaseDN = baseDN;
 
         BI_INCREMENT = new BigInteger(Integer.toString(increment));
+    }
+
+    /**
+     * Get the LDAP base DN for this repository.
+     *
+     * This value can be used by the request queue to create the
+     * name for the request records themselves.
+     *
+     * @return the LDAP base DN.
+     */
+    public String getBaseDN() {
+        return mBaseDN;
     }
 
     /**

@@ -61,8 +61,6 @@ class RequestRepository
             throws EDBException {
         super(dbSubsystem, increment, "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN());
 
-        mBaseDN = "ou=" + name + ",ou=requests," + dbSubsystem.getBaseDN();
-
         // Let RequestRecord class register its
         // database mapping and object mapping values
         RequestRecord.register(dbSubsystem);
@@ -71,19 +69,6 @@ class RequestRepository
 
     public void setRequestQueue(IRequestQueue requestQueue) {
         this.mRequestQueue = requestQueue;
-    }
-
-    /**
-     * get the LDAP base DN for this repository. This
-     * value can be used by the request queue to create the
-     * name for the request records themselves.
-     * <p>
-     *
-     * @return
-     *         the LDAP base DN.
-     */
-    public String getBaseDN() {
-        return mBaseDN;
     }
 
     /**
@@ -135,11 +120,6 @@ class RequestRepository
         return ret;
 
     }
-
-    /**
-     * the LDAP base DN for this repository
-     */
-    protected String mBaseDN;
 
     public String getPublishingStatus() {
         RepositoryRecord record = null;
