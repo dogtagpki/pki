@@ -739,9 +739,6 @@ public class Configurator {
 
         logger.info("Configurator: Processing " + tag + " certificate");
 
-        String profileID = preopConfig.getString("cert." + tag + ".profile");
-        logger.info("Configurator: - profile ID: " + profileID);
-
         Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
         logger.info("Configurator: - inject SAN: " + injectSAN);
         String[] dnsNames = null;
@@ -755,18 +752,17 @@ public class Configurator {
         SystemCertData certData = request.getSystemCert();
 
         String nickname = certData.getNickname();
-        logger.debug("Configurator: nickname: " + nickname);
+        logger.info("Configurator: - nickname: " + nickname);
 
         String tokenName = certData.getToken();
-        if (StringUtils.isEmpty(tokenName)) {
-            tokenName = preopConfig.getString("module.token", null);
-        }
+        logger.info("Configurator: - token: " + tokenName);
 
-        logger.debug("Configurator: token: " + tokenName);
+        String profileID = certData.getProfile();
+        logger.info("Configurator: - profile: " + profileID);
 
         // cert type is selfsign, local, or remote
-        String certType = preopConfig.getString("cert." + tag + ".type");
-        logger.debug("Configurator: cert type: " + certType);
+        String certType = certData.getType();
+        logger.info("Configurator: - cert type: " + certType);
 
         String fullName = nickname;
         if (!CryptoUtil.isInternalToken(tokenName)) {

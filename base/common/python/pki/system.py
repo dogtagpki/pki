@@ -308,6 +308,7 @@ class CertificateSetupRequest(object):
     def __init__(self):
         self.installToken = None
         self.clone = 'false'
+        self.systemCert = None
 
 
 class CertificateSetupResponse(object):

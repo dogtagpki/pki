@@ -41,6 +41,12 @@ public class SystemCertData {
     protected String token;
 
     @XmlElement
+    protected String profile;
+
+    @XmlElement
+    protected String type;
+
+    @XmlElement
     protected String keySize;
 
     @XmlElement
@@ -108,6 +114,22 @@ public class SystemCertData {
      */
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     /**
@@ -209,6 +231,8 @@ public class SystemCertData {
             + "tag=" + tag
             + ", nickname=" + nickname
             + ", token=" + token
+            + ", profile=" + profile
+            + ", type=" + type
             + ", keySize=" + keySize
             + ", keyCurveName=" + keyCurveName
             + ", request=" + request

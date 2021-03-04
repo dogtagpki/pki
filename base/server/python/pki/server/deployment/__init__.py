@@ -639,7 +639,7 @@ class PKIDeployer:
 
         self.get_install_token()
 
-    def setup_cert(self, client, tag, system_cert):
+    def setup_cert(self, subsystem, client, tag, system_cert):
 
         request = pki.system.CertificateSetupRequest()
         request.tag = tag
@@ -654,6 +654,12 @@ class PKIDeployer:
         request.masterURL = self.mdict['pki_clone_uri']
 
         self.config_client.set_system_cert_info(request, tag)
+
+        if not request.systemCert.token:
+            request.systemCert.token = subsystem.config['preop.module.token']
+
+        request.systemCert.profile = subsystem.config['preop.cert.%s.profile' % tag]
+        request.systemCert.type = subsystem.config['preop.cert.%s.type' % tag]
 
         logger.info('Setting up %s certificate', tag)
         cert = client.setupCert(request)
@@ -691,7 +697,7 @@ class PKIDeployer:
                 logger.info('subsystem certificate is already set up')
                 continue
 
-            self.setup_cert(client, tag, system_certs[tag])
+            self.setup_cert(subsystem, client, tag, system_certs[tag])
 
         return system_certs
 
