@@ -18,6 +18,8 @@
 
 package com.netscape.certsrv.system;
 
+import java.util.Arrays;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -69,6 +71,9 @@ public class SystemCertData {
 
     @XmlElement
     protected String req_ext_data;
+
+    @XmlElement
+    protected String[] dnsNames;
 
     public SystemCertData() {
         // required for JAXB
@@ -226,6 +231,14 @@ public class SystemCertData {
             return false;
     }
 
+    public String[] getDNSNames() {
+        return dnsNames;
+    }
+
+    public void setDNSNames(String[] dnsNames) {
+        this.dnsNames = dnsNames;
+    }
+
     public String toString() {
         return "SystemCertData["
             + "tag=" + tag
@@ -241,6 +254,7 @@ public class SystemCertData {
             + ", req_ext_oid=" + req_ext_oid
             + ", req_ext_critical=" + req_ext_critical
             + ", req_ext_data=" + req_ext_data
+            + ", dnsNames=" + (dnsNames == null ? null : Arrays.asList(dnsNames))
             + "]";
     }
 

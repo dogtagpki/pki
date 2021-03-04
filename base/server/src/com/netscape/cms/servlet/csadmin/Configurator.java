@@ -28,7 +28,6 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -739,16 +738,6 @@ public class Configurator {
 
         logger.info("Configurator: Processing " + tag + " certificate");
 
-        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        logger.info("Configurator: - inject SAN: " + injectSAN);
-        String[] dnsNames = null;
-
-        if (tag.equals("sslserver") && injectSAN) {
-            String list = cs.getString("service.sslserver.san");
-            logger.info("Configurator: - DNS names: " + list);
-            dnsNames = StringUtils.split(list, ",");
-        }
-
         SystemCertData certData = request.getSystemCert();
 
         String nickname = certData.getNickname();
@@ -763,6 +752,14 @@ public class Configurator {
         // cert type is selfsign, local, or remote
         String certType = certData.getType();
         logger.info("Configurator: - cert type: " + certType);
+
+        String[] dnsNames = certData.getDNSNames();
+        if (dnsNames != null) {
+            logger.info("Configurator: - SAN extension: ");
+            for (String dnsName : dnsNames) {
+                logger.info("Configurator:   - " + dnsName);
+            }
+        }
 
         String fullName = nickname;
         if (!CryptoUtil.isInternalToken(tokenName)) {

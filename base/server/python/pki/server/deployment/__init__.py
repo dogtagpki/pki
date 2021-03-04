@@ -661,6 +661,14 @@ class PKIDeployer:
         request.systemCert.profile = subsystem.config['preop.cert.%s.profile' % tag]
         request.systemCert.type = subsystem.config['preop.cert.%s.type' % tag]
 
+        inject_san = subsystem.config.get('service.injectSAN')
+        if tag == 'sslserver' and inject_san == 'true':
+            logger.info('SAN extension:')
+            dns_names = subsystem.config['service.sslserver.san'].split(',')
+            for dns_name in dns_names:
+                logger.info('- %s', dns_name)
+            request.systemCert.dnsNames = dns_names
+
         logger.info('Setting up %s certificate', tag)
         cert = client.setupCert(request)
 
