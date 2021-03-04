@@ -639,10 +639,10 @@ class PKIDeployer:
 
         self.get_install_token()
 
-    def setup_cert(self, client, tag):
+    def setup_cert(self, client, tag, system_cert):
 
         request = pki.system.CertificateSetupRequest()
-
+        request.tag = tag
         request.pin = self.mdict['pki_one_time_pin']
         request.installToken = self.install_token
 
@@ -653,10 +653,18 @@ class PKIDeployer:
         request.clone = config.str2bool(self.mdict['pki_clone'])
         request.masterURL = self.mdict['pki_clone_uri']
 
-        request.tag = tag
         self.config_client.set_system_cert_info(request, tag)
 
-        return client.setupCert(request)
+        logger.info('Setting up %s certificate', tag)
+        cert = client.setupCert(request)
+
+        logger.info('Storing %s certificate', tag)
+        logger.debug('- cert: %s', cert['cert'])
+        logger.debug('- request: %s', cert['request'])
+
+        system_cert['data'] = cert['cert']
+        system_cert['request'] = cert['request']
+        system_cert['token'] = cert['token']
 
     def setup_system_certs(self, subsystem, client):
 
@@ -683,18 +691,7 @@ class PKIDeployer:
                 logger.info('subsystem certificate is already set up')
                 continue
 
-            logger.info('Setting up %s certificate', tag)
-            cert = self.setup_cert(client, tag)
-
-            if not cert:
-                continue
-
-            logger.debug('- cert: %s', cert['cert'])
-            logger.debug('- request: %s', cert['request'])
-
-            system_certs[tag]['data'] = cert['cert']
-            system_certs[tag]['request'] = cert['request']
-            system_certs[tag]['token'] = cert['token']
+            self.setup_cert(client, tag, system_certs[tag])
 
         return system_certs
 
@@ -897,7 +894,7 @@ class PKIDeployer:
             else:
                 b64cert = self.request_admin_cert(subsystem, b64csr)
 
-        logger.info('Admin cert: %s', b64cert)
+        logger.debug('Admin cert: %s', b64cert)
 
         if config.str2bool(self.mdict['pki_external']) \
                 or config.str2bool(self.mdict['pki_standalone']) \
