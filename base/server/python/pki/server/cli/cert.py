@@ -1295,6 +1295,13 @@ class CertFixCLI(pki.cli.CLI):
 def suppress_selftest(subsystems):
     """Suppress selftests in the given subsystems."""
     for subsystem in subsystems:
+        # Log a warning if no startup tests are configured
+        if len(subsystem.get_startup_tests()) == 0:
+            logger.warning(
+                'No selftests configured in %s (selftests.container.order.startup).',
+                subsystem.cs_conf
+            )
+
         subsystem.set_startup_test_criticality(False)
         subsystem.save()
     logger.info(
