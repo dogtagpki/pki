@@ -312,8 +312,10 @@ Requires:         pki-console = %{version}
 Requires:         pki-javadoc = %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
-# of ALL PKI clients
+# of ALL PKI clients -- except for s390/s390x where 'esc' is not built
+%ifnarch s390 s390x
 Requires:         esc >= 1.1.1
+%endif
 
 # description for top-level package (unless there is a separate meta package)
 %if "%{name}" == "%{vendor_id}-pki"
