@@ -45,7 +45,6 @@ jobs:
       PKIDIR: /tmp/workdir/pki
       LOGS: ${GITHUB_WORKSPACE}/logs.txt
       COPR_REPO: "@pki/10.10"
-      test_set: "test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_ca_plugin.py test_vault_plugin.py"
     strategy:
       matrix:
         os: ['32', '33']
