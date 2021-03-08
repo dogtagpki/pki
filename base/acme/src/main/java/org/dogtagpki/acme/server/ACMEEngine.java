@@ -5,7 +5,6 @@
 //
 package org.dogtagpki.acme.server;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.math.BigInteger;
@@ -16,7 +15,6 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Collection;
@@ -1052,12 +1050,7 @@ public class ACMEEngine implements ServletContextListener {
         Date now = new Date();
         String certBase64 = revocation.getCertificate();
         byte[] certData = Utils.base64decode(certBase64);
-
-        X509Certificate cert;
-        try (ByteArrayInputStream is = new ByteArrayInputStream(certData)) {
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            cert = (X509Certificate) cf.generateCertificate(is);
-        }
+        X509CertImpl cert = new X509CertImpl(certData);
 
         String certID = issuer.getCertificateID(cert);
 
