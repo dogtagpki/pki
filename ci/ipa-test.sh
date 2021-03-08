@@ -32,6 +32,7 @@ echo ${server_password} > ~/.ipa/.dmpw
 echo 'wait_for_dns=5' >> ~/.ipa/default.conf
 
 # Make a list of IPA tests to run
+test_set="test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_ca_plugin.py test_vault_plugin.py"
 cert_test_file_loc=""
 for test_files in ${test_set}; do
     cert_test_file_loc="${cert_test_file_loc} test_xmlrpc/${test_files}"
