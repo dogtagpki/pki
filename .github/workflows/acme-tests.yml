@@ -33,6 +33,23 @@ jobs:
           name: pki-runner-${{ matrix.os }}
           path: /tmp/pki-runner.tar
 
+      - name: Build ACME image
+        uses: docker/build-push-action@v2
+        with:
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ env.COPR_REPO }}
+            BUILD_OPTS=--with-pkgs=base,server,ca,acme
+          tags: pki-acme
+          target: pki-acme
+          outputs: type=docker,dest=/tmp/pki-acme.tar
+
+      - name: Upload ACME image
+        uses: actions/upload-artifact@v2
+        with:
+          name: pki-acme-${{ matrix.os }}
+          path: /tmp/pki-acme.tar
+
   # docs/installation/acme/Installing_PKI_ACME_Responder.md
   # docs/user/acme/Using_PKI_ACME_Responder_with_Certbot.md
   acme-certbot-test:
@@ -374,3 +391,115 @@ jobs:
         with:
           name: switchover-logs-${{ matrix.os }}
           path: switchover-logs.tar
+
+  # docs/installation/podman/Deploying_PKI_ACME_Responder_on_Podman.md
+  acme-container-test:
+    name: Testing ACME container
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      BUILDDIR: /tmp/workdir
+      PKIDIR: /tmp/workdir/pki
+      COPR_REPO: "@pki/master"
+    strategy:
+      matrix:
+        os: ['32', '33']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download runner image
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-runner-${{ matrix.os }}
+          path: /tmp
+
+      - name: Load runner image
+        run: docker load --input /tmp/pki-runner.tar
+
+      - name: Download ACME image
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-acme-${{ matrix.os }}
+          path: /tmp
+
+      - name: Load ACME image
+        run: docker load --input /tmp/pki-acme.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Run ACME container
+        run: |
+          docker run \
+              --name pki-acme \
+              --detach \
+              pki-acme
+
+      - name: Connect ACME container to network
+        run: docker network connect example pki-acme --alias pki.example.com
+
+      - name: Run client container
+        run: |
+          IMAGE=pki-runner \
+          NAME=client \
+          HOSTNAME=client.example.com \
+          ci/runner-init.sh
+
+      - name: Connect client container to network
+        run: docker network connect example client --alias client.example.com
+
+      - name: Install dependencies in client container
+        run: docker exec client dnf install -y certbot
+
+      - name: Verify certbot in client container
+        run: |
+          docker exec client certbot register \
+              --server http://pki.example.com:8080/acme/directory \
+              --email user1@example.com \
+              --agree-tos \
+              --non-interactive
+          docker exec client certbot certonly \
+              --server http://pki.example.com:8080/acme/directory \
+              -d client.example.com \
+              --standalone \
+              --non-interactive
+          docker exec client certbot renew \
+              --server http://pki.example.com:8080/acme/directory \
+              --cert-name client.example.com \
+              --force-renewal \
+              --no-random-sleep-on-renew \
+              --non-interactive
+          #
+          # By default the pki-acme container uses NSS issuer (instead of
+          # PKI issuer) which does not support cert revocation, so the
+          # revocation test is disabled.
+          #
+          # docker exec client certbot revoke \
+          #     --server http://pki.example.com:8080/acme/directory \
+          #     --cert-name client.example.com \
+          #     --non-interactive
+          #
+          docker exec client certbot update_account \
+              --server http://pki.example.com:8080/acme/directory \
+              --email user2@example.com \
+              --non-interactive
+          docker exec client certbot unregister \
+              --server http://pki.example.com:8080/acme/directory \
+              --non-interactive
+
+      - name: Gather log files
+        if: always()
+        run: |
+          mkdir -p /tmp/logs/server
+          docker cp pki-acme:/var/lib/tomcats/pki/logs/. /tmp/logs/server
+          docker logs pki-acme > /tmp/logs/server/pki-acme.log
+          mkdir -p /tmp/logs/client
+          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/logs/client
+
+      - name: Upload log files
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: pki-acme-logs-${{ matrix.os }}
+          path: /tmp/logs
