@@ -72,6 +72,7 @@ import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertAttrSet;
 import org.mozilla.jss.netscape.security.x509.DNSName;
+import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
@@ -993,13 +994,14 @@ public class ACMEEngine implements ServletContextListener {
         while (extNames.hasMoreElements()) {
 
             String name = extNames.nextElement();
-            Object value = extensions.get(name);
+            Extension extension = (Extension) extensions.get(name);
             logger.info("  - " + name);
+            logger.info("    - critical: " + extension.isCritical());
 
             // TODO: support other extensions
 
-            if (value instanceof SubjectAlternativeNameExtension) {
-                SubjectAlternativeNameExtension sanExt = (SubjectAlternativeNameExtension) value;
+            if (extension instanceof SubjectAlternativeNameExtension) {
+                SubjectAlternativeNameExtension sanExt = (SubjectAlternativeNameExtension) extension;
                 parseCSRSAN(sanExt, dnsNames);
             }
         }
