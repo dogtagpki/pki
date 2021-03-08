@@ -153,12 +153,13 @@ jobs:
           docker exec client certbot certonly \
               --server http://pki.example.com:8080/acme/directory \
               -d client.example.com \
-               --standalone \
+              --standalone \
               --non-interactive
           docker exec client certbot renew \
               --server http://pki.example.com:8080/acme/directory \
               --cert-name client.example.com \
               --force-renewal \
+              --no-random-sleep-on-renew \
               --non-interactive
           docker exec client certbot revoke \
               --server http://pki.example.com:8080/acme/directory \
@@ -308,12 +309,12 @@ jobs:
           docker exec client certbot certonly \
               --server http://pki.example.com:8080/acme/directory \
               -d client1.example.com \
-               --standalone \
+              --standalone \
               --non-interactive
           docker exec client certbot certonly \
               --server http://pki.example.com:8080/acme/directory \
               -d client2.example.com \
-               --standalone \
+              --standalone \
               --non-interactive
 
       - name: Simulate ACME server switchover by replacing the baseURL parameter
@@ -336,6 +337,7 @@ jobs:
               --server http://pki.example.com:8080/acme/directory \
               --cert-name client1.example.com \
               --force-renewal \
+              --no-random-sleep-on-renew \
               --non-interactive
           docker exec client certbot revoke \
               --server http://pki.example.com:8080/acme/directory \
