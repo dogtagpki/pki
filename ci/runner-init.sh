@@ -29,7 +29,6 @@ docker run \
     -e GITHUB_RUN_NUMBER=${GITHUB_RUN_NUMBER} \
     -e COPR_REPO="${COPR_REPO}" \
     -e container=docker \
-    -e LOGS="${LOGS}" \
     --expose=389 \
     --expose=8080 \
     --expose=8443 \

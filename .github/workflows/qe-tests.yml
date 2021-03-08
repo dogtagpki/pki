@@ -44,7 +44,6 @@ jobs:
     env:
       BUILDDIR: /tmp/workdir
       PKIDIR: /tmp/workdir/pki
-      LOGS: ${GITHUB_WORKSPACE}/logs.txt
       COPR_REPO: "@pki/master"
     strategy:
       matrix:
