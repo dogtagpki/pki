@@ -5,7 +5,7 @@
 #
 # https://docs.fedoraproject.org/en-US/containers/guidelines/guidelines/
 
-FROM registry.fedoraproject.org/fedora:31
+FROM registry.fedoraproject.org/fedora:latest
 
 ARG NAME="pki-acme"
 ARG SUMMARY="Dogtag PKI ACME Responder"
@@ -15,7 +15,7 @@ ARG ARCH="x86_64"
 ARG MAINTAINER="Dogtag PKI Team <pki-devel@redhat.com>"
 ARG VENDOR="Dogtag"
 ARG COMPONENT="pki-core"
-ARG COPR_REPO=""
+ARG COPR_REPO="@pki/master"
 
 LABEL name="$NAME" \
       summary="$SUMMARY" \
@@ -33,14 +33,22 @@ EXPOSE 8080 8443
 RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enable -y $COPR_REPO; fi
 
 # Install packages
-RUN dnf install -y bind-utils iputils abrt-java-connector postgresql postgresql-jdbc pki-acme
+RUN dnf install -y bind-utils iputils abrt-java-connector postgresql postgresql-jdbc
+
+# Import PKI sources
+COPY . /tmp/pki/
+WORKDIR /tmp/pki
+
+# Build PKI packages
+RUN dnf install -y dnf-plugins-core rpm-build
+RUN dnf builddep -y --spec pki.spec
+RUN ./build.sh --with-pkgs=base,server,acme --work-dir=/tmp/build rpm
+
+# Install PKI packages
+RUN dnf localinstall -y /tmp/build/RPMS/*
 
 # Install PostgreSQL JDBC driver
 RUN ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib/postgresql.jar
-
-# Install development packages (if available)
-COPY RPMS /tmp/RPMS/
-RUN dnf localinstall -y /tmp/RPMS/* && rm -rf /tmp/RPMS
 
 # Create PKI server
 RUN pki-server create tomcat@pki --user tomcat --group root
@@ -87,7 +95,8 @@ RUN pki-server acme-deploy -i tomcat@pki
 
 # Grant the root group the full access to PKI ACME files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chgrp -Rf root /var/lib/tomcats/pki && chmod -Rf g+rw /var/lib/tomcats/pki
+RUN chgrp -Rf root /var/lib/tomcats/pki
+RUN chmod -Rf g+rw /var/lib/tomcats/pki
 
 VOLUME [ \
     "/var/lib/tomcats/pki/conf/certs", \
