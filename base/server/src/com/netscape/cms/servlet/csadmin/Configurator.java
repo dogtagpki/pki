@@ -800,27 +800,6 @@ public class Configurator {
             }
         }
 
-        // For external/existing CA case, some/all system certs may be provided.
-        // The SSL server cert will always be generated for the current host.
-
-        // For external/standalone KRA/OCSP case, all system certs will be provided.
-        // No system certs will be generated including the SSL server cert.
-
-        if (type.equals("CA") && request.isExternal() && !tag.equals("sslserver") && x509Cert != null
-                || type.equals("KRA") && (request.isExternal() || request.getStandAlone())
-                || type.equals("OCSP") && (request.isExternal() || request.getStandAlone())) {
-
-            loadCert(
-                    type,
-                    tag,
-                    cert,
-                    x509Cert,
-                    profileID,
-                    dnsNames);
-
-            return cert;
-        }
-
         String dn = preopConfig.getString("cert." + tag + ".dn");
         String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
         String extOID = preopConfig.getString("cert." + tag + ".ext.oid", null);

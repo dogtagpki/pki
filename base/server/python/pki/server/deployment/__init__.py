@@ -641,15 +641,16 @@ class PKIDeployer:
 
     def setup_cert(self, subsystem, client, tag, system_cert):
 
+        # Process existing CA installation like external CA
+        external = config.str2bool(self.mdict['pki_external']) or \
+            config.str2bool(self.mdict['pki_existing'])
+        standalone = config.str2bool(self.mdict['pki_standalone'])
+
         request = pki.system.CertificateSetupRequest()
         request.tag = tag
         request.pin = self.mdict['pki_one_time_pin']
         request.installToken = self.install_token
 
-        # Process existing CA installation like external CA
-        request.external = config.str2bool(self.mdict['pki_external']) or \
-            config.str2bool(self.mdict['pki_existing'])
-        request.standAlone = config.str2bool(self.mdict['pki_standalone'])
         request.clone = config.str2bool(self.mdict['pki_clone'])
         request.masterURL = self.mdict['pki_clone_uri']
 
@@ -668,6 +669,30 @@ class PKIDeployer:
             for dns_name in dns_names:
                 logger.info('- %s', dns_name)
             request.systemCert.dnsNames = dns_names
+
+        nssdb = subsystem.instance.open_nssdb()
+        try:
+            cert_data = nssdb.get_cert(
+                nickname=request.systemCert.nickname,
+                token=request.systemCert.token)
+        finally:
+            nssdb.close()
+
+        # For external/existing CA case, some/all system certs may be provided.
+        # The SSL server cert will always be generated for the current host.
+
+        # For external/standalone KRA/OCSP case, all system certs will be provided.
+        # No system certs will be generated including the SSL server cert.
+
+        if subsystem.type == 'CA' and external and tag != 'sslserver' and cert_data or \
+                subsystem.type in ['KRA', 'OCSP'] and (external or standalone):
+
+            logger.info('Loading %s certificate', tag)
+            logger.debug('- cert: %s', system_cert['data'])
+            logger.debug('- request: %s', system_cert['request'])
+
+            client.loadCert(request)
+            return
 
         logger.info('Setting up %s certificate', tag)
         cert = client.setupCert(request)
