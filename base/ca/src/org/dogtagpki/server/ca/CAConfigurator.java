@@ -343,7 +343,7 @@ public class CAConfigurator extends Configurator {
 
             return createRemoteCert(hostname, port, profileID, certreq, dnsNames, installToken);
 
-        } else if ("remote".equals(certType)) {
+        } else { // certType == "remote"
 
             // issue subordinate CA signing cert using remote CA signing cert
             return super.createCert(
@@ -356,43 +356,6 @@ public class CAConfigurator extends Configurator {
                     clone,
                     masterURL,
                     installToken);
-
-        } else { // selfsign or local
-            // issue other system certs using self-signed or local CA signing cert
-
-            PreOpConfig preopConfig = cs.getPreOpConfig();
-
-            String dn = preopConfig.getString("cert." + tag + ".dn");
-            String issuerDN = preopConfig.getString("cert.signing.dn", "");
-            String keyAlgorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
-
-            String certRequestType = "pkcs10";
-            String subjectName = null;
-            X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
-
-            boolean installAdjustValidity = !tag.equals("signing");
-
-            String signingAlgorithm;
-            if (certType.equals("selfsign")) {
-                signingAlgorithm = preopConfig.getString("cert.signing.keyalgorithm", "SHA256withRSA");
-            } else {
-                signingAlgorithm = preopConfig.getString("cert.signing.signingalgorithm", "SHA256withRSA");
-            }
-
-            return createLocalCert(
-                    certType,
-                    dn,
-                    issuerDN,
-                    keyAlgorithm,
-                    keyPair,
-                    x509key,
-                    profileID,
-                    dnsNames,
-                    installAdjustValidity,
-                    signingAlgorithm,
-                    certRequestType,
-                    certreq,
-                    subjectName);
         }
     }
 
