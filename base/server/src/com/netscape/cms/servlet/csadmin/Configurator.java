@@ -646,74 +646,6 @@ public class Configurator {
         trustCert(type, tag, x509Cert);
     }
 
-    public void setupNewCert(
-            String type,
-            String tag,
-            Cert cert,
-            String certType,
-            KeyPair keyPair,
-            X509Certificate x509Cert,
-            String profileID,
-            String dn,
-            String algorithm,
-            String extOID,
-            String extData,
-            boolean extCritical,
-            String[] dnsNames,
-            Boolean clone,
-            URL masterURL,
-            InstallToken installToken) throws Exception {
-
-        byte[] binCertRequest = createCertRequest(
-                tag,
-                keyPair,
-                dn,
-                algorithm,
-                extOID,
-                extData,
-                extCritical);
-
-        cert.setRequest(binCertRequest);
-
-        String certreq = CryptoUtil.base64Encode(binCertRequest);
-        logger.debug("Configurator: request: " + certreq);
-        cs.putString(type.toLowerCase() + "." + tag + ".certreq", certreq);
-
-        X509CertImpl certImpl = createCert(
-                tag,
-                keyPair,
-                binCertRequest,
-                certType,
-                profileID,
-                dnsNames,
-                clone,
-                masterURL,
-                installToken);
-
-        cert.setCert(certImpl.getEncoded());
-
-        String certStr = CryptoUtil.base64Encode(cert.getCert());
-        logger.debug("Configurator: cert: " + certStr);
-        cs.putString(type.toLowerCase() + "." + tag + ".cert", certStr);
-
-        cs.commit(false);
-
-        if (tag.equals("sslserver")) {
-            logger.info("Configurator: temporary SSL server cert will be replaced on restart");
-            return;
-        }
-
-        if (x509Cert != null) {
-            logger.debug("Configurator: deleting existing " + tag + " cert");
-            CertUtil.deleteCert(cert.getTokenname(), x509Cert);
-        }
-
-        logger.debug("Configurator: importing " + tag + " cert");
-        x509Cert = CryptoUtil.importUserCertificate(cert.getCert(), cert.getNickname());
-
-        trustCert(type, tag, x509Cert);
-    }
-
     public void trustCert(String type, String tag, X509Certificate x509Cert) {
 
         if (tag.equals("signing") && type.equals("CA")) { // set trust flags to CT,C,C
@@ -797,7 +729,7 @@ public class Configurator {
         }
 
         String dn = preopConfig.getString("cert." + tag + ".dn");
-        String algorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
+        String keyAlgorithm = preopConfig.getString("cert." + tag + ".keyalgorithm");
         String extOID = preopConfig.getString("cert." + tag + ".ext.oid", null);
         String extData = preopConfig.getString("cert." + tag + ".ext.data", null);
         boolean extCritical = preopConfig.getBoolean("cert." + tag + ".ext.critical", false);
@@ -806,23 +738,55 @@ public class Configurator {
         URL masterURL = request.getMasterURL();
         InstallToken installToken = request.getInstallToken();
 
-        setupNewCert(
-                type,
+        byte[] binCertRequest = createCertRequest(
                 tag,
-                cert,
-                certType,
                 keyPair,
-                x509Cert,
-                profileID,
                 dn,
-                algorithm,
+                keyAlgorithm,
                 extOID,
                 extData,
-                extCritical,
+                extCritical);
+
+        cert.setRequest(binCertRequest);
+
+        String certreq = CryptoUtil.base64Encode(binCertRequest);
+        logger.debug("Configurator: request: " + certreq);
+        cs.putString(type.toLowerCase() + "." + tag + ".certreq", certreq);
+
+        X509CertImpl certImpl = createCert(
+                tag,
+                keyPair,
+                binCertRequest,
+                certType,
+                profileID,
                 dnsNames,
                 clone,
                 masterURL,
                 installToken);
+
+        byte[] binCert = certImpl.getEncoded();
+        cert.setCert(binCert);
+
+        String certStr = CryptoUtil.base64Encode(cert.getCert());
+        logger.debug("Configurator: cert: " + certStr);
+        cs.putString(type.toLowerCase() + "." + tag + ".cert", certStr);
+
+        cs.commit(false);
+
+        if (tag.equals("sslserver")) {
+            logger.info("Configurator: temporary SSL server cert will be replaced on restart");
+            return cert;
+        }
+
+        if (x509Cert != null) {
+            logger.debug("Configurator: deleting existing " + tag + " cert");
+            CertUtil.deleteCert(tokenName, x509Cert);
+        }
+
+        logger.debug("Configurator: importing " + tag + " cert");
+        x509Cert = CryptoUtil.importUserCertificate(binCert, nickname);
+
+        trustCert(type, tag, x509Cert);
 
         return cert;
     }
