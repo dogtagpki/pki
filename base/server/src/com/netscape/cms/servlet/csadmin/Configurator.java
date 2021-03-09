@@ -749,10 +749,6 @@ public class Configurator {
 
         cert.setRequest(binCertRequest);
 
-        String certreq = CryptoUtil.base64Encode(binCertRequest);
-        logger.debug("Configurator: request: " + certreq);
-        cs.putString(type.toLowerCase() + "." + tag + ".certreq", certreq);
-
         X509CertImpl certImpl = createCert(
                 tag,
                 keyPair,
@@ -766,12 +762,6 @@ public class Configurator {
 
         byte[] binCert = certImpl.getEncoded();
         cert.setCert(binCert);
-
-        String certStr = CryptoUtil.base64Encode(cert.getCert());
-        logger.debug("Configurator: cert: " + certStr);
-        cs.putString(type.toLowerCase() + "." + tag + ".cert", certStr);
-
-        cs.commit(false);
 
         if (tag.equals("sslserver")) {
             logger.info("Configurator: temporary SSL server cert will be replaced on restart");

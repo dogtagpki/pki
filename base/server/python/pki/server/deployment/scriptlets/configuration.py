@@ -770,8 +770,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Setting up database user')
             deployer.setup_database_user(instance, subsystem)
 
-        subsystem.load()
-
         if subsystem.type == 'CA':
 
             if clone:

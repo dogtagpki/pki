@@ -705,6 +705,8 @@ class PKIDeployer:
         system_cert['request'] = cert['request']
         system_cert['token'] = cert['token']
 
+        subsystem.update_system_cert(system_cert)
+
     def setup_system_certs(self, subsystem, client):
 
         system_certs = {}
@@ -731,6 +733,8 @@ class PKIDeployer:
                 continue
 
             self.setup_cert(subsystem, client, tag, system_certs[tag])
+
+        subsystem.save()
 
         return system_certs
 
