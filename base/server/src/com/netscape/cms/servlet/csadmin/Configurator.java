@@ -612,7 +612,6 @@ public class Configurator {
     public void loadCert(
             String type,
             String tag,
-            Cert cert,
             X509Certificate x509Cert,
             String profileID,
             String[] dnsNames) throws Exception {
@@ -621,13 +620,10 @@ public class Configurator {
 
         String certreq = cs.getString(type.toLowerCase() + "." + tag + ".certreq");
         logger.debug("Configurator: request: " + certreq);
-
         byte[] binCertRequest = CryptoUtil.base64Decode(certreq);
-        cert.setRequest(binCertRequest);
 
         logger.info("Configurator: Loading existing " + tag + " certificate");
         byte[] binCert = x509Cert.getEncoded();
-        cert.setCert(binCert);
 
         boolean installAdjustValidity = !tag.equals("signing");
         String certRequestType = "pkcs10";

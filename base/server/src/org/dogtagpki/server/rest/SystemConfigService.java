@@ -121,15 +121,12 @@ public class SystemConfigService extends PKIService {
                 fullName = tokenName + ":" + nickname;
             }
 
-            Cert cert = new Cert(tokenName, nickname, tag);
-
             CryptoManager cm = CryptoManager.getInstance();
             X509Certificate x509Cert = cm.findCertByNickname(fullName);
 
             configurator.loadCert(
                     type,
                     tag,
-                    cert,
                     x509Cert,
                     profileID,
                     dnsNames);

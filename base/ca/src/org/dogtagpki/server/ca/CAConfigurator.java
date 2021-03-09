@@ -419,12 +419,11 @@ public class CAConfigurator extends Configurator {
     public void loadCert(
             String type,
             String tag,
-            Cert cert,
             X509Certificate x509Cert,
             String profileID,
             String[] dnsNames) throws Exception {
 
-        super.loadCert(type, tag, cert, x509Cert, profileID, dnsNames);
+        super.loadCert(type, tag, x509Cert, profileID, dnsNames);
 
         if (type.equals("CA") && tag.equals("signing")) {
             logger.info("CAConfigurator: Initializing CA with existing signing cert");
