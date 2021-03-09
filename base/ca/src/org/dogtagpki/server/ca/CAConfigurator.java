@@ -24,6 +24,7 @@ import java.security.Principal;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -413,6 +414,28 @@ public class CAConfigurator extends Configurator {
         }
 
         return cert;
+    }
+
+    public void loadCert(
+            String type,
+            String tag,
+            Cert cert,
+            X509Certificate x509Cert,
+            String profileID,
+            String[] dnsNames) throws Exception {
+
+        super.loadCert(type, tag, cert, x509Cert, profileID, dnsNames);
+
+        if (type.equals("CA") && tag.equals("signing")) {
+            logger.info("CAConfigurator: Initializing CA with existing signing cert");
+
+            CAEngine engine = CAEngine.getInstance();
+            CAEngineConfig engineConfig = engine.getConfig();
+
+            CertificateAuthority ca = engine.getCA();
+            ca.setConfig(engineConfig.getCAConfig());
+            ca.initCertSigningUnit();
+        }
     }
 
     public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {

@@ -21,6 +21,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
@@ -40,6 +42,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.PreOpConfig;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author alee
@@ -76,6 +79,69 @@ public class SystemConfigService extends PKIService {
         instanceRoot = cs.getInstanceDir();
 
         configurator = engine.createConfigurator();
+    }
+
+    @POST
+    @Path("loadCert")
+    public void loadCert(CertificateSetupRequest request) throws Exception {
+
+        String tag = request.getTag();
+        logger.info("SystemConfigService: Loading existing " + tag + " certificate");
+
+        try {
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            String type = cs.getType();
+
+            SystemCertData certData = request.getSystemCert();
+
+            String nickname = certData.getNickname();
+            logger.info("SystemConfigService: - nickname: " + nickname);
+
+            String tokenName = certData.getToken();
+            logger.info("SystemConfigService: - token: " + tokenName);
+
+            String profileID = certData.getProfile();
+            logger.info("SystemConfigService: - profile: " + profileID);
+
+            String[] dnsNames = certData.getDNSNames();
+            if (dnsNames != null) {
+                logger.info("SystemConfigService: - SAN extension: ");
+                for (String dnsName : dnsNames) {
+                    logger.info("SystemConfigService:   - " + dnsName);
+                }
+            }
+
+            String fullName = nickname;
+            if (!CryptoUtil.isInternalToken(tokenName)) {
+                fullName = tokenName + ":" + nickname;
+            }
+
+            Cert cert = new Cert(tokenName, nickname, tag);
+
+            CryptoManager cm = CryptoManager.getInstance();
+            X509Certificate x509Cert = cm.findCertByNickname(fullName);
+
+            configurator.loadCert(
+                    type,
+                    tag,
+                    cert,
+                    x509Cert,
+                    profileID,
+                    dnsNames);
+
+        } catch (PKIException e) { // normal response
+            logger.error("Unable to load " + tag + " certificate: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Unable to load " + tag + " certificate: " + e.getMessage(), e);
+            throw e;
+        }
     }
 
     @POST

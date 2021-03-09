@@ -609,7 +609,7 @@ public class Configurator {
             String subjectName) throws Exception {
     }
 
-    public void setupExistingCert(
+    public void loadCert(
             String type,
             String tag,
             Cert cert,
@@ -810,7 +810,7 @@ public class Configurator {
                 || type.equals("KRA") && (request.isExternal() || request.getStandAlone())
                 || type.equals("OCSP") && (request.isExternal() || request.getStandAlone())) {
 
-            setupExistingCert(
+            loadCert(
                     type,
                     tag,
                     cert,
