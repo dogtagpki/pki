@@ -44,12 +44,6 @@ public class CertificateSetupRequest {
     @XmlElement
     protected SystemCertData systemCert;
 
-    @XmlElement
-    protected Boolean external;
-
-    @XmlElement
-    protected Boolean standAlone;
-
     @XmlElement(defaultValue="false")
     protected Boolean clone;
 
@@ -92,22 +86,6 @@ public class CertificateSetupRequest {
        this.systemCert = systemCert;
    }
 
-    public Boolean isExternal() {
-        return external;
-    }
-
-    public void setExternal(Boolean external) {
-        this.external = external;
-    }
-
-    public Boolean getStandAlone() {
-        return standAlone;
-    }
-
-    public void setStandAlone(Boolean standAlone) {
-        this.standAlone = standAlone;
-    }
-
     public Boolean isClone() {
         return clone;
     }
@@ -129,8 +107,6 @@ public class CertificateSetupRequest {
         return "CertificateSetupRequest [pin=XXXX" +
                ", tag=" + tag +
                ", systemCert=" + systemCert +
-               ", external=" + external +
-               ", standAlone=" + standAlone +
                ", clone=" + clone +
                ", masterURL=" + masterURL +
                "]";
