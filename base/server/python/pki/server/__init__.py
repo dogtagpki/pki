@@ -341,7 +341,7 @@ class PKIServer(object):
         logger.info('Server stopped')
 
     def restart(self, wait=False, max_wait=60, timeout=None):
-        self.stop(wait=wait, max_wait=max_wait, timeout=timeout)
+        self.stop(wait=True, max_wait=max_wait, timeout=timeout)
         self.start(wait=wait, max_wait=max_wait, timeout=timeout)
 
     def enable(self):
