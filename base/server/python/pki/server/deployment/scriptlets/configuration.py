@@ -666,12 +666,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             len(deployer.instance.tomcat_instance_subsystems())
 
         if tomcat_instance_subsystems == 1:
+
             logger.info('Starting server')
-            instance.start()
+            instance.start(
+                wait=True,
+                max_wait=deployer.startup_timeout,
+                timeout=deployer.request_timeout)
 
         elif tomcat_instance_subsystems > 1:
+
             logger.info('Restarting server')
-            instance.restart()
+            instance.restart(
+                wait=True,
+                max_wait=deployer.startup_timeout,
+                timeout=deployer.request_timeout)
 
         subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
 
@@ -784,8 +792,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # If temp SSL server cert was created and there's a new perm cert,
         # replace it with the perm cert.
         if create_temp_sslserver_cert and system_certs['sslserver']['data']:
+
             logger.info('Stopping server')
-            instance.stop()
+            instance.stop(
+                wait=True,
+                max_wait=deployer.startup_timeout,
+                timeout=deployer.request_timeout)
 
             # Remove temp SSL server cert.
             self.remove_temp_sslserver_cert(instance, system_certs['sslserver'])
@@ -806,11 +818,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.set_sslserver_cert_nickname(nickname, token)
 
             logger.info('Starting server')
-            instance.start()
+            instance.start(
+                wait=True,
+                max_wait=deployer.startup_timeout,
+                timeout=deployer.request_timeout)
 
         elif config.str2bool(deployer.mdict['pki_restart_configured_instance']):
+
             logger.info('Restarting server')
-            instance.restart()
+            instance.restart(
+                wait=True,
+                max_wait=deployer.startup_timeout,
+                timeout=deployer.request_timeout)
 
         subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
 
