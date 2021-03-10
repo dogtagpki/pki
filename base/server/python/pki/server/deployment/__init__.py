@@ -110,6 +110,9 @@ class PKIDeployer:
         self.sd_host = None
         self.install_token = None
 
+        self.startup_timeout = None
+        self.request_timeout = None
+
     def set_property(self, key, value, section=None):
 
         if not section:
@@ -127,6 +130,23 @@ class PKIDeployer:
         self.user_config.set(section, key, value)
 
     def init(self):
+
+        # Configure startup timeout
+        try:
+            self.startup_timeout = int(os.environ['PKISPAWN_STARTUP_TIMEOUT_SECONDS'])
+        except (KeyError, ValueError):
+            self.startup_timeout = 60
+
+        if self.startup_timeout <= 0:
+            self.startup_timeout = 60
+
+        # Configure status request timeout. This is used for each
+        # status request in wait_for_startup().
+        value = self.mdict['pki_status_request_timeout']
+        if len(value) > 0:
+            self.request_timeout = int(value)
+            if self.request_timeout <= 0:
+                raise ValueError("Request timeout must be greater than zero")
 
         # Utility objects
         self.identity = util.Identity(self)
