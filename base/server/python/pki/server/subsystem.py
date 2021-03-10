@@ -440,7 +440,8 @@ class PKISubsystem(object):
                     self.type,
                     int(round(counter)))
 
-    def enable(self):
+    def enable(self, wait=False, max_wait=60, timeout=None):
+
         if os.path.exists(self.doc_base):
             # deploy custom subsystem if exists
             doc_base = self.doc_base
@@ -450,10 +451,25 @@ class PKISubsystem(object):
             # /usr/share/pki/<subsystem>/webapps/<subsystem>
             doc_base = None
 
-        self.instance.deploy_webapp(self.name, self.default_context_xml, doc_base)
+        self.instance.deploy_webapp(
+            self.name,
+            self.default_context_xml,
+            doc_base=doc_base,
+            wait=wait,
+            max_wait=max_wait,
+            timeout=timeout)
 
-    def disable(self):
-        self.instance.undeploy_webapp(self.name)
+    def disable(self, wait=False, max_wait=60, timeout=None):
+
+        self.instance.undeploy_webapp(
+            self.name,
+            wait=wait,
+            max_wait=max_wait,
+            timeout=timeout)
+
+    def restart(self, wait=False, max_wait=60, timeout=None):
+        self.disable(wait=True, max_wait=max_wait, timeout=timeout)
+        self.enable(wait=wait, max_wait=max_wait, timeout=timeout)
 
     def open_database(self, name='internaldb', bind_dn=None,
                       bind_password=None):
