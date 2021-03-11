@@ -231,7 +231,7 @@ BuildRequires:    jna
 %endif
 BuildRequires:    systemd-units
 
-%if 0%{?rhel}
+%if 0%{?rhel} && ! 0%{?eln}
 BuildRequires:    pki-servlet-engine
 %else
 BuildRequires:    tomcat >= 1:9.0.7
@@ -505,8 +505,8 @@ Requires:         python3-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
-%if 0%{?rhel}
-Requires:         pki-servlet-engine >= 1:9.0.7
+%if 0%{?rhel} && ! 0%{?eln}
+Requires:         pki-servlet-engine
 %else
 Requires:         tomcat >= 1:9.0.7
 %endif
@@ -850,7 +850,7 @@ java_version=`%{java_home}/bin/java -XshowSettings:properties -version 2>&1 | se
 # otherwise get <major> version number
 java_version=`echo $java_version | sed -e 's/^1\.//' -e 's/\..*$//'`
 
-# assume tomcat app_server 
+# assume tomcat app_server
 app_server=tomcat-8.5
 
 %if 0%{?rhel}
