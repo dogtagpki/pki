@@ -31,6 +31,14 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 #     > pki-VERSION-RELEASE.patch
 # Patch: pki-VERSION-RELEASE.patch
 
+# md2man isn't available on i686. Additionally, we aren't generally multi-lib
+# compatible (https://fedoraproject.org/wiki/Packaging:Java)
+# so dropping i686 everywhere but RHEL-8 (which we've already shipped) seems
+# safest.
+%if ! 0%{?rhel} || 0%{?rhel} > 8
+ExcludeArch: i686
+%endif
+
 ################################################################################
 # NSS
 ################################################################################
