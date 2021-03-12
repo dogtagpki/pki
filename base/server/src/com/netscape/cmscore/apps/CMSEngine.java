@@ -154,9 +154,8 @@ public class CMSEngine {
 
     private static final int PW_OK =0;
     //private static final int PW_BAD_SETUP = 1;
-    private static final int PW_INVALID_PASSWORD = 2;
+    private static final int PW_INVALID_CREDENTIALS = 2;
     private static final int PW_CANNOT_CONNECT = 3;
-    private static final int PW_NO_USER = 4;
     private static final int PW_MAX_ATTEMPTS = 3;
 
 
@@ -312,16 +311,16 @@ public class CMSEngine {
             }
 
             int iteration = 0;
-            int result = PW_INVALID_PASSWORD;
+            int result = PW_INVALID_CREDENTIALS;
 
             do {
                 String passwd = mPasswordStore.getPassword(tag, iteration);
                 result = testLDAPConnection(tag, connInfo, binddn, passwd);
                 iteration++;
-            } while ((result == PW_INVALID_PASSWORD) && (iteration < PW_MAX_ATTEMPTS));
+            } while ((result == PW_INVALID_CREDENTIALS) && (iteration < PW_MAX_ATTEMPTS));
 
             if (result != PW_OK) {
-                if ((result == PW_NO_USER) && (tag.equals("replicationdb"))) {
+                if ((result == PW_INVALID_CREDENTIALS) && (tag.equals("replicationdb"))) {
                     logger.warn(
                         "CMSEngine: password test execution failed for replicationdb " +
                         "with NO_SUCH_USER. This may not be a latest instance. Ignoring ..");
@@ -344,7 +343,7 @@ public class CMSEngine {
         int ret = PW_OK;
 
         if (StringUtils.isEmpty(pwd)) {
-            return PW_INVALID_PASSWORD;
+            return PW_INVALID_CREDENTIALS;
         }
 
         String host = info.getHost();
@@ -363,12 +362,9 @@ public class CMSEngine {
 
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
-                logger.debug("CMSEngine: user does not exist: " + binddn);
-                ret = PW_NO_USER;
-                break;
             case LDAPException.INVALID_CREDENTIALS:
-                logger.debug("CMSEngine: invalid password");
-                ret = PW_INVALID_PASSWORD;
+                logger.debug("CMSEngine: invalid credentials");
+                ret = PW_INVALID_CREDENTIALS;
                 break;
             default:
                 logger.debug("CMSEngine: unable to connect to " + name + ": " + e.getMessage());
