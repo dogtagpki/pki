@@ -1249,18 +1249,17 @@ public class CryptoUtil {
 
     public static PKCS10 createCertificationRequest(
             String subjectName,
-            X509Key pubk,
-            java.security.PrivateKey prik,
+            KeyPair keyPair,
             String alg,
             Extensions exts
             ) throws Exception {
 
         logger.info("CryptoUtil: Creating PKCS #10 request");
-        X509Key key = pubk;
+        X509Key key = createX509Key(keyPair.getPublic());
 
         logger.info("CryptoUtil: - algorithm: " + alg);
         java.security.Signature sig = java.security.Signature.getInstance(alg, "Mozilla-JSS");
-        sig.initSign(prik);
+        sig.initSign(keyPair.getPrivate());
 
         logger.info("CryptoUtil: - subject: " + subjectName);
         X500Name name = new X500Name(subjectName);

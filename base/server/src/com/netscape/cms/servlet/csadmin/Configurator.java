@@ -539,8 +539,6 @@ public class Configurator {
         logger.info("Configurator: - subject: " + dn);
         logger.info("Configurator: - algorithm: " + algorithm);
 
-        X509Key x509key = CryptoUtil.createX509Key(keyPair.getPublic());
-
         Extensions exts = new Extensions();
         if (tag.equals("signing")) {
             logger.info("Configurator: Creating basic CA extensions");
@@ -559,8 +557,7 @@ public class Configurator {
         logger.debug("Configurator: Generating PKCS #10 request");
         PKCS10 certReq = CryptoUtil.createCertificationRequest(
                 dn,
-                x509key,
-                keyPair.getPrivate(),
+                keyPair,
                 algorithm,
                 exts);
 
