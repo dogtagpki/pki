@@ -1121,6 +1121,22 @@ class PKIServer(object):
 
         return sslcert.get('certificateKeyAlias')
 
+    def set_sslserver_cert_nickname(self, nickname, token=None):
+
+        # Store SSL server cert nickname into server.xml
+
+        if pki.nssdb.normalize_token(token):
+            fullname = token + ':' + nickname
+        else:
+            fullname = nickname
+
+        server_config = self.get_server_config()
+        connector = server_config.get_connector('Secure')
+        sslhost = server_config.get_sslhost(connector)
+        sslcert = server_config.get_sslcert(sslhost)
+        sslcert.set('certificateKeyAlias', fullname)
+        server_config.save()
+
     @staticmethod
     def split_cert_id(cert_id):
         """

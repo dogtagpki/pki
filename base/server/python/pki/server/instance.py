@@ -510,27 +510,22 @@ class PKIInstance(pki.server.PKIServer):
 
     def set_sslserver_cert_nickname(self, nickname, token=None):
 
+        super(PKIInstance, self).set_sslserver_cert_nickname(nickname, token)
+
         if pki.nssdb.normalize_token(token):
-            nickname = token + ':' + nickname
+            fullname = token + ':' + nickname
+        else:
+            fullname = nickname
 
         # Store SSL server cert nickname into serverCertNick.conf
         # TODO: Remove serverCertNick.conf
 
         server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
         with open(server_cert_nick_conf, 'w') as f:
-            f.write(nickname + '\n')
+            f.write(fullname + '\n')
 
         os.chown(server_cert_nick_conf, self.uid, self.gid)
         os.chmod(server_cert_nick_conf, pki.server.DEFAULT_FILE_MODE)
-
-        # Store SSL server cert nickname into server.xml
-
-        server_config = self.get_server_config()
-        connector = server_config.get_connector('Secure')
-        sslhost = server_config.get_sslhost(connector)
-        sslcert = server_config.get_sslcert(sslhost)
-        sslcert.set('certificateKeyAlias', nickname)
-        server_config.save()
 
     def banner_installed(self):
         return os.path.exists(self.banner_file)
