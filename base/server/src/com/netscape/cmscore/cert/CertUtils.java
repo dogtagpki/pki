@@ -22,7 +22,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
@@ -34,7 +33,6 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Locale;
@@ -58,12 +56,7 @@ import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
-import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
-import org.mozilla.jss.netscape.security.x509.CertificateValidity;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
@@ -287,28 +280,6 @@ public class CertUtils {
             info.set(X509CertInfo.KEY, key);
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
-        }
-    }
-
-    public static X509CertInfo createCertInfo(int ver,
-            BigInteger serialno, String alg, String issuerName,
-            Date notBefore, Date notAfter) throws EBaseException {
-        try {
-            X509CertInfo info = new X509CertInfo();
-
-            info.set(X509CertInfo.VERSION, new CertificateVersion(ver));
-            info.set(X509CertInfo.SERIAL_NUMBER, new
-                    CertificateSerialNumber(serialno));
-            info.set(X509CertInfo.ALGORITHM_ID, new
-                    CertificateAlgorithmId(AlgorithmId.get(alg)));
-            info.set(X509CertInfo.ISSUER, new
-                    CertificateIssuerName(new X500Name(issuerName)));
-            info.set(X509CertInfo.VALIDITY, new
-                    CertificateValidity(notBefore, notAfter));
-            return info;
-        } catch (Exception e) {
-            System.out.println(e.toString());
-            return null;
         }
     }
 
