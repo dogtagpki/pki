@@ -49,7 +49,7 @@ ExcludeArch: i686
 # Python
 ################################################################################
 
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 8
 %global python_executable /usr/libexec/platform-python
 %else
 %global python_executable /usr/bin/python3
@@ -62,7 +62,7 @@ ExcludeArch: i686
 %define java_devel java-devel
 %define java_headless java-headless
 
-%if 0%{?fedora} && 0%{?fedora} >= 33
+%if 0%{?fedora} >= 33 || 0%{?rhel} > 8
 %define min_java_version 1:11
 %define java_home /usr/lib/jvm/java-11-openjdk
 %else
@@ -197,7 +197,7 @@ BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 
-%if 0%{?rhel}
+%if 0%{?rhel} && ! 0%{?eln}
 BuildRequires:    resteasy >= 3.0.26
 %else
 BuildRequires:    jboss-annotations-1.2-api
@@ -221,9 +221,7 @@ BuildRequires:    python3-nss
 BuildRequires:    python3-requests >= 2.6.0
 BuildRequires:    python3-six
 
-%if 0%{?rhel}
-# no python3-pytest-runner
-%else
+%if 0%{?fedora} || 0%{?rhel} > 8
 BuildRequires:    python3-pytest-runner
 %endif
 
@@ -256,7 +254,7 @@ BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
 # build dependency to build man pages
-%if 0%{?fedora} && 0%{?fedora} <= 30 || 0%{?rhel}
+%if 0%{?fedora} && 0%{?fedora} <= 30 || 0%{?rhel} && 0%{?rhel} <= 8
 BuildRequires:    go-md2man
 %else
 BuildRequires:    golang-github-cpuguy83-md2man
@@ -400,7 +398,7 @@ BuildArch:        noarch
 
 Obsoletes:        pki-base-python3 < %{version}
 Provides:         pki-base-python3 = %{version}
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} > 8
 %{?python_provide:%python_provide python3-pki}
 %endif
 
@@ -438,7 +436,7 @@ Requires:         jss >= 4.9.0
 Requires:         ldapjdk >= 4.22.0
 Requires:         pki-base = %{version}-%{release}
 
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 8
 Requires:         resteasy >= 3.0.26
 %else
 Requires:         resteasy-atom-provider >= 3.0.17-1
@@ -448,7 +446,7 @@ Requires:         resteasy-core >= 3.0.17-1
 Requires:         resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
-%if 0%{?fedora} && 0%{?fedora} >= 33
+%if 0%{?fedora} >= 33 || 0%{?rhel} > 8
 Requires:         jaxb-impl >= 2.3.3
 Requires:         jakarta-activation >= 1.2.2
 %endif
@@ -859,7 +857,7 @@ java_version=`echo $java_version | sed -e 's/^1\.//' -e 's/\..*$//'`
 # assume tomcat app_server
 app_server=tomcat-8.5
 
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 8
 %{__mkdir_p} build
 cd build
 %endif
@@ -894,13 +892,13 @@ cd build
     -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
     -DTHEME=%{?with_theme:%{vendor_id}} \
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 8
     ..
 %else
     -B %{_vpath_builddir}
 %endif
 
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} > 8
 cd %{_vpath_builddir}
 %endif
 
@@ -917,7 +915,7 @@ cd %{_vpath_builddir}
 %install
 ################################################################################
 
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 8
 cd build
 %else
 cd %{_vpath_builddir}
