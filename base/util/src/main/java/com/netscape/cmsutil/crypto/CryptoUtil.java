@@ -34,10 +34,8 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.interfaces.DSAParams;
@@ -1223,40 +1221,63 @@ public class CryptoUtil {
         }
     }
 
+    /**
+     * Creates a PKCS #10 request.
+     */
+    public static PKCS10 createCertificationRequest(
+            String subjectName,
+            KeyPair keyPair,
+            Extensions exts
+            ) throws Exception {
+
+        PublicKey publicKey = keyPair.getPublic();
+        X509Key key = createX509Key(publicKey);
+
+        String alg;
+        if (publicKey instanceof RSAPublicKey) {
+            alg = "SHA256withRSA";
+        } else if (isECCKey(key)) {
+            alg = "SHA256withEC";
+        } else if (publicKey instanceof DSAPublicKey) {
+            alg = "DSA";
+        } else {
+            throw new NoSuchAlgorithmException("Unsupported algorithm: " + publicKey.getAlgorithm());
+        }
+
+        return createCertificationRequest(subjectName, keyPair, alg, exts);
+    }
+
     public static PKCS10 createCertificationRequest(
             String subjectName,
             X509Key pubk,
             java.security.PrivateKey prik,
             String alg,
-            Extensions exts)
-            throws NoSuchAlgorithmException, NoSuchProviderException,
-            InvalidKeyException, IOException, CertificateException,
-            SignatureException {
+            Extensions exts
+            ) throws Exception {
+
+        logger.info("CryptoUtil: Creating PKCS #10 request");
         X509Key key = pubk;
-        java.security.Signature sig = java.security.Signature.getInstance(alg,
-                "Mozilla-JSS");
 
+        logger.info("CryptoUtil: - algorithm: " + alg);
+        java.security.Signature sig = java.security.Signature.getInstance(alg, "Mozilla-JSS");
         sig.initSign(prik);
-        PKCS10 pkcs10 = null;
 
-        if (exts != null && !exts.isEmpty()) {
-            PKCS10Attribute attr = new PKCS10Attribute(PKCS9Attribute.EXTENSION_REQUEST_OID,
-                    exts);
-            PKCS10Attributes attrs = new PKCS10Attributes();
-
-            logger.debug("PKCS10: createCertificationRequest: adding attribute name =" +
-                    attr.getAttributeValue().getName());
-            attrs.setAttribute(attr.getAttributeValue().getName(), attr);
-
-            pkcs10 = new PKCS10(key, attrs);
-        } else {
-            pkcs10 = new PKCS10(key);
-        }
-
+        logger.info("CryptoUtil: - subject: " + subjectName);
         X500Name name = new X500Name(subjectName);
         X500Signer signer = new X500Signer(sig, name);
 
+        logger.info("CryptoUtil: - attributes:");
+        PKCS10Attributes attrs = new PKCS10Attributes();
+        if (exts != null && !exts.isEmpty()) {
+            PKCS10Attribute attr = new PKCS10Attribute(PKCS9Attribute.EXTENSION_REQUEST_OID, exts);
+            String attrName = attr.getAttributeValue().getName();
+            logger.info("CryptoUtil:   - " + attrName);
+            attrs.setAttribute(attrName, attr);
+        }
+
+        PKCS10 pkcs10 = new PKCS10(key, attrs);
         pkcs10.encodeAndSign(signer);
+
         return pkcs10;
     }
 
@@ -1326,51 +1347,6 @@ public class CryptoUtil {
         // format SKI: xx:xx:xx:...
         org.mozilla.jss.netscape.security.util.PrettyPrintFormat pp = new org.mozilla.jss.netscape.security.util.PrettyPrintFormat(":", 20);
         return pp.toHexString(ski).trim();
-    }
-
-    /**
-     * Creates a PKCS#10 request.
-     */
-    public static PKCS10 createCertificationRequest(String subjectName,
-            KeyPair keyPair)
-            throws NoSuchAlgorithmException, NoSuchProviderException,
-                InvalidKeyException, IOException, CertificateException,
-                SignatureException {
-        String alg;
-        PublicKey pubk = keyPair.getPublic();
-        X509Key key = createX509Key(pubk);
-        if (pubk instanceof RSAPublicKey) {
-            alg = "SHA256withRSA";
-        } else if (isECCKey(key)) {
-            alg = "SHA256withEC";
-        } else {
-            // Assert.assert(pubk instanceof DSAPublicKey);
-            alg = "DSA";
-        }
-        return createCertificationRequest(subjectName, keyPair, alg);
-    }
-
-    public static PKCS10 createCertificationRequest(String subjectName,
-            KeyPair keyPair, String alg)
-            throws NoSuchAlgorithmException, NoSuchProviderException,
-                InvalidKeyException, IOException, CertificateException,
-                SignatureException {
-        PublicKey pubk = keyPair.getPublic();
-        X509Key key = createX509Key(pubk);
-
-        java.security.Signature sig = java.security.Signature.getInstance(alg,
-                "Mozilla-JSS");
-
-        sig.initSign(keyPair.getPrivate());
-
-        PKCS10 pkcs10 = new PKCS10(key);
-
-        X500Name name = new X500Name(subjectName);
-        X500Signer signer = new X500Signer(sig, name);
-
-        pkcs10.encodeAndSign(signer);
-
-        return pkcs10;
     }
 
     /*
