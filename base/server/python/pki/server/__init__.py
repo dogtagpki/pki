@@ -1110,6 +1110,17 @@ class PKIServer(object):
 
         return password
 
+    def get_sslserver_cert_nickname(self):
+
+        # Load SSL server cert nickname from server.xml
+
+        server_config = self.get_server_config()
+        connector = server_config.get_connector('Secure')
+        sslhost = server_config.get_sslhost(connector)
+        sslcert = server_config.get_sslcert(sslhost)
+
+        return sslcert.get('certificateKeyAlias')
+
     @staticmethod
     def split_cert_id(cert_id):
         """
