@@ -26,10 +26,10 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CPSuri;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificatePoliciesExtension;
 import org.mozilla.jss.netscape.security.x509.CertificatePolicyId;
 import org.mozilla.jss.netscape.security.x509.CertificatePolicyInfo;
+import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
@@ -430,15 +430,15 @@ public class NSSExtensionGenerator {
         return new OCSPNoCheckExtension();
     }
 
-    public CertificateExtensions createExtensions() throws Exception {
+    public Extensions createExtensions() throws Exception {
         return createExtensions(null, null);
     }
 
-    public CertificateExtensions createExtensions(
+    public Extensions createExtensions(
             org.mozilla.jss.crypto.X509Certificate issuer,
             PKCS10 pkcs10) throws Exception {
 
-        CertificateExtensions extensions = new CertificateExtensions();
+        Extensions extensions = new Extensions();
 
         BasicConstraintsExtension basicConstraintsExtension = createBasicConstraintsExtension();
         if (basicConstraintsExtension != null) {

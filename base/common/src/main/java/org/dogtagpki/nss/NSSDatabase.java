@@ -64,11 +64,11 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CPSuri;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificatePoliciesExtension;
 import org.mozilla.jss.netscape.security.x509.CertificatePolicyId;
 import org.mozilla.jss.netscape.security.x509.CertificatePolicyInfo;
 import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
@@ -840,7 +840,7 @@ public class NSSDatabase {
     public void addExtensions(
             List<String> cmd,
             StringWriter sw,
-            CertificateExtensions extensions,
+            Extensions extensions,
             Path tmpDir) throws Exception {
 
         PrintWriter stdin = new PrintWriter(sw, true);
@@ -889,7 +889,7 @@ public class NSSDatabase {
             String keySize,
             String curve,
             String hash,
-            CertificateExtensions extensions) throws Exception {
+            Extensions extensions) throws Exception {
 
         return createRequest(
                 null,
@@ -910,7 +910,7 @@ public class NSSDatabase {
             String keySize,
             String curve,
             String hash,
-            CertificateExtensions extensions) throws Exception {
+            Extensions extensions) throws Exception {
 
         logger.info("Creating certificate signing request for " + subject);
 
@@ -1055,7 +1055,7 @@ public class NSSDatabase {
             org.mozilla.jss.crypto.X509Certificate issuer,
             PKCS10 pkcs10,
             Integer monthsValid,
-            CertificateExtensions extensions) throws Exception {
+            Extensions extensions) throws Exception {
 
         return createCertificate(
                 issuer,
@@ -1070,7 +1070,7 @@ public class NSSDatabase {
             PKCS10 pkcs10,
             String serialNumber,
             Integer monthsValid,
-            CertificateExtensions extensions) throws Exception {
+            Extensions extensions) throws Exception {
 
         return createCertificate(
                 null, // token name
@@ -1087,7 +1087,7 @@ public class NSSDatabase {
             PKCS10 pkcs10,
             String serialNumber,
             Integer monthsValid,
-            CertificateExtensions extensions) throws Exception {
+            Extensions extensions) throws Exception {
 
         Path tmpDir = null;
 

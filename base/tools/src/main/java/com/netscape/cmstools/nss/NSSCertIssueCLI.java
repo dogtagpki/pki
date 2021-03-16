@@ -17,7 +17,7 @@ import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extensions;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.MainCLI;
@@ -95,7 +95,7 @@ public class NSSCertIssueCLI extends CommandCLI {
         byte[] csrBytes = CertUtil.parseCSR(csrPEM);
         PKCS10 pkcs10 = new PKCS10(csrBytes);
 
-        CertificateExtensions extensions = null;
+        Extensions extensions = null;
         if (extConf != null) {
             NSSExtensionGenerator generator = new NSSExtensionGenerator();
             generator.init(extConf);

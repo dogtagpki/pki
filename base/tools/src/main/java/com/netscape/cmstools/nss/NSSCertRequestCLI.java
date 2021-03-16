@@ -15,7 +15,7 @@ import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extensions;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.MainCLI;
@@ -90,7 +90,7 @@ public class NSSCertRequestCLI extends CommandCLI {
         ClientConfig clientConfig = mainCLI.getConfig();
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
 
-        CertificateExtensions extensions = null;
+        Extensions extensions = null;
         if (extConf != null) {
             NSSExtensionGenerator generator = new NSSExtensionGenerator();
             generator.init(extConf);

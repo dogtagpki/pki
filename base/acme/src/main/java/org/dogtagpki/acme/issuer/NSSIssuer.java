@@ -23,7 +23,7 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cmsutil.password.IPasswordStore;
@@ -99,7 +99,7 @@ public class NSSIssuer extends ACMEIssuer {
         ACMEEngine engine = ACMEEngine.getInstance();
         ACMEDatabase acmeDatabase = engine.getDatabase();
 
-        CertificateExtensions extensions = null;
+        Extensions extensions = null;
         if (extGenerator != null) {
             extensions = extGenerator.createExtensions(issuer, pkcs10);
         }
