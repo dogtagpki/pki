@@ -1174,15 +1174,7 @@ public class CryptoUtil {
     public static X509CertImpl signECCCert(
             java.security.PrivateKey privateKey,
             X509CertInfo certInfo)
-            throws NoSuchTokenException,
-                NotInitializedException,
-                NoSuchAlgorithmException,
-                NoSuchTokenException,
-                TokenException,
-                InvalidKeyException,
-                SignatureException,
-                IOException,
-                CertificateException {
+            throws Exception {
         // set default; use the other call with "alg" to specify algorithm
         String alg = "SHA256withEC";
         return signCert(privateKey, certInfo, alg);
@@ -1195,58 +1187,39 @@ public class CryptoUtil {
             java.security.PrivateKey privateKey,
             X509CertInfo certInfo,
             String alg)
-            throws NoSuchTokenException,
-                NotInitializedException,
-                NoSuchAlgorithmException,
-                NoSuchTokenException,
-                TokenException,
-                InvalidKeyException,
-                SignatureException,
-                IOException,
-                CertificateException {
-        return signCert(privateKey, certInfo,
-                 Cert.mapAlgorithmToJss(alg));
+            throws Exception {
+        SignatureAlgorithm signingAlgorithm = Cert.mapAlgorithmToJss(alg);
+        return signCert(privateKey, certInfo, signingAlgorithm);
     }
 
     public static X509CertImpl signCert(
             java.security.PrivateKey privateKey,
             X509CertInfo certInfo,
-            SignatureAlgorithm sigAlg)
-            throws NoSuchTokenException,
-                NotInitializedException,
-                NoSuchAlgorithmException,
-                NoSuchTokenException,
-                TokenException,
-                InvalidKeyException,
-                SignatureException,
-                IOException,
-                CertificateException {
+            SignatureAlgorithm signingAlgorithm)
+            throws Exception {
 
-	logger.warn("signCert: alg: "  + sigAlg);
-        AlgorithmId aid = null;
-        String algName = mapSignatureAlgorithmToInternalName(sigAlg);
-        aid = AlgorithmId.get(algName);
-        certInfo.set(X509CertInfo.ALGORITHM_ID,
-                new CertificateAlgorithmId(aid));
+        String algName = mapSignatureAlgorithmToInternalName(signingAlgorithm);
+        AlgorithmId aid = AlgorithmId.get(algName);
+        certInfo.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(aid));
 
         PrivateKey priKey = (PrivateKey) privateKey;
         CryptoToken token = priKey.getOwningToken();
 
-        DerOutputStream tmp = new DerOutputStream();
-
-        certInfo.encode(tmp);
-        Signature signer = token.getSignatureContext(sigAlg);
-
+        Signature signer = token.getSignatureContext(signingAlgorithm);
         signer.initSign(priKey);
-        signer.update(tmp.toByteArray());
-        byte signed[] = signer.sign();
 
-        aid.encode(tmp);
-        tmp.putBitString(signed);
-        try (DerOutputStream out = new DerOutputStream()) {
+        try (DerOutputStream tmp = new DerOutputStream();
+                DerOutputStream out = new DerOutputStream()) {
+
+            certInfo.encode(tmp);
+            signer.update(tmp.toByteArray());
+            byte[] signed = signer.sign();
+
+            aid.encode(tmp);
+            tmp.putBitString(signed);
+
             out.write(DerValue.tag_Sequence, tmp);
-            X509CertImpl signedCert = new X509CertImpl(out.toByteArray());
-            return signedCert;
+            return new X509CertImpl(out.toByteArray());
         }
     }
 
