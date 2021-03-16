@@ -249,9 +249,7 @@ public abstract class SigningUnit {
     public SignatureAlgorithm checkSigningAlgorithmFromName(String algname)
             throws EBaseException {
         try {
-            SignatureAlgorithm sigalg = null;
-
-            sigalg = mapAlgorithmToJss(algname);
+            SignatureAlgorithm sigalg = Cert.mapAlgorithmToJss(algname);
             if (sigalg == null) {
                 throw new ECAException("Signing algorithm not supported: " + algname);
             }
@@ -287,9 +285,5 @@ public abstract class SigningUnit {
      */
     public PrivateKey getPrivateKey() {
         return mPrivk;
-    }
-
-    public SignatureAlgorithm mapAlgorithmToJss(String algname) {
-        return Cert.mapAlgorithmToJss(algname);
     }
 }

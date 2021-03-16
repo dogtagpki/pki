@@ -24,6 +24,7 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -149,7 +150,7 @@ public final class OCSPSigningUnit extends SigningUnit {
             throw new EBaseException("OCSPSigningUnit not initialized!");
         }
 
-        SignatureAlgorithm signAlg = mapAlgorithmToJss(algname);
+        SignatureAlgorithm signAlg = Cert.mapAlgorithmToJss(algname);
 
         if (signAlg == null) {
             logger.error(CMS.getLogMessage("CMSCORE_OCSP_SIGN_ALG_NOT_SUPPORTED", algname));

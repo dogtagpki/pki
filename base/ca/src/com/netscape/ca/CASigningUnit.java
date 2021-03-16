@@ -26,6 +26,7 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -187,7 +188,7 @@ public final class CASigningUnit extends SigningUnit {
             throw new EBaseException("CASigningUnit not initialized!");
         }
 
-        SignatureAlgorithm signAlg = mapAlgorithmToJss(algname);
+        SignatureAlgorithm signAlg = Cert.mapAlgorithmToJss(algname);
 
         if (signAlg == null) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, ""));
