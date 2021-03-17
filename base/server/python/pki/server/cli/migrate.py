@@ -47,7 +47,6 @@ class MigrateCLI(pki.cli.CLI):
         print('Usage: pki-server migrate [OPTIONS] [<instance ID>]')
         print()
         print('  -i, --instance <instance ID> Instance ID.')
-        print('      --tomcat <version>       Use the specified Tomcat version.')
         print('  -v, --verbose                Run in verbose mode.')
         print('      --debug                  Show debug messages.')
         print('      --help                   Show help message.')
@@ -57,7 +56,6 @@ class MigrateCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'tomcat=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -66,14 +64,10 @@ class MigrateCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = None
-        tomcat_version = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
-
-            elif o == '--tomcat':
-                tomcat_version = pki.util.Version(a)
 
             elif o == '--debug':
                 logging.getLogger().setLevel(logging.DEBUG)
@@ -90,9 +84,6 @@ class MigrateCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        if not tomcat_version:
-            tomcat_version = pki.server.Tomcat.get_version()
-
         if len(args) > 0:
             instance_name = args[0]
 
@@ -106,18 +97,16 @@ class MigrateCLI(pki.cli.CLI):
 
             instance.load()
 
-            self.migrate(instance, tomcat_version)
+            self.migrate(instance)
 
         else:
             instances = pki.server.instance.PKIInstance.instances()
 
             for instance in instances:
-                self.migrate(instance, tomcat_version)
+                self.migrate(instance)
 
-    def migrate(self, instance, tomcat_version):
+    def migrate(self, instance):
         self.export_ca_cert(instance)
-        self.migrate_tomcat(instance, tomcat_version)
-        self.migrate_subsystems(instance, tomcat_version)
         self.migrate_service(instance)
 
     def export_ca_cert(self, instance):
@@ -138,70 +127,6 @@ class MigrateCLI(pki.cli.CLI):
             nssdb.extract_ca_cert(ca_path, nickname)
         finally:
             nssdb.close()
-
-    def migrate_tomcat(self, instance, tomcat_version):
-
-        logger.info('Migrating %s instance to Tomcat %s',
-                    instance.name, tomcat_version)
-
-        root_context_xml = os.path.join(
-            instance.conf_dir,
-            'Catalina',
-            'localhost',
-            'ROOT.xml')
-        self.migrate_context_xml(root_context_xml, tomcat_version)
-
-        pki_context_xml = os.path.join(
-            instance.conf_dir,
-            'Catalina',
-            'localhost',
-            'pki.xml')
-        self.migrate_context_xml(pki_context_xml, tomcat_version)
-
-    def migrate_subsystems(self, instance, tomcat_version):
-        for subsystem in instance.get_subsystems():
-            self.migrate_subsystem(subsystem, tomcat_version)
-
-    def migrate_subsystem(self, subsystem, tomcat_version):
-        logger.info('Migrating %s/%s subsystem', subsystem.instance.name, subsystem.name)
-
-        self.migrate_context_xml(subsystem.context_xml, tomcat_version)
-
-    def migrate_context_xml(self, filename, tomcat_version):
-        if not os.path.exists(filename):
-            return
-
-        logger.info('Migrating %s', filename)
-
-        document = etree.parse(filename, self.parser)
-
-        if tomcat_version.major == 9:
-            self.migrate_context_xml_to_tomcat9(document)
-
-        elif tomcat_version:
-            logger.error('Invalid Tomcat version %s', tomcat_version)
-            self.print_help()
-            sys.exit(1)
-
-        with open(filename, 'wb') as f:
-            # xml as UTF-8 encoded bytes
-            document.write(f, pretty_print=True, encoding='utf-8')
-
-    def migrate_context_xml_to_tomcat9(self, document):
-        context = document.getroot()
-        if 'allowLinking' in context.attrib:
-            context.attrib.pop('allowLinking')
-
-        resources = context.find('Resources')
-
-        if resources is None:
-
-            logger.debug('* adding Resources')
-
-            resources = etree.Element('Resources')
-            context.append(resources)
-
-        resources.set('allowLinking', 'true')
 
     def migrate_service(self, instance):
         self.migrate_service_java_home(instance)
