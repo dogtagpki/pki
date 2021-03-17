@@ -24,7 +24,6 @@ from __future__ import print_function
 import getopt
 import logging
 import os
-import re
 import sys
 
 from lxml import etree
@@ -145,9 +144,6 @@ class MigrateCLI(pki.cli.CLI):
         logger.info('Migrating %s instance to Tomcat %s',
                     instance.name, tomcat_version)
 
-        server_xml = os.path.join(instance.conf_dir, 'server.xml')
-        self.migrate_server_xml(server_xml, tomcat_version)
-
         root_context_xml = os.path.join(
             instance.conf_dir,
             'Catalina',
@@ -161,57 +157,6 @@ class MigrateCLI(pki.cli.CLI):
             'localhost',
             'pki.xml')
         self.migrate_context_xml(pki_context_xml, tomcat_version)
-
-    def migrate_server_xml(self, filename, tomcat_version):
-        logger.info('Migrating %s', filename)
-
-        document = etree.parse(filename, self.parser)
-
-        if tomcat_version >= pki.util.Version('9.0.31'):
-            self.migrate_server_xml_to_tomcat9031(document)
-
-        elif tomcat_version:
-            logger.error('Unsupported Tomcat version %s', tomcat_version)
-            self.print_help()
-            sys.exit(1)
-
-        with open(filename, 'wb') as f:
-            # xml as UTF-8 encoded bytes
-            document.write(f, pretty_print=True, encoding='utf-8')
-
-    def migrate_server_xml_to_tomcat9031(self, document):
-
-        server = document.getroot()
-
-        # Migrate requiredSecret -> secret on AJP connectors
-
-        services = server.findall('Service')
-        for service in services:
-
-            children = list(service)
-            for child in children:
-                if isinstance(child, etree._Comment):  # pylint: disable=protected-access
-                    if 'protocol="AJP/1.3"' in child.text:
-                        child.text = re.sub(r'requiredSecret=',
-                                            r'secret=',
-                                            child.text,
-                                            flags=re.MULTILINE)
-
-        connectors = server.findall('Service/Connector')
-        for connector in connectors:
-            if connector.get('protocol') != 'AJP/1.3':
-                # Only modify AJP connectors.
-                continue
-            if connector.get('secret'):
-                # Nothing to migrate because the secret attribute already
-                # exists.
-                continue
-            if connector.get('requiredSecret') is None:
-                # No requiredSecret field either; nothing to do.
-                continue
-
-            connector.set('secret', connector.get('requiredSecret'))
-            connector.attrib.pop('requiredSecret', None)
 
     def migrate_subsystems(self, instance, tomcat_version):
         for subsystem in instance.get_subsystems():
