@@ -53,7 +53,6 @@ import org.mozilla.jss.util.PasswordCallback;
 import org.mozilla.jss.util.PasswordCallbackInfo;
 
 import com.netscape.admin.certsrv.CMSAdminResources;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.management.client.util.AbstractDialog;
 import com.netscape.management.client.util.Debug;
 import com.netscape.management.client.util.GridBagUtil;

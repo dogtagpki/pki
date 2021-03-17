@@ -17,25 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.output;
 
-import java.io.ByteArrayOutputStream;
-import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Map;
 
-import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
-
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements the output plugin that outputs

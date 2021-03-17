@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging.event;
 
-import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.request.RequestId;
 

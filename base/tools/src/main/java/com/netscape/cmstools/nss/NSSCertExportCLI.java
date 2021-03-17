@@ -6,23 +6,18 @@
 package com.netscape.cmstools.nss;
 
 import java.io.FileOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import javax.net.ssl.KeyManagerFactory;
 import java.security.cert.X509Certificate;
+
+import javax.net.ssl.KeyManagerFactory;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.io.IOUtils;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.nss.NSSDatabase;
-import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.provider.javax.crypto.JSSKeyManager;
 
-import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class NSSCertExportCLI extends CommandCLI {
