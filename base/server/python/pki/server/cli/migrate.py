@@ -191,9 +191,6 @@ class MigrateCLI(pki.cli.CLI):
         elif tomcat_version >= pki.util.Version('8.0.0'):
             self.migrate_server_xml_to_tomcat80(instance, document)
 
-        elif tomcat_version >= pki.util.Version('7.0.0'):
-            self.migrate_server_xml_to_tomcat70(document)
-
         elif tomcat_version:
             logger.error('Unsupported Tomcat version %s', tomcat_version)
             self.print_help()
@@ -202,115 +199,6 @@ class MigrateCLI(pki.cli.CLI):
         with open(filename, 'wb') as f:
             # xml as UTF-8 encoded bytes
             document.write(f, pretty_print=True, encoding='utf-8')
-
-    def migrate_server_xml_to_tomcat70(self, document):
-        server = document.getroot()
-
-        jasper_comment = etree.Comment(
-            'Initialize Jasper prior to webapps are loaded. Documentation '
-            'at /docs/jasper-howto.html ')
-
-        jasper_listener = etree.Element('Listener')
-        jasper_listener.set(
-            'className',
-            'org.apache.catalina.core.JasperListener')
-
-        jmx_support_comment = etree.Comment(
-            ' JMX Support for the Tomcat server. Documentation at '
-            '/docs/non-existent.html ')
-
-        excluded_comment1 = etree.Comment(
-            ' The following class has been commented out because it ')
-        excluded_comment2 = etree.Comment(
-            ' has been EXCLUDED from the Tomcat 7 \'tomcat-lib\' RPM! ')
-
-        server_lifecycle_comment = etree.Comment(
-            ' Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" ')
-
-        global_resources_lifecycle_listener = None
-
-        children = list(server)
-        for child in children:
-            if isinstance(child, etree._Comment):  # pylint: disable=protected-access
-                if 'org.apache.catalina.security.SecurityListener' in child.text:
-                    server.remove(child)
-                elif 'Initialize Jasper prior to webapps are loaded.' in child.text:
-                    jasper_comment = None
-                elif 'JMX Support for the Tomcat server.' in child.text:
-                    jmx_support_comment = None
-                elif 'The following class has been commented out because it' in child.text:
-                    excluded_comment1 = None
-                elif 'has been EXCLUDED from the Tomcat 7 \'tomcat-lib\' RPM!' in child.text:
-                    excluded_comment2 = None
-                elif 'org.apache.catalina.mbeans.ServerLifecycleListener' in child.text:
-                    server_lifecycle_comment = None
-                if 'Prevent memory leaks due to use of particular java/javax APIs' in child.text:
-                    server.remove(child)
-
-            elif child.tag == 'Listener':
-                class_name = child.get('className')
-
-                if class_name in {
-                        'org.apache.catalina.startup.VersionLoggerListener',
-                        'org.apache.catalina.security.SecurityListener',
-                        'org.apache.catalina.mbeans.ServerLifecycleListener',
-                        'org.apache.catalina.core.JreMemoryLeakPreventionListener',
-                        'org.apache.catalina.core.ThreadLocalLeakPreventionListener'}:
-
-                    logger.debug('* removing %s', class_name)
-                    server.remove(child)
-
-                elif class_name == 'org.apache.catalina.core.JasperListener':
-                    jasper_listener = None
-
-                elif class_name == 'org.apache.catalina.mbeans.GlobalResourcesLifecycleListener':
-                    global_resources_lifecycle_listener = child
-
-        # add before GlobalResourcesLifecycleListener if exists
-        if global_resources_lifecycle_listener is not None:
-            index = list(server).index(global_resources_lifecycle_listener)
-
-        else:
-            index = 0
-
-        if jasper_comment is not None:
-            server.insert(index, jasper_comment)
-            index += 1
-
-        if jasper_listener is not None:
-            logger.debug('* adding %s', jasper_listener.get('className'))
-            server.insert(index, jasper_listener)
-            index += 1
-
-        if jmx_support_comment is not None:
-            server.insert(index, jmx_support_comment)
-            index += 1
-
-        if excluded_comment1 is not None:
-            server.insert(index, excluded_comment1)
-            index += 1
-
-        if excluded_comment2 is not None:
-            server.insert(index, excluded_comment2)
-            index += 1
-
-        if server_lifecycle_comment is not None:
-            server.insert(index, server_lifecycle_comment)
-            index += 1
-
-        logger.debug('* updating secure Connector')
-
-        connectors = server.findall('Service/Connector')
-        for connector in connectors:
-            if connector.get('secure') == 'true':
-                connector.set('protocol', 'HTTP/1.1')
-
-        logger.debug('* updating AccessLogValve')
-
-        valves = server.findall('Service/Engine/Host/Valve')
-        for valve in valves:
-            if valve.get('className') == 'org.apache.catalina.valves.AccessLogValve':
-                valve.set('prefix', 'localhost_access_log.')
 
     def migrate_server_xml_to_tomcat80(self, instance, document):
         server = document.getroot()
@@ -557,10 +445,7 @@ class MigrateCLI(pki.cli.CLI):
 
         document = etree.parse(filename, self.parser)
 
-        if tomcat_version.major == 7:
-            self.migrate_context_xml_to_tomcat7(document)
-
-        elif tomcat_version.major == 8 or tomcat_version.major == 9:
+        if tomcat_version.major == 8 or tomcat_version.major == 9:
             self.migrate_context_xml_to_tomcat8(document)
 
         elif tomcat_version:
@@ -571,18 +456,6 @@ class MigrateCLI(pki.cli.CLI):
         with open(filename, 'wb') as f:
             # xml as UTF-8 encoded bytes
             document.write(f, pretty_print=True, encoding='utf-8')
-
-    def migrate_context_xml_to_tomcat7(self, document):
-        context = document.getroot()
-        context.set('allowLinking', 'true')
-
-        resources = context.find('Resources')
-
-        if resources is not None:
-
-            logger.debug('* removing Resources')
-
-            context.remove(resources)
 
     def migrate_context_xml_to_tomcat8(self, document):
         context = document.getroot()
