@@ -161,7 +161,7 @@ class MigrateCLI(pki.cli.CLI):
                     instance.name, tomcat_version)
 
         server_xml = os.path.join(instance.conf_dir, 'server.xml')
-        self.migrate_server_xml(instance, server_xml, tomcat_version)
+        self.migrate_server_xml(server_xml, tomcat_version)
 
         root_context_xml = os.path.join(
             instance.conf_dir,
@@ -177,16 +177,13 @@ class MigrateCLI(pki.cli.CLI):
             'pki.xml')
         self.migrate_context_xml(pki_context_xml, tomcat_version)
 
-    def migrate_server_xml(self, instance, filename, tomcat_version):
+    def migrate_server_xml(self, filename, tomcat_version):
         logger.info('Migrating %s', filename)
 
         document = etree.parse(filename, self.parser)
 
         if tomcat_version >= pki.util.Version('9.0.31'):
-            self.migrate_server_xml_to_tomcat9031(instance, document)
-
-        elif tomcat_version >= pki.util.Version('8.5.0'):
-            self.migrate_server_xml_to_tomcat85(instance, document)
+            self.migrate_server_xml_to_tomcat9031(document)
 
         elif tomcat_version:
             logger.error('Unsupported Tomcat version %s', tomcat_version)
@@ -197,71 +194,7 @@ class MigrateCLI(pki.cli.CLI):
             # xml as UTF-8 encoded bytes
             document.write(f, pretty_print=True, encoding='utf-8')
 
-    def migrate_server_xml_to_tomcat85(self, instance, document):
-
-        server = document.getroot()
-
-        services = server.findall('Service')
-        for service in services:
-
-            children = list(service)
-            for child in children:
-                if isinstance(child, etree._Comment):  # pylint: disable=protected-access
-                    if 'Java HTTP Connector: /docs/config/http.html' in child.text:
-                        child.text = child.text.replace(' (blocking & non-blocking)', '')
-                    elif 'Shared Ports:  Agent, EE, and Admin Secure Port Connector' in child.text:
-                        service.remove(child)
-                    elif 'DO NOT REMOVE - Begin define PKI secure port' in child.text:
-                        service.remove(child)
-                    elif 'DO NOT REMOVE - End define PKI secure port' in child.text:
-                        service.remove(child)
-                    elif 'protocol="AJP/1.3"' in child.text:
-                        child.text = re.sub(r'^ *([^ ]+)=',
-                                            r'               \g<1>=',
-                                            child.text,
-                                            flags=re.MULTILINE)
-
-        logger.debug('* adding SSLHostConfig')
-
-        connectors = server.findall('Service/Connector')
-        for connector in connectors:
-
-            if connector.get('secure') != 'true':
-                continue
-
-            connector.set('sslImplementationName', 'org.dogtagpki.tomcat.JSSImplementation')
-            connector.attrib.pop('sslProtocol', None)
-            connector.attrib.pop('clientAuth', None)
-            connector.attrib.pop('keystoreType', None)
-            connector.attrib.pop('keystoreProvider', None)
-            connector.attrib.pop('keyAlias', None)
-            connector.attrib.pop('trustManagerClassName', None)
-
-            sslHostConfigs = connector.findall('SSLHostConfig')
-            if len(sslHostConfigs) > 0:
-                sslHostConfig = sslHostConfigs[0]
-            else:
-                sslHostConfig = etree.SubElement(connector, 'SSLHostConfig')
-
-            sslHostConfig.set('sslProtocol', 'SSL')
-            sslHostConfig.set('certificateVerification', 'optional')
-            sslHostConfig.attrib.pop('trustManagerClassName', None)
-
-            certificates = sslHostConfig.findall('Certificate')
-            if len(certificates) > 0:
-                certificate = certificates[0]
-            else:
-                certificate = etree.SubElement(sslHostConfig, 'Certificate')
-
-            certificate.set('certificateKeystoreType', 'pkcs11')
-            certificate.set('certificateKeystoreProvider', 'Mozilla-JSS')
-
-            full_name = instance.get_sslserver_cert_nickname()
-            certificate.set('certificateKeyAlias', full_name)
-
-    def migrate_server_xml_to_tomcat9031(self, instance, document):
-
-        self.migrate_server_xml_to_tomcat85(instance, document)
+    def migrate_server_xml_to_tomcat9031(self, document):
 
         server = document.getroot()
 
@@ -312,8 +245,8 @@ class MigrateCLI(pki.cli.CLI):
 
         document = etree.parse(filename, self.parser)
 
-        if tomcat_version.major == 8 or tomcat_version.major == 9:
-            self.migrate_context_xml_to_tomcat8(document)
+        if tomcat_version.major == 9:
+            self.migrate_context_xml_to_tomcat9(document)
 
         elif tomcat_version:
             logger.error('Invalid Tomcat version %s', tomcat_version)
@@ -324,7 +257,7 @@ class MigrateCLI(pki.cli.CLI):
             # xml as UTF-8 encoded bytes
             document.write(f, pretty_print=True, encoding='utf-8')
 
-    def migrate_context_xml_to_tomcat8(self, document):
+    def migrate_context_xml_to_tomcat9(self, document):
         context = document.getroot()
         if 'allowLinking' in context.attrib:
             context.attrib.pop('allowLinking')

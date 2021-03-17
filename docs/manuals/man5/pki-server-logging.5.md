@@ -18,7 +18,7 @@ PKI server logging can be configured using the following logging frameworks:
 ### java.util.logging
 
 Tomcat uses java.util.logging (JUL) as the default logging framework.
-The configuration is described in [Tomcat 8.5 Logging](http://tomcat.apache.org/tomcat-8.5-doc/logging.html).
+The configuration is described in [Tomcat Logging](http://tomcat.apache.org/tomcat-9.0-doc/logging.html).
 
 The default configuration is located at /usr/share/pki/server/conf/logging.properties.
 During server deployment a link will be created at /etc/pki/*instance*/logging.properties.

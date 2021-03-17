@@ -47,7 +47,7 @@ Note that this value will affect all TLS connections to the server.
 A large value may improve the efficiency of the clients since they can reuse existing connections that have not expired.
 However, it may also increase the number of connections that the server has to support simultaneously since it takes longer for abandoned connections to expire.
 
-See also [Tomcat HTTP Connector](https://tomcat.apache.org/tomcat-8.5-doc/config/http.html).
+See also [Tomcat HTTP Connector](https://tomcat.apache.org/tomcat-9.0-doc/config/http.html).
 
 ### HTTP Session Timeout
 

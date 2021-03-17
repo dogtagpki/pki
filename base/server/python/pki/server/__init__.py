@@ -806,7 +806,7 @@ class PKIServer(object):
         to the specified location. The web application will become available
         under "/<name>" URL path.
 
-        See also: https://tomcat.apache.org/tomcat-8.5-doc/config/context.html
+        See also: https://tomcat.apache.org/tomcat-9.0-doc/config/context.html
 
         :param webapp_id: Web application ID.
         :type webapp_id: str

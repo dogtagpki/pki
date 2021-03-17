@@ -251,7 +251,7 @@ find_file(SYMKEY_JAR
 find_file(JASPIC_API_JAR
     NAMES
         jaspic-api.jar
-        tomcat8-jaspic-api.jar
+        tomcat9-jaspic-api.jar
     PATHS
         /usr/share/java/tomcat
         /usr/share/java
@@ -260,7 +260,7 @@ find_file(JASPIC_API_JAR
 find_file(TOMCAT_API_JAR
     NAMES
         tomcat-api.jar
-        tomcat8-api.jar
+        tomcat9-api.jar
     PATHS
         /usr/share/java/tomcat
         /usr/share/java
@@ -269,7 +269,7 @@ find_file(TOMCAT_API_JAR
 find_file(TOMCAT_CATALINA_JAR
     NAMES
         catalina.jar
-        tomcat8-catalina.jar
+        tomcat9-catalina.jar
     PATHS
         /usr/share/java/tomcat
         /usr/share/java
@@ -278,7 +278,7 @@ find_file(TOMCAT_CATALINA_JAR
 find_file(TOMCAT_COYOTE_JAR
     NAMES
         tomcat-coyote.jar
-        tomcat8-coyote.jar
+        tomcat9-coyote.jar
     PATHS
         /usr/share/java/tomcat
         /usr/share/java
@@ -287,7 +287,7 @@ find_file(TOMCAT_COYOTE_JAR
 find_file(TOMCAT_UTIL_JAR
     NAMES
         tomcat-util.jar
-        tomcat8-util.jar
+        tomcat9-util.jar
     PATHS
         /usr/share/java/tomcat
         /usr/share/java
@@ -296,7 +296,7 @@ find_file(TOMCAT_UTIL_JAR
 find_file(TOMCAT_UTIL_SCAN_JAR
     NAMES
         tomcat-util-scan.jar
-        tomcat8-util-scan.jar
+        tomcat9-util-scan.jar
     PATHS
         /usr/share/java/tomcat
         /usr/share/java
