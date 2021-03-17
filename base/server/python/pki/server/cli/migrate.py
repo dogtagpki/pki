@@ -107,7 +107,6 @@ class MigrateCLI(pki.cli.CLI):
 
     def migrate(self, instance):
         self.export_ca_cert(instance)
-        self.migrate_service(instance)
 
     def export_ca_cert(self, instance):
 
@@ -127,45 +126,3 @@ class MigrateCLI(pki.cli.CLI):
             nssdb.extract_ca_cert(ca_path, nickname)
         finally:
             nssdb.close()
-
-    def migrate_service(self, instance):
-        self.migrate_service_java_home(instance)
-
-    def migrate_service_java_home(self, instance):
-        # When JAVA_HOME in the Tomcat service config differs from the
-        # value in /usr/share/pki/etc/pki.conf, update the value in
-        # the service config.
-
-        if "JAVA_HOME" not in os.environ or not os.environ["JAVA_HOME"]:
-            logger.debug("Refusing to migrate JAVA_HOME with missing environment variable")
-            return
-
-        java_home = os.environ['JAVA_HOME']
-
-        # Update in /etc/sysconfig/<instance>
-        result = self.update_java_home_in_config(instance.service_conf, java_home)
-        self.write_config(instance.service_conf, result)
-
-        # Update in /etc/pki/<instance>/tomcat.conf
-        result = self.update_java_home_in_config(instance.tomcat_conf, java_home)
-        self.write_config(instance.tomcat_conf, result)
-
-    def update_java_home_in_config(self, path, java_home):
-        result = []
-
-        target = "JAVA_HOME="
-
-        with open(path, 'r') as conf_fp:
-            for line in conf_fp:
-                if not line.startswith(target):
-                    result.append(line)
-                else:
-                    new_line = target + '"' + java_home + '"\n'
-                    result.append(new_line)
-
-        return result
-
-    def write_config(self, path, output):
-        with open(path, 'w') as conf_fp:
-            for line in output:
-                print(line, end='', file=conf_fp)
