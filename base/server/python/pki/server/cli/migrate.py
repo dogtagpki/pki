@@ -116,26 +116,12 @@ class MigrateCLI(pki.cli.CLI):
                 self.migrate(instance, tomcat_version)
 
     def migrate(self, instance, tomcat_version):
-        self.migrate_nssdb(instance)
+        self.export_ca_cert(instance)
         self.migrate_tomcat(instance, tomcat_version)
         self.migrate_subsystems(instance, tomcat_version)
         self.migrate_service(instance)
 
-    def migrate_nssdb(self, instance):
-
-        if not os.path.exists(instance.nssdb_dir):
-            return
-
-        logger.info('Migrating %s instance to NSS SQL database', instance.name)
-
-        nssdb = instance.open_nssdb()
-
-        try:
-            # Only attempt to convert if target format is sql and DB is dbm
-            if nssdb.needs_conversion():
-                nssdb.convert_db()
-        finally:
-            nssdb.close()
+    def export_ca_cert(self, instance):
 
         ca_path = os.path.join(instance.nssdb_dir, 'ca.crt')
 
@@ -147,7 +133,6 @@ class MigrateCLI(pki.cli.CLI):
             token = parts[0]
             nickname = parts[1]
 
-        # Re-open NSS DB with correct token name
         nssdb = instance.open_nssdb(token=token)
 
         try:
@@ -272,13 +257,6 @@ class MigrateCLI(pki.cli.CLI):
             context.append(resources)
 
         resources.set('allowLinking', 'true')
-
-    def create_link(self, instance, source, dest):
-
-        logger.info('Creating %s', dest)
-
-        os.symlink(source, dest)
-        os.lchown(dest, instance.uid, instance.gid)
 
     def migrate_service(self, instance):
         self.migrate_service_java_home(instance)
