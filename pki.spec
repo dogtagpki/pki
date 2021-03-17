@@ -1183,9 +1183,8 @@ fi
 %{_sbindir}/pkidestroy
 %{_sbindir}/pki-server
 %{_sbindir}/pki-server-upgrade
-%{python3_sitelib}/pki/server/
 %{_sbindir}/pki-healthcheck
-%{python3_sitelib}/pki/server/healthcheck/
+%{python3_sitelib}/pki/server/
 %{python3_sitelib}/pkihealthcheck-*.egg-info/
 %config(noreplace) %{_sysconfdir}/pki/healthcheck.conf
 
@@ -1241,7 +1240,6 @@ fi
 ################################################################################
 
 %{_javadir}/pki/pki-acme.jar
-%dir %{_datadir}/pki/acme
 %{_datadir}/pki/acme/
 
 # with acme
@@ -1254,7 +1252,6 @@ fi
 
 %license base/ca/LICENSE
 %{_javadir}/pki/pki-ca.jar
-%dir %{_datadir}/pki/ca
 %{_datadir}/pki/ca/
 
 # with ca
@@ -1267,7 +1264,6 @@ fi
 
 %license base/kra/LICENSE
 %{_javadir}/pki/pki-kra.jar
-%dir %{_datadir}/pki/kra
 %{_datadir}/pki/kra/
 
 # with kra
@@ -1280,7 +1276,6 @@ fi
 
 %license base/ocsp/LICENSE
 %{_javadir}/pki/pki-ocsp.jar
-%dir %{_datadir}/pki/ocsp
 %{_datadir}/pki/ocsp/
 
 # with ocsp
@@ -1293,7 +1288,6 @@ fi
 
 %license base/tks/LICENSE
 %{_javadir}/pki/pki-tks.jar
-%dir %{_datadir}/pki/tks
 %{_datadir}/pki/tks/
 
 # with tks
@@ -1306,7 +1300,6 @@ fi
 
 %license base/tps/LICENSE
 %{_javadir}/pki/pki-tps.jar
-%dir %{_datadir}/pki/tps
 %{_datadir}/pki/tps/
 %{_mandir}/man5/pki-tps-connector.5.gz
 %{_mandir}/man5/pki-tps-profile.5.gz
