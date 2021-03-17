@@ -188,9 +188,6 @@ class MigrateCLI(pki.cli.CLI):
         elif tomcat_version >= pki.util.Version('8.5.0'):
             self.migrate_server_xml_to_tomcat85(instance, document)
 
-        elif tomcat_version >= pki.util.Version('8.0.0'):
-            self.migrate_server_xml_to_tomcat80(instance, document)
-
         elif tomcat_version:
             logger.error('Unsupported Tomcat version %s', tomcat_version)
             self.print_help()
@@ -200,137 +197,7 @@ class MigrateCLI(pki.cli.CLI):
             # xml as UTF-8 encoded bytes
             document.write(f, pretty_print=True, encoding='utf-8')
 
-    def migrate_server_xml_to_tomcat80(self, instance, document):
-        server = document.getroot()
-
-        version_logger_listener = etree.Element('Listener')
-        version_logger_listener.set(
-            'className',
-            'org.apache.catalina.startup.VersionLoggerListener')
-
-        security_listener_comment = etree.Comment(''' Security listener. Documentation at /docs/config/listeners.html
-  <Listener className="org.apache.catalina.security.SecurityListener" />
-  ''')
-
-        jre_memory_leak_prevention_listener = etree.Element('Listener')
-        jre_memory_leak_prevention_listener.set(
-            'className',
-            'org.apache.catalina.core.JreMemoryLeakPreventionListener')
-
-        global_resources_lifecycle_listener = None
-
-        thread_local_leak_prevention_listener = etree.Element('Listener')
-        thread_local_leak_prevention_listener.set(
-            'className',
-            'org.apache.catalina.core.ThreadLocalLeakPreventionListener')
-
-        prevent_comment = etree.Comment(
-            ' Prevent memory leaks due to use of particular java/javax APIs')
-
-        children = list(server)
-        for child in children:
-            if isinstance(child, etree._Comment):  # pylint: disable=protected-access
-                if 'org.apache.catalina.security.SecurityListener' in child.text:
-                    security_listener_comment = None
-                elif 'Initialize Jasper prior to webapps are loaded.' in child.text:
-                    server.remove(child)
-                elif 'JMX Support for the Tomcat server.' in child.text:
-                    server.remove(child)
-                elif 'The following class has been commented out because it' in child.text:
-                    server.remove(child)
-                elif 'has been EXCLUDED from the Tomcat 7 \'tomcat-lib\' RPM!' in child.text:
-                    server.remove(child)
-                elif 'org.apache.catalina.mbeans.ServerLifecycleListener' in child.text:
-                    server.remove(child)
-                elif 'Prevent memory leaks due to use of particular java/javax APIs' in child.text:
-                    prevent_comment = None
-
-            elif child.tag == 'Listener':
-                class_name = child.get('className')
-
-                if class_name == 'org.apache.catalina.core.JasperListener'\
-                        or class_name == 'org.apache.catalina.mbeans.ServerLifecycleListener':
-                    logger.debug('* removing %s', class_name)
-                    server.remove(child)
-                elif class_name == 'org.apache.catalina.startup.VersionLoggerListener':
-                    version_logger_listener = None
-                elif class_name == 'org.apache.catalina.core.JreMemoryLeakPreventionListener':
-                    jre_memory_leak_prevention_listener = None
-                elif class_name == 'org.apache.catalina.mbeans.GlobalResourcesLifecycleListener':
-                    global_resources_lifecycle_listener = child
-                elif class_name == 'org.apache.catalina.core.ThreadLocalLeakPreventionListener':
-                    thread_local_leak_prevention_listener = None
-
-        # add at the top
-        index = 0
-
-        if version_logger_listener is not None:
-            logger.debug('* adding VersionLoggerListener')
-            server.insert(index, version_logger_listener)
-            index += 1
-
-        if security_listener_comment is not None:
-            server.insert(index, security_listener_comment)
-            index += 1
-
-        # add before GlobalResourcesLifecycleListener if exists
-        if global_resources_lifecycle_listener is not None:
-            index = list(server).index(global_resources_lifecycle_listener)
-
-        if prevent_comment is not None:
-            server.insert(index, prevent_comment)
-            index += 1
-
-        if jre_memory_leak_prevention_listener is not None:
-            logger.debug('* adding JreMemoryLeakPreventionListener')
-            server.insert(index, jre_memory_leak_prevention_listener)
-            index += 1
-
-        # add after GlobalResourcesLifecycleListener if exists
-        if global_resources_lifecycle_listener is not None:
-            index = list(server).index(global_resources_lifecycle_listener) + 1
-
-        if thread_local_leak_prevention_listener is not None:
-            logger.debug('* adding ThreadLocalLeakPreventionListener')
-            server.insert(index, thread_local_leak_prevention_listener)
-            index += 1
-
-        logger.debug('* updating secure Connector')
-
-        connectors = server.findall('Service/Connector')
-        for connector in connectors:
-
-            if connector.get('secure') != 'true':
-                continue
-
-            connector.set(
-                'protocol',
-                'org.dogtagpki.tomcat.Http11NioProtocol')
-
-            connector.attrib.pop('sslImplementationName', None)
-
-            connector.set('keystoreType', 'pkcs11')
-            connector.set('keystoreProvider', 'Mozilla-JSS')
-            connector.attrib.pop('keystoreFile', None)
-            connector.attrib.pop('keystorePassFile', None)
-
-            full_name = instance.get_sslserver_cert_nickname()
-            connector.set('keyAlias', full_name)
-
-            connector.set('trustManagerClassName', 'org.dogtagpki.tomcat.PKITrustManager')
-
-        logger.debug('* updating AccessLogValve')
-
-        valves = server.findall('Service/Engine/Host/Valve')
-        for valve in valves:
-
-            if valve.get(
-                    'className') == 'org.apache.catalina.valves.AccessLogValve':
-                valve.set('prefix', 'localhost_access_log')
-
     def migrate_server_xml_to_tomcat85(self, instance, document):
-
-        self.migrate_server_xml_to_tomcat80(instance, document)
 
         server = document.getroot()
 
