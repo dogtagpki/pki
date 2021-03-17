@@ -855,7 +855,7 @@ java_version=`%{java_home}/bin/java -XshowSettings:properties -version 2>&1 | se
 java_version=`echo $java_version | sed -e 's/^1\.//' -e 's/\..*$//'`
 
 # assume tomcat app_server
-app_server=tomcat-8.5
+app_server=tomcat-9.0
 
 %if 0%{?rhel} && 0%{?rhel} <= 8
 %{__mkdir_p} build
