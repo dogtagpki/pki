@@ -667,6 +667,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if tomcat_instance_subsystems == 1:
 
+            logger.info('Enabling %s subsystem', subsystem.type)
+            subsystem.enable()
+
             logger.info('Starting PKI server')
             instance.start(
                 wait=True,
@@ -675,12 +678,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         elif tomcat_instance_subsystems > 1:
 
-            logger.info('Restarting server')
-            instance.restart(
+            logger.info('Enabling %s subsystem', subsystem.type)
+            subsystem.enable(
                 wait=True,
                 max_wait=deployer.startup_timeout,
                 timeout=deployer.request_timeout)
 
+        logger.info('Waiting for %s subsystem', subsystem.type)
         subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
 
         # Optionally wait for debugger to attach (e. g. - 'eclipse'):
@@ -814,12 +818,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         elif config.str2bool(deployer.mdict['pki_restart_configured_instance']):
 
-            logger.info('Restarting server')
-            instance.restart(
+            logger.info('Restarting %s subsystem', subsystem.type)
+            subsystem.restart(
                 wait=True,
                 max_wait=deployer.startup_timeout,
                 timeout=deployer.request_timeout)
 
+        logger.info('Waiting for %s subsystem', subsystem.type)
         subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
 
     def destroy(self, deployer):

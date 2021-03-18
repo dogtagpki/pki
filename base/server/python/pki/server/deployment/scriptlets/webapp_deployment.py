@@ -56,17 +56,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.directory.set_mode(
             deployer.mdict['pki_tomcat_subsystem_webapps_path'])
 
-        # Deploy web application directly from /usr/share/pki.
-        instance.deploy_webapp(
-            deployer.mdict['pki_subsystem'].lower(),
-            os.path.join(
-                config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                deployer.mdict['pki_subsystem'].lower(),
-                "conf",
-                "Catalina",
-                "localhost",
-                deployer.mdict['pki_subsystem'].lower() + ".xml"))
-
     def destroy(self, deployer):
 
         logger.info('Undeploying /%s web application', deployer.mdict['pki_subsystem'].lower())
