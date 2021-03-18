@@ -257,6 +257,29 @@ class PKIServer(object):
         rc = subprocess.call(cmd)
         return rc == 0
 
+    def export_ca_cert(self):
+
+        ca_path = os.path.join(self.nssdb_dir, 'ca.crt')
+
+        token = pki.nssdb.INTERNAL_TOKEN_NAME
+        nickname = self.get_sslserver_cert_nickname()
+
+        if ':' in nickname:
+            parts = nickname.split(':', 1)
+            token = parts[0]
+            nickname = parts[1]
+
+        nssdb = self.open_nssdb(token=token)
+
+        try:
+            nssdb.extract_ca_cert(ca_path, nickname)
+        finally:
+            nssdb.close()
+
+    def init(self):
+
+        self.export_ca_cert()
+
     def start(self, wait=False, max_wait=60, timeout=None):
 
         cmd = ['systemctl', 'start', '%s.service' % self.service_name]

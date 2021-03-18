@@ -23,7 +23,6 @@ from __future__ import print_function
 
 import getopt
 import logging
-import os
 import sys
 
 from lxml import etree
@@ -96,33 +95,10 @@ class MigrateCLI(pki.cli.CLI):
                 sys.exit(1)
 
             instance.load()
-
-            self.migrate(instance)
+            instance.init()
 
         else:
             instances = pki.server.instance.PKIInstance.instances()
 
             for instance in instances:
-                self.migrate(instance)
-
-    def migrate(self, instance):
-        self.export_ca_cert(instance)
-
-    def export_ca_cert(self, instance):
-
-        ca_path = os.path.join(instance.nssdb_dir, 'ca.crt')
-
-        token = pki.nssdb.INTERNAL_TOKEN_NAME
-        nickname = instance.get_sslserver_cert_nickname()
-
-        if ':' in nickname:
-            parts = nickname.split(':', 1)
-            token = parts[0]
-            nickname = parts[1]
-
-        nssdb = instance.open_nssdb(token=token)
-
-        try:
-            nssdb.extract_ca_cert(ca_path, nickname)
-        finally:
-            nssdb.close()
+                instance.init()
