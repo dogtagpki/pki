@@ -852,12 +852,6 @@ EOF
             /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
     fi
 
-    /usr/sbin/pki-server banner-validate -i "$PKI_INSTANCE_NAME" --silent
-    rv=$?
-    if [ $rv -ne 0 ]; then
-        return $rv
-    fi
-
     # Always create a backup of each PKI subsystem's 'CS.cfg' file
     # within an instance.
     #

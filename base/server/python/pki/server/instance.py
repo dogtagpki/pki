@@ -534,6 +534,16 @@ class PKIInstance(pki.server.PKIServer):
         with io.open(self.banner_file) as f:
             return f.read().strip()
 
+    def validate_banner(self):
+
+        if not self.banner_installed():
+            return
+
+        banner = self.get_banner()
+
+        if not banner:
+            raise Exception('Banner is empty')
+
     def __repr__(self):
         if self.version == 9:
             return "Dogtag 9 " + self.name
@@ -825,6 +835,10 @@ class PKIInstance(pki.server.PKIServer):
         finally:
             nssdb.close()
             shutil.rmtree(tmpdir)
+
+    def init(self):
+        super(PKIInstance, self).init()
+        self.validate_banner()
 
     @classmethod
     def instances(cls):
