@@ -276,12 +276,57 @@ class PKIServer(object):
         finally:
             nssdb.close()
 
+    def create_catalina_policy(self):
+
+        logger.info('Creating catalina.policy')
+
+        filename = '/usr/share/pki/server/conf/catalina.policy'
+        logger.info('Appending %s', filename)
+        with open(filename, 'r') as f:
+            content = f.read()
+
+        filename = '/usr/share/tomcat/conf/catalina.policy'
+        logger.info('Appending %s', filename)
+        with open(filename, 'r') as f:
+            content += f.read()
+
+        content += '\n\n'
+
+        filename = '/usr/share/pki/server/conf/pki.policy'
+        logger.info('Appending %s', filename)
+        with open(filename, 'r') as f:
+            content += f.read()
+
+        for root, _, filenames in os.walk(self.common_lib_dir):
+            for filename in filenames:
+                filepath = os.path.join(root, filename)
+                logger.info('Adding policy for %s', filepath)
+                content += '''
+grant codeBase "file:%s" {
+    permission java.security.AllPermission;
+};
+''' % filepath
+
+        filename = '%s/custom.policy' % self.conf_dir
+        if os.path.exists(filename):
+            logger.info('Appending %s', filename)
+            content += '\n'
+            with open(filename, 'r') as f:
+                content += f.read()
+
+        filename = '%s/catalina.policy' % self.conf_dir
+        logger.info('Storing %s', filename)
+        with open(filename, 'w') as f:
+            f.write(content)
+
     def init(self):
 
         self.export_ca_cert()
 
         if os.environ.get('PKI_SERVER_AUTO_ENABLE_SUBSYSTEMS', 'true') == 'true':
             self.enable_subsystems()
+
+        self.create_catalina_policy()
 
     def start(self, wait=False, max_wait=60, timeout=None):
 

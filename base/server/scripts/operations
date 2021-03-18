@@ -823,35 +823,6 @@ start_instance()
         rm -f ${RESTART_SERVER}
     fi
 
-    # Generate initial catalina.policy
-    cat /usr/share/pki/server/conf/catalina.policy \
-        /usr/share/tomcat/conf/catalina.policy > \
-        /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
-
-    echo >> /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
-    echo >> /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
-
-    cat /usr/share/pki/server/conf/pki.policy >> \
-        /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
-
-    # Add permissions for all JAR files in /var/lib/pki/$PKI_INSTANCE_NAME/common/lib
-    for path in /var/lib/pki/$PKI_INSTANCE_NAME/common/lib/*; do
-
-        cat >> /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy << EOF
-
-grant codeBase "file:$(realpath $path)" {
-    permission java.security.AllPermission;
-};
-EOF
-    done
-
-    # Append custom.policy
-    if [ -f /var/lib/pki/$PKI_INSTANCE_NAME/conf/custom.policy ]; then
-        echo >> /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
-        cat /var/lib/pki/$PKI_INSTANCE_NAME/conf/custom.policy >> \
-            /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
-    fi
-
     # Always create a backup of each PKI subsystem's 'CS.cfg' file
     # within an instance.
     #
