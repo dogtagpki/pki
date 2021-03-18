@@ -337,7 +337,7 @@ grant codeBase "file:%s" {
         if not wait:
             return
 
-        logger.info('Waiting for server to start')
+        logger.info('Waiting for PKI server to start')
 
         start_time = datetime.datetime.today()
         started = False
@@ -363,10 +363,10 @@ grant codeBase "file:%s" {
                                     max_wait) from e
 
                 logger.info(
-                    'Waiting for server to start (%ds)',
+                    'Waiting for PKI server to start (%ds)',
                     int(round(counter)))
 
-        logger.info('Server started')
+        logger.info('PKI server started')
 
     def stop(self, wait=False, max_wait=60, timeout=None):
 
@@ -377,7 +377,7 @@ grant codeBase "file:%s" {
         if not wait:
             return
 
-        logger.info('Waiting for server to stop')
+        logger.info('Waiting for PKI server to stop')
 
         start_time = datetime.datetime.today()
         stopped = False
@@ -406,10 +406,10 @@ grant codeBase "file:%s" {
                                     max_wait) from e
 
                 logger.info(
-                    'Waiting for server to stop (%ds)',
+                    'Waiting for PKI server to stop (%ds)',
                     int(round(counter)))
 
-        logger.info('Server stopped')
+        logger.info('PKI server stopped')
 
     def restart(self, wait=False, max_wait=60, timeout=None):
         self.stop(wait=True, max_wait=max_wait, timeout=timeout)

@@ -404,7 +404,6 @@ class PKISubsystem(object):
         """
 
         fips_mode = pki.FIPS.is_enabled()
-        logger.info('FIPS mode: %s', fips_mode)
 
         # must use 'http' protocol when FIPS mode is enabled
         secure_connection = not fips_mode

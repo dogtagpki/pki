@@ -59,10 +59,5 @@ if __name__ == '__main__':
 
     except Exception as e:  # pylint: disable=broad-except
 
-        if logger.isEnabledFor(logging.DEBUG):
-            logger.exception(e)
-
-        else:
-            logger.error(e)
-
+        logger.exception(e)
         sys.exit(1)

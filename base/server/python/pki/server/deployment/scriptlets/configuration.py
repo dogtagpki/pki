@@ -667,7 +667,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if tomcat_instance_subsystems == 1:
 
-            logger.info('Starting server')
+            logger.info('Starting PKI server')
             instance.start(
                 wait=True,
                 max_wait=deployer.startup_timeout,
@@ -782,7 +782,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # replace it with the perm cert.
         if create_temp_sslserver_cert and system_certs['sslserver']['data']:
 
-            logger.info('Stopping server')
+            logger.info('Stopping PKI server')
             instance.stop(
                 wait=True,
                 max_wait=deployer.startup_timeout,
@@ -806,7 +806,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             instance.set_sslserver_cert_nickname(nickname, token)
 
-            logger.info('Starting server')
+            logger.info('Starting PKI server')
             instance.start(
                 wait=True,
                 max_wait=deployer.startup_timeout,
