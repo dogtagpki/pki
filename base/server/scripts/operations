@@ -858,11 +858,6 @@ EOF
         return $rv
     fi
 
-    if [ "${PKI_SERVER_AUTO_ENABLE_SUBSYSTEMS}" = "true" ] ; then
-        # enable all subsystems
-        /usr/sbin/pki-server subsystem-enable -i "$PKI_INSTANCE_NAME" --all --silent
-    fi
-
     # Always create a backup of each PKI subsystem's 'CS.cfg' file
     # within an instance.
     #

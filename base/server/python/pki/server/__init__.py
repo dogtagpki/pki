@@ -280,6 +280,9 @@ class PKIServer(object):
 
         self.export_ca_cert()
 
+        if os.environ.get('PKI_SERVER_AUTO_ENABLE_SUBSYSTEMS', 'true') == 'true':
+            self.enable_subsystems()
+
     def start(self, wait=False, max_wait=60, timeout=None):
 
         cmd = ['systemctl', 'start', '%s.service' % self.service_name]
@@ -1061,6 +1064,11 @@ class PKIServer(object):
 
     def get_subsystem(self, subsystem_name):
         return self.subsystems.get(subsystem_name)
+
+    def enable_subsystems(self):
+        for subsystem in self.get_subsystems():
+            if not subsystem.is_enabled():
+                subsystem.enable()
 
     def load_jss_config(self):
 
