@@ -181,17 +181,6 @@ check_pki_configuration_status()
             # 4 program or service status is unknown
             rv=4
         fi
-    elif [ -f ${RESTART_SERVER} ] ; then
-        echo -n "    Although '${PKI_INSTANCE_NAME}' has been CONFIGURED, "
-        echo -n "it must still be RESTARTED!"
-        echo
-        if [ "${command}" != "status" ]; then
-            # 1 generic or unspecified error (current practice)
-            rv=1
-        else
-            # 4 program or service status is unknown
-            rv=4
-        fi
     fi
 
     return $rv
@@ -818,10 +807,6 @@ backup_instance_configuration_files()
 start_instance()
 {
     rv=0
-
-    if [ -f ${RESTART_SERVER} ] ; then
-        rm -f ${RESTART_SERVER}
-    fi
 
     # Always create a backup of each PKI subsystem's 'CS.cfg' file
     # within an instance.

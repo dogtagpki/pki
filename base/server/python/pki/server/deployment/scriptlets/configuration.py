@@ -778,17 +778,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('%s configuration complete', subsystem.type)
 
-        # Create an empty file that designates the fact that although
-        # this server instance has been configured, it has NOT yet
-        # been restarted!
-
-        restart_server = os.path.join(instance.conf_dir, 'restart_server_after_configuration')
-        logger.debug('Creating %s', restart_server)
-
-        open(restart_server, 'a').close()
-        os.chown(restart_server, instance.uid, instance.gid)
-        os.chmod(restart_server, 0o660)
-
         # If temp SSL server cert was created and there's a new perm cert,
         # replace it with the perm cert.
         if create_temp_sslserver_cert and system_certs['sslserver']['data']:
