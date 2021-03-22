@@ -6,62 +6,37 @@ Overview
 
 This page describes the process to install a CA subsystem with a secure database connection.
 
-Ensure that the secure connection has been enabled on the directory server.
-Export the signing certificate for the directory server into ds_signing.crt.
-This step is described [here](https://www.dogtagpki.org/wiki/DS_SSL).
+DS Installation
+---------------
+
+Prepare a DS instance as described in [DS Installation](https://github.com/dogtagpki/pki/wiki/DS-Installation).
+
+Enable the SSL connection with a self-signed signing certificate as described in
+[Enabling SSL Connection in DS](https://github.com/dogtagpki/pki/wiki/Enabling-SSL-Connection-in-DS).
+
+Then export the signing certificate into `ds_signing.crt` as described in
+[Exporting DS Certificates](https://github.com/dogtagpki/pki/wiki/Exporting-DS-Certificates).
 
 CA Subsystem Installation
 -------------------------
 
-Prepare a file (e.g. ca.cfg) that contains the deployment configuration, for example:
+Prepare a deployment configuration (e.g. `ca-secure-ds.cfg`) to deploy CA subsystem.
+By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
+
+A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ca-secure-ds.cfg](../../../base/server/examples/installation/ca-secure-ds.cfg).
+
+To start the installation execute the following command:
 
 ```
-[DEFAULT]
-pki_server_database_password=Secret.123
-
-[CA]
-pki_admin_email=caadmin@example.com
-pki_admin_name=caadmin
-pki_admin_nickname=caadmin
-pki_admin_password=Secret.123
-pki_admin_uid=caadmin
-
-pki_client_database_password=Secret.123
-pki_client_database_purge=False
-pki_client_pkcs12_password=Secret.123
-
-pki_ds_ldaps_port=636
-pki_ds_secure_connection=True
-pki_ds_secure_connection_ca_nickname=ds_signing
-pki_ds_secure_connection_ca_pem_file=ds_signing.crt
-
-pki_ds_base_dn=dc=ca,dc=pki,dc=example,dc=com
-pki_ds_database=ca
-pki_ds_password=Secret.123
-
-pki_security_domain_name=EXAMPLE
-
-pki_ca_signing_nickname=ca_signing
-pki_ocsp_signing_nickname=ca_ocsp_signing
-pki_audit_signing_nickname=ca_audit_signing
-pki_sslserver_nickname=sslserver
-pki_subsystem_nickname=subsystem
+$ pkispawn -f ca-secure-ds.cfg -s CA
 ```
 
-Then execute the following command:
+CA System Certificates
+----------------------
 
-```
-$ pkispawn -f ca.cfg -s CA
-```
-
-It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
-* server NSS database: /etc/pki/pki-tomcat/alias
-* admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
-
-Verifying System Certificates
------------------------------
-
-Verify that the server NSS database contains the following certificates:
+After installation the CA system certificates with their keys will be
+generated and stored in the server NSS database (i.e. `/etc/pki/pki-tomcat/alias`),
+and the DS signing certificate will be imported into the same NSS database:
 
 ```
 $ certutil -L -d /etc/pki/pki-tomcat/alias
@@ -77,14 +52,30 @@ ca_audit_signing                                             u,u,Pu
 sslserver                                                    u,u,u
 ```
 
-Verifying Database Configuration
---------------------------------
+If necessary, the CA system certificates can be exported into PEM files with the following command:
 
-Verify that the CA database is configured with a secure connection:
+```
+$ pki-server cert-export <cert ID> --cert-file <filename>
+```
+
+The valid IDs for CA system certificates are:
+* `ca_signing`
+* `ca_ocsp_signing`
+* `ca_audit_signing`
+* `subsystem`
+* `sslserver`
+
+Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname.
+For simplicity the nicknames in this example are configured to be the same as the certificate ID.
+
+CA Database Configuration
+-------------------------
+
+The CA database configuration can be displayed with the following command:
 
 ```
 $ pki-server ca-db-config-show
-  Hostname: server.example.com
+  Hostname: pki.example.com
   Port: 636
   Secure: true
   Authentication: BasicAuth
@@ -97,33 +88,43 @@ $ pki-server ca-db-config-show
   Minimum connections: 3
 ```
 
-Verifying Admin Certificate
----------------------------
+Admin Certificate
+-----------------
 
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+After installation the admin certificate and key will be stored
+in `~/.dogtag/pki-tomcat/ca_admin_cert.p12`.
+The password for this file will be stored in `~/.dogtag/pki-tomcat/ca/pkcs12_password.conf`.
 
-```
-$ pki -c Secret.123 client-init
-```
-
-Import the CA signing certificate:
+To use the admin certificate, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 
 ```
-$ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
+$ pki client-init
 ```
 
-Import admin key and certificate:
+Export the CA signing certificate from the server NSS database:
 
 ```
-$ pki -c Secret.123 client-cert-import \
- --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
- --pkcs12-password-file ~/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+$ pki-server cert-export ca_signing --cert-file ca_signing.crt
 ```
 
-Verify that the admin certificate can be used to access the CA subsystem by executing the following command:
+Then import the CA signing certificate into the client NSS database:
 
 ```
-$ pki -c Secret.123 -n caadmin ca-user-show caadmin
+$ pki client-cert-import ca_signing --ca-cert ca_signing.crt
+```
+
+Finally, import admin certificate and key with the following command:
+
+```
+$ pki client-cert-import \
+   --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+   --pkcs12-password-file ~/.dogtag/pki-tomcat/ca/pkcs12_password.conf
+```
+
+To verify that the admin certificate can be used to access the CA subsystem, execute the following command:
+
+```
+$ pki -n caadmin ca-user-show caadmin
 --------------
 User "caadmin"
 --------------
