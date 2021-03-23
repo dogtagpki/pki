@@ -360,23 +360,12 @@ public class Configurator {
         KeyPair pair = null;
         logger.info("Configurator: - type: " + ecType);
 
-        // ECDHE needs "SIGN" but no "DERIVE"
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[] = {
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DERIVE
-        };
-
-        // ECDH needs "DERIVE" but no any kind of "SIGN"
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage ECDH_usages_mask[] = {
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER,
-        };
-
         do {
             if (tag.equals("sslserver") && ecType.equalsIgnoreCase("ECDH")) {
-                pair = CryptoUtil.generateECCKeyPair(token, curveName, null, ECDH_usages_mask);
+                pair = CryptoUtil.generateECCKeyPair(token, curveName, null, CryptoUtil.ECDH_USAGES_MASK);
 
             } else {
-                pair = CryptoUtil.generateECCKeyPair(token, curveName, null, usages_mask);
+                pair = CryptoUtil.generateECCKeyPair(token, curveName, null, CryptoUtil.ECDHE_USAGES_MASK);
             }
 
             // XXX - store curve , w

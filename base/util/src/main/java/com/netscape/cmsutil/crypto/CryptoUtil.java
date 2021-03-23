@@ -181,6 +181,17 @@ public class CryptoUtil {
         SymmetricKey.Usage.DECRYPT
     };
 
+    // ECDHE needs SIGN but no DERIVE
+    public final static KeyPairGeneratorSpi.Usage[] ECDHE_USAGES_MASK = {
+            KeyPairGeneratorSpi.Usage.DERIVE
+    };
+
+    // ECDH needs DERIVE but no any kind of SIGN
+    public final static KeyPairGeneratorSpi.Usage[] ECDH_USAGES_MASK = {
+            KeyPairGeneratorSpi.Usage.SIGN,
+            KeyPairGeneratorSpi.Usage.SIGN_RECOVER,
+    };
+
     static public final Integer[] clientECCiphers = {
 /*
         SSLSocket.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,

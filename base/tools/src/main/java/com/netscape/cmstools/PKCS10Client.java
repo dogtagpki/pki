@@ -235,21 +235,13 @@ public class PKCS10Client {
                 pair = CryptoUtil.generateRSAKeyPair(token, rsa_keylen);
 
             }  else if (alg.equals("ec")) {
-                // used with SSL server cert that does ECDH ECDSA
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask_ECDH[] = {
-                    org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
-                    org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
-                };
-
-                // used for other certs including SSL server cert that does ECDHE ECDSA
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[] = {
-                  org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DERIVE
-                };
 
                 pair = CryptoUtil.generateECCKeyPair(token, ecc_curve,
                        null,
-                       usages_mask, ec_temporary /*temporary*/,
-                       ec_sensitive /*sensitive*/, ec_extractable /*extractable*/);
+                       CryptoUtil.ECDHE_USAGES_MASK,
+                       ec_temporary,
+                       ec_sensitive,
+                       ec_extractable);
                 if (pair == null) {
                     System.out.println("PKCS10Client: pair null.");
                     System.exit(1);

@@ -972,22 +972,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         String ectype = getECType(certType);
 
-        // ECDHE needs "SIGN" but no "DERIVE"
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[] = {
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DERIVE
-        };
-
-        // ECDH needs "DERIVE" but no any kind of "SIGN"
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage ECDH_usages_mask[] = {
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER,
-        };
-
         try {
             if (ectype.equals("ECDHE"))
-                pair = CryptoUtil.generateECCKeyPair(token, keyCurve, null, usages_mask);
+                pair = CryptoUtil.generateECCKeyPair(token, keyCurve, null, CryptoUtil.ECDHE_USAGES_MASK);
             else
-                pair = CryptoUtil.generateECCKeyPair(token, keyCurve, null, ECDH_usages_mask);
+                pair = CryptoUtil.generateECCKeyPair(token, keyCurve, null, CryptoUtil.ECDH_USAGES_MASK);
 
         } catch (NotInitializedException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()), e);
