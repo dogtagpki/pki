@@ -937,8 +937,7 @@ jobs:
           docker exec pki dsconf localhost config replace nsslapd-security=on
           docker exec pki dsctl localhost restart
           docker exec pki sleep 10
-          docker exec pki bash -c "echo 'TLS_CACERT /ds_signing.crt' >> /etc/openldap/ldap.conf"
-          docker exec pki ldapsearch -H ldaps://pki.example.com:636 -x -b "" -s base \* +
+          docker exec -e LDAPTLS_CACERT=/ds_signing.crt pki ldapsearch -H ldaps://pki.example.com:636 -x -b "" -s base \* +
 
       - name: Gather DS artifacts
         if: always()
