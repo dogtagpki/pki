@@ -91,6 +91,7 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
@@ -620,39 +621,41 @@ public class CryptoUtil {
     }
 
     /**
-     * Generates an ecc key pair.
+     * Generates an ECC key pair.
      */
-    public static KeyPair generateECCKeyPair(CryptoToken token, int keysize)
-            throws NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
-        return generateECCKeyPair(token, keysize, null, null);
+    public static KeyPair generateECCKeyPair(
+            CryptoToken token,
+            int keySize
+            ) throws Exception {
+
+        return generateECCKeyPair(token, keySize, null, null);
     }
 
-    public static KeyPair generateECCKeyPair(CryptoToken token, int keysize,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
-            throws NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
-        return generateECCKeyPair(token, keysize, usage_ops, usage_mask,
-            false, -1, -1);
+    public static KeyPair generateECCKeyPair(
+            CryptoToken token,
+            int keySize,
+            KeyPairGeneratorSpi.Usage[] usageOps,
+            KeyPairGeneratorSpi.Usage[] usageMask
+            ) throws Exception {
+
+        return generateECCKeyPair(token, keySize, usageOps, usageMask, false, -1, -1);
     }
 
     /*
      * temporary, sensitive, and extractable usages are per defined in
      * JSS pkcs11/PK11KeyPairGenerator.java
      */
-    public static KeyPair generateECCKeyPair(CryptoToken token, int keysize,
-           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
-           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask,
-           boolean temporary, int sensitive, int extractable)
-        throws NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
+    public static KeyPair generateECCKeyPair(
+            CryptoToken token,
+            int keysize,
+            KeyPairGeneratorSpi.Usage[] usage_ops,
+            KeyPairGeneratorSpi.Usage[] usage_mask,
+            boolean temporary,
+            int sensitive,
+            int extractable
+            ) throws Exception {
+
+        logger.info("CryptoUtil: Generating ECC key pair");
 
         KeyPairAlgorithm alg = KeyPairAlgorithm.EC;
         KeyPairGenerator keygen = token.getKeyPairGenerator(alg);
@@ -660,89 +663,108 @@ public class CryptoUtil {
         keygen.setKeyPairUsages(usage_ops, usage_mask);
         keygen.initialize(keysize);
         keygen.setKeyPairUsages(usage_ops, usage_mask);
+
+        logger.info("CryptoUtil: - temporary: " + temporary);
         keygen.temporaryPairs(temporary);
 
-        if (sensitive == 1 )
+        logger.info("CryptoUtil: - sensitive: " + sensitive);
+        if (sensitive == 1) {
             keygen.sensitivePairs(true);
-        else if (sensitive == 0)
+        } else if (sensitive == 0) {
             keygen.sensitivePairs(false);
+        }
 
-        if (extractable == 1 )
+        logger.info("CryptoUtil: - extractable: " + extractable);
+        if (extractable == 1) {
             keygen.extractablePairs(true);
-        else if (extractable == 0)
+        } else if (extractable == 0) {
             keygen.extractablePairs(false);
+        }
 
         keygen.initialize(keysize);
 
         KeyPair pair = keygen.genKeyPair();
+        PrivateKey privatKey = (PrivateKey) pair.getPrivate();
+        logger.info("CryptoUtil: - key ID: " + encodeKeyID(privatKey.getUniqueID()));
 
         return pair;
     }
 
     /**
-     * Generates an ecc key pair by curve name
+     * Generates an ECC key pair by curve name.
      */
-    public static KeyPair generateECCKeyPair(CryptoToken token, String curveName)
-            throws NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
+    public static KeyPair generateECCKeyPair(
+            CryptoToken token,
+            String curveName
+            ) throws Exception {
+
         return generateECCKeyPair(token, curveName, null, null);
     }
 
-    public static KeyPair generateECCKeyPair(CryptoToken token, String curveName,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
-            throws NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
-        return generateECCKeyPair(token, curveName, usage_ops, usage_mask,
-            false, -1, -1);
+    public static KeyPair generateECCKeyPair(
+            CryptoToken token,
+            String curveName,
+            KeyPairGeneratorSpi.Usage[] usageOps,
+            KeyPairGeneratorSpi.Usage[] usageMask
+            ) throws Exception {
+
+        return generateECCKeyPair(
+                token,
+                curveName,
+                usageOps,
+                usageMask,
+                false,
+                -1,
+                -1);
     }
 
     /*
      * temporary, sensitive, and extractable usages are per defined in
      * JSS pkcs11/PK11KeyPairGenerator.java
      */
-    public static KeyPair generateECCKeyPair(CryptoToken token, String curveName,
-           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
-           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask,
-           boolean temporary, int sensitive, int extractable)
-        throws NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
+    public static KeyPair generateECCKeyPair(
+            CryptoToken token,
+            String curveName,
+            KeyPairGeneratorSpi.Usage[] usage_ops,
+            KeyPairGeneratorSpi.Usage[] usage_mask,
+            boolean temporary,
+            int sensitive,
+            int extractable
+            ) throws Exception {
+
+        logger.info("CryptoUtil: Generating ECC key pair");
 
         KeyPairAlgorithm alg = KeyPairAlgorithm.EC;
         KeyPairGenerator keygen = token.getKeyPairGenerator(alg);
 
         keygen.setKeyPairUsages(usage_ops, usage_mask);
         keygen.setKeyPairUsages(usage_ops, usage_mask);
+
+        logger.info("CryptoUtil: - temporary: " + temporary);
         keygen.temporaryPairs(temporary);
 
-        if (sensitive == 1 )
+        logger.info("CryptoUtil: - sensitive: " + sensitive);
+        if (sensitive == 1) {
             keygen.sensitivePairs(true);
-        else if (sensitive == 0)
+        } else if (sensitive == 0) {
             keygen.sensitivePairs(false);
-
-        if (extractable == 1 )
-            keygen.extractablePairs(true);
-        else if (extractable == 0)
-            keygen.extractablePairs(false);
-
-//        logger.debug("CryptoUtil: generateECCKeyPair: curve = " + curveName);
-        int curveCode = 0;
-        try {
-            curveCode = keygen.getCurveCodeByName(curveName);
-        } catch (Exception e) {
-//            logger.debug("CryptoUtil: generateECCKeyPair: " + e.toString());
-            throw new NoSuchAlgorithmException();
         }
+
+        logger.info("CryptoUtil: - extractable: " + extractable);
+        if (extractable == 1) {
+            keygen.extractablePairs(true);
+        } else if (extractable == 0) {
+            keygen.extractablePairs(false);
+        }
+
+        logger.info("CryptoUtil: - curve: " + curveName);
+        int curveCode = keygen.getCurveCodeByName(curveName);
+
         keygen.initialize(curveCode);
 
-//        logger.debug("CryptoUtil: generateECCKeyPair: after KeyPairGenerator initialize with:" + curveName);
         KeyPair pair = keygen.genKeyPair();
+        PrivateKey privatKey = (PrivateKey) pair.getPrivate();
+        logger.info("CryptoUtil: - key ID: " + encodeKeyID(privatKey.getUniqueID()));
 
         return pair;
     }

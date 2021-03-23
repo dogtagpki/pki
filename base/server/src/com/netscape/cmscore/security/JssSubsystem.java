@@ -988,18 +988,25 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 pair = CryptoUtil.generateECCKeyPair(token, keyCurve, null, usages_mask);
             else
                 pair = CryptoUtil.generateECCKeyPair(token, keyCurve, null, ECDH_usages_mask);
+
         } catch (NotInitializedException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
+
         } catch (NoSuchTokenException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
+
         } catch (NoSuchAlgorithmException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_SUCH_ALGORITHM", e.toString()));
+
         } catch (TokenException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
+
+        } catch (Exception e) {
+            throw new EBaseException(e);
         }
 
         return pair;
