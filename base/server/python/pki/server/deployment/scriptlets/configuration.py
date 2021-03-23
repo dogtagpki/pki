@@ -619,16 +619,27 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.str2bool(deployer.mdict['pki_clone_setup_replication'])
 
         ds_port = subsystem.config['internaldb.ldapconn.port']
+        logger.info('- internaldb.ldapconn.port: %s', ds_port)
+
         secure_conn = subsystem.config['internaldb.ldapconn.secureConn']
+        logger.info('- internaldb.ldapconn.secureConn: %s', secure_conn)
+
         replication_security = deployer.mdict['pki_clone_replication_security']
+        logger.info('- pki_clone_replication_security: %s', replication_security)
+
         replication_port = deployer.mdict['pki_clone_replication_clone_port']
+        logger.info('- pki_clone_replication_clone_port: %s', replication_port)
+
         master_replication_port = deployer.mdict['pki_clone_replication_master_port']
+        logger.info('- pki_clone_replication_master_port: %s', master_replication_port)
 
         if replication_port == ds_port and secure_conn == 'true':
             replication_security = 'SSL'
 
         elif not replication_security:
             replication_security = 'None'
+
+        logger.info('- replication_security: %s', replication_security)
 
         # If the database is already replicated but not yet indexed, rebuild the indexes.
 
