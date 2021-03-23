@@ -1196,8 +1196,15 @@ public class CryptoUtil {
             SignatureAlgorithm signingAlgorithm)
             throws Exception {
 
+        logger.info("CryptoUtil: Signing certificate:");
+        logger.info("CryptoUtil: - signing algorithm: " + signingAlgorithm);
+
         String algName = mapSignatureAlgorithmToInternalName(signingAlgorithm);
+        logger.info("CryptoUtil: - algorithm name: " + algName);
+
         AlgorithmId aid = AlgorithmId.get(algName);
+        logger.info("CryptoUtil: - algorithm ID: " + aid);
+
         certInfo.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(aid));
 
         PrivateKey priKey = (PrivateKey) privateKey;
