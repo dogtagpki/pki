@@ -78,17 +78,6 @@ jobs:
       - name: Install CA
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
 
-      - name: Gather config files
-        if: always()
-        run: docker exec pki tar cvf ${PKIDIR}/pki-conf.tar -C / etc/pki
-
-      - name: Upload config files
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: pki-conf-${{ matrix.os }}
-          path: pki-conf.tar
-
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
 
@@ -101,24 +90,33 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec pki pki -n caadmin ca-user-show caadmin
 
+      - name: Gather artifacts
+        if: always()
+        run: |
+          mkdir -p /tmp/pki/dirsrv/conf
+          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
+          mkdir -p /tmp/pki/dirsrv/logs
+          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
+          mkdir -p /tmp/pki/pki/conf
+          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
+          mkdir -p /tmp/pki/pki/logs
+          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
+          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS
         run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Gather log files
-        if: always()
-        run: |
-          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec pki tar cvf ${PKIDIR}/pki-logs.tar -C / var/log/pki
-
-      - name: Upload log files
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-logs-${{ matrix.os }}
-          path: pki-logs.tar
+          name: ca-${{ matrix.os }}
+          path: |
+            /tmp/pki/dirsrv/
+            /tmp/pki/pki/
 
   # docs/installation/ca/Installing_CA_with_ECC.md
   ca-ecc-test:
@@ -161,17 +159,6 @@ jobs:
       - name: Install CA
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-ecc.cfg -s CA -v
 
-      - name: Gather config files
-        if: always()
-        run: docker exec pki tar cvf ${PKIDIR}/pki-ecc-conf.tar -C / etc/pki
-
-      - name: Upload config files
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: pki-ecc-conf-${{ matrix.os }}
-          path: pki-ecc-conf.tar
-
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
 
@@ -200,24 +187,33 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec pki pki -n caadmin ca-user-show caadmin
 
+      - name: Gather artifacts
+        if: always()
+        run: |
+          mkdir -p /tmp/pki/dirsrv/conf
+          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
+          mkdir -p /tmp/pki/dirsrv/logs
+          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
+          mkdir -p /tmp/pki/pki/conf
+          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
+          mkdir -p /tmp/pki/pki/logs
+          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
+          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS
         run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Gather log files
-        if: always()
-        run: |
-          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec pki tar cvf ${PKIDIR}/pki-ecc-logs.tar -C / var/log/pki
-
-      - name: Upload log files
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-ecc-logs-${{ matrix.os }}
-          path: pki-ecc-logs.tar
+          name: ca-ecc-${{ matrix.os }}
+          path: |
+            /tmp/pki/dirsrv/
+            /tmp/pki/pki/
 
   # docs/installation/ca/Installing_Subordinate_CA.md
   subca-test:
@@ -266,17 +262,6 @@ jobs:
       - name: Install root CA in root container
         run: docker exec root pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
 
-      - name: Gather config files from root container
-        if: always()
-        run: docker exec root tar cvf ${PKIDIR}/root-conf.tar -C / etc/pki
-
-      - name: Upload config files from root container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: root-conf-${{ matrix.os }}
-          path: root-conf.tar
-
       - name: Setup subordinate container
         run: |
           IMAGE=pki-runner \
@@ -299,17 +284,6 @@ jobs:
           docker exec subordinate cp ${PKIDIR}/root-ca_signing.crt .
           docker exec subordinate pkispawn -f /usr/share/pki/server/examples/installation/subca.cfg -s CA -v
 
-      - name: Gather config files from subordinate container
-        if: always()
-        run: docker exec subordinate tar cvf ${PKIDIR}/subordinate-conf.tar -C / etc/pki
-
-      - name: Upload config files from subordinate container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: subordinate-conf-${{ matrix.os }}
-          path: subordinate-conf.tar
-
       - name: Run PKI healthcheck
         run: docker exec subordinate pki-healthcheck --debug
 
@@ -321,6 +295,19 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec subordinate pki -n caadmin ca-user-show caadmin
 
+      - name: Gather artifacts from subordinate container
+        if: always()
+        run: |
+          mkdir -p /tmp/subordinate/dirsrv/conf
+          docker cp subordinate:/etc/dirsrv/slapd-localhost/. /tmp/subordinate/dirsrv/conf
+          mkdir -p /tmp/subordinate/dirsrv/logs
+          docker cp subordinate:/var/log/dirsrv/slapd-localhost/. /tmp/subordinate/dirsrv/logs
+          mkdir -p /tmp/subordinate/pki/conf
+          docker cp subordinate:/var/lib/pki/pki-tomcat/conf/. /tmp/subordinate/pki/conf
+          mkdir -p /tmp/subordinate/pki/logs
+          docker cp subordinate:/var/lib/pki/pki-tomcat/logs/. /tmp/subordinate/pki/logs
+          docker exec subordinate journalctl -u pki-tomcatd@pki-tomcat > /tmp/subordinate/pki/logs/systemd.log
+
       - name: Remove subordinate CA from subordinate container
         run: docker exec subordinate pkidestroy -i pki-tomcat -s CA -v
 
@@ -330,18 +317,18 @@ jobs:
       - name: Disconnect subordinate container from network
         run: docker network disconnect example subordinate
 
-      - name: Gather logs from subordinate container
+      - name: Gather artifacts from root container
         if: always()
         run: |
-          docker exec subordinate bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec subordinate tar cvf ${PKIDIR}/subordinate-logs.tar -C / var/log/pki
-
-      - name: Upload log files from subordinate container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: subordinate-logs-${{ matrix.os }}
-          path: subordinate-logs.tar
+          mkdir -p /tmp/root/dirsrv/conf
+          docker cp root:/etc/dirsrv/slapd-localhost/. /tmp/root/dirsrv/conf
+          mkdir -p /tmp/root/dirsrv/logs
+          docker cp root:/var/log/dirsrv/slapd-localhost/. /tmp/root/dirsrv/logs
+          mkdir -p /tmp/root/pki/conf
+          docker cp root:/var/lib/pki/pki-tomcat/conf/. /tmp/root/pki/conf
+          mkdir -p /tmp/root/pki/logs
+          docker cp root:/var/lib/pki/pki-tomcat/logs/. /tmp/root/pki/logs
+          docker exec root journalctl -u pki-tomcatd@pki-tomcat > /tmp/root/pki/logs/systemd.log
 
       - name: Remove root CA from root container
         run: docker exec root pkidestroy -i pki-tomcat -s CA -v
@@ -355,18 +342,23 @@ jobs:
       - name: Remove network
         run: docker network rm example
 
-      - name: Gather logs from root container
-        if: always()
-        run: |
-          docker exec root bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec root tar cvf ${PKIDIR}/root-logs.tar -C / var/log/pki
-
-      - name: Upload logs from root container
+      - name: Upload artifacts from root container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: root-logs-${{ matrix.os }}
-          path: root-logs.tar
+          name: ca-root-${{ matrix.os }}
+          path: |
+            /tmp/root/dirsrv/
+            /tmp/root/pki/
+
+      - name: Upload artifacts from subordinate container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ca-subordinate-${{ matrix.os }}
+          path: |
+            /tmp/subordinate/dirsrv/
+            /tmp/subordinate/pki/
 
   # docs/installation/ca/Installing_CA_with_External_CA_Signing_Certificate.md
   ca-external-cert-test:
@@ -431,17 +423,6 @@ jobs:
               --cert ca_signing.crt
           docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg -s CA -v
 
-      - name: Gather config files
-        if: always()
-        run: docker exec pki tar cvf ${PKIDIR}/ca-external-cert-conf.tar -C / etc/pki
-
-      - name: Upload config files
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: ca-external-cert-conf-${{ matrix.os }}
-          path: ca-external-cert-conf.tar
-
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
 
@@ -453,24 +434,33 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec pki pki -n caadmin ca-user-show caadmin
 
+      - name: Gather artifacts
+        if: always()
+        run: |
+          mkdir -p /tmp/pki/dirsrv/conf
+          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
+          mkdir -p /tmp/pki/dirsrv/logs
+          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
+          mkdir -p /tmp/pki/pki/conf
+          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
+          mkdir -p /tmp/pki/pki/logs
+          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
+          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+
       - name: Remove subordinate CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS
         run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Gather log files
-        if: always()
-        run: |
-          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec pki tar cvf ${PKIDIR}/ca-external-cert-logs.tar -C / var/log/pki
-
-      - name: Upload log files
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-external-cert-logs-${{ matrix.os }}
-          path: ca-external-cert-logs.tar
+          name: ca-external-cert-${{ matrix.os }}
+          path: |
+            /tmp/pki/dirsrv/
+            /tmp/pki/pki/
 
   # docs/installation/ca/Installing_CA_with_Existing_Keys_in_Internal_Token.md
   ca-existing-certs-test:
@@ -577,17 +567,6 @@ jobs:
           sleep 1  # avoid pkispawn log conflict due to identical timestamps
           docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca-existing-certs-step2.cfg -s CA -v
 
-      - name: Gather config files
-        if: always()
-        run: docker exec pki tar cvf ${PKIDIR}/ca-existing-certs-conf.tar -C / etc/pki
-
-      - name: Upload config files
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: ca-existing-certs-conf-${{ matrix.os }}
-          path: ca-existing-certs-conf.tar
-
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
 
@@ -610,24 +589,33 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/ca/pkcs12_password.conf
           docker exec pki pki -n caadmin ca-user-show caadmin
 
+      - name: Gather artifacts
+        if: always()
+        run: |
+          mkdir -p /tmp/pki/dirsrv/conf
+          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
+          mkdir -p /tmp/pki/dirsrv/logs
+          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
+          mkdir -p /tmp/pki/pki/conf
+          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
+          mkdir -p /tmp/pki/pki/logs
+          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
+          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Remove DS
         run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Gather log files
-        if: always()
-        run: |
-          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec pki tar cvf ${PKIDIR}/ca-existing-certs-logs.tar -C / var/log/pki
-
-      - name: Upload log files
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-existing-certs-logs-${{ matrix.os }}
-          path: ca-existing-certs-logs.tar
+          name: ca-existing-certs-${{ matrix.os }}
+          path: |
+            /tmp/pki/dirsrv/
+            /tmp/pki/pki/
 
   # docs/installation/ca/Installing_CA_Clone.md
   ca-clone-test:
@@ -676,16 +664,18 @@ jobs:
       - name: Install CA in primary container
         run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
 
-      - name: Gather config files from primary container
+      - name: Gather artifacts from primary container
         if: always()
-        run: docker exec primary tar cvf ${PKIDIR}/primary-conf.tar -C / etc/pki
-
-      - name: Upload config files from primary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: primary-conf-${{ matrix.os }}
-          path: primary-conf.tar
+        run: |
+          mkdir -p /tmp/primary/dirsrv/conf
+          docker cp primary:/etc/dirsrv/slapd-localhost/. /tmp/primary/dirsrv/conf
+          mkdir -p /tmp/primary/dirsrv/logs
+          docker cp primary:/var/log/dirsrv/slapd-localhost/. /tmp/primary/dirsrv/logs
+          mkdir -p /tmp/primary/pki/conf
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/. /tmp/primary/pki/conf
+          mkdir -p /tmp/primary/pki/logs
+          docker cp primary:/var/lib/pki/pki-tomcat/logs/. /tmp/primary/pki/logs
+          docker exec primary journalctl -u pki-tomcatd@pki-tomcat > /tmp/primary/pki/logs/systemd.log
 
       - name: Setup secondary container
         run: |
@@ -711,17 +701,6 @@ jobs:
           docker exec secondary cp ${PKIDIR}/ca-certs.p12 .
           docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone.cfg -s CA -v
 
-      - name: Gather config files from secondary container
-        if: always()
-        run: docker exec secondary tar cvf ${PKIDIR}/secondary-conf.tar -C / etc/pki
-
-      - name: Upload config files from secondary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: secondary-conf-${{ matrix.os }}
-          path: secondary-conf.tar
-
       - name: Verify CA admin in secondary container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${PKIDIR}/ca_admin_cert.p12
@@ -731,6 +710,19 @@ jobs:
               --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec secondary pki -n caadmin ca-user-show caadmin
+
+      - name: Gather artifacts from secondary container
+        if: always()
+        run: |
+          mkdir -p /tmp/secondary/dirsrv/conf
+          docker cp secondary:/etc/dirsrv/slapd-localhost/. /tmp/secondary/dirsrv/conf
+          mkdir -p /tmp/secondary/dirsrv/logs
+          docker cp secondary:/var/log/dirsrv/slapd-localhost/. /tmp/secondary/dirsrv/logs
+          mkdir -p /tmp/secondary/pki/conf
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/. /tmp/secondary/pki/conf
+          mkdir -p /tmp/secondary/pki/logs
+          docker cp secondary:/var/lib/pki/pki-tomcat/logs/. /tmp/secondary/pki/logs
+          docker exec secondary journalctl -u pki-tomcatd@pki-tomcat > /tmp/secondary/pki/logs/systemd.log
 
       - name: Setup tertiary container
         run: |
@@ -756,17 +748,6 @@ jobs:
           docker exec tertiary cp ${PKIDIR}/ca-certs.p12 .
           docker exec tertiary pkispawn -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg -s CA -v
 
-      - name: Gather config files from tertiary container
-        if: always()
-        run: docker exec tertiary tar cvf ${PKIDIR}/tertiary-conf.tar -C / etc/pki
-
-      - name: Upload config files from tertiary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: tertiary-conf-${{ matrix.os }}
-          path: tertiary-conf.tar
-
       - name: Verify CA admin in tertiary container
         run: |
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
@@ -774,6 +755,19 @@ jobs:
               --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec tertiary pki -n caadmin ca-user-show caadmin
+
+      - name: Gather artifacts from tertiary container
+        if: always()
+        run: |
+          mkdir -p /tmp/tertiary/dirsrv/conf
+          docker cp tertiary:/etc/dirsrv/slapd-localhost/. /tmp/tertiary/dirsrv/conf
+          mkdir -p /tmp/tertiary/dirsrv/logs
+          docker cp tertiary:/var/log/dirsrv/slapd-localhost/. /tmp/tertiary/dirsrv/logs
+          mkdir -p /tmp/tertiary/pki/conf
+          docker cp tertiary:/var/lib/pki/pki-tomcat/conf/. /tmp/tertiary/pki/conf
+          mkdir -p /tmp/tertiary/pki/logs
+          docker cp tertiary:/var/lib/pki/pki-tomcat/logs/. /tmp/tertiary/pki/logs
+          docker exec tertiary journalctl -u pki-tomcatd@pki-tomcat > /tmp/tertiary/pki/logs/systemd.log
 
       - name: Remove CA from tertiary container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
@@ -784,19 +778,6 @@ jobs:
       - name: Disconnect tertiary container from network
         run: docker network disconnect example tertiary
 
-      - name: Gather log files from tertiary container
-        if: always()
-        run: |
-          docker exec tertiary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec tertiary tar cvf ${PKIDIR}/tertiary-logs.tar -C / var/log/pki
-
-      - name: Upload log files from tertiary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: tertiary-logs-${{ matrix.os }}
-          path: tertiary-logs.tar
-
       - name: Remove CA from secondary container
         run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
 
@@ -805,19 +786,6 @@ jobs:
 
       - name: Disconnect secondary container from network
         run: docker network disconnect example secondary
-
-      - name: Gather log files from secondary container
-        if: always()
-        run: |
-          docker exec secondary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec secondary tar cvf ${PKIDIR}/secondary-logs.tar -C / var/log/pki
-
-      - name: Upload log files from secondary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: secondary-logs-${{ matrix.os }}
-          path: secondary-logs.tar
 
       - name: Remove CA from primary container
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
@@ -831,15 +799,29 @@ jobs:
       - name: Remove network
         run: docker network rm example
 
-      - name: Gather log files from primary container
-        if: always()
-        run: |
-          docker exec primary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec primary tar cvf ${PKIDIR}/primary-logs.tar -C / var/log/pki
-
-      - name: Upload log files from primary container
+      - name: Upload artifacts from primary container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: primary-logs-${{ matrix.os }}
-          path: primary-logs.tar
+          name: ca-clone-primary-${{ matrix.os }}
+          path: |
+            /tmp/primary/dirsrv/
+            /tmp/primary/pki/
+
+      - name: Upload artifacts from secondary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ca-clone-secondary-${{ matrix.os }}
+          path: |
+            /tmp/secondary/dirsrv/
+            /tmp/secondary/pki/
+
+      - name: Upload artifacts from tertiary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ca-clone-tertiary-${{ matrix.os }}
+          path: |
+            /tmp/tertiary/dirsrv/
+            /tmp/tertiary/pki/
