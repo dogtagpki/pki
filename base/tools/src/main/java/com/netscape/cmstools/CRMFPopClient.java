@@ -659,25 +659,18 @@ public class CRMFPopClient {
             boolean temporary,
             int sensitive,
             int extractable) throws Exception {
-        /*
-         * used with SSL server cert that does ECDH ECDSA
-         *  ** can only be used with POP_NONE **
-         */
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usagesMaskECDH = {
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
-        };
 
-        /* used for other certs including SSL server cert that does ECDHE ECDSA */
-        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usagesMask = {
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DERIVE
-        };
+        // ECDH_USAGES_MASK: used with SSL server cert that does ECDH ECDSA;
+        // can only be used with POP_NONE
+
+        // ECDHE_USAGES_MASK: used for other certs including SSL server cert
+        // that does ECDHE ECDSA
 
         return CryptoUtil.generateECCKeyPair(
                 token,
                 curve,
                 null,
-                sslECDH ? usagesMaskECDH : usagesMask,
+                sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK,
                 temporary,
                 sensitive,
                 extractable);

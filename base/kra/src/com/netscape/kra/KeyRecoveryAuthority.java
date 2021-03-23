@@ -1815,26 +1815,17 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         if (kpAlg == KeyPairAlgorithm.EC) {
 
-            boolean isECDHE = false;
             KeyPair pair = null;
 
-            // used with isECDHE == true
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask_ECDSA[] = {
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DERIVE
-            };
-
-            // used with isECDHE == false
-            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask_ECDH[] = {
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
-            };
-
             try {
-                pair = CryptoUtil.generateECCKeyPair(token,
-                    keyCurve /*ECC_curve default*/,
-                    null,
-                    (isECDHE==true) ? usages_mask_ECDSA: usages_mask_ECDH,
-                    tp /*temporary*/, sp? 1:0 /*sensitive*/, ep? 1:0 /*extractable*/);
+                pair = CryptoUtil.generateECCKeyPair(
+                        token,
+                        keyCurve /* ECC_curve default */,
+                        null,
+                        CryptoUtil.ECDH_USAGES_MASK,
+                        tp /* temporary */,
+                        sp ? 1 : 0 /* sensitive */,
+                        ep ? 1 : 0 /* extractable */);
                 logger.debug("NetkeyKeygenService: after key pair generation" );
             } catch (Exception e) {
                 logger.warn("NetkeyKeygenService: key pair generation with exception: " + e.getMessage(), e);
