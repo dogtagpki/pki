@@ -362,13 +362,15 @@ public class CMSAdminServlet extends AdminServlet {
         return false;
     }
 
+    public void readEncryption(NameValuePairs params) throws EBaseException {
+    }
+
     private void readEncryption(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        boolean isCAInstalled = false;
         boolean isRAInstalled = false;
         boolean isKRAInstalled = false;
 
@@ -379,13 +381,9 @@ public class CMSAdminServlet extends AdminServlet {
                 isKRAInstalled = true;
             else if (sys instanceof IRegistrationAuthority)
                 isRAInstalled = true;
-            else if (sys instanceof ICertificateAuthority)
-                isCAInstalled = true;
-
         }
 
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
-        String caTokenName = "";
 
         NameValuePairs params = new NameValuePairs();
 
@@ -414,20 +412,7 @@ public class CMSAdminServlet extends AdminServlet {
 
         params.put(Constants.PR_TOKEN_LIST, tokenNewList);
 
-        if (isCAInstalled) {
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            SigningUnit signingUnit = ca.getSigningUnit();
-
-            caTokenName = signingUnit.getTokenName();
-
-            if (caTokenName.equals(jssSubsystem.getInternalTokenName()))
-                caTokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
-
-            String caNickName = signingUnit.getNickname();
-
-            //params.add(Constants.PR_CERT_CA, caTokenName+","+caNickName);
-            params.put(Constants.PR_CERT_CA, getCertNickname(caNickName));
-        }
+        readEncryption(params);
 
         if (isRAInstalled) {
             IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
@@ -468,7 +453,7 @@ public class CMSAdminServlet extends AdminServlet {
         return tokenname.toString();
     }
 
-    private String getCertNickname(String nickName) {
+    public String getCertNickname(String nickName) {
         if (!nickName.equals("")) {
             StringTokenizer tokenizer = new StringTokenizer(nickName, ":");
             String tokenName = "";

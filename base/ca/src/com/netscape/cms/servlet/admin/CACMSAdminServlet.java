@@ -17,6 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+import org.dogtagpki.server.ca.CAEngine;
+
+import com.netscape.ca.CertificateAuthority;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.security.SigningUnit;
+import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
 /**
  * A class representing an administration servlet. This
  * servlet is responsible to serve Certificate Server
@@ -27,5 +37,24 @@ public class CACMSAdminServlet extends CMSAdminServlet {
 
     public boolean isSubsystemInstalled(String subsystem) {
         return subsystem.equals("ca");
+    }
+
+    public void readEncryption(NameValuePairs params) throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
+        CertificateAuthority ca = engine.getCA();
+        SigningUnit signingUnit = ca.getSigningUnit();
+
+        String caTokenName = signingUnit.getTokenName();
+        if (caTokenName.equals(jssSubsystem.getInternalTokenName())) {
+            caTokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
+        }
+
+        String caNickName = signingUnit.getNickname();
+
+        // params.add(Constants.PR_CERT_CA, caTokenName + "," + caNickName);
+        params.put(Constants.PR_CERT_CA, getCertNickname(caNickName));
     }
 }
