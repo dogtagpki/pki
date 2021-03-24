@@ -24,4 +24,8 @@ package com.netscape.cms.servlet.admin;
  * parameter updates.
  */
 public class CACMSAdminServlet extends CMSAdminServlet {
+
+    public boolean isSubsystemInstalled(String subsystem) {
+        return subsystem.equals("ca");
+    }
 }

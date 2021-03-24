@@ -354,9 +354,6 @@ public class CMSAdminServlet extends AdminServlet {
             else if ((sys instanceof IRegistrationAuthority) &&
                     subsystem.equals("ra"))
                 return true;
-            else if ((sys instanceof ICertificateAuthority) &&
-                    subsystem.equals("ca"))
-                return true;
             else if ((sys instanceof IOCSPAuthority) &&
                     subsystem.equals("ocsp"))
                 return true;
