@@ -468,6 +468,12 @@ public class CMSAdminServlet extends AdminServlet {
         return "";
     }
 
+    public void modifyCACert(HttpServletRequest request, String value) throws EBaseException {
+    }
+
+    public void modifyServerCert(String nickname) throws EBaseException {
+    }
+
     /**
      * Modify encryption configuration
      * <P>
@@ -498,7 +504,6 @@ public class CMSAdminServlet extends AdminServlet {
             JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             jssSubsystem.getInternalTokenName();
 
-            boolean isCAInstalled = false;
             boolean isRAInstalled = false;
             boolean isKRAInstalled = false;
 
@@ -509,22 +514,15 @@ public class CMSAdminServlet extends AdminServlet {
                     isKRAInstalled = true;
                 else if (sys instanceof IRegistrationAuthority)
                     isRAInstalled = true;
-                else if (sys instanceof ICertificateAuthority)
-                    isCAInstalled = true;
             }
 
-            ICertificateAuthority ca = null;
             IRegistrationAuthority ra = null;
             IKeyRecoveryAuthority kra = null;
 
-            if (isCAInstalled)
-                ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             if (isRAInstalled)
                 ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
             if (isKRAInstalled)
                 kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
-
-            boolean isCACert = true;
 
             while (enum1.hasMoreElements()) {
                 String name = enum1.nextElement();
@@ -533,47 +531,8 @@ public class CMSAdminServlet extends AdminServlet {
                 if (name.equals(Constants.PR_CIPHER_PREF)) {
                     jssSubsystem.setCipherPreferences(val);
                 } else if (name.equals(Constants.PR_CERT_CA)) {
-                    SigningUnit signingUnit = ca.getSigningUnit();
-
                     if ((val != null) && (!val.equals(""))) {
-                        StringTokenizer tokenizer = new StringTokenizer(val, ",");
-
-                        if (tokenizer.countTokens() != 2) {
-                            // store a message in the signed audit log file
-                            auditMessage = CMS.getLogMessage(
-                                        AuditEvent.CONFIG_ENCRYPTION,
-                                        auditSubjectID,
-                                        ILogger.FAILURE,
-                                        auditParams(req));
-
-                            audit(auditMessage);
-
-                            throw new EBaseException(CMS.getLogMessage("BASE_INVALID_UI_INFO"));
-                        }
-
-                        String tokenName = (String) tokenizer.nextElement();
-                        String nickName = (String) tokenizer.nextElement();
-
-                        if (CryptoUtil.isInternalToken(tokenName)) {
-                            tokenName = jssSubsystem.getInternalTokenName();
-                        } else {
-                            nickName = tokenName + ":" + nickName;
-                        }
-
-                        isCACert = jssSubsystem.isCACert(nickName);
-                        if (isCACert) {
-                            signingUnit.updateConfig(nickName, tokenName);
-                        } else
-                            // store a message in the signed audit log file
-                            auditMessage = CMS.getLogMessage(
-                                        AuditEvent.CONFIG_ENCRYPTION,
-                                        auditSubjectID,
-                                        ILogger.FAILURE,
-                                        auditParams(req));
-
-                        audit(auditMessage);
-
-                        throw new EBaseException(CMS.getLogMessage("BASE_NOT_CA_CERT"));
+                        modifyCACert(req, val);
                     }
                 } else if (name.equals(Constants.PR_CERT_RA)) {
                     if ((val != null) && (!val.equals(""))) {
@@ -595,8 +554,7 @@ public class CMSAdminServlet extends AdminServlet {
                         modifyAgentGatewayCert(nickName);
                         if (isRAInstalled)
                             modifyEEGatewayCert(ra, nickName);
-                        if (isCAInstalled)
-                            modifyCAGatewayCert(ca, nickName);
+                        modifyServerCert(nickName);
                     }
                 }
             }
@@ -651,7 +609,7 @@ public class CMSAdminServlet extends AdminServlet {
         }
     }
 
-    private String getCertConfigNickname(String val) throws EBaseException {
+    public String getCertConfigNickname(String val) throws EBaseException {
         StringTokenizer tokenizer = new StringTokenizer(val, ",");
 
         if (tokenizer.countTokens() != 2) {
@@ -699,7 +657,7 @@ public class CMSAdminServlet extends AdminServlet {
          */
     }
 
-    private void modifyCAGatewayCert(ICertificateAuthority ca, String nickName) {
+    public void modifyCAGatewayCert(ICertificateAuthority ca, String nickName) {
         CMSEngine engine = CMS.getCMSEngine();
         engine.setServerCertNickname(nickName);
 
