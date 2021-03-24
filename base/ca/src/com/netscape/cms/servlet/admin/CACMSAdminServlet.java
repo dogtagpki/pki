@@ -543,4 +543,79 @@ public class CACMSAdminServlet extends CMSAdminServlet {
         //     throw e;
         }
     }
+
+    public void installCASigningCert(
+            String fullName,
+            String nickname,
+            String tokenName
+            ) throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+
+        CertificateAuthority ca = engine.getCA();
+        SigningUnit signingUnit = ca.getSigningUnit();
+
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        String signatureAlg = jssSubsystem.getSignatureAlgorithm(fullName);
+        signingUnit.setDefaultAlgorithm(signatureAlg);
+
+        setCANewnickname("", "");
+
+        try {
+            CertificateExtensions extensions = null;
+
+            if (fullName.equals(nickname)) {
+                signingUnit.updateConfig(fullName, CryptoUtil.INTERNAL_TOKEN_NAME);
+                extensions = jssSubsystem.getExtensions(CryptoUtil.INTERNAL_TOKEN_NAME, fullName);
+            } else {
+                signingUnit.updateConfig(fullName, tokenName);
+                extensions = jssSubsystem.getExtensions(tokenName, nickname);
+            }
+
+            if (extensions != null) {
+                BasicConstraintsExtension basic = (BasicConstraintsExtension) extensions.get(BasicConstraintsExtension.NAME);
+
+                if (basic == null) {
+                    logger.warn(CMS.getLogMessage("ADMIN_SRVLT_BASIC_CONSTRAIN_NULL"));
+
+                } else {
+                    Integer pathlen = (Integer) basic.get(BasicConstraintsExtension.PATH_LEN);
+                    int num = pathlen.intValue();
+
+                    if (num == 0) {
+                        ca.setBasicConstraintMaxLen(num);
+                    } else if (num > 0) {
+                        num = num - 1;
+                        ca.setBasicConstraintMaxLen(num);
+                    }
+                }
+
+            } else {
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_CERT_NO_EXT"));
+            }
+
+        } catch (Exception e) {
+            logger.warn("CACMSAdminServlet: " + e.toString());
+        }
+    }
+
+    public void installOCSPSigningCert(
+            String fullName,
+            String nickname,
+            String tokenName
+            ) throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
+        setOCSPNewnickname("", "");
+
+        SigningUnit signingUnit = ca.getOCSPSigningUnit();
+
+        if (fullName.equals(nickname)) {
+            signingUnit.updateConfig(fullName, CryptoUtil.INTERNAL_TOKEN_NAME);
+        } else {
+            signingUnit.updateConfig(fullName, tokenName);
+        }
+    }
 }

@@ -46,8 +46,6 @@ import org.mozilla.jss.crypto.PQGParams;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.util.ConsolePasswordCallback;
 import org.mozilla.jss.util.PasswordCallback;
 
@@ -1236,7 +1234,7 @@ public class CMSAdminServlet extends AdminServlet {
         return ra.getNewNickName();
     }
 
-    private void setOCSPNewnickname(String tokenName, String nickname)
+    public void setOCSPNewnickname(String tokenName, String nickname)
             throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
         IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
@@ -1385,6 +1383,20 @@ public class CMSAdminServlet extends AdminServlet {
     public void issueImportCert(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
+    }
+
+    public void installCASigningCert(
+            String fullName,
+            String nickname,
+            String tokenName
+            ) throws EBaseException {
+    }
+
+    public void installOCSPSigningCert(
+            String fullName,
+            String nickname,
+            String tokenName
+            ) throws EBaseException {
     }
 
     /**
@@ -1608,86 +1620,31 @@ public class CMSAdminServlet extends AdminServlet {
                 }
             }
 
+            String tokenname1 = nickname.substring(0, index);
+
             if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-                SigningUnit signingUnit = ca.getSigningUnit();
-                String signatureAlg =
-                        jssSubsystem.getSignatureAlgorithm(nickname);
+                installCASigningCert(nickname, nicknameWithoutTokenName, tokenname1);
 
-                signingUnit.setDefaultAlgorithm(signatureAlg);
-                setCANewnickname("", "");
-                try {
-                    CertificateExtensions extensions = null;
-
-                    if (nickname.equals(nicknameWithoutTokenName)) {
-                        signingUnit.updateConfig(nickname,
-                                CryptoUtil.INTERNAL_TOKEN_NAME);
-                        extensions = jssSubsystem.getExtensions(
-                                CryptoUtil.INTERNAL_TOKEN_NAME, nickname);
-                    } else {
-                        String tokenname1 = nickname.substring(0, index);
-
-                        signingUnit.updateConfig(nickname, tokenname1);
-                        extensions = jssSubsystem.getExtensions(tokenname1,
-                                nicknameWithoutTokenName);
-                    }
-                    if (extensions != null) {
-                        BasicConstraintsExtension basic =
-                                (BasicConstraintsExtension)
-                                extensions.get(BasicConstraintsExtension.NAME);
-
-                        if (basic == null)
-                            log(CMS.getLogMessage("ADMIN_SRVLT_BASIC_CONSTRAIN_NULL"));
-                        else {
-                            Integer pathlen = (Integer)
-                                    basic.get(BasicConstraintsExtension.PATH_LEN);
-                            int num = pathlen.intValue();
-
-                            if (num == 0)
-                                ca.setBasicConstraintMaxLen(num);
-                            else if (num > 0) {
-                                num = num - 1;
-                                ca.setBasicConstraintMaxLen(num);
-                            }
-                        }
-                    } else {
-                        log(CMS.getLogMessage("ADMIN_SRVLT_CERT_NO_EXT"));
-                    }
-                } catch (Exception eee) {
-                    log("CMSAdminServlet: Exception: " + eee.toString());
-                }
             } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)) {
                 setRANewnickname("", "");
                 IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
 
                 ra.setNickname(nickname);
             } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
-                setOCSPNewnickname("", "");
                 IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
 
                 if (ocsp != null) {
+                    setOCSPNewnickname("", "");
                     SigningUnit signingUnit = ocsp.getSigningUnit();
 
                     if (nickname.equals(nicknameWithoutTokenName)) {
                         signingUnit.updateConfig(nickname,
                                 CryptoUtil.INTERNAL_TOKEN_NAME);
                     } else {
-                        String tokenname1 = nickname.substring(0, index);
-
                         signingUnit.updateConfig(nickname, tokenname1);
                     }
                 } else {
-                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-                    SigningUnit signingUnit = ca.getOCSPSigningUnit();
-
-                    if (nickname.equals(nicknameWithoutTokenName)) {
-                        signingUnit.updateConfig(nickname,
-                                CryptoUtil.INTERNAL_TOKEN_NAME);
-                    } else {
-                        String tokenname1 = nickname.substring(0, index);
-
-                        signingUnit.updateConfig(nickname, tokenname1);
-                    }
+                    installOCSPSigningCert(nickname, nicknameWithoutTokenName, tokenname1);
                 }
             } else if (certType.equals(Constants.PR_KRA_TRANSPORT_CERT)) {
                 setKRANewnickname("", "");
