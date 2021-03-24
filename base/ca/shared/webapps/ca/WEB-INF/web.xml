@@ -38,7 +38,7 @@
 
    <servlet>
       <servlet-name>  caserver  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.CMSAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.CACMSAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caserver    </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>

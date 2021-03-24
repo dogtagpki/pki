@@ -71,8 +71,8 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigTrustedPublicKeyEvent;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
-import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.security.KeyCertData;
+import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTest;
@@ -97,7 +97,7 @@ import com.netscape.symkey.SessionKey;
  *
  * @version $Revision$, $Date$
  */
-public final class CMSAdminServlet extends AdminServlet {
+public class CMSAdminServlet extends AdminServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSAdminServlet.class);
 
