@@ -26,7 +26,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.Date;
 import java.util.Enumeration;
@@ -44,14 +43,11 @@ import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PQGParams;
-import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.util.ConsolePasswordCallback;
 import org.mozilla.jss.util.PasswordCallback;
 
@@ -64,14 +60,12 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigTrustedPublicKeyEvent;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
-import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
@@ -83,7 +77,6 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -342,7 +335,7 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    private boolean isSubsystemInstalled(String subsystem) {
+    public boolean isSubsystemInstalled(String subsystem) {
         CMSEngine engine = CMS.getCMSEngine();
 
         for (ISubsystem sys : engine.getSubsystems()) {
@@ -624,7 +617,7 @@ public class CMSAdminServlet extends AdminServlet {
         return (tokenName + (String) tokenizer.nextElement());
     }
 
-    private void modifyRADMCert(String nickName) {
+    public void modifyRADMCert(String nickName) {
         CMSEngine engine = CMS.getCMSEngine();
         engine.setServerCertNickname(nickName);
 
@@ -635,7 +628,7 @@ public class CMSAdminServlet extends AdminServlet {
          */
     }
 
-    private void modifyAgentGatewayCert(String nickName) {
+    public void modifyAgentGatewayCert(String nickName) {
         CMSEngine engine = CMS.getCMSEngine();
         engine.setServerCertNickname(nickName);
 
@@ -646,7 +639,7 @@ public class CMSAdminServlet extends AdminServlet {
          */
     }
 
-    private void modifyEEGatewayCert(IRegistrationAuthority ra, String nickName) {
+    public void modifyEEGatewayCert(IRegistrationAuthority ra, String nickName) {
         CMSEngine engine = CMS.getCMSEngine();
         engine.setServerCertNickname(nickName);
 
@@ -1196,7 +1189,7 @@ public class CMSAdminServlet extends AdminServlet {
         }
     }
 
-    private void setCANewnickname(String tokenName, String nickname)
+    public void setCANewnickname(String tokenName, String nickname)
             throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
@@ -1389,383 +1382,9 @@ public class CMSAdminServlet extends AdminServlet {
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to issue an import certificate
      */
-    private void issueImportCert(HttpServletRequest req,
+    public void issueImportCert(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        String auditSubjectID = auditSubjectID();
-
-        // ensure that any low-level exceptions are reported
-        // to the signed audit log and stored as failures
-        try {
-            Enumeration<String> enum1 = req.getParameterNames();
-            String tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
-            String keyType = "RSA";
-            KeyCertData properties = new KeyCertData();
-
-            String newtokenname = null;
-
-            while (enum1.hasMoreElements()) {
-                String key = enum1.nextElement();
-                String value = req.getParameter(key);
-
-                if (!key.equals("pathname")) {
-                    if (key.equals(Constants.PR_TOKEN_NAME))
-                        newtokenname = value;
-                    properties.put(key, value);
-                }
-            }
-
-            String certType = (String) properties.get(Constants.RS_ID);
-
-            JssSubsystem jssSubsystem = engine.getJSSSubsystem();
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            CertificateRepository repository = ca.getCertificateRepository();
-            SigningUnit signingUnit = ca.getSigningUnit();
-            String oldtokenname = null;
-            //this is the old nick name
-            String nickname = getNickname(certType);
-            String nicknameWithoutTokenName = "";
-            String oldcatokenname = signingUnit.getTokenName();
-            String canickname = getNickname(Constants.PR_CA_SIGNING_CERT);
-            String canicknameWithoutTokenName = "";
-
-            int index = nickname.indexOf(":");
-
-            if (index == -1) {
-                nicknameWithoutTokenName = nickname;
-                oldtokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
-            } else if (index > 0 && (index < (nickname.length() - 1))) {
-                nicknameWithoutTokenName = nickname.substring(index + 1);
-                oldtokenname = nickname.substring(0, index);
-            } else {
-
-                audit(new ConfigTrustedPublicKeyEvent(
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req)));
-
-                throw new EBaseException(CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
-            }
-
-            if (newtokenname == null)
-                newtokenname = oldtokenname;
-            index = canickname.indexOf(":");
-            if (index == -1) {
-                canicknameWithoutTokenName = canickname;
-            } else if (index > 0 && (index < (canickname.length() - 1))) {
-                canicknameWithoutTokenName = canickname.substring(index + 1);
-            } else {
-
-                audit(new ConfigTrustedPublicKeyEvent(
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req)));
-
-                throw new EBaseException(CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
-            }
-
-            //xxx renew ca ,use old issuer?
-            properties.setIssuerName(
-                    jssSubsystem.getCertSubjectName(oldcatokenname,
-                                                canicknameWithoutTokenName));
-
-            KeyPair pair = null;
-
-            if (nickname.equals("")) {
-
-                audit(new ConfigTrustedPublicKeyEvent(
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req)));
-
-                throw new EBaseException(CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
-            }
-
-            //xxx set to old nickname?
-            properties.setCertNickname(nickname);
-            if (!certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-                CertificateExtensions exts = jssSubsystem.getExtensions(
-                        oldcatokenname, canicknameWithoutTokenName);
-
-                properties.setCAExtensions(exts);
-            }
-
-            KeyPair caKeyPair = null;
-            String defaultSigningAlg = null;
-            String defaultOCSPSigningAlg = null;
-
-            if (properties.getHashType() != null) {
-                if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-                    defaultSigningAlg = properties.getHashType();
-                }
-                if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
-                    defaultOCSPSigningAlg = properties.getHashType();
-                }
-            }
-
-            // create a new CA certificate or ssl server cert
-            if (properties.getKeyCurveName() != null) { //new ECC
-                logger.debug("CMSAdminServlet: issueImportCert: generating ECC keys");
-                pair = jssSubsystem.getECCKeyPair(properties);
-                if (certType.equals(Constants.PR_CA_SIGNING_CERT))
-                    caKeyPair = pair;
-            } else if (properties.getKeyLength() != null) { //new RSA or DSA
-                keyType = properties.getKeyType();
-                String keyLen = properties.getKeyLength();
-
-                if (keyType.equals("DSA")) {
-                    @SuppressWarnings("unused")
-                    PQGParams pqgParams =
-                            jssSubsystem.getCAPQG(Integer.parseInt(keyLen), mConfig); // check for errors
-                    //properties.put(Constants.PR_PQGPARAMS, pqgParams);
-                }
-                pair = jssSubsystem.getKeyPair(properties);
-                if (certType.equals(Constants.PR_CA_SIGNING_CERT))
-                    caKeyPair = pair;
-                // renew the CA certificate or ssl server cert
-            } else {
-                pair = jssSubsystem.getKeyPair(nickname);
-                // should get it from the CA signing certificate
-                if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-                    updateCASignature(nickname, properties, jssSubsystem);
-                    caKeyPair = pair;
-                    defaultSigningAlg = signingUnit.getDefaultAlgorithm();
-                }
-
-                /*
-                 String alg = jssSubSystem.getSignatureAlgorithm(nickname);
-                 SignatureAlgorithm sigAlg = SigningUnit.mapAlgorithmToJss(alg);
-                 properties.setSignatureAlgorithm(sigAlg);
-                 properties.setAlgorithmId(
-                 jssSubSystem.getAlgorithmId(alg, mConfig));
-                 */
-            }
-
-            String alg = properties.getSignedBy();
-            if (!certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-                caKeyPair = jssSubsystem.getKeyPair(canickname);
-                updateCASignature(canickname, properties, jssSubsystem);
-            } else if (alg != null) {
-                // self signed CA signing cert, new keys
-                // value provided for signedBy
-                SignatureAlgorithm sigAlg = Cert.mapAlgorithmToJss(alg);
-                properties.setSignatureAlgorithm(sigAlg);
-                properties.setAlgorithmId(jssSubsystem.getAlgorithmId(alg, mConfig));
-            }
-
-            if (pair == null)
-                logger.debug("CMSAdminServlet: issueImportCert: key pair is null");
-
-            BigInteger nextSerialNo = repository.getNextSerialNumber();
-
-            properties.setSerialNumber(nextSerialNo);
-            properties.setKeyPair(pair);
-            properties.setConfigFile(mConfig);
-            //        properties.put(Constants.PR_CA_KEYPAIR, pair);
-            properties.put(Constants.PR_CA_KEYPAIR, caKeyPair);
-
-            X509CertImpl signedCert =
-                    jssSubsystem.getSignedCert(properties, certType,
-                                           caKeyPair.getPrivate());
-
-            if (signedCert == null)
-                logger.debug("CMSAdminServlet: issueImportCert: signedCert is null");
-
-            /* bug 600124
-             try {
-                 jssSubSystem.deleteTokenCertificate(nickname, pathname);
-             } catch (Throwable e) {
-                 //skip it
-             }
-             */
-
-            boolean nicknameChanged = false;
-
-            //xxx import cert with nickname without token name?
-            //jss adds the token prefix!!!
-            //logger.debug("CMSAdminServlet: import as alias "+ nicknameWithoutTokenName);
-            try {
-                logger.debug("CMSAdminServlet: issueImportCert: Importing cert: " + nicknameWithoutTokenName);
-                jssSubsystem.importCert(signedCert, nicknameWithoutTokenName,
-                                        certType);
-            } catch (EBaseException e) {
-                // if it fails, let use a different nickname to try
-                Date now = new Date();
-                String newNickname = nicknameWithoutTokenName
-                                   + "-" + now.getTime();
-
-                logger.debug("CMSAdminServlet: issueImportCert: Importing cert with nickname: " + newNickname);
-                jssSubsystem.importCert(signedCert, newNickname,
-                                        certType);
-                nicknameWithoutTokenName = newNickname;
-                nicknameChanged = true;
-                if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
-                    nickname = newNickname;
-                } else {
-                    nickname = tokenName + ":" + newNickname;
-                }
-            }
-
-            ICertRecord certRecord = repository.createCertRecord(
-                                         signedCert.getSerialNumber(),
-                                         signedCert, null);
-
-            repository.addCertificateRecord(certRecord);
-
-            if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-                try {
-                    X509CertInfo certInfo = (X509CertInfo) signedCert.get(
-                            X509CertImpl.NAME + "." + X509CertImpl.INFO);
-                    CertificateExtensions extensions = (CertificateExtensions)
-                            certInfo.get(X509CertInfo.EXTENSIONS);
-
-                    if (extensions != null) {
-                        BasicConstraintsExtension basic =
-                                (BasicConstraintsExtension)
-                                extensions.get(BasicConstraintsExtension.NAME);
-
-                        if (basic == null)
-                            log(CMS.getLogMessage("ADMIN_SRVLT_BASIC_CONSTRAIN_NULL"));
-                        else {
-                            Integer pathlen = (Integer)
-                                    basic.get(BasicConstraintsExtension.PATH_LEN);
-                            int num = pathlen.intValue();
-
-                            if (num == 0)
-                                ca.setBasicConstraintMaxLen(num);
-                            else if (num > 0) {
-                                num = num - 1;
-                                ca.setBasicConstraintMaxLen(num);
-                            }
-                        }
-                    } else
-                        log(CMS.getLogMessage("ADMIN_SRVLT_CERT_NO_EXT"));
-                } catch (Exception eee) {
-                    log("CMSAdminServlet: Exception caught: " + eee.toString());
-                }
-            }
-
-            logger.debug("CMSAdminServlet: oldtoken:" + oldtokenname
-                    + " newtoken:" + newtokenname + " nickname:" + nickname);
-            if ((newtokenname != null &&
-                    !newtokenname.equals(oldtokenname)) || nicknameChanged) {
-                if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-                    if (newtokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
-                        signingUnit.updateConfig(nicknameWithoutTokenName,
-                                                 newtokenname);
-                    } else {
-                        signingUnit.updateConfig(newtokenname + ":" +
-                                                 nicknameWithoutTokenName,
-                                                 newtokenname);
-                    }
-                } else if (certType.equals(Constants.PR_SERVER_CERT)) {
-                    if (newtokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
-                        nickname = nicknameWithoutTokenName;
-                    } else {
-                        nickname = newtokenname + ":"
-                                 + nicknameWithoutTokenName;
-                    }
-
-                    //setRADMNewnickname("","");
-                    //modifyRADMCert(nickname);
-                    modifyAgentGatewayCert(nickname);
-                    if (isSubsystemInstalled("ra")) {
-                        IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
-
-                        modifyEEGatewayCert(ra, nickname);
-                    }
-                    if (isSubsystemInstalled("ca")) {
-                        modifyCAGatewayCert(ca, nickname);
-                    }
-                } else if (certType.equals(Constants.PR_SERVER_CERT_RADM)) {
-                    if (newtokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
-                        nickname = nicknameWithoutTokenName;
-                    } else {
-                        nickname = newtokenname + ":"
-                                 + nicknameWithoutTokenName;
-                    }
-
-                    modifyRADMCert(nickname);
-                } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
-                    if (ca != null) {
-                        SigningUnit ocspSigningUnit = ca.getOCSPSigningUnit();
-
-                        if (newtokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
-                            ocspSigningUnit.updateConfig(
-                                    nicknameWithoutTokenName, newtokenname);
-                        } else {
-                            ocspSigningUnit.updateConfig(newtokenname + ":" +
-                                    nicknameWithoutTokenName,
-                                    newtokenname);
-                        }
-                    }
-                }
-            }
-
-            // set signing algorithms if needed
-            if (certType.equals(Constants.PR_CA_SIGNING_CERT))
-                signingUnit.setDefaultAlgorithm(defaultSigningAlg);
-
-            if (defaultOCSPSigningAlg != null) {
-                SigningUnit ocspSigningUnit = ca.getOCSPSigningUnit();
-                ocspSigningUnit.setDefaultAlgorithm(defaultOCSPSigningAlg);
-            }
-
-            properties.clear();
-            properties = null;
-
-            audit(new ConfigTrustedPublicKeyEvent(
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditParams(req)));
-
-            mConfig.commit(true);
-            sendResponse(SUCCESS, null, null, resp);
-        } catch (EBaseException eAudit1) {
-            logger.error("CMSAdminServlet: issueImportCert: EBaseException thrown: " + eAudit1.toString());
-
-            audit(new ConfigTrustedPublicKeyEvent(
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditParams(req)));
-
-            // rethrow the specific exception to be handled later
-            throw eAudit1;
-        } catch (IOException eAudit2) {
-            logger.error("CMSAdminServlet: issueImportCert: IOException thrown: " + eAudit2.toString());
-
-            audit(new ConfigTrustedPublicKeyEvent(
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditParams(req)));
-
-            // rethrow the specific exception to be handled later
-            throw eAudit2;
-            // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     audit( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
-        }
-    }
-
-    private void updateCASignature(String nickname, KeyCertData properties,
-            JssSubsystem jssSubsystem) throws EBaseException {
-        String alg = jssSubsystem.getSignatureAlgorithm(nickname);
-        SignatureAlgorithm sigAlg = Cert.mapAlgorithmToJss(alg);
-
-        properties.setSignatureAlgorithm(sigAlg);
-        properties.setAlgorithmId(
-                jssSubsystem.getAlgorithmId(alg, mConfig));
     }
 
     /**
@@ -2348,7 +1967,7 @@ public class CMSAdminServlet extends AdminServlet {
         }
     }
 
-    private String getNickname(String certType) throws EBaseException {
+    public String getNickname(String certType) throws EBaseException {
         String nickname = "";
         CMSEngine engine = CMS.getCMSEngine();
 
