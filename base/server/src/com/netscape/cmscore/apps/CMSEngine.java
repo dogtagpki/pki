@@ -42,7 +42,6 @@ import javax.servlet.http.HttpServlet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.server.PKIServerSocketListener;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -76,7 +75,6 @@ import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
-import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
@@ -1463,22 +1461,6 @@ public class CMSEngine implements ServletContextListener {
         return pid;
     }
 
-    private CertificateRepository getCertDB() {
-        CertificateRepository certDB = null;
-
-        try {
-            ICertificateAuthority ca = (ICertificateAuthority) subsystems.get("ca");
-
-            if (ca != null) {
-                certDB = ca.getCertificateRepository();
-            }
-        } catch (Exception e) {
-            logger.warn("CMSEngine: " + CMS.getLogMessage("CMSCORE_AUTH_AGENT_CERT_REPO"));
-        }
-
-        return certDB;
-    }
-
     private IRequestQueue getReqQueue() {
         IRequestQueue queue = null;
 
@@ -1496,7 +1478,7 @@ public class CMSEngine implements ServletContextListener {
         return queue;
     }
 
-    private VerifiedCerts mVCList = null;
+    public VerifiedCerts mVCList = null;
     private int mVCListSize = 0;
 
     public void setListOfVerifiedCerts(int size, long interval, long unknownStateInterval) {
@@ -1513,7 +1495,6 @@ public class CMSEngine implements ServletContextListener {
         }
 
         X509CertImpl cert = (X509CertImpl) certificates[0];
-
         int result = VerifiedCert.UNKNOWN;
 
         if (mVCList != null) {
@@ -1530,69 +1511,53 @@ public class CMSEngine implements ServletContextListener {
 
         boolean revoked = false;
 
-        CertificateRepository certDB = getCertDB();
+        IRequestQueue queue = getReqQueue();
+        if (queue != null) {
+            IRequest checkRevReq = null;
 
-        if (certDB != null) {
             try {
-                if (certDB.isCertificateRevoked(cert) != null) {
-                    revoked = true;
-                    if (mVCList != null)
-                        mVCList.update(cert, VerifiedCert.REVOKED);
-                } else {
-                    if (mVCList != null)
-                        mVCList.update(cert, VerifiedCert.NOT_REVOKED);
+                checkRevReq = queue.newRequest(CertRequestConstants.GETREVOCATIONINFO_REQUEST);
+                checkRevReq.setExtData(IRequest.REQ_TYPE, CertRequestConstants.GETREVOCATIONINFO_REQUEST);
+                checkRevReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_RA);
+
+                X509CertImpl agentCerts[] = new X509CertImpl[certificates.length];
+                for (int i = 0; i < certificates.length; i++) {
+                    agentCerts[i] = (X509CertImpl) certificates[i];
                 }
-            } catch (EBaseException e) {
-                logger.warn(CMS.getLogMessage("CMSCORE_AUTH_AGENT_REVO_STATUS"), e);
-            }
-        } else {
-            IRequestQueue queue = getReqQueue();
 
-            if (queue != null) {
-                IRequest checkRevReq = null;
+                checkRevReq.setExtData(IRequest.ISSUED_CERTS, agentCerts);
 
-                try {
-                    checkRevReq = queue.newRequest(CertRequestConstants.GETREVOCATIONINFO_REQUEST);
-                    checkRevReq.setExtData(IRequest.REQ_TYPE,
-                            CertRequestConstants.GETREVOCATIONINFO_REQUEST);
-                    checkRevReq.setExtData(IRequest.REQUESTOR_TYPE,
-                            IRequest.REQUESTOR_RA);
+                queue.processRequest(checkRevReq);
 
-                    X509CertImpl agentCerts[] = new X509CertImpl[certificates.length];
+                RequestStatus status = checkRevReq.getRequestStatus();
 
-                    for (int i = 0; i < certificates.length; i++) {
-                        agentCerts[i] = (X509CertImpl) certificates[i];
-                    }
-                    checkRevReq.setExtData(IRequest.ISSUED_CERTS, agentCerts);
+                if (status == RequestStatus.COMPLETE) {
+                    Enumeration<String> keys = checkRevReq.getExtDataKeys();
+                    while (keys.hasMoreElements()) {
+                        String name = keys.nextElement();
 
-                    queue.processRequest(checkRevReq);
-
-                    RequestStatus status = checkRevReq.getRequestStatus();
-
-                    if (status == RequestStatus.COMPLETE) {
-                        Enumeration<String> enum1 = checkRevReq.getExtDataKeys();
-
-                        while (enum1.hasMoreElements()) {
-                            String name = enum1.nextElement();
-
-                            if (name.equals(IRequest.REVOKED_CERTS)) {
-                                revoked = true;
-                                if (mVCList != null)
-                                    mVCList.update(cert, VerifiedCert.REVOKED);
+                        if (name.equals(IRequest.REVOKED_CERTS)) {
+                            revoked = true;
+                            if (mVCList != null) {
+                                mVCList.update(cert, VerifiedCert.REVOKED);
                             }
                         }
-                        if (revoked == false) {
-                            if (mVCList != null)
-                                mVCList.update(cert, VerifiedCert.NOT_REVOKED);
-                        }
-
-                    } else {
-                        if (mVCList != null)
-                            mVCList.update(cert, VerifiedCert.CHECKED);
                     }
-                } catch (EBaseException e) {
-                    logger.warn(CMS.getLogMessage("CMSCORE_AUTH_AGENT_PROCESS_CHECKING"), e);
+
+                    if (revoked == false) {
+                        if (mVCList != null) {
+                            mVCList.update(cert, VerifiedCert.NOT_REVOKED);
+                        }
+                    }
+
+                } else {
+                    if (mVCList != null) {
+                        mVCList.update(cert, VerifiedCert.CHECKED);
+                    }
                 }
+
+            } catch (EBaseException e) {
+                logger.warn(CMS.getLogMessage("CMSCORE_AUTH_AGENT_PROCESS_CHECKING"), e);
             }
         }
 

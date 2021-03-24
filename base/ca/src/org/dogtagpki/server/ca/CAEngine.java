@@ -70,6 +70,7 @@ import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
@@ -1584,6 +1585,52 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         initCrlDatabase();
         initReplicaIDRepository();
         super.init();
+    }
+
+    public boolean isRevoked(X509Certificate[] certificates) {
+
+        if (certificates == null) {
+            return false;
+        }
+
+        X509CertImpl cert = (X509CertImpl) certificates[0];
+        int result = VerifiedCert.UNKNOWN;
+
+        if (mVCList != null) {
+            result = mVCList.check(cert);
+        }
+
+        if (result == VerifiedCert.REVOKED) {
+            return true;
+        }
+
+        if (result == VerifiedCert.NOT_REVOKED || result == VerifiedCert.CHECKED) {
+            return false;
+        }
+
+        boolean revoked = false;
+
+        CertificateAuthority ca = getCA();
+        CertificateRepository certRepo = ca.getCertificateRepository();
+
+        try {
+            if (certRepo.isCertificateRevoked(cert) != null) {
+                revoked = true;
+                if (mVCList != null) {
+                    mVCList.update(cert, VerifiedCert.REVOKED);
+                }
+
+            } else {
+                if (mVCList != null) {
+                    mVCList.update(cert, VerifiedCert.NOT_REVOKED);
+                }
+            }
+
+        } catch (EBaseException e) {
+            logger.warn(CMS.getLogMessage("CMSCORE_AUTH_AGENT_REVO_STATUS"), e);
+        }
+
+        return revoked;
     }
 
     public void shutdownDatabase() {
