@@ -33,8 +33,8 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.ca.CASigningUnit;
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
@@ -51,8 +51,7 @@ public class CASystemCertService extends PKIService implements CASystemCertResou
 
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
-
-        CASigningUnit su = (CASigningUnit) ca.getSigningUnit();
+        CASigningUnit su = ca.getSigningUnit();
 
         X509Certificate signingCert = su.getCert();
         X509CertImpl cert = new X509CertImpl(signingCert.getEncoded());

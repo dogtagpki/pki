@@ -187,7 +187,7 @@ public class CertUserDBAuthentication implements AuthManager {
         Certificates certs = new Certificates(x509Certs);
 
         try {
-            user = (User) mCULocator.locateUser(certs);
+            user = mCULocator.locateUser(certs);
         } catch (EUsrGrpException e) {
             logger.error("CertUserDBAuthentication: cannot map certificate to any user: " + e.getMessage(), e);
             logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0].getSerialNumber()

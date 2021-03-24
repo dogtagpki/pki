@@ -32,7 +32,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.publish.IXcertPublisherProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldap.PublisherProcessor;
@@ -451,10 +450,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                     } else {
                         try {
                             //found a cross cert pair, publish if we could
-                            IXcertPublisherProcessor xp = null;
-
-                            xp = (IXcertPublisherProcessor) mPublisherProcessor;
-                            xp.publishXCertPair(val);
+                            mPublisherProcessor.publishXCertPair(val);
                         } catch (Exception e) {
                             throw new EBaseException("CrossCertPairSubsystem: publishCertPairs() failed:"
                                     + e.toString());

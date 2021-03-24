@@ -68,7 +68,7 @@ public class TPSConnection {
             sb.append((char)b);
 
         // The second char must be '='.
-        if((b = in.read()) != (int)'=')
+        if((b = in.read()) != '=')
             throw new IOException("Unexpected end of stream");
         else
             sb.append((char)b);
@@ -83,7 +83,7 @@ public class TPSConnection {
 
         if (b < 0)
             throw new IOException("Unexpected end of stream");
-        if (b != (int)'&')
+        if (b != '&')
             throw new IOException("Received message size is too large.");
 
         // parse message size
