@@ -31,7 +31,6 @@ import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyRequestResource;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AsymKeyGenerationProcessedEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeygenProcessedEvent;
@@ -64,10 +63,10 @@ public class AsymKeyGenService implements IService {
     private static final String ATTR_KEY_RECORD = "keyRecord";
     private static final String STATUS_ACTIVE = "active";
 
-    private IKeyRecoveryAuthority kra = null;
+    private KeyRecoveryAuthority kra;
     private IStorageKeyUnit storageUnit = null;
 
-    public AsymKeyGenService(IKeyRecoveryAuthority kra) {
+    public AsymKeyGenService(KeyRecoveryAuthority kra) {
         this.kra = kra;
         this.storageUnit = kra.getStorageKeyUnit();
     }

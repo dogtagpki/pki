@@ -49,7 +49,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
@@ -97,7 +96,7 @@ public class NetkeyKeygenService implements IService {
     public final static String ATTR_PROOF_OF_ARCHIVAL =
             "proofOfArchival";
 
-    private IKeyRecoveryAuthority mKRA = null;
+    private KeyRecoveryAuthority mKRA;
     private ITransportKeyUnit mTransportUnit = null;
     private IStorageKeyUnit mStorageUnit = null;
 
@@ -107,7 +106,7 @@ public class NetkeyKeygenService implements IService {
      *
      * @param kra key recovery authority
      */
-    public NetkeyKeygenService(IKeyRecoveryAuthority kra) {
+    public NetkeyKeygenService(KeyRecoveryAuthority kra) {
         mKRA = kra;
         mTransportUnit = kra.getTransportKeyUnit();
         mStorageUnit = kra.getStorageKeyUnit();

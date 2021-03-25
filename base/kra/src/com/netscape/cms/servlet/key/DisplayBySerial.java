@@ -37,7 +37,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -45,6 +44,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * Display a specific Key Archival Request
@@ -85,7 +85,7 @@ public class DisplayBySerial extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        mKeyDB = ((IKeyRecoveryAuthority) mAuthority).getKeyRepository();
+        mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
 
         mTemplates.remove(ICMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)

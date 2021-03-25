@@ -50,7 +50,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.EKRAException;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
@@ -95,7 +94,7 @@ public class TokenKeyRecoveryService implements IService {
     public static final String ATTR_USER_CERT = "cert";
     public static final String ATTR_DELIVERY = "delivery";
 
-    private IKeyRecoveryAuthority mKRA = null;
+    private KeyRecoveryAuthority mKRA;
     private IKeyRepository mStorage = null;
     private IStorageKeyUnit mStorageUnit = null;
     private ITransportKeyUnit mTransportUnit = null;
@@ -103,7 +102,7 @@ public class TokenKeyRecoveryService implements IService {
     /**
      * Constructs request processor.
      */
-    public TokenKeyRecoveryService(IKeyRecoveryAuthority kra) {
+    public TokenKeyRecoveryService(KeyRecoveryAuthority kra) {
         mKRA = kra;
         mStorage = mKRA.getKeyRepository();
         mStorageUnit = mKRA.getStorageKeyUnit();

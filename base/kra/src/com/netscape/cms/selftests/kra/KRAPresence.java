@@ -31,7 +31,6 @@ import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
@@ -40,6 +39,7 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 //////////////////////
 // class definition //
@@ -195,7 +195,7 @@ public class KRAPresence
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
         KRAEngine engine = KRAEngine.getInstance();
-        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(mSubId);
+        KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(mSubId);
         if (kra == null) {
             // log that the KRA is not installed
             String logMessage = CMS.getLogMessage(

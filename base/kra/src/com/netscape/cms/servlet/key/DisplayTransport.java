@@ -28,12 +28,12 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * Retrieve Transport Certificate used to
@@ -97,8 +97,7 @@ public class DisplayTransport extends CMSServlet {
         }
 
         try {
-            IKeyRecoveryAuthority kra =
-                    (IKeyRecoveryAuthority) mAuthority;
+            KeyRecoveryAuthority kra = (KeyRecoveryAuthority) mAuthority;
             ITransportKeyUnit tu = kra.getTransportKeyUnit();
             org.mozilla.jss.crypto.X509Certificate transportCert =
                     tu.getCertificate();

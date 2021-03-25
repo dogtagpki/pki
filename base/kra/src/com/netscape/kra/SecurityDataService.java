@@ -18,7 +18,6 @@
 package com.netscape.kra;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 
@@ -30,10 +29,10 @@ import com.netscape.certsrv.request.IService;
  */
 public class SecurityDataService implements IService {
 
-    private IKeyRecoveryAuthority kra = null;
+    private KeyRecoveryAuthority kra;
     private SecurityDataProcessor processor = null;
 
-    public SecurityDataService(IKeyRecoveryAuthority kra) {
+    public SecurityDataService(KeyRecoveryAuthority kra) {
         processor = new SecurityDataProcessor(kra);
         this.kra = kra;
     }

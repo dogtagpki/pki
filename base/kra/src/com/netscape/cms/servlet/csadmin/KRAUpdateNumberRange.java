@@ -21,14 +21,14 @@ import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.repository.IRepository;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 public class KRAUpdateNumberRange extends UpdateNumberRange {
 
     public IRepository getRepository(String type) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
-        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
+        KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
 
         if (type.equals("request")) {
             return kra.getRequestRepository();

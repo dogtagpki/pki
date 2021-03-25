@@ -32,10 +32,10 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * A class representings an administration servlet for Key
@@ -55,7 +55,7 @@ public class KRAAdminServlet extends AdminServlet {
 
     private final static String INFO = "KRAAdminServlet";
 
-    private IKeyRecoveryAuthority mKRA = null;
+    private KeyRecoveryAuthority mKRA;
 
     /**
      * Constructs KRA servlet.
@@ -67,7 +67,7 @@ public class KRAAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         KRAEngine engine = KRAEngine.getInstance();
-        mKRA = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
+        mKRA = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
     }
 
     /**

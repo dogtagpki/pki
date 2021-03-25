@@ -36,7 +36,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -45,6 +44,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * Check to see if a Key Recovery Request has been approved
@@ -155,7 +155,7 @@ public class GetApprovalStatus extends CMSServlet {
 
             header.addIntegerValue("noOfRequiredAgents", requiredNumber);
 
-            Vector<Credential> dc = ((IKeyRecoveryAuthority) mService).getAppAgents(recoveryID);
+            Vector<Credential> dc = ((KeyRecoveryAuthority) mService).getAppAgents(recoveryID);
             Enumeration<Credential> agents = dc.elements();
 
             while (agents.hasMoreElements()) {
@@ -166,7 +166,7 @@ public class GetApprovalStatus extends CMSServlet {
             }
             if (dc.size() >= requiredNumber) {
                 // got all approval, return pk12
-                byte pkcs12[] = ((IKeyRecoveryAuthority) mService).getPk12(recoveryID);
+                byte pkcs12[] = ((KeyRecoveryAuthority) mService).getPk12(recoveryID);
 
                 if (pkcs12 != null) {
                     rComplete = 1;
@@ -187,10 +187,9 @@ public class GetApprovalStatus extends CMSServlet {
                      e.toString()));
                      }
                      */
-                } else if (((IKeyRecoveryAuthority) mService).getError(recoveryID) != null) {
+                } else if (((KeyRecoveryAuthority) mService).getError(recoveryID) != null) {
                     // error in recovery process
-                    header.addStringValue(OUT_ERROR,
-                            ((IKeyRecoveryAuthority) mService).getError(recoveryID));
+                    header.addStringValue(OUT_ERROR, ((KeyRecoveryAuthority) mService).getError(recoveryID));
                     rComplete = 1;
                 } else {
                     // pk12 hasn't been created yet.

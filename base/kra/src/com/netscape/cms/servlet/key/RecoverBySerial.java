@@ -46,7 +46,6 @@ import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -55,6 +54,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * A class representing a recoverBySerial servlet.
@@ -106,7 +106,7 @@ public class RecoverBySerial extends CMSServlet {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         mService = (com.netscape.certsrv.kra.IKeyService) mAuthority;
-        repo = ((IKeyRecoveryAuthority) mAuthority).getKeyRepository();
+        repo = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
 
         mTemplates.remove(ICMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
@@ -323,7 +323,7 @@ public class RecoverBySerial extends CMSServlet {
             logger.warn("RecoverBySerial: " + error, e);
 
             try {
-                ((IKeyRecoveryAuthority) mService).createError(seq, error);
+                ((KeyRecoveryAuthority) mService).createError(seq, error);
             } catch (EBaseException eb) {
                 logger.warn("RecoverBySerial: " + eb.getMessage(), e);
             }
@@ -517,7 +517,7 @@ public class RecoverBySerial extends CMSServlet {
                 logger.warn("WaitApprovalThread: " + error, e);
 
                 try {
-                    ((IKeyRecoveryAuthority) mService).createError(theRecoveryID, error);
+                    ((KeyRecoveryAuthority) mService).createError(theRecoveryID, error);
                 } catch (EBaseException eb) {
                     logger.warn("WaitApprovalThread: " + eb.getMessage(), eb);
                 }
@@ -533,14 +533,14 @@ public class RecoverBySerial extends CMSServlet {
                         theDelivery, theNickname,
                         (String) sContext.get(SessionContext.USER_ID));
 
-                ((IKeyRecoveryAuthority) mService).createPk12(theRecoveryID, pkcs12);
+                ((KeyRecoveryAuthority) mService).createPk12(theRecoveryID, pkcs12);
             } catch (EBaseException e) {
                 String error =
                         "Failed to recover key for recovery id " + theRecoveryID + ": " + e.getMessage();
                 logger.warn("WaitApprovalThread: " + error, e);
 
                 try {
-                    ((IKeyRecoveryAuthority) mService).createError(theRecoveryID, error);
+                    ((KeyRecoveryAuthority) mService).createError(theRecoveryID, error);
                 } catch (EBaseException eb) {
                     logger.warn("WaitApprovalThread: " + eb.getMessage(), eb);
                 }

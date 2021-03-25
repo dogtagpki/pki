@@ -32,7 +32,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -41,6 +40,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * A class representing a recoverKey servlet. This servlet
@@ -85,7 +85,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         mRecoveryService = (IKeyService) mAuthority;
-        mKeyDB = ((IKeyRecoveryAuthority) mAuthority).getKeyRepository();
+        mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
 
         mTemplates.remove(ICMSRequest.SUCCESS);
     }

@@ -33,7 +33,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
 import com.netscape.certsrv.request.RequestId;
@@ -44,6 +43,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * Get the recovered key in PKCS#12 format
@@ -213,10 +213,10 @@ public class GetAsyncPk12 extends CMSServlet {
                     header.addStringValue(OUT_ERROR,
                             CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
                 }
-            } else if (((IKeyRecoveryAuthority) mService).getError(reqID) != null) {
+            } else if (((KeyRecoveryAuthority) mService).getError(reqID) != null) {
                 // error in recovery process
                 header.addStringValue(OUT_ERROR,
-                        ((IKeyRecoveryAuthority) mService).getError(reqID));
+                        ((KeyRecoveryAuthority) mService).getError(reqID));
             } else {
                 // pk12 hasn't been created yet. Shouldn't get here
             }

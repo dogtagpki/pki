@@ -21,7 +21,6 @@ import java.math.BigInteger;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
@@ -42,10 +41,10 @@ public class SecurityDataRecoveryService implements IService {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDataRecoveryService.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    private IKeyRecoveryAuthority kra = null;
+    private KeyRecoveryAuthority kra;
     private SecurityDataProcessor processor = null;
 
-    public SecurityDataRecoveryService(IKeyRecoveryAuthority kra) {
+    public SecurityDataRecoveryService(KeyRecoveryAuthority kra) {
         this.kra = kra;
         processor = new SecurityDataProcessor(kra);
     }

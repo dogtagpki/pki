@@ -20,7 +20,6 @@ package com.netscape.kra;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
@@ -53,13 +52,13 @@ public class KRAService implements IService {
 
 
     // private variables
-    private IKeyRecoveryAuthority mKRA = null;
+    private KeyRecoveryAuthority mKRA;
     private Hashtable<String, IService> mServices = new Hashtable<String, IService>();
 
     /**
      * Constructs KRA service.
      */
-    public KRAService(IKeyRecoveryAuthority kra) {
+    public KRAService(KeyRecoveryAuthority kra) {
         mKRA = kra;
         mServices.put(ENROLLMENT, new EnrollmentService(kra));
         mServices.put(RECOVERY, new RecoveryService(kra));

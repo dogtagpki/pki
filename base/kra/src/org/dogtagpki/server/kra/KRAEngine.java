@@ -23,7 +23,6 @@ import javax.servlet.annotation.WebListener;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -67,7 +66,7 @@ public class KRAEngine extends CMSEngine implements ServletContextListener {
 
         super.startupSubsystems();
 
-        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) getSubsystem(IKeyRecoveryAuthority.ID);
+        KeyRecoveryAuthority kra = (KeyRecoveryAuthority) getSubsystem(KeyRecoveryAuthority.ID);
         if (!isPreOpMode()) {
             logger.debug("KRAEngine: checking request serial number ranges for the KRA");
             kra.getRequestRepository().checkRanges();

@@ -60,7 +60,6 @@ import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
@@ -68,6 +67,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * @author alee
@@ -101,15 +101,15 @@ public class KeyRequestDAO extends CMSRequestDAO {
     public static final String ATTR_SERIALNO = "serialNumber";
 
     private IKeyRepository repo;
-    private IKeyRecoveryAuthority kra;
+    private KeyRecoveryAuthority kra;
     private IKeyService service;
 
     public KeyRequestDAO() {
         super("kra");
         KRAEngine engine = KRAEngine.getInstance();
-        kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
+        kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
         repo = kra.getKeyRepository();
-        service = (IKeyService) kra;
+        service = kra;
     }
 
     /**
@@ -322,9 +322,9 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     public Hashtable<String, Object> getTransientData(IRequest request) throws EBaseException {
         Hashtable<String, Object> requestParams;
-        requestParams = ((IKeyRecoveryAuthority) authority).getVolatileRequest(request.getRequestId());
+        requestParams = ((KeyRecoveryAuthority) authority).getVolatileRequest(request.getRequestId());
         if (requestParams == null) {
-            requestParams = ((IKeyRecoveryAuthority) authority).createVolatileRequest(request.getRequestId());
+            requestParams = ((KeyRecoveryAuthority) authority).createVolatileRequest(request.getRequestId());
             if (requestParams == null) {
                 throw new EBaseException("Can not create Volatile params in createRecoveryRequest!");
             }

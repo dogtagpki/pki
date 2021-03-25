@@ -59,7 +59,6 @@ import com.netscape.certsrv.key.KeyInfoCollection;
 import com.netscape.certsrv.key.KeyNotFoundException;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyResource;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
@@ -75,6 +74,7 @@ import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * @author alee
@@ -89,7 +89,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     public static final String ATTR_SERIALNO = "serialNumber";
 
     private IKeyRepository repo;
-    private IKeyRecoveryAuthority kra;
+    private KeyRecoveryAuthority kra;
     private IRequestQueue queue;
     private IKeyService service;
 
@@ -101,7 +101,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
     public KeyService() {
         KRAEngine engine = KRAEngine.getInstance();
-        kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
+        kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
         repo = kra.getKeyRepository();
         queue = kra.getRequestQueue();
         service = (IKeyService) kra;

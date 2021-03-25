@@ -57,7 +57,6 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.EKRAException;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
@@ -104,7 +103,7 @@ public class EnrollmentService implements IService {
             "proofOfArchival";
 
     // private
-    private IKeyRecoveryAuthority mKRA = null;
+    private KeyRecoveryAuthority mKRA;
     private ITransportKeyUnit mTransportUnit = null;
     private IStorageKeyUnit mStorageUnit = null;
 
@@ -114,7 +113,7 @@ public class EnrollmentService implements IService {
      *
      * @param kra key recovery authority
      */
-    public EnrollmentService(IKeyRecoveryAuthority kra) {
+    public EnrollmentService(KeyRecoveryAuthority kra) {
         mKRA = kra;
         mTransportUnit = kra.getTransportKeyUnit();
         mStorageUnit = kra.getStorageKeyUnit();

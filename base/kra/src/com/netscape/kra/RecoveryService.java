@@ -63,7 +63,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.EKRAException;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
@@ -109,7 +108,7 @@ public class RecoveryService implements IService {
     public static final String ATTR_USER_CERT = "cert";
     public static final String ATTR_DELIVERY = "delivery";
 
-    private IKeyRecoveryAuthority mKRA = null;
+    private KeyRecoveryAuthority mKRA;
     private IKeyRepository mStorage = null;
     private IStorageKeyUnit mStorageUnit = null;
     // must match with EnrollProfile.REQUEST_ISSUED_CERT
@@ -118,7 +117,7 @@ public class RecoveryService implements IService {
     /**
      * Constructs request processor.
      */
-    public RecoveryService(IKeyRecoveryAuthority kra) {
+    public RecoveryService(KeyRecoveryAuthority kra) {
         mKRA = kra;
         mStorage = mKRA.getKeyRepository();
         mStorageUnit = mKRA.getStorageKeyUnit();

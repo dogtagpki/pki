@@ -41,7 +41,6 @@ import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.EKRAException;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
@@ -64,7 +63,7 @@ public class SecurityDataProcessor {
     public static final String ATTR_SERIALNO = "serialNumber";
     private final static String STATUS_ACTIVE = "active";
 
-    private IKeyRecoveryAuthority kra = null;
+    private KeyRecoveryAuthority kra;
     private ITransportKeyUnit transportUnit = null;
     private IStorageKeyUnit storageUnit = null;
     private IKeyRepository keyRepository = null;
@@ -74,7 +73,7 @@ public class SecurityDataProcessor {
     private static boolean allowEncDecrypt_archival = false;
     private static boolean allowEncDecrypt_recovery = false;
 
-    public SecurityDataProcessor(IKeyRecoveryAuthority kra) {
+    public SecurityDataProcessor(KeyRecoveryAuthority kra) {
         this.kra = kra;
         transportUnit = kra.getTransportKeyUnit();
         storageUnit = kra.getStorageKeyUnit();

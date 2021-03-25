@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.cert.CertData;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.kra.KeyRecoveryAuthority;
 import com.netscape.kra.TransportKeyUnit;
@@ -48,7 +47,7 @@ public class KRASystemCertService extends PKIService implements KRASystemCertRes
     public Response getTransportCert() throws Exception {
 
         KRAEngine engine = KRAEngine.getInstance();
-        KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
+        KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
         TransportKeyUnit tu = (TransportKeyUnit) kra.getTransportKeyUnit();
 
         X509Certificate[] chain = tu.getChain();

@@ -38,7 +38,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -47,6 +46,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * Retrieve archived keys matching given public key material
@@ -113,8 +113,8 @@ public class SrchKeyForRecovery extends CMSServlet {
             // do nothing
         }
 
-        mKeyDB = ((IKeyRecoveryAuthority) mAuthority).getKeyRepository();
-        mAuthName = ((IKeyRecoveryAuthority) mAuthority).getX500Name();
+        mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
+        mAuthName = ((KeyRecoveryAuthority) mAuthority).getX500Name();
 
         mTemplates.remove(ICMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
