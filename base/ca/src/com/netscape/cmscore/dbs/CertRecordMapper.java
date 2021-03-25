@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
@@ -77,8 +76,7 @@ public class CertRecordMapper implements IDBAttrMapper {
             if (attr == null)
                 return;
             String serialno = attr.getStringValues().nextElement();
-            ICertRecord rec = mDB.readCertificateRecord(
-                    new BigInteger(serialno));
+            CertRecord rec = mDB.readCertificateRecord(new BigInteger(serialno));
 
             parent.set(name, rec);
         } catch (Exception e) {

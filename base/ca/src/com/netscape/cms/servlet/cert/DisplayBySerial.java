@@ -55,7 +55,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
@@ -68,6 +67,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
@@ -258,7 +258,7 @@ public class DisplayBySerial extends CMSServlet {
         }
 
         try {
-            ICertRecord rec = mCertDB.readCertificateRecord(seq);
+            CertRecord rec = mCertDB.readCertificateRecord(seq);
             if (rec == null) {
                 logger.error("DisplayBySerial: failed to read record");
                 throw new ECMSGWException(
@@ -311,10 +311,10 @@ public class DisplayBySerial extends CMSServlet {
                 header.addBooleanValue("emailCert", emailCert);
 
                 boolean noCertImport = true;
-                MetaInfo metaInfo = (MetaInfo) rec.get(ICertRecord.ATTR_META_INFO);
+                MetaInfo metaInfo = (MetaInfo) rec.get(CertRecord.ATTR_META_INFO);
 
                 if (metaInfo != null) {
-                    String rid = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
+                    String rid = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
 
                     if (rid != null && mAuthority instanceof ICertificateAuthority) {
                         IRequest r =
@@ -458,9 +458,9 @@ public class DisplayBySerial extends CMSServlet {
         return;
     }
 
-    private ICertRecord getCertRecord(BigInteger seq, String certtype[])
+    private CertRecord getCertRecord(BigInteger seq, String certtype[])
             throws EBaseException {
-        ICertRecord rec = null;
+        CertRecord rec = null;
 
         try {
             rec = mCertDB.readCertificateRecord(seq);

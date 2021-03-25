@@ -41,7 +41,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -49,6 +48,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 
@@ -240,14 +240,14 @@ public class ReasonToRevoke extends CMSServlet {
              * revokeAll, null, totalRecordCount);
              * Enumeration e = list.getCertRecords(0, totalRecordCount - 1);
              **/
-            Enumeration<ICertRecord> e = mCertDB.searchCertificates(revokeAll,
+            Enumeration<CertRecord> e = mCertDB.searchCertificates(revokeAll,
                     totalRecordCount, mTimeLimits);
 
             ArrayList<String> noncesList = new ArrayList<String>();
             int count = 0;
 
             while (e != null && e.hasMoreElements()) {
-                ICertRecord rec = e.nextElement();
+                CertRecord rec = e.nextElement();
 
                 if (rec == null)
                     continue;
@@ -265,7 +265,7 @@ public class ReasonToRevoke extends CMSServlet {
                         noncesList.add(xcert.getSerialNumber()+":"+n);
                     }
 
-                    if (!(rec.getStatus().equals(ICertRecord.STATUS_REVOKED))) {
+                    if (!(rec.getStatus().equals(CertRecord.STATUS_REVOKED))) {
                         count++;
                         ArgBlock rarg = new ArgBlock();
 

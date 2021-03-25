@@ -45,7 +45,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequest;
@@ -59,6 +58,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CRLRepository;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 
@@ -413,7 +413,7 @@ public class UpdateDir extends CMSServlet {
                 if (updateValue[VALID_TO].startsWith("0x")) {
                     updateValue[VALID_TO] = hexToDecimal(updateValue[VALID_TO]);
                 }
-                Enumeration<ICertRecord> validCerts = null;
+                Enumeration<CertRecord> validCerts = null;
 
                 if (updateValue[CHECK_FLAG] != null &&
                         updateValue[CHECK_FLAG].equalsIgnoreCase("yes")) {
@@ -433,8 +433,7 @@ public class UpdateDir extends CMSServlet {
 
                 if (validCerts != null) {
                     while (validCerts.hasMoreElements()) {
-                        ICertRecord certRecord =
-                                validCerts.nextElement();
+                        CertRecord certRecord = validCerts.nextElement();
                         //X509CertImpl cert = certRecord.getCertificate();
                         X509CertImpl cert = null;
                         Object o = certRecord.getCertificate();
@@ -445,14 +444,14 @@ public class UpdateDir extends CMSServlet {
                         MetaInfo metaInfo = null;
                         String ridString = null;
 
-                        metaInfo = (MetaInfo) certRecord.get(ICertRecord.ATTR_META_INFO);
+                        metaInfo = (MetaInfo) certRecord.get(CertRecord.ATTR_META_INFO);
                         if (metaInfo == null) {
                             // ca's self signed signing cert and
                             // server cert has no related request and
                             // have no metaInfo
                             logger.warn(CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD", cert.getSerialNumber().toString(16)));
                         } else {
-                            ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
+                            ridString = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
                         }
 
                         IRequest r = null;
@@ -528,7 +527,7 @@ public class UpdateDir extends CMSServlet {
                 if (updateValue[EXPIRED_TO].startsWith("0x")) {
                     updateValue[EXPIRED_TO] = hexToDecimal(updateValue[EXPIRED_TO]);
                 }
-                Enumeration<ICertRecord> expiredCerts = null;
+                Enumeration<CertRecord> expiredCerts = null;
 
                 if (updateValue[CHECK_FLAG] != null &&
                         updateValue[CHECK_FLAG].equalsIgnoreCase("yes")) {
@@ -548,7 +547,7 @@ public class UpdateDir extends CMSServlet {
 
                 if (expiredCerts != null) {
                     while (expiredCerts.hasMoreElements()) {
-                        ICertRecord certRecord = expiredCerts.nextElement();
+                        CertRecord certRecord = expiredCerts.nextElement();
                         //X509CertImpl cert = certRecord.getCertificate();
                         X509CertImpl cert = null;
                         Object o = certRecord.getCertificate();
@@ -559,7 +558,7 @@ public class UpdateDir extends CMSServlet {
                         MetaInfo metaInfo = null;
                         String ridString = null;
 
-                        metaInfo = (MetaInfo) certRecord.get(ICertRecord.ATTR_META_INFO);
+                        metaInfo = (MetaInfo) certRecord.get(CertRecord.ATTR_META_INFO);
                         if (metaInfo == null) {
                             // ca's self signed signing cert and
                             // server cert has no related request and
@@ -567,7 +566,7 @@ public class UpdateDir extends CMSServlet {
                             logger.warn(CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
                                             cert.getSerialNumber().toString(16)));
                         } else {
-                            ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
+                            ridString = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
                         }
 
                         IRequest r = null;
@@ -634,7 +633,7 @@ public class UpdateDir extends CMSServlet {
                 if (updateValue[REVOKED_TO].startsWith("0x")) {
                     updateValue[REVOKED_TO] = hexToDecimal(updateValue[REVOKED_TO]);
                 }
-                Enumeration<ICertRecord> revokedCerts = null;
+                Enumeration<CertRecord> revokedCerts = null;
 
                 if (updateValue[CHECK_FLAG] != null &&
                         updateValue[CHECK_FLAG].equalsIgnoreCase("yes")) {
@@ -654,7 +653,7 @@ public class UpdateDir extends CMSServlet {
 
                 if (revokedCerts != null) {
                     while (revokedCerts.hasMoreElements()) {
-                        ICertRecord certRecord = revokedCerts.nextElement();
+                        CertRecord certRecord = revokedCerts.nextElement();
                         //X509CertImpl cert = certRecord.getCertificate();
                         X509CertImpl cert = null;
                         Object o = certRecord.getCertificate();
@@ -665,7 +664,7 @@ public class UpdateDir extends CMSServlet {
                         MetaInfo metaInfo = null;
                         String ridString = null;
 
-                        metaInfo = (MetaInfo) certRecord.get(ICertRecord.ATTR_META_INFO);
+                        metaInfo = (MetaInfo) certRecord.get(CertRecord.ATTR_META_INFO);
                         if (metaInfo == null) {
                             // ca's self signed signing cert and
                             // server cert has no related request and
@@ -673,7 +672,7 @@ public class UpdateDir extends CMSServlet {
                             logger.warn(CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
                                             cert.getSerialNumber().toString(16)));
                         } else {
-                            ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
+                            ridString = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
                         }
 
                         IRequest r = null;

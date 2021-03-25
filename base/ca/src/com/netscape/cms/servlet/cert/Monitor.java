@@ -39,7 +39,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestRecord;
@@ -50,6 +49,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
@@ -283,14 +283,14 @@ public class Monitor extends CMSServlet {
 
             try {
                 if (mCertDB != null) {
-                    filter = Filter(ICertRecord.ATTR_CREATE_TIME, startTime, endTime);
+                    filter = Filter(CertRecord.ATTR_CREATE_TIME, startTime, endTime);
 
                     Enumeration<Object> e = mCertDB.findCertRecs(filter);
 
                     int count = 0;
 
                     while (e != null && e.hasMoreElements()) {
-                        ICertRecord rec = (ICertRecord) e.nextElement();
+                        CertRecord rec = (CertRecord) e.nextElement();
 
                         if (rec != null) {
                             count++;

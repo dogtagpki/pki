@@ -41,7 +41,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
@@ -51,6 +50,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.usrgrp.User;
@@ -200,7 +200,7 @@ public class RevocationProcessor extends CertProcessor {
         }
     }
 
-    public void validateCertificateToRevoke(String subjectDN, ICertRecord targetRecord, boolean revokingCACert)
+    public void validateCertificateToRevoke(String subjectDN, CertRecord targetRecord, boolean revokingCACert)
                 throws EBaseException {
 
         X509CertImpl targetCert = targetRecord.getCertificate();
@@ -230,7 +230,7 @@ public class RevocationProcessor extends CertProcessor {
         }
 
         // Verify target cert is not already revoked.
-        if (targetRecord.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
+        if (targetRecord.getStatus().equals(CertRecord.STATUS_REVOKED)) {
             throw new BadRequestException(
                     CMS.getLogMessage("CA_CERTIFICATE_ALREADY_REVOKED_1", targetSerialNumber.toString(16)));
         }
@@ -242,28 +242,28 @@ public class RevocationProcessor extends CertProcessor {
     }
 
     public void addSerialNumberToUnrevoke(BigInteger serialNumber) throws EBaseException {
-        ICertRecord record = getCertificateRecord(serialNumber);
+        CertRecord record = getCertificateRecord(serialNumber);
         X509CertImpl cert = record.getCertificate();
         addCertificate(cert);
     }
 
-    public ICertRecord[] getCertificateRecords(BigInteger[] serialNumbers) throws EBaseException {
-        ICertRecord[] records = new ICertRecord[serialNumbers.length];
+    public CertRecord[] getCertificateRecords(BigInteger[] serialNumbers) throws EBaseException {
+        CertRecord[] records = new CertRecord[serialNumbers.length];
         for (int i=0; i<serialNumbers.length; i++) {
             records[i] = getCertificateRecord(serialNumbers[i]);
         }
         return records;
     }
 
-    public ICertRecord getCertificateRecord(CertId id) throws EBaseException {
+    public CertRecord getCertificateRecord(CertId id) throws EBaseException {
         return getCertificateRecord(id.toBigInteger());
     }
 
-    public ICertRecord getCertificateRecord(BigInteger serialNumber) throws EBaseException {
+    public CertRecord getCertificateRecord(BigInteger serialNumber) throws EBaseException {
         return repo.readCertificateRecord(serialNumber);
     }
 
-    public X509CertImpl[] getCertificates(ICertRecord[] records) throws EBaseException {
+    public X509CertImpl[] getCertificates(CertRecord[] records) throws EBaseException {
         X509CertImpl[] certs = new X509CertImpl[records.length];
         for (int i=0; i<records.length; i++) {
             certs[i] = records[i].getCertificate();

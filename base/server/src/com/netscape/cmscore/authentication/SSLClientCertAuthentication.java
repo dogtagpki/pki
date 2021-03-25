@@ -37,13 +37,13 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
@@ -140,7 +140,7 @@ public class SSLClientCertAuthentication implements AuthManager {
         String clientCertIssuerDN = clientCert.getIssuerDN().toString();
 
         if (mCertDB != null) { /* is CA */
-            ICertRecord record = null;
+            CertRecord record = null;
 
             try {
                 record = mCertDB.readCertificateRecord(serialNum);

@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
@@ -44,6 +43,7 @@ import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.SubjectNameDefault;
 import com.netscape.cms.profile.def.UserSubjectNameDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
@@ -82,7 +82,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
      * Checks if the key extension in the issued certificate
      * is the same as the one in the certificate template.
      */
-    private boolean sameKeyUsageExtension(ICertRecord rec,
+    private boolean sameKeyUsageExtension(CertRecord rec,
             X509CertInfo certInfo) {
         X509CertImpl impl = rec.getCertificate();
         boolean bits[] = impl.getKeyUsage();
@@ -169,14 +169,14 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
         else {
             certsubjectname = sn.toString();
             String filter = "x509Cert.subject=" + certsubjectname;
-            Enumeration<ICertRecord> sameSubjRecords = null;
+            Enumeration<CertRecord> sameSubjRecords = null;
             try {
                 sameSubjRecords = certdb.findCertRecords(filter);
             } catch (EBaseException e) {
                 logger.warn("UniqueSubjectNameConstraint exception: " + e.getMessage(), e);
             }
             while (sameSubjRecords != null && sameSubjRecords.hasMoreElements()) {
-                ICertRecord rec = sameSubjRecords.nextElement();
+                CertRecord rec = sameSubjRecords.nextElement();
                 String status = rec.getStatus();
 
                 IRevocationInfo revocationInfo = rec.getRevocationInfo();
@@ -198,11 +198,11 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
                     }
                 }
 
-                if (status.equals(ICertRecord.STATUS_EXPIRED) || status.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
+                if (status.equals(CertRecord.STATUS_EXPIRED) || status.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
                     continue;
                 }
 
-                if (status.equals(ICertRecord.STATUS_REVOKED) && reason != null &&
+                if (status.equals(CertRecord.STATUS_REVOKED) && reason != null &&
                         (!reason.equals(RevocationReason.CERTIFICATE_HOLD))) {
                     continue;
                 }

@@ -86,7 +86,6 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -102,6 +101,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -1199,7 +1199,7 @@ public class CMCOutputTemplate {
 
                 if (revoke) {
                     CertificateAuthority ca = engine.getCA();
-                    ICertRecord record = null;
+                    CertRecord record = null;
                     try {
                         record = repository.readCertificateRecord(revokeSerial);
                     } catch (EBaseException ee) {
@@ -1230,7 +1230,7 @@ public class CMCOutputTemplate {
                         return bpid;
                     }
 
-                    if (record.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
+                    if (record.getStatus().equals(CertRecord.STATUS_REVOKED)) {
                         msg = " The certificate is already revoked:" + auditSerialNumber;
                         logger.warn( method + msg);
                         audit(new CertStatusChangeRequestProcessedEvent(

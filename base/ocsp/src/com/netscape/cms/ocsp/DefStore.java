@@ -44,12 +44,12 @@ import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmsutil.ocsp.CertID;
@@ -244,10 +244,10 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
             while (e != null && e.hasMoreElements()) {
                 IRepositoryRecord r = e.nextElement();
-                Enumeration<ICertRecord> recs =
+                Enumeration<CertRecord> recs =
                         searchCertRecord(caName,
                                 r.getSerialNumber().toString(),
-                                ICertRecord.ATTR_ID + "=*");
+                                CertRecord.ATTR_ID + "=*");
 
                 logger.info("remove CRL 0x" +
                         r.getSerialNumber().toString(16) +
@@ -258,7 +258,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         getBaseDN();
 
                 while (recs != null && recs.hasMoreElements()) {
-                    ICertRecord rec = recs.nextElement();
+                    CertRecord rec = recs.nextElement();
                     String cert_dn = "cn=" +
                             rec.getSerialNumber().toString() + "," + rep_dn;
 
@@ -637,17 +637,17 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
-    public Enumeration<ICertRecord> searchCertRecord(String name, String thisUpdate,
+    public Enumeration<CertRecord> searchCertRecord(String name, String thisUpdate,
             String filter) throws EBaseException {
         IDBSSession s = dbSubsystem.createSession();
-        Vector<ICertRecord> v = new Vector<ICertRecord>();
+        Vector<CertRecord> v = new Vector<CertRecord>();
 
         try {
             IDBSearchResults sr = s.search("ou=" + thisUpdate + ",cn=" +
                         transformDN(name) + "," + getBaseDN(),
                         filter);
             while (sr.hasMoreElements()) {
-                v.add((ICertRecord) sr.nextElement());
+                v.add((CertRecord) sr.nextElement());
             }
         } finally {
             if (s != null)
@@ -656,18 +656,18 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         return v.elements();
     }
 
-    public ICertRecord readCertRecord(String name, String thisUpdate,
+    public CertRecord readCertRecord(String name, String thisUpdate,
             String sno)
             throws EBaseException {
         IDBSSession s = dbSubsystem.createSession();
-        ICertRecord rec = null;
+        CertRecord rec = null;
 
         try {
             String dn = "cn=" + sno + ",ou=" + thisUpdate +
                     ",cn=" + transformDN(name) + "," + getBaseDN();
 
             if (s != null) {
-                rec = (ICertRecord) s.read(dn);
+                rec = (CertRecord) s.read(dn);
             }
         } finally {
             if (s != null)
@@ -680,7 +680,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      * Creates a new issuing point in OCSP.
      */
     public void addCertRecord(String name, String thisUpdate,
-            String sno, ICertRecord rec)
+            String sno, CertRecord rec)
             throws EBaseException {
         IDBSSession s = dbSubsystem.createSession();
 

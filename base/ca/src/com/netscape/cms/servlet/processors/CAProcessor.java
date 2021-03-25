@@ -48,7 +48,6 @@ import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzEvent;
@@ -67,6 +66,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
@@ -247,14 +247,14 @@ public class CAProcessor extends Processor {
         return request;
     }
 
-    protected IRequest getOriginalRequest(BigInteger certSerial, ICertRecord rec) throws EBaseException {
-        MetaInfo metaInfo = (MetaInfo) rec.get(ICertRecord.ATTR_META_INFO);
+    protected IRequest getOriginalRequest(BigInteger certSerial, CertRecord rec) throws EBaseException {
+        MetaInfo metaInfo = (MetaInfo) rec.get(CertRecord.ATTR_META_INFO);
         if (metaInfo == null) {
             logger.error("getOriginalRequest: cert record locating MetaInfo failed for serial number " + certSerial);
             return null;
         }
 
-        String rid = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
+        String rid = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
         if (rid == null) {
             logger.error("getOriginalRequest: cert record locating request id in MetaInfo failed " +
                     "for serial number " + certSerial);

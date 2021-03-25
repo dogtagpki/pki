@@ -20,7 +20,6 @@ package com.netscape.cmscore.dbs;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IElementProcessor;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 
 import junit.framework.Test;
@@ -43,7 +42,7 @@ public class CertRecordListTest extends CMSBaseTestCase {
     }
 
     public void testProcessCertRecordsUsesSize() throws EBaseException {
-        DBVirtualListStub<ICertRecord> dbList = new DBVirtualListStub<ICertRecord>();
+        DBVirtualListStub<CertRecord> dbList = new DBVirtualListStub<CertRecord>();
         dbList.size = 5;
 
         CertRecordList certList = new CertRecordList(dbList);

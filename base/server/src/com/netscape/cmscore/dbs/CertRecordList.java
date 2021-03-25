@@ -23,7 +23,6 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.IElementProcessor;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 
 /**
  * A class represents a list of certificate records.
@@ -34,12 +33,12 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 public class CertRecordList {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecordList.class);
-    private IDBVirtualList<ICertRecord> mVlist = null;
+    private IDBVirtualList<CertRecord> mVlist = null;
 
     /**
      * Constructs a request list.
      */
-    public CertRecordList(IDBVirtualList<ICertRecord> vlist) {
+    public CertRecordList(IDBVirtualList<CertRecord> vlist) {
         mVlist = vlist;
     }
 
@@ -114,12 +113,12 @@ public class CertRecordList {
      * @param endidx ending index
      * @exception EBaseException failed to retrieve
      */
-    public Enumeration<ICertRecord> getCertRecords(int startidx, int endidx)
+    public Enumeration<CertRecord> getCertRecords(int startidx, int endidx)
             throws EBaseException {
-        Vector<ICertRecord> entries = new Vector<ICertRecord>();
+        Vector<CertRecord> entries = new Vector<>();
 
         for (int i = startidx; i <= endidx; i++) {
-            ICertRecord element = mVlist.getElementAt(i);
+            CertRecord element = mVlist.getElementAt(i);
 
             //  logger.debug("gerCertRecords[" + i + "] element: " + element);
             if (element != null) {
@@ -137,7 +136,7 @@ public class CertRecordList {
      * @return object
      * @exception EBaseException failed to retrieve
      */
-    public ICertRecord getCertRecord(int index)
+    public CertRecord getCertRecord(int index)
             throws EBaseException {
 
         return mVlist.getElementAt(index);

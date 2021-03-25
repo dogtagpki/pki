@@ -45,7 +45,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -57,6 +56,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -165,7 +165,7 @@ public class GetBySerial extends CMSServlet {
             return;
         }
 
-        ICertRecord certRecord = getCertRecord(serialNo);
+        CertRecord certRecord = getCertRecord(serialNo);
         if (certRecord == null) {
             logger.warn(CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", serialNo.toString(16)));
             cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_CERT_SERIAL_NOT_FOUND", "0x" + serialNo.toString(16))));
@@ -185,7 +185,7 @@ public class GetBySerial extends CMSServlet {
                     // find the cert record's orig. requestor's group
                     MetaInfo metai = certRecord.getMetaInfo();
                     if (metai != null) {
-                        String reqId = (String) metai.get(ICertRecord.META_REQUEST_ID);
+                        String reqId = (String) metai.get(CertRecord.META_REQUEST_ID);
                         RequestId rid = new RequestId(reqId);
                         IRequest creq = mReqQ.findRequest(rid);
                         if (creq != null) {
@@ -257,7 +257,7 @@ public class GetBySerial extends CMSServlet {
             String crmfReqId = null;
 
             if (metai != null) {
-                crmfReqId = (String) metai.get(ICertRecord.META_CRMF_REQID);
+                crmfReqId = (String) metai.get(CertRecord.META_CRMF_REQID);
                 if (crmfReqId != null)
                     cmsReq.setResult(IRequest.CRMF_REQID, crmfReqId);
             }

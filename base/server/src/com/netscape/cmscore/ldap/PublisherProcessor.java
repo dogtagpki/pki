@@ -36,7 +36,6 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.publish.ILdapMapper;
@@ -910,18 +909,16 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
 
         try {
             CertificateRepository certdb = ca.getCertificateRepository();
-            ICertRecord certRec = certdb.readCertificateRecord(serialNo);
+            CertRecord certRec = certdb.readCertificateRecord(serialNo);
             MetaInfo metaInfo = certRec.getMetaInfo();
 
             if (metaInfo == null) {
                 metaInfo = new MetaInfo();
             }
-            metaInfo.set(
-                    CertRecord.META_LDAPPUBLISH, String.valueOf(published));
+            metaInfo.set(CertRecord.META_LDAPPUBLISH, String.valueOf(published));
             ModificationSet modSet = new ModificationSet();
 
-            modSet.add(ICertRecord.ATTR_META_INFO,
-                    Modification.MOD_REPLACE, metaInfo);
+            modSet.add(CertRecord.ATTR_META_INFO, Modification.MOD_REPLACE, metaInfo);
             certdb.modifyCertificateRecord(serialNo, modSet);
 
         } catch (EBaseException e) {

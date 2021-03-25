@@ -75,7 +75,6 @@ import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
@@ -928,7 +927,7 @@ public class CAService implements ICAService, IService {
                  mCA.mCertRepot.markCertificateAsRenewed(oldSerialNo);
                  */
                 MetaInfo oldMeta = null;
-                CertRecord oldCertRec = (CertRecord) cr.readCertificateRecord(oldSerialNo);
+                CertRecord oldCertRec = cr.readCertificateRecord(oldSerialNo);
 
                 if (oldCertRec == null) {
                     String message = CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
@@ -967,14 +966,14 @@ public class CAService implements ICAService, IService {
                         Modification.MOD_REPLACE,
                         CertRecord.AUTO_RENEWAL_DONE);
 
-                modSet.add(ICertRecord.ATTR_META_INFO, Modification.MOD_REPLACE, oldMeta);
+                modSet.add(CertRecord.ATTR_META_INFO, Modification.MOD_REPLACE, oldMeta);
 
                 cr.modifyCertificateRecord(oldSerialNo, modSet);
 
                 logger.info(CMS.getLogMessage("CMSCORE_CA_MARK_SERIAL", oldSerialNo.toString(16), newSerialNo.toString(16)));
 
                 if (logger.isDebugEnabled()) {
-                    CertRecord check = (CertRecord) cr.readCertificateRecord(oldSerialNo);
+                    CertRecord check = cr.readCertificateRecord(oldSerialNo);
                     MetaInfo meta = check.getMetaInfo();
 
                     Enumeration<String> n = oldMeta.getElements();
@@ -1032,7 +1031,7 @@ public class CAService implements ICAService, IService {
         }
 
         logger.debug(method + ": revocaton request revocation reason: " + revReason.toString());
-        CertRecord certRec = (CertRecord) cr.readCertificateRecord(serialno);
+        CertRecord certRec = cr.readCertificateRecord(serialno);
 
         if (certRec == null) {
             logger.error(method + ": " + CMS.getLogMessage("CMSCORE_CA_CERT_NOT_FOUND", serialno.toString(16)));
@@ -1045,7 +1044,7 @@ public class CAService implements ICAService, IService {
         String certStatus = certRec.getStatus();
 
         RevocationReason recRevReason = null;
-        if (certStatus.equals(ICertRecord.STATUS_REVOKED)) {
+        if (certStatus.equals(CertRecord.STATUS_REVOKED)) {
             try {
                 recRevReason = certRec.getRevReason();
             } catch (Exception e) {
@@ -1060,12 +1059,12 @@ public class CAService implements ICAService, IService {
         }
 
         // for cert already revoked, also check whether revocation reason is changed from SUPERSEDED to KEY_COMPROMISE
-        if (((certStatus.equals(ICertRecord.STATUS_REVOKED) &&
+        if (((certStatus.equals(CertRecord.STATUS_REVOKED) &&
                 !certRec.isCertOnHold()) &&
                 ((recRevReason != RevocationReason.SUPERSEDED) ||
                         revReason != RevocationReason.KEY_COMPROMISE))
                 ||
-                certStatus.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
+                certStatus.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
             logger.debug(method + ": cert already revoked:" +
                     serialno.toString());
             throw new ECAException(CMS.getUserMessage("CMS_CA_CERT_ALREADY_REVOKED",
@@ -1075,7 +1074,7 @@ public class CAService implements ICAService, IService {
         try {
             // if cert has already revoked, update the revocation info only
             logger.debug(method + ": about to call markAsRevoked");
-            if (certStatus.equals(ICertRecord.STATUS_REVOKED)) {
+            if (certStatus.equals(CertRecord.STATUS_REVOKED)) {
                 cr.markAsRevoked(serialno,
                         new RevocationInfo(revdate, crlentryexts),
                         true /*isAlreadyRevoked*/);
@@ -1144,7 +1143,7 @@ public class CAService implements ICAService, IService {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository cr = engine.getCertificateRepository();
 
-        CertRecord certRec = (CertRecord) cr.readCertificateRecord(serialNo);
+        CertRecord certRec = cr.readCertificateRecord(serialNo);
 
         if (certRec == null) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_NOT_FOUND", serialNo.toString(16)));
@@ -1177,8 +1176,8 @@ public class CAService implements ICAService, IService {
                     serialNo.toString()));
         }
         // allow unrevoking certs that are on hold.
-        if ((certRec.getStatus().equals(ICertRecord.STATUS_REVOKED) ||
-                certRec.getStatus().equals(ICertRecord.STATUS_REVOKED_EXPIRED)) &&
+        if ((certRec.getStatus().equals(CertRecord.STATUS_REVOKED) ||
+                certRec.getStatus().equals(CertRecord.STATUS_REVOKED_EXPIRED)) &&
                 reasonext != null &&
                 reasonext.getReason() == RevocationReason.CERTIFICATE_HOLD) {
             try {
@@ -1466,7 +1465,7 @@ class serviceRenewal implements IServant {
                 BigInteger oldSerialNo = serialnumBigInt.toBigInteger();
 
                 // get cert record
-                CertRecord certRecord = (CertRecord) cr.readCertificateRecord(oldSerialNo);
+                CertRecord certRecord = cr.readCertificateRecord(oldSerialNo);
 
                 if (certRecord == null) {
                     logger.error(CMS.getLogMessage("CMSCORE_CA_NOT_FROM_CA", oldSerialNo.toString()));
@@ -1479,8 +1478,8 @@ class serviceRenewal implements IServant {
                 // check if cert has been revoked.
                 String certStatus = certRecord.getStatus();
 
-                if (certStatus.equals(ICertRecord.STATUS_REVOKED) ||
-                        certStatus.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
+                if (certStatus.equals(CertRecord.STATUS_REVOKED) ||
+                        certStatus.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
                     logger.error(CMS.getLogMessage("CMSCORE_CA_RENEW_REVOKED", oldSerialNo.toString()));
                     svcerrors[i] = new ECAException(
                             CMS.getUserMessage("CMS_CA_CANNOT_RENEW_REVOKED_CERT",
@@ -1492,8 +1491,7 @@ class serviceRenewal implements IServant {
                 MetaInfo metaInfo = certRecord.getMetaInfo();
 
                 if (metaInfo != null) {
-                    String renewed = (String)
-                            metaInfo.get(ICertRecord.META_RENEWED_CERT);
+                    String renewed = (String) metaInfo.get(CertRecord.META_RENEWED_CERT);
 
                     if (renewed != null) {
                         BigInteger serial = new BigInteger(renewed);
@@ -1508,7 +1506,7 @@ class serviceRenewal implements IServant {
                             continue;
                         }
                         // get cert record
-                        CertRecord cRecord = (CertRecord) cr.readCertificateRecord(serial);
+                        CertRecord cRecord = cr.readCertificateRecord(serial);
 
                         if (cRecord == null) {
                             logger.error(CMS.getLogMessage("CMSCORE_CA_NOT_FROM_CA", serial.toString()));
@@ -1520,8 +1518,8 @@ class serviceRenewal implements IServant {
                         // Check renewed certificate already REVOKED or EXPIRED
                         String status = cRecord.getStatus();
 
-                        if (status.equals(ICertRecord.STATUS_REVOKED) ||
-                                status.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
+                        if (status.equals(CertRecord.STATUS_REVOKED) ||
+                                status.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
                             logger.debug("It is already revoked or Expired !!!");
                         } // it is still new ... So just return this certificate to user
                         else {
@@ -1615,7 +1613,7 @@ class getCertStatus implements IServant {
             CertRecord record = null;
 
             try {
-                record = (CertRecord) certDB.readCertificateRecord(serialno);
+                record = certDB.readCertificateRecord(serialno);
             } catch (EBaseException ee) {
                 logger.warn(ee.toString());
             }
@@ -1673,7 +1671,7 @@ class serviceCheckChallenge implements IServant {
             CertRecord record = null;
 
             try {
-                record = (CertRecord) certDB.readCertificateRecord(serialno);
+                record = certDB.readCertificateRecord(serialno);
             } catch (EBaseException ee) {
                 logger.warn(ee.toString());
             }
@@ -1699,7 +1697,7 @@ class serviceCheckChallenge implements IServant {
                 String filter = "(&(x509cert.subject=" + subjectName + ")(certStatus=VALID))";
                 CertRecordList list = certDB.findCertRecordsInList(filter, null, 10);
                 int size = list.getSize();
-                Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
+                Enumeration<CertRecord> en = list.getCertRecords(0, size - 1);
 
                 if (!en.hasMoreElements()) {
                     bigIntArray = new BigInteger[0];
@@ -1707,7 +1705,7 @@ class serviceCheckChallenge implements IServant {
                     Vector<BigInteger> idv = new Vector<BigInteger>();
 
                     while (en.hasMoreElements()) {
-                        ICertRecord record = en.nextElement();
+                        CertRecord record = en.nextElement();
                         boolean samepwd = compareChallengePassword(record, pwd);
 
                         if (samepwd) {
@@ -1729,7 +1727,7 @@ class serviceCheckChallenge implements IServant {
         return true;
     }
 
-    private boolean compareChallengePassword(ICertRecord record, String pwd)
+    private boolean compareChallengePassword(CertRecord record, String pwd)
             throws EBaseException {
         MetaInfo metaInfo = (MetaInfo) record.get(CertRecord.ATTR_META_INFO);
 
@@ -1897,7 +1895,7 @@ class serviceUnrevoke implements IServant {
                             CMS.getUserMessage("CMS_CA_MISSING_SERIAL_NUMBER"));
                 }
                 if (needOldCerts) {
-                    CertRecord certRec = (CertRecord) cr.readCertificateRecord(oldSerialNo[i]);
+                    CertRecord certRec = cr.readCertificateRecord(oldSerialNo[i]);
 
                     oldCerts[i] = certRec.getCertificate();
                 }
@@ -2117,7 +2115,7 @@ class serviceCert4Crl implements IServant {
 
         CertRecord revokedCertRecs[] = new CertRecord[revokedCertIds.length];
         for (int i = 0; i < revokedCertIds.length; i++) {
-            revokedCertRecs[i] = (CertRecord) cr.readCertificateRecord(revokedCertIds[i]);
+            revokedCertRecs[i] = cr.readCertificateRecord(revokedCertIds[i]);
         }
 
         if (revokedCertRecs == null ||

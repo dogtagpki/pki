@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
@@ -39,6 +38,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldap.PublisherProcessor;
@@ -174,7 +174,7 @@ public class UnpublishExpiredJob extends AJobBase
         // form filter
         String filter = "(&(x509Cert.notAfter<=" + now +
                 ")(!(x509Cert.notAfter=" + now + "))" +
-                "(" + "certMetainfo=" + ICertRecord.META_LDAPPUBLISH +
+                "(" + "certMetainfo=" + CertRecord.META_LDAPPUBLISH +
                 ":true))";
         // a test for without CertRecord.META_LDAPPUBLISH
         //String filter = "(x509Cert.notAfter<="+ now +")";
@@ -207,7 +207,7 @@ public class UnpublishExpiredJob extends AJobBase
 
         // unpublish them and unpublish() will set inLdapPublishDir flag
         while (expired != null && expired.hasMoreElements()) {
-            ICertRecord rec = (ICertRecord) expired.nextElement();
+            CertRecord rec = (CertRecord) expired.nextElement();
 
             if (rec == null)
                 break;
@@ -220,7 +220,7 @@ public class UnpublishExpiredJob extends AJobBase
             MetaInfo minfo = null;
 
             try {
-                minfo = (MetaInfo) rec.get(ICertRecord.ATTR_META_INFO);
+                minfo = (MetaInfo) rec.get(CertRecord.ATTR_META_INFO);
             } catch (EBaseException e) {
                 negCount += 1;
                 if (mSummary == true)
@@ -234,7 +234,7 @@ public class UnpublishExpiredJob extends AJobBase
 
             try {
                 if (minfo != null)
-                    ridString = (String) minfo.get(ICertRecord.META_REQUEST_ID);
+                    ridString = (String) minfo.get(CertRecord.META_REQUEST_ID);
             } catch (EBaseException e) {
                 negCount += 1;
                 if (mSummary == true)

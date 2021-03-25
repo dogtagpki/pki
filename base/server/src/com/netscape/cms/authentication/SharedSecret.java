@@ -42,10 +42,10 @@ import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -429,7 +429,7 @@ public class SharedSecret extends DirBasedAuthentication
         }
         logger.debug(method + serial.toString());
 
-        ICertRecord record = null;
+        CertRecord record = null;
         try {
             record = certRepository.readCertificateRecord(serial);
         } catch (EBaseException ee) {
@@ -438,13 +438,13 @@ public class SharedSecret extends DirBasedAuthentication
             throw ee;
         }
 
-        MetaInfo metaInfo = (MetaInfo) record.get(ICertRecord.ATTR_META_INFO);
+        MetaInfo metaInfo = (MetaInfo) record.get(CertRecord.ATTR_META_INFO);
         if (metaInfo == null) {
             msg = "cert record metaInfo not found";
             logger.error(method + msg);
             throw new EBaseException(method + msg);
         }
-        String shrTok_s = (String) metaInfo.get(ICertRecord.META_REV_SHRTOK);
+        String shrTok_s = (String) metaInfo.get(CertRecord.META_REV_SHRTOK);
         if (shrTok_s == null) {
             msg = "shrTok not found in metaInfo";
             logger.error(method + msg);

@@ -226,7 +226,7 @@ public class ChallengePhraseAuthentication implements AuthManager {
             CertRecord record = null;
 
             try {
-                record = (CertRecord) mCertDB.readCertificateRecord(serialNum);
+                record = mCertDB.readCertificateRecord(serialNum);
             } catch (EBaseException ee) {
                 logger.warn("ChallengePhraseAuthentication: " + ee.getMessage(), ee);
             }

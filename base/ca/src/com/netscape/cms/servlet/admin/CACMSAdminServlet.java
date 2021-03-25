@@ -41,7 +41,6 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigTrustedPublicKeyEvent;
@@ -49,6 +48,7 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -400,7 +400,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
                 }
             }
 
-            ICertRecord certRecord = repository.createCertRecord(signedCert.getSerialNumber(), signedCert, null);
+            CertRecord certRecord = repository.createCertRecord(signedCert.getSerialNumber(), signedCert, null);
             repository.addCertificateRecord(certRecord);
 
             if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {

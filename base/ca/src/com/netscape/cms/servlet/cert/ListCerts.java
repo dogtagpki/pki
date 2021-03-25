@@ -47,7 +47,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -56,6 +55,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 
@@ -403,7 +403,7 @@ public class ListCerts extends CMSServlet {
         // retrive maxCount + 1 entries
         logger.debug("ListCerts: list size: " + list.getSize());
 
-        Enumeration<ICertRecord> e = list.getCertRecords(0, maxCount);
+        Enumeration<CertRecord> e = list.getCertRecords(0, maxCount);
 
         CertRecordList tolist = null;
         int toCurIndex = 0;
@@ -418,7 +418,7 @@ public class ListCerts extends CMSServlet {
                         "serialno", maxCount);
             logger.debug("ListCerts: tolist size: " + tolist.getSize());
 
-            Enumeration<ICertRecord> en = tolist.getCertRecords(0, 0);
+            Enumeration<CertRecord> en = tolist.getCertRecords(0, 0);
 
             if (en == null || (!en.hasMoreElements())) {
                 logger.debug("ListCerts: no results");
@@ -426,7 +426,7 @@ public class ListCerts extends CMSServlet {
 
             } else {
                 toCurIndex = tolist.getCurrentIndex();
-                ICertRecord rx = en.nextElement();
+                CertRecord rx = en.nextElement();
                 BigInteger curToSerial = rx.getSerialNumber();
                 logger.debug("ListCerts: curToSerial: " + curToSerial);
 
@@ -446,7 +446,7 @@ public class ListCerts extends CMSServlet {
 
         BigInteger firstSerial = new BigInteger("0");
         BigInteger curSerial = new BigInteger("0");
-        ICertRecord[] recs = new ICertRecord[maxCount];
+        CertRecord[] recs = new CertRecord[maxCount];
         int rcount = 0;
 
         if (e != null) {
@@ -456,7 +456,7 @@ public class ListCerts extends CMSServlet {
             logger.debug("ListCerts: records:");
             int count = 0;
             while ((count < ((mReverse && !mHardJumpTo) ? (maxCount + 1) : maxCount)) && e.hasMoreElements()) {
-                ICertRecord rec = e.nextElement();
+                CertRecord rec = e.nextElement();
 
                 if (rec == null) {
                     //logger.debug("ListCerts: * record " + count + " is null");
@@ -522,7 +522,7 @@ public class ListCerts extends CMSServlet {
         }
 
         // peek ahead
-        ICertRecord nextRec = null;
+        CertRecord nextRec = null;
 
         if (e.hasMoreElements()) {
             nextRec = e.nextElement();
@@ -622,7 +622,7 @@ public class ListCerts extends CMSServlet {
     /**
      * Fills cert record into argument block.
      */
-    private void fillRecordIntoArg(ICertRecord rec, IArgBlock rarg)
+    private void fillRecordIntoArg(CertRecord rec, IArgBlock rarg)
             throws EBaseException {
 
         X509CertImpl xcert = rec.getCertificate();
@@ -632,7 +632,7 @@ public class ListCerts extends CMSServlet {
         }
     }
 
-    private void fillX509RecordIntoArg(ICertRecord rec, IArgBlock rarg)
+    private void fillX509RecordIntoArg(CertRecord rec, IArgBlock rarg)
             throws EBaseException {
 
         X509CertImpl cert = rec.getCertificate();

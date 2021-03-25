@@ -29,7 +29,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
@@ -340,7 +339,7 @@ class LdapRevocationListener implements IRequestListener {
             try {
                 // We need the enrollment request to sort out predicate
                 BigInteger serial = cert.getSerialNumber();
-                ICertRecord certRecord = null;
+                CertRecord certRecord = null;
                 IAuthority auth = (IAuthority) mProcessor.getAuthority();
 
                 if (auth == null ||
@@ -366,11 +365,11 @@ class LdapRevocationListener implements IRequestListener {
 
                 if (certRecord != null)
                     metaInfo =
-                            (MetaInfo) certRecord.get(ICertRecord.ATTR_META_INFO);
+                            (MetaInfo) certRecord.get(CertRecord.ATTR_META_INFO);
                 if (metaInfo == null) {
                     logger.warn("failed getting CertRecord.ATTR_META_INFO for cert serial number 0x" + serial.toString(16));
                 } else {
-                    ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
+                    ridString = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
                 }
 
                 IRequest req = null;
@@ -444,7 +443,7 @@ class LdapUnrevocationListener implements IRequestListener {
             try {
                 // We need the enrollment request to sort out predicate
                 BigInteger serial = xcert.getSerialNumber();
-                ICertRecord certRecord = null;
+                CertRecord certRecord = null;
                 IAuthority auth = (IAuthority) mProcessor.getAuthority();
 
                 if (auth == null ||

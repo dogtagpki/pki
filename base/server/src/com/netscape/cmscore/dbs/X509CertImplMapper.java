@@ -38,7 +38,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
@@ -300,40 +299,40 @@ public class X509CertImplMapper implements IDBAttrMapper {
         AttributeNameHelper h = new AttributeNameHelper(name);
         String suffix = h.getSuffix();
 
-        if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_NOT_BEFORE)) {
+        if (suffix.equalsIgnoreCase(CertRecord.X509CERT_NOT_BEFORE)) {
             name = CertDBSchema.LDAP_ATTR_NOT_BEFORE;
             try {
                 value = DateMapper.dateToDB(new
                             Date(Long.parseLong(value)));
             } catch (NumberFormatException e) {
             }
-        } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_NOT_AFTER)) {
+        } else if (suffix.equalsIgnoreCase(CertRecord.X509CERT_NOT_AFTER)) {
             name = CertDBSchema.LDAP_ATTR_NOT_AFTER;
             try {
                 value = DateMapper.dateToDB(new
                             Date(Long.parseLong(value)));
             } catch (NumberFormatException e) {
             }
-        } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_SUBJECT)) {
+        } else if (suffix.equalsIgnoreCase(CertRecord.X509CERT_SUBJECT)) {
             name = CertDBSchema.LDAP_ATTR_SUBJECT;
-        } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_ISSUER)) {
+        } else if (suffix.equalsIgnoreCase(CertRecord.X509CERT_ISSUER)) {
             name = CertDBSchema.LDAP_ATTR_ISSUER;
-        } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_PUBLIC_KEY_DATA)) {
+        } else if (suffix.equalsIgnoreCase(CertRecord.X509CERT_PUBLIC_KEY_DATA)) {
             name = CertDBSchema.LDAP_ATTR_PUBLIC_KEY_DATA;
-        } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_DURATION)) {
+        } else if (suffix.equalsIgnoreCase(CertRecord.X509CERT_DURATION)) {
             name = CertDBSchema.LDAP_ATTR_DURATION;
             value = DBSUtil.longToDB(Long.parseLong(value));
-        } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_VERSION)) {
+        } else if (suffix.equalsIgnoreCase(CertRecord.X509CERT_VERSION)) {
             name = CertDBSchema.LDAP_ATTR_VERSION;
-        } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_ALGORITHM)) {
+        } else if (suffix.equalsIgnoreCase(CertRecord.X509CERT_ALGORITHM)) {
             name = CertDBSchema.LDAP_ATTR_ALGORITHM;
-        } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_SIGNING_ALGORITHM)) {
+        } else if (suffix.equalsIgnoreCase(CertRecord.X509CERT_SIGNING_ALGORITHM)) {
             name = CertDBSchema.LDAP_ATTR_SIGNING_ALGORITHM;
-        } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_SERIAL_NUMBER)) {
+        } else if (suffix.equalsIgnoreCase(CertRecord.X509CERT_SERIAL_NUMBER)) {
             name = CertDBSchema.LDAP_ATTR_CERT_RECORD_ID;
-        } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_EXTENSION)) {
+        } else if (suffix.equalsIgnoreCase(CertRecord.X509CERT_EXTENSION)) {
             name = CertDBSchema.LDAP_ATTR_EXTENSION;
-        } else if (suffix.equalsIgnoreCase(ICertRecord.ATTR_REVO_INFO)) {
+        } else if (suffix.equalsIgnoreCase(CertRecord.ATTR_REVO_INFO)) {
             name = CertDBSchema.LDAP_ATTR_REVO_INFO;
             value = "*;CRLReasonExtension=" + value;
         } else if (suffix.equalsIgnoreCase("nsExtension.SSLClient")) {

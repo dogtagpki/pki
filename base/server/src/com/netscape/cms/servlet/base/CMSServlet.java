@@ -69,7 +69,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -104,6 +103,7 @@ import com.netscape.cmscore.apps.CommandQueue;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.Group;
@@ -1023,7 +1023,7 @@ public abstract class CMSServlet extends HttpServlet {
     /**
      * handy routine for getting a cert record given a serial number.
      */
-    protected ICertRecord getCertRecord(BigInteger serialNo) {
+    protected CertRecord getCertRecord(BigInteger serialNo) {
         if (mAuthority == null ||
                 !(mAuthority instanceof ICertificateAuthority)) {
             logger.error(CMS.getLogMessage("CMSGW_NON_CERT_AUTH"));
@@ -1035,7 +1035,7 @@ public abstract class CMSServlet extends HttpServlet {
             logger.error(CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
             return null;
         }
-        ICertRecord certRecord = null;
+        CertRecord certRecord = null;
 
         try {
             certRecord = certdb.readCertificateRecord(serialNo);
@@ -1505,13 +1505,13 @@ public abstract class CMSServlet extends HttpServlet {
      */
     protected boolean certIsRevoked(BigInteger serialNum)
             throws EBaseException {
-        ICertRecord certRecord = getCertRecord(serialNum);
+        CertRecord certRecord = getCertRecord(serialNum);
 
         if (certRecord == null) {
             logger.error(CMS.getLogMessage("CMSGW_BAD_CERT_SER_NUM", String.valueOf(serialNum)));
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_INVALID_CERT"));
         }
-        if (certRecord.getStatus().equals(ICertRecord.STATUS_REVOKED))
+        if (certRecord.getStatus().equals(CertRecord.STATUS_REVOKED))
             return true;
         return false;
     }

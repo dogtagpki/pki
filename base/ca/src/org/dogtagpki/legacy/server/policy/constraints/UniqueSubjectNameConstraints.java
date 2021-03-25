@@ -36,10 +36,10 @@ import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertRecord;
 
 /**
  * Checks the uniqueness of the subject name. This policy
@@ -182,16 +182,15 @@ public class UniqueSubjectNameConstraints extends APolicyRule
                 String filter = "x509Cert.subject=" + certSubjectName;
                 // subject name is indexed, so we only use subject name
                 // in the filter
-                Enumeration<ICertRecord> matched =
-                        mCA.getCertificateRepository().findCertRecords(filter);
+                Enumeration<CertRecord> matched = mCA.getCertificateRepository().findCertRecords(filter);
 
                 while (matched.hasMoreElements()) {
-                    ICertRecord rec = matched.nextElement();
+                    CertRecord rec = matched.nextElement();
                     String status = rec.getStatus();
 
-                    if (status.equals(ICertRecord.STATUS_REVOKED)
-                            || status.equals(ICertRecord.STATUS_EXPIRED)
-                            || status.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
+                    if (status.equals(CertRecord.STATUS_REVOKED)
+                            || status.equals(CertRecord.STATUS_EXPIRED)
+                            || status.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
                         // accept this only if we have a REVOKED,
                         // EXPIRED or REVOKED_EXPIRED certificate
                         continue;
@@ -229,7 +228,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      * Checks if the key extension in the issued certificate
      * is the same as the one in the certificate template.
      */
-    private boolean sameKeyUsageExtension(ICertRecord rec,
+    private boolean sameKeyUsageExtension(CertRecord rec,
             X509CertInfo certInfo) {
         X509CertImpl impl = rec.getCertificate();
         boolean bits[] = impl.getKeyUsage();

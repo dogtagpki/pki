@@ -60,7 +60,6 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IElementProcessor;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.logging.ILogger;
@@ -2100,7 +2099,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             CertRecordList list = mCertRepository.findCertRecordsInList(
                     filter,
                     new String[] {
-                            ICertRecord.ATTR_ID, ICertRecord.ATTR_REVO_INFO, "objectclass"
+                            CertRecord.ATTR_ID, CertRecord.ATTR_REVO_INFO, "objectclass"
                     },
                     "serialno",
                     mPageSize);

@@ -70,7 +70,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
@@ -86,6 +85,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 
@@ -472,7 +472,7 @@ public class HashEnrollServlet extends CMSServlet {
                                 + "))(certStatus=VALID))";
                 CertRecordList list = cr.findCertRecordsInList(filter, null, 10);
                 int size = list.getSize();
-                Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
+                Enumeration<CertRecord> en = list.getCertRecords(0, size - 1);
                 boolean gotEncCert = false;
 
                 if (!en.hasMoreElements()) {
@@ -484,7 +484,7 @@ public class HashEnrollServlet extends CMSServlet {
                     int i = 1;
 
                     while (en.hasMoreElements()) {
-                        ICertRecord record = en.nextElement();
+                        CertRecord record = en.nextElement();
                         X509CertImpl cert = record.getCertificate();
 
                         // if not encryption cert only, try next one

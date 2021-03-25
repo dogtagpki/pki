@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
@@ -39,6 +38,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldap.PublisherProcessor;
@@ -173,7 +173,7 @@ public class PublishCertsJob extends AJobBase
 
         // form filter
         String filter = // might need to use "metaInfo"
-                "(!(certMetainfo=" + ICertRecord.META_LDAPPUBLISH +
+                "(!(certMetainfo=" + CertRecord.META_LDAPPUBLISH +
                         ":true))";
 
         Enumeration<Object> unpublishedCerts = null;
@@ -205,7 +205,7 @@ public class PublishCertsJob extends AJobBase
         // filter out the invalid ones and publish them
         // publish() will set inLdapPublishDir flag
         while (unpublishedCerts != null && unpublishedCerts.hasMoreElements()) {
-            ICertRecord rec = (ICertRecord) unpublishedCerts.nextElement();
+            CertRecord rec = (CertRecord) unpublishedCerts.nextElement();
 
             if (rec == null)
                 break;
@@ -227,7 +227,7 @@ public class PublishCertsJob extends AJobBase
             MetaInfo minfo = null;
 
             try {
-                minfo = (MetaInfo) rec.get(ICertRecord.ATTR_META_INFO);
+                minfo = (MetaInfo) rec.get(CertRecord.ATTR_META_INFO);
             } catch (EBaseException e) {
                 negCount += 1;
                 if (mSummary == true)
@@ -241,7 +241,7 @@ public class PublishCertsJob extends AJobBase
 
             try {
                 if (minfo != null)
-                    ridString = (String) minfo.get(ICertRecord.META_REQUEST_ID);
+                    ridString = (String) minfo.get(CertRecord.META_REQUEST_ID);
             } catch (EBaseException e) {
                 negCount += 1;
                 if (mSummary == true)

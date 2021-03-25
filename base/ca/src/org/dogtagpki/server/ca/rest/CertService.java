@@ -68,7 +68,6 @@ import com.netscape.certsrv.cert.CertRevokeRequest;
 import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -79,6 +78,7 @@ import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -214,7 +214,7 @@ public class CertService extends PKIService implements CertResource {
                 // No client certificate, ignore.
             }
 
-            ICertRecord clientRecord = null;
+            CertRecord clientRecord = null;
             BigInteger clientSerialNumber = null;
             String clientSubjectDN = null;
 
@@ -225,7 +225,7 @@ public class CertService extends PKIService implements CertResource {
 
                 // Verify client cert is not revoked.
                 // TODO: This should be checked during authentication.
-                if (clientRecord.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
+                if (clientRecord.getStatus().equals(CertRecord.STATUS_REVOKED)) {
                     throw new UnauthorizedException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
                 }
             }
@@ -237,7 +237,7 @@ public class CertService extends PKIService implements CertResource {
             }
 
             // Find target cert record if different from client cert.
-            ICertRecord targetRecord = id.equals(clientSerialNumber) ? clientRecord : processor.getCertificateRecord(id);
+            CertRecord targetRecord = id.equals(clientSerialNumber) ? clientRecord : processor.getCertificateRecord(id);
             X509CertImpl targetCert = targetRecord.getCertificate();
 
             processor.createCRLExtension();
@@ -408,7 +408,7 @@ public class CertService extends PKIService implements CertResource {
 
         CertDataInfos infos = new CertDataInfos();
         try {
-            Enumeration<ICertRecord> e = repo.searchCertificates(filter, maxResults, maxTime);
+            Enumeration<CertRecord> e = repo.searchCertificates(filter, maxResults, maxTime);
             if (e == null) {
                 throw new EBaseException("search results are null");
             }
@@ -416,7 +416,7 @@ public class CertService extends PKIService implements CertResource {
             // store non-null results in a list
             List<CertDataInfo> results = new ArrayList<CertDataInfo>();
             while (e.hasMoreElements()) {
-                ICertRecord rec = e.nextElement();
+                CertRecord rec = e.nextElement();
                 if (rec == null) continue;
                 results.add(createCertDataInfo(rec));
             }
@@ -471,7 +471,7 @@ public class CertService extends PKIService implements CertResource {
 
             // return entries in the requested page
             for (int i = start; i < start + size && i < total; i++) {
-                ICertRecord record = list.getCertRecord(i);
+                CertRecord record = list.getCertRecord(i);
 
                 if (record == null) {
                     logger.warn("Certificate record not found");
@@ -508,7 +508,7 @@ public class CertService extends PKIService implements CertResource {
         CertId certId = data.getCertId();
 
         //find the cert in question
-        ICertRecord record = repo.readCertificateRecord(certId.toBigInteger());
+        CertRecord record = repo.readCertificateRecord(certId.toBigInteger());
         X509CertImpl cert = record.getCertificate();
 
         CertData certData = new CertData();
@@ -583,7 +583,7 @@ public class CertService extends PKIService implements CertResource {
         return certData;
     }
 
-    private CertDataInfo createCertDataInfo(ICertRecord record) throws EBaseException, InvalidKeyException {
+    private CertDataInfo createCertDataInfo(CertRecord record) throws EBaseException, InvalidKeyException {
         CertDataInfo info = new CertDataInfo();
 
         CertId id = new CertId(record.getSerialNumber());

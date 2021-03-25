@@ -50,7 +50,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
@@ -66,6 +65,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 
@@ -383,13 +383,13 @@ public class DoRevokeTPS extends CMSServlet {
                 entryExtn.set(invalidityDateExtn.getName(), invalidityDateExtn);
             }
 
-            Enumeration<ICertRecord> e = mCertDB.searchCertificates(revokeAll,
+            Enumeration<CertRecord> e = mCertDB.searchCertificates(revokeAll,
                     totalRecordCount, mTimeLimits);
 
             boolean alreadyRevokedCertFound = false;
             boolean badCertsRequested = false;
             while (e != null && e.hasMoreElements()) {
-                ICertRecord rec = e.nextElement();
+                CertRecord rec = e.nextElement();
 
                 if (rec == null) {
                     badCertsRequested = true;
@@ -408,7 +408,7 @@ public class DoRevokeTPS extends CMSServlet {
 
                 if (xcert != null) {
                     RevocationReason recRevReason = null;
-                    if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
+                    if (rec.getStatus().equals(CertRecord.STATUS_REVOKED)) {
                         try {
                             recRevReason = rec.getRevReason();
                         } catch (Exception ex) {
@@ -426,7 +426,7 @@ public class DoRevokeTPS extends CMSServlet {
                             xcert.getSerialNumber().toString(16));
 
                     boolean updateRevocation = true;
-                    if ((rec.getStatus().equals(ICertRecord.STATUS_REVOKED) &&
+                    if ((rec.getStatus().equals(CertRecord.STATUS_REVOKED) &&
                             revReason == RevocationReason.KEY_COMPROMISE)) {
                         updateRevocation = false;
                         if ((recRevReason == RevocationReason.SUPERSEDED) ||

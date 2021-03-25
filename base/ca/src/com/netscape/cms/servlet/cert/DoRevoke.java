@@ -56,7 +56,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
@@ -71,6 +70,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 
@@ -423,17 +423,17 @@ public class DoRevoke extends CMSServlet {
 
             if (mAuthority instanceof ICertificateAuthority) {
 
-                Enumeration<ICertRecord> e = mCertDB.searchCertificates(revokeAll, totalRecordCount, mTimeLimits);
+                Enumeration<CertRecord> e = mCertDB.searchCertificates(revokeAll, totalRecordCount, mTimeLimits);
 
                 while (e != null && e.hasMoreElements()) {
-                    ICertRecord targetRecord = e.nextElement();
+                    CertRecord targetRecord = e.nextElement();
                     X509CertImpl targetCert = targetRecord.getCertificate();
 
                     // Verify end-entity cert is not revoked.
                     // TODO: This should be checked during authentication.
                     if (eeSerialNumber != null &&
                         eeSerialNumber.equals(targetCert.getSerialNumber()) &&
-                        targetRecord.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
+                        targetRecord.getStatus().equals(CertRecord.STATUS_REVOKED)) {
 
                         String message = CMS.getLogMessage("CA_CERTIFICATE_ALREADY_REVOKED_1",
                                 targetRecord.getSerialNumber().toString(16));

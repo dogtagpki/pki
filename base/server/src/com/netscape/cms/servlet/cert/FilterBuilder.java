@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import com.netscape.certsrv.cert.CertSearchRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -75,7 +75,7 @@ public class FilterBuilder {
         String issuerDN = request.getIssuerDN();
         if (issuerDN != null && !issuerDN.isEmpty()) {
             filters.add(
-                "(" + ICertRecord.ATTR_X509CERT_ISSUER
+                "(" + CertRecord.ATTR_X509CERT_ISSUER
                 + "=" + LDAPUtil.escapeFilter(issuerDN) + ")");
         }
     }
@@ -112,7 +112,7 @@ public class FilterBuilder {
         buildAVAFilter(request.getCountry(), "C", lf, match);
 
         if (lf.length() == 0) {
-            filters.add("(" + ICertRecord.ATTR_X509CERT_SUBJECT + "=*)");
+            filters.add("(" + CertRecord.ATTR_X509CERT_SUBJECT + "=*)");
 
         } else if (match) {
             filters.add("(&" + lf + ")");
@@ -233,8 +233,8 @@ public class FilterBuilder {
             return;
         }
 
-        buildDateFilter(request.getValidNotBeforeFrom(), ICertRecord.ATTR_X509CERT_NOT_BEFORE+">=", 0);
-        buildDateFilter(request.getValidNotBeforeTo(), ICertRecord.ATTR_X509CERT_NOT_BEFORE+"<=", 86399999);
+        buildDateFilter(request.getValidNotBeforeFrom(), CertRecord.ATTR_X509CERT_NOT_BEFORE+">=", 0);
+        buildDateFilter(request.getValidNotBeforeTo(), CertRecord.ATTR_X509CERT_NOT_BEFORE+"<=", 86399999);
 
     }
 
@@ -244,8 +244,8 @@ public class FilterBuilder {
             return;
         }
 
-        buildDateFilter(request.getValidNotAfterFrom(), ICertRecord.ATTR_X509CERT_NOT_AFTER+">=", 0);
-        buildDateFilter(request.getValidNotAfterTo(), ICertRecord.ATTR_X509CERT_NOT_AFTER+"<=", 86399999);
+        buildDateFilter(request.getValidNotAfterFrom(), CertRecord.ATTR_X509CERT_NOT_AFTER+">=", 0);
+        buildDateFilter(request.getValidNotAfterTo(), CertRecord.ATTR_X509CERT_NOT_AFTER+"<=", 86399999);
 
     }
 
@@ -260,7 +260,7 @@ public class FilterBuilder {
 
         StringBuilder filter = new StringBuilder();
         filter.append("(");
-        filter.append(ICertRecord.ATTR_X509CERT_DURATION);
+        filter.append(CertRecord.ATTR_X509CERT_DURATION);
         filter.append(LDAPUtil.escapeFilter(op));
         filter.append(count * unit);
         filter.append(")");
@@ -325,12 +325,12 @@ public class FilterBuilder {
         if (param != null && !param.equals("")) {
             if (match) {
                 lf.append("(|");
-                lf.append("("+ICertRecord.ATTR_X509CERT_SUBJECT+"=*");
+                lf.append("("+CertRecord.ATTR_X509CERT_SUBJECT+"=*");
                 lf.append(avaName);
                 lf.append("=");
                 lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeRDNValue(param)));
                 lf.append(",*)");
-                lf.append("("+ICertRecord.ATTR_X509CERT_SUBJECT+"=*");
+                lf.append("("+CertRecord.ATTR_X509CERT_SUBJECT+"=*");
                 lf.append(avaName);
                 lf.append("=");
                 lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeRDNValue(param)));
@@ -338,7 +338,7 @@ public class FilterBuilder {
                 lf.append(")");
 
             } else {
-                lf.append("("+ICertRecord.ATTR_X509CERT_SUBJECT+"=*");
+                lf.append("("+CertRecord.ATTR_X509CERT_SUBJECT+"=*");
                 lf.append(avaName);
                 lf.append("=");
                 lf.append("*");

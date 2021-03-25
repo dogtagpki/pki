@@ -33,7 +33,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.IElementProcessor;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.ENotificationException;
@@ -45,6 +44,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
@@ -376,24 +376,24 @@ public class RenewalNotificationJob
             f.append("(&");
             if (mProfileId != null) {
                 if (mProfileId.length == 1)
-                    f.append("(" + ICertRecord.ATTR_META_INFO + "=" +
-                            ICertRecord.META_PROFILE_ID + ":" + mProfileId[0] + ")");
+                    f.append("(" + CertRecord.ATTR_META_INFO + "=" +
+                            CertRecord.META_PROFILE_ID + ":" + mProfileId[0] + ")");
                 else {
                     f.append("(|");
                     for (int i = 0; i < mProfileId.length; i++) {
-                        f.append("(" + ICertRecord.ATTR_META_INFO + "=" +
-                                ICertRecord.META_PROFILE_ID + ":" + mProfileId[i] + ")");
+                        f.append("(" + CertRecord.ATTR_META_INFO + "=" +
+                                CertRecord.META_PROFILE_ID + ":" + mProfileId[i] + ")");
                     }
                     f.append(")");
                 }
             }
 
-            f.append("(" + ICertRecord.ATTR_X509CERT + ".notAfter" + "<=" + expiryDate.getTime() + ")");
-            f.append("(" + ICertRecord.ATTR_X509CERT + ".notAfter" + ">=" + stopDate.getTime() + ")");
-            f.append("(!(" + ICertRecord.ATTR_AUTO_RENEW + "=" + ICertRecord.AUTO_RENEWAL_DONE + "))");
-            f.append("(!(" + ICertRecord.ATTR_AUTO_RENEW + "=" + ICertRecord.AUTO_RENEWAL_DISABLED + "))");
-            f.append("(!(" + ICertRecord.ATTR_CERT_STATUS + "=" + ICertRecord.STATUS_REVOKED + "))");
-            f.append("(!(" + ICertRecord.ATTR_CERT_STATUS + "=" + ICertRecord.STATUS_REVOKED_EXPIRED + "))");
+            f.append("(" + CertRecord.ATTR_X509CERT + ".notAfter" + "<=" + expiryDate.getTime() + ")");
+            f.append("(" + CertRecord.ATTR_X509CERT + ".notAfter" + ">=" + stopDate.getTime() + ")");
+            f.append("(!(" + CertRecord.ATTR_AUTO_RENEW + "=" + CertRecord.AUTO_RENEWAL_DONE + "))");
+            f.append("(!(" + CertRecord.ATTR_AUTO_RENEW + "=" + CertRecord.AUTO_RENEWAL_DISABLED + "))");
+            f.append("(!(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + "))");
+            f.append("(!(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))");
             f.append(")");
             String filter = f.toString();
 
@@ -528,7 +528,7 @@ public class RenewalNotificationJob
             String msg,
             String sender,
             IRequest req,
-            ICertRecord cr)
+            CertRecord cr)
             throws IOException, ENotificationException, EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
@@ -615,7 +615,7 @@ class CertRecProcessor implements IElementProcessor {
     public void process(Object o) throws EBaseException {
 
         // Get each certRecord
-        ICertRecord cr = (ICertRecord) o;
+        CertRecord cr = (CertRecord) o;
 
         String ridString = null;
         boolean numFailCounted = false;
@@ -628,7 +628,7 @@ class CertRecProcessor implements IElementProcessor {
 
             MetaInfo metaInfo = null;
 
-            metaInfo = (MetaInfo) cr.get(ICertRecord.ATTR_META_INFO);
+            metaInfo = (MetaInfo) cr.get(CertRecord.ATTR_META_INFO);
             if (metaInfo == null) {
                 mIC.mNumFail++;
                 numFailCounted = true;
@@ -638,7 +638,7 @@ class CertRecProcessor implements IElementProcessor {
                 logger.warn("CertRecProcessor: " + CMS.getLogMessage("JOBS_GET_CERT_ERROR",
                                 cr.getCertificate().getSerialNumber().toString(16)));
             } else {
-                ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
+                ridString = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
             }
         }
 

@@ -31,8 +31,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -44,7 +44,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.registry.IPluginInfo;
@@ -58,6 +57,7 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 public class RenewalProcessor extends CertProcessor {
@@ -182,15 +182,15 @@ public class RenewalProcessor extends CertProcessor {
             }
 
             logger.debug("processRenewal: serial number of cert to renew:" + certSerial.toString());
-            ICertRecord rec = certdb.readCertificateRecord(certSerial);
+            CertRecord rec = certdb.readCertificateRecord(certSerial);
             if (rec == null) {
                 logger.error("processRenewal: cert record not found for serial number " + certSerial);
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
             }
 
             // check to see if the cert is revoked or revoked_expired
-            if ((rec.getStatus().equals(ICertRecord.STATUS_REVOKED))
-                    || (rec.getStatus().equals(ICertRecord.STATUS_REVOKED_EXPIRED))) {
+            if ((rec.getStatus().equals(CertRecord.STATUS_REVOKED))
+                    || (rec.getStatus().equals(CertRecord.STATUS_REVOKED_EXPIRED))) {
                 logger.error("processRenewal: cert found to be revoked. Serial number: " + certSerial);
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_CA_CANNOT_RENEW_REVOKED_CERT"));
             }

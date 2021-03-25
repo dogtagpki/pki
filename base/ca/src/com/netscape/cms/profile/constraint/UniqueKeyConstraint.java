@@ -32,7 +32,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
@@ -41,6 +40,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 
@@ -156,7 +156,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
             // check for key uniqueness
             byte pub[] = key.getEncoded();
             String pub_s = escapeBinaryData(pub);
-            String filter = "(" + ICertRecord.ATTR_X509CERT_PUBLIC_KEY_DATA + "=" + pub_s + ")";
+            String filter = "(" + CertRecord.ATTR_X509CERT_PUBLIC_KEY_DATA + "=" + pub_s + ")";
             list = cr.findCertRecordsInList(filter, null, 10);
             size = list.getSize();
 
@@ -221,26 +221,26 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                         sjname_in_req =
                                 (X500Name) subName.get(CertificateSubjectName.DN_NAME);
                         logger.debug(method +" cert request subject DN =" + sjname_in_req.toString());
-                        Enumeration<ICertRecord> e = list.getCertRecords(0, size - 1);
+                        Enumeration<CertRecord> e = list.getCertRecords(0, size - 1);
                         Date latestOrigNotAfter = null;
                         Date origNotAfter = null;
                         boolean first = true;
                         while (e != null && e.hasMoreElements()) {
                             logger.debug(method +  msg);
-                            ICertRecord rec = e.nextElement();
+                            CertRecord rec = e.nextElement();
                             BigInteger serial = rec.getSerialNumber();
                             msg = msg + "existing cert with same key found: " + serial.toString() + ";";
 
-                            if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)
-                                    || rec.getStatus().equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
+                            if (rec.getStatus().equals(CertRecord.STATUS_REVOKED)
+                                    || rec.getStatus().equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
                                 msg = msg + "revoked cert cannot be renewed;";
                                 logger.debug(method + msg);
                                 rejected = true;
                                 // this has to break
                                 break;
                             }
-                            if (!rec.getStatus().equals(ICertRecord.STATUS_VALID)
-                                    && !rec.getStatus().equals(ICertRecord.STATUS_EXPIRED)) {
+                            if (!rec.getStatus().equals(CertRecord.STATUS_VALID)
+                                    && !rec.getStatus().equals(CertRecord.STATUS_EXPIRED)) {
                                 logger.debug(method + "invalid cert cannot be renewed; continue;" + serial.toString());
                                 // can still find another one to renew
                                 continue;

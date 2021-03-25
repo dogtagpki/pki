@@ -45,7 +45,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
@@ -57,6 +56,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 
@@ -232,13 +232,13 @@ public class RevocationServlet extends CMSServlet {
 
         } else if (mAuthority instanceof IRegistrationAuthority) {
             IRequest req = mRequestQueue.newRequest(IRequest.GETCERTS_REQUEST);
-            String filter = "(&(" + ICertRecord.ATTR_X509CERT + "." +
+            String filter = "(&(" + CertRecord.ATTR_X509CERT + "." +
                     X509CertInfo.SUBJECT + "=" +
                     old_cert.getSubjectDN().toString() + ")(|(" +
-                    ICertRecord.ATTR_CERT_STATUS + "=" +
-                    ICertRecord.STATUS_VALID + ")(" +
-                    ICertRecord.ATTR_CERT_STATUS + "=" +
-                    ICertRecord.STATUS_EXPIRED + ")))";
+                    CertRecord.ATTR_CERT_STATUS + "=" +
+                    CertRecord.STATUS_VALID + ")(" +
+                    CertRecord.ATTR_CERT_STATUS + "=" +
+                    CertRecord.STATUS_EXPIRED + ")))";
 
             req.setExtData(IRequest.CERT_FILTER, filter);
             mRequestQueue.processRequest(req);

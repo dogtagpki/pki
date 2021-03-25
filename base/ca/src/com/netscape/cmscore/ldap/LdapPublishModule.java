@@ -37,7 +37,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.publish.ILdapMapper;
@@ -346,7 +345,7 @@ public class LdapPublishModule implements IRequestListener {
         CertificateRepository certdb = engine.getCertificateRepository();
 
         try {
-            ICertRecord certRec = certdb.readCertificateRecord(serialNo);
+            CertRecord certRec = certdb.readCertificateRecord(serialNo);
             MetaInfo metaInfo = certRec.getMetaInfo();
 
             if (metaInfo == null) {
@@ -356,7 +355,7 @@ public class LdapPublishModule implements IRequestListener {
                     CertRecord.META_LDAPPUBLISH, String.valueOf(published));
             ModificationSet modSet = new ModificationSet();
 
-            modSet.add(ICertRecord.ATTR_META_INFO,
+            modSet.add(CertRecord.ATTR_META_INFO,
                     Modification.MOD_REPLACE, metaInfo);
             certdb.modifyCertificateRecord(serialNo, modSet);
 

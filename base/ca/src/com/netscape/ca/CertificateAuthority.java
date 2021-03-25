@@ -110,7 +110,6 @@ import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
@@ -1808,7 +1807,7 @@ public class CertificateAuthority
         }
 
         try {
-            ICertRecord rec = certificateRepository.readCertificateRecord(serialNo);
+            CertRecord rec = certificateRepository.readCertificateRecord(serialNo);
             String status = rec.getStatus();
 
             if (status == null) {
@@ -2046,7 +2045,7 @@ public class CertificateAuthority
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
 
-        ICertRecord certRecord = certificateRepository.readCertificateRecord(authoritySerial);
+        CertRecord certRecord = certificateRepository.readCertificateRecord(authoritySerial);
         String curStatus = certRecord.getStatus();
         logger.debug("revokeAuthority: current cert status: " + curStatus);
         if (curStatus.equals(CertRecord.STATUS_REVOKED)

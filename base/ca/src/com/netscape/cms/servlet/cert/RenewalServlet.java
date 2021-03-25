@@ -45,7 +45,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
@@ -55,6 +54,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.dbs.CertRecord;
 
 /**
  * Certificate Renewal
@@ -403,7 +403,7 @@ public class RenewalServlet extends CMSServlet {
         return;
     }
 
-    protected BigInteger getRenewedCert(ICertRecord certRec)
+    protected BigInteger getRenewedCert(CertRecord certRec)
             throws EBaseException {
         BigInteger renewedCert = null;
         String serial = null;
@@ -413,7 +413,7 @@ public class RenewalServlet extends CMSServlet {
             logger.warn("RenewalServlet: no meta info in cert serial 0x" + certRec.getSerialNumber().toString(16));
             return null;
         }
-        serial = (String) meta.get(ICertRecord.META_RENEWED_CERT);
+        serial = (String) meta.get(CertRecord.META_RENEWED_CERT);
         if (serial == null) {
             logger.warn("RenewalServlet: no renewed cert in cert 0x" + certRec.getSerialNumber().toString(16));
             return null;

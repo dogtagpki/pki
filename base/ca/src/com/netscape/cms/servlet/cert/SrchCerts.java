@@ -50,7 +50,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -59,6 +58,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -610,12 +610,12 @@ public class SrchCerts extends CMSServlet {
                     + "filter=" + filter + " maxreturns=" + maxResults + " timelimit=" + timeLimit);
 
             // Do the search with the optional sortAtribute field, giving an assured list of certs sorted by serialno
-            Enumeration<ICertRecord> e = mCertDB.searchCertificates(filter, maxResults, timeLimit, "serialno");
+            Enumeration<CertRecord> e = mCertDB.searchCertificates(filter, maxResults, timeLimit, "serialno");
 
             int count = 0;
 
             while (e != null && e.hasMoreElements()) {
-                ICertRecord rec = e.nextElement();
+                CertRecord rec = e.nextElement();
 
                 if (rec != null) {
                     count++;
@@ -668,7 +668,7 @@ public class SrchCerts extends CMSServlet {
     /**
      * Fills cert record into argument block.
      */
-    private void fillRecordIntoArg(ICertRecord rec, IArgBlock rarg)
+    private void fillRecordIntoArg(CertRecord rec, IArgBlock rarg)
             throws EBaseException {
 
         X509CertImpl xcert = rec.getCertificate();
@@ -678,7 +678,7 @@ public class SrchCerts extends CMSServlet {
         }
     }
 
-    private void fillX509RecordIntoArg(ICertRecord rec, IArgBlock rarg)
+    private void fillX509RecordIntoArg(CertRecord rec, IArgBlock rarg)
             throws EBaseException {
 
         X509CertImpl cert = rec.getCertificate();

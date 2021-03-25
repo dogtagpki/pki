@@ -52,7 +52,6 @@ import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
@@ -69,6 +68,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
@@ -417,17 +417,17 @@ public class CMCRevReqServlet extends CMSServlet {
 
             if (mAuthority instanceof ICertificateAuthority) {
                 CertRecordList list = mCertDB.findCertRecordsInList(revokeAll, null, totalRecordCount);
-                Enumeration<ICertRecord> e = list.getCertRecords(0, totalRecordCount - 1);
+                Enumeration<CertRecord> e = list.getCertRecords(0, totalRecordCount - 1);
 
                 while (e != null && e.hasMoreElements()) {
-                    ICertRecord rec = e.nextElement();
+                    CertRecord rec = e.nextElement();
                     X509CertImpl cert = rec.getCertificate();
                     ArgBlock rarg = new ArgBlock();
 
                     rarg.addBigIntegerValue("serialNumber",
                             cert.getSerialNumber(), 16);
 
-                    if ((rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) &&
+                    if ((rec.getStatus().equals(CertRecord.STATUS_REVOKED)) &&
                         (revReason == null || revReason != RevocationReason.REMOVE_FROM_CRL)) {
                         rarg.addStringValue("error", "Certificate " +
                                 cert.getSerialNumber().toString() +
