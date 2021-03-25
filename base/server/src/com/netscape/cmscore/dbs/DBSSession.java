@@ -13,7 +13,7 @@ import netscape.ldap.LDAPSearchResults;
 /**
  * A default stub ojbect for tests to extend.
  */
-public class DBSSessionDefaultStub implements IDBSSession {
+public class DBSSession implements IDBSSession {
 
     public void close() throws EDBException {
     }

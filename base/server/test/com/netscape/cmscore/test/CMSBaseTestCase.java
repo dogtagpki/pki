@@ -7,7 +7,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.cmscore.dbs.DBRegistryDefaultStub;
-import com.netscape.cmscore.dbs.DBSSessionDefaultStub;
+import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 import junit.framework.TestCase;
@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 public abstract class CMSBaseTestCase extends TestCase {
     DBSubsystemStub db;
     DBRegistryDefaultStub registry;
-    DBSSessionDefaultStub session;
+    DBSSession session;
 
     public CMSBaseTestCase(String name) {
         super(name);
@@ -29,7 +29,7 @@ public abstract class CMSBaseTestCase extends TestCase {
     public final void setUp() throws Exception {
         db = new DBSubsystemStub();
         registry = new DBRegistryDefaultStub();
-        session = new DBSSessionDefaultStub();
+        session = new DBSSession();
 
         DBSubsystem.setInstance(db);
 
