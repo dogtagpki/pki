@@ -46,7 +46,6 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
@@ -122,9 +121,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             mCertDB = engine.getCertificateRepository();
         }
 
-        if (mAuthority instanceof ICertAuthority) {
-            mPublisherProcessor = ((ICertAuthority) mAuthority).getPublisherProcessor();
-        }
+        mPublisherProcessor = engine.getPublisherProcessor();
         mQueue = mAuthority.getRequestQueue();
     }
 

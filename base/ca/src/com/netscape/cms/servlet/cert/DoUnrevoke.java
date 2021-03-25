@@ -39,7 +39,6 @@ import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -97,9 +96,7 @@ public class DoUnrevoke extends CMSServlet {
         if (mAuthority instanceof ICertificateAuthority) {
             mCertDB = engine.getCertificateRepository();
         }
-        if (mAuthority instanceof ICertAuthority) {
-            mPublisherProcessor = ((ICertAuthority) mAuthority).getPublisherProcessor();
-        }
+        mPublisherProcessor = engine.getPublisherProcessor();
 
         mTemplates.remove(ICMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)

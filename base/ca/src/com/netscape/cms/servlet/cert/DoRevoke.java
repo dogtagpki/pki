@@ -47,7 +47,6 @@ import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
@@ -111,9 +110,7 @@ public class DoRevoke extends CMSServlet {
         if (mAuthority instanceof ICertificateAuthority) {
             mCertDB = engine.getCertificateRepository();
         }
-        if (mAuthority instanceof ICertAuthority) {
-            mPublisherProcessor = ((ICertAuthority) mAuthority).getPublisherProcessor();
-        }
+        mPublisherProcessor = engine.getPublisherProcessor();
 
         mTemplates.remove(ICMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)

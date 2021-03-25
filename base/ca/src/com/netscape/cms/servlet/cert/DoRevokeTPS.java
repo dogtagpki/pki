@@ -45,7 +45,6 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -113,9 +112,7 @@ public class DoRevokeTPS extends CMSServlet {
         if (mAuthority instanceof ICertificateAuthority) {
             mCertDB = engine.getCertificateRepository();
         }
-        if (mAuthority instanceof ICertAuthority) {
-            mPublisherProcessor = ((ICertAuthority) mAuthority).getPublisherProcessor();
-        }
+        mPublisherProcessor = engine.getPublisherProcessor();
         mQueue = mAuthority.getRequestQueue();
 
         mTemplates.remove(ICMSRequest.SUCCESS);

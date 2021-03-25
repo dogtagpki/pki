@@ -136,7 +136,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -701,11 +700,6 @@ public class CertificateAuthority
     public IReplicaIDRepository getReplicaRepository() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getReplicaIDRepository();
-    }
-
-    public PublisherProcessor getPublisherProcessor() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getPublisherProcessor();
     }
 
     /**

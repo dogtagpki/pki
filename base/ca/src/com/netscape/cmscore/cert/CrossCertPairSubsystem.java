@@ -110,7 +110,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             mConfig = config;
             synchronized (this) {
                 mCa = engine.getCA();
-                mPublisherProcessor = mCa.getPublisherProcessor();
+                mPublisherProcessor = engine.getPublisherProcessor();
             }
 
             // initialize LDAP connection factory

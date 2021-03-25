@@ -24,7 +24,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * Authority that handles certificates needed by the cert registration
@@ -84,9 +83,4 @@ public interface ICertAuthority extends IAuthority {
      * Register a pending listener
      */
     public void registerPendingListener(IRequestListener l);
-
-    /**
-     * get authority's publishing module if any.
-     */
-    public PublisherProcessor getPublisherProcessor();
 }

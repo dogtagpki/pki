@@ -336,7 +336,7 @@ public class UpdateCRL extends CMSServlet {
 
         ICRLIssuingPoint crlIssuingPoint = engine.getCRLIssuingPoint(crlIssuingPointId);
         header.addStringValue("crlIssuingPoint", crlIssuingPointId);
-        PublisherProcessor lpm = mCA.getPublisherProcessor();
+        PublisherProcessor lpm = engine.getPublisherProcessor();
 
         if (crlIssuingPoint == null) {
             logger.debug("UpdateCRL: no CRL issuing point");

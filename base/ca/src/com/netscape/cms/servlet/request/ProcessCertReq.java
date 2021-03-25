@@ -57,7 +57,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -193,6 +192,8 @@ public class ProcessCertReq extends CMSServlet {
         try {
             super.init(sc);
 
+            CAEngine engine = CAEngine.getInstance();
+
             // determine the service ID for signed audit log messages
             String id = sc.getInitParameter(CMSServlet.PROP_ID);
 
@@ -208,8 +209,7 @@ public class ProcessCertReq extends CMSServlet {
             }
 
             mQueue = mAuthority.getRequestQueue();
-            mPublisherProcessor =
-                    ((ICertAuthority) mAuthority).getPublisherProcessor();
+            mPublisherProcessor = engine.getPublisherProcessor();
 
             mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 

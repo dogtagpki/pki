@@ -126,7 +126,7 @@ public class UnpublishExpiredJob extends AJobBase
 
         mReqQ = mCa.getRequestQueue();
         mRepository = engine.getCertificateRepository();
-        mPublisherProcessor = mCa.getPublisherProcessor();
+        mPublisherProcessor = engine.getPublisherProcessor();
 
         // read from the configuration file
         mCron = mConfig.getString(IJobCron.PROP_CRON);

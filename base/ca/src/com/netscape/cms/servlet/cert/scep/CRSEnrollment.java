@@ -72,8 +72,10 @@ import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.ChallengePassword;
 import org.mozilla.jss.netscape.security.x509.DNSName;
 import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.ExtensionsRequested;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
@@ -91,8 +93,6 @@ import org.mozilla.jss.pkcs7.IssuerAndSerialNumber;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.PasswordCallback;
-import org.mozilla.jss.netscape.security.x509.ChallengePassword;
-import org.mozilla.jss.netscape.security.x509.ExtensionsRequested;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -109,9 +109,9 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
@@ -1188,7 +1188,8 @@ public class CRSEnrollment extends HttpServlet {
     private boolean createEntry(String dn) {
         boolean result = false;
 
-        PublisherProcessor ldapPub = mAuthority.getPublisherProcessor();
+        CAEngine engine = CAEngine.getInstance();
+        PublisherProcessor ldapPub = engine.getPublisherProcessor();
         if (ldapPub == null || !ldapPub.isCertPublishingEnabled()) {
             logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ERROR_CREATE_ENTRY_FROM_CEP"));
             return result;

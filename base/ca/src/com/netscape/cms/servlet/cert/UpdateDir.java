@@ -119,7 +119,7 @@ public class UpdateDir extends CMSServlet {
             mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
             if (mAuthority instanceof ICertificateAuthority) {
                 mCA = (ICertificateAuthority) mAuthority;
-                mPublisherProcessor = mCA.getPublisherProcessor();
+                mPublisherProcessor = engine.getPublisherProcessor();
                 mCRLRepository = engine.getCRLRepository();
             }
 

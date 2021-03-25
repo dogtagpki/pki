@@ -44,7 +44,6 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * An interface represents a Certificate Authority that is
@@ -127,13 +126,6 @@ public interface ICertificateAuthority extends ISubsystem {
     public boolean noncesEnabled();
 
     public Map<Object, Long> getNonces(HttpServletRequest request, String name);
-
-    /**
-     * Retrieves the publishing processor of this certificate authority.
-     *
-     * @return CA's publishing processor
-     */
-    public PublisherProcessor getPublisherProcessor();
 
     /**
      * Retrieves the next available serial number.

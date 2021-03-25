@@ -108,10 +108,7 @@ public class PublisherAdminServlet extends AdminServlet {
         if (authority != null)
             mAuth = (IAuthority) engine.getSubsystem(authority);
         if (mAuth != null)
-            if (mAuth instanceof ICertificateAuthority) {
-                mProcessor = ((ICertificateAuthority) mAuth).getPublisherProcessor();
-            } else
-                throw new ServletException(authority + "  does not have publishing processor!");
+            mProcessor = engine.getPublisherProcessor();
     }
 
     /**

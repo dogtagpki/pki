@@ -101,7 +101,7 @@ public class RevocationProcessor extends CertProcessor {
         repo = engine.getCertificateRepository();
 
         requestQueue = authority.getRequestQueue();
-        publisherProcessor = authority.getPublisherProcessor();
+        publisherProcessor = engine.getPublisherProcessor();
     }
 
     public long getStartTime() {
