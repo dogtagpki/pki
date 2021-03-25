@@ -4,7 +4,6 @@ import java.security.cert.CertificateException;
 
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.cmscore.dbs.DBRegistry;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -75,7 +74,7 @@ public abstract class CMSBaseTestCase extends TestCase {
             return session;
         }
 
-        public IDBRegistry getRegistry() {
+        public DBRegistry getRegistry() {
             return registry;
         }
     }

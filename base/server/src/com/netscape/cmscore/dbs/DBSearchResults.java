@@ -19,7 +19,6 @@ package com.netscape.cmscore.dbs;
 
 import java.util.Enumeration;
 
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 
 import netscape.ldap.LDAPEntry;
@@ -37,13 +36,13 @@ public class DBSearchResults implements IDBSearchResults {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSearchResults.class);
 
-    private IDBRegistry mRegistry = null;
+    private DBRegistry mRegistry = null;
     private Enumeration<Object> mRes = null;
 
     /**
      * Constructs search results.
      */
-    public DBSearchResults(IDBRegistry registry, Enumeration<Object> res) {
+    public DBSearchResults(DBRegistry registry, Enumeration<Object> res) {
         mRegistry = registry;
         mRes = res;
     }

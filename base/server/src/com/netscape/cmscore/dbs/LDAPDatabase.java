@@ -11,7 +11,6 @@ import java.util.Map;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
@@ -60,7 +59,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
 
         logger.debug("registering " + recordType.getName());
 
-        IDBRegistry dbRegistry = dbSubsystem.getRegistry();
+        DBRegistry dbRegistry = dbSubsystem.getRegistry();
 
         // register object classes
         DBObjectClasses dbObjectClasses = recordType.getAnnotation(DBObjectClasses.class);

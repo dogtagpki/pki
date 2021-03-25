@@ -28,7 +28,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequest;
@@ -38,6 +37,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.ldap.IRequestMod;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.dbs.DBRegistry;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.StringMapper;
@@ -199,7 +199,7 @@ public class RequestRecord
 
     static void register(DBSubsystem dbSubsystem)
             throws EDBException {
-        IDBRegistry reg = dbSubsystem.getRegistry();
+        DBRegistry reg = dbSubsystem.getRegistry();
 
         reg.registerObjectClass(RequestRecord.class.getName(), mOC);
 

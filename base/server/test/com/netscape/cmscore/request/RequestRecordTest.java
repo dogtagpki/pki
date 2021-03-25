@@ -6,7 +6,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBDynAttrMapper;
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.certsrv.request.RequestId;
@@ -133,7 +132,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
     class DBSubsystemStub extends DBSubsystem {
         DBRegistryStub registry = new DBRegistryStub();
 
-        public IDBRegistry getRegistry() {
+        public DBRegistry getRegistry() {
             return registry;
         }
     }

@@ -7,7 +7,6 @@ import java.util.Enumeration;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.cmscore.request.DBDynAttrMapperDefaultStub;
 import com.netscape.cmscore.test.CMSBaseTestCase;
@@ -21,7 +20,7 @@ import netscape.ldap.LDAPAttributeSet;
 public class DBRegistryTest extends CMSBaseTestCase {
 
     DBSubsystemStub db;
-    LDAPRegistry registry;
+    DBRegistry registry;
     DBDynAttrMapperStub extAttrMapper;
     RequestRecordStub requestRecordStub = new RequestRecordStub();
 
@@ -111,9 +110,9 @@ public class DBRegistryTest extends CMSBaseTestCase {
     }
 
     static class DBSubsystemStub extends DBSubsystem {
-        LDAPRegistry registry;
+        DBRegistry registry;
 
-        public IDBRegistry getRegistry() {
+        public DBRegistry getRegistry() {
             return registry;
         }
     }

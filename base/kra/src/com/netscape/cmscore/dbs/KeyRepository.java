@@ -31,7 +31,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -77,7 +76,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
         this.dbSubsystem = dbSubsystem;
 
         // register key record schema
-        IDBRegistry reg = dbSubsystem.getRegistry();
+        DBRegistry reg = dbSubsystem.getRegistry();
         String keyRecordOC[] = new String[2];
 
         keyRecordOC[0] = KeyDBSchema.LDAP_OC_TOP;

@@ -22,7 +22,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.cmscore.apps.CMS;
@@ -51,7 +50,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBVirtualList.class);
 
-    private IDBRegistry mRegistry = null;
+    private DBRegistry mRegistry = null;
     private LDAPConnection mConn = null;
     private String mBase = null;
     private String mFilter = null;
@@ -88,7 +87,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * param filter search filter specifying the search criteria
      * param attrs list of attributes that you want returned in the search results
      */
-    public DBVirtualList(IDBRegistry registry, LDAPConnection c,
+    public DBVirtualList(DBRegistry registry, LDAPConnection c,
             String base, String filter, String attrs[]) throws EBaseException {
         mRegistry = registry;
         mFilter = filter;
@@ -116,7 +115,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * param attrs list of attributes that you want returned in the search results
      * param sortKey the attributes to sort by
      */
-    public DBVirtualList(IDBRegistry registry, LDAPConnection c,
+    public DBVirtualList(DBRegistry registry, LDAPConnection c,
             String base, String filter, String attrs[], String sortKey[])
             throws EBaseException {
 
@@ -147,7 +146,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * param attrs list of attributes that you want returned in the search results
      * param sortKey the attribute to sort by
      */
-    public DBVirtualList(IDBRegistry registry, LDAPConnection c,
+    public DBVirtualList(DBRegistry registry, LDAPConnection c,
             String base, String filter, String attrs[], String sortKey)
             throws EBaseException {
 
@@ -178,7 +177,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * param pageSize the size of a page. There is a 3*pageSize buffer maintained so
      * pageUp and pageDown won't invoke fetch from ldap server
      */
-    public DBVirtualList(IDBRegistry registry, LDAPConnection c,
+    public DBVirtualList(DBRegistry registry, LDAPConnection c,
             String base, String filter, String attrs[], String sortKey[],
             int pageSize) throws EBaseException {
 
@@ -212,7 +211,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * param pageSize the size of a page. There is a 3*pageSize buffer maintained so
      * pageUp and pageDown won't invoke fetch from ldap server
      */
-    public DBVirtualList(IDBRegistry registry, LDAPConnection c,
+    public DBVirtualList(DBRegistry registry, LDAPConnection c,
             String base, String filter, String attrs[], String sortKey,
             int pageSize) throws EBaseException {
 
@@ -234,7 +233,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
         setPageSize(pageSize);
     }
 
-    public DBVirtualList(IDBRegistry registry, LDAPConnection c,
+    public DBVirtualList(DBRegistry registry, LDAPConnection c,
             String base, String filter, String attrs[],
             String startFrom, String sortKey,
             int pageSize) throws EBaseException {

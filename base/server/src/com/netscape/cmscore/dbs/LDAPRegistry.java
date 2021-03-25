@@ -33,7 +33,6 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBDynAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IFilterConverter;
 import com.netscape.cmscore.apps.CMS;
 
@@ -55,7 +54,7 @@ import netscape.ldap.LDAPAttributeSet;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class LDAPRegistry implements IDBRegistry {
+public class LDAPRegistry extends DBRegistry {
 
     public final static Logger logger = LoggerFactory.getLogger(LDAPRegistry.class);
 

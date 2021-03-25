@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -78,7 +77,7 @@ public class DBSubsystem {
     private LDAPConfig mConfig;
     private DatabaseConfig mDBConfig;
     private LdapBoundConnFactory mLdapConnFactory = null;
-    private LDAPRegistry mRegistry = null;
+    private DBRegistry mRegistry = null;
     private String mBaseDN = null;
 
     private Hashtable<String, String>[] mRepos = null;
@@ -686,7 +685,7 @@ public class DBSubsystem {
 
         try {
             // registers CMS database attributes
-            IDBRegistry reg = getRegistry();
+            DBRegistry reg = getRegistry();
 
             String certRecordOC[] = new String[2];
 
@@ -922,7 +921,7 @@ public class DBSubsystem {
     /**
      * Retrieves the registry.
      */
-    public IDBRegistry getRegistry() {
+    public DBRegistry getRegistry() {
         return mRegistry;
     }
 
