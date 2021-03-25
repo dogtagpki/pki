@@ -57,7 +57,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.KeyGenInfo;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -78,6 +77,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -462,7 +462,7 @@ public class EnrollServlet extends CMSServlet {
                 "(&(x509cert.subject="
                         + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum
                         + "))(certStatus=VALID))";
-        ICertRecordList list = cr.findCertRecordsInList(filter, null, 10);
+        CertRecordList list = cr.findCertRecordsInList(filter, null, 10);
         int size = list.getSize();
         Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
 

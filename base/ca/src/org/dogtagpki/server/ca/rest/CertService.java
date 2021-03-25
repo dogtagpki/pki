@@ -69,7 +69,6 @@ import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -80,6 +79,7 @@ import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -465,7 +465,7 @@ public class CertService extends PKIService implements CertResource {
 
         CertDataInfos infos = new CertDataInfos();
         try {
-            ICertRecordList list = repo.findCertRecordsInList(filter, null, "serialno", size);
+            CertRecordList list = repo.findCertRecordsInList(filter, null, "serialno", size);
             int total = list.getSize();
             logger.info("Search results: " + total);
 

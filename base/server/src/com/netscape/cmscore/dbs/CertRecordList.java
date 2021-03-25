@@ -24,16 +24,14 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 
 /**
  * A class represents a list of certificate records.
- * <P>
  *
  * @author thomask mzhao
  * @version $Revision$, $Date$
  */
-public class CertRecordList implements ICertRecordList {
+public class CertRecordList {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecordList.class);
     private IDBVirtualList<ICertRecord> mVlist = null;
@@ -45,23 +43,40 @@ public class CertRecordList implements ICertRecordList {
         mVlist = vlist;
     }
 
+    /**
+     * Gets the current index.
+     *
+     * @return current index
+     */
     public int getCurrentIndex() {
         return mVlist.getCurrentIndex();
     }
 
     /**
      * Retrieves the size of request list.
+     *
+     * @return size
      */
     public int getSize() {
         // get the size of the virtual list
         return mVlist.getSize();
     }
 
+    /**
+     * Gets size before jump to index.
+     *
+     * @return size
+     */
     public int getSizeBeforeJumpTo() {
         return mVlist.getSizeBeforeJumpTo();
 
     }
 
+    /**
+     * Gets size after jump to index.
+     *
+     * @return size
+     */
     public int getSizeAfterJumpTo() {
         return mVlist.getSizeAfterJumpTo();
 
@@ -69,8 +84,14 @@ public class CertRecordList implements ICertRecordList {
 
     /**
      * Process certificate record as soon as it is returned.
+     *
      * kmccarth: changed to ignore startidx and endidx because VLVs don't
      * provide a stable list.
+     *
+     * @param startidx starting index
+     * @param endidx ending index
+     * @param ep element processor
+     * @exception EBaseException failed to process cert records
      */
     public void processCertRecords(int startidx, int endidx,
             IElementProcessor ep) throws EBaseException {
@@ -88,6 +109,10 @@ public class CertRecordList implements ICertRecordList {
      * Retrieves requests.
      * It's no good to call this if you didnt check
      * if the startidx, endidx are valid.
+     *
+     * @param startidx starting index
+     * @param endidx ending index
+     * @exception EBaseException failed to retrieve
      */
     public Enumeration<ICertRecord> getCertRecords(int startidx, int endidx)
             throws EBaseException {
@@ -104,6 +129,14 @@ public class CertRecordList implements ICertRecordList {
         return entries.elements();
     }
 
+    /**
+     * Gets one single record at a time similar to
+     * processCertRecords but no extra class needed.
+     *
+     * @param index position of the record to be retrieved
+     * @return object
+     * @exception EBaseException failed to retrieve
+     */
     public ICertRecord getCertRecord(int index)
             throws EBaseException {
 

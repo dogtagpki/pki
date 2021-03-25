@@ -53,7 +53,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
@@ -70,6 +69,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 
@@ -416,8 +416,7 @@ public class CMCRevReqServlet extends CMSServlet {
             }
 
             if (mAuthority instanceof ICertificateAuthority) {
-                ICertRecordList list = mCertDB.findCertRecordsInList(
-                        revokeAll, null, totalRecordCount);
+                CertRecordList list = mCertDB.findCertRecordsInList(revokeAll, null, totalRecordCount);
                 Enumeration<ICertRecord> e = list.getCertRecords(0, totalRecordCount - 1);
 
                 while (e != null && e.hasMoreElements()) {

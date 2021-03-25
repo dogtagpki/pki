@@ -61,7 +61,6 @@ import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.logging.ILogger;
@@ -81,6 +80,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
@@ -2097,7 +2097,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         synchronized (cr.certStatusUpdateTask) {
             logger.debug("Starting processRevokedCerts (entered lock)");
-            ICertRecordList list = mCertRepository.findCertRecordsInList(
+            CertRecordList list = mCertRepository.findCertRecordsInList(
                     filter,
                     new String[] {
                             ICertRecord.ATTR_ID, ICertRecord.ATTR_REVO_INFO, "objectclass"

@@ -48,7 +48,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -57,6 +56,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 
 /**
@@ -397,7 +397,7 @@ public class ListCerts extends CMSServlet {
         logger.debug("ListCerts: pSize: " + pSize);
 
         logger.debug("ListCerts: calling findCertRecordsInList() with jumpTo");
-        ICertRecordList list = mCertDB.findCertRecordsInList(
+        CertRecordList list = mCertDB.findCertRecordsInList(
                 filter, (String[]) null, jumpTo, mHardJumpTo, "serialno",
                 pSize);
         // retrive maxCount + 1 entries
@@ -405,7 +405,7 @@ public class ListCerts extends CMSServlet {
 
         Enumeration<ICertRecord> e = list.getCertRecords(0, maxCount);
 
-        ICertRecordList tolist = null;
+        CertRecordList tolist = null;
         int toCurIndex = 0;
 
         if (!serialToVal.equals(MINUS_ONE)) {

@@ -76,7 +76,6 @@ import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
@@ -96,6 +95,7 @@ import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmscore.profile.ProfileSubsystem;
@@ -1697,7 +1697,7 @@ class serviceCheckChallenge implements IServant {
 
             if (subjectName != null) {
                 String filter = "(&(x509cert.subject=" + subjectName + ")(certStatus=VALID))";
-                ICertRecordList list = certDB.findCertRecordsInList(filter, null, 10);
+                CertRecordList list = certDB.findCertRecordsInList(filter, null, 10);
                 int size = list.getSize();
                 Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
 
