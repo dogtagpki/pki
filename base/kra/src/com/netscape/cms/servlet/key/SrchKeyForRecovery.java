@@ -37,7 +37,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -45,6 +44,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.kra.KeyRecoveryAuthority;
 
@@ -78,7 +78,7 @@ public class SrchKeyForRecovery extends CMSServlet {
     private final static String OUT_TOTAL_COUNT = "totalRecordCount";
     private final static String OUT_TEMPLATE = "templateName";
 
-    private IKeyRepository mKeyDB = null;
+    private KeyRepository mKeyDB;
     private X500Name mAuthName = null;
     private String mFormPath = null;
     private int mMaxReturns = 100;

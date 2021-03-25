@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -40,6 +39,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -67,7 +67,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
     private final static String OUT_M = "noOfRequiredAgents";
     private final static String OUT_ERROR = "errorDetails";
 
-    private IKeyRepository mKeyDB = null;
+    private KeyRepository mKeyDB;
     private IKeyService mRecoveryService = null;
     private String mFormPath = null;
 

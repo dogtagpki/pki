@@ -47,7 +47,6 @@ import org.mozilla.jss.util.Base64OutputStream;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.ILogger;
@@ -64,6 +63,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -95,7 +95,7 @@ public class TokenKeyRecoveryService implements IService {
     public static final String ATTR_DELIVERY = "delivery";
 
     private KeyRecoveryAuthority mKRA;
-    private IKeyRepository mStorage = null;
+    private KeyRepository mStorage;
     private IStorageKeyUnit mStorageUnit = null;
     private ITransportKeyUnit mTransportUnit = null;
 

@@ -51,7 +51,6 @@ import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyInfo;
@@ -73,6 +72,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.kra.KeyRecoveryAuthority;
 
@@ -88,7 +88,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     public static final int DEFAULT_MAXTIME = 10;
     public static final String ATTR_SERIALNO = "serialNumber";
 
-    private IKeyRepository repo;
+    private KeyRepository repo;
     private KeyRecoveryAuthority kra;
     private IRequestQueue queue;
     private IKeyService service;
@@ -104,7 +104,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
         repo = kra.getKeyRepository();
         queue = kra.getRequestQueue();
-        service = (IKeyService) kra;
+        service = kra;
     }
 
     /**

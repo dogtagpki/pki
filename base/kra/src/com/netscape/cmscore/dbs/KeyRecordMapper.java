@@ -26,7 +26,6 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
@@ -44,9 +43,9 @@ public class KeyRecordMapper implements IDBAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRecordMapper.class);
 
-    private IKeyRepository mDB = null;
+    private KeyRepository mDB;
 
-    public KeyRecordMapper(IKeyRepository db) {
+    public KeyRecordMapper(KeyRepository db) {
         mDB = db;
     }
 

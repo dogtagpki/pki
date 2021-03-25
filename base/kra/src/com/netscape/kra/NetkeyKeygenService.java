@@ -47,7 +47,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -66,6 +65,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -495,7 +495,7 @@ public class NetkeyKeygenService implements IService {
                     }
 
                     //??
-                    IKeyRepository storage = mKRA.getKeyRepository();
+                    KeyRepository storage = mKRA.getKeyRepository();
                     BigInteger serialNo = storage.getNextSerialNumber();
 
                     if (serialNo == null) {

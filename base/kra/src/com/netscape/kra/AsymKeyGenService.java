@@ -27,7 +27,6 @@ import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyRequestResource;
@@ -42,6 +41,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -295,7 +295,7 @@ public class AsymKeyGenService implements IService {
         KeyRecord record = new KeyRecord(null, kp.getPublic().getEncoded(), privateSecurityData,
                 isSSKeygen? clientKeyId:owner, algorithm, owner);
 
-        IKeyRepository storage = kra.getKeyRepository();
+        KeyRepository storage = kra.getKeyRepository();
         BigInteger serialNo = storage.getNextSerialNumber();
 
         if (serialNo == null) {

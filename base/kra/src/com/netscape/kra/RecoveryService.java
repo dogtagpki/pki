@@ -61,7 +61,6 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.IRequest;
@@ -72,6 +71,7 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -109,7 +109,7 @@ public class RecoveryService implements IService {
     public static final String ATTR_DELIVERY = "delivery";
 
     private KeyRecoveryAuthority mKRA;
-    private IKeyRepository mStorage = null;
+    private KeyRepository mStorage;
     private IStorageKeyUnit mStorageUnit = null;
     // must match with EnrollProfile.REQUEST_ISSUED_CERT
     public static final String REQUEST_ISSED_CERT = "req_issued_cert";

@@ -56,7 +56,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
@@ -1381,7 +1380,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * stores archived keys.
      * <P>
      */
-    public IKeyRepository getKeyRepository() {
+    public KeyRepository getKeyRepository() {
         return mKeyDB;
     }
 

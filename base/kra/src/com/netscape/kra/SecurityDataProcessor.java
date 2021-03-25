@@ -37,7 +37,6 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.EKRAException;
@@ -51,6 +50,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -66,7 +66,7 @@ public class SecurityDataProcessor {
     private KeyRecoveryAuthority kra;
     private ITransportKeyUnit transportUnit = null;
     private IStorageKeyUnit storageUnit = null;
-    private IKeyRepository keyRepository = null;
+    private KeyRepository keyRepository = null;
 
     private boolean useOAEPKeyWrap = false;
 

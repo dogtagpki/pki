@@ -47,7 +47,6 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
@@ -67,6 +66,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -100,7 +100,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     public static final String ATTR_SERIALNO = "serialNumber";
 
-    private IKeyRepository repo;
+    private KeyRepository repo;
     private KeyRecoveryAuthority kra;
     private IKeyService service;
 

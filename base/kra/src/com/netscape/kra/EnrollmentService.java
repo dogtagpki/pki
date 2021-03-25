@@ -54,7 +54,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -74,6 +73,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -550,7 +550,7 @@ public class EnrollmentService implements IService {
                         CMS.getUserMessage("CMS_KRA_INVALID_STATE") + ": " + e, e);
             }
 
-            IKeyRepository storage = mKRA.getKeyRepository();
+            KeyRepository storage = mKRA.getKeyRepository();
             BigInteger serialNo = storage.getNextSerialNumber();
 
             if (serialNo == null) {

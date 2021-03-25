@@ -31,7 +31,6 @@ import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
@@ -48,6 +47,7 @@ import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -209,7 +209,7 @@ public class SymKeyGenService implements IService {
             throw new EBaseException(message);
         }
 
-        IKeyRepository storage = mKRA.getKeyRepository();
+        KeyRepository storage = mKRA.getKeyRepository();
         BigInteger serialNo = storage.getNextSerialNumber();
 
         if (serialNo == null) {
