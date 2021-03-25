@@ -992,7 +992,7 @@ public class DBSubsystem {
         } catch (EBaseException e) {
             logger.warn("DBSubsystem: "+ CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR", e.toString()), e);
         }
-        return new DBSSession(this, conn);
+        return new LDAPSession(this, conn);
     }
 
     public void returnConn(LDAPConnection conn) {

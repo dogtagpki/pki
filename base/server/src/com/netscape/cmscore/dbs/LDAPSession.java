@@ -55,9 +55,9 @@ import netscape.ldap.controls.LDAPSortControl;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class DBSSession implements IDBSSession {
+public class LDAPSession implements IDBSSession {
 
-    public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSSession.class);
+    public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPSession.class);
 
     private DBSubsystem dbSubsystem;
     private LDAPConnection mConn = null;
@@ -68,7 +68,7 @@ public class DBSSession implements IDBSSession {
      * @param dbSubsystem the database subsytem
      * @param c the ldap connection
      */
-    public DBSSession(DBSubsystem dbSubsystem, LDAPConnection c) throws EDBException {
+    public LDAPSession(DBSubsystem dbSubsystem, LDAPConnection c) throws EDBException {
         this.dbSubsystem = dbSubsystem;
         mConn = c;
         try {
@@ -103,13 +103,13 @@ public class DBSSession implements IDBSSession {
         try {
             LDAPAttributeSet attrs = dbSubsystem.getRegistry().createLDAPAttributeSet(obj);
 
-            logger.info("DBSSession: adding " + name);
+            logger.info("LDAPSession: adding " + name);
 
             for (Enumeration<LDAPAttribute> e = attrs.getAttributes(); e.hasMoreElements(); ) {
                 LDAPAttribute attr = e.nextElement();
                 String[] values = attr.getStringValueArray();
                 if (values == null) continue;
-                logger.debug("DBSSession: - " + attr.getName());
+                logger.debug("LDAPSession: - " + attr.getName());
             }
 
             LDAPEntry e = new LDAPEntry(name, attrs);
@@ -117,7 +117,7 @@ public class DBSSession implements IDBSSession {
             /*LogDoc
              *
              * @phase local ldap add
-             * @message DBSSession: begin LDAP add <entry>
+             * @message LDAPSession: begin LDAP add <entry>
              */
             mConn.add(e);
         } catch (LDAPException e) {
@@ -156,12 +156,12 @@ public class DBSSession implements IDBSSession {
                         ).getLDAPAttributes(attrs);
             }
 
-            logger.info("DBSSession: reading " + name);
+            logger.info("LDAPSession: reading " + name);
 
             /*LogDoc
              *
              * @phase local ldap read
-             * @message DBSSession: begin LDAP read <entry>
+             * @message LDAPSession: begin LDAP read <entry>
              */
             LDAPSearchResults res = mConn.search(name,
                     LDAPv2.SCOPE_BASE, "(objectclass=*)",
@@ -173,7 +173,7 @@ public class DBSSession implements IDBSSession {
                 LDAPAttribute attr = e.nextElement();
                 String[] values = attr.getStringValueArray();
                 if (values == null) continue;
-                logger.debug("DBSSession: - " + attr.getName());
+                logger.debug("LDAPSession: - " + attr.getName());
             }
 
             return dbSubsystem.getRegistry().createObject(attrSet);
@@ -197,7 +197,7 @@ public class DBSSession implements IDBSSession {
      */
     public void delete(String name) throws EBaseException {
 
-        logger.debug("DBSSession: delete(" + name + ")");
+        logger.debug("LDAPSession: delete(" + name + ")");
 
         try {
             mConn.delete(name);
@@ -215,7 +215,7 @@ public class DBSSession implements IDBSSession {
     public void modify(String name, ModificationSet mods)
             throws EBaseException {
 
-        logger.debug("DBSSession: modify(" + name + ")");
+        logger.debug("LDAPSession: modify(" + name + ")");
 
         try {
             LDAPModificationSet ldapMods = new
@@ -239,7 +239,7 @@ public class DBSSession implements IDBSSession {
             /*LogDoc
              *
              * @phase local ldap add
-             * @message DBSSession: begin LDAP modify <entry>
+             * @message LDAPSession: begin LDAP modify <entry>
              */
             mConn.modify(name, ldapMods);
         } catch (LDAPException e) {
@@ -281,7 +281,7 @@ public class DBSSession implements IDBSSession {
     public IDBSearchResults search(String base, String filter, int maxSize)
             throws EBaseException {
 
-        logger.debug("DBSSession: search(" + base+ ", " + filter + ")");
+        logger.debug("LDAPSession: search(" + base+ ", " + filter + ")");
 
         try {
             String ldapattrs[] = null;
@@ -311,7 +311,7 @@ public class DBSSession implements IDBSSession {
     public IDBSearchResults search(String base, String filter, int maxSize,String sortAttribute)
             throws EBaseException {
 
-        logger.debug("DBSSession: search(" + base + ", " + filter + ")");
+        logger.debug("LDAPSession: search(" + base + ", " + filter + ")");
 
         try {
             String ldapattrs[] = null;
@@ -347,7 +347,7 @@ public class DBSSession implements IDBSSession {
     public IDBSearchResults search(String base, String filter, int maxSize, int timeLimit)
             throws EBaseException {
 
-        logger.debug("DBSSession: search(" + base + ", " + filter + ")");
+        logger.debug("LDAPSession: search(" + base + ", " + filter + ")");
 
         try {
             String ldapattrs[] = null;
@@ -378,7 +378,7 @@ public class DBSSession implements IDBSSession {
     public IDBSearchResults search(String base, String filter, int maxSize,
             int timeLimit, String sortAttribute) throws EBaseException {
 
-        logger.debug("DBSSession: search(" + base + ", " + filter + ")");
+        logger.debug("LDAPSession: search(" + base + ", " + filter + ")");
 
         try {
             String ldapattrs[] = null;
@@ -420,7 +420,7 @@ public class DBSSession implements IDBSSession {
     public IDBSearchResults search(String base, String filter,
             String attrs[]) throws EBaseException {
 
-        logger.debug("DBSSession: search(" + base + ", " + filter + ")");
+        logger.debug("LDAPSession: search(" + base + ", " + filter + ")");
 
         try {
             String ldapattrs[] = null;
@@ -435,7 +435,7 @@ public class DBSSession implements IDBSSession {
             /*LogDoc
              *
              * @phase local ldap add
-             * @message DBSSession: begin LDAP search <filter>
+             * @message LDAPSession: begin LDAP search <filter>
              */
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
 
@@ -459,7 +459,7 @@ public class DBSSession implements IDBSSession {
     public LDAPSearchResults persistentSearch(String base, String filter, String attrs[])
             throws EBaseException {
 
-        logger.debug("DBSSession: persistentSearch(" + base + ", " + filter + ")");
+        logger.debug("LDAPSession: persistentSearch(" + base + ", " + filter + ")");
 
         try {
             String ldapattrs[] = null;
@@ -505,7 +505,7 @@ public class DBSSession implements IDBSSession {
 
     public void abandon(LDAPSearchResults results) throws EBaseException {
 
-        logger.debug("DBSSession: abandon()");
+        logger.debug("LDAPSession: abandon()");
 
         try {
             mConn.abandon(results);
@@ -526,7 +526,7 @@ public class DBSSession implements IDBSSession {
     public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[]) throws EBaseException {
 
-        logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
+        logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
 
         return new DBVirtualList<T>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs);
@@ -538,7 +538,7 @@ public class DBSSession implements IDBSSession {
     public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey[]) throws EBaseException {
 
-        logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
+        logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
 
         return new DBVirtualList<T>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey);
@@ -550,7 +550,7 @@ public class DBSSession implements IDBSSession {
     public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey) throws EBaseException {
 
-        logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
+        logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
 
         return new DBVirtualList<T>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey);
@@ -562,7 +562,7 @@ public class DBSSession implements IDBSSession {
     public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey[], int pageSize) throws EBaseException {
 
-        logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
+        logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
 
         return new DBVirtualList<T>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey, pageSize);
@@ -574,7 +574,7 @@ public class DBSSession implements IDBSSession {
     public  <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey, int pageSize) throws EBaseException {
 
-        logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
+        logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
 
         return new DBVirtualList<T>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey, pageSize);
@@ -583,7 +583,7 @@ public class DBSSession implements IDBSSession {
     public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String startFrom, String sortKey, int pageSize) throws EBaseException {
 
-        logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
+        logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
 
         return new DBVirtualList<T>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, startFrom, sortKey, pageSize);
