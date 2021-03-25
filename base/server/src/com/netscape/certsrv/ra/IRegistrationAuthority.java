@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * An interface represents a Registration Authority that is
@@ -59,13 +58,6 @@ public interface IRegistrationAuthority extends ISubsystem {
      * @return RA's request queue
      */
     public IRequestQueue getRequestQueue();
-
-    /**
-     * Retrieves the publishing processor of this registration authority.
-     *
-     * @return RA's publishing processor
-     */
-    public PublisherProcessor getPublisherProcessor();
 
     /**
      * Retrieves the policy processor of this registration authority.
