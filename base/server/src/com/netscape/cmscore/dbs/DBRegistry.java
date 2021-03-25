@@ -14,7 +14,7 @@ import com.netscape.certsrv.dbs.IFilterConverter;
 /**
  * A default stub ojbect for tests to extend.
  */
-public class DBRegistryDefaultStub implements IDBRegistry {
+public class DBRegistry implements IDBRegistry {
 
     public void registerObjectClass(String className, String ldapNames[]) throws EDBException {
     }

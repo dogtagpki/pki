@@ -10,7 +10,7 @@ import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cmscore.dbs.DBRegistryDefaultStub;
+import com.netscape.cmscore.dbs.DBRegistry;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 import com.netscape.cmscore.test.TestHelper;
@@ -138,7 +138,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         }
     }
 
-    static class DBRegistryStub extends DBRegistryDefaultStub {
+    static class DBRegistryStub extends DBRegistry {
         boolean registerCalledWithExtAttr = false;
         IDBAttrMapper extAttrMapper = null;
 

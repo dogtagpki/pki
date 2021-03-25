@@ -5,7 +5,7 @@ import java.security.cert.CertificateException;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.dbs.IDBRegistry;
-import com.netscape.cmscore.dbs.DBRegistryDefaultStub;
+import com.netscape.cmscore.dbs.DBRegistry;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
@@ -18,7 +18,7 @@ import junit.framework.TestCase;
  */
 public abstract class CMSBaseTestCase extends TestCase {
     DBSubsystemStub db;
-    DBRegistryDefaultStub registry;
+    DBRegistry registry;
     DBSSession session;
 
     public CMSBaseTestCase(String name) {
@@ -27,7 +27,7 @@ public abstract class CMSBaseTestCase extends TestCase {
 
     public final void setUp() throws Exception {
         db = new DBSubsystemStub();
-        registry = new DBRegistryDefaultStub();
+        registry = new DBRegistry();
         session = new DBSSession();
 
         DBSubsystem.setInstance(db);
