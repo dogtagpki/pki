@@ -21,7 +21,7 @@ import netscape.ldap.LDAPAttributeSet;
 public class DBRegistryTest extends CMSBaseTestCase {
 
     DBSubsystemStub db;
-    DBRegistry registry;
+    LDAPRegistry registry;
     DBDynAttrMapperStub extAttrMapper;
     RequestRecordStub requestRecordStub = new RequestRecordStub();
 
@@ -31,7 +31,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
 
     public void cmsTestSetUp() {
         db = new DBSubsystemStub();
-        registry = new DBRegistry();
+        registry = new LDAPRegistry();
         db.registry = registry;
 
         // Emulate the registration of mappers.
@@ -111,7 +111,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
     }
 
     static class DBSubsystemStub extends DBSubsystem {
-        DBRegistry registry;
+        LDAPRegistry registry;
 
         public IDBRegistry getRegistry() {
             return registry;

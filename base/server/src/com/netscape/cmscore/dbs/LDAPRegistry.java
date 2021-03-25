@@ -55,9 +55,9 @@ import netscape.ldap.LDAPAttributeSet;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class DBRegistry implements IDBRegistry {
+public class LDAPRegistry implements IDBRegistry {
 
-    public final static Logger logger = LoggerFactory.getLogger(DBRegistry.class);
+    public final static Logger logger = LoggerFactory.getLogger(LDAPRegistry.class);
 
     private IConfigStore mConfig = null;
     private Hashtable<String, String[]> mOCclassNames = new Hashtable<String, String[]>();
@@ -69,7 +69,7 @@ public class DBRegistry implements IDBRegistry {
     /**
      * Constructs registry.
      */
-    public DBRegistry() {
+    public LDAPRegistry() {
     }
 
     /**
@@ -139,9 +139,9 @@ public class DBRegistry implements IDBRegistry {
              *
              * @phase db startup
              * @reason failed to register object class
-             * @message DBRegistry: <exception thrown>
+             * @message LDAPRegistry: <exception thrown>
              */
-            logger.error("DBRegistry: " + CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", className), e);
+            logger.error("LDAPRegistry: " + CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", className), e);
             throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", className), e);
         }
     }
@@ -370,12 +370,12 @@ public class DBRegistry implements IDBRegistry {
         // ignore duplicates, maintain order
         Set<String> v = new LinkedHashSet<String>();
 
-        logger.debug("DBRegistry: mapping attributes:");
+        logger.debug("LDAPRegistry: mapping attributes:");
 
         for (int i = 0; i < attrs.length; i++) {
 
             String attr = attrs[i];
-            logger.debug("DBRegistry: - " + attr);
+            logger.debug("LDAPRegistry: - " + attr);
 
             String prefix = "";
 
@@ -392,7 +392,7 @@ public class DBRegistry implements IDBRegistry {
 
             if (isAttributeRegistered(attr)) {
 
-                logger.debug("DBRegistry:   attribute is registered");
+                logger.debug("LDAPRegistry:   attribute is registered");
 
                 IDBAttrMapper mapper = mAttrufNames.get(attr.toLowerCase());
                 if (mapper == null) {
@@ -407,13 +407,13 @@ public class DBRegistry implements IDBRegistry {
 
             } else {
 
-                logger.debug("DBRegistry:   checking dynamic mapper");
+                logger.debug("LDAPRegistry:   checking dynamic mapper");
 
                 IDBDynAttrMapper matchingDynAttrMapper = null;
                 for (Iterator<IDBDynAttrMapper> dynMapperIter = mDynAttrMappers.iterator(); dynMapperIter.hasNext();) {
                     IDBDynAttrMapper dynAttrMapper = dynMapperIter.next();
                     if (dynAttrMapper.supportsLDAPAttributeName(attr)) {
-                        logger.debug("DBRegistry:   found dynamic mapper: " + dynAttrMapper);
+                        logger.debug("LDAPRegistry:   found dynamic mapper: " + dynAttrMapper);
                         matchingDynAttrMapper = dynAttrMapper;
                         break;
                     }
@@ -429,7 +429,7 @@ public class DBRegistry implements IDBRegistry {
                      * @reason failed to get registered object class
                      * @message DBRegistry: <attr> is not registered
                      */
-                    logger.error("DBRegistry: " + CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attr));
+                    logger.error("LDAPRegistry: " + CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attr));
                     throw new EDBException(CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attr));
                 }
             }
@@ -518,7 +518,7 @@ public class DBRegistry implements IDBRegistry {
              * @reason failed to create object class
              * @message DBRegistry: <attr> is not registered
              */
-            logger.error("DBRegistry: " + CMS.getUserMessage("CMS_DBS_INVALID_ATTRS") + ": " + e.getMessage(), e);
+            logger.error("LDAPRegistry: " + CMS.getUserMessage("CMS_DBS_INVALID_ATTRS") + ": " + e.getMessage(), e);
             throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS") + ": " + e.getMessage(), e);
         }
     }

@@ -78,7 +78,7 @@ public class DBSubsystem {
     private LDAPConfig mConfig;
     private DatabaseConfig mDBConfig;
     private LdapBoundConnFactory mLdapConnFactory = null;
-    private DBRegistry mRegistry = null;
+    private LDAPRegistry mRegistry = null;
     private String mBaseDN = null;
 
     private Hashtable<String, String>[] mRepos = null;
@@ -648,7 +648,7 @@ public class DBSubsystem {
             mRepos[REPLICA_ID] = replicaID;
 
             // initialize registry
-            mRegistry = new DBRegistry();
+            mRegistry = new LDAPRegistry();
             mRegistry.init(null);
 
             // initialize LDAP connection factory
