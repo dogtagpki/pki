@@ -32,7 +32,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBRegistry;
-import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -232,7 +231,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
      * @exception EBaseException failed to archive key
      */
     public void addKeyRecord(IKeyRecord record) throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         try {
             String name = "cn" + "=" +
@@ -259,7 +258,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
         if (serialNo == null) {
             throw new EBaseException("Invalid Serial Number.");
         }
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         KeyRecord rec = null;
 
         try {
@@ -288,7 +287,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
      */
     public IKeyRecord readKeyRecord(X500Name ownerName)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         KeyRecord keyRec = null;
 
         try {
@@ -316,7 +315,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
         if (data == null)
             throw new EBaseException("null data");
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         KeyRecord rec = null;
 
         try {
@@ -340,7 +339,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public IKeyRecord readKeyRecord(String cert)
             throws EBaseException {
 
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         KeyRecord rec = null;
 
         try {
@@ -364,7 +363,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
      */
     public void modifyKeyRecord(BigInteger serialNo, ModificationSet mods)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         try {
             String name = "cn" + "=" +
@@ -382,7 +381,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     public void deleteKeyRecord(BigInteger serialNo)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         try {
             String name = "cn" + "=" +
@@ -410,7 +409,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         Vector<IKeyRecord> v = new Vector<IKeyRecord>();
 
         try {
@@ -427,7 +426,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize, int timeLimit)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         Vector<IKeyRecord> v = new Vector<IKeyRecord>();
 
         try {
@@ -454,7 +453,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public IKeyRecordList findKeyRecordsInList(String filter,
             String attrs[], String sortKey, int pageSize)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         IKeyRecordList list = null;
 
         try {
@@ -474,7 +473,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public IKeyRecordList findKeyRecordsInList(String filter,
             String attrs[], String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         IKeyRecordList list = null;
 
         int len = jumpTo.length();

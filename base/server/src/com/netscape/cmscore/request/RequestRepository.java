@@ -21,12 +21,12 @@ import java.math.BigInteger;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.dbs.RepositoryRecord;
@@ -81,7 +81,7 @@ public class RequestRepository extends Repository {
      * Removes all objects with this repository.
      */
     public void removeAllObjects() throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         try {
             IDBSearchResults sr = s.search(getBaseDN(),
                                "(" + RequestRecord.ATTR_REQUEST_ID + "=*)");
@@ -123,7 +123,7 @@ public class RequestRepository extends Repository {
     public String getPublishingStatus() {
         RepositoryRecord record = null;
         Object obj = null;
-        IDBSSession dbs = null;
+        DBSSession dbs = null;
         String status = null;
 
         try {
@@ -155,7 +155,7 @@ public class RequestRepository extends Repository {
     }
 
     public void setPublishingStatus(String status) {
-        IDBSSession dbs = null;
+        DBSSession dbs = null;
 
         logger.debug("RequestRepository:  setPublishingStatus  mBaseDN: " + mBaseDN + "  status: " + status);
         ModificationSet mods = new ModificationSet();

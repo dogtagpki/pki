@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
@@ -109,7 +108,7 @@ public abstract class Repository implements IRepository {
      * Resets serial number.
      */
     public void resetSerialNumber(BigInteger serial) throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         try {
             String name = mBaseDN;
@@ -130,7 +129,7 @@ public abstract class Repository implements IRepository {
      * @return next serial number
      */
     protected BigInteger getSerialNumber() throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         logger.debug("Repository: getSerialNumber()");
         RepositoryRecord rec = null;

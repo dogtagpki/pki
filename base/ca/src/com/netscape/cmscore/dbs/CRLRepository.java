@@ -26,7 +26,6 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -107,7 +106,7 @@ public class CRLRepository extends Repository {
      */
     public void addCRLIssuingPointRecord(ICRLIssuingPointRecord rec)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         try {
             String name = mLdapCRLIssuingPointName + "=" +
@@ -127,7 +126,7 @@ public class CRLRepository extends Repository {
      * @exception EBaseException failed to retrieve all the issuing points' names.
      */
     public Vector<String> getIssuingPointsNames() throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         try {
             String[] attrs = { ICRLIssuingPointRecord.ATTR_ID, "objectclass" };
             String filter = "objectclass=" + CRLIssuingPointRecord.class.getName();
@@ -157,7 +156,7 @@ public class CRLRepository extends Repository {
     public ICRLIssuingPointRecord readCRLIssuingPointRecord(String id)
             throws EBaseException {
 
-        IDBSSession s = null;
+        DBSSession s = null;
         CRLIssuingPointRecord rec = null;
 
         try {
@@ -181,7 +180,7 @@ public class CRLRepository extends Repository {
      */
     public void deleteCRLIssuingPointRecord(String id)
             throws EBaseException {
-        IDBSSession s = null;
+        DBSSession s = null;
 
         try {
             s = dbSubsystem.createSession();
@@ -205,7 +204,7 @@ public class CRLRepository extends Repository {
      */
     public void modifyCRLIssuingPointRecord(String id,
             ModificationSet mods) throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         try {
             String name = mLdapCRLIssuingPointName + "=" + id +

@@ -27,7 +27,6 @@ import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.IDBRegistry;
-import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -930,7 +929,7 @@ public class DBSubsystem {
     /**
      * Creates a database session.
      */
-    public IDBSSession createSession() throws EDBException {
+    public DBSSession createSession() throws EDBException {
 
         LDAPConnection conn = null;
 

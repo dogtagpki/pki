@@ -24,7 +24,6 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
@@ -55,7 +54,7 @@ import netscape.ldap.controls.LDAPSortControl;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class LDAPSession implements IDBSSession {
+public class LDAPSession extends DBSSession {
 
     public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPSession.class);
 

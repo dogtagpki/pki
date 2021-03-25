@@ -20,7 +20,7 @@ package com.netscape.cmscore.request;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.dbs.IDBSSession;
+import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
@@ -61,7 +61,7 @@ public class RequestSubsystem {
 
         /*
          String dbName = makeQueueName(name);
-         IDBSSession dbs = createDBSSession();
+         DBSSession dbs = createDBSSession();
 
          // Create Repository record here
 
@@ -118,7 +118,7 @@ public class RequestSubsystem {
     // Create a database session in the default database
     // system.
     //
-    protected IDBSSession createDBSSession()
+    protected DBSSession createDBSSession()
             throws EBaseException {
         return dbSubsystem.createSession();
     }

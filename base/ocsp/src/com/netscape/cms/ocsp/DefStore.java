@@ -40,7 +40,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -50,6 +49,7 @@ import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmsutil.ocsp.CertID;
@@ -228,7 +228,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public void deleteCRLsInCA(String caName, boolean oldCRLs) throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         try {
             ICRLIssuingPointRecord cp = readCRLIssuingPoint(caName);
@@ -484,7 +484,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public Enumeration<ICRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
             int maxSize)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         Vector<ICRLIssuingPointRecord> v = new Vector<ICRLIssuingPointRecord>();
 
         try {
@@ -501,7 +501,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
     public synchronized void modifyCRLIssuingPointRecord(String name,
             ModificationSet mods) throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         try {
             String dn = "cn=" +
@@ -522,7 +522,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      */
     public ICRLIssuingPointRecord readCRLIssuingPoint(String name)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         ICRLIssuingPointRecord rec = null;
 
         try {
@@ -549,7 +549,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public void deleteCRLIssuingPointRecord(String id)
             throws EBaseException {
 
-        IDBSSession s = null;
+        DBSSession s = null;
 
         try {
             s = dbSubsystem.createSession();
@@ -570,7 +570,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      */
     public void addCRLIssuingPoint(String name, ICRLIssuingPointRecord rec)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         try {
             String dn = "cn=" +
@@ -585,7 +585,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
     public Enumeration<IRepositoryRecord> searchRepository(String name, String filter)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         Vector<IRepositoryRecord> v = new Vector<IRepositoryRecord>();
 
         try {
@@ -607,7 +607,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public void addRepository(String name, String thisUpdate,
             IRepositoryRecord rec)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         try {
             String dn = "ou=" + thisUpdate + ",cn=" +
@@ -623,7 +623,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public void modifyCertRecord(String name, String thisUpdate,
             String sno,
             ModificationSet mods) throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         try {
             String dn = "cn=" + sno + ",ou=" + thisUpdate +
@@ -639,7 +639,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
     public Enumeration<CertRecord> searchCertRecord(String name, String thisUpdate,
             String filter) throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         Vector<CertRecord> v = new Vector<CertRecord>();
 
         try {
@@ -659,7 +659,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public CertRecord readCertRecord(String name, String thisUpdate,
             String sno)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
         CertRecord rec = null;
 
         try {
@@ -682,7 +682,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public void addCertRecord(String name, String thisUpdate,
             String sno, CertRecord rec)
             throws EBaseException {
-        IDBSSession s = dbSubsystem.createSession();
+        DBSSession s = dbSubsystem.createSession();
 
         try {
             String dn = "cn=" + sno + ",ou=" + thisUpdate +

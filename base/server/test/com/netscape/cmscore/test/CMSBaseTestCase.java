@@ -5,7 +5,6 @@ import java.security.cert.CertificateException;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.dbs.IDBRegistry;
-import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.cmscore.dbs.DBRegistryDefaultStub;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -72,7 +71,7 @@ public abstract class CMSBaseTestCase extends TestCase {
     }
 
     class DBSubsystemStub extends DBSubsystem {
-        public IDBSSession createSession() {
+        public DBSSession createSession() {
             return session;
         }
 

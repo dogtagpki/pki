@@ -25,7 +25,6 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -43,6 +42,7 @@ import com.netscape.certsrv.request.ldap.IRequestMod;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 
@@ -123,7 +123,7 @@ public class RequestQueue
                 id + "," + mBaseDN;
 
         Object obj = null;
-        IDBSSession dbs = null;
+        DBSSession dbs = null;
 
         try {
             dbs = dbSubsystem.createSession();
@@ -167,7 +167,7 @@ public class RequestQueue
         String name = "cn" + "=" +
                 record.mRequestId + "," + mBaseDN;
 
-        IDBSSession dbs = null;
+        DBSSession dbs = null;
 
         try {
             dbs = dbSubsystem.createSession();
@@ -229,7 +229,7 @@ public class RequestQueue
         String name = "cn" + "=" +
                 r.getRequestId() + "," + mBaseDN;
 
-        IDBSSession dbs = null;
+        DBSSession dbs = null;
 
         try {
             dbs = dbSubsystem.createSession();
@@ -394,7 +394,7 @@ public class RequestQueue
      */
     public IRequestList findRequestsBySourceId(String id) {
         IDBSearchResults results = null;
-        IDBSSession dbs = null;
+        DBSSession dbs = null;
 
         // Need only the requestid in the result of the search
         // TODO: generic search returning RequestId
@@ -423,7 +423,7 @@ public class RequestQueue
 
     protected Enumeration<RequestId> getRawList() {
         IDBSearchResults results = null;
-        IDBSSession dbs = null;
+        DBSSession dbs = null;
 
         try {
             dbs = dbSubsystem.createSession();
@@ -449,7 +449,7 @@ public class RequestQueue
      */
     public IRequestList listRequestsByFilter(String f) {
         IDBSearchResults results = null;
-        IDBSSession dbs = null;
+        DBSSession dbs = null;
 
         try {
             dbs = dbSubsystem.createSession();
@@ -475,7 +475,7 @@ public class RequestQueue
      */
     public IRequestList listRequestsByFilter(String f, int maxSize) {
         IDBSearchResults results = null;
-        IDBSSession dbs = null;
+        DBSSession dbs = null;
 
         try {
             dbs = dbSubsystem.createSession();
@@ -501,7 +501,7 @@ public class RequestQueue
      */
     public IRequestList listRequestsByFilter(String f, int maxSize, int timeLimit) {
         IDBSearchResults results = null;
-        IDBSSession dbs = null;
+        DBSSession dbs = null;
 
         try {
             dbs = dbSubsystem.createSession();
@@ -525,7 +525,7 @@ public class RequestQueue
 
     public IRequestList listRequestsByStatus(RequestStatus s) {
         IDBSearchResults results = null;
-        IDBSSession dbs = null;
+        DBSSession dbs = null;
 
         try {
             String f1;
@@ -581,7 +581,7 @@ public class RequestQueue
             getPagedRequestsByFilter(RequestId from, boolean jumpToEnd, String filter, int pageSize,
                     String sortKey) {
         IDBVirtualList<IDBObj> results = null;
-        IDBSSession dbs = null;
+        DBSSession dbs = null;
 
         try {
             dbs = dbSubsystem.createSession();

@@ -12,7 +12,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBRegistry;
-import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
@@ -140,7 +139,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
 
         logger.debug("LDAPDatabase: findRecords()");
 
-        try (IDBSSession session = dbSubsystem.createSession()) {
+        try (DBSSession session = dbSubsystem.createSession()) {
 
             logger.debug("LDAPDatabase: LDAP search on " + baseDN);
 
@@ -165,7 +164,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
 
         logger.debug("LDAPDatabase: findRecords()");
 
-        try (IDBSSession session = dbSubsystem.createSession()) {
+        try (DBSSession session = dbSubsystem.createSession()) {
 
             logger.debug("LDAPDatabase: LDAP VLV search on " + baseDN);
 
@@ -194,7 +193,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
     @Override
     public E getRecord(String id) throws Exception {
         logger.debug("LDAPDatabase: getRecord(\"" + id + "\")");
-        try (IDBSSession session = dbSubsystem.createSession()) {
+        try (DBSSession session = dbSubsystem.createSession()) {
             String dn = createDN(id);
             logger.debug("LDAPDatabase: reading " + baseDN);
             return (E)session.read(dn);
@@ -204,7 +203,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
     @Override
     public void addRecord(String id, E record) throws Exception {
         logger.debug("LDAPDatabase: addRecord(\"" + id + "\")");
-        try (IDBSSession session = dbSubsystem.createSession()) {
+        try (DBSSession session = dbSubsystem.createSession()) {
             String dn = createDN(id);
 
             logger.debug("LDAPDatabase: adding " + dn);
@@ -217,7 +216,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
 
         logger.debug("LDAPDatabase: updateRecord(\"" + id + "\")");
 
-        try (IDBSSession session = dbSubsystem.createSession()) {
+        try (DBSSession session = dbSubsystem.createSession()) {
             String dn = createDN(id);
             logger.debug("LDAPDatabase: dn: " + dn);
             logger.debug("LDAPDatabase: changetype: modify");
@@ -244,7 +243,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
     @Override
     public void removeRecord(String id) throws Exception {
         logger.debug("LDAPDatabase: removeRecord(\"" + id + "\")");
-        try (IDBSSession session = dbSubsystem.createSession()) {
+        try (DBSSession session = dbSubsystem.createSession()) {
             String dn = createDN(id);
 
             logger.debug("LDAPDatabase: removing " + dn);
