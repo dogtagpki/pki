@@ -51,7 +51,6 @@ import com.netscape.certsrv.publish.ERuleNotFound;
 import com.netscape.certsrv.publish.ERulePluginNotFound;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.MapperPlugin;
 import com.netscape.certsrv.publish.MapperProxy;
 import com.netscape.certsrv.publish.PublisherPlugin;
@@ -59,6 +58,7 @@ import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldap.LdapRule;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -1690,9 +1690,9 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        // is the class an ILdapRule?
+        // is the class an LdapRule?
         try {
-            if (ILdapRule.class.isAssignableFrom(newImpl) == false) {
+            if (LdapRule.class.isAssignableFrom(newImpl) == false) {
                 sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_CLASS", classPath), null,
                         resp);
                 return;
@@ -1804,10 +1804,10 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // Instantiate an object for this implementation
         String className = plugin.getClassPath();
-        ILdapRule ruleInst = null;
+        LdapRule ruleInst = null;
 
         try {
-            ruleInst = (ILdapRule) Class.forName(className).newInstance();
+            ruleInst = (LdapRule) Class.forName(className).newInstance();
         } catch (ClassNotFoundException e) {
             // cleanup
             instancesConfig.removeSubStore(id);
@@ -1884,7 +1884,7 @@ public class PublisherAdminServlet extends AdminServlet {
             String desc = "unknown";
 
             try {
-                ILdapRule lp = (ILdapRule)
+                LdapRule lp = (LdapRule)
                         Class.forName(c).newInstance();
 
                 desc = lp.getDescription();
@@ -1904,7 +1904,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         for (; e.hasMoreElements();) {
             String name = e.nextElement();
-            ILdapRule value = mProcessor.getRuleInsts().get(name);
+            LdapRule value = mProcessor.getRuleInsts().get(name);
             String enabled = value.enabled() ? "enabled" : "disabled";
 
             params.put(name, value.getInstanceName() + ";visible;" + enabled);
@@ -1913,7 +1913,7 @@ public class PublisherAdminServlet extends AdminServlet {
         return;
     }
 
-    public String getRulePluginName(ILdapRule rule) {
+    public String getRulePluginName(LdapRule rule) {
         IConfigStore cs = rule.getConfigStore();
 
         try {
@@ -1948,8 +1948,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // first check if any instances from this rule
         // DON'T remove rule if any instance
-        for (Enumeration<ILdapRule> e = mProcessor.getRuleInsts().elements(); e.hasMoreElements();) {
-            ILdapRule rule = e.nextElement();
+        for (Enumeration<LdapRule> e = mProcessor.getRuleInsts().elements(); e.hasMoreElements();) {
+            LdapRule rule = e.nextElement();
 
             if (id.equals(getRulePluginName(rule))) {
                 sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_IN_USE"), null, resp);
@@ -2082,7 +2082,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        ILdapRule ruleInst = mProcessor.getRuleInsts().get(id);
+        LdapRule ruleInst = mProcessor.getRuleInsts().get(id);
         Vector<String> configParams = ruleInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
@@ -2145,7 +2145,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // save old instance substore params in case new one fails.
 
-        ILdapRule oldinst =
+        LdapRule oldinst =
                 mProcessor.getRuleInsts().get(id);
         Vector<String> oldConfigParms = oldinst.getInstanceParams();
         NameValuePairs saveParams = new NameValuePairs();
@@ -2201,10 +2201,10 @@ public class PublisherAdminServlet extends AdminServlet {
         // Instantiate an object for new implementation
 
         String className = plugin.getClassPath();
-        ILdapRule newRuleInst = null;
+        LdapRule newRuleInst = null;
 
         try {
-            newRuleInst = (ILdapRule) Class.forName(className).newInstance();
+            newRuleInst = (LdapRule) Class.forName(className).newInstance();
         } catch (ClassNotFoundException e) {
             // cleanup
             restore(instancesConfig, id, saveParams);

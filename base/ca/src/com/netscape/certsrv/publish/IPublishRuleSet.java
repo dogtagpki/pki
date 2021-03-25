@@ -19,13 +19,14 @@ package com.netscape.certsrv.publish;
 
 import java.util.Enumeration;
 
-import netscape.ldap.LDAPConnection;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.ldap.LdapRule;
+
+import netscape.ldap.LDAPConnection;
 
 /**
  * Represents a set of publishing rules. Publishing rules are ordered from
@@ -70,7 +71,7 @@ public interface IPublishRuleSet {
      * @param aliasName The name of the publishing rule to be added.
      * @param rule rule The publishing rule to be added.
      */
-    void addRule(String aliasName, ILdapRule rule);
+    void addRule(String aliasName, LdapRule rule);
 
     /**
      * Removes a publishing rule identified by the given name.
@@ -86,7 +87,7 @@ public interface IPublishRuleSet {
      * @param ruleName The name of the publishing rule to be return.
      * @return The publishing rule identified by the given name or null if none exists.
      */
-    ILdapRule getRule(String ruleName);
+    LdapRule getRule(String ruleName);
 
     /**
      * Get the publishing rule identified by a corresponding request.
@@ -95,7 +96,7 @@ public interface IPublishRuleSet {
      * @param req The request from which rule will be identified.
      * @return The publishing rule or null if none exists.
      */
-    ILdapRule getRule(IRequest req);
+    LdapRule getRule(IRequest req);
 
     /**
      * Get an enumeration of publishing rules.
@@ -103,7 +104,7 @@ public interface IPublishRuleSet {
      *
      * @return An enumeration of publishing rules.
      */
-    Enumeration<ILdapRule> getRules();
+    Enumeration<LdapRule> getRules();
 
     /**
      * Apply publishing rules on a request.

@@ -41,7 +41,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IXcertPublisherProcessor;
 import com.netscape.certsrv.publish.MapperPlugin;
 import com.netscape.certsrv.publish.MapperProxy;
@@ -92,7 +91,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
     public Hashtable<String, MapperPlugin> mMapperPlugins = new Hashtable<String, MapperPlugin>();
     public Hashtable<String, MapperProxy> mMapperInsts = new Hashtable<String, MapperProxy>();
     public Hashtable<String, RulePlugin> mRulePlugins = new Hashtable<String, RulePlugin>();
-    public Hashtable<String, ILdapRule> mRuleInsts = new Hashtable<String, ILdapRule>();
+    public Hashtable<String, LdapRule> mRuleInsts = new Hashtable<String, LdapRule>();
 
     // protected PublishRuleSet mRuleSet;
 
@@ -323,9 +322,9 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
             IConfigStore mConfig = null;
 
             try {
-                ILdapRule ruleInst = null;
+                LdapRule ruleInst = null;
 
-                ruleInst = (ILdapRule)
+                ruleInst = (LdapRule)
                         Class.forName(className).newInstance();
                 mConfig = c.getSubStore(insName);
                 ruleInst.init(this, mConfig);
@@ -353,7 +352,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
                 if (mConfig == null) {
                     throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
                 }
-                mConfig.putString(ILdapRule.PROP_ENABLE, "false");
+                mConfig.putString(LdapRule.PROP_ENABLE, "false");
                 logger.warn("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_SKIP_RULE", insName, e.toString()), e);
                 // Let the server continue if it is a
                 // mis-configuration. But the instance
@@ -480,7 +479,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
     /**
      * Returns Hashtable of rule instances.
      */
-    public Hashtable<String, ILdapRule> getRuleInsts() {
+    public Hashtable<String, LdapRule> getRuleInsts() {
         return mRuleInsts;
     }
 
@@ -519,8 +518,8 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
      *
      * @param publishingType Type for which to retrieve rule list.
      */
-    public Enumeration<ILdapRule> getRules(String publishingType) {
-        Vector<ILdapRule> rules = new Vector<ILdapRule>();
+    public Enumeration<LdapRule> getRules(String publishingType) {
+        Vector<LdapRule> rules = new Vector<>();
         Enumeration<String> e = mRuleInsts.keys();
 
         while (e.hasMoreElements()) {
@@ -534,7 +533,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
             }
 
             //this is the only rule we support now
-            LdapRule rule = (LdapRule) (mRuleInsts.get(name));
+            LdapRule rule = (mRuleInsts.get(name));
 
             if (rule.enabled() && publishingType.equals(rule.getType())) {
                 // check if the predicate match
@@ -562,17 +561,17 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
      * @param publishingType Type for which to retrieve rule list.
      * @param req Corresponding publish request.
      */
-    public Enumeration<ILdapRule> getRules(String publishingType, IRequest req) {
+    public Enumeration<LdapRule> getRules(String publishingType, IRequest req) {
         if (req == null) {
             return getRules(publishingType);
         }
 
-        Vector<ILdapRule> rules = new Vector<ILdapRule>();
-        Enumeration<ILdapRule> e = mRuleInsts.elements();
+        Vector<LdapRule> rules = new Vector<>();
+        Enumeration<LdapRule> e = mRuleInsts.elements();
 
         while (e.hasMoreElements()) {
             //this is the only rule we support now
-            LdapRule rule = (LdapRule) e.nextElement();
+            LdapRule rule = e.nextElement();
 
             if (rule.enabled() && publishingType.equals(rule.getType())) {
                 // check if the predicate match
@@ -835,12 +834,11 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         // rule instantces to avoid instantiation just for this.
 
         // a temporary instance
-        ILdapRule ruleInst = null;
+        LdapRule ruleInst = null;
         String className = plugin.getClassPath();
 
         try {
-            ruleInst = (ILdapRule)
-                    Class.forName(className).newInstance();
+            ruleInst = (LdapRule) Class.forName(className).newInstance();
 
             Vector<String> v = ruleInst.getDefaultParams();
 
@@ -878,12 +876,11 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         // rule instantces to avoid instantiation just for this.
 
         // a temporary instance
-        ILdapRule ruleInst = null;
+        LdapRule ruleInst = null;
         String className = plugin.getClassPath();
 
         try {
-            ruleInst = (ILdapRule)
-                    Class.forName(className).newInstance();
+            ruleInst = (LdapRule) Class.forName(className).newInstance();
             Vector<String> v = ruleInst.getInstanceParams();
 
             return v;
@@ -955,7 +952,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         logger.debug("PublishProcessor::publishCACert");
 
         // get mapper and publisher for cert type.
-        Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CA);
+        Enumeration<LdapRule> rules = getRules(PROP_LOCAL_CA);
 
         if (rules == null || !rules.hasMoreElements()) {
             if (isClone()) {
@@ -968,7 +965,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
             }
         }
         while (rules.hasMoreElements()) {
-            LdapRule rule = (LdapRule) rules.nextElement();
+            LdapRule rule = rules.nextElement();
 
             if (rule == null) {
                 logger.error("PublisherProcessor::publishCACert() - "
@@ -1022,7 +1019,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
             return;
 
         // get mapper and publisher for cert type.
-        Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CA);
+        Enumeration<LdapRule> rules = getRules(PROP_LOCAL_CA);
 
         if (rules == null || !rules.hasMoreElements()) {
             if (isClone()) {
@@ -1035,7 +1032,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         }
 
         while (rules.hasMoreElements()) {
-            LdapRule rule = (LdapRule) rules.nextElement();
+            LdapRule rule = rules.nextElement();
 
             if (rule == null) {
                 logger.error("PublisherProcessor::unpublishCACert() - "
@@ -1088,7 +1085,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         logger.debug("PublisherProcessor: in publishXCertPair()");
 
         // get mapper and publisher for cert type.
-        Enumeration<ILdapRule> rules = getRules(PROP_XCERT);
+        Enumeration<LdapRule> rules = getRules(PROP_XCERT);
 
         if (rules == null || !rules.hasMoreElements()) {
             if (isClone()) {
@@ -1100,7 +1097,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
             }
         }
         while (rules.hasMoreElements()) {
-            LdapRule rule = (LdapRule) rules.nextElement();
+            LdapRule rule = rules.nextElement();
 
             if (rule == null) {
                 logger.error("PublisherProcessor::publishXCertPair() - "
@@ -1154,7 +1151,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
             return;
 
         // get mapper and publisher for cert type.
-        Enumeration<ILdapRule> rules = getRules("certs", req);
+        Enumeration<LdapRule> rules = getRules("certs", req);
 
         // Bugscape  #52306  -  Remove superfluous log messages on failure
         if (rules == null || !rules.hasMoreElements()) {
@@ -1165,7 +1162,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         }
 
         while (rules != null && rules.hasMoreElements()) {
-            LdapRule rule = (LdapRule) rules.nextElement();
+            LdapRule rule = rules.nextElement();
 
             try {
                 logger.info("PublisherProcessor: publish certificate (with request) type=" +
@@ -1217,7 +1214,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
             return;
 
         // get mapper and publisher for cert type.
-        Enumeration<ILdapRule> rules = getRules("certs", req);
+        Enumeration<LdapRule> rules = getRules("certs", req);
 
         if (rules == null || !rules.hasMoreElements()) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND_FOR_REQUEST", "certs",
@@ -1227,7 +1224,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         }
 
         while (rules.hasMoreElements()) {
-            LdapRule rule = (LdapRule) rules.nextElement();
+            LdapRule rule = rules.nextElement();
 
             if (rule == null) {
                 logger.error("PublisherProcessor::unpublishCert() - "
@@ -1290,7 +1287,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         ILdapPublisher publisher = null;
 
         // get mapper and publisher for cert type.
-        Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CRL);
+        Enumeration<LdapRule> rules = getRules(PROP_LOCAL_CRL);
 
         if (rules == null || !rules.hasMoreElements()) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOR_CRL"));
@@ -1309,7 +1306,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
                 mapper = null;
                 dn = null;
                 String result = null;
-                LdapRule rule = (LdapRule) rules.nextElement();
+                LdapRule rule = rules.nextElement();
 
                 logger.info("PublisherProcessor: publish crl rule=" +
                         rule.getInstanceName() + " publisher=" +
@@ -1382,7 +1379,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         if (!isCRLPublishingEnabled())
             return;
         // get mapper and publisher for cert type.
-        Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CRL);
+        Enumeration<LdapRule> rules = getRules(PROP_LOCAL_CRL);
 
         if (rules == null || !rules.hasMoreElements()) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOR_CRL"));
@@ -1398,7 +1395,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
                 conn = mLdapConnModule.getConn();
             }
             while (rules.hasMoreElements()) {
-                LdapRule rule = (LdapRule) rules.nextElement();
+                LdapRule rule = rules.nextElement();
 
                 logger.info("PublisherProcessor: publish crl dn=" + dn + " rule=" +
                         rule.getInstanceName() + " publisher=" +

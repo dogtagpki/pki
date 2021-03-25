@@ -24,14 +24,17 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.publish.ILdapRule;
 
 /**
- * The publishing rule that links mapper and publisher together.
+ * The publishing rule which associates a Publisher with a Mapper.
  */
-public class LdapRule implements ILdapRule, IExtendedPluginInfo {
+public class LdapRule implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapRule.class);
+
+    public final static String PROP_PREDICATE = "predicate";
+    public final static String PROP_ENABLE = "enable";
+    public final static String PROP_IMPLNAME = "implName";
 
     public final static String NOMAPPER = "<NONE>";
 
@@ -59,6 +62,11 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
         return epi_params;
     }
 
+    /**
+     * Initialize the plugin.
+     *
+     * @exception EBaseException Initialization failed.
+     */
     public void init(PublisherProcessor processor, IConfigStore config) throws EBaseException {
         mConfig = config;
 
@@ -144,21 +152,21 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
     }
 
     /**
-     * Returns the description of the ldap publisher.
+     * Returns the description of the LDAP publisher.
      */
     public String getDescription() {
         return "LdapRule";
     }
 
     /**
-     * Set the instance name
+     * Sets the instance name.
      */
     public void setInstanceName(String insName) {
         mInstanceName = insName;
     }
 
     /**
-     * Returns the instance name
+     * Returns the instance name.
      */
     public String getInstanceName() {
         return mInstanceName;
@@ -275,6 +283,9 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
         return null;
     }
 
+    /**
+     * Returns true if the rule is enabled, false if it's disabled.
+     */
     public boolean enabled() {
         try {
             boolean enable = mConfig.getBoolean(PublisherProcessor.PROP_ENABLE, false);
