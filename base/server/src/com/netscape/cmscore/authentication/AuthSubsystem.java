@@ -188,6 +188,108 @@ public class AuthSubsystem implements ISubsystem {
         }
     }
 
+    public void loadAuthManagerInstances() throws EBaseException {
+
+        // hardcode admin and agent auth manager instances for the server
+        // to be functional
+
+        logger.info("AuthSubsystem: Loading auth manager instance " + PASSWDUSERDB_AUTHMGR_ID);
+
+        PasswdUserDBAuthentication passwdUserDBAuth = new PasswdUserDBAuthentication();
+        passwdUserDBAuth.setAuthenticationConfig(mConfig);
+        passwdUserDBAuth.init(PASSWDUSERDB_AUTHMGR_ID, PASSWDUSERDB_PLUGIN_ID, null);
+        mAuthMgrInsts.put(PASSWDUSERDB_AUTHMGR_ID, new AuthManagerProxy(true, passwdUserDBAuth));
+
+        logger.info("AuthSubsystem: Loading auth manager instance " + CERTUSERDB_AUTHMGR_ID);
+
+        CertUserDBAuthentication certUserDBAuth = new CertUserDBAuthentication();
+        certUserDBAuth.setAuthenticationConfig(mConfig);
+        certUserDBAuth.init(CERTUSERDB_AUTHMGR_ID, CERTUSERDB_PLUGIN_ID, null);
+        mAuthMgrInsts.put(CERTUSERDB_AUTHMGR_ID, new AuthManagerProxy(true, certUserDBAuth));
+
+        logger.info("AuthSubsystem: Loading auth manager instance " + CHALLENGE_AUTHMGR_ID);
+
+        ChallengePhraseAuthentication challengeAuth = new ChallengePhraseAuthentication();
+        challengeAuth.setAuthenticationConfig(mConfig);
+        challengeAuth.init(CHALLENGE_AUTHMGR_ID, CHALLENGE_PLUGIN_ID, null);
+        mAuthMgrInsts.put(CHALLENGE_AUTHMGR_ID, new AuthManagerProxy(true, challengeAuth));
+
+        logger.info("AuthSubsystem: Loading auth manager instance " + CMCAUTH_AUTHMGR_ID);
+
+        CMCAuth cmcAuth = new CMCAuth();
+        cmcAuth.setAuthenticationConfig(mConfig);
+        cmcAuth.init(CMCAUTH_AUTHMGR_ID, CMCAUTH_PLUGIN_ID, null);
+        mAuthMgrInsts.put(CMCAUTH_AUTHMGR_ID, new AuthManagerProxy(true, cmcAuth));
+
+        // #56659
+        // logger.info("AuthSubsystem: Loading auth manager instance " + NULL_AUTHMGR_ID);
+        //
+        // NullAuthentication nullAuth = new NullAuthentication();
+        // nullAuth.setAuthenticationConfig(mConfig);
+        // nullAuth.init(NULL_AUTHMGR_ID, NULL_PLUGIN_ID, null);
+        // mAuthMgrInsts.put(NULL_AUTHMGR_ID, new AuthManagerProxy(true, nullAuth));
+
+        logger.info("AuthSubsystem: Loading auth manager instance " + SSLCLIENTCERT_AUTHMGR_ID);
+
+        SSLClientCertAuthentication sslClientCertAuth = new SSLClientCertAuthentication();
+        sslClientCertAuth.setAuthenticationConfig(mConfig);
+        sslClientCertAuth.init(SSLCLIENTCERT_AUTHMGR_ID, SSLCLIENTCERT_PLUGIN_ID, null);
+        mAuthMgrInsts.put(SSLCLIENTCERT_AUTHMGR_ID, new AuthManagerProxy(true, sslClientCertAuth));
+
+        AuthManagersConfig instancesConfig = mConfig.getAuthManagersConfig();
+        Enumeration<String> instNames = instancesConfig.getSubStoreNames();
+
+        while (instNames.hasMoreElements()) {
+            String instName = instNames.nextElement();
+            logger.info("AuthSubsystem: Loading auth manager instance " + instName);
+
+            AuthManagerConfig authMgrConfig = instancesConfig.getAuthManagerConfig(instName);
+            String implName = authMgrConfig.getString(PROP_PLUGIN);
+            AuthMgrPlugin plugin = mAuthMgrPlugins.get(implName);
+
+            if (plugin == null) {
+                logger.error("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_CANT_FIND_PLUGIN", implName));
+                throw new EAuthMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", implName));
+            }
+
+            String className = plugin.getClassPath();
+            boolean enabled = false;
+            AuthManager authMgrInst = null;
+
+            try {
+                authMgrInst = (AuthManager) Class.forName(className).newInstance();
+                authMgrInst.init(instName, implName, authMgrConfig);
+                enabled = true;
+
+            } catch (ClassNotFoundException e) {
+                logger.error("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_AUTHSUB_ERROR", e.toString()));
+                throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
+
+            } catch (IllegalAccessException e) {
+                logger.error("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_AUTHSUB_ERROR", e.toString()));
+                throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
+
+            } catch (InstantiationException e) {
+                logger.error("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_AUTHSUB_ERROR", e.toString()));
+                throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
+
+            } catch (EBaseException e) {
+                String message = CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", instName, e.toString());
+                logger.warn("AuthSubsystem: " + message, e);
+                // Skip the authentication instance if it's misconfigurated.
+                // This give administrator another chance to fix the problem via console.
+
+            } catch (Throwable e) {
+                String message = CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", instName, e.toString());
+                logger.warn("AuthSubsystem: " + message, e);
+                // Skip the authentication instance if it's misconfigurated.
+                // This give administrator another chance to fix the problem via console.
+            }
+
+            mAuthMgrInsts.put(instName, new AuthManagerProxy(enabled, authMgrInst));
+        }
+    }
+
     /**
      * Initializes the authentication subsystem from the config store.
      * Load Authentication manager plugins, create and initialize
@@ -204,121 +306,8 @@ public class AuthSubsystem implements ISubsystem {
             mConfig = engineConfig.getAuthenticationConfig();
 
             loadAuthManagerPlugins();
+            loadAuthManagerInstances();
 
-            // hardcode admin and agent auth manager instances for the server
-            // to be functional
-
-            PasswdUserDBAuthentication passwdUserDBAuth = new PasswdUserDBAuthentication();
-            passwdUserDBAuth.setAuthenticationConfig(mConfig);
-            passwdUserDBAuth.init(PASSWDUSERDB_AUTHMGR_ID, PASSWDUSERDB_PLUGIN_ID, null);
-            mAuthMgrInsts.put(PASSWDUSERDB_AUTHMGR_ID, new
-                    AuthManagerProxy(true, passwdUserDBAuth));
-
-            logger.debug("loaded password based auth manager");
-
-            CertUserDBAuthentication certUserDBAuth = new CertUserDBAuthentication();
-            certUserDBAuth.setAuthenticationConfig(mConfig);
-            certUserDBAuth.init(CERTUSERDB_AUTHMGR_ID, CERTUSERDB_PLUGIN_ID, null);
-            mAuthMgrInsts.put(CERTUSERDB_AUTHMGR_ID, new AuthManagerProxy(true, certUserDBAuth));
-
-            logger.debug("loaded certificate based auth manager");
-
-            ChallengePhraseAuthentication challengeAuth = new ChallengePhraseAuthentication();
-            challengeAuth.setAuthenticationConfig(mConfig);
-            challengeAuth.init(CHALLENGE_AUTHMGR_ID, CHALLENGE_PLUGIN_ID, null);
-            mAuthMgrInsts.put(CHALLENGE_AUTHMGR_ID, new AuthManagerProxy(true, challengeAuth));
-
-            logger.debug("loaded challenge phrase auth manager");
-
-            CMCAuth cmcAuth = new CMCAuth();
-            cmcAuth.setAuthenticationConfig(mConfig);
-            cmcAuth.init(CMCAUTH_AUTHMGR_ID, CMCAUTH_PLUGIN_ID, null);
-            mAuthMgrInsts.put(CMCAUTH_AUTHMGR_ID, new AuthManagerProxy(true, cmcAuth));
-
-            logger.debug("loaded cmc auth manager");
-
-            // #56659
-            // NullAuthentication nullAuth = new NullAuthentication();
-            // nullAuth.setAuthenticationConfig(mConfig);
-            // nullAuth.init(NULL_AUTHMGR_ID, NULL_PLUGIN_ID, null);
-            // mAuthMgrInsts.put(NULL_AUTHMGR_ID, new AuthManagerProxy(true, nullAuth));
-            //
-            // logger.debug("loaded null auth manager");
-
-            SSLClientCertAuthentication sslClientCertAuth = new SSLClientCertAuthentication();
-            sslClientCertAuth.setAuthenticationConfig(mConfig);
-            sslClientCertAuth.init(SSLCLIENTCERT_AUTHMGR_ID, SSLCLIENTCERT_PLUGIN_ID, null);
-            mAuthMgrInsts.put(SSLCLIENTCERT_AUTHMGR_ID, new AuthManagerProxy(true, sslClientCertAuth));
-
-            logger.debug("loaded sslClientCert auth manager");
-
-            // get auth manager instances.
-            AuthManagersConfig instancesConfig = mConfig.getAuthManagersConfig();
-            Enumeration<String> instances = instancesConfig.getSubStoreNames();
-
-            while (instances.hasMoreElements()) {
-                String insName = instances.nextElement();
-                logger.debug("AuthSubsystem: initializing authentication manager " + insName);
-
-                AuthManagerConfig authMgrConfig = instancesConfig.getAuthManagerConfig(insName);
-                String implName = authMgrConfig.getString(PROP_PLUGIN);
-                AuthMgrPlugin plugin =
-                        mAuthMgrPlugins.get(implName);
-
-                if (plugin == null) {
-                    logger.error("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_CANT_FIND_PLUGIN", implName));
-                    throw new EAuthMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND",
-                            implName));
-                }
-                String className = plugin.getClassPath();
-
-                boolean isEnable = false;
-                // Instantiate and init the authentication manager.
-                AuthManager authMgrInst = null;
-
-                try {
-                    authMgrInst = (AuthManager)
-                            Class.forName(className).newInstance();
-
-                    authMgrInst.init(insName, implName, authMgrConfig);
-                    isEnable = true;
-
-                    logger.info("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_ADD_AUTH_INSTANCE", insName));
-
-                } catch (ClassNotFoundException e) {
-                    logger.error("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_AUTHSUB_ERROR", e.toString()));
-                    throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
-
-                } catch (IllegalAccessException e) {
-                    logger.error("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_AUTHSUB_ERROR", e.toString()));
-                    throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
-
-                } catch (InstantiationException e) {
-                    logger.error("AuthSubsystem: " + CMS.getLogMessage("CMSCORE_AUTH_AUTHSUB_ERROR", e.toString()));
-                    throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
-
-                } catch (EBaseException e) {
-                    String message = CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", insName, e.toString());
-                    logger.warn("AuthSubsystem: " + message, e);
-                    // Skip the authenticaiton instance if
-                    // it is mis-configurated. This give
-                    // administrator another chance to
-                    // fix the problem via console
-
-                } catch (Throwable e) {
-                    String message = CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", insName, e.toString());
-                    logger.warn("AuthSubsystem: " + message, e);
-                    // Skip the authenticaiton instance if
-                    // it is mis-configurated. This give
-                    // administrator another chance to
-                    // fix the problem via console
-                }
-                // add manager instance to list.
-                mAuthMgrInsts.put(insName, new
-                        AuthManagerProxy(isEnable, authMgrInst));
-
-                logger.debug("loaded auth instance " + insName + " impl " + implName);
-            }
             logger.info("AuthSubsystem: " + CMS.getLogMessage("INIT_DONE", getId()));
 
         } catch (EBaseException e) {
