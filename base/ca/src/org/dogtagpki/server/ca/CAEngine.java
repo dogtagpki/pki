@@ -79,6 +79,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.dbs.Repository;
+import com.netscape.cmscore.dbs.SerialNumberUpdateTask;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -143,6 +144,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     public IRequestListener certIssuedListener;
     public IRequestListener certRevokedListener;
     public IRequestListener requestInQueueListener;
+
+    public SerialNumberUpdateTask serialNumberUpdateTask;
 
     protected LdapBoundConnFactory connectionFactory =
             new LdapBoundConnFactory("CertificateAuthority");
@@ -636,6 +639,34 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         requestInQueueListener.init(hostCA, listenerConfig);
     }
 
+    public void startSerialNumberUpdateTask() throws Exception {
+
+        logger.info("CAEngine: Serial number update task:");
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        int interval = caConfig.getInteger("serialNumberUpdateInterval", 10 * 60);
+        logger.info("CAEngine: - interval: " + interval + " seconds");
+
+        if (serialNumberUpdateTask != null) {
+            serialNumberUpdateTask.stop();
+        }
+
+        if (interval <= 0) {
+            logger.info("CAEngine: Serial number update task is disabled");
+            return;
+        }
+
+        logger.info("CAEngine: Starting serial number update task");
+
+        serialNumberUpdateTask = new SerialNumberUpdateTask(
+                certificateRepository,
+                requestRepository,
+                interval);
+        serialNumberUpdateTask.start();
+    }
+
     public void initSubsystems() throws Exception {
 
         CertificateAuthority hostCA = getCA();
@@ -739,12 +770,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
             certificateRepository.setSkipIfInConsistent(skipIfInconsistent);
 
-            int serialNumberUpdateInterval = caConfig.getInteger("serialNumberUpdateInterval", 10 * 60);
-            logger.info("CAEngine: - serial number update interval (seconds): " + serialNumberUpdateInterval);
-
-            certificateRepository.setSerialNumberUpdateInterval(
-                requestRepository,
-                serialNumberUpdateInterval);
+            startSerialNumberUpdateTask();
 
             caService.init(caConfig.getSubStore("connector"));
 
@@ -1641,6 +1667,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     }
 
     protected void shutdownSubsystems() {
+
         super.shutdownSubsystems();
 
         for (ICRLIssuingPoint crlIssuingPoint : crlIssuingPoints.values()) {
@@ -1652,6 +1679,10 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         if (masterCRLIssuingPoint != null) {
             masterCRLIssuingPoint.shutdown();
+        }
+
+        if (serialNumberUpdateTask != null) {
+            serialNumberUpdateTask.stop();
         }
 
         if (certificateRepository != null) {

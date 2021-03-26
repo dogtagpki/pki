@@ -50,7 +50,6 @@ import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 
 import netscape.ldap.LDAPAttributeSet;
@@ -112,7 +111,6 @@ public class CertificateRepository extends Repository {
 
     public CertStatusUpdateTask certStatusUpdateTask;
     public RetrieveModificationsTask retrieveModificationsTask;
-    public SerialNumberUpdateTask serialNumberUpdateTask;
 
     /**
      * Constructs a certificate repository.
@@ -663,29 +661,6 @@ public class CertificateRepository extends Repository {
         logger.debug("In setCertStatusUpdateInterval scheduling cert status update every " + interval + " seconds.");
         certStatusUpdateTask = new CertStatusUpdateTask(this, interval);
         certStatusUpdateTask.start();
-    }
-
-    /**
-     * interval value: (in seconds)
-     * 0 - disable
-     * >0 - enable
-     */
-    public void setSerialNumberUpdateInterval(RequestRepository requestRepository, int interval) {
-        logger.debug("In setCertStatusUpdateInterval " + interval);
-
-        // stop running tasks
-        if (serialNumberUpdateTask != null) {
-            serialNumberUpdateTask.stop();
-        }
-
-        if (interval <= 0) {
-            logger.debug("In setSerialNumberUpdateInterval interval <= 0");
-            return;
-        }
-
-        logger.debug("In setSerialNumberUpdateInterval scheduling serial number update every " + interval + " seconds.");
-        serialNumberUpdateTask = new SerialNumberUpdateTask(this, requestRepository, interval);
-        serialNumberUpdateTask.start();
     }
 
     /**
@@ -2620,10 +2595,6 @@ public class CertificateRepository extends Repository {
 
         if (retrieveModificationsTask != null) {
             retrieveModificationsTask.stop();
-        }
-
-        if (serialNumberUpdateTask != null) {
-            serialNumberUpdateTask.stop();
         }
     }
 }
