@@ -11,7 +11,7 @@ import com.netscape.certsrv.dbs.IDBObj;
 /**
  * Default testing stub for the IRequest interface.
  */
-public class DBDynAttrMapperDefaultStub implements IDBDynAttrMapper {
+public class DBDynAttrMapper implements IDBDynAttrMapper {
     public boolean supportsLDAPAttributeName(String attrName) {
         return false;
     }

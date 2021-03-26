@@ -8,7 +8,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.request.IRequestRecord;
-import com.netscape.cmscore.request.DBDynAttrMapperDefaultStub;
+import com.netscape.cmscore.request.DBDynAttrMapper;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 import com.netscape.cmscore.test.TestHelper;
 
@@ -117,7 +117,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
         }
     }
 
-    static class DBDynAttrMapperStub extends DBDynAttrMapperDefaultStub {
+    static class DBDynAttrMapperStub extends DBDynAttrMapper {
         boolean mapObjectCalled = false;
         Object mapObjectCalledWithObject = null;
         boolean mapLDAPAttrsCalled = false;
