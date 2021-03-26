@@ -81,17 +81,6 @@ jobs:
       - name: Install KRA
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/kra.cfg -s KRA -v
 
-      - name: Gather config files
-        if: always()
-        run: docker exec pki tar cvf ${PKIDIR}/pki-conf.tar -C / etc/pki
-
-      - name: Upload config files
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: pki-conf-${{ matrix.os }}
-          path: pki-conf.tar
-
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --debug
 
@@ -110,6 +99,19 @@ jobs:
           echo pki.example.com > kra.hostname
           diff kra.hostname kraconnector.host
 
+      - name: Gather artifacts
+        if: always()
+        run: |
+          mkdir -p /tmp/pki/dirsrv/conf
+          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
+          mkdir -p /tmp/pki/dirsrv/logs
+          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
+          mkdir -p /tmp/pki/pki/conf
+          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
+          mkdir -p /tmp/pki/pki/logs
+          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
+          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+
       - name: Remove KRA
         run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
 
@@ -119,18 +121,14 @@ jobs:
       - name: Remove DS
         run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Gather log files
-        if: always()
-        run: |
-          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec pki tar cvf ${PKIDIR}/pki-logs.tar -C / var/log/pki
-
-      - name: Upload log files
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-logs-${{ matrix.os }}
-          path: pki-logs.tar
+          name: kra-${{ matrix.os }}
+          path: |
+            /tmp/pki/dirsrv/
+            /tmp/pki/pki/
 
   # docs/installation/kra/Installing_KRA_on_Separate_Instance.md
   kra-separate-test:
@@ -203,17 +201,6 @@ jobs:
           docker exec kra cp ${PKIDIR}/ca_admin.cert .
           docker exec kra pkispawn -f /usr/share/pki/server/examples/installation/kra-separate.cfg -s KRA -v
 
-      - name: Gather config files from KRA container
-        if: always()
-        run: docker exec kra tar cvf ${PKIDIR}/kra-separate-conf.tar -C / etc/pki
-
-      - name: Upload config files from KRA container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: kra-separate-conf-${{ matrix.os }}
-          path: kra-separate-conf.tar
-
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
       #   run: docker exec kra pki-healthcheck --debug
@@ -238,6 +225,32 @@ jobs:
           echo kra.example.com > kra.hostname
           diff kra.hostname kraconnector.host
 
+      - name: Gather artifacts from CA container
+        if: always()
+        run: |
+          mkdir -p /tmp/ca/dirsrv/conf
+          docker cp ca:/etc/dirsrv/slapd-localhost/. /tmp/ca/dirsrv/conf
+          mkdir -p /tmp/ca/dirsrv/logs
+          docker cp ca:/var/log/dirsrv/slapd-localhost/. /tmp/ca/dirsrv/logs
+          mkdir -p /tmp/ca/pki/conf
+          docker cp ca:/var/lib/pki/pki-tomcat/conf/. /tmp/ca/pki/conf
+          mkdir -p /tmp/ca/pki/logs
+          docker cp ca:/var/lib/pki/pki-tomcat/logs/. /tmp/ca/pki/logs
+          docker exec ca journalctl -u pki-tomcatd@pki-tomcat > /tmp/ca/pki/logs/systemd.log
+
+      - name: Gather artifacts from KRA container
+        if: always()
+        run: |
+          mkdir -p /tmp/kra/dirsrv/conf
+          docker cp kra:/etc/dirsrv/slapd-localhost/. /tmp/kra/dirsrv/conf
+          mkdir -p /tmp/kra/dirsrv/logs
+          docker cp kra:/var/log/dirsrv/slapd-localhost/. /tmp/kra/dirsrv/logs
+          mkdir -p /tmp/kra/pki/conf
+          docker cp kra:/var/lib/pki/pki-tomcat/conf/. /tmp/kra/pki/conf
+          mkdir -p /tmp/kra/pki/logs
+          docker cp kra:/var/lib/pki/pki-tomcat/logs/. /tmp/kra/pki/logs
+          docker exec kra journalctl -u pki-tomcatd@pki-tomcat > /tmp/kra/pki/logs/systemd.log
+
       - name: Remove KRA from KRA container
         run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
 
@@ -246,19 +259,6 @@ jobs:
 
       - name: Disconnect KRA container from network
         run: docker network disconnect example kra
-
-      - name: Gather log files from KRA container
-        if: always()
-        run: |
-          docker exec kra bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec kra tar cvf ${PKIDIR}/kra-separate-logs.tar -C / var/log/pki
-
-      - name: Upload log files from KRA container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: kra-separate-logs-${{ matrix.os }}
-          path: kra-separate-logs.tar
 
       - name: Remove CA from CA container
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
@@ -269,21 +269,26 @@ jobs:
       - name: Disconnect CA container from network
         run: docker network disconnect example ca
 
-      - name: Gather log files from CA container
-        if: always()
-        run: |
-          docker exec ca bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec ca tar cvf ${PKIDIR}/ca-separate-logs.tar -C / var/log/pki
+      - name: Remove network
+        run: docker network rm example
 
-      - name: Upload log files from CA container
+      - name: Upload artifacts from CA container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-separate-logs-${{ matrix.os }}
-          path: ca-separate-logs.tar
+          name: kra-separate-ca-${{ matrix.os }}
+          path: |
+            /tmp/ca/dirsrv/
+            /tmp/ca/pki/
 
-      - name: Remove network
-        run: docker network rm example
+      - name: Upload artifacts from KRA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-separate-kra-${{ matrix.os }}
+          path: |
+            /tmp/kra/dirsrv/
+            /tmp/kra/pki/
 
   # docs/installation/kra/Installing_KRA_with_External_Certificates.md
   kra-external-certs-test:
@@ -413,17 +418,6 @@ jobs:
         run: |
           docker exec kra pkispawn -f /usr/share/pki/server/examples/installation/kra-external-certs-step2.cfg -s KRA -v
 
-      - name: Gather config files from KRA container
-        if: always()
-        run: docker exec kra tar cvf ${PKIDIR}/kra-external-certs-conf.tar -C / etc/pki
-
-      - name: Upload config files from KRA container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: kra-external-certs-conf-${{ matrix.os }}
-          path: kra-external-certs-conf.tar
-
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
       #   run: docker exec kra pki-healthcheck --debug
@@ -442,6 +436,32 @@ jobs:
           echo kra.example.com > kra.hostname
           diff kra.hostname kraconnector.host
 
+      - name: Gather artifacts from CA container
+        if: always()
+        run: |
+          mkdir -p /tmp/ca/dirsrv/conf
+          docker cp ca:/etc/dirsrv/slapd-localhost/. /tmp/ca/dirsrv/conf
+          mkdir -p /tmp/ca/dirsrv/logs
+          docker cp ca:/var/log/dirsrv/slapd-localhost/. /tmp/ca/dirsrv/logs
+          mkdir -p /tmp/ca/pki/conf
+          docker cp ca:/var/lib/pki/pki-tomcat/conf/. /tmp/ca/pki/conf
+          mkdir -p /tmp/ca/pki/logs
+          docker cp ca:/var/lib/pki/pki-tomcat/logs/. /tmp/ca/pki/logs
+          docker exec ca journalctl -u pki-tomcatd@pki-tomcat > /tmp/ca/pki/logs/systemd.log
+
+      - name: Gather artifacts from KRA container
+        if: always()
+        run: |
+          mkdir -p /tmp/kra/dirsrv/conf
+          docker cp kra:/etc/dirsrv/slapd-localhost/. /tmp/kra/dirsrv/conf
+          mkdir -p /tmp/kra/dirsrv/logs
+          docker cp kra:/var/log/dirsrv/slapd-localhost/. /tmp/kra/dirsrv/logs
+          mkdir -p /tmp/kra/pki/conf
+          docker cp kra:/var/lib/pki/pki-tomcat/conf/. /tmp/kra/pki/conf
+          mkdir -p /tmp/kra/pki/logs
+          docker cp kra:/var/lib/pki/pki-tomcat/logs/. /tmp/kra/pki/logs
+          docker exec kra journalctl -u pki-tomcatd@pki-tomcat > /tmp/kra/pki/logs/systemd.log
+
       - name: Remove KRA from KRA container
         run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
 
@@ -450,19 +470,6 @@ jobs:
 
       - name: Disconnect KRA container from network
         run: docker network disconnect example kra
-
-      - name: Gather log files from KRA container
-        if: always()
-        run: |
-          docker exec kra bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec kra tar cvf ${PKIDIR}/kra-external-certs-logs.tar -C / var/log/pki
-
-      - name: Upload log files from KRA container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: kra-external-certs-logs-${{ matrix.os }}
-          path: kra-external-certs-logs.tar
 
       - name: Remove CA from CA container
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
@@ -473,21 +480,26 @@ jobs:
       - name: Disconnect CA container from network
         run: docker network disconnect example ca
 
-      - name: Gather log files from CA container
-        if: always()
-        run: |
-          docker exec ca bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec ca tar cvf ${PKIDIR}/ca-external-certs-logs.tar -C / var/log/pki
+      - name: Remove network
+        run: docker network rm example
 
-      - name: Upload log files from CA container
+      - name: Upload artifacts from CA container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-external-certs-logs-${{ matrix.os }}
-          path: ca-external-certs-logs.tar
+          name: kra-external-certs-ca-${{ matrix.os }}
+          path: |
+            /tmp/ca/dirsrv/
+            /tmp/ca/pki/
 
-      - name: Remove network
-        run: docker network rm example
+      - name: Upload artifacts from KRA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-external-certs-kra-${{ matrix.os }}
+          path: |
+            /tmp/kra/dirsrv/
+            /tmp/kra/pki/
 
   # docs/installation/kra/Installing_KRA_Clone.md
   kra-clone-test:
@@ -539,17 +551,6 @@ jobs:
       - name: Install primary KRA in primary container
         run: docker exec primary pkispawn -f /usr/share/pki/server/examples/installation/kra.cfg -s KRA -v
 
-      - name: Gather config files from primary container
-        if: always()
-        run: docker exec primary tar cvf ${PKIDIR}/primary-conf.tar -C / etc/pki
-
-      - name: Upload config files from primary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: primary-conf-${{ matrix.os }}
-          path: primary-conf.tar
-
       - name: Setup secondary container
         run: |
           IMAGE=pki-runner \
@@ -579,17 +580,6 @@ jobs:
           docker exec primary pki-server kra-clone-prepare --pkcs12-file ${PKIDIR}/kra-certs.p12 --pkcs12-password Secret.123
           docker exec secondary cp ${PKIDIR}/kra-certs.p12 .
           docker exec secondary pkispawn -f /usr/share/pki/server/examples/installation/kra-clone.cfg -s KRA -v
-
-      - name: Gather config files from secondary container
-        if: always()
-        run: docker exec secondary tar cvf ${PKIDIR}/secondary-conf.tar -C / etc/pki
-
-      - name: Upload config files from secondary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: secondary-conf-${{ matrix.os }}
-          path: secondary-conf.tar
 
       - name: Verify KRA admin in secondary container
         run: |
@@ -631,17 +621,6 @@ jobs:
           docker exec tertiary cp ${PKIDIR}/kra-certs.p12 .
           docker exec tertiary pkispawn -f /usr/share/pki/server/examples/installation/kra-clone-of-clone.cfg -s KRA -v
 
-      - name: Gather config files from tertiary container
-        if: always()
-        run: docker exec tertiary tar cvf ${PKIDIR}/tertiary-conf.tar -C / etc/pki
-
-      - name: Upload config files from tertiary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: tertiary-conf-${{ matrix.os }}
-          path: tertiary-conf.tar
-
       - name: Verify KRA admin in tertiary container
         run: |
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ca_signing.crt
@@ -649,6 +628,45 @@ jobs:
               --pkcs12 ${PKIDIR}/ca_admin_cert.p12 \
               --pkcs12-password-file ${PKIDIR}/pkcs12_password.conf
           docker exec tertiary pki -n caadmin kra-user-show kraadmin
+
+      - name: Gather artifacts from primary container
+        if: always()
+        run: |
+          mkdir -p /tmp/primary/dirsrv/conf
+          docker cp primary:/etc/dirsrv/slapd-localhost/. /tmp/primary/dirsrv/conf
+          mkdir -p /tmp/primary/dirsrv/logs
+          docker cp primary:/var/log/dirsrv/slapd-localhost/. /tmp/primary/dirsrv/logs
+          mkdir -p /tmp/primary/pki/conf
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/. /tmp/primary/pki/conf
+          mkdir -p /tmp/primary/pki/logs
+          docker cp primary:/var/lib/pki/pki-tomcat/logs/. /tmp/primary/pki/logs
+          docker exec primary journalctl -u pki-tomcatd@pki-tomcat > /tmp/primary/pki/logs/systemd.log
+
+      - name: Gather artifacts from secondary container
+        if: always()
+        run: |
+          mkdir -p /tmp/secondary/dirsrv/conf
+          docker cp secondary:/etc/dirsrv/slapd-localhost/. /tmp/secondary/dirsrv/conf
+          mkdir -p /tmp/secondary/dirsrv/logs
+          docker cp secondary:/var/log/dirsrv/slapd-localhost/. /tmp/secondary/dirsrv/logs
+          mkdir -p /tmp/secondary/pki/conf
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/. /tmp/secondary/pki/conf
+          mkdir -p /tmp/secondary/pki/logs
+          docker cp secondary:/var/lib/pki/pki-tomcat/logs/. /tmp/secondary/pki/logs
+          docker exec secondary journalctl -u pki-tomcatd@pki-tomcat > /tmp/secondary/pki/logs/systemd.log
+
+      - name: Gather artifacts from tertiary container
+        if: always()
+        run: |
+          mkdir -p /tmp/tertiary/dirsrv/conf
+          docker cp tertiary:/etc/dirsrv/slapd-localhost/. /tmp/tertiary/dirsrv/conf
+          mkdir -p /tmp/tertiary/dirsrv/logs
+          docker cp tertiary:/var/log/dirsrv/slapd-localhost/. /tmp/tertiary/dirsrv/logs
+          mkdir -p /tmp/tertiary/pki/conf
+          docker cp tertiary:/var/lib/pki/pki-tomcat/conf/. /tmp/tertiary/pki/conf
+          mkdir -p /tmp/tertiary/pki/logs
+          docker cp tertiary:/var/lib/pki/pki-tomcat/logs/. /tmp/tertiary/pki/logs
+          docker exec tertiary journalctl -u pki-tomcatd@pki-tomcat > /tmp/tertiary/pki/logs/systemd.log
 
       - name: Remove KRA from tertiary container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s KRA -v
@@ -662,19 +680,6 @@ jobs:
       - name: Disconnect tertiary container from network
         run: docker network disconnect example tertiary
 
-      - name: Gather log files from tertiary container
-        if: always()
-        run: |
-          docker exec tertiary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec tertiary tar cvf ${PKIDIR}/tertiary-logs.tar -C / var/log/pki
-
-      - name: Upload log files from tertiary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: tertiary-logs-${{ matrix.os }}
-          path: tertiary-logs.tar
-
       - name: Remove KRA from secondary container
         run: docker exec secondary pkidestroy -i pki-tomcat -s KRA -v
 
@@ -686,19 +691,6 @@ jobs:
 
       - name: Disconnect secondary container from network
         run: docker network disconnect example secondary
-
-      - name: Gather log files from secondary container
-        if: always()
-        run: |
-          docker exec secondary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec secondary tar cvf ${PKIDIR}/secondary-logs.tar -C / var/log/pki
-
-      - name: Upload log files from secondary container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: secondary-logs-${{ matrix.os }}
-          path: secondary-logs.tar
 
       - name: Remove KRA from primary container
         run: docker exec primary pkidestroy -i pki-tomcat -s KRA -v
@@ -715,18 +707,32 @@ jobs:
       - name: Remove network
         run: docker network rm example
 
-      - name: Gather log files from primary container
-        if: always()
-        run: |
-          docker exec primary bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec primary tar cvf ${PKIDIR}/primary-logs.tar -C / var/log/pki
-
-      - name: Upload log files from primary container
+      - name: Upload artifacts from primary container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: primary-logs-${{ matrix.os }}
-          path: primary-logs.tar
+          name: kra-clone-primary-${{ matrix.os }}
+          path: |
+            /tmp/primary/dirsrv/
+            /tmp/primary/pki/
+
+      - name: Upload artifacts from secondary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-clone-secondary-${{ matrix.os }}
+          path: |
+            /tmp/secondary/dirsrv/
+            /tmp/secondary/pki/
+
+      - name: Upload artifacts from tertiary container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-clone-tertiary-${{ matrix.os }}
+          path: |
+            /tmp/tertiary/dirsrv/
+            /tmp/tertiary/pki/
 
   kra-standalone-test:
     name: Installing Standalone KRA
@@ -843,17 +849,6 @@ jobs:
         run: |
           docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/kra-standalone-step2.cfg -s KRA -v
 
-      - name: Gather config files
-        if: always()
-        run: docker exec pki tar cvf ${PKIDIR}/kra-standalone-conf.tar -C / etc/pki
-
-      - name: Upload config files
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: kra-standalone-conf-${{ matrix.os }}
-          path: kra-standalone-conf.tar
-
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
       #   run: docker exec pki pki-healthcheck --debug
@@ -866,21 +861,30 @@ jobs:
               --pkcs12-password-file /root/.dogtag/pki-tomcat/kra/pkcs12_password.conf
           docker exec pki pki -n kraadmin kra-user-show kraadmin
 
+      - name: Gather artifacts
+        if: always()
+        run: |
+          mkdir -p /tmp/pki/dirsrv/conf
+          docker cp pki:/etc/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/conf
+          mkdir -p /tmp/pki/dirsrv/logs
+          docker cp pki:/var/log/dirsrv/slapd-localhost/. /tmp/pki/dirsrv/logs
+          mkdir -p /tmp/pki/pki/conf
+          docker cp pki:/var/lib/pki/pki-tomcat/conf/. /tmp/pki/pki/conf
+          mkdir -p /tmp/pki/pki/logs
+          docker cp pki:/var/lib/pki/pki-tomcat/logs/. /tmp/pki/pki/logs
+          docker exec pki journalctl -u pki-tomcatd@pki-tomcat > /tmp/pki/pki/logs/systemd.log
+
       - name: Remove KRA
         run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
 
       - name: Remove DS
         run: docker exec pki ${PKIDIR}/ci/ds-remove.sh
 
-      - name: Gather log files
-        if: always()
-        run: |
-          docker exec pki bash -c "journalctl -u pki-tomcatd@pki-tomcat > /var/log/pki/pki-tomcat/systemd.log"
-          docker exec pki tar cvf ${PKIDIR}/kra-standalone-logs.tar -C / var/log/pki
-
-      - name: Upload log files
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-standalone-logs-${{ matrix.os }}
-          path: kra-standalone-logs.tar
+          name: kra-standalone-${{ matrix.os }}
+          path: |
+            /tmp/pki/dirsrv/
+            /tmp/pki/pki/
