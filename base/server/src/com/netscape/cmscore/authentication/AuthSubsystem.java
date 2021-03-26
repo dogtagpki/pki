@@ -134,14 +134,68 @@ public class AuthSubsystem implements ISubsystem {
     public AuthSubsystem() {
     }
 
+    public void loadAuthManagerPlugins() throws EBaseException {
+
+        // hardcode admin and agent plugins required for the server to be
+        // functional.
+
+        logger.info("AuthSubsystem: Loading auth manager plugin " + PASSWDUSERDB_PLUGIN_ID);
+
+        AuthMgrPlugin plugin = new AuthMgrPlugin(PASSWDUSERDB_PLUGIN_ID, PasswdUserDBAuthentication.class.getName());
+        plugin.setVisible(false);
+        mAuthMgrPlugins.put(PASSWDUSERDB_PLUGIN_ID, plugin);
+
+        logger.info("AuthSubsystem: Loading auth manager plugin " + CERTUSERDB_PLUGIN_ID);
+
+        plugin = new AuthMgrPlugin(CERTUSERDB_PLUGIN_ID, CertUserDBAuthentication.class.getName());
+        plugin.setVisible(false);
+        mAuthMgrPlugins.put(CERTUSERDB_PLUGIN_ID, plugin);
+
+        logger.info("AuthSubsystem: Loading auth manager plugin " + CHALLENGE_PLUGIN_ID);
+
+        plugin = new AuthMgrPlugin(CHALLENGE_PLUGIN_ID, ChallengePhraseAuthentication.class.getName());
+        plugin.setVisible(false);
+        mAuthMgrPlugins.put(CHALLENGE_PLUGIN_ID, plugin);
+
+        // Bugscape #56659
+        //   Removed NullAuthMgr to harden CMS. Otherwise,
+        //   any request submitted for nullAuthMgr will
+        //   be approved automatically
+        //
+        // logger.info("AuthSubsystem: Loading auth manager plugin " + NULL_PLUGIN_ID);
+        //
+        // plugin = new AuthMgrPlugin(NULL_PLUGIN_ID, NullAuthentication.class.getName());
+        // plugin.setVisible(false);
+        // mAuthMgrPlugins.put(NULL_PLUGIN_ID, plugin);
+
+        logger.info("AuthSubsystem: Loading auth manager plugin " + SSLCLIENTCERT_PLUGIN_ID);
+
+        plugin = new AuthMgrPlugin(SSLCLIENTCERT_PLUGIN_ID, SSLClientCertAuthentication.class.getName());
+        plugin.setVisible(false);
+        mAuthMgrPlugins.put(SSLCLIENTCERT_PLUGIN_ID, plugin);
+
+        IConfigStore c = mConfig.getSubStore(PROP_IMPL);
+        Enumeration<String> pluginIDs = c.getSubStoreNames();
+
+        while (pluginIDs.hasMoreElements()) {
+            String pluginID = pluginIDs.nextElement();
+            logger.info("AuthSubsystem: Loading auth manager plugin " + pluginID);
+
+            String pluginPath = c.getString(pluginID + "." + PROP_CLASS);
+            plugin = new AuthMgrPlugin(pluginID, pluginPath);
+
+            mAuthMgrPlugins.put(pluginID, plugin);
+        }
+    }
+
     /**
      * Initializes the authentication subsystem from the config store.
      * Load Authentication manager plugins, create and initialize
      * initialize authentication manager instances.
+     *
      * @param config The configuration store.
      */
-    public void init(IConfigStore config)
-            throws EBaseException {
+    public void init(IConfigStore config) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig engineConfig = engine.getConfig();
@@ -149,56 +203,7 @@ public class AuthSubsystem implements ISubsystem {
         try {
             mConfig = engineConfig.getAuthenticationConfig();
 
-            // hardcode admin and agent plugins required for the server to be
-            // functional.
-
-            AuthMgrPlugin newPlugin = null;
-
-            newPlugin = new AuthMgrPlugin(PASSWDUSERDB_PLUGIN_ID,
-                    PasswdUserDBAuthentication.class.getName());
-            newPlugin.setVisible(false);
-            mAuthMgrPlugins.put(PASSWDUSERDB_PLUGIN_ID, newPlugin);
-
-            newPlugin = new AuthMgrPlugin(CERTUSERDB_PLUGIN_ID,
-                    CertUserDBAuthentication.class.getName());
-            newPlugin.setVisible(false);
-            mAuthMgrPlugins.put(CERTUSERDB_PLUGIN_ID, newPlugin);
-
-            newPlugin = new AuthMgrPlugin(CHALLENGE_PLUGIN_ID,
-                    ChallengePhraseAuthentication.class.getName());
-            newPlugin.setVisible(false);
-            mAuthMgrPlugins.put(CHALLENGE_PLUGIN_ID, newPlugin);
-
-            // Bugscape #56659
-            //   Removed NullAuthMgr to harden CMS. Otherwise,
-            //   any request submitted for nullAuthMgr will
-            //   be approved automatically
-            //
-            // newPlugin = new AuthMgrPlugin(NULL_PLUGIN_ID,
-            //            NullAuthentication.class.getName());
-            // newPlugin.setVisible(false);
-            // mAuthMgrPlugins.put(NULL_PLUGIN_ID, newPlugin);
-
-            newPlugin = new AuthMgrPlugin(SSLCLIENTCERT_PLUGIN_ID,
-                    SSLClientCertAuthentication.class.getName());
-            newPlugin.setVisible(false);
-            mAuthMgrPlugins.put(SSLCLIENTCERT_PLUGIN_ID, newPlugin);
-
-            // get auth manager plugins.
-
-            IConfigStore c = mConfig.getSubStore(PROP_IMPL);
-            Enumeration<String> mImpls = c.getSubStoreNames();
-
-            while (mImpls.hasMoreElements()) {
-                String id = mImpls.nextElement();
-                String pluginPath = c.getString(id + "." + PROP_CLASS);
-
-                AuthMgrPlugin plugin = new AuthMgrPlugin(id, pluginPath);
-
-                mAuthMgrPlugins.put(id, plugin);
-            }
-
-            logger.debug("loaded auth plugins");
+            loadAuthManagerPlugins();
 
             // hardcode admin and agent auth manager instances for the server
             // to be functional
