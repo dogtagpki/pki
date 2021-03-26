@@ -31,10 +31,10 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
-import com.netscape.certsrv.dbs.IDBDynAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IFilterConverter;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.request.DBDynAttrMapper;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -63,7 +63,7 @@ public class LDAPRegistry extends DBRegistry {
     private Hashtable<String, NameAndObject> mOCldapNames = new Hashtable<String, NameAndObject>();
     private Hashtable<String, IDBAttrMapper> mAttrufNames = new Hashtable<String, IDBAttrMapper>();
     private IFilterConverter mConverter = null;
-    private Vector<IDBDynAttrMapper> mDynAttrMappers = new Vector<IDBDynAttrMapper>();
+    private Vector<DBDynAttrMapper> mDynAttrMappers = new Vector<>();
 
     /**
      * Constructs registry.
@@ -169,7 +169,7 @@ public class LDAPRegistry extends DBRegistry {
         return mAttrufNames.containsKey(ufName.toLowerCase());
     }
 
-    public void registerDynamicMapper(IDBDynAttrMapper mapper) {
+    public void registerDynamicMapper(DBDynAttrMapper mapper) {
         mDynAttrMappers.add(mapper);
     }
 
@@ -408,9 +408,9 @@ public class LDAPRegistry extends DBRegistry {
 
                 logger.debug("LDAPRegistry:   checking dynamic mapper");
 
-                IDBDynAttrMapper matchingDynAttrMapper = null;
-                for (Iterator<IDBDynAttrMapper> dynMapperIter = mDynAttrMappers.iterator(); dynMapperIter.hasNext();) {
-                    IDBDynAttrMapper dynAttrMapper = dynMapperIter.next();
+                DBDynAttrMapper matchingDynAttrMapper = null;
+                for (Iterator<DBDynAttrMapper> dynMapperIter = mDynAttrMappers.iterator(); dynMapperIter.hasNext();) {
+                    DBDynAttrMapper dynAttrMapper = dynMapperIter.next();
                     if (dynAttrMapper.supportsLDAPAttributeName(attr)) {
                         logger.debug("LDAPRegistry:   found dynamic mapper: " + dynAttrMapper);
                         matchingDynAttrMapper = dynAttrMapper;

@@ -2,16 +2,27 @@ package com.netscape.cmscore.request;
 
 import java.util.Enumeration;
 
-import netscape.ldap.LDAPAttributeSet;
-
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBDynAttrMapper;
+import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 
+import netscape.ldap.LDAPAttributeSet;
+
 /**
- * Default testing stub for the IRequest interface.
+ * A class representing a dynamic attribute mapper.
+ * A dynamic mapper has knowledge on how to convert a set of dynamically
+ * assigned db attribute into zero or more dynamically assigned LDAP
+ * attributes, and vice versa.
  */
-public class DBDynAttrMapper implements IDBDynAttrMapper {
+public class DBDynAttrMapper implements IDBAttrMapper {
+
+    /**
+     * Returns true if the LDAP attribute can be mapped by this
+     * dynamic mapper.
+     *
+     * @param attrName LDAP attribute name to check
+     * @return a list of supported attribute names
+     */
     public boolean supportsLDAPAttributeName(String attrName) {
         return false;
     }

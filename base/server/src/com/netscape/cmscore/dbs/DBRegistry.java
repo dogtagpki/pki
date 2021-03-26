@@ -4,9 +4,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
-import com.netscape.certsrv.dbs.IDBDynAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IFilterConverter;
+import com.netscape.cmscore.request.DBDynAttrMapper;
 
 import netscape.ldap.LDAPAttributeSet;
 
@@ -72,7 +72,7 @@ public class DBRegistry {
      *
      * @param mapper The dynamic mapper to register
      */
-    public void registerDynamicMapper(IDBDynAttrMapper mapper) {
+    public void registerDynamicMapper(DBDynAttrMapper mapper) {
     }
 
     /**

@@ -5,7 +5,6 @@ import java.util.Hashtable;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
-import com.netscape.certsrv.dbs.IDBDynAttrMapper;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.certsrv.request.RequestId;
@@ -145,7 +144,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         String[] registerObjectClassLdapNames = null;
 
         private boolean registerDynamicMapperCalled = false;
-        private IDBDynAttrMapper dynamicMapper;
+        private DBDynAttrMapper dynamicMapper;
 
         public void registerObjectClass(String className, String ldapNames[]) throws EDBException {
             registerObjectClassCalled = true;
@@ -159,7 +158,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
             }
         }
 
-        public void registerDynamicMapper(IDBDynAttrMapper mapper) {
+        public void registerDynamicMapper(DBDynAttrMapper mapper) {
             registerDynamicMapperCalled = true;
             dynamicMapper = mapper;
         }

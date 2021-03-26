@@ -22,7 +22,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBDynAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.certsrv.request.RequestId;
@@ -53,7 +52,7 @@ import netscape.ldap.LDAPAttributeSet;
  * These can be mixed, but each top-level key can only be associated with
  * a String value or a Hashtable value.
  */
-public class ExtAttrDynMapper implements IDBDynAttrMapper {
+public class ExtAttrDynMapper extends DBDynAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExtAttrDynMapper.class);
 
