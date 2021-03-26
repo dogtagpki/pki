@@ -75,10 +75,12 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.dbs.CRLRepository;
+import com.netscape.cmscore.dbs.CertStatusUpdateTask;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.dbs.Repository;
+import com.netscape.cmscore.dbs.RetrieveModificationsTask;
 import com.netscape.cmscore.dbs.SerialNumberUpdateTask;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -145,6 +147,8 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
     public IRequestListener certRevokedListener;
     public IRequestListener requestInQueueListener;
 
+    public RetrieveModificationsTask retrieveModificationsTask;
+    public CertStatusUpdateTask certStatusUpdateTask;
     public SerialNumberUpdateTask serialNumberUpdateTask;
 
     protected LdapBoundConnFactory connectionFactory =
@@ -639,6 +643,43 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         requestInQueueListener.init(hostCA, listenerConfig);
     }
 
+    public void startCertStatusUpdate() throws Exception {
+
+        logger.info("CAEngine: Cert status update task:");
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        int interval = caConfig.getInteger("certStatusUpdateInterval", 10 * 60);
+        logger.info("CAEngine: - interval: " + interval + " seconds");
+
+        boolean listenToCloneModifications = caConfig.getBoolean("listenToCloneModifications", false);
+        logger.info("CAEngine: - listen to clone modification: " + listenToCloneModifications);
+
+        if (certStatusUpdateTask != null) {
+            certStatusUpdateTask.stop();
+        }
+
+        if (retrieveModificationsTask != null) {
+            retrieveModificationsTask.stop();
+        }
+
+        if (interval == 0) {
+            logger.info("CAEngine: Cert status update task is disabled");
+            return;
+        }
+
+        if (listenToCloneModifications) {
+            logger.info("CAEngine: Starting retrieve modifications task");
+            retrieveModificationsTask = new RetrieveModificationsTask(certificateRepository);
+            retrieveModificationsTask.start();
+        }
+
+        logger.info("CAEngine: Starting cert status update task");
+        certStatusUpdateTask = new CertStatusUpdateTask(certificateRepository, interval);
+        certStatusUpdateTask.start();
+    }
+
     public void startSerialNumberUpdateTask() throws Exception {
 
         logger.info("CAEngine: Serial number update task:");
@@ -750,15 +791,7 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         if (!isPreOpMode()) {
             logger.info("CAEngine: Starting CA services");
 
-            int certStatusUpdateInterval = caConfig.getInteger("certStatusUpdateInterval", 10 * 60);
-            logger.info("CAEngine: - status update interval (seconds): " + certStatusUpdateInterval);
-
-            boolean listenToCloneModifications = caConfig.getBoolean("listenToCloneModifications", false);
-            logger.info("CAEngine: - listen to clone modification: " + listenToCloneModifications);
-
-            certificateRepository.setCertStatusUpdateInterval(
-                certStatusUpdateInterval,
-                listenToCloneModifications);
+            startCertStatusUpdate();
 
             boolean consistencyCheck = caConfig.getBoolean("ConsistencyCheck", false);
             logger.info("CAEngine: - consistency check: " + consistencyCheck);
@@ -1683,6 +1716,14 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
         if (serialNumberUpdateTask != null) {
             serialNumberUpdateTask.stop();
+        }
+
+        if (certStatusUpdateTask != null) {
+            certStatusUpdateTask.stop();
+        }
+
+        if (retrieveModificationsTask != null) {
+            retrieveModificationsTask.stop();
         }
 
         if (certificateRepository != null) {

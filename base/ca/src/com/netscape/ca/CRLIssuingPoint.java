@@ -2089,12 +2089,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         CertRecProcessor cp = (CertRecProcessor) p;
         String filter = getFilter();
 
-        // NOTE: dangerous cast.
-        // correct way would be to modify interface and add
-        // accessor but we don't want to touch the interface
-        CertificateRepository cr = mCertRepository;
-
-        synchronized (cr.certStatusUpdateTask) {
+        CAEngine engine = CAEngine.getInstance();
+        synchronized (engine.certStatusUpdateTask) {
 
             logger.debug("Starting processRevokedCerts (entered lock)");
             // this code and CertStatusUpdateTask.updateCertStatus() are mutually exclusive

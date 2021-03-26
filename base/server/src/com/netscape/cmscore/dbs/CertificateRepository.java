@@ -109,9 +109,6 @@ public class CertificateRepository extends Repository {
     private IConfigStore mDBConfig = null;
     private boolean mForceModeChange = false;
 
-    public CertStatusUpdateTask certStatusUpdateTask;
-    public RetrieveModificationsTask retrieveModificationsTask;
-
     /**
      * Constructs a certificate repository.
      */
@@ -621,46 +618,6 @@ public class CertificateRepository extends Repository {
      */
     public void addCRLIssuingPoint(String id, ICRLIssuingPoint crlIssuingPoint) {
         mCRLIssuingPoints.put(id, crlIssuingPoint);
-    }
-
-    /**
-     * Sets certificate status update internal.
-     *
-     * interval value: (in seconds)
-     * 0 - disable
-     * >0 - enable
-     *
-     * @param interval update interval
-     * @param listenToCloneModifications enable listening to clone modifications
-     */
-    public void setCertStatusUpdateInterval(int interval, boolean listenToCloneModifications) {
-
-        logger.debug("In setCertStatusUpdateInterval " + interval);
-
-        // stop running tasks
-        if (certStatusUpdateTask != null) {
-            certStatusUpdateTask.stop();
-        }
-        if (retrieveModificationsTask != null) {
-            retrieveModificationsTask.stop();
-        }
-
-        if (interval == 0) {
-            logger.debug("In setCertStatusUpdateInterval interval = 0");
-            return;
-        }
-
-        logger.debug("In setCertStatusUpdateInterval listenToCloneModifications=" + listenToCloneModifications);
-
-        if (listenToCloneModifications) {
-            logger.debug("In setCertStatusUpdateInterval listening to modifications");
-            retrieveModificationsTask = new RetrieveModificationsTask(this);
-            retrieveModificationsTask.start();
-        }
-
-        logger.debug("In setCertStatusUpdateInterval scheduling cert status update every " + interval + " seconds.");
-        certStatusUpdateTask = new CertStatusUpdateTask(this, interval);
-        certStatusUpdateTask.start();
     }
 
     /**
@@ -2589,12 +2546,5 @@ public class CertificateRepository extends Repository {
     }
 
     public void shutdown() {
-        if (certStatusUpdateTask != null) {
-            certStatusUpdateTask.stop();
-        }
-
-        if (retrieveModificationsTask != null) {
-            retrieveModificationsTask.stop();
-        }
     }
 }
