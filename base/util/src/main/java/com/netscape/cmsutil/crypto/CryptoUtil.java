@@ -672,8 +672,6 @@ public class CryptoUtil {
         KeyPairGenerator keygen = token.getKeyPairGenerator(alg);
 
         keygen.setKeyPairUsages(usage_ops, usage_mask);
-        keygen.initialize(keysize);
-        keygen.setKeyPairUsages(usage_ops, usage_mask);
 
         logger.info("CryptoUtil: - temporary: " + temporary);
         keygen.temporaryPairs(temporary);
@@ -748,7 +746,6 @@ public class CryptoUtil {
         KeyPairAlgorithm alg = KeyPairAlgorithm.EC;
         KeyPairGenerator keygen = token.getKeyPairGenerator(alg);
 
-        keygen.setKeyPairUsages(usage_ops, usage_mask);
         keygen.setKeyPairUsages(usage_ops, usage_mask);
 
         logger.info("CryptoUtil: - temporary: " + temporary);
