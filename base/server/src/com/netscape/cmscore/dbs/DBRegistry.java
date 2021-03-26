@@ -3,7 +3,7 @@ package com.netscape.cmscore.dbs;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IFilterConverter;
 import com.netscape.cmscore.request.DBDynAttrMapper;
@@ -54,7 +54,7 @@ public class DBRegistry {
      * @param mapper mapper to invoke for the attribute
      * @exception EDBException failed to register
      */
-    public void registerAttribute(String ufName, IDBAttrMapper mapper) throws EDBException {
+    public void registerAttribute(String ufName, DBAttrMapper mapper) throws EDBException {
     }
 
     /**

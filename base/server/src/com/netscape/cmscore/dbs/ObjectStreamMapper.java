@@ -26,8 +26,8 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
@@ -42,7 +42,7 @@ import netscape.ldap.LDAPAttributeSet;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class ObjectStreamMapper implements IDBAttrMapper {
+public class ObjectStreamMapper extends DBAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ObjectStreamMapper.class);
     private String mLdapName = null;

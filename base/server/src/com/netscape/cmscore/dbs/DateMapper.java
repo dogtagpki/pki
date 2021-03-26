@@ -24,7 +24,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
@@ -39,7 +39,7 @@ import netscape.ldap.LDAPAttributeSet;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class DateMapper implements IDBAttrMapper {
+public class DateMapper extends DBAttrMapper {
 
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();

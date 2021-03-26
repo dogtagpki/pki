@@ -9,7 +9,7 @@ import java.util.Enumeration;
 import java.util.Map;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
@@ -40,7 +40,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
         register(recordType);
     }
 
-    public IDBAttrMapper createMapper(Class<?> attrType, DBAttribute dbAttribute) throws EBaseException {
+    public DBAttrMapper createMapper(Class<?> attrType, DBAttribute dbAttribute) throws EBaseException {
         String attrName = dbAttribute.value();
 
         if (attrType == String.class) {
@@ -80,7 +80,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
             name = Character.toLowerCase(name.charAt(3)) + name.substring(4);
 
             Class<?> attrType = method.getReturnType();
-            IDBAttrMapper mapper = createMapper(attrType, dbAttribute);
+            DBAttrMapper mapper = createMapper(attrType, dbAttribute);
 
             dbRegistry.registerAttribute(name, mapper);
         }
@@ -92,7 +92,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
 
             String name = field.getName();
             Class<?> attrType = field.getType();
-            IDBAttrMapper mapper = createMapper(attrType, dbAttribute);
+            DBAttrMapper mapper = createMapper(attrType, dbAttribute);
 
             dbRegistry.registerAttribute(name, mapper);
         }

@@ -21,14 +21,14 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 
 /**
  * A class represent mapper for metainfo attribute. Metainfo
@@ -44,7 +44,7 @@ import com.netscape.cmscore.apps.CMS;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class MetaInfoMapper implements IDBAttrMapper {
+public class MetaInfoMapper extends DBAttrMapper {
 
     public static final String SEP = ":";
 

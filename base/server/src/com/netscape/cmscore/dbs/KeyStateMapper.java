@@ -21,7 +21,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.keydb.KeyState;
 import com.netscape.cmscore.apps.CMS;
@@ -36,7 +36,7 @@ import netscape.ldap.LDAPAttributeSet;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class KeyStateMapper implements IDBAttrMapper {
+public class KeyStateMapper extends DBAttrMapper {
 
     private String mLdapName = null;
 

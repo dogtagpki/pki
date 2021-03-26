@@ -19,19 +19,19 @@ package com.netscape.certsrv.dbs;
 
 import java.util.Enumeration;
 
-import netscape.ldap.LDAPAttributeSet;
-
 import com.netscape.certsrv.base.EBaseException;
 
+import netscape.ldap.LDAPAttributeSet;
+
 /**
- * An interface represents an attribute mapper. A mapper
+ * A class represents an attribute mapper. A mapper
  * has knowledge on how to convert a db attribute into
  * zero or more LDAP attribute, and vice versa.
  * <P>
  *
  * @version $Revision$, $Date$
  */
-public interface IDBAttrMapper {
+public abstract class DBAttrMapper {
 
     /**
      * Retrieves a list of LDAP attributes that are used
@@ -40,7 +40,7 @@ public interface IDBAttrMapper {
      *
      * @return a list of supported attribute names
      */
-    public Enumeration<String> getSupportedLDAPAttributeNames();
+    public abstract Enumeration<String> getSupportedLDAPAttributeNames();
 
     /**
      * Maps object attribute into LDAP attributes.
@@ -51,7 +51,7 @@ public interface IDBAttrMapper {
      * @param attrs LDAP attribute set where the result should be stored
      * @exception EBaseException failed to map object
      */
-    public void mapObjectToLDAPAttributeSet(IDBObj parent,
+    public abstract void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException;
 
@@ -64,7 +64,7 @@ public interface IDBAttrMapper {
      * @param parent parent object where the object should be added
      * @exception EBaseException failed to map object
      */
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
+    public abstract void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
             String name, IDBObj parent) throws EBaseException;
 
     /**
@@ -75,6 +75,6 @@ public interface IDBAttrMapper {
      * @param value attribute value
      * @exception EBaseException failed to map filter
      */
-    public String mapSearchFilter(String name, String op,
+    public abstract String mapSearchFilter(String name, String op,
             String value) throws EBaseException;
 }

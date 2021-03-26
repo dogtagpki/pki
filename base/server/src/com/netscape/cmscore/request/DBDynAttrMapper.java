@@ -3,7 +3,7 @@ package com.netscape.cmscore.request;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 
 import netscape.ldap.LDAPAttributeSet;
@@ -14,7 +14,7 @@ import netscape.ldap.LDAPAttributeSet;
  * assigned db attribute into zero or more dynamically assigned LDAP
  * attributes, and vice versa.
  */
-public class DBDynAttrMapper implements IDBAttrMapper {
+public class DBDynAttrMapper extends DBAttrMapper {
 
     /**
      * Returns true if the LDAP attribute can be mapped by this

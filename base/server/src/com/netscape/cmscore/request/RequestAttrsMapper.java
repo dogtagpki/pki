@@ -29,7 +29,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
@@ -47,7 +47,7 @@ import netscape.ldap.LDAPAttributeSet;
  * @version $Revision$ $Date$
  * @deprecated
  */
-public class RequestAttrsMapper implements IDBAttrMapper {
+public class RequestAttrsMapper extends DBAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestAttrsMapper.class);
 
@@ -195,7 +195,7 @@ public class RequestAttrsMapper implements IDBAttrMapper {
      * Implements IDBAttrMapper.mapLDAPAttributeSetToObject
      * <p>
      *
-     * @see IDBAttrMapper#mapLDAPAttributeSetToObject
+     * @see DBAttrMapper#mapLDAPAttributeSetToObject
      */
     public void mapLDAPAttributeSetToObject(
             LDAPAttributeSet attrs,

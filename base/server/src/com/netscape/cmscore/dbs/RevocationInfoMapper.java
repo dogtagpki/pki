@@ -28,8 +28,8 @@ import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
@@ -44,7 +44,7 @@ import netscape.ldap.LDAPAttributeSet;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class RevocationInfoMapper implements IDBAttrMapper {
+public class RevocationInfoMapper extends DBAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RevocationInfoMapper.class);
 

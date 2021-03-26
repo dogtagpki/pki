@@ -35,8 +35,8 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.AttributeNameHelper;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
@@ -50,7 +50,7 @@ import netscape.ldap.LDAPAttributeSet;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class X509CertImplMapper implements IDBAttrMapper {
+public class X509CertImplMapper extends DBAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(X509CertImplMapper.class);
 

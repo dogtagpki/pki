@@ -4,7 +4,7 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.certsrv.request.RequestId;
@@ -138,7 +138,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
 
     static class DBRegistryStub extends DBRegistry {
         boolean registerCalledWithExtAttr = false;
-        IDBAttrMapper extAttrMapper = null;
+        DBAttrMapper extAttrMapper = null;
 
         boolean registerObjectClassCalled = false;
         String[] registerObjectClassLdapNames = null;
@@ -151,7 +151,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
             registerObjectClassLdapNames = ldapNames;
         }
 
-        public void registerAttribute(String ufName, IDBAttrMapper mapper) throws EDBException {
+        public void registerAttribute(String ufName, DBAttrMapper mapper) throws EDBException {
             if (IRequestRecord.ATTR_EXT_DATA.equals(ufName)) {
                 registerCalledWithExtAttr = true;
                 extAttrMapper = mapper;

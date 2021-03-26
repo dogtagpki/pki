@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IFilterConverter;
 import com.netscape.cmscore.apps.CMS;
@@ -61,7 +61,7 @@ public class LDAPRegistry extends DBRegistry {
     private IConfigStore mConfig = null;
     private Hashtable<String, String[]> mOCclassNames = new Hashtable<String, String[]>();
     private Hashtable<String, NameAndObject> mOCldapNames = new Hashtable<String, NameAndObject>();
-    private Hashtable<String, IDBAttrMapper> mAttrufNames = new Hashtable<String, IDBAttrMapper>();
+    private Hashtable<String, DBAttrMapper> mAttrufNames = new Hashtable<String, DBAttrMapper>();
     private IFilterConverter mConverter = null;
     private Vector<DBDynAttrMapper> mDynAttrMappers = new Vector<>();
 
@@ -155,7 +155,7 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * Registers attribute mapper.
      */
-    public void registerAttribute(String ufName, IDBAttrMapper mapper)
+    public void registerAttribute(String ufName, DBAttrMapper mapper)
             throws EDBException {
         // should not allows 'objectclass' as attribute; it has
         // special meaning
@@ -346,7 +346,7 @@ public class LDAPRegistry extends DBRegistry {
      */
     public void mapObject(IDBObj parent, String name, Object obj,
             LDAPAttributeSet attrs) throws EBaseException {
-        IDBAttrMapper mapper = mAttrufNames.get(name.toLowerCase());
+        DBAttrMapper mapper = mAttrufNames.get(name.toLowerCase());
 
         if (mapper == null) {
             return; // no mapper found, just skip this attribute
@@ -393,7 +393,7 @@ public class LDAPRegistry extends DBRegistry {
 
                 logger.debug("LDAPRegistry:   attribute is registered");
 
-                IDBAttrMapper mapper = mAttrufNames.get(attr.toLowerCase());
+                DBAttrMapper mapper = mAttrufNames.get(attr.toLowerCase());
                 if (mapper == null) {
                     throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS"));
                 }
@@ -499,7 +499,7 @@ public class LDAPRegistry extends DBRegistry {
 
             while (ee.hasMoreElements()) {
                 String oname = ee.nextElement();
-                IDBAttrMapper mapper = mAttrufNames.get(oname.toLowerCase());
+                DBAttrMapper mapper = mAttrufNames.get(oname.toLowerCase());
 
                 if (mapper == null) {
                     throw new EDBException(

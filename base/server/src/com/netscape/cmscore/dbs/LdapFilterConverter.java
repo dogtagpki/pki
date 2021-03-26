@@ -21,7 +21,7 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.base.AttributeNameHelper;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IFilterConverter;
 
 /**
@@ -34,12 +34,12 @@ import com.netscape.certsrv.dbs.IFilterConverter;
  */
 public class LdapFilterConverter implements IFilterConverter {
 
-    private Hashtable<String, IDBAttrMapper> mReg = null;
+    private Hashtable<String, DBAttrMapper> mReg = null;
 
     /**
      * Constructs filter convertor.
      */
-    public LdapFilterConverter(Hashtable<String, IDBAttrMapper> reg) {
+    public LdapFilterConverter(Hashtable<String, DBAttrMapper> reg) {
         mReg = reg;
     }
 
@@ -48,7 +48,7 @@ public class LdapFilterConverter implements IFilterConverter {
      */
     public String convert(String name, String op, String value) {
         AttributeNameHelper h = new AttributeNameHelper(name);
-        IDBAttrMapper mapper = mReg.get(
+        DBAttrMapper mapper = mReg.get(
                 h.getPrefix().toLowerCase());
 
         if (mapper == null)

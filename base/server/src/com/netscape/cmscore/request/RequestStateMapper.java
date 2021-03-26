@@ -21,7 +21,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
@@ -37,7 +37,7 @@ import netscape.ldap.LDAPAttributeSet;
  * @author thayes
  * @version $Revision$ $Date$
  */
-public class RequestStateMapper implements IDBAttrMapper {
+public class RequestStateMapper extends DBAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestStateMapper.class);
 

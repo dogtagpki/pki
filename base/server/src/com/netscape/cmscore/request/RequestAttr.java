@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequest;
@@ -47,7 +47,7 @@ abstract class RequestAttr {
 
     abstract void mod(ModificationSet mods, IRequest r);
 
-    RequestAttr(String attrName, IDBAttrMapper mapper) {
+    RequestAttr(String attrName, DBAttrMapper mapper) {
         mAttrName = attrName;
         mMapper = mapper;
     }
@@ -57,5 +57,5 @@ abstract class RequestAttr {
     }
 
     String mAttrName;
-    IDBAttrMapper mMapper;
+    DBAttrMapper mMapper;
 }

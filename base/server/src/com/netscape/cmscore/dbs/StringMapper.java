@@ -21,12 +21,12 @@ import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.DBAttrMapper;
+import com.netscape.certsrv.dbs.IDBObj;
+
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
-
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
-import com.netscape.certsrv.dbs.IDBObj;
 
 /**
  * A class represents ann attribute mapper that maps
@@ -36,7 +36,7 @@ import com.netscape.certsrv.dbs.IDBObj;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class StringMapper implements IDBAttrMapper {
+public class StringMapper extends DBAttrMapper {
 
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();

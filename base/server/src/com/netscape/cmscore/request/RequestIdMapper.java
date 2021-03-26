@@ -22,7 +22,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
@@ -39,7 +39,7 @@ import netscape.ldap.LDAPAttributeSet;
  * @author thayes
  * @version $Revision$ $Date$
  */
-public class RequestIdMapper implements IDBAttrMapper {
+public class RequestIdMapper extends DBAttrMapper {
 
     protected final static Vector<String> mAttrs = new Vector<String>();
 

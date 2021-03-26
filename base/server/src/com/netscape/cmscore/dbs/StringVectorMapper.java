@@ -20,13 +20,13 @@ package com.netscape.cmscore.dbs;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBAttrMapper;
+import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 
 /**
  * A class represents ann attribute mapper that maps
@@ -36,7 +36,7 @@ import com.netscape.cmscore.apps.CMS;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class StringVectorMapper implements IDBAttrMapper {
+public class StringVectorMapper extends DBAttrMapper {
 
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
