@@ -21,11 +21,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthManagerProxy;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -131,17 +131,7 @@ public class AuthSubsystem implements ISubsystem {
     private String mId = "auths";
     private AuthenticationConfig mConfig;
 
-    // singleton enforcement
-
-    private static AuthSubsystem mInstance = new AuthSubsystem();
-
-    public static synchronized AuthSubsystem getInstance() {
-        return mInstance;
-    }
-
-    // end singleton enforcement.
-
-    private AuthSubsystem() {
+    public AuthSubsystem() {
     }
 
     /**

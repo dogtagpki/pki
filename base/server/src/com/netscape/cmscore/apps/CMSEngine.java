@@ -42,6 +42,7 @@ import javax.servlet.http.HttpServlet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.server.PKIServerSocketListener;
+import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -151,7 +152,7 @@ public class CMSEngine implements ServletContextListener {
     protected OidLoaderSubsystem oidLoaderSubsystem = OidLoaderSubsystem.getInstance();
     protected X500NameSubsystem x500NameSubsystem = X500NameSubsystem.getInstance();
     protected RequestSubsystem requestSubsystem = new RequestSubsystem();
-    protected AuthSubsystem authSubsystem = AuthSubsystem.getInstance();
+    protected AuthSubsystem authSubsystem;
     protected AuthzSubsystem authzSubsystem = AuthzSubsystem.getInstance();
     protected JobsScheduler jobsScheduler = JobsScheduler.getInstance();
 
@@ -543,7 +544,8 @@ public class CMSEngine implements ServletContextListener {
     }
 
     public void initAuthSubsystem() throws Exception {
-        IConfigStore authConfig = config.getSubStore(AuthSubsystem.ID);
+        AuthenticationConfig authConfig = config.getAuthenticationConfig();
+        authSubsystem = new AuthSubsystem();
         authSubsystem.init(authConfig);
         authSubsystem.startup();
     }
