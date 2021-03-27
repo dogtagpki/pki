@@ -55,6 +55,7 @@ import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 
 import netscape.ldap.LDAPAttributeSet;
@@ -676,7 +677,7 @@ public class CertificateRepository extends Repository {
      * 0 - disable
      * >0 - enable
      */
-    public void setSerialNumberUpdateInterval(IRepository requestRepository, int interval) {
+    public void setSerialNumberUpdateInterval(RequestRepository requestRepository, int interval) {
         logger.debug("In setCertStatusUpdateInterval " + interval);
 
         // stop running tasks
@@ -2675,61 +2676,6 @@ class CertStatusUpdateTask implements Runnable {
         logger.debug("Starting updateCertStatus (entered lock)");
         repository.updateCertStatus();
         logger.debug("updateCertStatus done");
-    }
-
-    public void stop() {
-        // shutdown executorService without interrupting running task
-        if (executorService != null) executorService.shutdown();
-    }
-}
-
-class SerialNumberUpdateTask implements Runnable {
-
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SerialNumberUpdateTask.class);
-
-    CertificateRepository repository;
-    IRepository requestRepository;
-
-    int interval;
-
-    ScheduledExecutorService executorService;
-
-    public SerialNumberUpdateTask(CertificateRepository repository, IRepository requestRepository, int interval) {
-        this.repository = repository;
-        this.requestRepository = requestRepository;
-        this.interval = interval;
-    }
-
-    public void start() {
-        // schedule task to run immediately and repeat after specified interval
-        executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-            public Thread newThread(Runnable r) {
-                return new Thread(r, "SerialNumberUpdateTask");
-            }
-        });
-        executorService.scheduleWithFixedDelay(this, 0, interval, TimeUnit.SECONDS);
-    }
-
-    public void run() {
-        try {
-            logger.info("SerialNumberUpdateTask: updating serial numbers");
-            updateSerialNumbers();
-
-        } catch (EBaseException e) {
-            logger.warn("SerialNumberUpdateTask: " + e.getMessage(), e);
-        }
-    }
-
-    public synchronized void updateSerialNumbers() throws EBaseException {
-        logger.debug("Starting updateSerialNumbers (entered lock)");
-        repository.updateCounter();
-
-        logger.debug("Starting cert checkRanges");
-        repository.checkRanges();
-
-        logger.debug("Starting request checkRanges");
-        requestRepository.checkRanges();
-        logger.debug("updateSerialNumbers done");
     }
 
     public void stop() {
