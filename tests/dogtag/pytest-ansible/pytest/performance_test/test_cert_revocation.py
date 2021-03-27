@@ -51,12 +51,14 @@ cert_client = CertClient(connection)
 def run_test(cert_sn, number_of_tests_per_thread):
     # execute the specified number of tests
     for sn in range(number_of_tests_per_thread):
-        start = timer()
-        revoke_data = cert_client.revoke_cert(cert_sn[sn], revocation_reason='Key_Compromise')
-        end = timer()
-        revocation_times.append(int(end - start))
-        if revoke_data.operation_result != 'success':
-            raise Exception("Cert enrollment failed : {}".format(revoke_data.request_id))
+        try:
+            start = timer()
+            log.info("Revoking Cert : {}".format(cert_sn[sn]))
+            revoke_data = cert_client.revoke_cert(cert_sn[sn], revocation_reason='Key_Compromise')
+            end = timer()
+            revocation_times.append(int(end - start))
+        except Exception as error:
+            log.error(error)
 
 
 if __name__ == "__main__":

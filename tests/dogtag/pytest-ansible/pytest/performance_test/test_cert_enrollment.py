@@ -114,12 +114,15 @@ def run_test(id, number_of_tests_per_thread):
     sn_uid = "testuser{}".format(id)
     # execute the specified number of tests sequentially
     for i in range(1, number_of_tests_per_thread + 1):
-        logger.info("Client %s: Enrolling cert %s of %s", id, i, number_of_tests_per_thread)
-        start = timer()
-        serial_num = cert_enroll(id, sn_uid)
-        end = timer()
-        issuance_times.append(end - start)
-        cert_list.append(serial_num.cert_serial_number)
+        try:
+            logger.info("Client %s: Enrolling cert %s of %s", id, i, number_of_tests_per_thread)
+            start = timer()
+            serial_num = cert_enroll(id, sn_uid)
+            end = timer()
+            issuance_times.append(end - start)
+            cert_list.append(serial_num.cert_serial_number)
+        except Exception as error:
+            logger.error(error)
     # call cert_enroll(sn_uid)
 
 
