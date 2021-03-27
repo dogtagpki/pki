@@ -81,8 +81,8 @@ import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
+import com.netscape.cmscore.ldap.PublisherProcessor;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -2095,7 +2095,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         CertificateRepository cr = mCertRepository;
 
         synchronized (cr.certStatusUpdateTask) {
+
             logger.debug("Starting processRevokedCerts (entered lock)");
+            // this code and CertStatusUpdateTask.updateCertStatus() are mutually exclusive
+
             CertRecordList list = mCertRepository.findCertRecordsInList(
                     filter,
                     new String[] {

@@ -26,10 +26,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
@@ -50,7 +46,6 @@ import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.certdb.RenewableCertificateCollection;
-import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -637,12 +632,10 @@ public class CertificateRepository extends Repository {
      * 0 - disable
      * >0 - enable
      *
-     * @param requestRepo request repository
      * @param interval update interval
      * @param listenToCloneModifications enable listening to clone modifications
      */
-    public void setCertStatusUpdateInterval(IRepository requestRepository, int interval,
-            boolean listenToCloneModifications) {
+    public void setCertStatusUpdateInterval(int interval, boolean listenToCloneModifications) {
 
         logger.debug("In setCertStatusUpdateInterval " + interval);
 
@@ -668,7 +661,7 @@ public class CertificateRepository extends Repository {
         }
 
         logger.debug("In setCertStatusUpdateInterval scheduling cert status update every " + interval + " seconds.");
-        certStatusUpdateTask = new CertStatusUpdateTask(this, requestRepository, interval);
+        certStatusUpdateTask = new CertStatusUpdateTask(this, interval);
         certStatusUpdateTask.start();
     }
 
@@ -2632,54 +2625,5 @@ public class CertificateRepository extends Repository {
         if (serialNumberUpdateTask != null) {
             serialNumberUpdateTask.stop();
         }
-    }
-}
-
-class CertStatusUpdateTask implements Runnable {
-
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertStatusUpdateTask.class);
-
-    CertificateRepository repository;
-    IRepository requestRepository;
-
-    int interval;
-
-    ScheduledExecutorService executorService;
-
-    public CertStatusUpdateTask(CertificateRepository repository, IRepository requestRepository, int interval) {
-        this.repository = repository;
-        this.requestRepository = requestRepository;
-        this.interval = interval;
-    }
-
-    public void start() {
-        // schedule task to run immediately and repeat after specified interval
-        executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-            public Thread newThread(Runnable r) {
-                return new Thread(r, "CertStatusUpdateTask");
-            }
-        });
-        executorService.scheduleWithFixedDelay(this, 0, interval, TimeUnit.SECONDS);
-    }
-
-    public void run() {
-        try {
-            logger.debug("About to start updateCertStatus");
-            updateCertStatus();
-
-        } catch (EBaseException e) {
-            logger.warn("updateCertStatus done: " + e.getMessage(), e);
-        }
-    }
-
-    public synchronized void updateCertStatus() throws EBaseException {
-        logger.debug("Starting updateCertStatus (entered lock)");
-        repository.updateCertStatus();
-        logger.debug("updateCertStatus done");
-    }
-
-    public void stop() {
-        // shutdown executorService without interrupting running task
-        if (executorService != null) executorService.shutdown();
     }
 }

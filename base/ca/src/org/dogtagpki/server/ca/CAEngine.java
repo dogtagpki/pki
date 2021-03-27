@@ -726,7 +726,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
             logger.info("CAEngine: - listen to clone modification: " + listenToCloneModifications);
 
             certificateRepository.setCertStatusUpdateInterval(
-                requestRepository,
                 certStatusUpdateInterval,
                 listenToCloneModifications);
 
