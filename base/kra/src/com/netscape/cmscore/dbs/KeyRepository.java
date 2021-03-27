@@ -22,10 +22,6 @@ import java.security.PublicKey;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
@@ -575,35 +571,4 @@ public class KeyRepository extends Repository implements IKeyRepository {
         }
     }
 
-}
-
-class KeyStatusUpdateTask implements Runnable {
-    KeyRepository repository;
-    int interval;
-
-    ScheduledExecutorService executorService;
-
-    public KeyStatusUpdateTask(KeyRepository repository, int interval) {
-        this.repository = repository;
-        this.interval = interval;
-    }
-
-    public void start() {
-        // schedule task to run immediately and repeat after specified interval
-        executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-            public Thread newThread(Runnable r) {
-                return new Thread(r, "KeyStatusUpdateTask");
-            }
-        });
-        executorService.scheduleWithFixedDelay(this, 0, interval, TimeUnit.SECONDS);
-    }
-
-    public void run() {
-        repository.updateKeyStatus();
-    }
-
-    public void stop() {
-        // shutdown executorService without interrupting running task
-        if (executorService != null) executorService.shutdown();
-    }
 }
