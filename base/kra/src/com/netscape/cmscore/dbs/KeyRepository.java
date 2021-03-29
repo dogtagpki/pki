@@ -33,7 +33,6 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
-import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * A class represents a Key repository. This is the container of
@@ -47,7 +46,6 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRepository.class);
 
-    public KeyStatusUpdateTask mKeyStatusUpdateTask;
     protected DBSubsystem dbSubsystem;
 
     /**
@@ -145,26 +143,6 @@ public class KeyRepository extends Repository implements IKeyRepository {
                     StringMapper(KeyDBSchema.LDAP_ATTR_REALM));
         }
 
-    }
-
-    public void setKeyStatusUpdateInterval(RequestRepository requestRepo, int interval) {
-
-        logger.debug("In setKeyStatusUpdateInterval " + interval);
-
-        // stop running task
-        if (mKeyStatusUpdateTask != null) {
-            mKeyStatusUpdateTask.stop();
-        }
-
-        // don't run the thread if serial management is disabled.
-        if (interval == 0 || !dbSubsystem.getEnableSerialMgmt()) {
-            logger.debug("In setKeyStatusUpdateInterval interval = 0");
-            return;
-        }
-
-        logger.debug("In setKeyStatusUpdateInterval scheduling key status update every " + interval + " seconds.");
-        mKeyStatusUpdateTask = new KeyStatusUpdateTask(this, requestRepo, interval);
-        mKeyStatusUpdateTask.start();
     }
 
     public DBSubsystem getDBSubsystem() {
@@ -541,9 +519,5 @@ public class KeyRepository extends Repository implements IKeyRepository {
     }
 
     public void shutdown() {
-        if (mKeyStatusUpdateTask != null) {
-            mKeyStatusUpdateTask.stop();
-        }
     }
-
 }

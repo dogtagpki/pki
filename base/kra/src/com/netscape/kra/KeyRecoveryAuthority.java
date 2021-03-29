@@ -86,6 +86,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.dbs.KeyStatusUpdateTask;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
@@ -157,6 +158,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     // for the notification listener
     public IRequestListener mReqInQListener = null;
+
+    public KeyStatusUpdateTask keyStatusUpdateTask;
 
     private final static String SIGNED_AUDIT_AGENT_DELIMITER = ", ";
     /**
@@ -247,6 +250,31 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             }
         }
         logger.debug("KeyRecoveryAuthority returning ");
+    }
+
+    public void startKeyStatusUpdate() throws EBaseException {
+
+        logger.info("KeyRecoveryAuthority: Key status update task:");
+
+        KRAEngine engine = KRAEngine.getInstance();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
+
+        int interval = mConfig.getInteger("keyStatusUpdateInterval", 10 * 60);
+        logger.info("KeyRecoveryAuthority: - interval: " + interval);
+
+        if (keyStatusUpdateTask != null) {
+            keyStatusUpdateTask.stop();
+        }
+
+        if (interval == 0 || !dbSubsystem.getEnableSerialMgmt()) {
+            logger.info("KeyRecoveryAuthority: Key status update task is disabled");
+            return;
+        }
+
+        logger.info("KeyRecoveryAuthority: Starting key status update task");
+
+        keyStatusUpdateTask = new KeyStatusUpdateTask(mKeyDB, requestRepository, interval);
+        keyStatusUpdateTask.start();
     }
 
     /**
@@ -381,10 +409,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         requestRepository.setRequestQueue(mRequestQueue);
 
-        // set KeyStatusUpdateInterval to be 10 minutes if serial management is enabled.
-        mKeyDB.setKeyStatusUpdateInterval(
-                requestRepository,
-                mConfig.getInteger("keyStatusUpdateInterval", 10 * 60));
+        startKeyStatusUpdate();
 
         // init request scheduler if configured
         String schedulerClass =
@@ -470,6 +495,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         if (mStorageKeyUnit != null) {
             mStorageKeyUnit.shutdown();
+        }
+
+        if (keyStatusUpdateTask != null) {
+            keyStatusUpdateTask.stop();
         }
 
         if (mKeyDB != null) {
