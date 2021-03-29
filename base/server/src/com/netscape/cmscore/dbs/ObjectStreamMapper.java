@@ -69,20 +69,17 @@ public class ObjectStreamMapper extends DBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
             Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(bos);
 
             os.writeObject(obj);
-            byte data[] = bos.toByteArray();
-            if (data == null) {
-                logger.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
-                        name + " size=0");
-            } else {
-                logger.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
-                        name + " size=" + data.length);
-            }
+            byte[] data = bos.toByteArray();
+
+            logger.debug("ObjectStreamMapper: Mapping " + name + " to " + mLdapName);
             attrs.add(new LDAPAttribute(mLdapName, data));
+
         } catch (IOException e) {
 
             /*LogDoc

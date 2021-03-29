@@ -68,6 +68,8 @@ public class PublicKeyMapper extends DBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+
+        logger.debug("PublicKeyMapper: Mapping " + name + " to " + mLdapName);
         attrs.add(new LDAPAttribute(mLdapName, (byte[]) obj));
     }
 

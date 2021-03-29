@@ -58,13 +58,15 @@ public class CertRecordMapper extends DBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
             Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+
         if (obj == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
+
         CertRecord rec = (CertRecord) obj;
-        attrs.add(new LDAPAttribute(
-                CertDBSchema.LDAP_ATTR_CERT_RECORD_ID,
-                rec.getSerialNumber().toString()));
+
+        logger.debug("CertRecordMapper: Mapping " + name + " to " + CertDBSchema.LDAP_ATTR_CERT_RECORD_ID);
+        attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_CERT_RECORD_ID, rec.getSerialNumber().toString()));
     }
 
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,

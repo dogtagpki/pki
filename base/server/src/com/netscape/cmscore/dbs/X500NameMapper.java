@@ -68,11 +68,13 @@ public class X500NameMapper extends DBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+
         if (obj == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
-        attrs.add(new LDAPAttribute(mLdapName,
-                ((X500Name) obj).toString()));
+
+        logger.debug("X500NameMapper: Mapping " + name + " to " + mLdapName);
+        attrs.add(new LDAPAttribute(mLdapName, obj.toString()));
     }
 
     /**

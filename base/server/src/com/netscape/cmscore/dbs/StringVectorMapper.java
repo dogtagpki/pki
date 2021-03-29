@@ -38,6 +38,8 @@ import netscape.ldap.LDAPAttributeSet;
  */
 public class StringVectorMapper extends DBAttrMapper {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StringVectorMapper.class);
+
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
 
@@ -62,9 +64,11 @@ public class StringVectorMapper extends DBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+
         if (obj == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
+
         @SuppressWarnings("unchecked")
         Vector<String> v = (Vector<String>) obj;
         int s = v.size();
@@ -72,11 +76,13 @@ public class StringVectorMapper extends DBAttrMapper {
         if (s == 0) {
             return;
         }
-        String m[] = new String[s];
 
+        String[] m = new String[s];
         for (int i = 0; i < s; i++) {
             m[i] = v.elementAt(i);
         }
+
+        logger.debug("StringVectorMapper: Mapping " + name + " to " + mLdapName);
         attrs.add(new LDAPAttribute(mLdapName, m));
     }
 

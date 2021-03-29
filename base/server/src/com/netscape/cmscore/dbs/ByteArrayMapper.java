@@ -38,6 +38,7 @@ import netscape.ldap.LDAPAttributeSet;
 public class ByteArrayMapper extends DBAttrMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ByteArrayMapper.class);
+
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
 
@@ -62,14 +63,10 @@ public class ByteArrayMapper extends DBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
-        byte data[] = (byte[]) obj;
-        if (data == null) {
-            logger.debug("ByteArrayMapper:mapObjectToLDAPAttributeSet " + name +
-                    " size=0");
-        } else {
-            logger.debug("ByteArrayMapper:mapObjectToLDAPAttributeSet " + name +
-                    " size=" + data.length);
-        }
+
+        byte[] data = (byte[]) obj;
+
+        logger.debug("ByteArrayMapper: Mapping " + name + " to " + mLdapName);
         attrs.add(new LDAPAttribute(mLdapName, data));
     }
 

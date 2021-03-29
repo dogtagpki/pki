@@ -39,6 +39,8 @@ import netscape.ldap.LDAPAttributeSet;
  */
 public class DateArrayMapper extends DBAttrMapper {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DateArrayMapper.class);
+
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
 
@@ -63,15 +65,20 @@ public class DateArrayMapper extends DBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
-        if (obj == null)
-            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
-        Date dates[] = (Date[]) obj;
 
+        if (obj == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+        }
+
+        Date[] dates = (Date[]) obj;
+
+        logger.debug("DateArrayMapper: Mapping " + name + " to " + mLdapName);
         LDAPAttribute attr = new LDAPAttribute(mLdapName);
 
         for (int i = 0; i < dates.length; i++) {
             attr.addValue(DateMapper.dateToDB(dates[i]));
         }
+
         attrs.add(attr);
     }
 

@@ -38,6 +38,8 @@ import netscape.ldap.LDAPAttributeSet;
  */
 public class KeyStateMapper extends DBAttrMapper {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyStateMapper.class);
+
     private String mLdapName = null;
 
     public KeyStateMapper(String ldapName) {
@@ -54,11 +56,13 @@ public class KeyStateMapper extends DBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+
         if (obj == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
-        attrs.add(new LDAPAttribute(mLdapName,
-                ((KeyState) obj).toString()));
+
+        logger.debug("KeyStateMapper: Mapping " + name + " to " + mLdapName);
+        attrs.add(new LDAPAttribute(mLdapName, obj.toString()));
     }
 
     /**

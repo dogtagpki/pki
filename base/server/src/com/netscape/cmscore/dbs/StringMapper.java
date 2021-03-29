@@ -38,6 +38,8 @@ import netscape.ldap.LDAPAttributeSet;
  */
 public class StringMapper extends DBAttrMapper {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StringMapper.class);
+
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
 
@@ -62,6 +64,8 @@ public class StringMapper extends DBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+
+        logger.debug("StringMapper: Mapping " + name + " to " + mLdapName);
         attrs.add(new LDAPAttribute(mLdapName, (String) obj));
     }
 

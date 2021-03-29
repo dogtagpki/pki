@@ -63,6 +63,8 @@ public class RequestStateMapper extends DBAttrMapper {
         }
 
         RequestStatus rs = (RequestStatus) obj;
+
+        logger.debug("RequestStateMapper: Mapping " + name + " to " + Schema.LDAP_ATTR_REQUEST_STATE);
         attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_STATE, rs.toString()));
     }
 

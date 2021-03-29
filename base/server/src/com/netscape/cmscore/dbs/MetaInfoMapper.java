@@ -46,6 +46,8 @@ import netscape.ldap.LDAPAttributeSet;
  */
 public class MetaInfoMapper extends DBAttrMapper {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MetaInfoMapper.class);
+
     public static final String SEP = ":";
 
     private String mLdapName = null;
@@ -72,14 +74,19 @@ public class MetaInfoMapper extends DBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+
         if (obj == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
+
         MetaInfo info = (MetaInfo) obj;
         Enumeration<String> e = info.getElements();
 
-        if (!e.hasMoreElements())
+        if (!e.hasMoreElements()) {
             return; // dont add anything
+        }
+
+        logger.debug("MetaInfoMapper: Mapping " + name + " to " + mLdapName);
         LDAPAttribute attr = new LDAPAttribute(mLdapName);
 
         while (e.hasMoreElements()) {
@@ -90,6 +97,7 @@ public class MetaInfoMapper extends DBAttrMapper {
             s = attrName + SEP + value;
             attr.addValue(s);
         }
+
         attrs.add(attr);
     }
 

@@ -132,6 +132,7 @@ public class RequestAttrsMapper extends DBAttrMapper {
             }
         }
 
+        logger.debug("BigIntegerMapper: Mapping " + name + " to " + Schema.LDAP_ATTR_REQUEST_ATTRS);
         attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_ATTRS, bos.toByteArray()));
     }
 

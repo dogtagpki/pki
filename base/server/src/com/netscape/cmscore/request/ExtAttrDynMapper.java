@@ -245,7 +245,7 @@ public class ExtAttrDynMapper extends DBDynAttrMapper {
                 if ("".equals(stringValue)) continue;
 
                 String attrName = extAttrPrefix + encodeKey(key);
-                logger.debug("ExtAttrDynMapper: adding " + attrName);
+                logger.debug("ExtAttrDynMapper: Mapping " + name + " to " + attrName);
                 attrs.add(new LDAPAttribute(attrName, stringValue));
 
             } else if (value instanceof Hashtable) {
@@ -259,7 +259,7 @@ public class ExtAttrDynMapper extends DBDynAttrMapper {
                     if ("".equals(innerValue)) continue;
 
                     String attrName = extAttrPrefix + encodeKey(key) + ";" + encodeKey(innerKey);
-                    logger.debug("ExtAttrDynMapper: adding " + attrName);
+                    logger.debug("ExtAttrDynMapper: Mapping " + name + " to " + attrName);
                     attrs.add(new LDAPAttribute(attrName, innerValue));
                 }
             }

@@ -66,9 +66,11 @@ public class RevocationInfoMapper extends DBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
             Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+
         if (obj == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
+
         try {
             // in format of <date>;<extensions>
             StringBuffer value = new StringBuffer();
@@ -101,8 +103,10 @@ public class RevocationInfoMapper extends DBAttrMapper {
                     logger.trace("XXX skipped extension");
                 }
             }
-            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_REVO_INFO,
-                    value.toString()));
+
+            logger.debug("RevocationInfoMapper: Mapping " + name + " to " + CertDBSchema.LDAP_ATTR_REVO_INFO);
+            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_REVO_INFO, value.toString()));
+
         } catch (Exception e) {
             logger.error("RevocationInfoMapper: " + e.getMessage(), e);
             throw new EDBException(

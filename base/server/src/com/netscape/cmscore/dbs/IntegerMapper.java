@@ -38,6 +38,8 @@ import netscape.ldap.LDAPAttributeSet;
  */
 public class IntegerMapper extends DBAttrMapper {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IntegerMapper.class);
+
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
 
@@ -62,11 +64,13 @@ public class IntegerMapper extends DBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+
         if (obj == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
-        attrs.add(new LDAPAttribute(mLdapName,
-                ((Integer) obj).toString()));
+
+        logger.debug("IntegerMapper: Mapping " + name + " to " + mLdapName);
+        attrs.add(new LDAPAttribute(mLdapName, ((Integer) obj).toString()));
     }
 
     /**

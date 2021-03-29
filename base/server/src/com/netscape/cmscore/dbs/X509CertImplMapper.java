@@ -76,28 +76,47 @@ public class X509CertImplMapper extends DBAttrMapper {
 
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
             Object obj, LDAPAttributeSet attrs) throws EBaseException {
+
         if (obj == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
+
         try {
             X509CertImpl cert = (X509CertImpl) obj;
             // make information searchable
-            Date notBefore = cert.getNotBefore();
 
+            logger.debug("X509CertImplMapper: Mapping " + name + " to " + CertDBSchema.LDAP_ATTR_NOT_BEFORE);
+            Date notBefore = cert.getNotBefore();
             attrs.add(new LDAPAttribute(
                     CertDBSchema.LDAP_ATTR_NOT_BEFORE,
                     DateMapper.dateToDB(notBefore)));
-            Date notAfter = cert.getNotAfter();
 
-            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_NOT_AFTER,
+            logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_NOT_AFTER);
+            Date notAfter = cert.getNotAfter();
+            attrs.add(new LDAPAttribute(
+                    CertDBSchema.LDAP_ATTR_NOT_AFTER,
                     DateMapper.dateToDB(notAfter)));
-            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_DURATION,
+
+            logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_DURATION);
+            attrs.add(new LDAPAttribute(
+                    CertDBSchema.LDAP_ATTR_DURATION,
                     DBSUtil.longToDB(notAfter.getTime() - notBefore.getTime())));
-            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_SUBJECT,
+
+            logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_SUBJECT);
+            attrs.add(new LDAPAttribute(
+                    CertDBSchema.LDAP_ATTR_SUBJECT,
                     cert.getSubjectDN().getName()));
-            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_ISSUER,
+
+            logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_ISSUER);
+            attrs.add(new LDAPAttribute(
+                    CertDBSchema.LDAP_ATTR_ISSUER,
                     cert.getIssuerDN().getName()));
-            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_PUBLIC_KEY_DATA, cert.getPublicKey().getEncoded()));
+
+            logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_PUBLIC_KEY_DATA);
+            attrs.add(new LDAPAttribute(
+                    CertDBSchema.LDAP_ATTR_PUBLIC_KEY_DATA,
+                    cert.getPublicKey().getEncoded()));
+
             // make extension searchable
             Set<String> nonCritSet = cert.getNonCriticalExtensionOIDs();
 
@@ -120,7 +139,7 @@ public class X509CertImplMapper extends DBAttrMapper {
                             oid = oid + ";" + extVal;
                         }
                     }
-                    logger.info("X509CertImplMapper: adding " + CertDBSchema.LDAP_ATTR_EXTENSION + ": " + oid);
+
                     extensions.add(oid);
                 }
             }
@@ -144,12 +163,13 @@ public class X509CertImplMapper extends DBAttrMapper {
                             oid = oid + ";" + extVal;
                         }
                     }
-                    logger.info("X509CertImplMapper: adding " + CertDBSchema.LDAP_ATTR_EXTENSION + ": " + oid);
+
                     extensions.add(oid);
                 }
             }
 
             if (!extensions.isEmpty()) {
+                logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_EXTENSION);
                 attrs.add(new LDAPAttribute(
                         CertDBSchema.LDAP_ATTR_EXTENSION,
                         extensions.toArray(new String[extensions.size()])));
@@ -160,21 +180,28 @@ public class X509CertImplMapper extends DBAttrMapper {
             // if we dont add ";binary", communicator does
             // not know how to display the certificate in
             // pretty print format.
+
+            logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_SIGNED_CERT + ";binary");
             attrs.add(new LDAPAttribute(
                     CertDBSchema.LDAP_ATTR_SIGNED_CERT + ";binary",
                     cert.getEncoded()));
 
+            logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_VERSION);
             attrs.add(new LDAPAttribute(
                     CertDBSchema.LDAP_ATTR_VERSION,
                     Integer.toString(cert.getVersion())));
-            X509Key pubKey = (X509Key) cert.getPublicKey();
 
+            logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_ALGORITHM);
+            X509Key pubKey = (X509Key) cert.getPublicKey();
             attrs.add(new LDAPAttribute(
                     CertDBSchema.LDAP_ATTR_ALGORITHM,
                     pubKey.getAlgorithmId().getOID().toString()));
+
+            logger.debug("X509CertImplMapper: Mapping " + name + " to  " + CertDBSchema.LDAP_ATTR_SIGNING_ALGORITHM);
             attrs.add(new LDAPAttribute(
                     CertDBSchema.LDAP_ATTR_SIGNING_ALGORITHM,
                     cert.getSigAlgOID()));
+
         } catch (CertificateEncodingException e) {
             throw new EDBException(
                     CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));

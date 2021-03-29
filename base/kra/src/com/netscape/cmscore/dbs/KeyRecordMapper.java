@@ -58,14 +58,17 @@ public class KeyRecordMapper extends DBAttrMapper {
 
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
             Object obj, LDAPAttributeSet attrs) throws EBaseException {
+
         if (obj == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
+
         try {
             KeyRecord rec = (KeyRecord) obj;
 
-            attrs.add(new LDAPAttribute(KeyDBSchema.LDAP_ATTR_KEY_RECORD_ID,
-                    rec.getSerialNumber().toString()));
+            logger.debug("KeyRecordMapper: Mapping " + name + " to " + KeyDBSchema.LDAP_ATTR_KEY_RECORD_ID);
+            attrs.add(new LDAPAttribute(KeyDBSchema.LDAP_ATTR_KEY_RECORD_ID, rec.getSerialNumber().toString()));
+
         } catch (Exception e) {
             /*LogDoc
              *
