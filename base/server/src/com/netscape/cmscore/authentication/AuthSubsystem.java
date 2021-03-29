@@ -308,8 +308,6 @@ public class AuthSubsystem implements ISubsystem {
             loadAuthManagerPlugins();
             loadAuthManagerInstances();
 
-            logger.info("AuthSubsystem: " + CMS.getLogMessage("INIT_DONE", getId()));
-
         } catch (EBaseException e) {
             logger.error("Unable to initialize AuthSubsystem: " + e.getMessage(), e);
             if (engine.isPreOpMode()) {

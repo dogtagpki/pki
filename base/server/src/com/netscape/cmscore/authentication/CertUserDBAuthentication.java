@@ -122,7 +122,6 @@ public class CertUserDBAuthentication implements AuthManager {
         }
 
         mCULocator = new ExactMatchCertUserLocator();
-        logger.info("CertUserDBAuthentication: " + CMS.getLogMessage("INIT_DONE", name));
     }
 
     /**

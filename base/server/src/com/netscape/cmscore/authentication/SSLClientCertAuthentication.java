@@ -98,8 +98,6 @@ public class SSLClientCertAuthentication implements AuthManager {
         mName = name;
         mImplName = implName;
         mConfig = config;
-
-        logger.info(CMS.getLogMessage("INIT_DONE", name));
     }
 
     public IAuthToken authenticate(IAuthCredentials authCred)

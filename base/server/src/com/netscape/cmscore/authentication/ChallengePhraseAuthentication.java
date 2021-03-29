@@ -117,8 +117,6 @@ public class ChallengePhraseAuthentication implements AuthManager {
         } catch (NoSuchAlgorithmException e) {
             throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.getMessage()), e);
         }
-
-        logger.info(CMS.getLogMessage("INIT_DONE", name));
     }
 
     /**

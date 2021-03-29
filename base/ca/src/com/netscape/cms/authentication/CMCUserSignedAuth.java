@@ -233,8 +233,6 @@ public class CMCUserSignedAuth implements AuthManager, IExtendedPluginInfo,
         mName = name;
         mImplName = implName;
         mConfig = config;
-
-        logger.info("CMCUserSignedAuth: Initialization complete!");
     }
 
     /**

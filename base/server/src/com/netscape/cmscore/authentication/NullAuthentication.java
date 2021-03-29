@@ -17,17 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.authentication;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.AuthManager;
 
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.CMS;
 
 /**
  * This authentication does nothing but just returns an empty authToken.
@@ -75,8 +74,6 @@ public class NullAuthentication implements AuthManager {
         mName = name;
         mImplName = implName;
         mConfig = config;
-
-        logger.info(CMS.getLogMessage("CMSCORE_AUTH_INIT_AUTH", mName));
     }
 
     /**

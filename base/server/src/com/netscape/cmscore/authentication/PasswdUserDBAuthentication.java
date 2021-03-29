@@ -105,8 +105,6 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
 
         mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo);
         mAnonConnFactory.init(socketConfig);
-
-        logger.info(CMS.getLogMessage("CMSCORE_AUTH_INIT_AUTH", mName));
     }
 
     /**

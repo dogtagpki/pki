@@ -37,10 +37,10 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.authentication.AuthManager;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -231,8 +231,6 @@ public class CMCAuth implements AuthManager, IExtendedPluginInfo,
         EngineConfig cs = engine.getConfig();
 
         mBypassClientAuth = cs.getBoolean("cmc.bypassClientAuth", false);
-
-        logger.info("CMCAuth: Initialization complete!");
     }
 
     /**

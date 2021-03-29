@@ -193,12 +193,12 @@ public class FlatFileAuth
         stringArrays[1] = authAttrs;
         reqCreds = unionOfStrings(stringArrays);
 
-        print("mFilename      = " + mFilename);
-        print("mKeyAttributes = " + mKeyAttributes);
-        print("mAuthAttrs     = " + mAuthAttrs);
+        logger.debug("FlatFileAuth: mFilename      = " + mFilename);
+        logger.debug("FlatFileAuth: mKeyAttributes = " + mKeyAttributes);
+        logger.debug("FlatFileAuth: mAuthAttrs     = " + mAuthAttrs);
         for (int i = 0; i < stringArrays.length; i++) {
             for (int j = 0; j < stringArrays[i].length; j++) {
-                print("stringArrays[" + i + "][" + j + "] = " + stringArrays[i][j]);
+                logger.debug("FlatFileAuth: stringArrays[" + i + "][" + j + "] = " + stringArrays[i][j]);
             }
         }
 
@@ -218,10 +218,6 @@ public class FlatFileAuth
 
     }
 
-    void print(String s) {
-        logger.debug("FlatFileAuth: " + s);
-    }
-
     /**
      * Return a string array which is the union of all the string arrays
      * passed in. The strings are treated as case sensitive
@@ -234,7 +230,7 @@ public class FlatFileAuth
             String[] sa = stringArrays[i];
 
             for (int j = 0; j < sa.length; j++) {
-                print("unionOfStrings: " + i + "," + j + " = " + sa[j]);
+                logger.debug("FlatFileAuth: unionOfStrings: " + i + "," + j + " = " + sa[j]);
                 ht.put(sa[j], "");
             }
         }
@@ -254,16 +250,16 @@ public class FlatFileAuth
      * Strings.
      */
     private String[] splitOnComma(String s) {
-        print("Splitting String: " + s + " on commas");
+        logger.debug("FlatFileAuth: Splitting String: " + s + " on commas");
         StringTokenizer st = new StringTokenizer(s, ",", false);
         String[] sa = new String[st.countTokens()];
 
-        print("   countTokens:" + st.countTokens());
+        logger.debug("FlatFileAuth:    countTokens:" + st.countTokens());
 
         for (int i = 0; i < sa.length; i++) {
             String p = st.nextToken().trim();
 
-            print("   token " + i + " = " + p);
+            logger.debug("FlatFileAuth:    token " + i + " = " + p);
             sa[i] = p;
         }
 
@@ -401,10 +397,8 @@ public class FlatFileAuth
      */
     protected Hashtable<String, Hashtable<String, String>> readFile(File f, String[] keys)
             throws IOException {
-        logger.info("FlatFileAuth: Reading file: " + f.getName());
-        BufferedReader file = new BufferedReader(
-                new FileReader(f)
-                );
+        logger.debug("FlatFileAuth: Reading file: " + f.getName());
+        BufferedReader file = new BufferedReader(new FileReader(f));
 
         String line;
         Hashtable<String, Hashtable<String, String>> allusers = new Hashtable<String, Hashtable<String, String>>();
@@ -459,16 +453,16 @@ public class FlatFileAuth
         }
         String key = "";
 
-        print("keys.length = " + keys.length);
+        logger.debug("FlatFileAuth: keys.length = " + keys.length);
         for (int i = 0; i < keys.length; i++) {
             String s = entry.get(keys[i]);
 
-            print(" concatenating: " + s);
+            logger.debug("FlatFileAuth:  concatenating: " + s);
             if (s != null) {
                 key = key.concat(s);
             }
         }
-        print("putting: key " + key);
+        logger.debug("FlatFileAuth: putting: key " + key);
         allUsers.put(key, entry);
     }
 
@@ -478,14 +472,14 @@ public class FlatFileAuth
         while (e.hasMoreElements()) {
             String key = e.nextElement();
 
-            print("* " + key + " *");
+            logger.debug("FlatFileAuth: * " + key + " *");
             Hashtable<String, String> ht = entries.get(key);
             Enumeration<String> f = ht.keys();
 
             while (f.hasMoreElements()) {
                 String fkey = f.nextElement();
 
-                print("   " + fkey + " -> " + ht.get(fkey));
+                logger.debug("FlatFileAuth:    " + fkey + " -> " + ht.get(fkey));
             }
         }
     }
@@ -504,7 +498,7 @@ public class FlatFileAuth
             String ffvalue = user.get(authAttrs[i]);
             String uservalue = (String) authCred.get(authAttrs[i]);
 
-            // print("checking authentication token (" + authAttrs[i] + ": " + uservalue + " against ff value: " + ffvalue);
+            // logger.debug("FlatFileAuth: checking authentication token (" + authAttrs[i] + ": " + uservalue + " against ff value: " + ffvalue);
             if (!ffvalue.equals(uservalue)) {
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
@@ -544,7 +538,7 @@ public class FlatFileAuth
         /* Find the user in our hashtable */
 
         for (int i = 0; i < keyAttrs.length; i++) {
-            print("concatenating string i=" + i + "  keyAttrs[" + i + "] = " + keyAttrs[i]);
+            logger.debug("FlatFileAuth: concatenating string i=" + i + "  keyAttrs[" + i + "] = " + keyAttrs[i]);
             String credential = (String) authCred.get(keyAttrs[i]);
 
             if (credential == null) {
@@ -552,7 +546,7 @@ public class FlatFileAuth
             }
             keyForUser = keyForUser.concat((String) authCred.get(keyAttrs[i]));
         }
-        print("authenticating user: finding user from key: " + keyForUser);
+        logger.debug("FlatFileAuth: authenticating user: finding user from key: " + keyForUser);
 
         Hashtable<String, String> user = entries.get(keyForUser);
 
@@ -602,7 +596,7 @@ public class FlatFileAuth
      * init() method is called
      */
     public String[] getRequiredCreds() {
-        print("getRequiredCreds returning: " + joinStringArray(reqCreds, ","));
+        logger.debug("FlatFileAuth: getRequiredCreds returning: " + joinStringArray(reqCreds, ","));
         return reqCreds;
 
     }
