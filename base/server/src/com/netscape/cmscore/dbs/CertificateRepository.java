@@ -1154,13 +1154,13 @@ public class CertificateRepository extends Repository {
      * @param status certificate status
      * @exception EBaseException failed to update status
      */
-    public void updateStatus(BigInteger id, String status)
-            throws EBaseException {
-        logger.debug("updateStatus: " + id + " status " + status);
-        ModificationSet mods = new ModificationSet();
+    public void updateStatus(BigInteger id, String status) throws EBaseException {
 
-        mods.add(CertRecord.ATTR_CERT_STATUS, Modification.MOD_REPLACE,
-                status);
+        logger.info("CertificateRepository: Updating the status of cert " + id + " to " + status);
+
+        ModificationSet mods = new ModificationSet();
+        mods.add(CertRecord.ATTR_CERT_STATUS, Modification.MOD_REPLACE, status);
+
         modifyCertificateRecord(id, mods);
     }
 
