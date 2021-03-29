@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
@@ -738,7 +737,7 @@ public class CertificateRepository extends Repository {
 
         ltSize = Math.min(ltSize, mTransitMaxRecords);
 
-        Vector<Serializable> cList = new Vector<Serializable>(ltSize);
+        Vector<BigInteger> cList = new Vector<>(ltSize);
 
         logger.debug("transidValidCertificates: list size: " + size);
         logger.debug("transitValidCertificates: ltSize " + ltSize);
@@ -763,12 +762,8 @@ public class CertificateRepository extends Repository {
                 }
 
                 logger.debug("transitValid: curRec: " + i + " " + curRec.toString());
+                cList.add(curRec.getSerialNumber());
 
-                if (mConsistencyCheck) {
-                    cList.add(curRec);
-                } else {
-                    cList.add(curRec.getSerialNumber());
-                }
             } else {
                 logger.warn("found null from getCertRecord");
             }
@@ -793,7 +788,7 @@ public class CertificateRepository extends Repository {
         }
 
         int ltSize = recList.getSizeBeforeJumpTo();
-        Vector<Serializable> cList = new Vector<Serializable>(ltSize);
+        Vector<BigInteger> cList = new Vector<>(ltSize);
 
         ltSize = Math.min(ltSize, mTransitMaxRecords);
 
@@ -818,18 +813,14 @@ public class CertificateRepository extends Repository {
                     continue;
                 }
 
-                if (mConsistencyCheck) {
-                    cList.add(curRec);
-                } else {
-                    cList.add(curRec.getSerialNumber());
-                }
+                cList.add(curRec.getSerialNumber());
+
             } else {
                 logger.warn("found null record in getCertRecord");
             }
         }
 
         transitCertList(cList, CertRecord.STATUS_REVOKED_EXPIRED);
-
     }
 
     /**
@@ -852,7 +843,7 @@ public class CertificateRepository extends Repository {
 
         ltSize = Math.min(ltSize, mTransitMaxRecords);
 
-        Vector<Serializable> cList = new Vector<Serializable>(ltSize);
+        Vector<BigInteger> cList = new Vector<>(ltSize);
 
         logger.debug("transidInValidCertificates: list size: " + size);
         logger.debug("transitInValidCertificates: ltSize " + ltSize);
@@ -877,13 +868,9 @@ public class CertificateRepository extends Repository {
                     continue;
 
                 }
-                logger.debug("transitInValid: curRec: " + i + " " + curRec.toString());
 
-                if (mConsistencyCheck) {
-                    cList.add(curRec);
-                } else {
-                    cList.add(curRec.getSerialNumber());
-                }
+                logger.debug("transitInValid: curRec: " + i + " " + curRec.toString());
+                cList.add(curRec.getSerialNumber());
 
             } else {
                 logger.warn("found null from getCertRecord");
@@ -891,28 +878,14 @@ public class CertificateRepository extends Repository {
         }
 
         transitCertList(cList, CertRecord.STATUS_VALID);
-
     }
 
-    private void transitCertList(Vector<Serializable> cList, String newCertStatus) throws EBaseException {
-        CertRecord cRec = null;
-        BigInteger serial = null;
-
-        int i;
+    public void transitCertList(Vector<BigInteger> list, String newCertStatus) throws EBaseException {
 
         logger.debug("transitCertList " + newCertStatus);
 
-        for (i = 0; i < cList.size(); i++) {
-            if (mConsistencyCheck) {
-                cRec = (CertRecord) cList.elementAt(i);
-
-                if (cRec == null)
-                    continue;
-
-                serial = cRec.getSerialNumber();
-            } else {
-                serial = (BigInteger) cList.elementAt(i);
-            }
+        for (int i = 0; i < list.size(); i++) {
+            BigInteger serial = list.elementAt(i);
 
             updateStatus(serial, newCertStatus);
 
@@ -935,7 +908,7 @@ public class CertificateRepository extends Repository {
             logger.debug("transitCertList number at: " + i + " = " + serial);
         }
 
-        cList.removeAllElements();
+        list.removeAllElements();
     }
 
     /**
