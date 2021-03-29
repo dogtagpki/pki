@@ -121,41 +121,41 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
         return mConfig;
     }
 
-    public void init(ISubsystem authority, IConfigStore config)
-            throws EBaseException {
+    public void init(ISubsystem authority, IConfigStore config) throws EBaseException {
+
         mConfig = config;
         mAuthority = (ICertAuthority) authority;
 
-        // load publisher implementation
         IConfigStore publisherConfig = config.getSubStore("publisher");
+
         IConfigStore c = publisherConfig.getSubStore(PROP_IMPL);
         mCreateOwnDNEntry = mConfig.getBoolean("createOwnDNEntry", false);
         Enumeration<String> mImpls = c.getSubStoreNames();
 
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();
+            logger.info("PublisherProcessor: Loading publisher plugin " + id);
+
             String pluginPath = c.getString(id + "." + PROP_CLASS);
             PublisherPlugin plugin = new PublisherPlugin(id, pluginPath);
-
             mPublisherPlugins.put(id, plugin);
         }
-        logger.trace("loaded publisher plugins");
 
-        // load publisher instances
         c = publisherConfig.getSubStore(PROP_INSTANCE);
         Enumeration<String> instances = c.getSubStoreNames();
 
         while (instances.hasMoreElements()) {
             String insName = instances.nextElement();
-            String implName = c.getString(insName + "." +
-                    PROP_PLUGIN);
-            PublisherPlugin plugin =
-                    mPublisherPlugins.get(implName);
+            logger.info("PublisherProcessor: Loading publisher instance " + insName);
+
+            String implName = c.getString(insName + "." + PROP_PLUGIN);
+            PublisherPlugin plugin = mPublisherPlugins.get(implName);
 
             if (plugin == null) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PLUGIN_NOT_FIND", implName));
                 throw new ELdapException(implName);
             }
+
             String className = plugin.getClassPath();
 
             // Instantiate and init the publisher.
@@ -163,10 +163,8 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
             ILdapPublisher publisherInst = null;
 
             try {
-                publisherInst = (ILdapPublisher)
-                        Class.forName(className).newInstance();
-                IConfigStore pConfig =
-                        c.getSubStore(insName);
+                publisherInst = (ILdapPublisher) Class.forName(className).newInstance();
+                IConfigStore pConfig = c.getSubStore(insName);
 
                 publisherInst.init(pConfig);
                 isEnable = true;
@@ -200,58 +198,49 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", insName));
             }
 
-            // add publisher instance to list.
-            mPublisherInsts.put(insName, new
-                    PublisherProxy(isEnable, publisherInst));
-
-            logger.info("PublisherProcessor: publisher instance " + insName + " added");
-            logger.trace("loaded publisher instance " + insName + " impl " + implName);
+            mPublisherInsts.put(insName, new PublisherProxy(isEnable, publisherInst));
         }
 
-        // load mapper implementation
         IConfigStore mapperConfig = config.getSubStore("mapper");
 
         c = mapperConfig.getSubStore(PROP_IMPL);
         mImpls = c.getSubStoreNames();
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();
+            logger.info("PublisherProcessor: Loading mapper plugin " + id);
+
             String pluginPath = c.getString(id + "." + PROP_CLASS);
             MapperPlugin plugin = new MapperPlugin(id, pluginPath);
-
             mMapperPlugins.put(id, plugin);
         }
-        logger.trace("loaded mapper plugins");
 
-        // load mapper instances
         c = mapperConfig.getSubStore(PROP_INSTANCE);
         instances = c.getSubStoreNames();
         while (instances.hasMoreElements()) {
             String insName = instances.nextElement();
-            String implName = c.getString(insName + "." +
-                    PROP_PLUGIN);
-            MapperPlugin plugin =
-                    mMapperPlugins.get(implName);
+            logger.info("PublisherProcessor: Loading mapper instance " + insName);
+
+            String implName = c.getString(insName + "." + PROP_PLUGIN);
+            MapperPlugin plugin = mMapperPlugins.get(implName);
 
             if (plugin == null) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_MAPPER_NOT_FIND", implName));
                 throw new ELdapException(implName);
             }
-            String className = plugin.getClassPath();
 
-            logger.trace("loaded mapper className=" + className);
+            String className = plugin.getClassPath();
 
             // Instantiate and init the mapper
             boolean isEnable = false;
             ILdapMapper mapperInst = null;
 
             try {
-                mapperInst = (ILdapMapper)
-                        Class.forName(className).newInstance();
-                IConfigStore mConfig =
-                        c.getSubStore(insName);
+                mapperInst = (ILdapMapper) Class.forName(className).newInstance();
+                IConfigStore mConfig = c.getSubStore(insName);
 
                 mapperInst.init(mConfig);
                 isEnable = true;
+
             } catch (ClassNotFoundException e) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()), e);
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
@@ -277,45 +266,38 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
             }
 
-            // add manager instance to list.
-            mMapperInsts.put(insName, new MapperProxy(
-                    isEnable, mapperInst));
-
-            logger.info("PublisherProcessor: mapper instance " + insName + " added");
-            logger.trace("loaded mapper instance " + insName + " impl " + implName);
+            mMapperInsts.put(insName, new MapperProxy(isEnable, mapperInst));
         }
 
-        // load rule implementation
         IConfigStore ruleConfig = config.getSubStore("rule");
 
         c = ruleConfig.getSubStore(PROP_IMPL);
         mImpls = c.getSubStoreNames();
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();
+            logger.info("PublisherProcessor: Loading rule plugin " + id);
+
             String pluginPath = c.getString(id + "." + PROP_CLASS);
             RulePlugin plugin = new RulePlugin(id, pluginPath);
 
             mRulePlugins.put(id, plugin);
         }
-        logger.trace("loaded rule plugins");
 
-        // load rule instances
         c = ruleConfig.getSubStore(PROP_INSTANCE);
         instances = c.getSubStoreNames();
         while (instances.hasMoreElements()) {
             String insName = instances.nextElement();
-            String implName = c.getString(insName + "." +
-                    PROP_PLUGIN);
-            RulePlugin plugin =
-                    mRulePlugins.get(implName);
+            logger.info("PublisherProcessor: Loading rule instance " + insName);
+
+            String implName = c.getString(insName + "." + PROP_PLUGIN);
+            RulePlugin plugin = mRulePlugins.get(implName);
 
             if (plugin == null) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_RULE_NOT_FIND", implName));
                 throw new ELdapException(implName);
             }
-            String className = plugin.getClassPath();
 
-            logger.trace("loaded rule className=" + className);
+            String className = plugin.getClassPath();
 
             // Instantiate and init the rule
             IConfigStore mConfig = null;
@@ -329,11 +311,7 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
                 ruleInst.init(this, mConfig);
                 ruleInst.setInstanceName(insName);
 
-                // add manager instance to list.
-                logger.trace("ADDING RULE " + insName + "  " + ruleInst);
                 mRuleInsts.put(insName, ruleInst);
-
-                logger.info("PublisherProcessor: rule instance " + insName + " added");
 
             } catch (ClassNotFoundException e) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()), e);
@@ -359,13 +337,10 @@ public class PublisherProcessor implements IXcertPublisherProcessor {
                 // chance to the user to re-configure
                 // the server via console.
             }
-            logger.trace("loaded rule instance " + insName + " impl " + implName);
         }
 
         startup();
         mInited = true;
-
-        logger.info("PublisherProcessor: publishing initialization done");
     }
 
     /**
