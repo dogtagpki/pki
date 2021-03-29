@@ -656,6 +656,12 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         boolean listenToCloneModifications = caConfig.getBoolean("listenToCloneModifications", false);
         logger.info("CAEngine: - listen to clone modification: " + listenToCloneModifications);
 
+        int pageSize = caConfig.getInteger(CertificateRepository.PROP_TRANS_PAGESIZE, 200);
+        logger.info("CAEngine: - page size: " + pageSize);
+
+        int maxRecords = caConfig.getInteger(CertificateRepository.PROP_TRANS_MAXRECORDS, 1000000);
+        logger.info("CAEngine: - max records: " + maxRecords);
+
         if (certStatusUpdateTask != null) {
             certStatusUpdateTask.stop();
         }
@@ -676,7 +682,11 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         }
 
         logger.info("CAEngine: Starting cert status update task");
-        certStatusUpdateTask = new CertStatusUpdateTask(certificateRepository, interval);
+        certStatusUpdateTask = new CertStatusUpdateTask(
+                certificateRepository,
+                interval,
+                pageSize,
+                maxRecords);
         certStatusUpdateTask.start();
     }
 
@@ -1590,20 +1600,11 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
         }
         logger.info("CAEngine: - repo base DN: " + reposBaseDN);
 
-        int transitMaxRecords = caConfig.getInteger(CertificateRepository.PROP_TRANS_MAXRECORDS, 1000000);
-        logger.info("CAEngine: - transit max records: " + transitMaxRecords);
-
-        int transitRecordPageSize = caConfig.getInteger(CertificateRepository.PROP_TRANS_PAGESIZE, 200);
-        logger.info("CAEngine: - transit record page size: " + transitRecordPageSize);
-
         certificateRepository = new CertificateRepository(
                 dbSubsystem,
                 certRepoBaseDN,
                 increment,
                 reposBaseDN);
-
-        certificateRepository.setTransitMaxRecords(transitMaxRecords);
-        certificateRepository.setTransitRecordPageSize(transitRecordPageSize);
     }
 
     public void initCrlDatabase() throws Exception {

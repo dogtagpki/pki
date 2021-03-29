@@ -91,9 +91,6 @@ public class CertificateRepository extends Repository {
 
     private Hashtable<String, ICRLIssuingPoint> mCRLIssuingPoints = new Hashtable<String, ICRLIssuingPoint>();
 
-    private int mTransitMaxRecords = 1000000;
-    private int mTransitRecordPageSize = 200;
-
     private int mBitLength = 0;
     private BigInteger mRangeSize = null;
     private int mMinRandomBitLength = 4;
@@ -591,22 +588,6 @@ public class CertificateRepository extends Repository {
 
     public void setConsistencyCheck(boolean ConsistencyCheck) {
         mConsistencyCheck = ConsistencyCheck;
-    }
-
-    public void setTransitMaxRecords(int max) {
-        mTransitMaxRecords = max;
-    }
-
-    public int getTransitMaxRecords() {
-        return mTransitMaxRecords;
-    }
-
-    public void setTransitRecordPageSize(int size) {
-        mTransitRecordPageSize = size;
-    }
-
-    public int getTransitRecordPageSize() {
-        return mTransitRecordPageSize;
     }
 
     /**

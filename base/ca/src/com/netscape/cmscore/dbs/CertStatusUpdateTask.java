@@ -35,12 +35,21 @@ public class CertStatusUpdateTask implements Runnable {
     CertificateRepository repository;
 
     int interval;
+    int pageSize = 200;
+    int maxRecords = 1000000;
 
     ScheduledExecutorService executorService;
 
-    public CertStatusUpdateTask(CertificateRepository repository, int interval) {
+    public CertStatusUpdateTask(
+            CertificateRepository repository,
+            int interval,
+            int pageSize,
+            int maxRecords) {
+
         this.repository = repository;
         this.interval = interval;
+        this.pageSize = pageSize;
+        this.maxRecords = maxRecords;
     }
 
     public void start() {
@@ -61,12 +70,6 @@ public class CertStatusUpdateTask implements Runnable {
 
         logger.info("CertStatusUpdateTask: Updating invalid certs to valid");
         Date now = new Date();
-
-        int pageSize = repository.getTransitRecordPageSize();
-        logger.debug("CertStatusUpdateTask: - page size: " + pageSize);
-
-        int maxRecords = repository.getTransitMaxRecords();
-        logger.debug("CertStatusUpdateTask: - max records: " + maxRecords);
 
         CertRecordList recordList = repository.getInvalidCertsByNotBeforeDate(now, -1 * pageSize);
 
@@ -114,12 +117,6 @@ public class CertStatusUpdateTask implements Runnable {
         logger.info("CertStatusUpdateTask: Updating valid certs to expired");
         Date now = new Date();
 
-        int pageSize = repository.getTransitRecordPageSize();
-        logger.debug("CertStatusUpdateTask: - page size: " + pageSize);
-
-        int maxRecords = repository.getTransitMaxRecords();
-        logger.debug("CertStatusUpdateTask: - max records: " + maxRecords);
-
         CertRecordList recordList = repository.getValidCertsByNotAfterDate(now, -1 * pageSize);
 
         int totalSize = recordList.getSize();
@@ -164,12 +161,6 @@ public class CertStatusUpdateTask implements Runnable {
 
         logger.info("CertStatusUpdateTask: Updating revoked certs to expired");
         Date now = new Date();
-
-        int pageSize = repository.getTransitRecordPageSize();
-        logger.debug("CertStatusUpdateTask: - page size: " + pageSize);
-
-        int maxRecords = repository.getTransitMaxRecords();
-        logger.debug("CertStatusUpdateTask: - max records: " + maxRecords);
 
         CertRecordList recordList = repository.getRevokedCertsByNotAfterDate(now, -1 * pageSize);
 
