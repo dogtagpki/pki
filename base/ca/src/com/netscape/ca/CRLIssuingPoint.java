@@ -46,7 +46,6 @@ import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -66,7 +65,6 @@ import com.netscape.certsrv.logging.event.DeltaCRLPublishingEvent;
 import com.netscape.certsrv.logging.event.FullCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.FullCRLPublishingEvent;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
@@ -235,7 +233,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Update CRL even if auto interval > 0
      */
-    private boolean mAlwaysUpdate = false;
+    boolean mAlwaysUpdate = false;
 
     /**
      * next update grace period
@@ -334,10 +332,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * update status, publishing status Strings to store in requests to
      * display result.
      */
-    private String mCrlUpdateStatus;
-    private String mCrlUpdateError;
-    private String mCrlPublishStatus;
-    private String mCrlPublishError;
+    String mCrlUpdateStatus;
+    String mCrlUpdateError;
+    String mCrlPublishStatus;
+    String mCrlPublishError;
 
     /**
      * begin, end serial number range of revoked certs if any.
@@ -542,7 +540,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         if (mCA.getRequestListener(crlListName) == null) {
             mCA.registerRequestListener(
-                    crlListName, new RevocationRequestListener());
+                    crlListName, new RevocationRequestListener(this));
         }
 
         for (int i = 0; i < mSplits.length; i++) {
@@ -3183,94 +3181,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     void setConfigParam(String name, String value) {
         mConfigStore.putString(name, value);
-    }
-
-    class RevocationRequestListener implements IRequestListener {
-
-        public void init(ISubsystem sys, IConfigStore config)
-                throws EBaseException {
-        }
-
-        public void set(String name, String val) {
-        }
-
-        public void accept(IRequest r) {
-            String requestType = r.getRequestType();
-
-            if (!(requestType.equals(IRequest.REVOCATION_REQUEST) ||
-                    requestType.equals(IRequest.UNREVOCATION_REQUEST) ||
-                    requestType.equals(IRequest.CLA_CERT4CRL_REQUEST) ||
-                    requestType.equals(IRequest.CLA_UNCERT4CRL_REQUEST))) {
-                return;
-            }
-
-            logger.debug("Revocation listener called.");
-            // check if serial number is in begin/end range if set.
-            if (mBeginSerial != null || mEndSerial != null) {
-                logger.debug(
-                        "Checking if serial number is between " +
-                                mBeginSerial + " and " + mEndSerial);
-                BigInteger[] serialNos =
-                        r.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
-
-                if (serialNos == null || serialNos.length == 0) {
-                    X509CertImpl oldCerts[] =
-                            r.getExtDataInCertArray(IRequest.OLD_CERTS);
-
-                    if (oldCerts == null || oldCerts.length == 0)
-                        return;
-                    serialNos = new BigInteger[oldCerts.length];
-                    for (int i = 0; i < oldCerts.length; i++) {
-                        serialNos[i] = oldCerts[i].getSerialNumber();
-                    }
-                }
-
-                boolean inRange = false;
-
-                for (int i = 0; i < serialNos.length; i++) {
-                    if ((mBeginSerial == null ||
-                            serialNos[i].compareTo(mBeginSerial) >= 0) &&
-                            (mEndSerial == null ||
-                            serialNos[i].compareTo(mEndSerial) <= 0)) {
-                        inRange = true;
-                    }
-                }
-                if (!inRange) {
-                    return;
-                }
-            }
-
-            if (mAlwaysUpdate) {
-                try {
-                    updateCRLNow();
-                    r.setExtData(mCrlUpdateStatus, IRequest.RES_SUCCESS);
-                    if (mPublisherProcessor != null) {
-                        r.setExtData(mCrlPublishStatus, IRequest.RES_SUCCESS);
-                    }
-
-                } catch (EErrorPublishCRL e) {
-                    // error already logged in updateCRLNow();
-                    r.setExtData(mCrlUpdateStatus, IRequest.RES_SUCCESS);
-                    if (mPublisherProcessor != null) {
-                        r.setExtData(mCrlPublishStatus, IRequest.RES_ERROR);
-                        r.setExtData(mCrlPublishError, e);
-                    }
-
-                } catch (EBaseException e) {
-                    logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()), e);
-                    r.setExtData(mCrlUpdateStatus, IRequest.RES_ERROR);
-                    r.setExtData(mCrlUpdateError, e);
-
-                } catch (Exception e) {
-                    String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString());
-                    logger.warn(message, e);
-                    r.setExtData(mCrlUpdateStatus, IRequest.RES_ERROR);
-                    r.setExtData(mCrlUpdateError,
-                            new EBaseException(
-                                    CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString())));
-                }
-            }
-        }
     }
 
     String getAuditSubjectID() {
