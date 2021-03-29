@@ -29,7 +29,6 @@ import java.util.Vector;
 
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
-import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -52,8 +51,6 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.security.JssSubsystem;
 
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchResults;
 
 /**
@@ -618,6 +615,10 @@ public class CertificateRepository extends Repository {
      */
     public void addCRLIssuingPoint(String id, ICRLIssuingPoint crlIssuingPoint) {
         mCRLIssuingPoints.put(id, crlIssuingPoint);
+    }
+
+    public Hashtable<String, ICRLIssuingPoint> getCRLIssuingPoints() {
+        return mCRLIssuingPoints;
     }
 
     /**
@@ -2442,55 +2443,6 @@ public class CertificateRepository extends Repository {
         logger.debug("Starting persistent search.");
         String filter = "(" + CertRecord.ATTR_CERT_STATUS + "=*)";
         return session.persistentSearch(getDN(), filter, null);
-    }
-
-    /**
-     * Retrieves modified certificate records.
-     *
-     * @param entry LDAPEntry with modified data
-     */
-    public void getModifications(LDAPEntry entry) {
-        if (entry != null) {
-            logger.debug("getModifications  entry DN=" + entry.getDN());
-
-            LDAPAttributeSet entryAttrs = entry.getAttributeSet();
-            CertRecord certRec = null;
-            try {
-                certRec = (CertRecord) dbSubsystem.getRegistry().createObject(entryAttrs);
-            } catch (Exception e) {
-            }
-            if (certRec != null) {
-                String status = certRec.getStatus();
-                logger.debug("getModifications  serialNumber=" + certRec.getSerialNumber() +
-                          "  status=" + status);
-                if (status != null && (status.equals(CertRecord.STATUS_VALID) ||
-                        status.equals(CertRecord.STATUS_REVOKED))) {
-
-                    Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
-
-                    while (eIPs.hasMoreElements()) {
-                        ICRLIssuingPoint ip = eIPs.nextElement();
-
-                        if (ip != null) {
-                            if (status.equals(CertRecord.STATUS_REVOKED)) {
-                                IRevocationInfo rInfo = certRec.getRevocationInfo();
-                                if (rInfo != null) {
-                                    ip.addRevokedCert(certRec.getSerialNumber(),
-                                            new RevokedCertImpl(certRec.getSerialNumber(),
-                                                            rInfo.getRevocationDate(),
-                                                            rInfo.getCRLEntryExtensions()));
-                                }
-                            } else {
-                                ip.addUnrevokedCert(certRec.getSerialNumber());
-                            }
-                        }
-                    }
-
-                }
-            }
-        } else {
-            logger.warn("getModifications  entry == null");
-        }
     }
 
     /**

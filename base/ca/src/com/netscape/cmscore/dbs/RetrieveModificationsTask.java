@@ -17,13 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+import java.util.Enumeration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import com.netscape.certsrv.base.EBaseException;
+import org.dogtagpki.server.ca.ICRLIssuingPoint;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+
+import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchResults;
 
@@ -68,6 +76,76 @@ public class RetrieveModificationsTask implements Runnable {
         }
     }
 
+    /**
+     * Retrieves modified certificate records.
+     *
+     * @param entry LDAPEntry with modified data
+     */
+    public void retrieveModifications(LDAPEntry entry) {
+
+        if (entry == null) {
+            logger.warn("RetrieveModificationsTask: Missing LDAP entry");
+            return;
+        }
+
+        logger.info("RetrieveModificationsTask: dn: " + entry.getDN());
+
+        CMSEngine engine = CMS.getCMSEngine();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
+
+        LDAPAttributeSet entryAttrs = entry.getAttributeSet();
+        CertRecord certRecord = null;
+
+        try {
+            certRecord = (CertRecord) dbSubsystem.getRegistry().createObject(entryAttrs);
+        } catch (Exception e) {
+            logger.warn("RetrieveModificationsTask: " + e.getMessage(), e);
+        }
+
+        if (certRecord == null) {
+            logger.warn("RetrieveModificationsTask: Unable to create certificate record");
+            return;
+        }
+
+        String status = certRecord.getStatus();
+        logger.info("RetrieveModificationsTask: status: " + status);
+
+        if (status == null) {
+            return;
+        }
+
+        if (!status.equals(CertRecord.STATUS_VALID) && !status.equals(CertRecord.STATUS_REVOKED)) {
+            return;
+        }
+
+        Enumeration<ICRLIssuingPoint> issuingPoints = repository.getCRLIssuingPoints().elements();
+
+        while (issuingPoints.hasMoreElements()) {
+            ICRLIssuingPoint ip = issuingPoints.nextElement();
+
+            if (ip == null) {
+                continue;
+            }
+
+            if (!status.equals(CertRecord.STATUS_REVOKED)) {
+                ip.addUnrevokedCert(certRecord.getSerialNumber());
+                continue;
+            }
+
+            IRevocationInfo rInfo = certRecord.getRevocationInfo();
+            if (rInfo == null) {
+                continue;
+            }
+
+            RevokedCertImpl revokedCert = new RevokedCertImpl(
+                    certRecord.getSerialNumber(),
+                    rInfo.getRevocationDate(),
+                    rInfo.getCRLEntryExtensions());
+
+            ip.addRevokedCert(certRecord.getSerialNumber(), revokedCert);
+        }
+    }
+
     public void close() {
 
         if (session == null) return;
@@ -94,7 +172,7 @@ public class RetrieveModificationsTask implements Runnable {
                 LDAPEntry entry = results.next();
 
                 logger.debug("Processing "+entry.getDN()+".");
-                repository.getModifications(entry);
+                retrieveModifications(entry);
                 logger.debug("Done processing "+entry.getDN()+".");
 
                 // wait for next result immediately
