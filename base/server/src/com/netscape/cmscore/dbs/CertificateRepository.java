@@ -618,53 +618,54 @@ public class CertificateRepository extends Repository {
      * @exception EBaseException failed to add new certificate to
      *                the repository
      */
-    public void addCertificateRecord(CertRecord record)
-            throws EBaseException {
+    public void addCertificateRecord(CertRecord record) throws EBaseException {
+
         DBSSession s = dbSubsystem.createSession();
 
         try {
-            String name = "cn" + "=" +
-                    record.getSerialNumber().toString() + "," + getDN();
+            String name = "cn" + "=" + record.getSerialNumber() + "," + getDN();
+            logger.info("CertificateRepository: Adding certificate record " + name);
+
+            X509CertImpl x509cert = (X509CertImpl) record.get(CertRecord.ATTR_X509CERT);
+            logger.info("CertificateRepository: - subject: " + x509cert.getSubjectDN());
+            logger.info("CertificateRepository: - issuer: " + x509cert.getIssuerDN());
+
             SessionContext ctx = SessionContext.getContext();
             String uid = (String) ctx.get(SessionContext.USER_ID);
 
             if (uid == null) {
                 // XXX is this right?
-                record.set(CertRecord.ATTR_ISSUED_BY, "system");
-
-                /**
-                 * System.out.println("XXX servlet should set USER_ID");
-                 * throw new EBaseException(BaseResources.UNKNOWN_PRINCIPAL_1,
-                 * "null");
-                 **/
-            } else {
-                record.set(CertRecord.ATTR_ISSUED_BY, uid);
+                uid = "system";
+                // logger.error("XXX servlet should set USER_ID");
+                // throw new EBaseException(BaseResources.UNKNOWN_PRINCIPAL_1, "null");
             }
+
+            record.set(CertRecord.ATTR_ISSUED_BY, uid);
+            logger.info("CertificateRepository: - issued by: " + uid);
 
             // Check validity of this certificate. If it is not invalid,
             // mark it so. We will have a thread to transit the status
             // from INVALID to VALID.
-            X509CertImpl x509cert = (X509CertImpl) record.get(
-                    CertRecord.ATTR_X509CERT);
 
-            if (x509cert != null) {
-                Date now = new Date();
+            Date now = new Date();
 
-                if (x509cert.getNotBefore().after(now)) {
-                    // not yet valid
-                    record.set(CertRecord.ATTR_CERT_STATUS,
-                            CertRecord.STATUS_INVALID);
-                }
+            String status = (String) record.get(CertRecord.ATTR_CERT_STATUS);
+            if (x509cert.getNotBefore().after(now)) {
+                // not yet valid
+                status = CertRecord.STATUS_INVALID;
+                record.set(CertRecord.ATTR_CERT_STATUS, status);
             }
+            logger.info("CertificateRepository: - status: " + status);
 
             s.add(name, record);
 
         } catch (EBaseException e) {
-            throw new EBaseException("Unable to create certificate record: " + e.getMessage(), e);
+            throw new EBaseException("Unable to add certificate record: " + e.getMessage(), e);
 
         } finally {
-            if (s != null)
+            if (s != null) {
                 s.close();
+            }
         }
     }
 
