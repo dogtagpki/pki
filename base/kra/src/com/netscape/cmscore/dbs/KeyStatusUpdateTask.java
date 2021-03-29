@@ -22,15 +22,26 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import com.netscape.cmscore.request.RequestRepository;
+
 public class KeyStatusUpdateTask implements Runnable {
 
-    KeyRepository repository;
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyStatusUpdateTask.class);
+
+    KeyRepository keyRepository;
+    RequestRepository requestRepository;
+
     int interval;
 
     ScheduledExecutorService executorService;
 
-    public KeyStatusUpdateTask(KeyRepository repository, int interval) {
-        this.repository = repository;
+    public KeyStatusUpdateTask(
+            KeyRepository keyRepository,
+            RequestRepository requestRepository,
+            int interval) {
+
+        this.keyRepository = keyRepository;
+        this.requestRepository = requestRepository;
         this.interval = interval;
     }
 
@@ -44,8 +55,28 @@ public class KeyStatusUpdateTask implements Runnable {
         executorService.scheduleWithFixedDelay(this, 0, interval, TimeUnit.SECONDS);
     }
 
+    public void updateKeyStatus() throws Exception {
+
+        synchronized(keyRepository) {
+            logger.debug("About to start checkRanges");
+
+            logger.debug("Starting key checkRanges");
+            keyRepository.checkRanges();
+            logger.debug("key checkRanges done");
+
+            logger.debug("Starting request checkRanges");
+            requestRepository.checkRanges();
+            logger.debug("request checkRanges done");
+        }
+    }
+
     public void run() {
-        repository.updateKeyStatus();
+        try {
+            updateKeyStatus();
+
+        } catch (Exception e) {
+            logger.warn("KeyStatusUpdateTask: " + e.getMessage(), e);
+        }
     }
 
     public void stop() {

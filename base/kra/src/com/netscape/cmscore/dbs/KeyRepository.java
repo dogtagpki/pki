@@ -33,7 +33,7 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
-import com.netscape.certsrv.dbs.repository.IRepository;
+import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * A class represents a Key repository. This is the container of
@@ -49,8 +49,6 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     public KeyStatusUpdateTask mKeyStatusUpdateTask;
     protected DBSubsystem dbSubsystem;
-
-    IRepository requestRepository;
 
     /**
      * Internal constants
@@ -149,12 +147,9 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     }
 
-    public void setKeyStatusUpdateInterval(IRepository requestRepo, int interval) {
+    public void setKeyStatusUpdateInterval(RequestRepository requestRepo, int interval) {
 
         logger.debug("In setKeyStatusUpdateInterval " + interval);
-        synchronized (this) {
-            this.requestRepository = requestRepo;
-        }
 
         // stop running task
         if (mKeyStatusUpdateTask != null) {
@@ -168,28 +163,8 @@ public class KeyRepository extends Repository implements IKeyRepository {
         }
 
         logger.debug("In setKeyStatusUpdateInterval scheduling key status update every " + interval + " seconds.");
-        mKeyStatusUpdateTask = new KeyStatusUpdateTask(this, interval);
+        mKeyStatusUpdateTask = new KeyStatusUpdateTask(this, requestRepo, interval);
         mKeyStatusUpdateTask.start();
-    }
-
-    /**
-     * This method blocks when another thread is running
-     */
-    public synchronized void updateKeyStatus() {
-        try {
-            logger.debug("About to start checkRanges");
-
-            logger.debug("Starting key checkRanges");
-            checkRanges();
-            logger.debug("key checkRanges done");
-
-            logger.debug("Starting request checkRanges");
-            requestRepository.checkRanges();
-            logger.debug("request checkRanges done");
-
-        } catch (Exception e) {
-            logger.warn("Unable to update key status: " + e.getMessage(), e);
-        }
     }
 
     public DBSubsystem getDBSubsystem() {
