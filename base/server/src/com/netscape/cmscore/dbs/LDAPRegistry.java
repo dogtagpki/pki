@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
+import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IFilterConverter;
 import com.netscape.cmscore.apps.CMS;
@@ -446,25 +446,31 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * Creates attribute set from object.
      */
-    public LDAPAttributeSet createLDAPAttributeSet(IDBObj obj)
-            throws EBaseException {
+    public LDAPAttributeSet createLDAPAttributeSet(IDBObj obj) throws EBaseException {
+
         Enumeration<String> e = obj.getSerializableAttrNames();
         LDAPAttributeSet attrs = new LDAPAttributeSet();
 
         // add object class to attribute set
         String className = ((Object) obj).getClass().getName();
-        String vals[] = mOCclassNames.get(className);
+        String[] ocNames = mOCclassNames.get(className);
+        for (String ocName : ocNames) {
+            logger.debug("LDAPRegistry: Adding object class " + ocName);
+        }
+        attrs.add(new LDAPAttribute("objectclass", ocNames));
 
-        attrs.add(new LDAPAttribute("objectclass", vals));
-
-        // give every attribute a chance to put stuff in attr set
         while (e.hasMoreElements()) {
             String name = e.nextElement();
+            Object value = obj.get(name);
 
-            if (obj.get(name) != null) {
-                mapObject(obj, name, obj.get(name), attrs);
+            if (value == null) {
+                logger.debug("LDAPRegistry: Skipping empty attribute " + name);
+            } else {
+                logger.debug("LDAPRegistry: Mapping attribute " + name);
+                mapObject(obj, name, value, attrs);
             }
         }
+
         return attrs;
     }
 
