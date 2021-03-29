@@ -706,35 +706,14 @@ public class CertificateRepository extends Repository {
         }
     }
 
-    public void transitCertList(Vector<BigInteger> list, String newCertStatus) throws EBaseException {
+    public void updateStatus(Vector<BigInteger> list, String status) throws EBaseException {
 
-        logger.debug("transitCertList " + newCertStatus);
+        logger.debug("transitCertList " + status);
 
         for (int i = 0; i < list.size(); i++) {
-            BigInteger serial = list.elementAt(i);
-
-            updateStatus(serial, newCertStatus);
-
-            if (newCertStatus.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
-
-                // inform all CRLIssuingPoints about revoked and expired certificate
-
-                Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
-
-                while (eIPs.hasMoreElements()) {
-                    ICRLIssuingPoint ip = eIPs.nextElement();
-
-                    if (ip != null) {
-                        ip.addExpiredCert(serial);
-                    }
-                }
-
-            }
-
-            logger.debug("transitCertList number at: " + i + " = " + serial);
+            BigInteger serialNumber = list.elementAt(i);
+            updateStatus(serialNumber, status);
         }
-
-        list.removeAllElements();
     }
 
     /**

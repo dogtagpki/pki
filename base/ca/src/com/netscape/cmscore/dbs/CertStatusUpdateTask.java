@@ -25,6 +25,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.dogtagpki.server.ca.ICRLIssuingPoint;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 
@@ -105,7 +107,7 @@ public class CertStatusUpdateTask implements Runnable {
             list.add(certRecord.getSerialNumber());
         }
 
-        repository.transitCertList(list, CertRecord.STATUS_VALID);
+        repository.updateStatus(list, CertRecord.STATUS_VALID);
     }
 
     /**
@@ -151,13 +153,13 @@ public class CertStatusUpdateTask implements Runnable {
             list.add(certRecord.getSerialNumber());
         }
 
-        repository.transitCertList(list, CertRecord.STATUS_EXPIRED);
+        repository.updateStatus(list, CertRecord.STATUS_EXPIRED);
     }
     /**
      * Updates a certificate status from REVOKED to REVOKED_EXPIRED
      * if a revoked certificate becomes expired.
      */
-    public void transitRevokedExpiredCertificates() throws EBaseException {
+    public void updateRevokedExpiredCertificates() throws EBaseException {
 
         logger.info("CertStatusUpdateTask: Updating revoked certs to expired");
         Date now = new Date();
@@ -196,7 +198,17 @@ public class CertStatusUpdateTask implements Runnable {
             list.add(certRecord.getSerialNumber());
         }
 
-        repository.transitCertList(list, CertRecord.STATUS_REVOKED_EXPIRED);
+        repository.updateStatus(list, CertRecord.STATUS_REVOKED_EXPIRED);
+
+        // notify all CRL issuing points about revoked and expired certificates
+
+        for (int i = 0; i < list.size(); i++) {
+            BigInteger serialNumber = list.elementAt(i);
+
+            for (ICRLIssuingPoint issuingPoint : repository.getCRLIssuingPoints().values()) {
+                issuingPoint.addExpiredCert(serialNumber);
+            }
+        }
     }
 
     /**
@@ -218,7 +230,7 @@ public class CertStatusUpdateTask implements Runnable {
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_EXPIRED_SEARCH"));
 
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_REVOKED_EXPIRED_SEARCH"));
-        transitRevokedExpiredCertificates();
+        updateRevokedExpiredCertificates();
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
     }
 
