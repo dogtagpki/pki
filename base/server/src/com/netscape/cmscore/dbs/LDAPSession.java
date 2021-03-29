@@ -99,10 +99,10 @@ public class LDAPSession extends DBSSession {
      */
     public void add(String name, IDBObj obj) throws EBaseException {
 
+        logger.info("LDAPSession: Adding LDAP entry " + name);
+
         try {
             LDAPAttributeSet attrs = dbSubsystem.getRegistry().createLDAPAttributeSet(obj);
-
-            logger.info("LDAPSession: adding " + name);
 
             for (Enumeration<LDAPAttribute> e = attrs.getAttributes(); e.hasMoreElements(); ) {
                 LDAPAttribute attr = e.nextElement();
@@ -119,11 +119,12 @@ public class LDAPSession extends DBSSession {
              * @message LDAPSession: begin LDAP add <entry>
              */
             mConn.add(e);
+
         } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
-                        CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
-            throw new EDBException("Unable to create LDAP record: " + e.getMessage(), e);
+            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
+                throw new EDBNotAvailException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
+            }
+            throw new EDBException("Unable to add LDAP entry: " + e.getMessage(), e);
         }
     }
 
