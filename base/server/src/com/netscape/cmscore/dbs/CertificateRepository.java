@@ -725,57 +725,6 @@ public class CertificateRepository extends Repository {
         }
     }
 
-    /**
-     * This transits a certificate status from REVOKED to REVOKED_EXPIRED
-     * if an revoked certificate becomes expired.
-     */
-    public void transitRevokedExpiredCertificates() throws EBaseException {
-        Date now = new Date();
-        CertRecordList recList = getRevokedCertsByNotAfterDate(now, -1 * mTransitRecordPageSize);
-
-        int size = recList.getSize();
-
-        if (size <= 0) {
-            logger.debug("index may be empty");
-            return;
-        }
-
-        int ltSize = recList.getSizeBeforeJumpTo();
-        Vector<BigInteger> cList = new Vector<>(ltSize);
-
-        ltSize = Math.min(ltSize, mTransitMaxRecords);
-
-        logger.debug("transitRevokedExpiredCertificates: list size: " + size);
-        logger.debug("transitRevokedExpiredCertificates: ltSize " + ltSize);
-
-        CertRecord curRec = null;
-        int i;
-        Object obj = null;
-
-        for (i = 0; i < ltSize; i++) {
-            obj = recList.getCertRecord(i);
-            if (obj != null) {
-                curRec = (CertRecord) obj;
-                logger.debug("transitRevokedExpired: curRec: " + i + " " + curRec.toString());
-
-                Date notAfter = curRec.getNotAfter();
-
-                // logger.debug("notAfter " + notAfter.toString() + " now " + now.toString());
-                if (notAfter.after(now)) {
-                    logger.debug("Record does not qualify,notAfter " + notAfter.toString() + " date " + now.toString());
-                    continue;
-                }
-
-                cList.add(curRec.getSerialNumber());
-
-            } else {
-                logger.warn("found null record in getCertRecord");
-            }
-        }
-
-        transitCertList(cList, CertRecord.STATUS_REVOKED_EXPIRED);
-    }
-
     public void transitCertList(Vector<BigInteger> list, String newCertStatus) throws EBaseException {
 
         logger.debug("transitCertList " + newCertStatus);
