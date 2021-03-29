@@ -1860,6 +1860,45 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return (fromLastUpdate) ? next - now : next;
     }
 
+    public void handleUnexpectedFailure(int loopCounter, long timeOfUnexpectedFailure) {
+
+        logger.info("CRLIssuingPoint: Handling unexpected failure");
+        logger.info("CRLIssuingPoint: - loop counter: " + loopCounter);
+
+        if (loopCounter <= mUnexpectedExceptionLoopMax) {
+            logger.info("CRLIssuingPoint: Max loop not reached, no wait time");
+            return;
+        }
+
+        logger.info("CRLIssuingPoint: Max loop reached, slowdown procedure ensues");
+
+        long now = System.currentTimeMillis();
+        logger.info("CRLIssuingPoint: - now: " + now);
+        logger.info("CRLIssuingPoint: - time of unexpected failure: " + timeOfUnexpectedFailure);
+
+        long timeLapse = now - timeOfUnexpectedFailure;
+        logger.info("CRLIssuingPoint: - time lapse: " + timeLapse);
+
+        long waitTime = mUnexpectedExceptionWaitTime - timeLapse;
+        logger.info("CRLIssuingPoint: Wait time after last failure:" + waitTime);
+
+        if (waitTime <= 0) {
+            logger.info("CRLIssuingPoint: No wait after failure");
+            return;
+        }
+
+        logger.info("CRLIssuingPoint: Waiting for " + waitTime + " ms");
+
+        try {
+            wait(waitTime);
+
+        } catch (InterruptedException e) {
+            logger.error("CRLIssuingPoint: " + e.getMessage(), e);
+        }
+
+        // timeOfUnexpectedFailure will be reset again if it still fails
+    }
+
     /**
      * Implements Runnable interface. Defines auto-update
      * logic used by worker thread.
@@ -1929,31 +1968,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         if (unexpectedFailure == true) {
                             // it gets mUnexpectedExceptionLoopMax tries
                             loopCounter++;
-                            if (loopCounter > mUnexpectedExceptionLoopMax) {
-                                logger.debug("CRLIssuingPoint:run(): in unexpectedFailure. mUnexpectedExceptionLoopMax reached with loopCounter =" + loopCounter +
-                                    ", loop slowdown procedure ensues");
-                                long now = System.currentTimeMillis();
-                                long timeLapse = now - timeOfUnexpectedFailure;
-                                logger.debug("CRLIssuingPoint:run(): in unexpectedFailure.  now= "+ now + "; timeOfUnexpectedFailure = " + timeOfUnexpectedFailure);
-                                if (timeLapse < mUnexpectedExceptionWaitTime) {
-                                    long waitTime = mUnexpectedExceptionWaitTime - timeLapse;
-                                    logger.debug("CRLIssuingPoint:run(): wait time after last failure:" + waitTime);
-                                    try {
-                                        wait (waitTime);
-                                    } catch (InterruptedException e) {
-                                    } catch (IllegalArgumentException e) {
-                                      // handle possible narrow window that
-                                      // might cause negative value
-                                    }
-                                    // timeOfUnexpectedFailure will be reset again
-                                    // if it still fails below
-                                } else {
-                                    logger.debug("CRLIssuingPoint:run(): no wait after failure: (now - timeOfUnexpectedFailure) !< mUnexpectedExceptionWaitTime");
-                                }
-                            } else {
-                                logger.debug("CRLIssuingPoint:run(): in unexpectedFailure. mUnexpectedExceptionLoopMax not reached with loopCounter =" + loopCounter +
-                                    ", no wait time");
-                            }
+                            handleUnexpectedFailure(loopCounter, timeOfUnexpectedFailure);
                         }
 
                         logger.debug("CRLIssuingPoint:run(): before CRL generation");
