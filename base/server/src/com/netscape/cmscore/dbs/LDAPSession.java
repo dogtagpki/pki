@@ -212,23 +212,19 @@ public class LDAPSession extends DBSSession {
     /**
      * Modify an object in the database.
      */
-    public void modify(String name, ModificationSet mods)
-            throws EBaseException {
+    public void modify(String name, ModificationSet mods) throws EBaseException {
 
-        logger.debug("LDAPSession: modify(" + name + ")");
+        logger.info("LDAPSession: Modifying LDAP entry " + name);
 
         try {
-            LDAPModificationSet ldapMods = new
-                    LDAPModificationSet();
+            LDAPModificationSet ldapMods = new LDAPModificationSet();
             Enumeration<?> e = mods.getModifications();
 
             while (e.hasMoreElements()) {
-                Modification mod = (Modification)
-                        e.nextElement();
+                Modification mod = (Modification) e.nextElement();
                 LDAPAttributeSet attrs = new LDAPAttributeSet();
 
-                dbSubsystem.getRegistry().mapObject(null,
-                        mod.getName(), mod.getValue(), attrs);
+                dbSubsystem.getRegistry().mapObject(null, mod.getName(), mod.getValue(), attrs);
                 Enumeration<LDAPAttribute> e0 = attrs.getAttributes();
 
                 while (e0.hasMoreElements()) {
@@ -242,13 +238,17 @@ public class LDAPSession extends DBSSession {
              * @message LDAPSession: begin LDAP modify <entry>
              */
             mConn.modify(name, ldapMods);
+
         } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
-                        CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
-            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT)
-                throw new EDBRecordNotFoundException(
-                        CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"));
+
+            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
+                throw new EDBNotAvailException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
+            }
+
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                throw new EDBRecordNotFoundException(CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"));
+            }
+
             throw new EDBException("Unable to modify LDAP record: " + e.getMessage(), e);
         }
     }
