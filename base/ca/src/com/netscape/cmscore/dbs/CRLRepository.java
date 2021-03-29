@@ -265,44 +265,50 @@ public class CRLRepository extends Repository {
      * @param expiredCerts list of expired certificates
      * @exception EBaseException failed to update issuing point record
      */
-    public void updateCRLIssuingPointRecord(String id, byte[] newCRL,
-            Date thisUpdate, Date nextUpdate, BigInteger crlNumber, Long crlSize,
+    public void updateCRLIssuingPointRecord(
+            String id,
+            byte[] newCRL,
+            Date thisUpdate,
+            Date nextUpdate,
+            BigInteger crlNumber,
+            Long crlSize,
             Hashtable<BigInteger, RevokedCertificate> revokedCerts,
             Hashtable<BigInteger, RevokedCertificate> unrevokedCerts,
             Hashtable<BigInteger, RevokedCertificate> expiredCerts)
             throws EBaseException {
+
+        logger.info("CRLReposiotry: Updating CRL issuing point record");
+
         ModificationSet mods = new ModificationSet();
 
         if (newCRL != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_CRL,
-                    Modification.MOD_REPLACE, newCRL);
+            mods.add(ICRLIssuingPointRecord.ATTR_CRL, Modification.MOD_REPLACE, newCRL);
         }
+
         if (nextUpdate != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE,
-                    Modification.MOD_REPLACE, nextUpdate);
+            mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE, Modification.MOD_REPLACE, nextUpdate);
         }
-        mods.add(ICRLIssuingPointRecord.ATTR_THIS_UPDATE,
-                Modification.MOD_REPLACE, thisUpdate);
-        mods.add(ICRLIssuingPointRecord.ATTR_CRL_NUMBER,
-                Modification.MOD_REPLACE, crlNumber);
-        mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE,
-                Modification.MOD_REPLACE, crlSize);
+
+        mods.add(ICRLIssuingPointRecord.ATTR_THIS_UPDATE, Modification.MOD_REPLACE, thisUpdate);
+        mods.add(ICRLIssuingPointRecord.ATTR_CRL_NUMBER, Modification.MOD_REPLACE, crlNumber);
+        mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE, Modification.MOD_REPLACE, crlSize);
+
         if (revokedCerts != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS,
-                    Modification.MOD_REPLACE, revokedCerts);
+            mods.add(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS, Modification.MOD_REPLACE, revokedCerts);
         }
+
         if (unrevokedCerts != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS,
-                    Modification.MOD_REPLACE, unrevokedCerts);
+            mods.add(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS, Modification.MOD_REPLACE, unrevokedCerts);
         }
+
         if (expiredCerts != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_EXPIRED_CERTS,
-                    Modification.MOD_REPLACE, expiredCerts);
+            mods.add(ICRLIssuingPointRecord.ATTR_EXPIRED_CERTS, Modification.MOD_REPLACE, expiredCerts);
         }
+
         if (revokedCerts != null || unrevokedCerts != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED,
-                    Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
+            mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED, Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
         }
+
         modifyCRLIssuingPointRecord(id, mods);
     }
 
