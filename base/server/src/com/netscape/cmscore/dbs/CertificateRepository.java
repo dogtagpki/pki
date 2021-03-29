@@ -90,9 +90,6 @@ public class CertificateRepository extends Repository {
     private String mRequestBaseDN;
     private boolean mConsistencyCheck = false;
 
-    @SuppressWarnings("unused")
-    private boolean mSkipIfInconsistent;
-
     private Hashtable<String, ICRLIssuingPoint> mCRLIssuingPoints = new Hashtable<String, ICRLIssuingPoint>();
 
     private int mTransitMaxRecords = 1000000;
@@ -595,10 +592,6 @@ public class CertificateRepository extends Repository {
 
     public void setConsistencyCheck(boolean ConsistencyCheck) {
         mConsistencyCheck = ConsistencyCheck;
-    }
-
-    public void setSkipIfInConsistent(boolean SkipIfInconsistent) {
-        mSkipIfInconsistent = SkipIfInconsistent;
     }
 
     public void setTransitMaxRecords(int max) {

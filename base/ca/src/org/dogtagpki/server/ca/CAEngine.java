@@ -798,11 +798,6 @@ public class CAEngine extends CMSEngine implements ServletContextListener {
 
             certificateRepository.setConsistencyCheck(consistencyCheck);
 
-            boolean skipIfInconsistent = caConfig.getBoolean("SkipIfInConsistent", false);
-            logger.info("CAEngine: - skip if inconsistent: " + skipIfInconsistent);
-
-            certificateRepository.setSkipIfInConsistent(skipIfInconsistent);
-
             startSerialNumberUpdateTask();
 
             caService.init(caConfig.getSubStore("connector"));
