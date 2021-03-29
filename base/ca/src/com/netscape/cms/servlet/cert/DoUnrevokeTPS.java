@@ -20,8 +20,6 @@ package com.netscape.cms.servlet.cert;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -361,9 +359,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                 }
 
                 // let known update and publish status of all crls.
-                Enumeration<ICRLIssuingPoint> otherCRLs = Collections.enumeration(engine.getCRLIssuingPoints());
-                while (otherCRLs.hasMoreElements()) {
-                    ICRLIssuingPoint crl = otherCRLs.nextElement();
+                for (ICRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
                     String crlId = crl.getId();
 
                     if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))

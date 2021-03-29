@@ -459,11 +459,8 @@ public class CAAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         CAEngine engine = CAEngine.getInstance();
-        Enumeration<ICRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
 
-        while (ips.hasMoreElements()) {
-            ICRLIssuingPoint ip = ips.nextElement();
-
+        for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
             if (ip != null) {
                 String ipId = ip.getId();
 

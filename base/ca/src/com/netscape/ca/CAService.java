@@ -120,7 +120,6 @@ public class CAService implements ICAService, IService {
     private IConnector mKRAConnector = null;
     private IConfigStore mConfig = null;
     private boolean mArchivalRequired = true;
-    private Hashtable<String, ICRLIssuingPoint> mCRLIssuingPoints = new Hashtable<String, ICRLIssuingPoint>();
 
     public CAService(CertificateAuthority ca) {
         mCA = ca;
@@ -510,20 +509,6 @@ public class CAService implements ICAService, IService {
         }
 
         return completed;
-    }
-
-    /**
-     * register CRL Issuing Point
-     */
-    public void addCRLIssuingPoint(String id, ICRLIssuingPoint crlIssuingPoint) {
-        mCRLIssuingPoints.put(id, crlIssuingPoint);
-    }
-
-    /**
-     * get CRL Issuing Point
-     */
-    public Hashtable<String, ICRLIssuingPoint> getCRLIssuingPoints() {
-        return mCRLIssuingPoints;
     }
 
     /**
@@ -1094,11 +1079,8 @@ public class CAService implements ICAService, IService {
                     serialno.toString(16)));
 
             // inform all CRLIssuingPoints about revoked certificate
-            Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
 
-            while (eIPs.hasMoreElements()) {
-                ICRLIssuingPoint ip = eIPs.nextElement();
-
+            for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
                 if (ip != null) {
                     boolean b = true;
 
@@ -1186,11 +1168,8 @@ public class CAService implements ICAService, IService {
                 logger.info(CMS.getLogMessage("CMSCORE_CA_CERT_UNREVOKED", serialNo.toString(16)));
 
                 // inform all CRLIssuingPoints about unrevoked certificate
-                Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
 
-                while (eIPs.hasMoreElements()) {
-                    ICRLIssuingPoint ip = eIPs.nextElement();
-
+                for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
                     if (ip != null) {
                         boolean b = true;
 
@@ -2136,12 +2115,10 @@ class serviceCert4Crl implements IServant {
                 cr.addRevokedCertRecord(revokedCertRecs[i]);
                 //				mService.revokeCert(crlentries[i]);
                 recordedCerts[i] = revokedCertRecs[i];
-                // inform all CRLIssuingPoints about revoked certificate
-                Hashtable<String, ICRLIssuingPoint> hips = mService.getCRLIssuingPoints();
-                Enumeration<ICRLIssuingPoint> eIPs = hips.elements();
 
-                while (eIPs.hasMoreElements()) {
-                    ICRLIssuingPoint ip = eIPs.nextElement();
+                // inform all CRLIssuingPoints about revoked certificate
+
+                for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
                     // form RevokedCertImpl
                     RevokedCertImpl rci =
                             new RevokedCertImpl(revokedCertRecs[i].getSerialNumber(),
@@ -2204,13 +2181,10 @@ class serviceUnCert4Crl implements IServant {
         for (int i = 0; i < oldSerialNo.length; i++) {
             try {
                 cr.deleteCertificateRecord(oldSerialNo[i]);
+
                 // inform all CRLIssuingPoints about unrevoked certificate
-                Hashtable<String, ICRLIssuingPoint> hips = mService.getCRLIssuingPoints();
-                Enumeration<ICRLIssuingPoint> eIPs = hips.elements();
 
-                while (eIPs.hasMoreElements()) {
-                    ICRLIssuingPoint ip = eIPs.nextElement();
-
+                for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
                     if (ip != null) {
                         ip.addUnrevokedCert(oldSerialNo[i]);
                     }

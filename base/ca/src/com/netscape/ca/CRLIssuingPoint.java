@@ -526,7 +526,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mPublisherProcessor = engine.getPublisherProcessor();
 
         //mCRLPublisher = mCA.getCRLPublisher();
-        ((CAService) mCA.getCAService()).addCRLIssuingPoint(mId, this);
 
         // read in config parameters.
         initConfig(mConfigStore);

@@ -20,7 +20,6 @@ package com.netscape.cms.servlet.cert;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -664,9 +663,7 @@ public class CMCRevReqServlet extends CMSServlet {
                 }
                 if (mAuthority instanceof ICertificateAuthority) {
                     // let known update and publish status of all crls.
-                    Enumeration<ICRLIssuingPoint> otherCRLs = Collections.enumeration(engine.getCRLIssuingPoints());
-                    while (otherCRLs.hasMoreElements()) {
-                        ICRLIssuingPoint crl = otherCRLs.nextElement();
+                    for (ICRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
                         String crlId = crl.getId();
 
                         if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))

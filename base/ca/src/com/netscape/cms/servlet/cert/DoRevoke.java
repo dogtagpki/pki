@@ -23,7 +23,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -639,9 +638,7 @@ public class DoRevoke extends CMSServlet {
 
                 if (mAuthority instanceof ICertificateAuthority) {
                     // let known update and publish status of all crls.
-                    Enumeration<ICRLIssuingPoint> otherCRLs = Collections.enumeration(engine.getCRLIssuingPoints());
-                    while (otherCRLs.hasMoreElements()) {
-                        ICRLIssuingPoint crl = otherCRLs.nextElement();
+                    for (ICRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
                         String crlId = crl.getId();
 
                         if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))

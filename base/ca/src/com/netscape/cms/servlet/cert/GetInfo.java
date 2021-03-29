@@ -19,8 +19,6 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -261,10 +259,7 @@ public class GetInfo extends CMSServlet {
                 }
 
             } else {
-                Enumeration<ICRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
-                while (ips.hasMoreElements()) {
-                    ICRLIssuingPoint ip = ips.nextElement();
-
+                for (ICRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
                     if (ip.isCRLIssuingPointEnabled()) {
                         if (crlIssuingPoints.length() > 0)
                             crlIssuingPoints += "+";
